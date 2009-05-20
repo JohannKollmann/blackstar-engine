@@ -1,0 +1,47 @@
+#summary Dokumentation über das globale Nachichtensystem der Engine
+
+== Einleitung ==
+Das Nachichtensystem regelt die Kommunikation zwischen den verschiedenen Komponenten der Engine. Der größte Vorteil ist, dass man mit dem Messagesystem Nachichten senden kann, ohne den bzw. die Empfänger zu kennen. In der main Loop zum Beispiel wird in jedem Schleifendurchlauf eine UPDATE_PER_FRAME Message gesendet mit der Zeit seit dem letzten Frame als Parameter. Instanzen anderer Klassen könnten nun dem message System mitteilen, sie würden gerne UPDATE_PER_FRAME Nachichten empfangen. Ein weiteres simples Anwendungsbeispiel ist die Inputverwaltung. 
+
+
+== Details ==
+1. Grundidee
+Jede Klasse, deren Objekte Messages empfangen können sollen, muss von der abstrakten Basisklasse
+SGTMessageListener erben und über eine Methode void ReceiveMessage(SGTMsg &msg) verfügen. Gesendet werden Messages über die Methode SGTMessageSystem::SendMessage(SGTMsg &msg), die über die Singletoninstanz von SGTMessageSystem überall verfügbar ist. Messages gehören grundsätzlich einer Newsgroup an. Diese Newsgroup dient zum einen der Erkennung der Messages, zum anderen können MessageReceiver sich in SGTMessageSystem als Listener für bestimmte Newsgroups eintragen. Ein Sender muss den Empfänger der Nachicht also nicht zwingend kennen. Optional ist es auch möglich, die Message nur an einen ganz bestimmten Empfänger unabhängig von Newsgroups zu senden.
+
+2. Die Nachichtenklasse SGTMsg
+In dieser Struktur wird alles gespeichert - der Newsgroupname (Default: "COMMON"), der optionale Empfänger-Zeiger (Default: NULL) und die eigentlichen Daten. Diese werden mithilfe einer Instanz der Klasse SGTDataMap gespeichert, die intern eine Map aus Ogre::String und void Zeigern verwaltet. Es stehen komfortable selbsterklärende Methoden bereit, um die Map zu beschreiben oder auszulesen.
+
+
+== Nachichten ==
+
+*Allgemeine Form*:
+ * [Newsgroupname]
+  # Parametername1 (Typ)
+  # Parametername2 (Typ)
+  # ...
+
+*Allgemein*:
+
+ * UPDATE_PER_FRAME
+  # TIME (float)
+ * INGAME_CONSOLE
+  # COMMAND (Ogre::String)
+  # ...
+
+
+*Input*:
+
+ * KEY_DOWN
+  # KEY_ID (OIS::KeyCode)
+ * KEY_UP
+  # KEY_ID (OIS::KeyCode)
+ * MOUSE_DOWN
+  # MOUSE_ID (OIS::MouseButtonID)
+ * MOUSE_UP
+  # MOUSE_ID (OIS::MouseButtonID)
+ * MOUSE_MOVE
+  # ROT_X_ABS (int)
+  # ROT_X_REL (int)
+  # ROT_Y_ABS (int)
+  # ROT_Y_REL (int)
