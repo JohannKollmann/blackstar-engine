@@ -1,8 +1,0 @@
-#summary One-sentence summary of this page.
-
-= Introduction =
-
-PhysX Wrapper.
-
-
-= Details =
