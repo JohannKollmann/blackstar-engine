@@ -2,7 +2,7 @@
 //#include <windows.h>
 
 
-const float SGTGUISystem::m_fFactor=0.001f;
+const float SGTGUISystem::m_fFactor=0.01f;
 
 SGTGUISystem::SGTGUISystem(void)
 {
@@ -20,7 +20,7 @@ void SGTGUISystem::ReceiveMessage(SGTMsg &msg)
 	if (msg.mNewsgroup == "MOUSE_MOVE")
 	{
 		m_fXPos+=msg.mData.GetInt("ROT_X_REL")*m_fFactor;
-		m_fYPos+=msg.mData.GetInt("ROT_X_REL")*m_fFactor;
+		m_fYPos-=msg.mData.GetInt("ROT_Y_REL")*m_fFactor;
 		//MessageBox(0, "", "", 0);
 		if(m_fXPos>1.0)
 			m_fXPos=1.0;
@@ -30,6 +30,7 @@ void SGTGUISystem::ReceiveMessage(SGTMsg &msg)
 			m_fYPos=1.0;
 		if(m_fYPos<0.0)
 			m_fYPos=0.0;
+		SGTMain::Instance().GetOgreSceneMgr()->getSceneNode("mySceneNode")->setPosition(m_fXPos, m_fYPos, 0);
 	}
 	if(msg.mNewsgroup == "UPDATE_PER_FRAME" && !m_bMeshInitialized)
 	{
@@ -48,27 +49,27 @@ void SGTGUISystem::ReceiveMessage(SGTMsg &msg)
 		decl->getVertexSize(0), 4, Ogre::HardwareBuffer::HBU_STATIC_WRITE_ONLY);
 
 		float* afVertexData=(float*)vbuf->lock(Ogre::HardwareBuffer::HBL_DISCARD);
-		afVertexData[0]=-10.0f;
-		afVertexData[1]=-10.0f;
-		afVertexData[2]=0.0f;
+		afVertexData[0]=-1.0f;
+		afVertexData[1]=-1.0f;
+		afVertexData[2]=-3.0f;
 		afVertexData[3]=0.0f;
 		afVertexData[4]=0.0f;
 
-		afVertexData[5]=10.0f;
-		afVertexData[6]=-10.0f;
-		afVertexData[7]=0.0f;
+		afVertexData[5]=1.0f;
+		afVertexData[6]=-1.0f;
+		afVertexData[7]=-3.0f;
 		afVertexData[8]=1.0f;
 		afVertexData[9]=0.0f;
 
-		afVertexData[10]=10.0f;
-		afVertexData[11]=10.0f;
-		afVertexData[12]=0.0f;
+		afVertexData[10]=1.0f;
+		afVertexData[11]=1.0f;
+		afVertexData[12]=-3.0f;
 		afVertexData[13]=1.0f;
 		afVertexData[14]=1.0f;
 
-		afVertexData[15]=-10.0f;
-		afVertexData[16]=10.0f;
-		afVertexData[17]=0.0f;
+		afVertexData[15]=-1.0f;
+		afVertexData[16]=1.0f;
+		afVertexData[17]=-3.0f;
 		afVertexData[18]=0.0f;
 		afVertexData[19]=1.0f;
 		vbuf->unlock();
@@ -108,7 +109,7 @@ void SGTGUISystem::ReceiveMessage(SGTMsg &msg)
 
 
 		meshptr.get()->load();
-		Ogre::SceneNode* myNode = SGTMain::Instance().GetOgreSceneMgr()->getRootSceneNode()->createChildSceneNode();
+		Ogre::SceneNode* myNode = SGTMain::Instance().GetOgreSceneMgr()->getRootSceneNode()->createChildSceneNode("mySceneNode");
 		myNode->setPosition(0, 0, 0);
 		myNode->attachObject(SGTMain::Instance().GetOgreSceneMgr()->createEntity("bleh", "myCanvas"));
 		m_bMeshInitialized=true;
