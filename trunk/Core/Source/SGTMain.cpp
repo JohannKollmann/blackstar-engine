@@ -13,6 +13,7 @@
 #include "HDRListener.h"
 #include "SGTWeatherController.h"
 #include "SGTCollisionCallback.h"
+#include "..\GUISystem.h"
 
 SGTMain::SGTMain()
 {
@@ -131,6 +132,7 @@ void SGTMain::initScene()
 	mScene->createActor("FakeFloor", new NxOgre::Cube(500,0.1f,500), Ogre::Vector3(0,-500,0), "static: yes");
 
 	mCameraController = new SGTCameraController();
+	new SGTGUISystem();
 
 	mSoundManager = new OgreOggSound::OgreOggSoundManager();
 	mSoundManager->init("");
