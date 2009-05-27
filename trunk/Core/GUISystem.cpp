@@ -1,5 +1,6 @@
 #include "GUISystem.h"
 //#include <windows.h>
+#include <limits>
 
 
 const float SGTGUISystem::m_fFactor=0.01f;
@@ -30,7 +31,8 @@ void SGTGUISystem::ReceiveMessage(SGTMsg &msg)
 			m_fYPos=1.0;
 		if(m_fYPos<0.0)
 			m_fYPos=0.0;
-		SGTMain::Instance().GetOgreSceneMgr()->getSceneNode("mySceneNode")->setPosition(m_fXPos, m_fYPos, 0);
+		//SGTMain::Instance().GetOgreSceneMgr()->getSceneNode("mySceneNode")->setPosition(m_fXPos, m_fYPos, 0);
+		SGTMain::Instance().GetOgreSceneMgr()->getEntity("bleh")->getSubEntity(0)->setCustomParameter(0, Ogre::Vector4(m_fXPos, m_fYPos, 0, 0));
 	}
 	if(msg.mNewsgroup == "UPDATE_PER_FRAME" && !m_bMeshInitialized)
 	{
@@ -92,7 +94,7 @@ void SGTGUISystem::ReceiveMessage(SGTMsg &msg)
 		meshptr.get()->getSubMesh("1")->indexData->indexCount = 6;
 		meshptr.get()->getSubMesh("1")->indexData->indexStart = 0;
 		
-		Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().create("myMaterial", "General", true);
+		/*Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().create("myMaterial", "General", true);
 		mat->getTechnique(0)->getPass(0)->createTextureUnitState();
 		mat->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(0, 255, 0, 255));
 		
@@ -101,12 +103,13 @@ void SGTGUISystem::ReceiveMessage(SGTMsg &msg)
 		mat->setDepthCheckEnabled(false);
 		mat->getTechnique(0)->getPass(0)->setCullingMode(Ogre::CULL_NONE);
 		//mat->getTechnique(0)->getPass(0)->setSceneBlending(Ogre::SBT_TRANSPARENT_ALPHA);
-		mat->load();
+		mat->load();*/
 
-		meshptr.get()->getSubMesh("1")->setMaterialName("myMaterial");
-		meshptr.get()->_setBounds(Ogre::AxisAlignedBox(-10,-10,-1,10,10,1));
-		meshptr.get()->_setBoundingSphereRadius(15);
-
+		meshptr.get()->getSubMesh("1")->setMaterialName("gui/test");//"myMaterial");
+		float fInf=1000000000.0f;
+		meshptr.get()->_setBounds(Ogre::AxisAlignedBox(-fInf,-fInf,-fInf,fInf,fInf,fInf));
+		meshptr.get()->_setBoundingSphereRadius(fInf);
+		
 
 		meshptr.get()->load();
 		Ogre::SceneNode* myNode = SGTMain::Instance().GetOgreSceneMgr()->getRootSceneNode()->createChildSceneNode("mySceneNode");
