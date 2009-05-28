@@ -14,6 +14,7 @@
 #include "SGTWeatherController.h"
 #include "SGTCollisionCallback.h"
 #include "..\GUISystem.h"
+#include "SSAOListener.h"
 
 SGTMain::SGTMain()
 {
@@ -132,7 +133,7 @@ void SGTMain::initScene()
 	mScene->createActor("FakeFloor", new NxOgre::Cube(500,0.1f,500), Ogre::Vector3(0,-500,0), "static: yes");
 
 	mCameraController = new SGTCameraController();
-	new SGTGUISystem();
+	//new SGTGUISystem();
 
 	mSoundManager = new OgreOggSound::OgreOggSoundManager();
 	mSoundManager->init("");
@@ -162,18 +163,18 @@ void SGTMain::initScene()
 		}
 	}
 
-
-	SGTCompositorLoader::Instance().EnableCompositor("Bloom2");
-	/*HDRListener *hdrListener = new HDRListener(); 
+	/*SSAOListener *ssaoParamUpdater = new SSAOListener();
+	SGTCompositorLoader::Instance().AddListener("ssao", ssaoParamUpdater);
+	SGTCompositorLoader::Instance().EnableCompositor("ssao");*/
+	//SGTCompositorLoader::Instance().EnableCompositor("Bloom2");
+	HDRListener *hdrListener = new HDRListener(); 
 	Ogre::CompositorInstance* hdrinstance = SGTCompositorLoader::Instance().AddListener("HDR", hdrListener);
 	hdrListener->notifyViewportSize(mViewport->getActualWidth(), mViewport->getActualHeight());
 	hdrListener->notifyCompositor(hdrinstance);
-	SGTCompositorLoader::Instance().EnableCompositor("HDR");*/
+	SGTCompositorLoader::Instance().EnableCompositor("HDR");
 
 
 	SGTSceneManager::Instance().Init();
-
-	//new SGTOcean();
 
 	mCollisionCallback = new SGTCollisionCallback();
 	/*NxOgre::ActorGroup *dynamicbodies = mScene->createActorGroup("DynamicBody");
@@ -195,6 +196,8 @@ void SGTMain::initScene()
 	mSceneMgr->setShadowTextureConfig(7, 1024, 1024, Ogre::PF_FLOAT32_R);
 	mSceneMgr->setShadowTextureSelfShadow(true);
 	mSceneMgr->setShadowTextureCasterMaterial("shadow_caster");
+	
+	0/0;
 
 	mSceneMgr->setShadowCasterRenderBackFaces(false);
 
@@ -203,8 +206,8 @@ void SGTMain::initScene()
 	mSpotShadowCameraSetup = Ogre::ShadowCameraSetupPtr(spotSetup);
 
 	Ogre::PSSMShadowCameraSetup* pssmSetup = new Ogre::PSSMShadowCameraSetup();
-	pssmSetup->calculateSplitPoints(3, mCamera->getNearClipDistance(), 1000, 0.95);
-	pssmSetup->setSplitPadding(10);
+	pssmSetup->calculateSplitPoints(3, mCamera->getNearClipDistance(), 1500, 0.95);
+	pssmSetup->setSplitPadding(4);
 	pssmSetup->setOptimalAdjustFactor(0, 5);
 	pssmSetup->setOptimalAdjustFactor(1, 1);
 	pssmSetup->setOptimalAdjustFactor(2, 0.5);

@@ -14,7 +14,7 @@ SGTObjectLevelRayCaster::SGTObjectLevelRayCaster(Ogre::Ray ray)
 
 }
 
-SGTGameObject* SGTObjectLevelRayCaster::GetFirstHit()
+SGTGameObject* SGTObjectLevelRayCaster::GetFirstHit(bool include_all)
 {
 	mResultsIterator = mResults.begin();
 	if (mResultsIterator != mResults.end())
@@ -23,16 +23,19 @@ SGTGameObject* SGTObjectLevelRayCaster::GetFirstHit()
 		if ((*mResultsIterator).movable->getMovableType() == "Entity")
 		{
 			SGTGameObject *object = (SGTGameObject*)((*mResultsIterator).movable->getUserObject());//SGTSceneManager::Instance().FindObjectByInternName((*mResultsIterator).movable->getParentNode()->getName());//(SGTObject3D*)((*mResultsIterator).movable->getUserObject());
-			if (object != 0) return object;
-			else return GetNextHit();
+			if (object)
+			{
+				if (include_all || object->IsSelectable()) return object;
+			}
+			else return GetNextHit(include_all);
 		}
-		else return GetNextHit();
+		else return GetNextHit(include_all);
 	}
 	//Ogre::LogManager::getSingleton().logMessage("Warning: SGTObjectLevelRayCaster::GetFirstHit() - return NULL");
 	return NULL;
 }
 
-SGTGameObject* SGTObjectLevelRayCaster::GetNextHit()
+SGTGameObject* SGTObjectLevelRayCaster::GetNextHit(bool include_all)
 {
 	mResultsIterator++;
 	if (mResultsIterator != mResults.end())
@@ -41,10 +44,13 @@ SGTGameObject* SGTObjectLevelRayCaster::GetNextHit()
 		if ((*mResultsIterator).movable->getMovableType() == "Entity")
 		{
 			SGTGameObject *object = (SGTGameObject*)((*mResultsIterator).movable->getUserObject());//SGTSceneManager::Instance().FindEntityByInternName((*mResultsIterator).movable->getParentNode()->getName());//(SGTObject3D*)((*mResultsIterator).movable->getUserObject());
-			if (object != 0) return object;
-			else return GetNextHit();
+			if (object)
+			{
+				if (include_all || object->IsSelectable()) return object;
+			}
+			else return GetNextHit(include_all);
 		}
-		else return GetNextHit();
+		else return GetNextHit(include_all);
 	}
 	//Ogre::LogManager::getSingleton().logMessage("Warning: SGTObjectLevelRayCaster::GetNextHit() - return NULL");
 	return NULL;

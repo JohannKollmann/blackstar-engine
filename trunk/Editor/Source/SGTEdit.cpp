@@ -677,7 +677,7 @@ void SGTEdit::OnSelectMaterial(float MouseX, float MouseY)
 
 	Ogre::Ray ray = SGTMain::Instance().GetCamera()->getCameraToViewportRay(MouseX, MouseY);
 	SGTObjectLevelRayCaster rc(ray);
-	SGTGameObject *object = rc.GetFirstHit();
+	SGTGameObject *object = rc.GetFirstHit(true);
 	if (object)
 	{
 		SGTGOCNodeRenderable *visuals = (SGTGOCViewContainer*)object->GetComponent("GOCView");

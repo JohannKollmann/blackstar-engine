@@ -2,6 +2,7 @@
 #include "../Header/wxMainMenu.h"
 #include "SGTGamestate.h"
 #include "SGTCameraController.h"
+#include "SGTDotSceneLoader.h"
 
 enum
 {
@@ -46,7 +47,7 @@ wxMainMenu::wxMainMenu()
 	mFileMenu->Append(wxMainMenu_loadWorld, _T("Load World"));
 	mFileMenu->Append(wxMainMenu_saveWorld, "Save World");
 	mFileMenu->AppendSeparator();
-	mFileMenu->Append(wxMainMenu_loadMesh, "Load Ogre .Mesh File");
+	mFileMenu->Append(wxMainMenu_loadMesh, "Import world");
 	mFileMenu->AppendSeparator();
 	mFileMenu->Append(wxMainMenu_exit, "Exit");
 
@@ -142,10 +143,10 @@ void wxMainMenu::OnLoadMesh(wxCommandEvent& WXUNUSED(event))
     wxFileDialog dialog
                  (
                     mEdit,
-                    "Load Mesh",
+                    "Import World",
                     wxEmptyString,
                     wxEmptyString,
-                    "Ogre binary Mesh files (*.mesh)|*.mesh"
+                    "Mesh and scene files (*.mesh;*.scene)|*.mesh;*.scene"
                  );
 
     dialog.CentreOnParent();
@@ -153,10 +154,12 @@ void wxMainMenu::OnLoadMesh(wxCommandEvent& WXUNUSED(event))
 
     if (dialog.ShowModal() == wxID_OK)
     {
-		Ogre::String sMesh = dialog.GetFilename().c_str();
-		wxEdit::Instance().GetProgressBar()->SetStatusMessage("Loading mesh...");
+		Ogre::String sFile = dialog.GetFilename().c_str();
+		wxEdit::Instance().GetProgressBar()->SetStatusMessage("Importing world...");
 		wxEdit::Instance().GetProgressBar()->SetProgress(0.1);
-		SGTSceneManager::Instance().LoadLevelMesh(sMesh);
+		Ogre::String extension = sFile.substr(sFile.find("."), sFile.size());
+		if (extension == ".mesh") SGTSceneManager::Instance().LoadLevelMesh(sFile);
+		else SGTDotSceneLoader::Instance().ImportScene(sFile);
 
 		wxEdit::Instance().GetpropertyWindow()->SetPage("None");
 		SGTMain::Instance().GetCamera()->setPosition(Ogre::Vector3(0,0,0));

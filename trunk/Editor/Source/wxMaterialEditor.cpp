@@ -107,7 +107,9 @@ void wxMaterialEditor::OnApply()
 				{
 					wxPGProperty* p = *it;
 					if (p->IsCategory()) continue;
-					Ogre::String newline = Ogre::String("\tset $") + Ogre::String(p->GetName().c_str()) + " " + Ogre::String(p->GetValue().GetString().c_str());
+					Ogre::String oValue = p->GetValue().GetString().c_str();
+					if (oValue == "") oValue = "0";
+					Ogre::String newline = Ogre::String("\tset $") + Ogre::String(p->GetName().c_str()) + " " + oValue;
 					newfile.push_back(newline);
 				}
 				newfile.push_back("}");
@@ -220,7 +222,8 @@ void wxMaterialEditor::SetMaterialTemplate(Ogre::String Name, Ogre::String File)
 							if (!addstop)
 							{
 								added.push_back(prop);
-								mPropGrid->Append( new wxStringProperty(wxT(prop.c_str()), wxT(prop.c_str())) );
+								if (line.find(" float ") != Ogre::String::npos) mPropGrid->Append( new wxFloatProperty(wxT(prop.c_str()), wxT(prop.c_str())));
+								else mPropGrid->Append( new wxStringProperty(wxT(prop.c_str()), wxT(prop.c_str())) );
 							}
 
 							start = false;
@@ -244,7 +247,8 @@ void wxMaterialEditor::SetMaterialTemplate(Ogre::String Name, Ogre::String File)
 					if (!addstop)
 					{
 						added.push_back(prop);
-						mPropGrid->Append( new wxStringProperty(wxT(prop.c_str()), wxT(prop.c_str())) );
+						if (line.find(" float ") != Ogre::String::npos) mPropGrid->Append( new wxFloatProperty(wxT(prop.c_str()), wxT(prop.c_str())));
+						else mPropGrid->Append( new wxStringProperty(wxT(prop.c_str()), wxT(prop.c_str())) );
 					}
 				}
 			}

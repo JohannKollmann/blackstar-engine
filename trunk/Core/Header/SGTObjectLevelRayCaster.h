@@ -17,8 +17,8 @@ public:
 
 	bool IsEmpty();
 	bool HasMoreHits();
-	SGTGameObject* GetFirstHit();
-	SGTGameObject* GetNextHit();
+	SGTGameObject* GetFirstHit(bool include_all = false);
+	SGTGameObject* GetNextHit(bool include_all = false);
 };
 
 #endif

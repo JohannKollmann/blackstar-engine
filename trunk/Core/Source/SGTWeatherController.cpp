@@ -40,7 +40,10 @@ SGTWeatherController::SGTWeatherController(void)
 	mCaelumSystem->getSun ()->setDiffuseMultiplier (Ogre::ColourValue (1.5, 1.5, 1.3));
 	mCaelumSystem->getSun ()->setSpecularMultiplier (Ogre::ColourValue (1, 1, 1));
 
-	//mCaelumSystem->setEnsureSingleShadowSource(true);
+	/*mCaelumSystem->setEnsureSingleShadowSource(true);
+	mCaelumSystem->getMoon()->setDiffuseMultiplier(Ogre::ColourValue (1, 1, 1));
+	mCaelumSystem->getMoon()->setSpecularMultiplier(Ogre::ColourValue (1, 1, 1));
+	mCaelumSystem->getMoon()->setPhase(1.0f);*/
 	mCaelumSystem->getMoon()->getMainLight()->setCastShadows(false);
 	  //mCaelumSystem->getSun()->getMainLight()->setCastShadows(false);
 

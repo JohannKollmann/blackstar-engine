@@ -14,10 +14,10 @@ SGTLevelMesh::SGTLevelMesh(Ogre::String mesh)
 	Ogre::Entity *ent = SGTMain::Instance().GetOgreSceneMgr()->createEntity("LevelMesh-entity", mesh);
 	ent->setCastShadows(true);
     unsigned short src, dest;
-	ent->getMesh()->suggestTangentVectorBuildParams(Ogre::VES_TANGENT, src, dest);
-	ent->getMesh()->buildTangentVectors(Ogre::VES_TANGENT, src, dest, true, true, true);
-		// Second mode cleans mirrored / rotated UVs but requires quality models
-		//pMesh->buildTangentVectors(VES_TANGENT, src, dest, true, true);
+	if (!ent->getMesh()->suggestTangentVectorBuildParams(Ogre::VES_TANGENT, src, dest))
+		ent->getMesh()->buildTangentVectors(Ogre::VES_TANGENT, src, dest, true, true, true);
+	// Second mode cleans mirrored / rotated UVs but requires quality models
+	//pMesh->buildTangentVectors(VES_TANGENT, src, dest, true, true);
 	node->attachObject(ent);
 	node->scale(1.0,1.0,1.0);
 	//nrp.mGraphicsModel = mesh;

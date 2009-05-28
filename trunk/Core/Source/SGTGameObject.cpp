@@ -3,6 +3,7 @@
 
 SGTGameObject::SGTGameObject(SGTGameObject *parent)
 {
+	mSelectable = true;
 	mParent = parent;
 	mName = "GameObject_" + Ogre::StringConverter::toString(SGTSceneManager::Instance().RequestID());
 	SGTSceneManager::Instance().mGameObjects.push_back(this);
@@ -249,8 +250,9 @@ void SGTGameObject::Save(SGTSaveSystem& mgr)
 	mgr.SaveAtom("Ogre::Vector3", (void*)(&mPosition), "Position");
 	mgr.SaveAtom("Ogre::Quaternion", (void*)(&mOrientation), "Orientation");
 	mgr.SaveAtom("Ogre::Vector3", (void*)(&mScale), "Scale");
+	mgr.SaveAtom("bool", (void*)&mSelectable, "Selectable");
 	mgr.SaveAtom("std::list<SGTSaveable*>", (void*)(&mComponents), "mComponents");
-	mgr.SaveAtom("std::list<SGTSaveable*>", (void*)(&mChildren), "mComponents");
+	mgr.SaveAtom("std::list<SGTSaveable*>", (void*)(&mChildren), "mChildren");
 }
 
 void SGTGameObject::Load(SGTLoadSystem& mgr)
@@ -259,6 +261,7 @@ void SGTGameObject::Load(SGTLoadSystem& mgr)
 	mgr.LoadAtom("Ogre::Vector3", &mPosition);
 	mgr.LoadAtom("Ogre::Quaternion", &mOrientation);
 	mgr.LoadAtom("Ogre::Vector3", &mScale);
+	mgr.LoadAtom("bool", &mSelectable);
 	mgr.LoadAtom("std::list<SGTSaveable*>", (void*)(&mComponents));
 	for (std::list<SGTGOComponent*>::iterator i = mComponents.begin(); i != mComponents.end(); i++)
 	{

@@ -114,6 +114,10 @@ private:
 
 	Ogre::MaterialPtr mSelectedMaterial;
 
+	std::vector<Ogre::String> mAddedMeshes;
+
+	bool AddEntity(Ogre::Entity *entity);
+
 protected:
 	/** This method can be used in the method OnAssignIcons. It returns a pointer to a newly created bitmap
 	    holding the default icon image for a root node. NOTE: When this bitmap is assigned to the icon list,

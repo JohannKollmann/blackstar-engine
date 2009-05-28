@@ -21,6 +21,8 @@ private:
 	//Name
 	Ogre::String mName;
 
+	bool mSelectable;
+
 	//Global and local transform
 	Ogre::Vector3 mPosition;
 	Ogre::Quaternion mOrientation;
@@ -68,6 +70,9 @@ public:
 	void Translate(Ogre::Vector3 vec) { SetGlobalPosition(mPosition + vec); }
 	void Rotate(Ogre::Vector3 axis, Ogre::Radian angle) { Ogre::Quaternion q; q.FromAngleAxis(angle, axis); SetGlobalOrientation(mOrientation * q); }
 	void Rescale(Ogre::Vector3 scaleoffset) { SetGlobalScale(mScale + scaleoffset); }
+
+	bool IsSelectable() { return mSelectable; }
+	void SetSelectable(bool selectable) { mSelectable = selectable; }
 
 	//Editor stuff
 	void Freeze(bool freeze);

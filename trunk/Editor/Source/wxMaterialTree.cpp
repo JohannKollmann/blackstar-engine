@@ -9,6 +9,9 @@
 
 #include "wxMaterialEditor.h"
 
+#include "SGTGOCView.h"
+
+
 BEGIN_EVENT_TABLE(wxMaterialTree, wxTreeCtrl)
 	EVT_TREE_ITEM_MENU(-1, wxMaterialTree::OnItemMenu)
 	EVT_MENU(wxID_ANY, wxMaterialTree::OnMenuEvent)
@@ -34,11 +37,31 @@ wxMaterialTree::~wxMaterialTree()
 
 }
 
+bool wxMaterialTree::AddEntity(Ogre::Entity *entity)
+{
+	for (std::vector<Ogre::String>::iterator i = mAddedMeshes.begin(); i < mAddedMeshes.end(); i++)
+	{
+		if (entity->getMesh()->getName() == (*i)) return false;
+	}
+	mAddedMeshes.push_back(entity->getMesh()->getName());
+	OgreMaterialTreeItemBase *item = OnCreateTreeFolder(entity->getMesh()->getName());
+	AppendItem(mStart->GetId(), item->GetCaption(), item->GetIconId(), item->GetSelectedIconId(), item);
+	for (unsigned short x = 0; x < entity->getNumSubEntities(); x++)
+	{
+		Ogre::SubEntity *subent = entity->getSubEntity(x);
+		OgreMaterialTreeItemBase *material = OnCreateTreeMaterial(subent->getMaterial());
+		AppendItem(item->GetId(), material->GetCaption(), material->GetIconId(), material->GetSelectedIconId(), material);
+	}
+	return true;
+}
+
 void wxMaterialTree::Update()
 {
 	// delete all items plus root first
 	DeleteAllItems();
 	OgreMaterialTreeItemBase *start = 0;
+
+	mAddedMeshes.clear();
 
 	// now call for icons management, the virtual
 	// handler so the derived class can assign icons
@@ -66,18 +89,26 @@ void wxMaterialTree::Update()
 		if (SGTSceneManager::Instance().HasLevelMesh())
 		{
 			Ogre::Entity *ent = SGTMain::Instance().GetOgreSceneMgr()->getEntity("LevelMesh-entity");	
-			OgreMaterialTreeItemBase *item = OnCreateTreeFolder(ent->getMesh()->getName());
-			AppendItem(start->GetId(), item->GetCaption(), item->GetIconId(), item->GetSelectedIconId(), item);
-			for (unsigned short x = 0; x < ent->getNumSubEntities(); x++)
-			{
-				Ogre::SubEntity *subent = ent->getSubEntity(x);
-				OgreMaterialTreeItemBase *material = OnCreateTreeMaterial(subent->getMaterial());
-				AppendItem(item->GetId(), material->GetCaption(), material->GetIconId(), material->GetSelectedIconId(), material);
-			}
-			added.push_back(ent->getMesh()->getName());
+			AddEntity(ent);
 		}
 
-		std::vector<Ogre::String> other_materials_added;;
+		std::vector<Ogre::String> other_materials_added;
+
+		for (std::list<SGTGameObject*>::iterator i = SGTSceneManager::Instance().mGameObjects.begin(); i != SGTSceneManager::Instance().mGameObjects.end(); i++)
+		{
+			SGTGOCNodeRenderable *visuals = (SGTGOCNodeRenderable*)(*i)->GetComponent("GOCView");
+			if (visuals != 0)
+			{
+				if (visuals->GetComponentID() == "GOCViewContainer")
+				{
+					SGTMeshRenderable *gocmesh = (SGTMeshRenderable*)((SGTGOCViewContainer*)visuals)->GetItem("MeshRenderable");
+					if (gocmesh != 0)
+					{
+						AddEntity((Ogre::Entity*)gocmesh->GetEditorVisual());
+					}
+				}
+			}
+		}
 
 		/*for (std::map<Ogre::String, std::list<SGTGameObject*> >::iterator i = SGTSceneManager::Instance().mEntities.begin(); i != SGTSceneManager::Instance().mEntities.end(); i++)
 		{
