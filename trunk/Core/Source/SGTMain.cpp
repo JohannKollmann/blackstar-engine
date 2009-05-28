@@ -196,8 +196,6 @@ void SGTMain::initScene()
 	mSceneMgr->setShadowTextureConfig(7, 1024, 1024, Ogre::PF_FLOAT32_R);
 	mSceneMgr->setShadowTextureSelfShadow(true);
 	mSceneMgr->setShadowTextureCasterMaterial("shadow_caster");
-	
-	0/0;
 
 	mSceneMgr->setShadowCasterRenderBackFaces(false);
 
