@@ -257,7 +257,7 @@ void wxEditSGTGameObject::OnApply()
 						mGameObject->RemoveComponent(container->GetFamilyID());
 						mGameObject->AddComponent(container);
 					}
-					container->AddItem((SGTGOCViewComponentEDT*)editor_interface);
+					container->AddItem((SGTGOCViewComponent*)editor_interface);
 				}
 				else
 				{
@@ -313,9 +313,9 @@ void wxEditSGTGameObject::SetObject(SGTGameObject *object, bool update_ui)
 				{
 					SGTDataMap data;
 					editor_interface->GetParameters(&data);
-					AddGOCSection((*x)->TellName().c_str(), data);
+					AddGOCSection((*x)->GetTypeName().c_str(), data);
 					ComponentSection cs;
-					cs.mSectionName = (*x)->TellName().c_str();
+					cs.mSectionName = (*x)->GetTypeName().c_str();
 					sections.push_back(cs);
 				}
 			}

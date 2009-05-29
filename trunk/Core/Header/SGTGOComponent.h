@@ -44,10 +44,10 @@ public:
 	virtual void ShowEditorVisual(bool show) { mRenderEditorVisuals = show; };
 
 	//Load / Save
-	std::string& TellName()
+	/*virtual std::string& TellName()
 	{
 		return GetComponentID();
 	};
 	virtual void Save(SGTSaveSystem& mgr) {};
-	virtual void Load(SGTLoadSystem& mgr) {};
+	virtual void Load(SGTLoadSystem& mgr) {};*/
 };

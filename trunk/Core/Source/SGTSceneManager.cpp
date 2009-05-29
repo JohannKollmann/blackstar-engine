@@ -32,6 +32,11 @@ unsigned int SGTSceneManager::RequestID()
 	return (mNextID-1);
 }
 
+Ogre::String SGTSceneManager::RequestIDStr()
+{
+	return Ogre::StringConverter::toString(RequestID());
+}
+
 void SGTSceneManager::UpdateGameObjects()
 {
 	for (std::list<SGTGameObject*>::iterator i = mGameObjects.begin(); i != mGameObjects.end(); i++)
@@ -123,6 +128,7 @@ void SGTSceneManager::Init()
 	SGTLoadSave::Instance().RegisterObject(&SGTGOCRigidBody::Register);
 	SGTLoadSave::Instance().RegisterObject(&SGTGOCStaticBody::Register);
 	SGTLoadSave::Instance().RegisterObject(&SGTRagdoll::Register);
+	SGTLoadSave::Instance().RegisterObject(&SGTGOCViewContainer::Register);
 	RegisterEditorInterface("View", "MeshRenderable", (EDTCreatorFn)&SGTMeshRenderable::NewInstance, SGTMeshRenderable::GetDefaultParameters);
 	RegisterEditorInterface("View", "ParticleSystem", (EDTCreatorFn)&SGTPfxRenderable::NewInstance, SGTPfxRenderable::GetDefaultParameters);
 	RegisterEditorInterface("View", "LocalLight", (EDTCreatorFn)&SGTLocalLightRenderable::NewInstance, SGTLocalLightRenderable::GetDefaultParameters);

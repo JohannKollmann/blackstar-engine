@@ -22,4 +22,6 @@ public:
 	std::string& TellName() { static std::string name = "AI"; return name; };
 	static void Register(std::string* pstrName, SGTSaveableInstanceFn* pFn) { *pstrName = "AI"; *pFn = (SGTSaveableInstanceFn)&NewInstance; };
 	static SGTGOCAI* NewInstance() { return new SGTGOCAI; };
+	virtual void Save(SGTSaveSystem& mgr) {};
+	virtual void Load(SGTLoadSystem& mgr) {};
 };

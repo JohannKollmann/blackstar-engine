@@ -31,6 +31,12 @@ public:
 	goc_id_type& GetComponentID() const { static std::string name = "GOCAxisObject"; return name; } 
 	goc_id_family& GetFamilyID() const { static std::string name = "GOCAxisObject"; return name; } 
 	void SetOwner(SGTGameObject *go);
+
+	void Save(SGTSaveSystem& mgr) {};
+	void Load(SGTLoadSystem& mgr) {};
+	virtual std::string& TellName() { static std::string name = "AxisObject"; return name; };
+	static void Register(std::string* pstrName, SGTSaveableInstanceFn* pFn) { *pstrName = "AxisObject"; *pFn = (SGTSaveableInstanceFn)&NewInstance; };
+	static AxisComponent* NewInstance() { return new AxisComponent; };
 };
 
 #endif //--_AXIS_OBJECT_H_

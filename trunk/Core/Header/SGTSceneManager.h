@@ -47,6 +47,7 @@ public:
 	Liefert eine neue, individuelle ID zurück.
 	*/
 	unsigned int RequestID();
+	Ogre::String RequestIDStr();
 
 	SGTWeatherController* GetWeatherController();
 

@@ -72,7 +72,7 @@ SGTGOCViewComponent* SGTGOCViewContainer::GetItem(Ogre::String type)
 {
 	for (std::list<SGTGOCViewComponent*>::iterator i = mItems.begin(); i != mItems.end(); i++)
 	{
-		if (Ogre::String((*i)->TellName().c_str()) == type)
+		if (Ogre::String((*i)->GetTypeName().c_str()) == type)
 		{
 			return (*i);
 		}

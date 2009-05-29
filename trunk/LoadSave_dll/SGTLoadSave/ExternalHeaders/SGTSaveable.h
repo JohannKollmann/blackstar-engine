@@ -15,7 +15,7 @@ typedef void (*SGTSaveableRegisterFn)(std::string*, SGTSaveableInstanceFn*);
 class SGTSaveable
 {
 public:
-	virtual ~SGTSaveable() {};
+	//virtual ~SGTSaveable() {};
 	virtual void Save(SGTSaveSystem& myManager) = 0;//the central function
 	virtual void Load(SGTLoadSystem& mgr) = 0;
 	static SGTSaveable* NewInstance();//overload this one

@@ -25,4 +25,5 @@ public:
 	void Load(SGTLoadSystem& mgr);
 	static void Register(std::string* pstrName, SGTSaveableInstanceFn* pFn) { *pstrName = "GOCItem"; *pFn = (SGTSaveableInstanceFn)&NewInstance; }
 	static SGTGOCItem* NewInstance() { return new SGTGOCItem; }
+	std::string& TellName() { static std::string name = "GOCItem"; return name; };
 };
