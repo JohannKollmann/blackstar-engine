@@ -119,10 +119,19 @@ void SGTMain::initScene()
 	mNxWorld = new NxOgre::World(pp);//"time-controller: ogre");
 	Ogre::LogManager::getSingleton().logMessage("Initialising NxOgre...");
 	NxOgre::SceneParams sp;
-	//sp.setToDefault();
-	//sp.mRenderer = NxOgre::SceneParams::RN_OGRE;
-	mScene = mNxWorld->createScene("Esgaroth", mSceneMgr, "renderer: ogre, controller: accumulator, gravity: yes");
+	sp.setToDefault();
+	sp.mRenderer = NxOgre::SceneParams::RN_OGRE;
+	sp.mController = NxOgre::SceneParams::CN_ACCUMULATOR;
+	sp.mGravity = NxVec3(0, -9.81, 0);
+	//sp.mThreadMask = 0xffffffff;
+	//sp.mInternalThreadCount = 3;
+	sp.mSceneFlags.toDefault();
+	sp.mSceneFlags.mEnableMultithread = true;
+	sp.mSceneFlags.mSimulateSeperateThread = true;
+	mScene = mNxWorld->createScene("Esgaroth", mSceneMgr, sp);//"renderer: ogre, controller: accumulator, gravity: yes, flags: multithread");
+#if _DEBUG
 	mNxWorld->getPhysXDriver()->createDebuggerConnection();
+#endif
 	Ogre::LogManager::getSingleton().logMessage("Done");
 
 	mScene->createShapeGroup("Collidable");

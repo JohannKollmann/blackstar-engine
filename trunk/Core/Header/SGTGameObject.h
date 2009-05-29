@@ -18,6 +18,9 @@ private:
 	//Type identifier
 	go_id_type mGOID;
 
+	//Unique ID
+	int mID;
+
 	//Name
 	Ogre::String mName;
 
@@ -48,6 +51,8 @@ public:
 	~SGTGameObject();
 
 	Ogre::String GetName() { return mName; }
+
+	int GetID() { return mID; }
 
 	void SendMessage(Ogre::SharedPtr<SGTObjectMsg> msg);
 	void SendInstantMessage(Ogre::String receiver_family, Ogre::SharedPtr<SGTObjectMsg> msg);

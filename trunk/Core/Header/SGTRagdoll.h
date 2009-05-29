@@ -23,15 +23,18 @@ struct sBoneActorBind
 	NxOgre::Actor *mActor;
 	sBoneActorBind *mParent;
 	Ogre::String mParentBoneName;
+	bool mRagdollByParent;
+	bool mPointsTowardsParent;
 	sD6Joint mJoint;
 	Ogre::Vector3 mLocalAxis;
 	Ogre::Vector3 mOffset;
 	float mBoneLength;
-	float mBoneRadius;
+	bool mHinge;
 	float mSwing1;
 	float mSwing2;
 	float mTwistMax;
 	float mTwistMin;
+	Ogre::Vector3 mBoneGlobalBindPosition;
 	Ogre::Quaternion mBoneActorGlobalBindOrientation;
 	Ogre::Quaternion mBoneGlobalBindOrientation;
 	Ogre::Quaternion mBoneActorGlobalBindOrientationInverse;
@@ -40,11 +43,16 @@ struct sBoneActorBind
 struct sBoneActorBindConfig
 {
 	Ogre::String mBoneName;
-	Ogre::String mBoneParentName;
-	Ogre::Vector3 mBoneOffset;
-	Ogre::Quaternion mBoneOrientation;
+	Ogre::String mParentName;
+	Ogre::String mInternBoneName;
+	bool mRagdollByParent;
 	float mBoneLength;
-	float mBoneRadius;
+	float mBoneOffsetLength;
+	Ogre::Quaternion mBoneOrientation;
+	Ogre::Vector3 mBoneDirection;
+	bool mPointsTowardsParent;
+	float mRadius;
+	bool mHinge;
 	float mSwing1;
 	float mSwing2;
 	float mTwistMax;

@@ -286,7 +286,7 @@ void SGTGOCCharacterController::ReceiveMessage(SGTMsg &msg)
 		float time = msg.mData.GetFloat("TIME");
 		//if (time > 0.1) return;
 		Ogre::Vector3 dir_rotated = mOwnerGO->GetGlobalOrientation() * mDirection;
-		Ogre::Vector3 dir = (dir_rotated + Ogre::Vector3(0.0f, -5.1f, 0.0f)) * time;
+		Ogre::Vector3 dir = (dir_rotated + Ogre::Vector3(0.0f, -5.81f, 0.0f)) * time;
 		NxU32 collisionFlags;
 		float minDist = 0.000001f;
 		mCharacterController->move(NxVec3(dir.x, dir.y, dir.z), 1<<SGTMain::Instance().GetNxScene()->getShapeGroup("Collidable")->getGroupID(), minDist, collisionFlags);

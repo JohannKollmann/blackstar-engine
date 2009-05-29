@@ -108,12 +108,16 @@ PutArguments(lua_State *pState, std::vector<SGTScriptParam> params)
 		{
 		case SGTScriptParam::PARM_TYPE_INT:
 			lua_pushinteger(pState, params[iParam].getInt());
+			break;
 		case SGTScriptParam::PARM_TYPE_BOOL:
 			lua_pushboolean(pState, params[iParam].getBool());
+			break;
 		case SGTScriptParam::PARM_TYPE_STRING:
 			lua_pushstring(pState, params[iParam].getString().c_str());
+			break;
 		case SGTScriptParam::PARM_TYPE_FLOAT:
 			lua_pushnumber(pState, params[iParam].getFloat());
+			break;
 		}
 	}
 }

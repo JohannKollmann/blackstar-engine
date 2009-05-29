@@ -3,7 +3,7 @@
 #include "SGTMessageSystem.h"
 #include "SGTMain.h"
 #include "SGTInput.h"
-
+#include "SGTScriptSystem.h"
 
 #define CONSOLE_LINE_LENGTH 85
 #define CONSOLE_LINE_COUNT 8 
@@ -32,6 +32,7 @@ void SGTConsole::Init()
 		mRect->setBoundingBox(Ogre::AxisAlignedBox(-100000.0*Ogre::Vector3::UNIT_SCALE, 100000.0*Ogre::Vector3::UNIT_SCALE));
 		mNode = SGTMain::Instance().GetOgreSceneMgr()->getRootSceneNode()->createChildSceneNode("#Console");
 		mNode->attachObject(mRect);
+		mRect->setCastShadows(false);
 	
 		mTextbox=Ogre::OverlayManager::getSingleton().createOverlayElement("TextArea","ConsoleText");
 		mTextbox->setCaption(">");
@@ -48,6 +49,9 @@ void SGTConsole::Init()
 
 		SGTMessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
 		SGTMessageSystem::Instance().JoinNewsgroup(this, "KEY_DOWN");
+		SGTMessageSystem::Instance().JoinNewsgroup(this, "KEY_UP");
+		SGTMessageSystem::Instance().JoinNewsgroup(this, "CONSOLE_INGAME");
+		SGTConsole::Instance().AddCommand("lua_loadscript", "string");
 		mInitialized = true;
 	}
 }
@@ -75,12 +79,78 @@ void SGTConsole::Show(bool show)
 
 void SGTConsole::ReceiveMessage(SGTMsg &msg)
 {
+	if (msg.mNewsgroup == "CONSOLE_INGAME")
+	{
+		if (msg.mData.GetOgreString("COMMAND") == "lua_loadscript")
+		{
+			int counter = 0;
+			Ogre::String scriptfile = "";
+			Ogre::String funcname = "";
+			std::vector<SGTScriptParam> params;
+			while (msg.mData.HasNext())
+			{
+				SGTDataMapEntry entry = msg.mData.GetNext();
+				if (counter == 0)
+				{
+					counter = 1;
+					continue;
+				}
+				if (counter == 1)
+				{
+					if (entry.mType == "Ogre::String")
+					{
+						char *c_str = (char*)entry.mData.getPointer();
+						scriptfile = c_str;
+						counter = 2;
+						continue;
+					}
+				}
+				if (counter == 2)
+				{
+					if (entry.mType == "Ogre::String")
+					{
+						char *c_str = (char*)entry.mData.getPointer();
+						funcname = c_str;
+						counter = 3;
+						continue;
+					}
+				}
+				if (counter == 3)
+				{
+					if (entry.mType == "bool") params.push_back(SGTScriptParam(*((bool*)(entry.mData.getPointer()))));
+					if (entry.mType == "float") params.push_back(SGTScriptParam(*((float*)(entry.mData.getPointer()))));
+					if (entry.mType == "Ogre::String")
+					{
+						char *c_str = (char*)entry.mData.getPointer();
+						std::string str = c_str;
+						params.push_back(SGTScriptParam(str));
+					}
+				}
+			}
+			if (scriptfile != "" && funcname != "")
+			{
+				SGTScript script = SGTScriptSystem::GetInstance().CreateInstance(SCRIPT_BASE_DIR + scriptfile);
+				script.CallFunction(funcname, params);
+			}
+			
+		}
+		
+	}
+	if (msg.mNewsgroup == "KEY_UP")
+	{
+		OIS::KeyCode okc = (OIS::KeyCode)(msg.mData.GetInt("KEY_ID_OIS"));
+		if (okc == OIS::KeyCode::KC_F1)
+		{
+			if (!mActive) SGTConsole::Instance().Show(true);
+			else SGTConsole::Instance().Show(false);
+		}
+	}
 	if (mActive)
 	{
 		if (msg.mNewsgroup == "KEY_DOWN")
 		{
-			unsigned int kc = *(unsigned int*)(msg.mData.GetInt("KEY_ID"));
-			OIS::KeyCode okc = *(OIS::KeyCode*)(msg.mData.GetInt("KEY_ID_OIS"));
+			unsigned int kc = msg.mData.GetInt("KEY_ID");
+			OIS::KeyCode okc = (OIS::KeyCode)(msg.mData.GetInt("KEY_ID_OIS"));
 
 			if (okc == OIS::KC_RETURN)
 			{
@@ -184,41 +254,16 @@ void SGTConsole::ExecCommand(Ogre::String command)
 	{
 		if ((*i).first == inputs[0])
 		{
-			if ((*i).second.size() > inputs.size() - 1)
+			SGTMsg msg;
+			msg.mNewsgroup = "CONSOLE_INGAME";
+			msg.mData.AddOgreString("COMMAND", (*i).first);
+			for (int paramindex = 1; paramindex < inputs.size(); paramindex++)
 			{
-				Print("Error: Not enough parameters!");
-				Ogre::LogManager::getSingleton().logMessage("SGTConsole::ExecCommand: Not enough parameters in command: " + command);
+				Ogre::String paramname = "PARAM" + Ogre::StringConverter::toString(paramindex);
+				msg.mData.AddOgreString(paramname, inputs[paramindex]);
 			}
-			else if ((*i).second.size() < inputs.size() - 1)
-			{
-				Print("Error: Too many parameters!");
-				Ogre::LogManager::getSingleton().logMessage("SGTConsole::ExecCommand: Too many parameters in command: " + command);
-			}
-			else
-			{
-				int paramindex = 1;
-				SGTMsg msg;
-				msg.mNewsgroup = "CONSOLE_INGAME";
-				msg.mData.AddOgreString("COMMAND", (*i).first);
-				std::vector<Ogre::String>::iterator param = inputs.begin();
-				param++;
-				for (std::vector<Ogre::String>::iterator typeiter = (*i).second.begin(); typeiter != (*i).second.end(); typeiter++)
-				{
-					Ogre::String paramname = "PARAM" + Ogre::StringConverter::toString(paramindex);
-					if ((*typeiter) == "int") msg.mData.AddInt(paramname, Ogre::StringConverter::parseInt((*param)));
-					if ((*typeiter) == "float") msg.mData.AddFloat(paramname, Ogre::StringConverter::parseReal((*param)));
-					if ((*typeiter) == "bool") msg.mData.AddBool(paramname, Ogre::StringConverter::parseBool((*param)));
-					if ((*typeiter) == "vector3")
-					{
-						std::replace((*param).begin(), (*param).end(), '/', ' ');
-						msg.mData.AddOgreVec3(paramname, Ogre::StringConverter::parseVector3((*param)));
-					}
-					param++;
-					paramindex++;
-				}
-				SGTMessageSystem::Instance().SendMessage(msg);
-				Print(command);
-			}
+			SGTMessageSystem::Instance().SendMessage(msg);
+			Print(command);
 			return;
 		}
 	}

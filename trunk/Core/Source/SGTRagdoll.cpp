@@ -25,9 +25,9 @@ SGTGOCRagdollBone::~SGTGOCRagdollBone(void)
 void SGTGOCRagdollBone::CreateFromDataMap(SGTDataMap *parameters)
 {
 	mBoneConfig.mBoneName = parameters->GetOgreString("BoneName");
-	mBoneConfig.mBoneParentName = parameters->GetOgreString("ParentBoneName");
+	mBoneConfig.mParentName = parameters->GetOgreString("mParentName");
 	mBoneConfig.mBoneLength = parameters->GetFloat("BoneLength");
-	mBoneConfig.mBoneRadius = parameters->GetFloat("BoneRadius");
+	mBoneConfig.mRadius = parameters->GetFloat("Radius");
 	mBoneConfig.mSwing1 = parameters->GetFloat("Swing1");
 	mBoneConfig.mSwing2 = parameters->GetFloat("Swing2");
 	mBoneConfig.mTwistMax = parameters->GetFloat("TwistMax");
@@ -36,9 +36,9 @@ void SGTGOCRagdollBone::CreateFromDataMap(SGTDataMap *parameters)
 void SGTGOCRagdollBone::GetParameters(SGTDataMap *parameters)
 {
 	parameters->AddOgreString("BoneName", mBoneConfig.mBoneName);
-	parameters->AddOgreString("BoneParentName", mBoneConfig.mBoneParentName);
+	parameters->AddOgreString("mParentName", mBoneConfig.mParentName);
 	parameters->AddFloat("BoneLength", mBoneConfig.mBoneLength);
-	parameters->AddFloat("BoneRadius", mBoneConfig.mBoneRadius);
+	parameters->AddFloat("Radius", mBoneConfig.mRadius);
 	parameters->AddFloat("Swing1", mBoneConfig.mSwing1);
 	parameters->AddFloat("Swing2", mBoneConfig.mSwing2);
 	parameters->AddFloat("TwistMax", mBoneConfig.mTwistMax);
@@ -79,8 +79,8 @@ void SGTGOCRagdollBone::SetBone(Ogre::Bone* bone, Ogre::SceneNode *meshnode, flo
 	mMeshNode = meshnode;
 	mBone = bone;
 	mBoneConfig.mBoneName = bone->getName();
-	if (mBone->getParent()) mBoneConfig.mBoneParentName = mBone->getParent()->getName();
-	mBoneConfig.mBoneRadius = radius;
+	if (mBone->getParent()) mBoneConfig.mParentName = mBone->getParent()->getName();
+	mBoneConfig.mRadius = radius;
 	mBoneConfig.mBoneLength = length;
 	mBoneConfig.mTwistMax = 20.0f;
 	mBoneConfig.mTwistMin = -20.0f;
@@ -114,11 +114,12 @@ void SGTRagdoll::Create(Ogre::String meshname, Ogre::Vector3 scale)
 {
 	mNode = mOgreSceneMgr->getRootSceneNode()->createChildSceneNode();
 	mNode->scale(scale);
-	mEntity = mOgreSceneMgr->createEntity(Ogre::StringConverter::toString(SGTSceneManager::Instance().RequestID()), meshname);
+	mEntity = mOgreSceneMgr->createEntity(SGTSceneManager::Instance().RequestIDStr(), meshname);
 	mNode->attachObject(mEntity);
 	ResetBones();
 	if (Ogre::ResourceGroupManager::getSingleton().resourceExists("General", mEntity->getMesh()->getName() + ".bones"))
 	{
+		Ogre::LogManager::getSingleton().logMessage("UIADSFHLSUDIDUHGLUSGHLSUDGHA<LÖIDBOOONE");
 		std::vector<sBoneActorBindConfig> bones;
 		Ogre::ConfigFile cf;
 		cf.loadFromResourceSystem(mEntity->getMesh()->getName() + ".bones", "General");
@@ -130,37 +131,44 @@ void SGTRagdoll::Create(Ogre::String meshname, Ogre::Vector3 scale)
 			Ogre::ConfigFile::SettingsMultiMap *Settings = seci.getNext();
 			if (secName.find("Bone") != Ogre::String::npos)
 			{
-				Ogre::String bonename, boneparentname, shaperadius, shapelength, shapeoffset, shapeorientation, swing1, swing2, twistmax, twistmin;
+				Ogre::String bonename, boneparentname, internbonename, shaperadius, shapelength, shapeoffset, shapeorientation, hinge, swing1, swing2, twistmax, twistmin, ragdollcontrolbyparent;
 				Ogre::ConfigFile::SettingsMultiMap::iterator i;
 				for (i = Settings->begin(); i != Settings->end(); ++i)
 				{
 					if (i->first == "BoneName") bonename = i->second;
-					if (i->first == "mBoneParentName") boneparentname = i->second;
+					if (i->first == "mParentName") boneparentname = i->second;
+					if (i->first == "InternBoneName") internbonename = i->second;
 					if (i->first == "BoneLength") shapelength = i->second;
 					if (i->first == "BoneOffset") shapeoffset = i->second;
 					if (i->first == "BoneOrientation") shapeorientation = i->second;
 					if (i->first == "Radius") shaperadius = i->second;
+					if (i->first == "Hinge") hinge = i->second;
 					if (i->first == "Swing1") swing1 = i->second;
 					if (i->first == "Swing2") swing2 = i->second;
 					if (i->first == "TwistMax") twistmax = i->second;
 					if (i->first == "TwistMin") twistmin = i->second;
+					if (i->first == "RagdollControlByParent") ragdollcontrolbyparent = i->second;	//Fix for jaiqua
 				}
-				if (bonename == "" || boneparentname == "" || shaperadius == "" || shapeoffset == "" || swing1 == "" || swing2 == "" || twistmax == "" || twistmin == "")
+				if (bonename == "" || boneparentname == "" || internbonename == "" || shaperadius == "" || shapeoffset == "" || hinge == "" || swing1 == "" || swing2 == "" || twistmax == "" || twistmin == "")
 				{
-					Ogre::LogManager::getSingleton().logMessage("SGTRagdoll::Ragdoll: Error in Section " + secName + "! -> continue");
+					Ogre::LogManager::getSingleton().logMessage("Ragdoll::Ragdoll: Error in Section " + secName + "! -> continue");
 					continue;
 				}
 				sBoneActorBindConfig boneconfig;
 				boneconfig.mBoneName = bonename;
-				boneconfig.mBoneParentName = boneparentname;
+				boneconfig.mParentName = boneparentname;
+				boneconfig.mInternBoneName = internbonename;
 				boneconfig.mBoneLength = Ogre::StringConverter::parseReal(shapelength);
-				boneconfig.mBoneOffset = Ogre::StringConverter::parseVector3(shapeoffset);
+				boneconfig.mBoneOffsetLength = Ogre::StringConverter::parseReal(shapeoffset);
 				boneconfig.mBoneOrientation = Ogre::StringConverter::parseQuaternion(shapeorientation);
-				boneconfig.mBoneRadius = Ogre::StringConverter::parseReal(shaperadius);
+				boneconfig.mRadius = Ogre::StringConverter::parseReal(shaperadius);
+				boneconfig.mHinge = Ogre::StringConverter::parseBool(hinge);
 				boneconfig.mSwing1 = Ogre::StringConverter::parseReal(swing1);
 				boneconfig.mSwing2 = Ogre::StringConverter::parseReal(swing2);
 				boneconfig.mTwistMax = Ogre::StringConverter::parseReal(twistmax);
 				boneconfig.mTwistMin = Ogre::StringConverter::parseReal(twistmin);
+				boneconfig.mRagdollByParent = false;
+				if (ragdollcontrolbyparent != "") boneconfig.mRagdollByParent = Ogre::StringConverter::parseBool(ragdollcontrolbyparent);
 				bones.push_back(boneconfig);
 			}
 		}	
@@ -176,19 +184,21 @@ void SGTRagdoll::Create(Ogre::String meshname, Ogre::Vector3 scale)
 		{
 			f << "[Bone_" << (*i).mBoneName.c_str() << "]" << std::endl;
 			f << "BoneName = " << (*i).mBoneName.c_str() << std::endl;
-			if ((*i).mBoneParentName != "")
+			f << "InternBoneName = " << (*i).mInternBoneName.c_str() << std::endl;
+			if ((*i).mParentName != "")
 			{
-				f << "mBoneParentName = " << (*i).mBoneParentName.c_str() << std::endl;
+				f << "mParentName = " << (*i).mParentName.c_str() << std::endl;
 			}
 			else
 			{
-				f << "mBoneParentName = None" << std::endl;
+				f << "mParentName = None" << std::endl;
 			}
 			f << "BoneLength = " << (*i).mBoneLength << std::endl;
-			f << "BoneOffset = " << (*i).mBoneOffset << std::endl;
+			f << "BoneOffset = " << (*i).mBoneOffsetLength << std::endl;
 			f << "BoneOrientation = " << Ogre::StringConverter::toString((*i).mBoneOrientation) << std::endl;
-			f << "Radius = " + Ogre::StringConverter::toString((*i).mBoneRadius) << std::endl;
+			f << "Radius = " + Ogre::StringConverter::toString((*i).mRadius) << std::endl;
 			//f << "LocalAxis = " << Ogre::StringConverter::toString((*i).mLocalAxis) << std::endl;
+			f << "Hinge = False" << std::endl;
 			f << "Swing1 = " << (*i).mSwing1 << std::endl;
 			f << "Swing2 = " << (*i).mSwing2 << std::endl;
 			f << "TwistMax = " << (*i).mTwistMax << std::endl;
@@ -208,7 +218,7 @@ void SGTRagdoll::CreateBoneObjects()
 	{
 		SGTGameObject *go = new SGTGameObject();
 		SGTGOCRagdollBone *bone = new SGTGOCRagdollBone();
-		bone->SetBone((*i).mBone, mNode, (*i).mBoneLength, (*i).mBoneRadius);
+		bone->SetBone((*i).mBone, mNode, (*i).mBoneLength, 1);
 		go->AddComponent(bone);
 		go->SetGlobalPosition((*i).mActor->getGlobalPositionAsOgreVector3());
 		go->SetGlobalOrientation((*i).mActor->getGlobalOrientationAsOgreQuaternion());
@@ -233,16 +243,17 @@ void SGTRagdoll::CreateSkeleton(std::vector<sBoneActorBindConfig> config)
 	for (std::vector<sBoneActorBindConfig>::iterator i = config.begin(); i != config.end(); i++)
 	{
 		Ogre::Bone *bone = mEntity->getSkeleton()->getBone((*i).mBoneName);
+		Ogre::Bone *internbone = mEntity->getSkeleton()->getBone((*i).mInternBoneName);
 		Ogre::Vector3 mypos = bone->_getDerivedPosition();
 		Ogre::Vector3 parentpos = mEntity->getParentSceneNode()->_getDerivedPosition();
-		if ((*i).mBoneParentName != "None") parentpos = mEntity->getSkeleton()->getBone((*i).mBoneParentName)->_getDerivedPosition();
+		if ((*i).mParentName != "None") parentpos = mEntity->getSkeleton()->getBone((*i).mParentName)->_getDerivedPosition();
 		if ((*i).mBoneLength == 0.0f)
 		{
-			Ogre::LogManager::getSingleton().logMessage("Error in SGTRagdoll::CreateSkeleton: Bone length for " + (*i).mBoneName + " is 0.");
+			Ogre::LogManager::getSingleton().logMessage("Error in Ragdoll::CreateSkeleton: Bone length for " + (*i).mBoneName + " is 0.");
 			continue;
 		}
 		sBoneActorBind bone_actor_bind;
-		bone_actor_bind.mBone = bone;
+		bone_actor_bind.mBone = internbone;
 		NxOgre::ActorParams ap;
 		ap.setToDefault();
 		ap.mMass = 10.0f;
@@ -252,10 +263,10 @@ void SGTRagdoll::CreateSkeleton(std::vector<sBoneActorBindConfig> config)
 		sp.mMass = 10.0f;
 		sp.mDensity = 0.0f;
 		//(*i).mBoneLength = 0.5f;
-		//(*i).mBoneRadius = 0.5f;
+		//(*i).mRadius = 0.5f;
 		//sp.mGroup = "BoneActor";
 		float scale_factor = ((scale.x + scale.y + scale.z) / 3);
-		float capsule_radius = (*i).mBoneRadius * scale_factor;
+		float capsule_radius = (*i).mRadius * scale_factor;
 		if (capsule_radius <= 0.05f) capsule_radius = 0.05f;
 		float scaled_bonelength = (*i).mBoneLength * scale_factor;
 		float capsule_height = scaled_bonelength - capsule_radius * 2.0f;
@@ -265,18 +276,19 @@ void SGTRagdoll::CreateSkeleton(std::vector<sBoneActorBindConfig> config)
 		Ogre::Quaternion q;
 		q.FromAngleAxis(Ogre::Radian(Ogre::Degree(90)), Ogre::Vector3(0,0,1));
 		//bone_actor_bind.mActor = mNxOgreScene->createBody<NxOgre::Body>(mEntity->getName() + "_Bone_" + bone->getName(), new NxOgre::Capsule(capsule_radius, capsule_height, sp), NxOgre::Pose(bone->_getDerivedPosition() + mEntity->getParentSceneNode()->_getDerivedPosition(), mEntity->getParentSceneNode()->_getDerivedOrientation() * bone->_getDerivedOrientation()), nrp, ap);
-		Ogre::Vector3 offset = (*i).mBoneOffset;
+		Ogre::Vector3 offset = ((*i).mBoneOrientation * Ogre::Vector3(1,0,0)) * (*i).mBoneOffsetLength * (*i).mBoneLength;
 		//(*i).mBoneOrientation = Ogre::Quaternion();
-		if ((*i).mBoneParentName != "None") bone_actor_bind.mActor = mNxOgreScene->createActor(mEntity->getName() + "_Bone_" + bone->getName(), new NxOgre::Capsule(capsule_radius, capsule_height, sp), NxOgre::Pose(((bone->_getDerivedPosition() + offset) * scale) + mEntity->getParentSceneNode()->_getDerivedPosition(), (*i).mBoneOrientation), ap);//mEntity->getParentSceneNode()->_getDerivedOrientation() * bone->_getDerivedOrientation()), ap);
+		if ((*i).mParentName != "None") bone_actor_bind.mActor = mNxOgreScene->createActor(mEntity->getName() + "_Bone_" + bone->getName(), new NxOgre::Capsule(capsule_radius, capsule_height, sp), NxOgre::Pose(((bone->_getDerivedPosition() + offset) * scale) + mEntity->getParentSceneNode()->_getDerivedPosition(), (*i).mBoneOrientation), ap);//mEntity->getParentSceneNode()->_getDerivedOrientation() * bone->_getDerivedOrientation()), ap);
 		else bone_actor_bind.mActor = mNxOgreScene->createActor(mEntity->getName() + "_Bone_" + bone->getName(), new NxOgre::Capsule(capsule_radius, capsule_height, sp), NxOgre::Pose((bone->_getDerivedPosition() * scale) + mEntity->getParentSceneNode()->_getDerivedPosition(), (*i).mBoneOrientation), ap);
 		bone_actor_bind.mActor->setSolverIterationCount(12);
 		bone_actor_bind.mActor->setName(bone->getName().c_str());
 		bone_actor_bind.mParent = 0;
-		bone_actor_bind.mParentBoneName = (*i).mBoneParentName;
+		bone_actor_bind.mParentBoneName = (*i).mParentName;
 		bone_actor_bind.mSwing1 = (*i).mSwing1;
 		bone_actor_bind.mSwing2 = (*i).mSwing2;
 		bone_actor_bind.mTwistMin = (*i).mTwistMin;
 		bone_actor_bind.mTwistMax = (*i).mTwistMax;
+		bone_actor_bind.mRagdollByParent = (*i).mRagdollByParent;
 		//bone_actor_bind.mBoneGlobalBindPosition = bone_actor_bind.mActor->getGlobalPositionAsOgreVector3();
 		bone_actor_bind.mOffset = offset;
 		bone_actor_bind.mBoneActorGlobalBindOrientation = bone_actor_bind.mActor->getGlobalOrientationAsOgreQuaternion();
@@ -286,7 +298,7 @@ void SGTRagdoll::CreateSkeleton(std::vector<sBoneActorBindConfig> config)
 	}
 	if (mSkeleton.size() != config.size())
 	{
-		Ogre::LogManager::getSingleton().logMessage("Error in SGTRagdoll::CreateSkeleton: Invalid bone configuration, canceling skeleton generation...");
+		Ogre::LogManager::getSingleton().logMessage("Error in Ragdoll::CreateSkeleton: Invalid bone configuration, canceling skeleton generation...");
 		return;
 	}
 	for (std::vector<sBoneActorBind>::iterator i = mSkeleton.begin(); i != mSkeleton.end(); i++)
@@ -334,23 +346,27 @@ std::vector<sBoneActorBindConfig> SGTRagdoll::CreateDummySkeleton()
 		{
 				sBoneActorBindConfig bone_actor_bind;
 				bone_actor_bind.mBoneName = bone->getName();
-				if (!bone->getParent()) bone_actor_bind.mBoneParentName = "None";
-				else bone_actor_bind.mBoneParentName = GetRealParent(bone)->getName();
+				if (!bone->getParent()) bone_actor_bind.mParentName = "None";
+				else bone_actor_bind.mParentName = GetRealParent(bone)->getName();
+				bone_actor_bind.mInternBoneName = bone->getName();
 				bone_actor_bind.mSwing1 = 30.0f;
 				bone_actor_bind.mSwing2 = 30.0f;
 				bone_actor_bind.mTwistMin = -20.0f;
 				bone_actor_bind.mTwistMax = 20.0f;
-				bone_actor_bind.mBoneOffset = Ogre::Vector3(0,0,0);
+				bone_actor_bind.mHinge = false;
+				bone_actor_bind.mBoneOffsetLength = 0.0f;
 				float boneLength = difference.length();
 				bone_actor_bind.mBoneLength = boneLength * 0.98f;
 				float bradius = mEntity->getBoundingRadius() / ((scale.x + scale.y + scale.z) / 3.0f);
 				float minRadius = bradius * 0.02f;
 				float maxRadius = bradius * 0.035f;
 				float estimatedRadius = bone_actor_bind.mBoneLength * 0.25f;
-				if (estimatedRadius < minRadius) bone_actor_bind.mBoneRadius = minRadius;
-				else if (estimatedRadius > maxRadius) bone_actor_bind.mBoneRadius = maxRadius;
-				else bone_actor_bind.mBoneRadius = estimatedRadius;
+				if (estimatedRadius < minRadius) bone_actor_bind.mRadius = minRadius;
+				else if (estimatedRadius > maxRadius) bone_actor_bind.mRadius = maxRadius;
+				else bone_actor_bind.mRadius = estimatedRadius;
 				bone_actor_bind.mBoneOrientation = estimated_orientation;
+				bone_actor_bind.mBoneDirection = difference;
+				bone_actor_bind.mRagdollByParent = false;
 				returner.push_back(bone_actor_bind);
 			}
 		}
@@ -369,11 +385,13 @@ std::vector<sBoneActorBindConfig> SGTRagdoll::CreateDummySkeleton()
 				{	
 					sBoneActorBindConfig bone_actor_bind;
 					bone_actor_bind.mBoneName = child->getName();
-					bone_actor_bind.mBoneParentName = bone->getName();
+					bone_actor_bind.mInternBoneName = child->getName();
+					bone_actor_bind.mParentName = bone->getName();
 					bone_actor_bind.mSwing1 = 20.0f;
 					bone_actor_bind.mSwing2 = 20.0f;
 					bone_actor_bind.mTwistMin = -40.0f;
 					bone_actor_bind.mTwistMax = 40.0f;
+					bone_actor_bind.mHinge = false;
 					bone_actor_bind.mBoneOffsetLength = 0.0f;
 					if (!bone->getParent())
 					{
@@ -385,10 +403,12 @@ std::vector<sBoneActorBindConfig> SGTRagdoll::CreateDummySkeleton()
 					float minRadius = bradius * 0.02f;
 					float maxRadius = bradius * 0.035f;
 					float estimatedRadius = bone_actor_bind.mBoneLength * 0.25f;
-					if (estimatedRadius < minRadius) bone_actor_bind.mBoneRadius = minRadius;
-					else if (estimatedRadius > maxRadius) bone_actor_bind.mBoneRadius = maxRadius;
-					else bone_actor_bind.mBoneRadius = estimatedRadius;
+					if (estimatedRadius < minRadius) bone_actor_bind.mRadius = minRadius;
+					else if (estimatedRadius > maxRadius) bone_actor_bind.mRadius = maxRadius;
+					else bone_actor_bind.mRadius = estimatedRadius;
 					bone_actor_bind.mBoneOrientation = estimated_orientation;
+					bone_actor_bind.mBoneDirection = difference;
+					bone_actor_bind.mRagdollByParent = false;
 					returner.push_back(bone_actor_bind);
 				}*/
 	return returner;
@@ -503,6 +523,11 @@ void SGTRagdoll::UpdateVisualBones()
 	for (std::vector<sBoneActorBind>::iterator i = mSkeleton.begin(); i != mSkeleton.end(); i++)
 	{
 		Ogre::Bone *bone = (*i).mBone;
+		/*if ((*i).mRagdollByParent == true)
+		{
+			bone = (Ogre::Bone*)(*i).mBone->getParent();
+			(*i).mBone->setOrientation(Ogre::Quaternion());
+		}*/
 		PhysxRotation = (*i).mActor->getGlobalOrientationAsOgreQuaternion() * (*i).mBoneActorGlobalBindOrientationInverse;
 		OgreGlobalQuat = PhysxRotation * (*i).mBoneGlobalBindOrientation;
 		Ogre::Quaternion ParentInverse = NodeRotation.Inverse();

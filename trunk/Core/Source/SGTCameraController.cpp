@@ -66,7 +66,7 @@ void SGTCameraController::ReceiveMessage(SGTMsg &msg)
 	if (msg.mNewsgroup == "KEY_UP")
 	{
 		int keyid = msg.mData.GetInt("KEY_ID_OIS");
-		if (keyid == OIS::KC_R)
+		if (keyid == OIS::KC_F2)
 		{
 			/*Ogre::Entity *jaiqua = SGTMain::Instance().GetOgreSceneMgr()->createEntity("ragdolltest" + Ogre::StringConverter::toString(SGTSceneManager::Instance().RequestID()), "jaiqua.mesh");
 			Ogre::Bone *bone = (Ogre::Bone*)jaiqua->getSkeleton()->getBone("Spine01")->getParent();
@@ -74,8 +74,12 @@ void SGTCameraController::ReceiveMessage(SGTMsg &msg)
 			Ogre::SceneNode *rnode = SGTMain::Instance().GetOgreSceneMgr()->getRootSceneNode()->createChildSceneNode("ragdolltest" + Ogre::StringConverter::toString(SGTSceneManager::Instance().RequestID()), mCamera->getDerivedPosition() + (mCamera->getDerivedOrientation() * offset));
 			rnode->attachObject(jaiqua);
 			rnode->scale(0.1,0.1,0.1);*/
-			SGTRagdoll *ragdoll = new SGTRagdoll("jaiqua.mesh", Ogre::Vector3(0.1,0.1,0.1));
-			ragdoll->SetAnimationState("Walk");
+			SGTGameObject *object = new SGTGameObject();
+			SGTRagdoll *ragdoll = new SGTRagdoll("robot.mesh", Ogre::Vector3(0.1,0.1,0.1));
+			//ragdoll->SetAnimationState("Walk");
+			object->AddComponent(ragdoll);
+			object->SetGlobalPosition(mCamera->getDerivedPosition());
+			ragdoll->Update(0);
 			ragdoll->SetControlToActors();
 		}
 	}

@@ -5,7 +5,8 @@ SGTGameObject::SGTGameObject(SGTGameObject *parent)
 {
 	mSelectable = true;
 	mParent = parent;
-	mName = "GameObject_" + Ogre::StringConverter::toString(SGTSceneManager::Instance().RequestID());
+	mID = SGTSceneManager::Instance().RequestID();
+	mName = "GameObject_" + Ogre::StringConverter::toString(mID);
 	SGTSceneManager::Instance().mGameObjects.push_back(this);
 	if (mParent)
 	{

@@ -141,7 +141,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="SGTLoadSave.lib"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="..\..\lib\"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				OptimizeReferences="2"

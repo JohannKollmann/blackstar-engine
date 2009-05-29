@@ -153,7 +153,10 @@ void SGTSceneManager::Init()
 	SGTScriptSystem::GetInstance().ShareCFunction("LogMessage", &SGTSceneManager::Lua_LogMessage);
 	SGTScriptSystem::GetInstance().ShareCFunction("LoadLevel", &SGTSceneManager::Lua_LoadLevel);
 	SGTScriptSystem::GetInstance().ShareCFunction("InsertNpc", &SGTSceneManager::Lua_InsertNpc);
-
+	SGTScriptSystem::GetInstance().ShareCFunction("InsertMesh", &SGTSceneManager::Lua_InsertMesh);
+	SGTScriptSystem::GetInstance().ShareCFunction("SetObjectPosition", &SGTSceneManager::Lua_SetObjectPosition);
+	SGTScriptSystem::GetInstance().ShareCFunction("SetObjectOrientation", &SGTSceneManager::Lua_SetObjectOrientation);
+	SGTScriptSystem::GetInstance().ShareCFunction("SetObjectScale", &SGTSceneManager::Lua_SetObjectScale);
 
 }
 
@@ -282,6 +285,15 @@ void SGTSceneManager::BakeStaticMeshShape(Ogre::String meshname)
 	}
 }
 
+SGTGameObject* SGTSceneManager::GetObjectByInternID(int id)
+{
+	for (std::list<SGTGameObject*>::iterator i = mGameObjects.begin(); i != mGameObjects.end(); i++)
+	{
+		if ((*i)->GetID() == id) return (*i);
+	}
+	return 0;
+}
+
 std::vector<SGTScriptParam>
 SGTSceneManager::Lua_LoadLevel(SGTScript& caller, std::vector<SGTScriptParam> vParams)
 {
@@ -316,6 +328,86 @@ SGTSceneManager::Lua_LogMessage(SGTScript& caller, std::vector<SGTScriptParam> v
 	}
 	Ogre::LogManager::getSingleton().logMessage(msg);
 	return std::vector<SGTScriptParam>();
+}
+
+std::vector<SGTScriptParam> SGTSceneManager::Lua_InsertMesh(SGTScript& caller, std::vector<SGTScriptParam> vParams)
+{
+	std::vector<SGTScriptParam> out;
+	if (vParams.size() != 3) return out;
+	if (vParams[0].getType() != SGTScriptParam::PARM_TYPE_STRING) return out;
+	Ogre::String mesh = vParams[0].getString().c_str();
+	if (vParams[1].getType() != SGTScriptParam::PARM_TYPE_BOOL) return out;
+	bool shadows = vParams[1].getBool();
+	if (vParams[2].getType() != SGTScriptParam::PARM_TYPE_FLOAT) return out;
+	int collision = (int)vParams[2].getFloat();
+
+	SGTGameObject *object = new SGTGameObject();
+	SGTGOCViewContainer *container = new SGTGOCViewContainer();
+	container->AddItem(new SGTMeshRenderable(mesh, shadows));
+	object->AddComponent(container);
+	if (collision == -1)
+	{
+		object->AddComponent(new SGTGOCStaticBody(mesh));
+	}
+	else if (collision >= 0 && collision <= 3)
+	{
+		object->AddComponent(new SGTGOCRigidBody(mesh, 10, collision));
+	}
+	out.push_back(SGTScriptParam(object->GetID()));
+	return out;
+}
+
+std::vector<SGTScriptParam> SGTSceneManager::Lua_SetObjectPosition(SGTScript& caller, std::vector<SGTScriptParam> vParams)
+{
+	std::vector<SGTScriptParam> out;
+	if (vParams.size() != 4) return out;
+	if (vParams[0].getType() != SGTScriptParam::PARM_TYPE_FLOAT || vParams[1].getType() != SGTScriptParam::PARM_TYPE_FLOAT || vParams[2].getType() != SGTScriptParam::PARM_TYPE_FLOAT || vParams[3].getType() != SGTScriptParam::PARM_TYPE_FLOAT) return out;
+	int id = (int)vParams[0].getFloat();
+	SGTGameObject *object = SGTSceneManager::Instance().GetObjectByInternID(id);
+	if (object)
+	{
+		float x = vParams[1].getFloat();
+		float y = vParams[2].getFloat();
+		float z = vParams[3].getFloat();
+		object->SetGlobalPosition(Ogre::Vector3(x,y,z));
+	}
+	return out;
+}
+std::vector<SGTScriptParam>SGTSceneManager::Lua_SetObjectOrientation(SGTScript& caller, std::vector<SGTScriptParam> vParams)
+{
+	std::vector<SGTScriptParam> out;
+	if (vParams.size() != 4) return out;
+	if (vParams[0].getType() != SGTScriptParam::PARM_TYPE_FLOAT || vParams[1].getType() != SGTScriptParam::PARM_TYPE_FLOAT || vParams[2].getType() != SGTScriptParam::PARM_TYPE_FLOAT || vParams[3].getType() != SGTScriptParam::PARM_TYPE_FLOAT) return out;
+	int id = (int)vParams[0].getFloat();
+	SGTGameObject *object = SGTSceneManager::Instance().GetObjectByInternID(id);
+	if (object)
+	{
+		Ogre::Degree yDeg = Ogre::Degree(vParams[1].getFloat());
+		Ogre::Degree pDeg = Ogre::Degree(vParams[2].getFloat());
+		Ogre::Degree rDeg = Ogre::Degree(vParams[3].getFloat());
+		Ogre::Matrix3 mat3;
+		mat3.FromEulerAnglesYXZ(yDeg, pDeg, rDeg);
+		Ogre::Quaternion q;
+		q.FromRotationMatrix(mat3);
+		object->SetGlobalOrientation(q);
+	}
+	return out;
+}
+std::vector<SGTScriptParam>SGTSceneManager::Lua_SetObjectScale(SGTScript& caller, std::vector<SGTScriptParam> vParams)
+{
+	std::vector<SGTScriptParam> out;
+	if (vParams.size() != 4) return out;
+	if (vParams[0].getType() != SGTScriptParam::PARM_TYPE_FLOAT || vParams[1].getType() != SGTScriptParam::PARM_TYPE_FLOAT || vParams[2].getType() != SGTScriptParam::PARM_TYPE_FLOAT || vParams[3].getType() != SGTScriptParam::PARM_TYPE_FLOAT) return out;
+	int id = (int)vParams[0].getFloat();
+	SGTGameObject *object = SGTSceneManager::Instance().GetObjectByInternID(id);
+	if (object)
+	{
+		float x = vParams[1].getFloat();
+		float y = vParams[2].getFloat();
+		float z = vParams[3].getFloat();
+		object->SetGlobalScale(Ogre::Vector3(x,y,z));
+	}
+	return out;
 }
 
 std::vector<SGTScriptParam>
@@ -371,12 +463,12 @@ void SGTSceneManager::CreatePlayer()
 	player->AddComponent(new SGTGOCPlayerInput());
 	player->AddComponent(new SGTGOCCameraController(SGTMain::Instance().GetCamera()));
 	player->AddComponent(new SGTGOCCharacterController(Ogre::Vector3(1,1.8,1)));
-	//SGTRagdoll *ragdoll = new SGTRagdoll("jaiqua.mesh");
-	//ragdoll->SetAnimationState("Walk");
-	//player->AddComponent(ragdoll);
-	SGTGOCViewContainer *container = new SGTGOCViewContainer();
+	SGTRagdoll *ragdoll = new SGTRagdoll("zm_Skin.mesh", Ogre::Vector3(1,1,1));
+	ragdoll->SetAnimationState("Walk");
+	player->AddComponent(ragdoll);
+	/*SGTGOCViewContainer *container = new SGTGOCViewContainer();
 	container->AddItem(new SGTMeshRenderable("cube.1m.mesh", true));
-	player->AddComponent(container);
+	player->AddComponent(container);*/
 	player->SetGlobalPosition(Ogre::Vector3(0,10,0));
 
 	/*SGTGOCViewContainer *view = new SGTGOCViewContainer();
