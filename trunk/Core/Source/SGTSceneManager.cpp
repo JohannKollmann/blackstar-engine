@@ -129,13 +129,13 @@ void SGTSceneManager::Init()
 	SGTLoadSave::Instance().RegisterObject(&SGTGOCStaticBody::Register);
 	SGTLoadSave::Instance().RegisterObject(&SGTRagdoll::Register);
 	SGTLoadSave::Instance().RegisterObject(&SGTGOCViewContainer::Register);
-	RegisterEditorInterface("View", "MeshRenderable", (EDTCreatorFn)&SGTMeshRenderable::NewInstance, SGTMeshRenderable::GetDefaultParameters);
-	RegisterEditorInterface("View", "ParticleSystem", (EDTCreatorFn)&SGTPfxRenderable::NewInstance, SGTPfxRenderable::GetDefaultParameters);
-	RegisterEditorInterface("View", "LocalLight", (EDTCreatorFn)&SGTLocalLightRenderable::NewInstance, SGTLocalLightRenderable::GetDefaultParameters);
-	RegisterEditorInterface("View", "Sound3D", (EDTCreatorFn)&SGTSound3D::NewInstance, SGTSound3D::GetDefaultParameters);
-	RegisterEditorInterface("Physics", "RigidBody", (EDTCreatorFn)&SGTGOCRigidBody::NewInstance, SGTGOCRigidBody::GetDefaultParameters);
-	RegisterEditorInterface("Physics", "StaticBody", (EDTCreatorFn)&SGTGOCRigidBody::NewInstance, SGTGOCRigidBody::GetDefaultParameters);
-	RegisterEditorInterface("", "Ragdoll", (EDTCreatorFn)&SGTRagdoll::NewInstance, SGTRagdoll::GetDefaultParameters);
+	RegisterEditorInterface("View", "MeshRenderable", (EDTCreatorFn)&SGTMeshRenderable::NewEditorInterfaceInstance, SGTMeshRenderable::GetDefaultParameters);
+	RegisterEditorInterface("View", "ParticleSystem", (EDTCreatorFn)&SGTPfxRenderable::NewEditorInterfaceInstance, SGTPfxRenderable::GetDefaultParameters);
+	RegisterEditorInterface("View", "LocalLight", (EDTCreatorFn)&SGTLocalLightRenderable::NewEditorInterfaceInstance, SGTLocalLightRenderable::GetDefaultParameters);
+	RegisterEditorInterface("View", "Sound3D", (EDTCreatorFn)&SGTSound3D::NewEditorInterfaceInstance, SGTSound3D::GetDefaultParameters);
+	RegisterEditorInterface("Physics", "RigidBody", (EDTCreatorFn)&SGTGOCRigidBody::NewEditorInterfaceInstance, SGTGOCRigidBody::GetDefaultParameters);
+	RegisterEditorInterface("Physics", "StaticBody", (EDTCreatorFn)&SGTGOCRigidBody::NewEditorInterfaceInstance, SGTGOCRigidBody::GetDefaultParameters);
+	RegisterEditorInterface("", "Ragdoll", (EDTCreatorFn)&SGTRagdoll::NewEditorInterfaceInstance, SGTRagdoll::GetDefaultParameters);
 
 	//Init NxOgre Resource System
 	HANDLE fHandle;
@@ -371,9 +371,12 @@ void SGTSceneManager::CreatePlayer()
 	player->AddComponent(new SGTGOCPlayerInput());
 	player->AddComponent(new SGTGOCCameraController(SGTMain::Instance().GetCamera()));
 	player->AddComponent(new SGTGOCCharacterController(Ogre::Vector3(1,1.8,1)));
-	SGTRagdoll *ragdoll = new SGTRagdoll("jaiqua.mesh");
-	ragdoll->SetAnimationState("Walk");
-	player->AddComponent(ragdoll);
+	//SGTRagdoll *ragdoll = new SGTRagdoll("jaiqua.mesh");
+	//ragdoll->SetAnimationState("Walk");
+	//player->AddComponent(ragdoll);
+	SGTGOCViewContainer *container = new SGTGOCViewContainer();
+	container->AddItem(new SGTMeshRenderable("cube.1m.mesh", true));
+	player->AddComponent(container);
 	player->SetGlobalPosition(Ogre::Vector3(0,10,0));
 
 	/*SGTGOCViewContainer *view = new SGTGOCViewContainer();

@@ -20,7 +20,7 @@ public:
 
 	std::string& TellName() { static std::string name = "PlayerInput"; return name; };
 	static void Register(std::string* pstrName, SGTSaveableInstanceFn* pFn) { *pstrName = "PlayerInput"; *pFn = (SGTSaveableInstanceFn)&NewInstance; };
-	static SGTGOCPlayerInput* NewInstance() { return new SGTGOCPlayerInput; };
+	static SGTSaveable* NewInstance() { return new SGTGOCPlayerInput; };
 	virtual void Save(SGTSaveSystem& mgr) {};
 	virtual void Load(SGTLoadSystem& mgr) {};
 };
@@ -50,7 +50,7 @@ public:
 
 	std::string& TellName() { static std::string name = "CameraController"; return name; };
 	static void Register(std::string* pstrName, SGTSaveableInstanceFn* pFn) { *pstrName = "CameraController"; *pFn = (SGTSaveableInstanceFn)&NewInstance; };
-	static SGTGOCCameraController* NewInstance() { return new SGTGOCCameraController; };
+	static SGTSaveable* NewInstance() { return new SGTGOCCameraController; };
 	virtual void Save(SGTSaveSystem& mgr) {};
 	virtual void Load(SGTLoadSystem& mgr) {};
 };

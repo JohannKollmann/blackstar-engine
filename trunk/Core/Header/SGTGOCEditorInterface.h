@@ -15,5 +15,6 @@ public:
 	//virtual ~SGTGOCEditorInterface() {};
 	virtual void CreateFromDataMap(SGTDataMap *parameters) = 0;
 	virtual void GetParameters(SGTDataMap *parameters) = 0;
-	virtual bool IsViewComponent() { return false; }
+	virtual bool IsViewComponent() = 0;
+	static SGTGOCEditorInterface* NewEditorInterfaceInstance();
 };

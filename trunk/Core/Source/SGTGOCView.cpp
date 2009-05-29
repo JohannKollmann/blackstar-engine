@@ -164,6 +164,12 @@ void SGTMeshRenderable::Load(SGTLoadSystem& mgr)
 	Create(meshname, shadow);
 }
 
+SGTSaveable* SGTMeshRenderable::NewInstance()
+{
+	SGTMeshRenderable *meshr = new SGTMeshRenderable();
+	return meshr;
+}
+
 SGTMeshDebugRenderable::SGTMeshDebugRenderable(Ogre::String meshname)
 {
 	if (!Ogre::ResourceGroupManager::getSingleton().resourceExists("General", meshname))

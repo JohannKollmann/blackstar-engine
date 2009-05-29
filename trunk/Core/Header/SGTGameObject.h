@@ -104,5 +104,5 @@ public:
 	void Save(SGTSaveSystem& mgr);
 	void Load(SGTLoadSystem& mgr);
 	static void Register(std::string* pstrName, SGTSaveableInstanceFn* pFn) { *pstrName = "GameObject"; *pFn = (SGTSaveableInstanceFn)&NewInstance; }
-	static SGTGameObject* NewInstance() { return new SGTGameObject; }
+	static SGTSaveable* NewInstance() { return new SGTGameObject; }
 };

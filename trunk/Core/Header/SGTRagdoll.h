@@ -70,6 +70,7 @@ public:
 	void CreateFromDataMap(SGTDataMap *parameters);
 	void GetParameters(SGTDataMap *parameters);
 	static void GetDefaultParameters(SGTDataMap *parameters);
+	bool IsViewComponent() { return false; }
 
 	void UpdatePosition(Ogre::Vector3 position);
 	void UpdateOrientation(Ogre::Quaternion orientation);
@@ -80,7 +81,8 @@ public:
 	void Load(SGTLoadSystem& mgr) {};
 	std::string& TellName() { static std::string name = "RagdollBone"; return name; };
 	static void Register(std::string* pstrName, SGTSaveableInstanceFn* pFn) { *pstrName = "RagdollBone"; *pFn = (SGTSaveableInstanceFn)&NewInstance; };
-	static SGTGOCRagdollBone* NewInstance() { return new SGTGOCRagdollBone; };
+	static SGTSaveable* NewInstance() { return new SGTGOCRagdollBone; };
+	static SGTGOCEditorInterface* NewEditorInterfaceInstance() { return new SGTGOCRagdollBone(); }
 };
 
 class SGTDllExport SGTRagdoll : public SGTGOCEditorInterface, public SGTGOCNodeRenderable, public SGTMessageListener
@@ -138,9 +140,11 @@ public:
 	void CreateFromDataMap(SGTDataMap *parameters);
 	void GetParameters(SGTDataMap *parameters);
 	static void GetDefaultParameters(SGTDataMap *parameters);
+	bool IsViewComponent() { return false; }
 	void Save(SGTSaveSystem& mgr);
 	void Load(SGTLoadSystem& mgr);
 	virtual std::string& TellName() { static std::string name = "Ragdoll"; return name; };
 	static void Register(std::string* pstrName, SGTSaveableInstanceFn* pFn) { *pstrName = "Ragdoll"; *pFn = (SGTSaveableInstanceFn)&NewInstance; };
 	static SGTRagdoll* NewInstance() { return new SGTRagdoll; };
+	static SGTGOCEditorInterface* NewEditorInterfaceInstance() { return new SGTRagdoll(); }
 };

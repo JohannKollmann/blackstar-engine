@@ -113,7 +113,7 @@ SGTGOCCameraController::SGTGOCCameraController(Ogre::Camera *camera)
 	mCenterNode = SGTMain::Instance().GetOgreSceneMgr()->getRootSceneNode()->createChildSceneNode();
 	mCenterNode->attachObject(camera);
 	mTargetOffset = Ogre::Vector3(0, 2, -0.5);
-	mPositionOffset = Ogre::Vector3(0, 0.2, 3);
+	mPositionOffset = Ogre::Vector3(0, 1, 5);
 	mCamera->setPosition(mPositionOffset);
 
 	SGTMain::Instance().GetCameraController()->mMove = false;
@@ -135,7 +135,7 @@ void SGTGOCCameraController::ReceiveObjectMessage(Ogre::SharedPtr<SGTObjectMsg> 
 	if (msg->mName == "Update_Position" || msg->mName == "Update_Transform")
 	{
 		Ogre::Vector3 pos = msg->mData.GetOgreVec3("Position");
-		mCenterNode->setPosition(pos + mTargetOffset);
+		mCenterNode->setPosition(pos);
 		mCamera->lookAt(mCenterNode->getPosition());
 	}
 	if (msg->mName == "Update_Orientation" || msg->mName == "Update_Transform")
@@ -146,7 +146,7 @@ void SGTGOCCameraController::ReceiveObjectMessage(Ogre::SharedPtr<SGTObjectMsg> 
 
 void SGTGOCCameraController::UpdatePosition(Ogre::Vector3 position)
 {
-	mCenterNode->setPosition(position + mTargetOffset);
+	mCenterNode->setPosition(position);
 	mCamera->lookAt(mCenterNode->getPosition());
 }
 

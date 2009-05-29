@@ -7,14 +7,13 @@
 #include "OgreOggSound.h"
 #include "SGTGOCEditorInterface.h"
 
-class SGTGOCViewComponent
+class SGTGOCViewComponent : public SGTSaveable
 {
 public:
 	virtual Ogre::MovableObject* GetEditorVisual() = 0;
 	virtual void AttachToNode(Ogre::SceneNode *node) = 0;
-	virtual Ogre::String GetEditorMeshName() { return "None"; }
-	virtual void ShowEditorVisual(bool show) {};
-	virtual std::string GetTypeName() = 0;
+	virtual void ShowEditorVisual(bool show) = 0;
+	virtual Ogre::String GetTypeName() = 0;
 };
 
 /*class SGTDllExport SGTGOCViewComponentEDT : public SGTGOCEditorInterface, public SGTGOCViewComponent
@@ -66,13 +65,13 @@ public:
 	void Load(SGTLoadSystem& mgr);
 	std::string& TellName() { static std::string name = "GOCViewContainer"; return name; };
 	static void Register(std::string* pstrName, SGTSaveableInstanceFn* pFn) { *pstrName = "GOCViewContainer"; *pFn = (SGTSaveableInstanceFn)&NewInstance; }
-	static SGTGOCViewContainer* NewInstance() { return new SGTGOCViewContainer; }
+	static SGTSaveable* NewInstance() { return new SGTGOCViewContainer; }
 };
 
 
 //Some Basic View components
 
-class SGTDllExport SGTMeshRenderable :  public SGTGOCViewComponent, public SGTGOCEditorInterface, public SGTSaveable
+class SGTDllExport SGTMeshRenderable : public SGTGOCEditorInterface, public SGTGOCViewComponent
 {
 private:
 	Ogre::Entity *mEntity;
@@ -83,21 +82,23 @@ public:
 	SGTMeshRenderable(Ogre::String meshname, bool shadowcaster);
 	~SGTMeshRenderable();
 
-	Ogre::MovableObject* GetEditorVisual() { return mEntity; }
-	void AttachToNode(Ogre::SceneNode *node);
+	virtual Ogre::MovableObject* GetEditorVisual() { return mEntity; }
+	virtual void AttachToNode(Ogre::SceneNode *node);
+	virtual void ShowEditorVisual(bool show) {};
 
-	void CreateFromDataMap(SGTDataMap *parameters);
-	void GetParameters(SGTDataMap *parameters);
+	virtual void CreateFromDataMap(SGTDataMap *parameters);
+	virtual void GetParameters(SGTDataMap *parameters);
 	static void GetDefaultParameters(SGTDataMap *parameters);
-	bool IsViewComponent() { return true; }
+	virtual bool IsViewComponent() { return true; }
 
-	void Save(SGTSaveSystem& mgr);
-	void Load(SGTLoadSystem& mgr);
+	virtual void Save(SGTSaveSystem& mgr);
+	virtual void Load(SGTLoadSystem& mgr);
 	virtual std::string& TellName() { static std::string name = "MeshRenderable"; return name; };
 	static void Register(std::string* pstrName, SGTSaveableInstanceFn* pFn) { *pstrName = "MeshRenderable"; *pFn = (SGTSaveableInstanceFn)&NewInstance; };
-	static SGTMeshRenderable* NewInstance() { return new SGTMeshRenderable; };
+	static SGTSaveable* NewInstance();
+	static SGTGOCEditorInterface* NewEditorInterfaceInstance() { return new SGTMeshRenderable(); }
 
-	std::string GetTypeName() { return "MeshRenderable"; }
+	virtual std::string GetTypeName() { return "MeshRenderable"; }
 };
 
 class SGTDllExport SGTMeshDebugRenderable : public SGTGOCNodeRenderable
@@ -117,10 +118,10 @@ public:
 	void Load(SGTLoadSystem& mgr) {};
 	virtual std::string& TellName() { static std::string name = "MeshDebugRenderable"; return name; };
 	static void Register(std::string* pstrName, SGTSaveableInstanceFn* pFn) { *pstrName = "MeshDebugRenderable"; *pFn = (SGTSaveableInstanceFn)&NewInstance; };
-	static SGTMeshDebugRenderable* NewInstance() { return new SGTMeshDebugRenderable; };
+	static SGTSaveable* NewInstance() { return new SGTMeshDebugRenderable; };
 };
 
-class SGTDllExport SGTPfxRenderable : public SGTGOCEditorInterface, public SGTGOCViewComponent, public SGTSaveable
+class SGTDllExport SGTPfxRenderable : public SGTGOCEditorInterface, public SGTGOCViewComponent
 {
 private:
 	Ogre::ParticleSystem *mParticleSystem;
@@ -147,13 +148,14 @@ public:
 	void Load(SGTLoadSystem& mgr);
 	std::string& TellName() { static std::string name = "ParticleSystem"; return name; };
 	static void Register(std::string* pstrName, SGTSaveableInstanceFn* pFn) { *pstrName = "ParticleSystem"; *pFn = (SGTSaveableInstanceFn)&NewInstance; };
-	static SGTPfxRenderable* NewInstance() { return new SGTPfxRenderable; };
+	static SGTSaveable* NewInstance() { return new SGTPfxRenderable; };
+	static SGTGOCEditorInterface* NewEditorInterfaceInstance() { return new SGTPfxRenderable(); }
 
 	std::string GetTypeName() { return "ParticleSystem"; }
 };
 
 
-class SGTDllExport SGTSound3D : public SGTGOCEditorInterface, public SGTGOCViewComponent, public SGTSaveable
+class SGTDllExport SGTSound3D : public SGTGOCEditorInterface, public SGTGOCViewComponent
 {
 private:
 	OgreOggSound::OgreOggISound *mSound;
@@ -185,13 +187,14 @@ public:
 	void Load(SGTLoadSystem& mgr);
 	std::string& TellName() { static std::string name = "Sound3D"; return name; };
 	static void Register(std::string* pstrName, SGTSaveableInstanceFn* pFn) { *pstrName = "Sound3D"; *pFn = (SGTSaveableInstanceFn)&NewInstance; };
-	static SGTSound3D* NewInstance() { return new SGTSound3D; };
+	static SGTSaveable* NewInstance() { return new SGTSound3D; };
+	static SGTGOCEditorInterface* NewEditorInterfaceInstance() { return new SGTSound3D(); }
 
 	std::string GetTypeName() { return "Sound3D"; }
 };
 
 
-class SGTDllExport SGTLocalLightRenderable : public SGTGOCEditorInterface, public SGTGOCViewComponent, public SGTSaveable
+class SGTDllExport SGTLocalLightRenderable : public SGTGOCEditorInterface, public SGTGOCViewComponent
 {
 private:
 	Ogre::Light *mLight;
@@ -221,7 +224,8 @@ public:
 	void Load(SGTLoadSystem& mgr);
 	std::string& TellName() { static std::string name = "LocalLight"; return name; };
 	static void Register(std::string* pstrName, SGTSaveableInstanceFn* pFn) { *pstrName = "LocalLight"; *pFn = (SGTSaveableInstanceFn)&NewInstance; };
-	static SGTLocalLightRenderable* NewInstance() { return new SGTLocalLightRenderable; };
+	static SGTSaveable* NewInstance() { return new SGTLocalLightRenderable; };
+	static SGTGOCEditorInterface* NewEditorInterfaceInstance() { return new SGTLocalLightRenderable(); }
 
 	std::string GetTypeName() { return "LocalLight"; }
 };

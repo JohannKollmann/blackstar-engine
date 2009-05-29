@@ -43,5 +43,5 @@ public:
 	void Load(SGTLoadSystem& mgr);
 	std::string& TellName() { static std::string name = "Waypoint"; return name; };
 	static void Register(std::string* pstrName, SGTSaveableInstanceFn* pFn) { *pstrName = "Waypoint"; *pFn = (SGTSaveableInstanceFn)&NewInstance; };
-	static SGTGOCWaypoint* NewInstance() { return new SGTGOCWaypoint; };
+	static SGTSaveable* NewInstance() { return new SGTGOCWaypoint; };
 };

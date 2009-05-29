@@ -36,7 +36,7 @@ public:
 	void Load(SGTLoadSystem& mgr) {};
 	virtual std::string& TellName() { static std::string name = "AxisObject"; return name; };
 	static void Register(std::string* pstrName, SGTSaveableInstanceFn* pFn) { *pstrName = "AxisObject"; *pFn = (SGTSaveableInstanceFn)&NewInstance; };
-	static AxisComponent* NewInstance() { return new AxisComponent; };
+	static SGTSaveable* NewInstance() { return new AxisComponent; };
 };
 
 #endif //--_AXIS_OBJECT_H_

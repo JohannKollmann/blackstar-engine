@@ -77,12 +77,14 @@ public:
 	void CreateFromDataMap(SGTDataMap *parameters);
 	void GetParameters(SGTDataMap *parameters);
 	static void GetDefaultParameters(SGTDataMap *parameters);
+	bool IsViewComponent() { return false; }
 
 	void Save(SGTSaveSystem& mgr);
 	void Load(SGTLoadSystem& mgr);
 	std::string& TellName() { static std::string name = "RigidBody"; return name; };
 	static void Register(std::string* pstrName, SGTSaveableInstanceFn* pFn) { *pstrName = "RigidBody"; *pFn = (SGTSaveableInstanceFn)&NewInstance; };
-	static SGTGOCRigidBody* NewInstance() { return new SGTGOCRigidBody; };
+	static SGTSaveable* NewInstance() { return new SGTGOCRigidBody; };
+	static SGTGOCEditorInterface* NewEditorInterfaceInstance() { return new SGTGOCRigidBody(); }
 
 
 	// Required by the RenderableSource. (Tells where the Actor is)
@@ -124,12 +126,14 @@ public:
 	void CreateFromDataMap(SGTDataMap *parameters);
 	void GetParameters(SGTDataMap *parameters);
 	static void GetDefaultParameters(SGTDataMap *parameters);
+	bool IsViewComponent() { return false; }
 
 	void Save(SGTSaveSystem& mgr);
 	void Load(SGTLoadSystem& mgr);
 	std::string& TellName() { static std::string name = "StaticBody"; return name; };
 	static void Register(std::string* pstrName, SGTSaveableInstanceFn* pFn) { *pstrName = "StaticBody"; *pFn = (SGTSaveableInstanceFn)&NewInstance; };
-	static SGTGOCStaticBody* NewInstance() { return new SGTGOCStaticBody; };
+	static SGTSaveable* NewInstance() { return new SGTGOCStaticBody; };
+	static SGTGOCEditorInterface* NewEditorInterfaceInstance() { return new SGTGOCStaticBody(); }
 };
 
 
@@ -163,5 +167,5 @@ public:
 	void Load(SGTLoadSystem& mgr);
 	std::string& TellName() { static std::string name = "CharacterController"; return name; };
 	static void Register(std::string* pstrName, SGTSaveableInstanceFn* pFn) { *pstrName = "CharacterController"; *pFn = (SGTSaveableInstanceFn)&NewInstance; };
-	static SGTGOCCharacterController* NewInstance() { return new SGTGOCCharacterController; };
+	static SGTSaveable* NewInstance() { return new SGTGOCCharacterController; };
 };

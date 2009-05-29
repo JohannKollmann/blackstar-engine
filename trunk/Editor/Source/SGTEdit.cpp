@@ -474,7 +474,7 @@ SGTGameObject* SGTEdit::OnInsertObject(SGTGameObject *parent, bool align)
 						container = new SGTGOCViewContainer();
 						object->AddComponent(container);
 					}
-					container->AddItem((SGTGOCViewComponent*)component);
+					container->AddItem(dynamic_cast<SGTGOCViewComponent*>(component));
 				}
 				else
 				{
