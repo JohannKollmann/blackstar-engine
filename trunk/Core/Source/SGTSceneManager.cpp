@@ -127,8 +127,9 @@ void SGTSceneManager::Init()
 	SGTLoadSave::Instance().RegisterObject(&SGTSound3D::Register);
 	SGTLoadSave::Instance().RegisterObject(&SGTGOCRigidBody::Register);
 	SGTLoadSave::Instance().RegisterObject(&SGTGOCStaticBody::Register);
-	SGTLoadSave::Instance().RegisterObject(&SGTRagdoll::Register);
 	SGTLoadSave::Instance().RegisterObject(&SGTGOCViewContainer::Register);
+	SGTLoadSave::Instance().RegisterObject(&SGTRagdoll::Register);
+	SGTLoadSave::Instance().RegisterObject(&SGTGOCRagdollBone::Register);
 	RegisterEditorInterface("View", "MeshRenderable", (EDTCreatorFn)&SGTMeshRenderable::NewEditorInterfaceInstance, SGTMeshRenderable::GetDefaultParameters);
 	RegisterEditorInterface("View", "ParticleSystem", (EDTCreatorFn)&SGTPfxRenderable::NewEditorInterfaceInstance, SGTPfxRenderable::GetDefaultParameters);
 	RegisterEditorInterface("View", "LocalLight", (EDTCreatorFn)&SGTLocalLightRenderable::NewEditorInterfaceInstance, SGTLocalLightRenderable::GetDefaultParameters);

@@ -7,17 +7,19 @@
 SGTGOCRagdollBone::SGTGOCRagdollBone(void)
 {
 	mNode = SGTMain::Instance().GetOgreSceneMgr()->getRootSceneNode()->createChildSceneNode();
+	mOffsetNode = mNode->createChildSceneNode(Ogre::Vector3(0,0,0), Ogre::Quaternion());
 	mEntity = SGTMain::Instance().GetOgreSceneMgr()->createEntity(Ogre::StringConverter::toString(SGTSceneManager::Instance().RequestID()), "capsule.mesh");
 	mEntity->setCastShadows(false);
 	mEntity->setUserObject(mOwnerGO);
-	mNode->attachObject(mEntity);
-	mDebugAnimation = false;
+	mOffsetNode->attachObject(mEntity);
+	mDebugAnimation = true;
 	mMeshNode = 0;
 	mBone = 0;
 }
 SGTGOCRagdollBone::~SGTGOCRagdollBone(void)
 {
 	SGTMain::Instance().GetOgreSceneMgr()->destroyEntity(mEntity);
+	SGTMain::Instance().GetOgreSceneMgr()->destroySceneNode(mOffsetNode);
 	SGTMain::Instance().GetOgreSceneMgr()->destroySceneNode(mNode);
 	if (mBone) mBone->setManuallyControlled(false);
 }
@@ -32,6 +34,9 @@ void SGTGOCRagdollBone::CreateFromDataMap(SGTDataMap *parameters)
 	mBoneConfig.mSwing2 = parameters->GetFloat("Swing2");
 	mBoneConfig.mTwistMax = parameters->GetFloat("TwistMax");
 	mBoneConfig.mTwistMin = parameters->GetFloat("TwistMin");
+	mDebugAnimation = parameters->GetBool("TestAnimation");
+	Ogre::Vector3 nodescale = Ogre::Vector3(mBoneConfig.mRadius, mBoneConfig.mBoneLength, mBoneConfig.mRadius);
+	mNode->setScale(nodescale);
 }
 void SGTGOCRagdollBone::GetParameters(SGTDataMap *parameters)
 {
@@ -43,41 +48,77 @@ void SGTGOCRagdollBone::GetParameters(SGTDataMap *parameters)
 	parameters->AddFloat("Swing2", mBoneConfig.mSwing2);
 	parameters->AddFloat("TwistMax", mBoneConfig.mTwistMax);
 	parameters->AddFloat("TwistMin", mBoneConfig.mTwistMin);
+	parameters->AddBool("TestAnimation", mDebugAnimation);
 }
 void SGTGOCRagdollBone::GetDefaultParameters(SGTDataMap *parameters)
 {
 }
 void SGTGOCRagdollBone::UpdatePosition(Ogre::Vector3 position)
 {
-	if (mNode && mBone)
+	if (mNode)
 	{
 		mNode->setPosition(position);
-		if (mDebugAnimation)
+		/*if (mDebugAnimation && mBone)
 		{
 			Ogre::Vector3 parentpos = mMeshNode->_getDerivedPosition();
 			if (mBone->getParent()) parentpos = parentpos + mBone->getParent()->_getDerivedPosition();
 			mBone->setPosition(position - parentpos);
-		}
+		}*/
+	}
+}
+
+void SGTGOCRagdollBone::UpdateScale(Ogre::Vector3 scale)
+{
+	if (mNode)
+	{
+		Ogre::Vector3 bounds = mNode->_getDerivedOrientation() * mEntity->getBoundingBox().getSize();
+		mBoneConfig.mRadius = (bounds.x + bounds.z) / 2.0f;
+		mBoneConfig.mBoneLength = bounds.y;
+		ScaleNode();
 	}
 }
 
 void SGTGOCRagdollBone::UpdateOrientation(Ogre::Quaternion orientation)
 {
-	if (mNode && mBone)
+	if (mNode)
 	{
 		mNode->setOrientation(orientation);
-		if (mDebugAnimation)
+		if (mDebugAnimation && mBone)
 		{
-			Ogre::Quaternion parentquat = mMeshNode->_getDerivedOrientation();
+			/*Ogre::Quaternion parentquat = mMeshNode->_getDerivedOrientation();
 			if (mBone->getParent()) parentquat = parentquat * mBone->getParent()->_getDerivedOrientation();
-			mBone->setOrientation(parentquat.Inverse() * orientation);
+			mBone->setOrientation(parentquat.Inverse() * orientation);*/
+			Ogre::Quaternion PhysxRotation, OgreGlobalQuat, NodeRotation = mMeshNode->_getDerivedOrientation();
+			PhysxRotation = orientation * mBoneActorGlobalBindOrientationInverse;
+			OgreGlobalQuat = PhysxRotation * mBoneGlobalBindOrientation;
+			Ogre::Quaternion ParentInverse = NodeRotation.Inverse();
+			if (mBone->getParent())
+			{
+				ParentInverse = (NodeRotation * mBone->getParent()->_getDerivedOrientation()).Inverse();
+			}
+			mBone->setOrientation(ParentInverse * OgreGlobalQuat);
+		}
+		else
+		{
+			mBoneActorGlobalBindOrientationInverse = orientation.Inverse();
 		}
 	}
 }
+
+void SGTGOCRagdollBone::ScaleNode()
+{
+	float capsule_height = mBoneConfig.mBoneLength - mBoneConfig.mRadius * 2.0f;
+	if (capsule_height <= 0.0f) capsule_height = 0.1f;
+	Ogre::Vector3 offset = Ogre::Vector3(0.0f,-mBoneConfig.mBoneLength*0.5f,0.0f);
+	mOffsetNode->setScale(Ogre::Vector3(mBoneConfig.mRadius, capsule_height, mBoneConfig.mRadius));
+	mOffsetNode->setPosition(offset);
+}
+
 void SGTGOCRagdollBone::SetBone(Ogre::Bone* bone, Ogre::SceneNode *meshnode, float length, float radius)
 {
 	mMeshNode = meshnode;
 	mBone = bone;
+	mBone->setManuallyControlled(true);
 	mBoneConfig.mBoneName = bone->getName();
 	if (mBone->getParent()) mBoneConfig.mParentName = mBone->getParent()->getName();
 	mBoneConfig.mRadius = radius;
@@ -86,6 +127,14 @@ void SGTGOCRagdollBone::SetBone(Ogre::Bone* bone, Ogre::SceneNode *meshnode, flo
 	mBoneConfig.mTwistMin = -20.0f;
 	mBoneConfig.mSwing1 = 30.0f;
 	mBoneConfig.mSwing2 = 30.0f;
+	mBoneGlobalBindOrientation = mBone->_getDerivedOrientation();
+	ScaleNode();
+}
+
+void SGTGOCRagdollBone::SetOwner(SGTGameObject *go)
+{
+	mOwnerGO = go;
+	mEntity->setUserObject(mOwnerGO);
 }
 
 SGTRagdoll::~SGTRagdoll(void)
@@ -119,7 +168,6 @@ void SGTRagdoll::Create(Ogre::String meshname, Ogre::Vector3 scale)
 	ResetBones();
 	if (Ogre::ResourceGroupManager::getSingleton().resourceExists("General", mEntity->getMesh()->getName() + ".bones"))
 	{
-		Ogre::LogManager::getSingleton().logMessage("UIADSFHLSUDIDUHGLUSGHLSUDGHA<LÖIDBOOONE");
 		std::vector<sBoneActorBindConfig> bones;
 		Ogre::ConfigFile cf;
 		cf.loadFromResourceSystem(mEntity->getMesh()->getName() + ".bones", "General");
@@ -218,10 +266,13 @@ void SGTRagdoll::CreateBoneObjects()
 	{
 		SGTGameObject *go = new SGTGameObject();
 		SGTGOCRagdollBone *bone = new SGTGOCRagdollBone();
-		bone->SetBone((*i).mBone, mNode, (*i).mBoneLength, 1);
 		go->AddComponent(bone);
 		go->SetGlobalPosition((*i).mActor->getGlobalPositionAsOgreVector3());
-		go->SetGlobalOrientation((*i).mActor->getGlobalOrientationAsOgreQuaternion());
+		//Ogre::Vector3 dir = (*i).mActor->getGlobalOrientationAsOgreQuaternion() * Ogre::Vector3(1,0,0);
+		Ogre::Quaternion q = Ogre::Vector3(1,0,0).getRotationTo(Ogre::Vector3(0,1,0));
+		go->SetGlobalOrientation((*i).mActor->getGlobalOrientationAsOgreQuaternion() * q);
+		bone->SetBone((*i).mBone, mNode, (*i).mBoneLength, (*i).mBoneRadius);
+		go->SetFreezePosition(true);
 	}
 }
 
@@ -289,6 +340,8 @@ void SGTRagdoll::CreateSkeleton(std::vector<sBoneActorBindConfig> config)
 		bone_actor_bind.mTwistMin = (*i).mTwistMin;
 		bone_actor_bind.mTwistMax = (*i).mTwistMax;
 		bone_actor_bind.mRagdollByParent = (*i).mRagdollByParent;
+		bone_actor_bind.mBoneLength = scaled_bonelength;
+		bone_actor_bind.mBoneRadius = capsule_radius;
 		//bone_actor_bind.mBoneGlobalBindPosition = bone_actor_bind.mActor->getGlobalPositionAsOgreVector3();
 		bone_actor_bind.mOffset = offset;
 		bone_actor_bind.mBoneActorGlobalBindOrientation = bone_actor_bind.mActor->getGlobalOrientationAsOgreQuaternion();
@@ -687,8 +740,10 @@ void SGTRagdoll::CreateFromDataMap(SGTDataMap *parameters)
 	Ogre::Vector3 scale = Ogre::Vector3(1,1,1);
 	scale = parameters->GetOgreVec3("Scale");
 	Create(meshname, scale);
-	SetAnimationState(animstate);
+	//SetAnimationState(animstate);
 	mEntity->setCastShadows(shadowcaster);
+	Update(0);
+	ResetBones();
 	CreateBoneObjects();
 	if (ragdoll) SetControlToActors();
 }
@@ -726,10 +781,10 @@ void SGTRagdoll::Load(SGTLoadSystem& mgr)
 	mgr.LoadAtom("Ogre::String", &meshname);
 	mgr.LoadAtom("Ogre::Vector3", &scale);
 	mgr.LoadAtom("Ogre::String", &animstate);
-	mgr.LoadAtom("ShadowCaster", &shadowcaster);
-	mgr.LoadAtom("Ragdoll", &ragdoll);
+	mgr.LoadAtom("bool", &shadowcaster);
+	mgr.LoadAtom("bool", &ragdoll);
 	Create(meshname, scale);
-	SetAnimationState(animstate);
+	if (animstate != "") SetAnimationState(animstate);
 	mEntity->setCastShadows(shadowcaster);
 	if (ragdoll) SetControlToActors();
 }

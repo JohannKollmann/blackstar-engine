@@ -16,6 +16,8 @@ SGTGameObject::SGTGameObject(SGTGameObject *parent)
 	mPosition = Ogre::Vector3(0,0,0);
 	mOrientation = Ogre::Quaternion();
 	UpdateLocalTransform();
+	mFreezePosition = false;
+	mFreezeOrientation = false;
 }
 
 SGTGameObject::~SGTGameObject()

@@ -29,6 +29,7 @@ struct sBoneActorBind
 	Ogre::Vector3 mLocalAxis;
 	Ogre::Vector3 mOffset;
 	float mBoneLength;
+	float mBoneRadius;
 	bool mHinge;
 	float mSwing1;
 	float mSwing2;
@@ -65,8 +66,13 @@ private:
 	Ogre::Entity *mEntity;
 	Ogre::Bone *mBone;
 	Ogre::SceneNode *mMeshNode;
+	Ogre::SceneNode *mOffsetNode;
 	sBoneActorBindConfig mBoneConfig;
 	bool mDebugAnimation;
+	Ogre::Quaternion mBoneActorGlobalBindOrientationInverse;
+	Ogre::Quaternion mBoneGlobalBindOrientation;
+
+	void ScaleNode();
 
 public:
 	SGTGOCRagdollBone(void);
@@ -81,9 +87,12 @@ public:
 	bool IsViewComponent() { return false; }
 
 	void UpdatePosition(Ogre::Vector3 position);
+	void UpdateScale(Ogre::Vector3 position);
 	void UpdateOrientation(Ogre::Quaternion orientation);
 
 	void SetBone(Ogre::Bone* bone, Ogre::SceneNode *meshnode, float length, float radius);
+
+	void SetOwner(SGTGameObject *go);
 
 	void Save(SGTSaveSystem& mgr) {};
 	void Load(SGTLoadSystem& mgr) {};
@@ -153,6 +162,6 @@ public:
 	void Load(SGTLoadSystem& mgr);
 	virtual std::string& TellName() { static std::string name = "Ragdoll"; return name; };
 	static void Register(std::string* pstrName, SGTSaveableInstanceFn* pFn) { *pstrName = "Ragdoll"; *pFn = (SGTSaveableInstanceFn)&NewInstance; };
-	static SGTRagdoll* NewInstance() { return new SGTRagdoll; };
+	static SGTSaveable* NewInstance() { return new SGTRagdoll; };
 	static SGTGOCEditorInterface* NewEditorInterfaceInstance() { return new SGTRagdoll(); }
 };
