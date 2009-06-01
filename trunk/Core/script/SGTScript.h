@@ -8,6 +8,7 @@ class SGTScriptSystem;
 class SGTScript
 {
 public:
+	SGTScript();
 	SGTScript(int iID, SGTLuaScript* pScript);
 	std::vector<SGTScriptParam> CallFunction(std::string strName, std::vector<SGTScriptParam> params);
 	int GetID();
