@@ -58,6 +58,7 @@ public:
 private:
 	float m_fXPos, m_fYPos;
 	int m_iHoverWin;
+	bool m_bMenuActive;
 	static const float m_fFactor;
 	static const float cfFrameWidth;
 	SGTScript m_CallbackScript;

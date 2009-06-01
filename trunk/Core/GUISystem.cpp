@@ -11,6 +11,7 @@ SGTGUISystem::SGTGUISystem(void)
 	SGTMessageSystem::Instance().JoinNewsgroup(this, "MOUSE_MOVE");
 	SGTMessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
 	SGTMessageSystem::Instance().JoinNewsgroup(this, "MOUSE_DOWN");
+	SGTMessageSystem::Instance().JoinNewsgroup(this, "KEY_DOWN");
 	Ogre::SceneNode* pNode=SGTMain::Instance().GetOgreSceneMgr()->getRootSceneNode()->createChildSceneNode("SGTGuiSystemNode");
 	pNode->setPosition(0, 0, 0);
 	m_fXPos=m_fYPos=0.5f;
@@ -58,6 +59,7 @@ SGTGUISystem::SGTGUISystem(void)
 	
 	SGTScriptSystem::GetInstance().ShareCFunction("set_window_material", Window::Lua_SetMaterial);
 	m_iHoverWin=-1;
+	m_bMenuActive=true;
 }
 
 SGTGUISystem::~SGTGUISystem(void)
@@ -66,6 +68,17 @@ SGTGUISystem::~SGTGUISystem(void)
 
 void SGTGUISystem::ReceiveMessage(SGTMsg &msg)
 {
+	if(msg.mNewsgroup == "KEY_DOWN")
+	{
+		if(OIS::KC_ESCAPE==msg.mData.GetInt("KEY_ID_OIS"))
+			m_bMenuActive=!m_bMenuActive;
+		std::map<int, SWindowInfo>::const_iterator it=m_mWindowInfos.begin();
+		for(; it!=m_mWindowInfos.end(); it++)
+			if(it->second.iParentHandle==-1)
+				SGTMain::Instance().GetOgreSceneMgr()->getEntity(it->second.strName)->setVisible(m_bMenuActive);
+	}
+	if(!m_bMenuActive)
+		return;
 	if (msg.mNewsgroup == "MOUSE_MOVE")
 	{
 		m_fXPos+=msg.mData.GetInt("ROT_X_REL")*m_fFactor;
@@ -122,6 +135,8 @@ void SGTGUISystem::ReceiveMessage(SGTMsg &msg)
 	{
 		m_CallbackScript=SGTScriptSystem::GetInstance().CreateInstance("gui-hack.lua");
 	}
+
+
 
 	if(msg.mNewsgroup == "MOUSE_DOWN")
 		if(OIS::MB_Left==msg.mData.GetInt("MOUSE_ID"))
