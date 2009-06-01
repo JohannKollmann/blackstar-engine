@@ -68,7 +68,7 @@ SGTGUISystem::~SGTGUISystem(void)
 
 void SGTGUISystem::ReceiveMessage(SGTMsg &msg)
 {
-	if(msg.mNewsgroup == "KEY_DOWN")
+	if(msg.mNewsgroup == "KEY_DOWN" || m_CallbackScript.GetID()==-1)
 	{
 		if(OIS::KC_ESCAPE==msg.mData.GetInt("KEY_ID_OIS"))
 			m_bMenuActive=!m_bMenuActive;
