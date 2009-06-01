@@ -59,7 +59,7 @@ SGTGUISystem::SGTGUISystem(void)
 	
 	SGTScriptSystem::GetInstance().ShareCFunction("set_window_material", Window::Lua_SetMaterial);
 	m_iHoverWin=-1;
-	m_bMenuActive=true;
+	m_bMenuActive=false;
 }
 
 SGTGUISystem::~SGTGUISystem(void)
