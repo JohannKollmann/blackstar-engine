@@ -16,15 +16,15 @@ struct sD6Joint
 	NxD6JointDesc mDescription;
 };
 
+class SGTGOCRagdollBone;
 
 struct sBoneActorBind
 {
 	Ogre::Bone *mBone;
 	NxOgre::Actor *mActor;
 	sBoneActorBind *mParent;
+	SGTGameObject *mVisualBone;
 	Ogre::String mParentBoneName;
-	bool mRagdollByParent;
-	bool mPointsTowardsParent;
 	sD6Joint mJoint;
 	Ogre::Vector3 mLocalAxis;
 	Ogre::Vector3 mOffset;
@@ -45,19 +45,23 @@ struct sBoneActorBindConfig
 {
 	Ogre::String mBoneName;
 	Ogre::String mParentName;
-	Ogre::String mInternBoneName;
-	bool mRagdollByParent;
 	float mBoneLength;
-	float mBoneOffsetLength;
+	Ogre::Vector3 mBoneOffset;
 	Ogre::Quaternion mBoneOrientation;
-	Ogre::Vector3 mBoneDirection;
-	bool mPointsTowardsParent;
 	float mRadius;
 	bool mHinge;
 	float mSwing1;
 	float mSwing2;
 	float mTwistMax;
 	float mTwistMin;
+};
+
+class SGTRagdoll;
+struct RagBoneRef
+{
+	Ogre::Bone *mBone;
+	Ogre::SceneNode *mMeshNode;
+	SGTRagdoll *mRagdoll;
 };
 
 class SGTDllExport SGTGOCRagdollBone : public SGTGOCNodeRenderable, public SGTGOCEditorInterface
@@ -71,6 +75,7 @@ private:
 	bool mDebugAnimation;
 	Ogre::Quaternion mBoneActorGlobalBindOrientationInverse;
 	Ogre::Quaternion mBoneGlobalBindOrientation;
+	RagBoneRef* mRagBoneRef;
 
 	void ScaleNode();
 
@@ -85,12 +90,18 @@ public:
 	void GetParameters(SGTDataMap *parameters);
 	static void GetDefaultParameters(SGTDataMap *parameters);
 	bool IsViewComponent() { return false; }
+	void* GetUserData();
+	void InjectUserData(void* data);
+
+	bool GetTestAnimation();
+
+	sBoneActorBindConfig GetBoneConfig() { return mBoneConfig; }
 
 	void UpdatePosition(Ogre::Vector3 position);
-	void UpdateScale(Ogre::Vector3 position);
+	void UpdateScale(Ogre::Vector3 scale);
 	void UpdateOrientation(Ogre::Quaternion orientation);
 
-	void SetBone(Ogre::Bone* bone, Ogre::SceneNode *meshnode, float length, float radius);
+	void SetBone(Ogre::Bone* bone, Ogre::SceneNode *meshnode, SGTRagdoll* ragdoll, float length, float radius);
 
 	void SetOwner(SGTGameObject *go);
 
@@ -135,12 +146,17 @@ private:
 	void SetAllBonesToManualControl(bool manual);
 	void ResetBones();
 
+	void Serialise(std::vector<sBoneActorBindConfig> config);
+
 public:
 	SGTRagdoll();
 	SGTRagdoll(Ogre::String meshname, Ogre::Vector3 scale = Ogre::Vector3(1,1,1));
 	~SGTRagdoll(void);
 
+	std::list<SGTGameObject*> mBoneObjects;
+
 	void CreateBoneObjects();
+	void SerialiseBoneObjects();
 
 	void SetControlToActors();
 	void SetControlToBones();

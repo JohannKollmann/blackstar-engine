@@ -137,6 +137,7 @@ void SGTSceneManager::Init()
 	RegisterEditorInterface("Physics", "RigidBody", (EDTCreatorFn)&SGTGOCRigidBody::NewEditorInterfaceInstance, SGTGOCRigidBody::GetDefaultParameters);
 	RegisterEditorInterface("Physics", "StaticBody", (EDTCreatorFn)&SGTGOCRigidBody::NewEditorInterfaceInstance, SGTGOCRigidBody::GetDefaultParameters);
 	RegisterEditorInterface("", "Ragdoll", (EDTCreatorFn)&SGTRagdoll::NewEditorInterfaceInstance, SGTRagdoll::GetDefaultParameters);
+	RegisterEditorInterface("", "RagdollBone", (EDTCreatorFn)&SGTGOCRagdollBone::NewEditorInterfaceInstance, SGTGOCRagdollBone::GetDefaultParameters);
 
 	//Init NxOgre Resource System
 	HANDLE fHandle;

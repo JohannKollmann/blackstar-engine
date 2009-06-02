@@ -72,11 +72,14 @@ void wxOgreSceneTree::Update()
 		// scan directory, either the smart way or not at all
 		for (std::list<SGTGameObject*>::iterator i = SGTSceneManager::Instance().mGameObjects.begin(); i != SGTSceneManager::Instance().mGameObjects.end(); i++)
 		{
-			OgreTreeItemBase *item = OnCreateTreeItem(VDTC_TI_FILE, (*i));
-			OgreTreeItemBaseArray addedItems;
-			addedItems.Add(item);
-			AddItemsToTreeCtrl(mStart, addedItems);
-			ScanFromNode(item, (*i));
+			if (!(*i)->GetParent())
+			{
+				OgreTreeItemBase *item = OnCreateTreeItem(VDTC_TI_FILE, (*i));
+				OgreTreeItemBaseArray addedItems;
+				addedItems.Add(item);
+				AddItemsToTreeCtrl(mStart, addedItems);
+				ScanFromNode(item, (*i));
+			}
 		}
 
 		// expand root when allowed

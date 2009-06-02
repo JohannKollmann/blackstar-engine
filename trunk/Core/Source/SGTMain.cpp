@@ -206,15 +206,15 @@ void SGTMain::initScene()
 	mSceneMgr->setShadowTextureSelfShadow(true);
 	mSceneMgr->setShadowTextureCasterMaterial("shadow_caster");
 
-	mSceneMgr->setShadowCasterRenderBackFaces(false);
+	//mSceneMgr->setShadowCasterRenderBackFaces(false);
 
 	// shadow camera setup
 	Ogre::FocusedShadowCameraSetup* spotSetup = new Ogre::FocusedShadowCameraSetup();
 	mSpotShadowCameraSetup = Ogre::ShadowCameraSetupPtr(spotSetup);
 
 	Ogre::PSSMShadowCameraSetup* pssmSetup = new Ogre::PSSMShadowCameraSetup();
-	pssmSetup->calculateSplitPoints(3, mCamera->getNearClipDistance(), 1500, 0.95);
-	pssmSetup->setSplitPadding(4);
+	pssmSetup->calculateSplitPoints(3, mCamera->getNearClipDistance(), 500, 0.95);
+	pssmSetup->setSplitPadding(10);
 	pssmSetup->setOptimalAdjustFactor(0, 5);
 	pssmSetup->setOptimalAdjustFactor(1, 1);
 	pssmSetup->setOptimalAdjustFactor(2, 0.5);

@@ -70,8 +70,11 @@ void SGTGUISystem::ReceiveMessage(SGTMsg &msg)
 {
 	if(msg.mNewsgroup == "KEY_DOWN" || m_CallbackScript.GetID()==-1)
 	{
-		if(OIS::KC_ESCAPE==msg.mData.GetInt("KEY_ID_OIS"))
-			m_bMenuActive=!m_bMenuActive;
+		if(msg.mNewsgroup == "KEY_DOWN")
+		{
+			if(OIS::KC_ESCAPE==msg.mData.GetInt("KEY_ID_OIS"))
+				m_bMenuActive=!m_bMenuActive;
+		}
 		std::map<int, SWindowInfo>::const_iterator it=m_mWindowInfos.begin();
 		for(; it!=m_mWindowInfos.end(); it++)
 			if(it->second.iParentHandle==-1)

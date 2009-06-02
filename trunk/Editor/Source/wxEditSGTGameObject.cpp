@@ -250,21 +250,25 @@ void wxEditSGTGameObject::OnApply()
 				SGTGOCEditorInterface *editor_interface = SGTSceneManager::Instance().CreateComponent((*i).mSectionName, (*i).mSectionData.getPointer());
 				if (editor_interface->IsViewComponent())
 				{
-					SGTGOCViewContainer *container = (SGTGOCViewContainer*)mGameObject->GetComponent("GOCViewContainer");
+					SGTGOCViewContainer *container = (SGTGOCViewContainer*)mGameObject->GetComponent("GOCView");
 					if (!container)
 					{
 						container = new SGTGOCViewContainer();
 						mGameObject->RemoveComponent(container->GetFamilyID());
 						mGameObject->AddComponent(container);
 					}
+					container->RemoveItem(container->GetItem(((SGTGOCViewComponent*)editor_interface)->GetTypeName()));
 					container->AddItem((SGTGOCViewComponent*)editor_interface);
 				}
 				else
 				{
 					SGTGOComponent* component = dynamic_cast<SGTGOComponent*>(editor_interface);
 					Ogre::String familyID = component->GetFamilyID();
+					SGTGOCEditorInterface *oldinterface = dynamic_cast<SGTGOCEditorInterface*>(mGameObject->GetComponent(familyID));
+					void *userdata = oldinterface->GetUserData();
 					mGameObject->RemoveComponent(familyID);
 					mGameObject->AddComponent(component);
+					editor_interface->InjectUserData(userdata);
 				}
 			}
 			if (select == true)

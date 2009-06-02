@@ -71,9 +71,7 @@ wxEdit::wxEdit(wxWindow* parent) : wxFrame(parent, -1, _("Blackstar Edit"),
     m_mgr.AddPane(mSettingsWindow, wxAuiPaneInfo().
                   Name(wxT("settings")).Caption(wxT("Editor Settings")).
                   Dockable(false).Float().Hide());
-
-		// tell the manager to "commit" all the changes just made
-		m_mgr.Update();
+	m_mgr.Update();
 
 		Ogre::String handle;
 		handle = Ogre::StringConverter::toString((size_t)((HWND)this->GetHandle()));
@@ -86,13 +84,16 @@ wxEdit::wxEdit(wxWindow* parent) : wxFrame(parent, -1, _("Blackstar Edit"),
 
 void wxEdit::PostCreate()
 {
-	mComponentBar = new wxComponentBar(this, -1, wxDefaultPosition, wxSize(300,100));
-    m_mgr.AddPane(mComponentBar, wxAuiPaneInfo().
-                  Name(wxT("componentbar")).
-				  Caption(wxT("Components")).
-				  Bottom().
-				  Hide().
-				  CloseButton(false));
+	mComponentBar = new wxComponentBar(this, -1, wxDefaultPosition, wxSize(100,100));
+    m_mgr.AddPane(	mComponentBar, wxAuiPaneInfo().
+					Name(wxT("componentbar")).
+					Caption(wxT("Components")).
+					Fixed().
+					Right().
+					Position(2).
+					Layer(1).
+					Show(false).
+					CloseButton(false));
 	GetOgrePane()->setCamera(SGTMain::Instance().GetCamera());
 	GetOgrePane()->initEdit();
 	GetWorldExplorer()->GetSceneTree()->Update();

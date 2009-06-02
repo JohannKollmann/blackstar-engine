@@ -36,7 +36,12 @@ public:
 		BRUSH,
 		MATERIAL
 	};
-
+	enum SGTAxisLock
+	{
+		LOCKED,
+		UNLOCKED,
+		UNLOCKED_SKIPCHILDREN
+	};
 	void OnMouseEvent(wxMouseEvent& ev);
 
 	/*
@@ -58,6 +63,7 @@ public:
 	void OnSaveObjectGroup();
 	void OnCreateChain();
 	void OnConnectWaypoints();
+	void OnSaveBones();
 
 	void OnSelectObject(float MouseX, float MouseY);
 	void OnBrush();
@@ -76,9 +82,9 @@ public:
 	void SetObjectMoveSpeed(float factor);
 	void SetObjectRotationSpeed(float factor);
 
-	bool mXAxisLock;
-	bool mYAxisLock;
-	bool mZAxisLock;
+	SGTAxisLock mXAxisLock;
+	SGTAxisLock mYAxisLock;
+	SGTAxisLock mZAxisLock;
 
 	SGTEdit();
 	~SGTEdit() { };

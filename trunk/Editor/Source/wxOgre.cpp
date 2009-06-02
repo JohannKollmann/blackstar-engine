@@ -33,6 +33,7 @@ BEGIN_EVENT_TABLE(wxOgre, wxControl)
 	EVT_MENU(wxOgre_saveObjectgroup, wxOgre::OnSaveObjectGroup)
 	EVT_MENU(wxOgre_createChain, wxOgre::OnCreateChain)
 	EVT_MENU(wxOgre_connectWaypoints, wxOgre::OnConnectWaypoints)
+	EVT_MENU(wxOgre_saveBones, wxOgre::OnSaveBones)
 
 END_EVENT_TABLE()
 
@@ -246,4 +247,9 @@ void wxOgre::OnCreateChain(wxCommandEvent& WXUNUSED(event))
 void wxOgre::OnConnectWaypoints(wxCommandEvent& WXUNUSED(event))
 {
 	mEdit->OnConnectWaypoints();
+};
+
+void wxOgre::OnSaveBones(wxCommandEvent& WXUNUSED(event))
+{
+	mEdit->OnSaveBones();
 };

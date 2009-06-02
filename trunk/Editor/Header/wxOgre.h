@@ -30,6 +30,7 @@ enum
 	wxOgre_saveObjectgroup,
 	wxOgre_createChain,
 	wxOgre_connectWaypoints,
+	wxOgre_saveBones
 };
 
 
@@ -80,6 +81,7 @@ enum
 		void OnSaveObjectGroup(wxCommandEvent& WXUNUSED(event));
 		void OnCreateChain(wxCommandEvent& WXUNUSED(event));
 		void OnConnectWaypoints(wxCommandEvent& WXUNUSED(event));
+		void OnSaveBones(wxCommandEvent& WXUNUSED(event));
 
 	private:
 		/** Creates an ogre rendering window and all other default objects

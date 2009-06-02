@@ -65,7 +65,7 @@ void SGTGameObject::UpdateLocalTransform()
 {
 	if (mParent)
 	{
-		mLocalPosition = mPosition - mParent->GetGlobalPosition();
+		mLocalPosition = mParent->GetGlobalOrientation().Inverse () * (mPosition - mParent->GetGlobalPosition());
 		mLocalOrientation = mParent->GetGlobalOrientation().Inverse() * mOrientation;
 	}
 }
@@ -163,11 +163,12 @@ void SGTGameObject::ClearChildren()
 	}
 }
 
-void SGTGameObject::UpdateChildren()
+void SGTGameObject::UpdateChildren(bool move)
 {
 	for (std::list<SGTGameObject*>::iterator i = mChildren.begin(); i != mChildren.end(); i++)
 	{
-		(*i)->OnParentChanged();
+		if (move) (*i)->OnParentChanged();
+		else (*i)->UpdateLocalTransform();
 	}
 }
 
@@ -178,7 +179,7 @@ SGTGameObject* SGTGameObject::GetChild(unsigned short index)
 	return (*i);
 }
 
-void SGTGameObject::SetGlobalPosition(Ogre::Vector3 pos)
+void SGTGameObject::SetGlobalPosition(Ogre::Vector3 pos, bool updateChildren)
 {
 	mPosition = pos;
 	for (std::list<SGTGOComponent*>::iterator i = mComponents.begin(); i != mComponents.end(); i++)
@@ -187,13 +188,12 @@ void SGTGameObject::SetGlobalPosition(Ogre::Vector3 pos)
 	}
 	if (mParent)
 	{
-		mLocalPosition = pos - mParent->GetGlobalPosition();
+		mLocalPosition = mParent->GetGlobalOrientation().Inverse () * (mPosition - mParent->GetGlobalPosition());
 	}
-	UpdateLocalTransform();
-	UpdateChildren();
+	UpdateChildren(updateChildren);
 }
 
-void SGTGameObject::SetGlobalOrientation(Ogre::Quaternion orientation)
+void SGTGameObject::SetGlobalOrientation(Ogre::Quaternion orientation, bool updateChildren)
 {
 	mOrientation = orientation;
 	for (std::list<SGTGOComponent*>::iterator i = mComponents.begin(); i != mComponents.end(); i++)
@@ -204,8 +204,7 @@ void SGTGameObject::SetGlobalOrientation(Ogre::Quaternion orientation)
 	{
 		mLocalOrientation = mParent->GetGlobalOrientation().Inverse() * orientation;
 	}
-	UpdateLocalTransform();
-	UpdateChildren();
+	UpdateChildren(updateChildren);
 }
 
 void SGTGameObject::SetGlobalScale(Ogre::Vector3 scale)

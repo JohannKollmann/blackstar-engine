@@ -9,6 +9,7 @@
 #include "SGTGamestate.h"
 #include "SGTGOCEditorInterface.h"
 #include "SGTGOCIntern.h"
+#include "SGTRagdoll.h"
 
 
 SGTEdit::SGTEdit()
@@ -26,9 +27,9 @@ SGTEdit::SGTEdit()
 	mMaterialMode = false;
 	mBrushMode = false;
 
-	mXAxisLock = false;
-	mYAxisLock = false;
-	mZAxisLock = false;
+	mXAxisLock = SGTAxisLock::LOCKED;
+	mYAxisLock = SGTAxisLock::LOCKED;
+	mZAxisLock = SGTAxisLock::LOCKED;
 
 	mPerformingObjRot = false;
 	mPerformingObjMov = false;
@@ -144,7 +145,16 @@ void SGTEdit::OnMouseEvent(wxMouseEvent &ev)
 						}
 					}*/
 				}
-				if (mSelectedObjects.size() == 1) menu.Append(wxOgre_saveObjectgroup, "Save Object Group");
+				if (mSelectedObjects.size() == 1)
+				{
+					menu.Append(wxOgre_saveObjectgroup, "Save Object Group");
+
+					SGTGameObject* obj1 = (*mSelectedObjects.begin()).mObject;
+					if (obj1->GetComponent("GOCRagdoll"))
+					{
+						menu.Append(wxOgre_saveBones, "Save Bone Config");
+					}
+				}
 
 				if (mSelectedObjects.size() >= 1) menu.Append(wxOgre_deleteObject, "Delete");
 			}
@@ -183,11 +193,11 @@ void SGTEdit::OnMouseEvent(wxMouseEvent &ev)
 	}
 	if (ev.m_wheelRotation != 0 && mSelectedObjects.size() > 0)
 	{
-		if (mXAxisLock == true || mYAxisLock == true || mZAxisLock == true)
+		if (mXAxisLock == SGTAxisLock::UNLOCKED || mYAxisLock == SGTAxisLock::UNLOCKED || mZAxisLock == SGTAxisLock::UNLOCKED)
 		{
 			for (std::list<SGTEditorSelection>::iterator i = mSelectedObjects.begin(); i != mSelectedObjects.end(); i++)
 			{
-				SGTGOCNodeRenderable *visuals = (SGTGOCNodeRenderable*)(*i).mObject->GetComponent("GOCView");
+				/*SGTGOCNodeRenderable *visuals = (SGTGOCNodeRenderable*)(*i).mObject->GetComponent("GOCView");
 				if (visuals != 0)
 				{
 					if (visuals->GetComponentID() == "GOCViewContainer")
@@ -196,7 +206,7 @@ void SGTEdit::OnMouseEvent(wxMouseEvent &ev)
 						if (gocmesh != 0)
 						{
 							mPerformingObjMov = true;
-							Ogre::Vector3 scaleaxis = Ogre::Vector3((mXAxisLock == true) ? 1.0f : 0.0f, (mYAxisLock == true) ? 1.0f : 0.0f, (mZAxisLock == true) ? 1.0f : 0.0f);	
+							Ogre::Vector3 scaleaxis = Ogre::Vector3((mXAxisLock == SGTAxisLock::UNLOCKED) ? 1.0f : 0.0f, (mYAxisLock == SGTAxisLock::UNLOCKED) ? 1.0f : 0.0f, (mZAxisLock == SGTAxisLock::UNLOCKED) ? 1.0f : 0.0f);	
 							(*i).mObject->Rescale(scaleaxis * ev.m_wheelRotation * mObjectScaleSpeed);
 							visuals->GetNode()->showBoundingBox(true);
 							(*i).mObject->Freeze(true);
@@ -206,8 +216,12 @@ void SGTEdit::OnMouseEvent(wxMouseEvent &ev)
 					else if (visuals->GetComponentID() == "MeshDebugRenderable")
 					{
 						visuals->GetNode()->showBoundingBox(true);
-					}
-				}
+					}*/
+				mPerformingObjMov = true;
+				Ogre::Vector3 scaleaxis = Ogre::Vector3((mXAxisLock == SGTAxisLock::UNLOCKED) ? 1.0f : 0.0f, (mYAxisLock == SGTAxisLock::UNLOCKED) ? 1.0f : 0.0f, (mZAxisLock == SGTAxisLock::UNLOCKED) ? 1.0f : 0.0f);	
+				(*i).mObject->Rescale(scaleaxis * ev.m_wheelRotation * mObjectScaleSpeed);
+				(*i).mObject->Freeze(true);
+				AttachAxisObject((*i).mObject);
 			}
 		}
 		((wxEditSGTGameObject*)(wxEdit::Instance().GetpropertyWindow()->GetCurrentPage()))->SetObject(((wxEditSGTGameObject*)(wxEdit::Instance().GetpropertyWindow()->GetCurrentPage()))->GetGameObject());
@@ -248,61 +262,60 @@ void SGTEdit::OnMouseMove(Ogre::Radian RotX,Ogre::Radian RotY)
 	{
 		if (mSelectedObjects.size() > 0)
 		{
-			if (mXAxisLock == true)
+			if (mXAxisLock == SGTAxisLock::UNLOCKED || mXAxisLock == SGTAxisLock::UNLOCKED_SKIPCHILDREN)
 			{
 				mPerformingObjMov = true;
 				for (std::list<SGTEditorSelection>::iterator i = mSelectedObjects.begin(); i != mSelectedObjects.end(); i++)
 				{
-					(*i).mObject->Translate(SGTMain::Instance().GetCamera()->getDerivedOrientation() * Ogre::Vector3(RotX.valueRadians() * mObjectMovSpeed,0,0));
+					(*i).mObject->Translate(SGTMain::Instance().GetCamera()->getDerivedOrientation() * Ogre::Vector3(RotX.valueRadians() * mObjectMovSpeed,0,0), mXAxisLock == SGTAxisLock::UNLOCKED);
 				}
 			}
-			if (mYAxisLock == true)
+			if (mYAxisLock == SGTAxisLock::UNLOCKED || mYAxisLock == SGTAxisLock::UNLOCKED_SKIPCHILDREN)
 			{
 				mPerformingObjMov = true;
 				for (std::list<SGTEditorSelection>::iterator i = mSelectedObjects.begin(); i != mSelectedObjects.end(); i++)
 				{
-					(*i).mObject->Translate(SGTMain::Instance().GetCamera()->getDerivedOrientation() * Ogre::Vector3(0,-RotY.valueRadians() * mObjectMovSpeed,0));
+					(*i).mObject->Translate(SGTMain::Instance().GetCamera()->getDerivedOrientation() * Ogre::Vector3(0,-RotY.valueRadians() * mObjectMovSpeed,0), mYAxisLock == SGTAxisLock::UNLOCKED);
 				}
 			}
-			if (mZAxisLock == true)
+			if (mZAxisLock == SGTAxisLock::UNLOCKED || mZAxisLock == SGTAxisLock::UNLOCKED_SKIPCHILDREN)
 			{
 				mPerformingObjMov = true;
 				for (std::list<SGTEditorSelection>::iterator i = mSelectedObjects.begin(); i != mSelectedObjects.end(); i++)
 				{
-					(*i).mObject->Translate(SGTMain::Instance().GetCamera()->getDerivedOrientation() * Ogre::Vector3(0,0,RotY.valueRadians() * mObjectMovSpeed));
+					(*i).mObject->Translate(SGTMain::Instance().GetCamera()->getDerivedOrientation() * Ogre::Vector3(0,0,RotY.valueRadians() * mObjectMovSpeed), mZAxisLock == SGTAxisLock::UNLOCKED);
 				}
 			}
 			((wxEditSGTGameObject*)(wxEdit::Instance().GetpropertyWindow()->GetCurrentPage()))->SetObject(((wxEditSGTGameObject*)(wxEdit::Instance().GetpropertyWindow()->GetCurrentPage()))->GetGameObject());
 			wxEdit::Instance().GetpropertyWindow()->Refresh();
 		}
 	}
-
 	if (mRightDown == true)
 	{
 		if (mSelectedObjects.size() > 0)
 		{
-			if (mXAxisLock == true)
+			if (mXAxisLock == SGTAxisLock::UNLOCKED || mXAxisLock == SGTAxisLock::UNLOCKED_SKIPCHILDREN)
 			{
 				mPerformingObjRot = true;
 				for (std::list<SGTEditorSelection>::iterator i = mSelectedObjects.begin(); i != mSelectedObjects.end(); i++)
 				{
-					(*i).mObject->Rotate((*i).mObject->GetGlobalOrientation().Inverse() * SGTMain::Instance().GetCamera()->getDerivedOrientation().xAxis(), RotY * mObjectRotSpeed);
+					(*i).mObject->Rotate((*i).mObject->GetGlobalOrientation().Inverse() * SGTMain::Instance().GetCamera()->getDerivedOrientation().xAxis(), RotY * mObjectRotSpeed, mXAxisLock == SGTAxisLock::UNLOCKED);
 				}
 			}
-			if (mYAxisLock == true)
+			if (mYAxisLock == SGTAxisLock::UNLOCKED || mYAxisLock == SGTAxisLock::UNLOCKED_SKIPCHILDREN)
 			{
 				mPerformingObjRot = true;
 				for (std::list<SGTEditorSelection>::iterator i = mSelectedObjects.begin(); i != mSelectedObjects.end(); i++)
 				{
-					(*i).mObject->Rotate((*i).mObject->GetGlobalOrientation().Inverse() * SGTMain::Instance().GetCamera()->getDerivedOrientation().yAxis(), RotX * mObjectRotSpeed);
+					(*i).mObject->Rotate((*i).mObject->GetGlobalOrientation().Inverse() * SGTMain::Instance().GetCamera()->getDerivedOrientation().yAxis(), RotX * mObjectRotSpeed, mYAxisLock == SGTAxisLock::UNLOCKED);
 				}
 			}
-			if (mZAxisLock == true)
+			if (mZAxisLock == SGTAxisLock::UNLOCKED || mZAxisLock == SGTAxisLock::UNLOCKED_SKIPCHILDREN)
 			{
 				mPerformingObjRot = true;
 				for (std::list<SGTEditorSelection>::iterator i = mSelectedObjects.begin(); i != mSelectedObjects.end(); i++)
 				{
-					(*i).mObject->Rotate((*i).mObject->GetGlobalOrientation().Inverse() * SGTMain::Instance().GetCamera()->getDerivedOrientation().zAxis(), RotX * mObjectRotSpeed);
+					(*i).mObject->Rotate((*i).mObject->GetGlobalOrientation().Inverse() * SGTMain::Instance().GetCamera()->getDerivedOrientation().zAxis(), RotX * mObjectRotSpeed, mZAxisLock == SGTAxisLock::UNLOCKED);
 				}
 			}
 			((wxEditSGTGameObject*)(wxEdit::Instance().GetpropertyWindow()->GetCurrentPage()))->SetObject(((wxEditSGTGameObject*)(wxEdit::Instance().GetpropertyWindow()->GetCurrentPage()))->GetGameObject());
@@ -326,9 +339,12 @@ void SGTEdit::OnKeyDown(wxKeyEvent& key)
 		mAltIsDown = true;
 	}
 
-	if (key.GetKeyCode() == 49) mXAxisLock = true;
-	if (key.GetKeyCode() == 50) mYAxisLock = true;
-	if (key.GetKeyCode() == 51) mZAxisLock = true;
+	if (key.GetKeyCode() == 49) mXAxisLock = SGTAxisLock::UNLOCKED;
+	if (key.GetKeyCode() == 50) mYAxisLock = SGTAxisLock::UNLOCKED;
+	if (key.GetKeyCode() == 51) mZAxisLock = SGTAxisLock::UNLOCKED;
+	if (key.GetKeyCode() == 52) mXAxisLock = SGTAxisLock::UNLOCKED_SKIPCHILDREN;
+	if (key.GetKeyCode() == 53) mYAxisLock = SGTAxisLock::UNLOCKED_SKIPCHILDREN;
+	if (key.GetKeyCode() == 54) mZAxisLock = SGTAxisLock::UNLOCKED_SKIPCHILDREN;
 
 	if ((key.GetKeyCode() == 66) && (mStrgPressed == true))
 	{
@@ -356,9 +372,12 @@ void SGTEdit::OnKeyUp(wxKeyEvent& key)
 		OnInsertObject();
 	}
 
-	if (key.GetKeyCode() == 49) mXAxisLock = false;
-	if (key.GetKeyCode() == 50) mYAxisLock = false;
-	if (key.GetKeyCode() == 51) mZAxisLock = false;
+	if (key.GetKeyCode() == 49) mXAxisLock = SGTAxisLock::LOCKED;
+	if (key.GetKeyCode() == 50) mYAxisLock = SGTAxisLock::LOCKED;
+	if (key.GetKeyCode() == 51) mZAxisLock = SGTAxisLock::LOCKED;
+	if (key.GetKeyCode() == 52) mXAxisLock = SGTAxisLock::LOCKED;
+	if (key.GetKeyCode() == 53) mYAxisLock = SGTAxisLock::LOCKED;
+	if (key.GetKeyCode() == 54) mZAxisLock = SGTAxisLock::LOCKED;
 
 };
 
@@ -402,54 +421,9 @@ SGTGameObject* SGTEdit::OnInsertObject(SGTGameObject *parent, bool align)
 
 			if (parent != NULL) object->SetParent(parent);
 		}
-		/*else if (wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->GetSelectedResource().find(".SphericalJoint") != Ogre::String::npos)
-		{
-			if (parent == NULL)
-			{
-				ls->CloseFile();
-				delete ls;
-				Ogre::LogManager::getSingleton().logMessage("SGTEdit: Joint muss parent haben!");
-				return NULL;
-			}
-			SGTDataMap *params = (SGTDataMap*)(ls->LoadObject());
-			object = new SGTSphericalJoint();
-			if (((SGTBody*)parent)->GetType() == "StaticBody") ((SGTJoint*)object)->InitCustom(params, (SGTBody*)mTempJointBodyB, (SGTAbstractBody*)parent);
-			else ((SGTJoint*)object)->InitCustom(params, (SGTBody*)parent, mTempJointBodyB);
-			object->SetGlobalPosition(parent->GetGlobalPosition());//SGTMain::Instance().GetCamera()->getDerivedPosition() + (SGTMain::Instance().GetCamera()->getDerivedOrientation() * Ogre::Vector3(0,0,-5))); 
-		}
-		else if (wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->GetSelectedResource().find(".RevoluteJoint") != Ogre::String::npos)
-		{
-			if (parent == NULL)
-			{
-				ls->CloseFile();
-				delete ls;
-				Ogre::LogManager::getSingleton().logMessage("SGTEdit: Joint muss parent haben!");
-				return NULL;
-			}
-			SGTDataMap *params = (SGTDataMap*)(ls->LoadObject());
-			object = new SGTRevoluteJoint();
-			if (((SGTBody*)parent)->GetType() == "StaticBody") ((SGTJoint*)object)->InitCustom(params, (SGTBody*)mTempJointBodyB, (SGTAbstractBody*)parent);
-			else ((SGTJoint*)object)->InitCustom(params, (SGTBody*)parent, mTempJointBodyB);
-			object->SetGlobalPosition(parent->GetGlobalPosition());//object->SetGlobalPosition(SGTMain::Instance().GetCamera()->getDerivedPosition() + (SGTMain::Instance().GetCamera()->getDerivedOrientation() * Ogre::Vector3(0,0,-5))); 
-		}
-		else if (wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->GetSelectedResource().find(".FixedJoint") != Ogre::String::npos)
-		{
-			if (parent == NULL)
-			{
-				ls->CloseFile();
-				delete ls;
-				Ogre::LogManager::getSingleton().logMessage("SGTEdit: Joint muss parent haben!");
-				return NULL;
-			}
-			SGTDataMap *params = (SGTDataMap*)(ls->LoadObject());
-			object = new SGTFixedJoint();
-			if (((SGTBody*)parent)->GetType() == "StaticBody") ((SGTJoint*)object)->InitCustom(params, (SGTBody*)mTempJointBodyB, (SGTAbstractBody*)parent);
-			else ((SGTJoint*)object)->InitCustom(params, (SGTBody*)parent, mTempJointBodyB);
-			object->SetGlobalPosition(parent->GetGlobalPosition());//object->SetGlobalPosition(SGTMain::Instance().GetCamera()->getDerivedPosition() + (SGTMain::Instance().GetCamera()->getDerivedOrientation() * Ogre::Vector3(0,0,-5))); 
-		}*/
 		else
 		{
-			object = new SGTGameObject();
+			object = new SGTGameObject(parent);
 			std::list<ComponentSection> sections;
 			Ogre::Vector3 offset;
 			Ogre::Vector3 scale = Ogre::Vector3(1,1,1);
@@ -468,7 +442,7 @@ SGTGameObject* SGTEdit::OnInsertObject(SGTGameObject *parent, bool align)
 				SGTGOCEditorInterface *component = SGTSceneManager::Instance().CreateComponent((*i).mSectionName, (*i).mSectionData.getPointer());
 				if (component->IsViewComponent())
 				{
-					SGTGOCViewContainer *container = (SGTGOCViewContainer*)object->GetComponent("GOCViewContainer");
+					SGTGOCViewContainer *container = (SGTGOCViewContainer*)object->GetComponent("GOCView");
 					if (!container)
 					{
 						container = new SGTGOCViewContainer();
@@ -576,6 +550,12 @@ void SGTEdit::OnConnectWaypoints()
 	else wp1->DisconnectWaypoint(wp2);
 }
 
+void SGTEdit::OnSaveBones()
+{
+	SGTRagdoll *ragdoll = (SGTRagdoll*)(*mSelectedObjects.begin()).mObject->GetComponent("GOCRagdoll");
+	ragdoll->SerialiseBoneObjects();
+}
+
 void SGTEdit::OnCreateChain()
 {
 	wxTextEntryDialog dialog(wxEdit::Instance().GetOgrePane(),
@@ -585,87 +565,6 @@ void SGTEdit::OnCreateChain()
 		wxOK | wxCANCEL);
 
 	Ogre::String sChainLength = "";
-	/*if (dialog.ShowModal() == wxID_OK)
-	{
-		sChainLength = dialog.GetValue().c_str();
-		int iChainLength = Ogre::StringConverter::parseInt(sChainLength);
-		SGTGameObject *object1 = (*mSelectedObjects.begin()).mObject;
-		SGTGameObject *object2 = mSelectedObjects.begin()._Mynode()->_Next->_Myval.mObject;
-		SGTDataMap *object1Params = new SGTDataMap();
-		object1->GetParams(object1Params);
-		SGTDataMap *object2Params = new SGTDataMap();
-		object2->GetParams(object2Params);
-
-		SGTJoint *joint = NULL;
-		for (unsigned short i = 0; i < object1->GetNumChildren(); i++)
-		{
-			bool jointfound = false;
-			SGTGameObject *child = object1->GetChild(i);
-			if (child->GetType().find("Joint") != Ogre::String::npos)
-			{
-				for (unsigned short x = 0; x < object2->GetNumChildren(); x++)
-				{
-					if (object2->GetChild(x) == child)
-					{
-						joint = (SGTJoint*)(child);
-					}
-				}
-			}
-			if (jointfound) break;
-		}
-		SGTDataMap *jointParams = new SGTDataMap();
-		joint->GetParams(jointParams);
-		Ogre::Vector3 vObjectOffset = object2->GetGlobalPosition() - object1->GetGlobalPosition();
-		Ogre::Vector3 vJointOffset = joint->GetGlobalPosition() - object1->GetGlobalPosition();
-		for (int i = 1; i <= iChainLength - 2; i++)
-		{
-			if (i % 2 == 0)
-			{
-				object2 = SGTSceneManager::Instance().CreateEntity(object2->GetType(), *object2Params, object2->GetParent());
-				object2->SetGlobalPosition(object1->GetGlobalPosition() + vObjectOffset);
-				SGTJoint *newjoint = NULL;
-				if (joint->GetType() == "SphericalJoint")
-				{
-					newjoint = new SGTSphericalJoint();
-				}
-				if (joint->GetType() == "RevoluteJoint")
-				{
-					newjoint = new SGTRevoluteJoint();
-				}
-				if (joint->GetType() == "FixedJoint")
-				{
-					newjoint = new SGTFixedJoint();
-				}
-				newjoint->InitCustom(jointParams, (SGTBody*)object1, (SGTAbstractBody*)object2);
-				newjoint->SetGlobalPosition(object1->GetGlobalPosition() + vJointOffset);
-			}
-			else
-			{
-				object1 = SGTSceneManager::Instance().CreateEntity(object2->GetType(), *object1Params, object1->GetParent());
-				object1->SetGlobalPosition(object2->GetGlobalPosition() + vObjectOffset);
-				SGTJoint *newjoint = NULL;
-				if (joint->GetType() == "SphericalJoint")
-				{
-					newjoint = new SGTSphericalJoint();
-				}
-				if (joint->GetType() == "RevoluteJoint")
-				{
-					newjoint = new SGTRevoluteJoint();
-				}
-				if (joint->GetType() == "FixedJoint")
-				{
-					newjoint = new SGTFixedJoint();
-				}
-				newjoint->InitCustom(jointParams, (SGTBody*)object2, (SGTAbstractBody*)object1);
-				newjoint->SetGlobalPosition(object2->GetGlobalPosition() + vJointOffset);
-			}
-		}
-
-		delete object1Params;
-		delete object2Params;
-		delete jointParams;*/
-
-	
 }
 
 void SGTEdit::OnSelectMaterial(float MouseX, float MouseY)

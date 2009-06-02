@@ -45,7 +45,7 @@ private:
 	SGTGameObject* mParent;
 	std::list<SGTGameObject*> mChildren;
 
-	void UpdateChildren();
+	void UpdateChildren(bool move = true);
 	void UpdateLocalTransform();
 
 public:
@@ -55,6 +55,8 @@ public:
 	Ogre::String GetName() { return mName; }
 
 	int GetID() { return mID; }
+
+	SGTGameObject* GetParent() { return mParent; }
 
 	void SendMessage(Ogre::SharedPtr<SGTObjectMsg> msg);
 	void SendInstantMessage(Ogre::String receiver_family, Ogre::SharedPtr<SGTObjectMsg> msg);
@@ -71,11 +73,11 @@ public:
 	Ogre::Vector3 GetGlobalPosition() { return mPosition; }
 	Ogre::Quaternion GetGlobalOrientation() { return mOrientation; }	
 	Ogre::Vector3 GetGlobalScale() { return mScale; }
-	void SetGlobalPosition(Ogre::Vector3 pos);
-	void SetGlobalOrientation(Ogre::Quaternion quat);
+	void SetGlobalPosition(Ogre::Vector3 pos, bool updateChildren = true);
+	void SetGlobalOrientation(Ogre::Quaternion quat, bool updateChildren = true);
 	void SetGlobalScale(Ogre::Vector3 scale);
-	void Translate(Ogre::Vector3 vec) { if (!mFreezePosition) SetGlobalPosition(mPosition + vec); }
-	void Rotate(Ogre::Vector3 axis, Ogre::Radian angle) { if (!mFreezeOrientation) { Ogre::Quaternion q; q.FromAngleAxis(angle, axis); SetGlobalOrientation(mOrientation * q); } }
+	void Translate(Ogre::Vector3 vec, bool updateChildren = true) { if (!mFreezePosition) SetGlobalPosition(mPosition + vec, updateChildren); }
+	void Rotate(Ogre::Vector3 axis, Ogre::Radian angle, bool updateChildren = true) { if (!mFreezeOrientation) { Ogre::Quaternion q; q.FromAngleAxis(angle, axis); SetGlobalOrientation(mOrientation * q, updateChildren); } }
 	void Rescale(Ogre::Vector3 scaleoffset) { SetGlobalScale(mScale + scaleoffset); }
 
 	bool IsSelectable() { return mSelectable; }
