@@ -39,6 +39,14 @@ SGTGOCViewContainer::SGTGOCViewContainer(void)
 
 SGTGOCViewContainer::~SGTGOCViewContainer(void)
 {
+	std::list<SGTGOCViewComponent*>::iterator i = mItems.begin();
+	while (i != mItems.end())
+	{
+		SGTGOCViewComponent *component = (*i);
+		mItems.erase(i);
+		delete component;
+		i = mItems.begin();
+	}
 	SGTMain::Instance().GetOgreSceneMgr()->destroySceneNode(mNode);
 }
 
@@ -52,10 +60,18 @@ void SGTGOCViewContainer::AddItem(SGTGOCViewComponent *item)
 	}
 }
 
-void SGTGOCViewContainer::RemoveItem(SGTGOCViewComponent* item)
+void SGTGOCViewContainer::RemoveItem(Ogre::String type)
 {
-	mItems.remove(item);
-	delete item;
+	for (std::list<SGTGOCViewComponent*>::iterator i = mItems.begin(); i != mItems.end(); i++)
+	{
+		if ((*i)->GetTypeName() == type)
+		{
+			SGTGOCViewComponent *component = (*i);
+			mItems.erase(i);
+			delete component;
+			return;
+		}
+	}
 }
 
 void SGTGOCViewContainer::SetOwner(SGTGameObject *go)

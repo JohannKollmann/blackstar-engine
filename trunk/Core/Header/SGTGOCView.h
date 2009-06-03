@@ -10,6 +10,7 @@
 class SGTGOCViewComponent : public SGTSaveable
 {
 public:
+	virtual ~SGTGOCViewComponent() {};
 	virtual Ogre::MovableObject* GetEditorVisual() = 0;
 	virtual void AttachToNode(Ogre::SceneNode *node) = 0;
 	virtual void ShowEditorVisual(bool show) = 0;
@@ -40,7 +41,7 @@ public:
 
 class SGTDllExport SGTGOCViewContainer : public SGTGOCNodeRenderable
 {
-protected:
+private:
 	std::list<SGTGOCViewComponent*> mItems;
 
 public:
@@ -52,7 +53,7 @@ public:
 
 	void AddItem(SGTGOCViewComponent *item);
 	SGTGOCViewComponent* GetItem(Ogre::String type);
-	void RemoveItem(SGTGOCViewComponent *item);
+	void RemoveItem(Ogre::String type);
 	void SetOwner(SGTGameObject *go);
 	std::list<SGTGOCViewComponent*>::iterator GetItemIterator() { return mItems.begin(); }
 	std::list<SGTGOCViewComponent*>::iterator GetItemIteratorEnd() { return mItems.end(); }

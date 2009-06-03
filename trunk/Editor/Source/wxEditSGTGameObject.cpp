@@ -236,7 +236,6 @@ void wxEditSGTGameObject::OnApply()
 				select = true;
 				wxEdit::Instance().GetOgrePane()->mEdit->DeselectObject(mGameObject);
 			}
-			//mGameObject->ClearGOCs();
 			for (std::list<ComponentSection>::iterator i = sections.begin(); i != sections.end(); i++)
 			{
 				if ((*i).mSectionName == "Transform")
@@ -250,15 +249,16 @@ void wxEditSGTGameObject::OnApply()
 				SGTGOCEditorInterface *editor_interface = SGTSceneManager::Instance().CreateComponent((*i).mSectionName, (*i).mSectionData.getPointer());
 				if (editor_interface->IsViewComponent())
 				{
-					SGTGOCViewContainer *container = (SGTGOCViewContainer*)mGameObject->GetComponent("GOCView");
+					SGTGOCViewContainer *container = dynamic_cast<SGTGOCViewContainer*>(mGameObject->GetComponent("GOCView"));
 					if (!container)
 					{
 						container = new SGTGOCViewContainer();
-						mGameObject->RemoveComponent(container->GetFamilyID());
 						mGameObject->AddComponent(container);
 					}
-					container->RemoveItem(container->GetItem(((SGTGOCViewComponent*)editor_interface)->GetTypeName()));
-					container->AddItem((SGTGOCViewComponent*)editor_interface);
+					SGTGOCViewComponent *viewcomponent = dynamic_cast<SGTGOCViewComponent*>(editor_interface);
+					Ogre::String gocTypeName = viewcomponent->GetTypeName();
+					container->RemoveItem(gocTypeName);
+					container->AddItem(viewcomponent);
 				}
 				else
 				{
@@ -275,8 +275,8 @@ void wxEditSGTGameObject::OnApply()
 			{
 				wxEdit::Instance().GetOgrePane()->mEdit->SelectObject(mGameObject);
 			}
-			wxEdit::Instance().GetOgrePane()->SetFocus();
 			wxEdit::Instance().GetWorldExplorer()->GetMaterialTree()->Update();
+			wxEdit::Instance().GetOgrePane()->SetFocus();
 		}
 		else
 		{

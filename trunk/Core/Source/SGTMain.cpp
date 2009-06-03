@@ -206,7 +206,7 @@ void SGTMain::initScene()
 	mSceneMgr->setShadowTextureSelfShadow(true);
 	mSceneMgr->setShadowTextureCasterMaterial("shadow_caster");
 
-	//mSceneMgr->setShadowCasterRenderBackFaces(false);
+	mSceneMgr->setShadowCasterRenderBackFaces(false);
 
 	// shadow camera setup
 	Ogre::FocusedShadowCameraSetup* spotSetup = new Ogre::FocusedShadowCameraSetup();
