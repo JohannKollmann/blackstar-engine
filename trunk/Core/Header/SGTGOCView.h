@@ -17,13 +17,6 @@ public:
 	virtual Ogre::String GetTypeName() = 0;
 };
 
-/*class SGTDllExport SGTGOCViewComponentEDT : public SGTGOCEditorInterface, public SGTGOCViewComponent
-{
-public:
-	bool IsViewComponent() { return true; }
-};*/
-
-
 class SGTDllExport SGTGOCNodeRenderable : public SGTGOComponent
 {
 protected:

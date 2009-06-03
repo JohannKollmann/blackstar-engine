@@ -241,8 +241,13 @@ void SGTGameObject::UpdateTransform(Ogre::Vector3 pos, Ogre::Quaternion orientat
 
 void SGTGameObject::OnParentChanged()
 {
-	SetGlobalOrientation(mParent->GetGlobalOrientation() * mLocalOrientation);
-	SetGlobalPosition(mParent->GetGlobalOrientation() * mLocalPosition + mParent->GetGlobalPosition());
+	mOrientation = mParent->GetGlobalOrientation() * mLocalOrientation;
+	mPosition = mParent->GetGlobalOrientation() * mLocalPosition + mParent->GetGlobalPosition();
+	for (std::list<SGTGOComponent*>::iterator i = mComponents.begin(); i != mComponents.end(); i++)
+	{
+		(*i)->UpdateOrientation(mOrientation);
+		(*i)->UpdatePosition(mPosition);
+	}
 	UpdateChildren();
 }
 

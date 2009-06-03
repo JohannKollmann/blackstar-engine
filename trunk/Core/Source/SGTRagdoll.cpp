@@ -86,9 +86,18 @@ void SGTGOCRagdollBone::UpdatePosition(Ogre::Vector3 position)
 	if (mNode)
 	{
 		mNode->setPosition(position);
-		if (!mDebugAnimation)
+		if (mBone)
 		{
-			mBoneConfig.mBoneOffset = position - ((mBone->_getDerivedPosition() * mMeshNode->_getDerivedScale()) + mEntity->getParentSceneNode()->_getDerivedPosition());
+			if (mDebugAnimation)
+			{
+				/*Ogre::Vector3 parentpos = mEntity->getParentSceneNode()->_getDerivedPosition();
+				if (mBone->getParent())
+				{
+					parentpos = parentpos + mBone->getParent()->_getDerivedPosition();
+				}
+				mBone->setPosition(position-parentpos);*/
+			}
+			else mBoneConfig.mBoneOffset = position - ((mBone->_getDerivedPosition() * mMeshNode->_getDerivedScale()) + mEntity->getParentSceneNode()->_getDerivedPosition());
 		}
 	}
 }
