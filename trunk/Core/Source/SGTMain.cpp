@@ -16,6 +16,8 @@
 #include "..\GUISystem.h"
 #include "SSAOListener.h"
 
+#define USE_REMOTEDEBUGGER 1
+
 SGTMain::SGTMain()
 {
 	mNxWorld = NULL;
@@ -129,7 +131,7 @@ void SGTMain::initScene()
 	sp.mSceneFlags.mEnableMultithread = true;
 	sp.mSceneFlags.mSimulateSeperateThread = true;
 	mScene = mNxWorld->createScene("Esgaroth", mSceneMgr, sp);//"renderer: ogre, controller: accumulator, gravity: yes, flags: multithread");
-#if _DEBUG
+#if USE_REMOTEDEBUGGER
 	mNxWorld->getPhysXDriver()->createDebuggerConnection();
 #endif
 	Ogre::LogManager::getSingleton().logMessage("Done");
@@ -213,8 +215,8 @@ void SGTMain::initScene()
 	mSpotShadowCameraSetup = Ogre::ShadowCameraSetupPtr(spotSetup);
 
 	Ogre::PSSMShadowCameraSetup* pssmSetup = new Ogre::PSSMShadowCameraSetup();
-	pssmSetup->calculateSplitPoints(3, mCamera->getNearClipDistance(), 500, 0.95);
-	pssmSetup->setSplitPadding(10);
+	pssmSetup->calculateSplitPoints(3, mCamera->getNearClipDistance(), 250, 0.95);
+	pssmSetup->setSplitPadding(1);
 	pssmSetup->setOptimalAdjustFactor(0, 5);
 	pssmSetup->setOptimalAdjustFactor(1, 1);
 	pssmSetup->setOptimalAdjustFactor(2, 0.5);

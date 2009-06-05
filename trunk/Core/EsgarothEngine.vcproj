@@ -127,6 +127,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="2"
+				FavorSizeOrSpeed="1"
 				AdditionalIncludeDirectories="script\;..\..\Dependencies\OpenAL\include;..\..\Dependencies\Alut\include;..\Common\;..\..\Dependencies\Ogre3D\include\;..\..\Dependencies\Ogre3D\CEGUIRenderer\include\;..\..\Dependencies\Ogre3D\Dependencies\include;..\..\Dependencies\Caelum\include\;..\..\Dependencies\PhysX\SDKs\PhysXLoader\include;..\..\Dependencies\PhysX\SDKs\Physics\include;..\..\Dependencies\PhysX\SDKs\Foundation\include;..\..\Dependencies\PhysX\SDKs\Cooking\include;..\..\Dependencies\;..\..\Dependencies\PhysX\SDKs\NxCharacter\include;..\..\Dependencies\NxOgre\include;Header\;..\LoadSave_dll\SGTLoadSave\ExternalHeaders;..\..\Dependencies\Hydrax\include;..\..\Dependencies\OgreOggSound\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				RuntimeLibrary="2"
@@ -536,15 +537,15 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\Dependencies\Boost\thread\win32\once.hpp"
-					>
-				</File>
-				<File
 					RelativePath="..\..\Dependencies\Boost\thread\pthread\once.hpp"
 					>
 				</File>
 				<File
 					RelativePath="..\..\Dependencies\Boost\thread\once.hpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Dependencies\Boost\thread\win32\once.hpp"
 					>
 				</File>
 				<File
@@ -556,15 +557,15 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\Dependencies\Boost\thread\pthread\recursive_mutex.hpp"
-					>
-				</File>
-				<File
 					RelativePath="..\..\Dependencies\Boost\thread\win32\recursive_mutex.hpp"
 					>
 				</File>
 				<File
 					RelativePath="..\..\Dependencies\Boost\thread\recursive_mutex.hpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Dependencies\Boost\thread\pthread\recursive_mutex.hpp"
 					>
 				</File>
 				<File
@@ -584,15 +585,15 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\Dependencies\Boost\thread\win32\thread.hpp"
-					>
-				</File>
-				<File
 					RelativePath="..\..\Dependencies\Boost\thread\pthread\thread.hpp"
 					>
 				</File>
 				<File
 					RelativePath="..\..\Dependencies\Boost\thread\thread.hpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Dependencies\Boost\thread\win32\thread.hpp"
 					>
 				</File>
 				<File

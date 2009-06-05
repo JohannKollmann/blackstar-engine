@@ -28,6 +28,9 @@ private:
 	bool mFreezePosition;
 	bool mFreezeOrientation;
 
+	bool mTransformingChildren;
+	bool mUpdatingFromParent;
+
 	//Global and local transform
 	Ogre::Vector3 mPosition;
 	Ogre::Quaternion mOrientation;
@@ -79,6 +82,8 @@ public:
 	void Translate(Ogre::Vector3 vec, bool updateChildren = true) { if (!mFreezePosition) SetGlobalPosition(mPosition + vec, updateChildren); }
 	void Rotate(Ogre::Vector3 axis, Ogre::Radian angle, bool updateChildren = true) { if (!mFreezeOrientation) { Ogre::Quaternion q; q.FromAngleAxis(angle, axis); SetGlobalOrientation(mOrientation * q, updateChildren); } }
 	void Rescale(Ogre::Vector3 scaleoffset) { SetGlobalScale(mScale + scaleoffset); }
+	bool GetTranformingChildren() { return mTransformingChildren; }
+	bool GetUpdatingFromParent() { return mUpdatingFromParent; }
 
 	bool IsSelectable() { return mSelectable; }
 	void SetSelectable(bool selectable) { mSelectable = selectable; }

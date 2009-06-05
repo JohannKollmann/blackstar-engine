@@ -26,7 +26,7 @@ struct sBoneActorBind
 	SGTGameObject *mVisualBone;
 	Ogre::String mParentBoneName;
 	sD6Joint mJoint;
-	Ogre::Vector3 mLocalAxis;
+	Ogre::Quaternion mJointOrientation;
 	Ogre::Vector3 mOffset;
 	float mBoneLength;
 	float mBoneRadius;
@@ -49,6 +49,8 @@ struct sBoneActorBindConfig
 	Ogre::Vector3 mBoneOffset;
 	Ogre::Quaternion mBoneOrientation;
 	float mRadius;
+	Ogre::Quaternion mJointOrientation;
+	bool mNeedsJointOrientation;
 	bool mHinge;
 	float mSwing1;
 	float mSwing2;
@@ -71,13 +73,17 @@ private:
 	Ogre::Bone *mBone;
 	Ogre::SceneNode *mMeshNode;
 	Ogre::SceneNode *mOffsetNode;
+	Ogre::SceneNode *mJointAxisNode;
+	Ogre::ManualObject *mJointAxis;
 	sBoneActorBindConfig mBoneConfig;
 	bool mDebugAnimation;
 	Ogre::Quaternion mBoneActorGlobalBindOrientationInverse;
 	Ogre::Quaternion mBoneGlobalBindOrientation;
+	Ogre::Vector3 mGlobalBindPosition;
 	RagBoneRef* mRagBoneRef;
 
 	void ScaleNode();
+	void CreateJointAxis();
 
 public:
 	SGTGOCRagdollBone(void);
@@ -101,7 +107,7 @@ public:
 	void UpdateScale(Ogre::Vector3 scale);
 	void UpdateOrientation(Ogre::Quaternion orientation);
 
-	void SetBone(Ogre::Bone* bone, Ogre::SceneNode *meshnode, SGTRagdoll* ragdoll, float length, float radius);
+	void SetBone(Ogre::SceneNode *meshnode, SGTRagdoll* ragdoll, sBoneActorBind bone_config, bool controlBone);
 
 	void SetOwner(SGTGameObject *go);
 
@@ -137,7 +143,7 @@ private:
 	/*
 	Creates a skeleton from a config file.
 	*/
-	void CreateSkeleton(std::vector<sBoneActorBindConfig> config);
+	void CreateSkeleton(std::vector<sBoneActorBindConfig> &config);
 
 	Ogre::Bone* GetRealParent(Ogre::Bone *bone);
 

@@ -436,6 +436,8 @@ SGTGameObject* SGTEdit::OnInsertObject(SGTGameObject *parent, bool align)
 					offset = (*i).mSectionData->GetOgreVec3("Position");
 					orientation = (*i).mSectionData->GetOgreQuat("Orientation");
 					scale = (*i).mSectionData->GetOgreVec3("Scale");
+					object->SetGlobalOrientation(orientation);
+					object->SetGlobalScale(scale);
 					continue;
 				} 
 				(*i).mSectionData->AddOgreVec3("Scale", scale);

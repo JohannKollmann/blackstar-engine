@@ -18,6 +18,8 @@ SGTGameObject::SGTGameObject(SGTGameObject *parent)
 	UpdateLocalTransform();
 	mFreezePosition = false;
 	mFreezeOrientation = false;
+	mTransformingChildren = false;
+	mUpdatingFromParent = false;
 }
 
 SGTGameObject::~SGTGameObject()
@@ -181,6 +183,7 @@ SGTGameObject* SGTGameObject::GetChild(unsigned short index)
 
 void SGTGameObject::SetGlobalPosition(Ogre::Vector3 pos, bool updateChildren)
 {
+	mTransformingChildren = updateChildren;
 	mPosition = pos;
 	for (std::list<SGTGOComponent*>::iterator i = mComponents.begin(); i != mComponents.end(); i++)
 	{
@@ -191,10 +194,12 @@ void SGTGameObject::SetGlobalPosition(Ogre::Vector3 pos, bool updateChildren)
 		mLocalPosition = mParent->GetGlobalOrientation().Inverse () * (mPosition - mParent->GetGlobalPosition());
 	}
 	UpdateChildren(updateChildren);
+	mTransformingChildren = false;
 }
 
 void SGTGameObject::SetGlobalOrientation(Ogre::Quaternion orientation, bool updateChildren)
 {
+	mTransformingChildren = updateChildren;
 	mOrientation = orientation;
 	for (std::list<SGTGOComponent*>::iterator i = mComponents.begin(); i != mComponents.end(); i++)
 	{
@@ -205,6 +210,7 @@ void SGTGameObject::SetGlobalOrientation(Ogre::Quaternion orientation, bool upda
 		mLocalOrientation = mParent->GetGlobalOrientation().Inverse() * orientation;
 	}
 	UpdateChildren(updateChildren);
+	mTransformingChildren = true;
 }
 
 void SGTGameObject::SetGlobalScale(Ogre::Vector3 scale)
@@ -241,6 +247,7 @@ void SGTGameObject::UpdateTransform(Ogre::Vector3 pos, Ogre::Quaternion orientat
 
 void SGTGameObject::OnParentChanged()
 {
+	mUpdatingFromParent = true;
 	mOrientation = mParent->GetGlobalOrientation() * mLocalOrientation;
 	mPosition = mParent->GetGlobalOrientation() * mLocalPosition + mParent->GetGlobalPosition();
 	for (std::list<SGTGOComponent*>::iterator i = mComponents.begin(); i != mComponents.end(); i++)
@@ -249,6 +256,7 @@ void SGTGameObject::OnParentChanged()
 		(*i)->UpdatePosition(mPosition);
 	}
 	UpdateChildren();
+	mUpdatingFromParent = false;
 }
 
 void SGTGameObject::Save(SGTSaveSystem& mgr)

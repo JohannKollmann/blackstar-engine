@@ -182,10 +182,11 @@ void wxOgre::OnRenderTimer(wxTimerEvent& event)
 		wxEdit::Instance().GetOgrePane()->SetFocus();
 	}*/
 	//if (wxEdit::Instance().FindFocus() == this || wxEdit::Instance().FindFocus() == wxEdit::Instance().GetSettingsWindow()) update();
-	if (wxEdit::Instance().FindFocus())
+	/*if (wxEdit::Instance().FindFocus())
 	{
 		if (wxEdit::Instance().FindFocus()->GetName() == "panel" || wxEdit::Instance().FindFocus()->GetName() == "frame" || wxEdit::Instance().FindFocus()->GetName() == "slider") update();
-	}
+	}*/
+	update();
 	//else Ogre::LogManager::getSingleton().logMessage(wxEdit::Instance().FindFocus()->GetName().c_str());
 }
 
