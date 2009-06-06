@@ -26,6 +26,7 @@ struct sBoneActorBind
 	SGTGameObject *mVisualBone;
 	Ogre::String mParentBoneName;
 	sD6Joint mJoint;
+	bool mNeedsJointOrientation;
 	Ogre::Quaternion mJointOrientation;
 	Ogre::Vector3 mOffset;
 	float mBoneLength;
@@ -83,7 +84,6 @@ private:
 	RagBoneRef* mRagBoneRef;
 
 	void ScaleNode();
-	void CreateJointAxis();
 
 public:
 	SGTGOCRagdollBone(void);
@@ -99,6 +99,8 @@ public:
 	void* GetUserData();
 	void InjectUserData(void* data);
 
+	void CreateJointAxis();
+
 	bool GetTestAnimation();
 
 	sBoneActorBindConfig GetBoneConfig() { return mBoneConfig; }
@@ -107,7 +109,7 @@ public:
 	void UpdateScale(Ogre::Vector3 scale);
 	void UpdateOrientation(Ogre::Quaternion orientation);
 
-	void SetBone(Ogre::SceneNode *meshnode, SGTRagdoll* ragdoll, sBoneActorBind bone_config, bool controlBone);
+	void SetBone(Ogre::SceneNode *meshnode, SGTRagdoll* ragdoll, sBoneActorBind &bone_config, bool controlBone);
 
 	void SetOwner(SGTGameObject *go);
 
@@ -130,6 +132,8 @@ private:
 	Ogre::AnimationState *mAnimationState;
 	bool mControlledByActors;
 	Ogre::String mAnimationStateStr;
+
+	bool mSetControlToActorsTemp;
 
 	void Create(Ogre::String meshname, Ogre::Vector3 scale);
 
@@ -176,6 +180,7 @@ public:
 
 	void ReceiveMessage(SGTMsg &msg);
 
+	void SetOwner(SGTGameObject *go);
 	void CreateFromDataMap(SGTDataMap *parameters);
 	void GetParameters(SGTDataMap *parameters);
 	static void GetDefaultParameters(SGTDataMap *parameters);

@@ -424,6 +424,9 @@ SGTGameObject* SGTEdit::OnInsertObject(SGTGameObject *parent, bool align)
 		else
 		{
 			object = new SGTGameObject(parent);
+			if (align) AlignObjectWithMesh(object);
+			else object->SetGlobalPosition(SGTMain::Instance().GetCamera()->getDerivedPosition() + (SGTMain::Instance().GetCamera()->getDerivedOrientation() * Ogre::Vector3(0,0,-5))); 
+
 			std::list<ComponentSection> sections;
 			Ogre::Vector3 offset;
 			Ogre::Vector3 scale = Ogre::Vector3(1,1,1);
@@ -457,9 +460,6 @@ SGTGameObject* SGTEdit::OnInsertObject(SGTGameObject *parent, bool align)
 					object->AddComponent(dynamic_cast<SGTGOComponent*>(component));
 				}
 			}
-
-			if (align) AlignObjectWithMesh(object);
-			else object->SetGlobalPosition(SGTMain::Instance().GetCamera()->getDerivedPosition() + (SGTMain::Instance().GetCamera()->getDerivedOrientation() * Ogre::Vector3(0,0,-5))); 
 
 			//SGTMain::Instance().GetNxWorld()->getPhysXDriver()->simulate(0);
 		}

@@ -20,6 +20,7 @@ SGTSceneManager::SGTSceneManager(void)
 	mWeatherController = NULL;
 	mIndoorRendering = false;
 	mLevelMesh = NULL;
+	mNextID = 0;
 }
 
 SGTSceneManager::~SGTSceneManager(void)
@@ -164,7 +165,6 @@ void SGTSceneManager::Init()
 
 void SGTSceneManager::Reset()
 {
-	mNextID = 0;
 	SetToOutdoor();
 }
 
@@ -465,12 +465,12 @@ void SGTSceneManager::CreatePlayer()
 	player->AddComponent(new SGTGOCPlayerInput());
 	player->AddComponent(new SGTGOCCameraController(SGTMain::Instance().GetCamera()));
 	player->AddComponent(new SGTGOCCharacterController(Ogre::Vector3(1,1.8,1)));
-	SGTRagdoll *ragdoll = new SGTRagdoll("zm_Skin.mesh", Ogre::Vector3(1,1,1));
+	/*SGTRagdoll *ragdoll = new SGTRagdoll("zm_Skin.mesh", Ogre::Vector3(1,1,1));
 	ragdoll->SetAnimationState("Walk");
-	player->AddComponent(ragdoll);
-	/*SGTGOCViewContainer *container = new SGTGOCViewContainer();
+	player->AddComponent(ragdoll);*/
+	SGTGOCViewContainer *container = new SGTGOCViewContainer();
 	container->AddItem(new SGTMeshRenderable("cube.1m.mesh", true));
-	player->AddComponent(container);*/
+	player->AddComponent(container);
 	player->SetGlobalPosition(Ogre::Vector3(0,10,0));
 
 	/*SGTGOCViewContainer *view = new SGTGOCViewContainer();
