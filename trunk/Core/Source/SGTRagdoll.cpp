@@ -56,7 +56,11 @@ void SGTGOCRagdollBone::InjectUserData(void* data)
 	mBoneConfig.mRadius = mBoneConfig.mRadius / scale_factor;
 	ScaleNode();
 	mGlobalBindPosition = mOwnerGO->GetGlobalPosition() - (mBoneConfig.mBoneOffset*scale_factor);
-	if (mBoneConfig.mParentName != "None") CreateJointAxis();
+	if (mBoneConfig.mParentName != "None")
+	{
+		mBoneConfig.mJointOrientation = mOwnerGO->GetParent()->GetGlobalOrientation().Inverse() * mBoneConfig.mJointOrientation;
+		CreateJointAxis();
+	}
 }
 
 void SGTGOCRagdollBone::CreateFromDataMap(SGTDataMap *parameters)
@@ -81,7 +85,9 @@ void SGTGOCRagdollBone::GetParameters(SGTDataMap *parameters)
 	parameters->AddFloat("BoneLength", mBoneConfig.mBoneLength * scale_factor);
 	parameters->AddOgreVec3("BoneOffset", mBoneConfig.mBoneOffset * scale_factor);
 	parameters->AddFloat("Radius", mBoneConfig.mRadius * scale_factor);
-	parameters->AddOgreQuat("JointOrientation", mBoneConfig.mJointOrientation);
+	Ogre::Quaternion parentOrientation = Ogre::Quaternion();
+	if (mOwnerGO->GetParent()) parentOrientation = mOwnerGO->GetParent()->GetGlobalOrientation();
+	parameters->AddOgreQuat("JointOrientation", parentOrientation * mBoneConfig.mJointOrientation);
 	parameters->AddFloat("Swing1", mBoneConfig.mSwing1);
 	parameters->AddFloat("Swing2", mBoneConfig.mSwing2);
 	parameters->AddFloat("TwistMax", mBoneConfig.mTwistMax);
@@ -136,13 +142,10 @@ void SGTGOCRagdollBone::UpdateOrientation(Ogre::Quaternion orientation)
 	if (mNode)
 	{
 		mNode->setOrientation(orientation);
-		Ogre::Quaternion q = Ogre::Vector3(1,0,0).getRotationTo(Ogre::Vector3(0,1,0));
-		mBoneConfig.mBoneOrientation = orientation * q.Inverse();
+		//Ogre::Quaternion q = Ogre::Vector3(1,0,0).getRotationTo(Ogre::Vector3(0,1,0));
+		mBoneConfig.mBoneOrientation = orientation;// * q.Inverse();
 		if (GetTestAnimation() && mBone)
 		{
-			/*Ogre::Quaternion parentquat = mMeshNode->_getDerivedOrientation();
-			if (mBone->getParent()) parentquat = parentquat * mBone->getParent()->_getDerivedOrientation();
-			mBone->setOrientation(parentquat.Inverse() * orientation);*/
 			Ogre::Quaternion PhysxRotation, OgreGlobalQuat, NodeRotation = mMeshNode->_getDerivedOrientation();
 			PhysxRotation = orientation * mBoneActorGlobalBindOrientationInverse;
 			OgreGlobalQuat = PhysxRotation * mBoneGlobalBindOrientation;
@@ -180,21 +183,21 @@ void SGTGOCRagdollBone::CreateJointAxis()
 	mJointAxis->begin("WPLine", Ogre::RenderOperation::OT_TRIANGLE_LIST);
 	float width = 0.05;
 	float height = mBoneConfig.mBoneLength*scale_factor;
-	mJointAxis->position(Ogre::Vector3(0, -height*0.8, 0)); //0
+	mJointAxis->position(Ogre::Vector3(0, 0, 0)); //0
 	mJointAxis->colour(1,0,0);
-	mJointAxis->position(Ogre::Vector3(width, -height*0.8, 0)); //1
+	mJointAxis->position(Ogre::Vector3(width, 0, 0)); //1
 	mJointAxis->colour(1,0,0);
-	mJointAxis->position(Ogre::Vector3(0, -height*0.8, width)); //2
+	mJointAxis->position(Ogre::Vector3(0, 0, width)); //2
 	mJointAxis->colour(1,0,0);
-	mJointAxis->position(Ogre::Vector3(width, -height*0.8, width)); //3
+	mJointAxis->position(Ogre::Vector3(width, 0, width)); //3
 	mJointAxis->colour(1,0,0);
-	mJointAxis->position(Ogre::Vector3(0, 0, 0)); //4
+	mJointAxis->position(Ogre::Vector3(0, height*0.8, 0)); //4
 	mJointAxis->colour(1,0,0);
-	mJointAxis->position(Ogre::Vector3(width, 0, 0)); //5
+	mJointAxis->position(Ogre::Vector3(width, height*0.8, 0)); //5
 	mJointAxis->colour(1,0,0);
-	mJointAxis->position(Ogre::Vector3(0, 0, width)); //6
+	mJointAxis->position(Ogre::Vector3(0, height*0.8, width)); //6
 	mJointAxis->colour(1,0,0);
-	mJointAxis->position(Ogre::Vector3(width, 0, width)); //7
+	mJointAxis->position(Ogre::Vector3(width, height*0.8, width)); //7
 
 	mJointAxis->quad(0, 1, 3, 2); //away
 	mJointAxis->quad(6, 7, 5, 4); //forward
@@ -210,11 +213,6 @@ void SGTGOCRagdollBone::CreateJointAxis()
 	mJointAxisNode = mNode->createChildSceneNode("AxisLine_" + mOwnerGO->GetName());
 	mJointAxisNode->setInheritOrientation(false);
 	Ogre::Quaternion parentOrientation = mOwnerGO->GetParent()->GetGlobalOrientation();
-	if (mBoneConfig.mNeedsJointOrientation)
-	{
-		mBoneConfig.mJointOrientation = parentOrientation.Inverse() * mOwnerGO->GetGlobalOrientation();
-		mBoneConfig.mNeedsJointOrientation = false;
-	}
 	mJointAxisNode->setOrientation(parentOrientation * mBoneConfig.mJointOrientation);
 	mJointAxisNode->attachObject(mJointAxis);
 }
@@ -224,7 +222,7 @@ void SGTGOCRagdollBone::ScaleNode()
 	float scale_factor = ((mMeshNode->_getDerivedScale().x + mMeshNode->_getDerivedScale().y + mMeshNode->_getDerivedScale().z) / 3);
 	float capsule_height = (scale_factor*mBoneConfig.mBoneLength) - (scale_factor*mBoneConfig.mBoneLength * 0.4f);
 	if (capsule_height <= 0.0f) capsule_height = 0.1f;
-	Ogre::Vector3 offset = Ogre::Vector3(0.0f,-mBoneConfig.mBoneLength*0.5f*scale_factor,0.0f);
+	Ogre::Vector3 offset = Ogre::Vector3(0.0f,mBoneConfig.mBoneLength*0.5f*scale_factor,0.0f);
 	mOffsetNode->setScale(Ogre::Vector3(mBoneConfig.mRadius*scale_factor, capsule_height, mBoneConfig.mRadius*scale_factor));
 	mOffsetNode->setPosition(offset);
 }
@@ -437,8 +435,8 @@ void SGTRagdoll::CreateBoneObjects()
 		SGTGOCRagdollBone *bone = new SGTGOCRagdollBone();
 		go->AddComponent(bone);
 		go->SetGlobalPosition((*i).mActor->getGlobalPositionAsOgreVector3());
-		Ogre::Quaternion q = Ogre::Vector3(1,0,0).getRotationTo(Ogre::Vector3(0,1,0));
-		go->SetGlobalOrientation((*i).mActor->getGlobalOrientationAsOgreQuaternion() * q);
+		//Ogre::Quaternion q = Ogre::Vector3(1,0,0).getRotationTo(Ogre::Vector3(0,1,0));
+		go->SetGlobalOrientation((*i).mActor->getGlobalOrientationAsOgreQuaternion());// * q);
 		bone->SetBone(mNode, this, (*i), true);
 		//go->SetFreezePosition(true);
 		(*i).mVisualBone = go;
@@ -504,8 +502,8 @@ void SGTRagdoll::CreateSkeleton(std::vector<sBoneActorBindConfig> &config)
 		float scaled_bonelength = (*i).mBoneLength * scale_factor;
 		float capsule_height = scaled_bonelength - capsule_radius * 2.0f;
 		if (capsule_height <= 0.0f) capsule_height = 0.01f;
-		NxFindRotationMatrix(NxVec3(0.0f,1.0f,0.0f), NxVec3(1.0,0.0f,0.0f), sp.mLocalPose.M);
-		sp.mLocalPose.t = NxVec3(scaled_bonelength/2.0f,0.0f,0.0f);
+		//NxFindRotationMatrix(NxVec3(0.0f,1.0f,0.0f), NxVec3(1.0,0.0f,0.0f), sp.mLocalPose.M);
+		sp.mLocalPose.t = NxVec3(0.0f,scaled_bonelength/2.0f,0.0f);
 		bone_actor_bind.mOffset = (*i).mBoneOffset;
 		Ogre::Vector3 localBonePos = (bone->_getDerivedPosition() + (*i).mBoneOffset) * scale;
 		Ogre::String strID = bone->getName() + "_" + SGTSceneManager::Instance().RequestIDStr();
@@ -554,7 +552,7 @@ void SGTRagdoll::CreateSkeleton(std::vector<sBoneActorBindConfig> &config)
 					if ((*j).mNeedsJointOrientation && (*j).mBoneName == (*i).mBone->getName())
 					{
 						(*j).mJointOrientation = (*i).mParent->mActor->getGlobalOrientationAsOgreQuaternion().Inverse() * (*i).mActor->getGlobalOrientationAsOgreQuaternion();
-						//(*j).mNeedsJointOrientation = false;
+						(*j).mNeedsJointOrientation = false;
 						(*i).mJointOrientation = (*j).mJointOrientation;
 					}
 				}
@@ -585,7 +583,7 @@ std::vector<sBoneActorBindConfig> SGTRagdoll::CreateDummySkeleton()
 			Ogre::Vector3 childpos = bone->getChild(0)->_getDerivedPosition();
 			if (childpos == mypos) continue;
 			difference = childpos - mypos;
-			estimated_orientation = Ogre::Vector3::UNIT_X.getRotationTo(difference.normalisedCopy());
+			estimated_orientation = Ogre::Vector3::UNIT_Y.getRotationTo(difference.normalisedCopy());
 		}
 		else if (bone->getParent())
 		{
@@ -594,7 +592,7 @@ std::vector<sBoneActorBindConfig> SGTRagdoll::CreateDummySkeleton()
 			Ogre::Vector3 parentpos = bone->getParent()->_getDerivedPosition();
 			if (parentpos == mypos) continue;
 			difference = parentpos - mypos;
-			estimated_orientation = Ogre::Vector3::UNIT_X.getRotationTo(-difference.normalisedCopy());
+			estimated_orientation = Ogre::Vector3::UNIT_Y.getRotationTo(-difference.normalisedCopy());
 			difference.normalise();
 			difference = difference * 0.1f * (mEntity->getBoundingRadius() / ((scale.x + scale.y + scale.z) / 3.0f));
 		}
@@ -793,7 +791,6 @@ void SGTRagdoll::SetControlToActors()
      }
 
 	SetAllBonesToManualControl(true);
-	ResetBones();
 	for (std::vector<sBoneActorBind>::iterator i = mSkeleton.begin(); i != mSkeleton.end(); i++)
 	{
 		(*i).mActor->clearBodyFlag(NxBodyFlag::NX_BF_FROZEN_POS);
