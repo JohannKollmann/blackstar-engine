@@ -7,26 +7,30 @@
 #include "Ogre.h"
 #include "SGTLoadSave.h"
 #include "boost/any.hpp"
+#include "OgreAny.h"
 
 /*
 Klasse zum sicheren und komfortablen Benutzen von std::map<Ogre::String, void*>
 */
 
-class SGTDllExport SGTDataMapEntry 
+class SGTDllExport SGTGenericProperty
 {
 public:
-	SGTDataMapEntry();
-	~SGTDataMapEntry();
-	Ogre::SharedPtr<BYTE> mData;
+	Ogre::Any mData;
 	Ogre::String mType;
 	Ogre::String mKey;
+
+	SGTGenericProperty() {};
+	template <typename T>
+		void Set(T value, Ogre::String type, Ogre::String key) { mData = value; mType = type; mKey = key; };
+	~SGTGenericProperty() {};
 };
 
 class SGTDllExport SGTDataMap : public SGTSaveable
 {
 private:
-	std::vector<SGTDataMapEntry> mData;
-	std::vector<SGTDataMapEntry>::iterator mIterator;
+	std::vector<SGTGenericProperty> mData;
+	std::vector<SGTGenericProperty>::iterator mIterator;
 
 public:
 	SGTDataMap();
@@ -34,12 +38,22 @@ public:
 	~SGTDataMap();
 
 	bool HasNext();
-	SGTDataMapEntry GetNext();
-	SGTDataMapEntry* GetNextPtr();
+	SGTGenericProperty GetNext();
+	SGTGenericProperty* GetNextPtr();
 
 	bool HasKey(Ogre::String keyname);
 
-	void* GetData(Ogre::String keyname);
+	template <class templateType>
+		templateType GetValue(Ogre::String keyname)
+		{
+			for (std::vector<SGTGenericProperty>::iterator i = mData.begin(); i != mData.end(); i++)
+			{
+				if ((*i).mKey == keyname) return Ogre::any_cast<templateType>((*i).mData);
+			}
+			//Invalid key! Let's return some bullshit.
+			Ogre::LogManager::getSingleton().logMessage("SGTDataMap::Get Invalid key (" + keyname + ")!");
+			return templateType();
+		}
 
 	int GetInt(Ogre::String keyname);
 	bool GetBool(Ogre::String keyname);
@@ -48,24 +62,16 @@ public:
 	Ogre::Quaternion GetOgreQuat(Ogre::String keyname);
 	Ogre::String GetOgreString(Ogre::String keyname);
 
-
-	void AddData(Ogre::String keyname, Ogre::String type, BYTE* data);
-
 	/*
 	Template zum speichern von Basistypen.
 	*/
 	template <class templateType>
 		void AddValue(Ogre::String keyname, Ogre::String type, templateType var)
 		{
-			/*
-			AddData(keyname, (void*)(&var));
-			Würde die Adresse der übergeben Variable speichern. In der Regel will man aber eine Kopie des Wertes
-			speichern und keinen Zeiger auf den Wert selbst. Deswegen wird memcpy benutzt.
-			*/
-			templateType* data = new templateType;
-			*data = var;
-			//memcpy(data, &var, sizeof(var));
-			AddData(keyname, type, (BYTE*)(data));
+			SGTGenericProperty entry;
+			entry.Set<templateType>(var, type, keyname);
+			mData.push_back(entry);
+			mIterator = mData.begin();
 		};
 	void AddBool(Ogre::String keyname, bool val);
 	void AddInt(Ogre::String keyname, int val);
@@ -75,8 +81,6 @@ public:
 	void AddOgreString(Ogre::String keyname, Ogre::String text);
 
 	//Load Save
-	void SaveContent(SGTSaveSystem& myManager);
-	void LoadContent(SGTLoadSystem& mgr); 
 	void Save(SGTSaveSystem& myManager);
 	void Load(SGTLoadSystem& mgr); 
 	static void Register(std::string* pstrName, SGTSaveableInstanceFn* pFn) { *pstrName = "SGTDataMap"; *pFn = (SGTSaveableInstanceFn)&NewInstance; };

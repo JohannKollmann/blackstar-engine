@@ -18,6 +18,15 @@ struct sD6Joint
 
 class SGTGOCRagdollBone;
 
+struct sJointLimitParams
+{
+	float mValue;
+	float mDamping;
+	float mRestitution;
+	float mSpring;
+};
+
+
 struct sBoneActorBind
 {
 	Ogre::Bone *mBone;
@@ -32,10 +41,10 @@ struct sBoneActorBind
 	float mBoneLength;
 	float mBoneRadius;
 	bool mHinge;
-	float mSwing1;
-	float mSwing2;
-	float mTwistMax;
-	float mTwistMin;
+	sJointLimitParams mSwing1;
+	sJointLimitParams mSwing2;
+	sJointLimitParams mTwistMax;
+	sJointLimitParams mTwistMin;
 	Ogre::Vector3 mBoneGlobalBindPosition;
 	Ogre::Quaternion mBoneActorGlobalBindOrientation;
 	Ogre::Quaternion mBoneGlobalBindOrientation;
@@ -53,10 +62,10 @@ struct sBoneActorBindConfig
 	Ogre::Quaternion mJointOrientation;
 	bool mNeedsJointOrientation;
 	bool mHinge;
-	float mSwing1;
-	float mSwing2;
-	float mTwistMax;
-	float mTwistMin;
+	sJointLimitParams mSwing1;
+	sJointLimitParams mSwing2;
+	sJointLimitParams mTwistMax;
+	sJointLimitParams mTwistMin;
 };
 
 class SGTRagdoll;

@@ -21,10 +21,26 @@ SGTGOCRagdollBone::SGTGOCRagdollBone(void)
 	mBoneConfig.mBoneOffset = Ogre::Vector3(0,0,0);
 	mGlobalBindPosition = Ogre::Vector3(0,0,0);
 	mBoneConfig.mBoneOrientation = Ogre::Quaternion();
-	mBoneConfig.mTwistMax = 20.0f;
-	mBoneConfig.mTwistMin = -20.0f;
-	mBoneConfig.mSwing1 = 30.0f;
-	mBoneConfig.mSwing2 = 30.0f;
+
+	mBoneConfig.mTwistMax.mValue = 20.0f;
+	mBoneConfig.mTwistMax.mDamping = 0.0f;
+	mBoneConfig.mTwistMax.mRestitution = 0.0f;
+	mBoneConfig.mTwistMax.mSpring = 0.0f;
+
+	mBoneConfig.mTwistMin.mValue = -20.0f;
+	mBoneConfig.mTwistMin.mDamping = 0.0f;
+	mBoneConfig.mTwistMin.mRestitution = 0.0f;
+	mBoneConfig.mTwistMin.mSpring = 0.0f;
+
+	mBoneConfig.mSwing1.mValue = 30.0f;
+	mBoneConfig.mSwing1.mDamping = 0.0f;
+	mBoneConfig.mSwing1.mRestitution = 0.0f;
+	mBoneConfig.mSwing1.mSpring = 0.0f;
+
+	mBoneConfig.mSwing2.mValue = 30.0f;
+	mBoneConfig.mSwing2.mDamping = 0.0f;
+	mBoneConfig.mSwing2.mRestitution = 0.0f;
+	mBoneConfig.mSwing2.mSpring = 0.0f;
 }
 SGTGOCRagdollBone::~SGTGOCRagdollBone(void)
 {
@@ -71,10 +87,26 @@ void SGTGOCRagdollBone::CreateFromDataMap(SGTDataMap *parameters)
 	mBoneConfig.mRadius = parameters->GetFloat("Radius");
 	mBoneConfig.mJointOrientation = parameters->GetOgreQuat("JointOrientation");
 	mBoneConfig.mNeedsJointOrientation = false;
-	mBoneConfig.mSwing1 = parameters->GetFloat("Swing1");
-	mBoneConfig.mSwing2 = parameters->GetFloat("Swing2");
-	mBoneConfig.mTwistMax = parameters->GetFloat("TwistMax");
-	mBoneConfig.mTwistMin = parameters->GetFloat("TwistMin");
+	mBoneConfig.mSwing1.mValue = parameters->GetFloat("Swing1_Value");
+	mBoneConfig.mSwing1.mDamping = parameters->GetFloat("Swing1_Damping");
+	mBoneConfig.mSwing1.mRestitution = parameters->GetFloat("Swing1_Restitution");
+	mBoneConfig.mSwing1.mSpring = parameters->GetFloat("Swing1_Spring");
+
+	mBoneConfig.mSwing2.mValue = parameters->GetFloat("Swing2_Value");
+	mBoneConfig.mSwing2.mDamping = parameters->GetFloat("Swing2_Damping");
+	mBoneConfig.mSwing2.mRestitution = parameters->GetFloat("Swing2_Restitution");
+	mBoneConfig.mSwing2.mSpring = parameters->GetFloat("Swing2_Spring");
+
+	mBoneConfig.mTwistMax.mValue = parameters->GetFloat("TwistMax_Value");
+	mBoneConfig.mTwistMax.mDamping = parameters->GetFloat("TwistMax_Damping");
+	mBoneConfig.mTwistMax.mRestitution = parameters->GetFloat("TwistMax_Restitution");
+	mBoneConfig.mTwistMax.mSpring = parameters->GetFloat("TwistMax_Spring");
+
+	mBoneConfig.mTwistMin.mValue = parameters->GetFloat("TwistMin_Value");
+	mBoneConfig.mTwistMin.mDamping = parameters->GetFloat("TwistMin_Damping");
+	mBoneConfig.mTwistMin.mRestitution = parameters->GetFloat("TwistMin_Restitution");
+	mBoneConfig.mTwistMin.mSpring = parameters->GetFloat("TwistMin_Spring");
+
 	mDebugAnimation = parameters->GetBool("TestAnimation");
 }
 
@@ -88,10 +120,27 @@ void SGTGOCRagdollBone::GetParameters(SGTDataMap *parameters)
 	Ogre::Quaternion parentOrientation = Ogre::Quaternion();
 	if (mOwnerGO->GetParent()) parentOrientation = mOwnerGO->GetParent()->GetGlobalOrientation();
 	parameters->AddOgreQuat("JointOrientation", parentOrientation * mBoneConfig.mJointOrientation);
-	parameters->AddFloat("Swing1", mBoneConfig.mSwing1);
-	parameters->AddFloat("Swing2", mBoneConfig.mSwing2);
-	parameters->AddFloat("TwistMax", mBoneConfig.mTwistMax);
-	parameters->AddFloat("TwistMin", mBoneConfig.mTwistMin);
+
+	parameters->AddFloat("Swing1", mBoneConfig.mSwing1.mValue);
+	parameters->AddFloat("Swing1_Damping", mBoneConfig.mSwing1.mDamping);
+	parameters->AddFloat("Swing1_Restitution", mBoneConfig.mSwing1.mRestitution);
+	parameters->AddFloat("Swing1_Spring", mBoneConfig.mSwing1.mSpring);
+
+	parameters->AddFloat("Swing2_Value", mBoneConfig.mSwing2.mValue);
+	parameters->AddFloat("Swing2_Damping", mBoneConfig.mSwing2.mDamping);
+	parameters->AddFloat("Swing2_Restitution", mBoneConfig.mSwing2.mRestitution);
+	parameters->AddFloat("Swing2_Spring", mBoneConfig.mSwing2.mSpring);
+
+	parameters->AddFloat("TwistMax_Value", mBoneConfig.mTwistMax.mValue);
+	parameters->AddFloat("TwistMax_Damping", mBoneConfig.mTwistMax.mDamping);
+	parameters->AddFloat("TwistMax_Restitution", mBoneConfig.mTwistMax.mRestitution);
+	parameters->AddFloat("TwistMax_Spring", mBoneConfig.mTwistMax.mSpring);
+
+	parameters->AddFloat("TwistMin_Value", mBoneConfig.mTwistMin.mValue);
+	parameters->AddFloat("TwistMin_Damping", mBoneConfig.mTwistMin.mDamping);
+	parameters->AddFloat("TwistMin_Restitution", mBoneConfig.mTwistMin.mRestitution);
+	parameters->AddFloat("TwistMin_Spring", mBoneConfig.mTwistMin.mSpring);
+
 	parameters->AddBool("TestAnimation", mDebugAnimation);
 }
 void SGTGOCRagdollBone::GetDefaultParameters(SGTDataMap *parameters)
@@ -239,10 +288,26 @@ void SGTGOCRagdollBone::SetBone(Ogre::SceneNode *meshnode, SGTRagdoll* ragdoll, 
 	mBoneConfig.mRadius = bone_config.mBoneRadius;
 	mBoneConfig.mBoneLength = bone_config.mBoneLength;
 	mBoneConfig.mBoneOffset = bone_config.mOffset;
-	mBoneConfig.mSwing1 = bone_config.mSwing1;
-	mBoneConfig.mSwing2 = bone_config.mSwing2;
-	mBoneConfig.mTwistMax = bone_config.mTwistMax;
-	mBoneConfig.mTwistMin = bone_config.mTwistMin;
+	mBoneConfig.mSwing1.mValue = bone_config.mSwing1.mValue;
+	mBoneConfig.mSwing1.mDamping = bone_config.mSwing1.mDamping;
+	mBoneConfig.mSwing1.mRestitution = bone_config.mSwing1.mRestitution;
+	mBoneConfig.mSwing1.mSpring = bone_config.mSwing1.mSpring;
+
+	mBoneConfig.mSwing2.mValue = bone_config.mSwing2.mValue;
+	mBoneConfig.mSwing2.mDamping = bone_config.mSwing2.mDamping;
+	mBoneConfig.mSwing2.mRestitution = bone_config.mSwing2.mRestitution;
+	mBoneConfig.mSwing2.mSpring = bone_config.mSwing2.mSpring;
+
+	mBoneConfig.mTwistMax.mValue = bone_config.mTwistMax.mValue;
+	mBoneConfig.mTwistMax.mDamping = bone_config.mTwistMax.mDamping;
+	mBoneConfig.mTwistMax.mRestitution = bone_config.mTwistMax.mRestitution;
+	mBoneConfig.mTwistMax.mSpring = bone_config.mTwistMax.mSpring;
+
+	mBoneConfig.mTwistMin.mValue = bone_config.mTwistMin.mValue;
+	mBoneConfig.mTwistMin.mDamping = bone_config.mTwistMin.mDamping;
+	mBoneConfig.mTwistMin.mRestitution = bone_config.mTwistMin.mRestitution;
+	mBoneConfig.mTwistMin.mSpring = bone_config.mTwistMin.mSpring;
+
 	if (bone_config.mParent)
 	{
 		mBoneConfig.mParentName = bone_config.mParent->mBone->getName();
@@ -323,7 +388,7 @@ void SGTRagdoll::Create(Ogre::String meshname, Ogre::Vector3 scale)
 			Ogre::ConfigFile::SettingsMultiMap *Settings = seci.getNext();
 			if (secName.find("Bone") != Ogre::String::npos)
 			{
-				Ogre::String bonename, boneparentname, shaperadius, shapelength, shapeoffset, shapeorientation, jointorientation, hinge, swing1, swing2, twistmax, twistmin, ragdollcontrolbyparent;
+				Ogre::String bonename, boneparentname, shaperadius, shapelength, shapeoffset, shapeorientation, jointorientation, hinge, swing1_value,swing1_damping,swing1_restitution,swing1_spring, swing2_value,swing2_damping,swing2_restitution,swing2_spring, twistmax_value,twistmax_damping,twistmax_restitution,twistmax_spring, twistmin_value,twistmin_damping,twistmin_restitution,twistmin_spring;
 				Ogre::ConfigFile::SettingsMultiMap::iterator i;
 				for (i = Settings->begin(); i != Settings->end(); ++i)
 				{
@@ -335,13 +400,28 @@ void SGTRagdoll::Create(Ogre::String meshname, Ogre::Vector3 scale)
 					if (i->first == "Radius") shaperadius = i->second;
 					if (i->first == "JointOrientation") jointorientation = i->second;
 					if (i->first == "Hinge") hinge = i->second;
-					if (i->first == "Swing1") swing1 = i->second;
-					if (i->first == "Swing2") swing2 = i->second;
-					if (i->first == "TwistMax") twistmax = i->second;
-					if (i->first == "TwistMin") twistmin = i->second;
-					if (i->first == "RagdollControlByParent") ragdollcontrolbyparent = i->second;	//Fix for jaiqua
+
+					if (i->first == "Swing1_Value") swing1_value = i->second;
+					if (i->first == "Swing1_Damping") swing1_damping = i->second;
+					if (i->first == "Swing1_Restitution") swing1_restitution = i->second;
+					if (i->first == "Swing1_Spring") swing1_spring = i->second;
+
+					if (i->first == "Swing2_Value") swing2_value = i->second;
+					if (i->first == "Swing2_Damping") swing2_damping = i->second;
+					if (i->first == "Swing2_Restitution") swing2_restitution = i->second;
+					if (i->first == "Swing2_Spring") swing2_spring = i->second;
+
+					if (i->first == "TwistMax_Value") twistmax_value = i->second;
+					if (i->first == "TwistMax_Damping") twistmax_damping = i->second;
+					if (i->first == "TwistMax_Restitution") twistmax_restitution = i->second;
+					if (i->first == "TwistMax_Spring") twistmax_spring = i->second;
+
+					if (i->first == "TwistMin_Value") twistmin_value = i->second;
+					if (i->first == "TwistMin_Damping") twistmin_damping = i->second;
+					if (i->first == "TwistMin_Restitution") twistmin_restitution = i->second;
+					if (i->first == "TwistMin_Spring") twistmin_spring = i->second;
 				}
-				if (bonename == "" || boneparentname == "" || shaperadius == "" || shapeoffset == "" || hinge == "" || swing1 == "" || swing2 == "" || twistmax == "" || twistmin == "")
+				if (bonename == "" || boneparentname == "")
 				{
 					Ogre::LogManager::getSingleton().logMessage("Ragdoll::Ragdoll: Error in Section " + secName + "! -> continue");
 					continue;
@@ -364,10 +444,26 @@ void SGTRagdoll::Create(Ogre::String meshname, Ogre::Vector3 scale)
 				boneconfig.mBoneOrientation = Ogre::StringConverter::parseQuaternion(shapeorientation);
 				boneconfig.mRadius = Ogre::StringConverter::parseReal(shaperadius);
 				boneconfig.mHinge = Ogre::StringConverter::parseBool(hinge);
-				boneconfig.mSwing1 = Ogre::StringConverter::parseReal(swing1);
-				boneconfig.mSwing2 = Ogre::StringConverter::parseReal(swing2);
-				boneconfig.mTwistMax = Ogre::StringConverter::parseReal(twistmax);
-				boneconfig.mTwistMin = Ogre::StringConverter::parseReal(twistmin);
+				boneconfig.mSwing1.mValue = Ogre::StringConverter::parseReal(swing1_value);
+				boneconfig.mSwing1.mDamping = Ogre::StringConverter::parseReal(swing1_damping);
+				boneconfig.mSwing1.mRestitution = Ogre::StringConverter::parseReal(swing1_restitution);
+				boneconfig.mSwing1.mSpring = Ogre::StringConverter::parseReal(swing1_spring);
+
+				boneconfig.mSwing2.mValue = Ogre::StringConverter::parseReal(swing2_value);
+				boneconfig.mSwing2.mDamping = Ogre::StringConverter::parseReal(swing2_damping);
+				boneconfig.mSwing2.mRestitution = Ogre::StringConverter::parseReal(swing2_restitution);
+				boneconfig.mSwing2.mSpring = Ogre::StringConverter::parseReal(swing2_spring);
+
+				boneconfig.mTwistMax.mValue = Ogre::StringConverter::parseReal(twistmax_value);
+				boneconfig.mTwistMax.mDamping = Ogre::StringConverter::parseReal(twistmax_damping);
+				boneconfig.mTwistMax.mRestitution = Ogre::StringConverter::parseReal(twistmax_restitution);
+				boneconfig.mTwistMax.mSpring = Ogre::StringConverter::parseReal(twistmax_spring);
+
+				boneconfig.mTwistMin.mValue = Ogre::StringConverter::parseReal(twistmin_value);
+				boneconfig.mTwistMin.mDamping = Ogre::StringConverter::parseReal(twistmin_damping);
+				boneconfig.mTwistMin.mRestitution = Ogre::StringConverter::parseReal(twistmin_restitution);
+				boneconfig.mTwistMin.mSpring = Ogre::StringConverter::parseReal(twistmin_spring);
+
 				bones.push_back(boneconfig);
 			}
 		}	
@@ -405,10 +501,27 @@ void SGTRagdoll::Serialise(std::vector<sBoneActorBindConfig> boneconfig)
 		f << "Radius = " + Ogre::StringConverter::toString((*i).mRadius) << std::endl;
 		f << "JointOrientation = " << Ogre::StringConverter::toString((*i).mJointOrientation) << std::endl;
 		f << "Hinge = False" << std::endl;
-		f << "Swing1 = " << (*i).mSwing1 << std::endl;
-		f << "Swing2 = " << (*i).mSwing2 << std::endl;
-		f << "TwistMax = " << (*i).mTwistMax << std::endl;
-		f << "TwistMin = " << (*i).mTwistMin << std::endl;
+
+		f << "Swing1_Value = " << (*i).mSwing1.mValue << std::endl;
+		f << "Swing1_Damping = " << (*i).mSwing1.mDamping << std::endl;
+		f << "Swing1_Restitution = " << (*i).mSwing1.mRestitution << std::endl;
+		f << "Swing1_Spring = " << (*i).mSwing1.mSpring << std::endl;
+
+		f << "Swing2_Value = " << (*i).mSwing2.mValue << std::endl;
+		f << "Swing2_Damping = " << (*i).mSwing2.mDamping << std::endl;
+		f << "Swing2_Restitution = " << (*i).mSwing2.mRestitution << std::endl;
+		f << "Swing2_Spring = " << (*i).mSwing2.mSpring << std::endl;
+
+		f << "TwistMax_Value = " << (*i).mTwistMax.mValue << std::endl;
+		f << "TwistMax_Damping = " << (*i).mTwistMax.mDamping << std::endl;
+		f << "TwistMax_Restitution = " << (*i).mTwistMax.mRestitution << std::endl;
+		f << "TwistMax_Spring = " << (*i).mTwistMax.mSpring << std::endl;
+
+		f << "TwistMin_Value = " << (*i).mTwistMin.mValue << std::endl;
+		f << "TwistMin_Damping = " << (*i).mTwistMin.mDamping << std::endl;
+		f << "TwistMin_Restitution = " << (*i).mTwistMin.mRestitution << std::endl;
+		f << "TwistMin_Spring = " << (*i).mTwistMin.mSpring << std::endl;
+
 		f << std::endl;
 	}
 	f.close();
@@ -576,7 +689,7 @@ std::vector<sBoneActorBindConfig> SGTRagdoll::CreateDummySkeleton()
 
 		Ogre::Vector3 difference = Ogre::Vector3(0,1,0);
 		Ogre::Vector3 mypos = bone->_getDerivedPosition();
-		Ogre::Quaternion estimated_orientation = Ogre::Quaternion(0.707107, 0, 0, 0.707107);
+		Ogre::Quaternion estimated_orientation = Ogre::Quaternion();//0.707107, 0, 0, 0.707107);
 		if (bone->numChildren() == 1 && bone->getChild(0))
 		{
 			//points towards child
@@ -606,10 +719,26 @@ std::vector<sBoneActorBindConfig> SGTRagdoll::CreateDummySkeleton()
 				bone_actor_bind.mBoneOffset = Ogre::Vector3(0,0,0);
 				bone_actor_bind.mJointOrientation = Ogre::Quaternion();
 				bone_actor_bind.mNeedsJointOrientation = true;
-				bone_actor_bind.mSwing1 = 30.0f;
-				bone_actor_bind.mSwing2 = 30.0f;
-				bone_actor_bind.mTwistMin = -20.0f;
-				bone_actor_bind.mTwistMax = 20.0f;
+				bone_actor_bind.mTwistMax.mValue = 20.0f;
+				bone_actor_bind.mTwistMax.mDamping = 0.0f;
+				bone_actor_bind.mTwistMax.mRestitution = 0.0f;
+				bone_actor_bind.mTwistMax.mSpring = 0.0f;
+
+				bone_actor_bind.mTwistMin.mValue = -20.0f;
+				bone_actor_bind.mTwistMin.mDamping = 0.0f;
+				bone_actor_bind.mTwistMin.mRestitution = 0.0f;
+				bone_actor_bind.mTwistMin.mSpring = 0.0f;
+
+				bone_actor_bind.mSwing1.mValue = 30.0f;
+				bone_actor_bind.mSwing1.mDamping = 0.0f;
+				bone_actor_bind.mSwing1.mRestitution = 0.0f;
+				bone_actor_bind.mSwing1.mSpring = 0.0f;
+
+				bone_actor_bind.mSwing2.mValue = 30.0f;
+				bone_actor_bind.mSwing2.mDamping = 0.0f;
+				bone_actor_bind.mSwing2.mRestitution = 0.0f;
+				bone_actor_bind.mSwing2.mSpring = 0.0f;
+
 				bone_actor_bind.mHinge = false;
 				float boneLength = difference.length();
 				bone_actor_bind.mBoneLength = boneLength * 0.98f;
@@ -659,32 +788,34 @@ void SGTRagdoll::CreateJoints()
 		d6Desc.twistMotion = NX_D6JOINT_MOTION_FREE;
 		d6Desc.swing1Motion = NX_D6JOINT_MOTION_FREE;
 		d6Desc.swing2Motion = NX_D6JOINT_MOTION_FREE;
-			if ((*i).mTwistMax != 0.0f || (*i).mTwistMax != 0.0f)
+		/*if ((*i).mTwistMax.mValue != 0.0f || (*i).mTwistMax.mValue != 0.0f)
 			{
 				d6Desc.twistMotion = NX_D6JOINT_MOTION_LIMITED;
-				d6Desc.twistLimit.low.value=NxMath::degToRad((*i).mTwistMin);
-				d6Desc.twistLimit.low.damping=0.5f;
-				d6Desc.twistLimit.low.restitution=0.0f;
-				d6Desc.twistLimit.low.spring=0.0f;
-				d6Desc.twistLimit.high.value=NxMath::degToRad((*i).mTwistMax);
-				d6Desc.twistLimit.high.damping=0.5f;
-				d6Desc.twistLimit.high.restitution=0.0f;
-				d6Desc.twistLimit.high.spring=0.0f;
+				d6Desc.twistLimit.low.value=NxMath::degToRad((*i).mTwistMin.mValue);
+				d6Desc.twistLimit.low.damping=(*i).mTwistMin.mDamping;
+				d6Desc.twistLimit.low.restitution=(*i).mTwistMin.mRestitution;
+				d6Desc.twistLimit.low.spring=(*i).mTwistMin.mSpring;
+				d6Desc.twistLimit.high.value=NxMath::degToRad((*i).mTwistMax.mValue);
+				d6Desc.twistLimit.high.damping=(*i).mTwistMax.mDamping;
+				d6Desc.twistLimit.high.restitution=(*i).mTwistMax.mRestitution;
+				d6Desc.twistLimit.high.spring=(*i).mTwistMax.mSpring;
 			}
-			if ((*i).mSwing1 > 0.0f)
+			if ((*i).mSwing1.mValue > 0.0f)
 			{
 				d6Desc.swing1Motion = NX_D6JOINT_MOTION_LIMITED;
-				d6Desc.swing1Limit.value=NxMath::degToRad((*i).mSwing1);
-				d6Desc.swing1Limit.damping=0.5f;
-				d6Desc.swing1Limit.restitution=0.0f;
+				d6Desc.swing1Limit.value=NxMath::degToRad((*i).mSwing1.mValue);
+				d6Desc.swing1Limit.damping=(*i).mSwing1.mDamping;
+				d6Desc.swing1Limit.restitution=(*i).mSwing1.mRestitution;
+				d6Desc.swing1Limit.spring=(*i).mSwing1.mSpring;
 			}
-			if ((*i).mSwing2 > 0.0f)
+			if ((*i).mSwing2.mValue > 0.0f)
 			{
 				d6Desc.swing2Motion = NX_D6JOINT_MOTION_LIMITED;
-				d6Desc.swing2Limit.value=NxMath::degToRad((*i).mSwing2);
-				d6Desc.swing2Limit.damping=0.5f;
-				d6Desc.swing2Limit.restitution=0.0f;
-			}
+				d6Desc.swing2Limit.value=NxMath::degToRad((*i).mSwing2.mValue);
+				d6Desc.swing2Limit.damping=(*i).mSwing2.mDamping;
+				d6Desc.swing2Limit.restitution=(*i).mSwing2.mRestitution;
+				d6Desc.swing2Limit.spring=(*i).mSwing2.mSpring;
+			}*/
 
 		d6Desc.flags|=NX_D6JOINT_SLERP_DRIVE;
 		d6Desc.slerpDrive.driveType=NX_D6JOINT_DRIVE_POSITION;// | NX_D6JOINT_DRIVE_VELOCITY;
@@ -741,10 +872,10 @@ void SGTRagdoll::UpdateVisualBones()
 		PhysxRotation = (*i).mActor->getGlobalOrientationAsOgreQuaternion() * (*i).mBoneActorGlobalBindOrientationInverse;
 		OgreGlobalQuat = PhysxRotation * (*i).mBoneGlobalBindOrientation;
 		Ogre::Quaternion ParentInverse = NodeRotation.Inverse();
-		if (bone->getParent())
+		/*if (bone->getParent())
 		{
 			ParentInverse = (NodeRotation * bone->getParent()->_getDerivedOrientation()).Inverse();
-		}
+		}*/
 		if ((*i).mParent == 0)
 		{
 			Ogre::Vector3 newPos = (*i).mActor->getGlobalPositionAsOgreVector3() - (mEntity->getParentSceneNode()->_getDerivedOrientation() * (bone->_getDerivedPosition() * mEntity->getParentSceneNode()->getScale()));
@@ -793,6 +924,11 @@ void SGTRagdoll::SetControlToActors()
 	SetAllBonesToManualControl(true);
 	for (std::vector<sBoneActorBind>::iterator i = mSkeleton.begin(); i != mSkeleton.end(); i++)
 	{
+		//(*i).mBoneActorGlobalBindOrientation = (*i).mActor->getGlobalOrientationAsOgreQuaternion();
+		//(*i).mBoneGlobalBindOrientation = mEntity->getParentSceneNode()->_getDerivedOrientation() * (*i).mBone->_getDerivedOrientation();
+		//(*i).mBoneActorGlobalBindOrientationInverse = (*i).mActor->getGlobalOrientationAsOgreQuaternion().Inverse();
+		(*i).mBone->setInheritOrientation(false); //!!!
+
 		(*i).mActor->clearBodyFlag(NxBodyFlag::NX_BF_FROZEN_POS);
 		if ((*i).mParent)
 		{
@@ -804,32 +940,36 @@ void SGTRagdoll::SetControlToActors()
 			(*i).mJoint.mDescription.twistMotion = NX_D6JOINT_MOTION_LOCKED;
 			(*i).mJoint.mDescription.swing1Motion = NX_D6JOINT_MOTION_LOCKED;
 			(*i).mJoint.mDescription.swing2Motion = NX_D6JOINT_MOTION_LOCKED;
-			if ((*i).mTwistMax != 0.0f || (*i).mTwistMax != 0.0f)
+
+			if ((*i).mTwistMax.mValue != 0.0f || (*i).mTwistMax.mValue != 0.0f)
 			{
 				(*i).mJoint.mDescription.twistMotion = NX_D6JOINT_MOTION_LIMITED;
-				(*i).mJoint.mDescription.twistLimit.low.value=NxMath::degToRad((*i).mTwistMin);
-				(*i).mJoint.mDescription.twistLimit.low.damping=0.5f;
-				(*i).mJoint.mDescription.twistLimit.low.restitution=0.0f;
-				(*i).mJoint.mDescription.twistLimit.low.spring=0.0f;
-				(*i).mJoint.mDescription.twistLimit.high.value=NxMath::degToRad((*i).mTwistMax);
-				(*i).mJoint.mDescription.twistLimit.high.damping=0.5f;
-				(*i).mJoint.mDescription.twistLimit.high.restitution=0.0f;
-				(*i).mJoint.mDescription.twistLimit.high.spring=0.0f;
+				(*i).mJoint.mDescription.twistLimit.low.value=NxMath::degToRad((*i).mTwistMin.mValue);
+				(*i).mJoint.mDescription.twistLimit.low.damping=(*i).mTwistMin.mDamping;
+				(*i).mJoint.mDescription.twistLimit.low.restitution=(*i).mTwistMin.mRestitution;
+				(*i).mJoint.mDescription.twistLimit.low.spring=(*i).mTwistMin.mSpring;
+				(*i).mJoint.mDescription.twistLimit.high.value=NxMath::degToRad((*i).mTwistMax.mValue);
+				(*i).mJoint.mDescription.twistLimit.high.damping=(*i).mTwistMax.mDamping;
+				(*i).mJoint.mDescription.twistLimit.high.restitution=(*i).mTwistMax.mRestitution;
+				(*i).mJoint.mDescription.twistLimit.high.spring=(*i).mTwistMax.mSpring;
 			}
-			if ((*i).mSwing1 > 0.0f)
+			if ((*i).mSwing1.mValue > 0.0f)
 			{
 				(*i).mJoint.mDescription.swing1Motion = NX_D6JOINT_MOTION_LIMITED;
-				(*i).mJoint.mDescription.swing1Limit.value=NxMath::degToRad((*i).mSwing1);
-				(*i).mJoint.mDescription.swing1Limit.damping=0.5f;
-				(*i).mJoint.mDescription.swing1Limit.restitution=0.0f;
+				(*i).mJoint.mDescription.swing1Limit.value=NxMath::degToRad((*i).mSwing1.mValue);
+				(*i).mJoint.mDescription.swing1Limit.damping=(*i).mSwing1.mDamping;
+				(*i).mJoint.mDescription.swing1Limit.restitution=(*i).mSwing1.mRestitution;
+				(*i).mJoint.mDescription.swing1Limit.spring=(*i).mSwing1.mSpring;
 			}
-			if ((*i).mSwing2 > 0.0f)
+			if ((*i).mSwing2.mValue > 0.0f)
 			{
 				(*i).mJoint.mDescription.swing2Motion = NX_D6JOINT_MOTION_LIMITED;
-				(*i).mJoint.mDescription.swing2Limit.value=NxMath::degToRad((*i).mSwing2);
-				(*i).mJoint.mDescription.swing2Limit.damping=0.5f;
-				(*i).mJoint.mDescription.swing2Limit.restitution=0.0f;
+				(*i).mJoint.mDescription.swing2Limit.value=NxMath::degToRad((*i).mSwing2.mValue);
+				(*i).mJoint.mDescription.swing2Limit.damping=(*i).mSwing2.mDamping;
+				(*i).mJoint.mDescription.swing2Limit.restitution=(*i).mSwing2.mRestitution;
+				(*i).mJoint.mDescription.swing2Limit.spring=(*i).mSwing2.mSpring;
 			}
+
 
 			(*i).mJoint.mJoint->loadFromDesc((*i).mJoint.mDescription);
 		}
@@ -923,7 +1063,7 @@ void SGTRagdoll::GetParameters(SGTDataMap *parameters)
 void SGTRagdoll::GetDefaultParameters(SGTDataMap *parameters)
 {
 	parameters->AddOgreString("MeshName", "");
-	parameters->AddOgreString("AnimState", "Idle");
+	parameters->AddOgreString("AnimState", "");
 	parameters->AddBool("Ragdoll", false);
 	parameters->AddBool("ShadowCaster", true);
 }

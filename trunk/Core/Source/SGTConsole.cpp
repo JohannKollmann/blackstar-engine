@@ -89,7 +89,7 @@ void SGTConsole::ReceiveMessage(SGTMsg &msg)
 			std::vector<SGTScriptParam> params;
 			while (msg.mData.HasNext())
 			{
-				SGTDataMapEntry entry = msg.mData.GetNext();
+				SGTGenericProperty entry = msg.mData.GetNext();
 				if (counter == 0)
 				{
 					counter = 1;
@@ -99,8 +99,7 @@ void SGTConsole::ReceiveMessage(SGTMsg &msg)
 				{
 					if (entry.mType == "Ogre::String")
 					{
-						char *c_str = (char*)entry.mData.getPointer();
-						scriptfile = c_str;
+						scriptfile = Ogre::any_cast<Ogre::String>(entry.mData);
 						counter = 2;
 						continue;
 					}
@@ -109,20 +108,18 @@ void SGTConsole::ReceiveMessage(SGTMsg &msg)
 				{
 					if (entry.mType == "Ogre::String")
 					{
-						char *c_str = (char*)entry.mData.getPointer();
-						funcname = c_str;
+						funcname = Ogre::any_cast<Ogre::String>(entry.mData);
 						counter = 3;
 						continue;
 					}
 				}
 				if (counter == 3)
 				{
-					if (entry.mType == "bool") params.push_back(SGTScriptParam(*((bool*)(entry.mData.getPointer()))));
-					if (entry.mType == "float") params.push_back(SGTScriptParam(*((float*)(entry.mData.getPointer()))));
+					if (entry.mType == "bool") params.push_back(SGTScriptParam(Ogre::any_cast<bool>(entry.mData)));
+					if (entry.mType == "float") params.push_back(SGTScriptParam(Ogre::any_cast<float>(entry.mData)));
 					if (entry.mType == "Ogre::String")
 					{
-						char *c_str = (char*)entry.mData.getPointer();
-						std::string str = c_str;
+						std::string str = Ogre::any_cast<Ogre::String>(entry.mData);
 						params.push_back(SGTScriptParam(str));
 					}
 				}

@@ -54,15 +54,15 @@ void wxEditSGTGameObject::AddGOCSection(Ogre::String name, SGTDataMap &map)
 	wxPGProperty* csprop = mPropGrid->Append( new wxPropertyCategory(wxT(name.c_str()), wxT(name.c_str())));
 	while (map.HasNext())
 	{
-		SGTDataMapEntry entry = map.GetNext();
+		SGTGenericProperty entry = map.GetNext();
 		Ogre::String key = entry.mKey;
 		Ogre::String internname = entry.mType + "|" + key + "--" + name;
-		if (entry.mType == "int") mPropGrid->AppendIn(csprop, new wxIntProperty(wxT(key.c_str()), wxT(internname.c_str()), *((int*)(entry.mData.getPointer())) ));
-		if (entry.mType == "float") mPropGrid->AppendIn(csprop, new wxFloatProperty(wxT(key.c_str()), wxT(internname.c_str()), *((float*)(entry.mData.getPointer()))) );
-		if (entry.mType == "bool") mPropGrid->AppendIn(csprop, new wxBoolProperty(wxT(key.c_str()), wxT(internname.c_str()), *((bool*)(entry.mData.getPointer()))) );
+		if (entry.mType == "int") mPropGrid->AppendIn(csprop, new wxIntProperty(wxT(key.c_str()), wxT(internname.c_str()), Ogre::any_cast<int>(entry.mData) ));
+		if (entry.mType == "float") mPropGrid->AppendIn(csprop, new wxFloatProperty(wxT(key.c_str()), wxT(internname.c_str()), Ogre::any_cast<float>(entry.mData) ));
+		if (entry.mType == "bool") mPropGrid->AppendIn(csprop, new wxBoolProperty(wxT(key.c_str()), wxT(internname.c_str()), Ogre::any_cast<bool>(entry.mData) ));
 		if (entry.mType == "Ogre::Vector3")
 		{
-			Ogre::Vector3 vec = *((Ogre::Vector3*)(entry.mData.getPointer()));
+			Ogre::Vector3 vec = Ogre::any_cast<Ogre::Vector3>(entry.mData);
 			wxPGProperty* vecprop = mPropGrid->AppendIn(csprop, new wxStringProperty(wxT(key.c_str()), wxT(internname.c_str())));
 			mPropGrid->AppendIn(vecprop, new wxFloatProperty(wxT("X"), wxT((internname + "__X").c_str()), vec.x) );
 			mPropGrid->AppendIn(vecprop, new wxFloatProperty(wxT("Y"), wxT((internname + "__Y").c_str()), vec.y) );
@@ -71,7 +71,7 @@ void wxEditSGTGameObject::AddGOCSection(Ogre::String name, SGTDataMap &map)
 		}
 		if (entry.mType == "Ogre::Quaternion")
 		{
-			Ogre::Quaternion quat = *((Ogre::Quaternion*)(entry.mData.getPointer()));
+			Ogre::Quaternion quat = Ogre::any_cast<Ogre::Quaternion>(entry.mData);
 			Ogre::Matrix3 mat3;
 			quat.ToRotationMatrix(mat3);
 			Ogre::Radian yRad, pRad, rRad;
@@ -84,8 +84,7 @@ void wxEditSGTGameObject::AddGOCSection(Ogre::String name, SGTDataMap &map)
 		}
 		if (entry.mType == "Ogre::String")
 		{
-			char *c_str = (char*)entry.mData.getPointer();
-			Ogre::String str = c_str;
+			Ogre::String str = Ogre::any_cast<Ogre::String>(entry.mData);
 			mPropGrid->AppendIn(csprop, new wxStringProperty(wxT(key.c_str()), wxT(internname.c_str()), wxT(str.c_str())) );
 		}
 	}
