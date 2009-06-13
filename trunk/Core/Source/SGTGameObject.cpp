@@ -79,8 +79,11 @@ void SGTGameObject::SetParent(SGTGameObject *parent)
 		mParent->UnregisterChild(this);
 	}
 	mParent = parent;
-	mParent->RegisterChild(this);
-	UpdateLocalTransform();
+	if (mParent)
+	{
+		mParent->RegisterChild(this);
+		UpdateLocalTransform();
+	}
 }
 
 void SGTGameObject::RegisterChild(SGTGameObject *child)

@@ -121,7 +121,7 @@ void SGTGOCRagdollBone::GetParameters(SGTDataMap *parameters)
 	if (mOwnerGO->GetParent()) parentOrientation = mOwnerGO->GetParent()->GetGlobalOrientation();
 	parameters->AddOgreQuat("JointOrientation", parentOrientation * mBoneConfig.mJointOrientation);
 
-	parameters->AddFloat("Swing1", mBoneConfig.mSwing1.mValue);
+	parameters->AddFloat("Swing1_Value", mBoneConfig.mSwing1.mValue);
 	parameters->AddFloat("Swing1_Damping", mBoneConfig.mSwing1.mDamping);
 	parameters->AddFloat("Swing1_Restitution", mBoneConfig.mSwing1.mRestitution);
 	parameters->AddFloat("Swing1_Spring", mBoneConfig.mSwing1.mSpring);
@@ -893,7 +893,7 @@ void SGTRagdoll::SetAllBonesToManualControl(bool manual)
    while(boneI.hasMoreElements())
    {
 	   Ogre::Bone *bone = boneI.getNext();
-	   bone->setManuallyControlled(manual);  
+	   bone->setManuallyControlled(manual); 
    }
 
 }

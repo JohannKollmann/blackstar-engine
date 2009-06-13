@@ -485,10 +485,37 @@ void SGTEdit::OnInsertObjectAsChild()
 
 void SGTEdit::OnDeleteObject()
 {
-	for (std::list<SGTEditorSelection>::iterator i = mSelectedObjects.begin(); i != mSelectedObjects.end(); i++)
+	bool skip = false;
+	if (mSelectedObjects.size() == 1)
 	{
-		delete (*i).mObject;
-		(*i).mObject = 0;
+		SGTGameObject *object = (*mSelectedObjects.begin()).mObject;
+		if (object->GetNumChildren() > 0)
+		{
+			skip = true;
+			wxMessageDialog dialog( NULL, _T("Delete Children?"),
+				_T("Deleting root object..."), wxYES_DEFAULT|wxYES_NO|wxCANCEL|wxICON_QUESTION);
+			int input = dialog.ShowModal();
+			if (input == wxID_YES)
+			{
+				delete object;
+			}
+			else if (input == wxID_NO)
+			{
+				while (object->GetNumChildren() > 0)
+				{
+					object->GetChild(0)->SetParent(object->GetParent());
+				}
+				delete object;
+			}
+		}
+	}
+	if (!skip)
+	{
+		for (std::list<SGTEditorSelection>::iterator i = mSelectedObjects.begin(); i != mSelectedObjects.end(); i++)
+		{
+			delete (*i).mObject;
+			(*i).mObject = 0;
+		}
 	}
 	mSelectedObjects.clear();
 	wxEdit::Instance().GetpropertyWindow()->SetPage("None");
