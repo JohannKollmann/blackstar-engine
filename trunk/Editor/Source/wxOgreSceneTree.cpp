@@ -298,6 +298,11 @@ void wxOgreSceneTree::OnSelChanged(wxTreeEvent &event)
 	if(id.IsOk())
 	{
 		OgreTreeItemBase *t = (OgreTreeItemBase *)GetItemData(id);
+		if (t->IsRoot())
+		{
+			wxEdit::Instance().GetpropertyWindow()->SetPage("EditSceneParams");
+			wxEdit::Instance().GetpropertyWindow()->Refresh();
+		}
 		if (t->IsFile())
 		{
 			mSelectedItem = t;

@@ -19,37 +19,107 @@ enum
 	edtRes_Cancel,
 };
 
-wxEditSGTGameObject::wxEditSGTGameObject()
-{
-	mGameObject = 0;
-	mFirstTimeOverideHack = true;
-}
 
-void wxEditSGTGameObject::OnLeave()
+Ogre::String wxEditSGTDataMap::SectionToDataMap(wxPropertyGridIterator &it, SGTDataMap *data)
 {
-	wxAuiPaneInfo& pane = wxEdit::Instance().GetAuiManager().GetPane(wxT("componentbar")).Show(false);
-	wxEdit::Instance().GetAuiManager().Update();
-}
-
-SGTGameObject* wxEditSGTGameObject::GetGameObject()
-{
-	return mGameObject;
-}
-
-void wxEditSGTGameObject::RemoveGOCSection(Ogre::String name)
-{
-	for (wxPropertyGridIterator it = mPropGrid->GetIterator(wxPG_ITERATE_CATEGORIES); !it.AtEnd(); it++)
+	Ogre::Vector3 vec;
+	Ogre::Degree yDeg, pDeg, rDeg; 
+	int counter = 0;
+	for (; !it.AtEnd(); it++)
 	{
 		wxPGProperty* p = *it;
-		if (p->GetName() == name)
+		if (p->IsCategory() && p->GetName().find("|") == wxString::npos) return Ogre::String(p->GetName().c_str());
+		Ogre::String type = p->GetName().substr(0, p->GetName().find("|")).c_str();
+		Ogre::String key = p->GetName().substr(p->GetName().find("|") + 1, p->GetName().find("--") - p->GetName().find("|") - 1).c_str();
+		if (type == "int")
 		{
-			mPropGrid->Delete(p->GetId());
-			return;
+			if (!p->GetValue().IsNull()) data->AddInt(key, p->GetValue().GetInteger());
+			else data->AddInt(key, 0);
+		}
+		if (type == "float")
+		{
+			if (!p->GetValue().IsNull()) data->AddFloat(key, p->GetValue().GetReal());
+			else data->AddFloat(key, 0.0f);
+		}
+		if (type == "bool")
+		{
+			if (!p->GetValue().IsNull()) data->AddBool(key, p->GetValue().GetBool());
+			else data->AddBool(key, false);
+		}
+		if (type == "Ogre::String")
+		{
+			data->AddOgreString(key, Ogre::String(p->GetValue().GetString().c_str()));
+		}
+		if (type == "Ogre::Vector3")
+		{
+			if (counter == 3)
+			{
+				if (!p->GetValue().IsNull())
+					vec.z = p->GetValue().GetReal();
+				else vec.z = 0;
+				data->AddOgreVec3(key, vec);
+				vec = Ogre::Vector3();
+				counter = 0;
+				continue;
+			}
+			if (counter == 2)
+			{
+				if (!p->GetValue().IsNull())
+					vec.y = p->GetValue().GetReal();
+				else vec.y = 0;
+				counter++;
+				continue;
+			}
+			if (counter == 1)
+			{
+				if (!p->GetValue().IsNull())
+					vec.x = p->GetValue().GetReal();
+				else vec.x = 0;
+				counter++;
+				continue;
+			}
+			if (counter == 0)
+			{
+				counter++;
+				continue;
+			}
+		}
+		if (type == "Ogre::Quaternion")
+		{
+			if (counter == 3)
+			{
+				if (!p->GetValue().IsNull()) rDeg = Ogre::Degree(p->GetValue().GetReal());
+				Ogre::Matrix3 mat3;
+				mat3.FromEulerAnglesYXZ(yDeg, pDeg, rDeg);
+				Ogre::Quaternion q;
+				q.FromRotationMatrix(mat3);
+				data->AddOgreQuat(key, q);
+				counter = 0;
+				continue;
+			}
+			if (counter == 2)
+			{
+				if (!p->GetValue().IsNull()) yDeg = Ogre::Degree(p->GetValue().GetReal());
+				counter++;
+				continue;
+			}
+			if (counter == 1)
+			{
+				if (!p->GetValue().IsNull()) pDeg = Ogre::Degree(p->GetValue().GetReal());
+				counter++;
+				continue;
+			}
+			if (counter == 0)
+			{
+				counter++;
+				continue;
+			}
 		}
 	}
+	return "";
 }
 
-void wxEditSGTGameObject::AddGOCSection(Ogre::String name, SGTDataMap &map)
+void wxEditSGTDataMap::AddDataMapSection(Ogre::String name, SGTDataMap &map)
 {
 	wxPGProperty* csprop = mPropGrid->Append( new wxPropertyCategory(wxT(name.c_str()), wxT(name.c_str())));
 	while (map.HasNext())
@@ -92,14 +162,41 @@ void wxEditSGTGameObject::AddGOCSection(Ogre::String name, SGTDataMap &map)
 	mPropGrid->Refresh();
 }
 
-void wxEditSGTGameObject::OnActivate()
+
+
+wxEditSGTGameObject::wxEditSGTGameObject()
 {
-	if (!mFirstTimeOverideHack)
+	mGameObject = 0;
+	mFirstTimeOverideHack = true;
+}
+
+void wxEditSGTGameObject::OnLeave()
+{
+	wxAuiPaneInfo& pane = wxEdit::Instance().GetAuiManager().GetPane(wxT("componentbar")).Show(false);
+	wxEdit::Instance().GetAuiManager().Update();
+}
+
+SGTGameObject* wxEditSGTGameObject::GetGameObject()
+{
+	return mGameObject;
+}
+
+void wxEditSGTGameObject::RemoveGOCSection(Ogre::String name)
+{
+	for (wxPropertyGridIterator it = mPropGrid->GetIterator(wxPG_ITERATE_CATEGORIES); !it.AtEnd(); it++)
 	{
-		wxEdit::Instance().GetComponentBar()->ResetCheckBoxes();
-		mFirstTimeOverideHack = false;
+		wxPGProperty* p = *it;
+		if (p->GetName() == name)
+		{
+			mPropGrid->Delete(p->GetId());
+			return;
+		}
 	}
-	mPropGrid->Clear();
+}
+
+void wxEditSGTGameObject::AddGOCSection(Ogre::String name, SGTDataMap &map)
+{
+	AddDataMapSection(name, map);
 }
 
 Ogre::String wxEditSGTGameObject::SectionToDataMap(wxPropertyGridIterator &it, SGTDataMap *data)
@@ -200,6 +297,16 @@ Ogre::String wxEditSGTGameObject::SectionToDataMap(wxPropertyGridIterator &it, S
 		}
 	}
 	return "";
+}
+
+void wxEditSGTGameObject::OnActivate()
+{
+	if (!mFirstTimeOverideHack)
+	{
+		wxEdit::Instance().GetComponentBar()->ResetCheckBoxes();
+		mFirstTimeOverideHack = false;
+	}
+	mPropGrid->Clear();
 }
 
 void wxEditSGTGameObject::OnApply()
@@ -385,4 +492,24 @@ void wxEditSGTGameObject::NewResource(Ogre::String savepath, bool showcomponentb
 		wxEdit::Instance().GetComponentBar()->ResetCheckBoxes();
 	}
 	wxEdit::Instance().GetAuiManager().Update();
+}
+
+
+
+
+void wxEditSGTSceneParams::OnActivate()
+{
+	mPropGrid->Clear();
+	SGTDataMap map;
+	SGTSceneManager::Instance().GetParameters(&map);
+	AddDataMapSection("Scene params", map);
+}
+
+void wxEditSGTSceneParams::OnApply()
+{
+	wxPropertyGridIterator it = mPropGrid->GetIterator(wxPG_ITERATE_ALL);
+	it++;
+	SGTDataMap parameters;
+	Ogre::String sectionname = SectionToDataMap(it, &parameters);
+	SGTSceneManager::Instance().CreateFromDataMap(&parameters);
 }

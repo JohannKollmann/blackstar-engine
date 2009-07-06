@@ -15,7 +15,7 @@
 typedef SGTGOCEditorInterface* (*EDTCreatorFn)();
 typedef void (*GOCDefaultParametersFn)(SGTDataMap*);
 
-class SGTDllExport SGTSceneManager// : public SGTLuaListener
+class SGTDllExport SGTSceneManager : public SGTGOCEditorInterface
 {
 private:
 	unsigned int mNextID;
@@ -91,6 +91,11 @@ public:
 	static std::vector<SGTScriptParam> Lua_SetObjectPosition(SGTScript& caller, std::vector<SGTScriptParam> vParams);
 	static std::vector<SGTScriptParam> Lua_SetObjectOrientation(SGTScript& caller, std::vector<SGTScriptParam> vParams);
 	static std::vector<SGTScriptParam> Lua_SetObjectScale(SGTScript& caller, std::vector<SGTScriptParam> vParams);
+
+	//Editor
+	void CreateFromDataMap(SGTDataMap *parameters);
+	void GetParameters(SGTDataMap *parameters);
+	bool IsViewComponent() { return false; }
 
 	//Singleton
 	static SGTSceneManager& Instance();

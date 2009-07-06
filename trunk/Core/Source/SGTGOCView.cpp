@@ -391,6 +391,7 @@ void SGTLocalLightRenderable::Create(Ogre::ColourValue diffuse, Ogre::ColourValu
 	{
 		editormeshname = "Editor_DirectionalLight.mesh";
 		mLight->setType(Ogre::Light::LightTypes::LT_SPOTLIGHT);
+		mLight->setCustomShadowCameraSetup(SGTMain::Instance().GetDirectionalShadowCameraSetup());
 		mLight->setSpotlightRange(Ogre::Radian(Ogre::Degree(spotlightdata.x)), Ogre::Radian(Ogre::Degree(spotlightdata.y)), spotlightdata.z);
 	}
 	else

@@ -169,6 +169,8 @@ SGTWeatherController::~SGTWeatherController(void)
 {
 	SGTMain::Instance().GetWindow()->removeListener (mCaelumSystem);
 	mCaelumSystem->shutdown (false);
+	SGTMessageSystem::Instance().QuitNewsgroup(this, "UPDATE_PER_FRAME");
+	SGTMessageSystem::Instance().QuitNewsgroup(this, "KEY_UP");
 };
 
 Caelum::CaelumSystem* SGTWeatherController::GetCaelumSystem()

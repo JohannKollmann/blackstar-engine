@@ -38,6 +38,7 @@ wxEdit::wxEdit(wxWindow* parent) : wxFrame(parent, -1, _("Blackstar Edit"),
 
 		mPropertyWindow = new wxPropertyGridWindow(this, -1, wxDefaultPosition, wxSize(200,250));
 		mPropertyWindow->AddPage(new wxEditSGTGameObject(), "EditGameObject");
+		mPropertyWindow->AddPage(new wxEditSGTSceneParams(), "EditSceneParams");
 
 		mPropertyWindow->AddPage(new wxMaterialEditor(), "material");
 

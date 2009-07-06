@@ -27,7 +27,23 @@ Grundsätzlich wird zwischen 2 Modi unterschieden:
 
 */
 
-class wxEditSGTGameObject : public wxPropertyGridListener
+class wxEditSGTDataMap : public wxPropertyGridListener
+{
+public:
+	wxEditSGTDataMap() {};
+	virtual ~wxEditSGTDataMap() { };
+
+	virtual void AddDataMapSection(Ogre::String name, SGTDataMap &map);
+
+protected:
+	/*
+	Liefert den Namen der nächsten Kategorie, falls vorhanden, zurueck.
+	*/
+	virtual Ogre::String SectionToDataMap(wxPropertyGridIterator &it, SGTDataMap *data);
+
+};
+
+class wxEditSGTGameObject : public wxEditSGTDataMap
 {
 public:
 	wxEditSGTGameObject();
@@ -50,10 +66,18 @@ protected:
 	Ogre::String mCurrentEditPath;
 	bool mFirstTimeOverideHack;
 
-	/*
-	Liefert den Namen der nächsten Kategorie, falls vorhanden, zurueck.
-	*/
 	Ogre::String SectionToDataMap(wxPropertyGridIterator &it, SGTDataMap *data);
+};
+
+
+class wxEditSGTSceneParams : public wxEditSGTDataMap
+{
+public:
+	wxEditSGTSceneParams() {};
+	~wxEditSGTSceneParams() { };
+
+	void OnApply();
+	void OnActivate();
 };
 
 #endif

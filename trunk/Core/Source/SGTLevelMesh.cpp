@@ -11,6 +11,11 @@ SGTLevelMesh::SGTLevelMesh(Ogre::String mesh)
 	nrp.mIdentifier = "LevelMesh";
 	nrp.mIdentifierUsage = NxOgre::NodeRenderableParams::IU_Use;
 	Ogre::SceneNode *node = SGTMain::Instance().GetOgreSceneMgr()->getRootSceneNode()->createChildSceneNode(nrp.mIdentifier);
+	if (!Ogre::ResourceGroupManager::getSingleton().resourceExists("General", mesh))
+	{
+		Ogre::LogManager::getSingleton().logMessage("Error: Resource \"" + mesh + "\" does not exist. Loading dummy Resource...");
+		mesh = "DummyMesh.mesh";
+	}
 	Ogre::Entity *ent = SGTMain::Instance().GetOgreSceneMgr()->createEntity("LevelMesh-entity", mesh);
 	ent->setCastShadows(true);
     unsigned short src, dest;

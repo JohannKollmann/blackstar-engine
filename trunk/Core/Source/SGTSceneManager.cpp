@@ -177,7 +177,7 @@ void SGTSceneManager::Shutdown()
 
 void SGTSceneManager::SetToIndoor()
 {
-	if (!mWeatherController)
+	if (mWeatherController)
 	{
 		delete mWeatherController;
 		mWeatherController = NULL;
@@ -224,10 +224,11 @@ void SGTSceneManager::LoadLevelMesh(Ogre::String meshname)
 void SGTSceneManager::LoadLevel(Ogre::String levelfile)
 {
 	SGTLoadSystem *ls=SGTLoadSave::Instance().LoadFile(levelfile);
-	std::string levelmesh = "";//"Data/Media/Meshes/Level/Krypta.mesh";
-	//ls->LoadAtom("bool", &mIndoorRendering);
-	ls->LoadAtom("std::string", &levelmesh);
-	if (levelmesh != "") LoadLevelMesh(levelmesh.c_str());
+
+	SGTDataMap levelparams;
+	ls->LoadAtom("SGTDataMap", &levelparams);
+	CreateFromDataMap(&levelparams);
+
 	ls->LoadAtom("std::list<SGTSaveable*>", &mGameObjects);
 	mNextID = 0;
 }
@@ -241,6 +242,22 @@ void SGTSceneManager::SaveLevel(Ogre::String levelfile)
 	ss->SaveAtom("std::list<SGTSaveable*>", &mGameObjects, "GameObjects");
 	ss->CloseFiles();
 	delete ss;
+}
+
+void SGTSceneManager::CreateFromDataMap(SGTDataMap *parameters)
+{
+	Ogre::String levelmesh = parameters->GetOgreString("LevelMesh");
+	if (levelmesh != "") LoadLevelMesh(levelmesh.c_str());
+	bool indoor = parameters->GetBool("Indoor");
+	if (indoor) SetToIndoor();
+	else SetToOutdoor();
+}
+
+void SGTSceneManager::GetParameters(SGTDataMap *parameters)
+{
+	if (mLevelMesh) parameters->AddOgreString("LevelMesh", mLevelMesh->GetMeshFileName());
+	else parameters->AddOgreString("LevelMesh", "");
+	parameters->AddBool("Indoor", mIndoorRendering);
 }
 
 Ogre::String SGTSceneManager::ScanPath(Ogre::String path, Ogre::String filename)
