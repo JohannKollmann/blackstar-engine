@@ -13,8 +13,18 @@
 Klasse zum sicheren und komfortablen Benutzen von std::map<Ogre::String, void*>
 */
 
-class SGTDllExport SGTGenericProperty
+class SGTDllExport SGTGenericProperty : public SGTSaveable
 {
+private:
+	enum PropertyTypes
+	{
+		INT,
+		BOOL,
+		FLOAT,
+		STRING,
+		VECTOR3,
+		QUATERNION
+	};
 public:
 	Ogre::Any mData;
 	Ogre::String mType;
@@ -24,6 +34,13 @@ public:
 	template <typename T>
 		void Set(T value, Ogre::String type, Ogre::String key) { mData = value; mType = type; mKey = key; };
 	~SGTGenericProperty() {};
+
+
+	void Save(SGTSaveSystem& myManager);
+	void Load(SGTLoadSystem& mgr); 
+	static void Register(std::string* pstrName, SGTSaveableInstanceFn* pFn) { *pstrName = "SGTGenericProperty"; *pFn = (SGTSaveableInstanceFn)&NewInstance; };
+	static SGTGenericProperty* NewInstance() { return new SGTGenericProperty; };
+	std::string& TellName() { static std::string name = "SGTGenericProperty"; return name; }
 };
 
 class SGTDllExport SGTDataMap : public SGTSaveable

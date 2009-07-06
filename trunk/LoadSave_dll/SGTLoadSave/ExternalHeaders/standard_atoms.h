@@ -533,6 +533,8 @@ CREATELISTHANDLER(float, "float", FloatListHandler);
 
 CREATELISTHANDLER(ComponentSection, "ComponentSection", ComponentSectionListHandler)
 
+CREATEVECTORHANDLER(SGTGenericProperty, "SGTGenericProperty", SGTGenericPropertyHandler)
+
 void
 RegisterStandardAtoms()
 {
@@ -547,6 +549,7 @@ RegisterStandardAtoms()
 	SGTLoadSave::Instance().RegisterAtom((SGTAtomHandler*)new FloatListHandler());
 	SGTLoadSave::Instance().RegisterAtom((SGTAtomHandler*)new SGTSaveableListHandler());
 	SGTLoadSave::Instance().RegisterAtom((SGTAtomHandler*)new ComponentSectionListHandler());
+	SGTLoadSave::Instance().RegisterAtom((SGTAtomHandler*)new SGTGenericPropertyHandler());
 	//Ogre
 	SGTLoadSave::Instance().RegisterAtom((SGTAtomHandler*)new OgreVec3Handler());
 	SGTLoadSave::Instance().RegisterAtom((SGTAtomHandler*)new OgreQuaternionHandler());

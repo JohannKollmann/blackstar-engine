@@ -118,6 +118,7 @@ void SGTSceneManager::Init()
 
 	SGTDataMap params;
 	SGTLoadSave::Instance().RegisterObject(&SGTDataMap::Register);
+	SGTLoadSave::Instance().RegisterObject(&SGTGenericProperty::Register);
 	SGTLoadSave::Instance().RegisterObject(&ComponentSection::Register);
 	SGTLoadSave::Instance().RegisterObject(&SGTGameObject::Register);
 	SGTLoadSave::Instance().RegisterObject(&SGTSaveableDummy::Register);

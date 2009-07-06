@@ -1,6 +1,100 @@
 
 #include "SGTDataMap.h"
 
+void SGTGenericProperty::Save(SGTSaveSystem& myManager)
+{
+	myManager.SaveAtom("Ogre::String", &mKey, "Key");
+	int iType = 0;
+
+	if (mType == "int")
+	{
+		iType = PropertyTypes::INT;
+		myManager.SaveAtom("int", &iType, "Type");
+		int data = Ogre::any_cast<int>(mData);
+		myManager.SaveAtom(mType, (void*)&data, "Data");
+	}
+	else if (mType == "float")
+	{
+		iType = PropertyTypes::FLOAT;
+		myManager.SaveAtom("int", &iType, "Type");
+		float data = Ogre::any_cast<float>(mData);
+		myManager.SaveAtom(mType, (void*)&data, "Data");
+	}
+	else if (mType == "bool")
+	{
+		iType = PropertyTypes::BOOL;
+		myManager.SaveAtom("int", &iType, "Type");
+		bool data = Ogre::any_cast<bool>(mData);
+		myManager.SaveAtom(mType, (void*)&data, "Data");
+	}
+	else if (mType == "Ogre::Vector3")
+	{
+		iType = PropertyTypes::VECTOR3;
+		myManager.SaveAtom("int", &iType, "Type");
+		Ogre::Vector3 data = Ogre::any_cast<Ogre::Vector3>(mData);
+		myManager.SaveAtom(mType, (void*)&data, "Data");
+	}
+	else if (mType == "Ogre::Quaternion")
+	{
+		iType = PropertyTypes::QUATERNION;
+		myManager.SaveAtom("int", &iType, "Type");
+		Ogre::Quaternion data = Ogre::any_cast<Ogre::Quaternion>(mData);
+		myManager.SaveAtom(mType, (void*)&data, "Data");
+	}
+	else if (mType == "Ogre::String")
+	{
+		iType = PropertyTypes::STRING;
+		myManager.SaveAtom("int", &iType, "Type");
+		Ogre::String data = Ogre::any_cast<Ogre::String>(mData);
+		myManager.SaveAtom(mType, (void*)&data, "Data");
+	}
+}
+
+void SGTGenericProperty::Load(SGTLoadSystem& mgr)
+{
+	mgr.LoadAtom("Ogre::String", &mKey);
+	int type = 0;
+	mgr.LoadAtom("int", &type);
+	int iVal = 0;
+	bool bVal = false;
+	float fVal = 0.0f;
+	Ogre::String sVal;
+	Ogre::Vector3 vVal;
+	Ogre::Quaternion qVal;
+	switch (type)
+	{
+	case PropertyTypes::INT:
+		mType = "int";
+		mgr.LoadAtom(mType, &iVal);
+		mData = iVal;
+		break;
+	case PropertyTypes::BOOL:
+		mType = "bool";
+		mgr.LoadAtom(mType, &bVal);
+		mData = bVal;
+		break;
+	case PropertyTypes::FLOAT:
+		mType = "float";
+		mgr.LoadAtom(mType, &fVal);
+		mData = fVal;
+		break;
+	case PropertyTypes::STRING:
+		mType = "Ogre::String";
+		mgr.LoadAtom(mType, &sVal);
+		mData = sVal;
+		break;
+	case PropertyTypes::VECTOR3:
+		mType = "Ogre::Vector3";
+		mgr.LoadAtom(mType, &vVal);
+		mData = vVal;
+		break;
+	case PropertyTypes::QUATERNION:
+		mType = "Ogre::Quaternion";
+		mgr.LoadAtom(mType, &qVal);
+		mData = qVal;
+		break;
+	}
+}
 
 SGTDataMap::SGTDataMap()
 {
@@ -111,103 +205,11 @@ SGTGenericProperty* SGTDataMap::GetNextPtr()
 
 void SGTDataMap::Save(SGTSaveSystem& myManager)
 {
-	int size = mData.size();
-	myManager.SaveAtom("int", (void*)(&size), "mMapSize");
-	while (HasNext())
-	{
-		SGTGenericProperty current = GetNext();
-		myManager.SaveAtom("Ogre::String", (void*)(&current.mKey), "mKeyName");
-		myManager.SaveAtom("Ogre::String", (void*)(&current.mType), "mType");
-		if (current.mType == "int")
-		{
-			int data = Ogre::any_cast<int>(current.mData);
-			myManager.SaveAtom(current.mType, (void*)&data, "mType");
-			continue;
-		}
-		else if (current.mType == "float")
-		{
-			float data = Ogre::any_cast<float>(current.mData);
-			myManager.SaveAtom(current.mType, (void*)&data, "mType");
-			continue;
-		}
-		else if (current.mType == "bool")
-		{
-			bool data = Ogre::any_cast<bool>(current.mData);
-			myManager.SaveAtom(current.mType, (void*)&data, "mType");
-			continue;
-		}
-		else if (current.mType == "Ogre::Vector3")
-		{
-			Ogre::Vector3 data = Ogre::any_cast<Ogre::Vector3>(current.mData);
-			myManager.SaveAtom(current.mType, (void*)&data, "mType");
-			continue;
-		}
-		else if (current.mType == "Ogre::Quaternion")
-		{
-			Ogre::Quaternion data = Ogre::any_cast<Ogre::Quaternion>(current.mData);
-			myManager.SaveAtom(current.mType, (void*)&data, "mType");
-			continue;
-		}
-		else if (current.mType == "Ogre::String")
-		{
-			Ogre::String data = Ogre::any_cast<Ogre::String>(current.mData);
-			myManager.SaveAtom(current.mType, (void*)&data, "mType");
-			continue;
-		}
-	}
+	myManager.SaveAtom("std::vector<SGTGenericProperty>", &mData, "mDataList");
 }
 
 void SGTDataMap::Load(SGTLoadSystem& mgr)
 {
-	int size = 0;
-	mgr.LoadAtom("int", &size);
-	for (int i = 0; i < size; i++)
-	{
-		Ogre::String key = "";
-		Ogre::String type = "";
-		mgr.LoadAtom("Ogre::String", &key);
-		mgr.LoadAtom("Ogre::String", &type);
-		if (type == "int")
-		{
-			int val = 0;
-			mgr.LoadAtom(type, &val);
-			AddInt(key, val);
-			continue;
-		}
-		else if (type == "float")
-		{
-			float val = 0.0f;
-			mgr.LoadAtom(type, &val);
-			AddFloat(key, val);
-			continue;
-		}
-		else if (type == "bool")
-		{
-			bool val = false;
-			mgr.LoadAtom(type, &val);
-			AddBool(key, val);
-			continue;
-		}
-		else if (type == "Ogre::Vector3")
-		{
-			Ogre::Vector3 val = Ogre::Vector3(0,0,0);
-			mgr.LoadAtom(type, &val);
-			AddOgreVec3(key, val);
-			continue;
-		}
-		else if (type == "Ogre::Quaternion")
-		{
-			Ogre::Quaternion val = Ogre::Quaternion();
-			mgr.LoadAtom(type, &val);
-			AddOgreQuat(key, val);
-			continue;
-		}
-		else if (type == "Ogre::String")
-		{
-			Ogre::String val = "";
-			mgr.LoadAtom(type, &val);
-			AddOgreString(key, val);
-			continue;
-		}
-	}
+	mgr.LoadAtom("std::vector<SGTGenericProperty>", &mData);
+	mIterator = mData.begin();
 }

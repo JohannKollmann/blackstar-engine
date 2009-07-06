@@ -23,22 +23,22 @@ SGTGOCRagdollBone::SGTGOCRagdollBone(void)
 	mBoneConfig.mBoneOrientation = Ogre::Quaternion();
 
 	mBoneConfig.mTwistMax.mValue = 20.0f;
-	mBoneConfig.mTwistMax.mDamping = 0.0f;
+	mBoneConfig.mTwistMax.mDamping = 0.5f;
 	mBoneConfig.mTwistMax.mRestitution = 0.0f;
 	mBoneConfig.mTwistMax.mSpring = 0.0f;
 
 	mBoneConfig.mTwistMin.mValue = -20.0f;
-	mBoneConfig.mTwistMin.mDamping = 0.0f;
+	mBoneConfig.mTwistMin.mDamping = 0.5f;
 	mBoneConfig.mTwistMin.mRestitution = 0.0f;
 	mBoneConfig.mTwistMin.mSpring = 0.0f;
 
 	mBoneConfig.mSwing1.mValue = 30.0f;
-	mBoneConfig.mSwing1.mDamping = 0.0f;
+	mBoneConfig.mSwing1.mDamping = 0.5f;
 	mBoneConfig.mSwing1.mRestitution = 0.0f;
 	mBoneConfig.mSwing1.mSpring = 0.0f;
 
 	mBoneConfig.mSwing2.mValue = 30.0f;
-	mBoneConfig.mSwing2.mDamping = 0.0f;
+	mBoneConfig.mSwing2.mDamping = 0.5f;
 	mBoneConfig.mSwing2.mRestitution = 0.0f;
 	mBoneConfig.mSwing2.mSpring = 0.0f;
 }
@@ -669,7 +669,6 @@ void SGTRagdoll::CreateSkeleton(std::vector<sBoneActorBindConfig> &config)
 						(*i).mJointOrientation = (*j).mJointOrientation;
 					}
 				}
-
 			}
 		}
 	}
@@ -714,28 +713,28 @@ std::vector<sBoneActorBindConfig> SGTRagdoll::CreateDummySkeleton()
 				sBoneActorBindConfig bone_actor_bind;
 				bone_actor_bind.mBoneName = bone->getName();
 				if (!bone->getParent()) bone_actor_bind.mParentName = "None";
-				else bone_actor_bind.mParentName = GetRealParent(bone)->getName();
+				else bone_actor_bind.mParentName = bone->getParent()->getName();//GetRealParent(bone)->getName();
 
 				bone_actor_bind.mBoneOffset = Ogre::Vector3(0,0,0);
 				bone_actor_bind.mJointOrientation = Ogre::Quaternion();
 				bone_actor_bind.mNeedsJointOrientation = true;
 				bone_actor_bind.mTwistMax.mValue = 20.0f;
-				bone_actor_bind.mTwistMax.mDamping = 0.0f;
+				bone_actor_bind.mTwistMax.mDamping = 0.5f;
 				bone_actor_bind.mTwistMax.mRestitution = 0.0f;
 				bone_actor_bind.mTwistMax.mSpring = 0.0f;
 
 				bone_actor_bind.mTwistMin.mValue = -20.0f;
-				bone_actor_bind.mTwistMin.mDamping = 0.0f;
+				bone_actor_bind.mTwistMin.mDamping = 0.5f;
 				bone_actor_bind.mTwistMin.mRestitution = 0.0f;
 				bone_actor_bind.mTwistMin.mSpring = 0.0f;
 
 				bone_actor_bind.mSwing1.mValue = 30.0f;
-				bone_actor_bind.mSwing1.mDamping = 0.0f;
+				bone_actor_bind.mSwing1.mDamping = 0.5f;
 				bone_actor_bind.mSwing1.mRestitution = 0.0f;
 				bone_actor_bind.mSwing1.mSpring = 0.0f;
 
 				bone_actor_bind.mSwing2.mValue = 30.0f;
-				bone_actor_bind.mSwing2.mDamping = 0.0f;
+				bone_actor_bind.mSwing2.mDamping = 0.5f;
 				bone_actor_bind.mSwing2.mRestitution = 0.0f;
 				bone_actor_bind.mSwing2.mSpring = 0.0f;
 

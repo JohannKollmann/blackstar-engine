@@ -507,6 +507,7 @@ void SGTEdit::OnDeleteObject()
 				}
 				delete object;
 			}
+			else if (input == wxID_CANCEL) return;
 		}
 	}
 	if (!skip)
