@@ -25,7 +25,6 @@ protected:
 public:
 	SGTGOCNodeRenderable(void) {}
 	virtual ~SGTGOCNodeRenderable(void) {}
-	virtual void ReceiveObjectMessage(Ogre::SharedPtr<SGTObjectMsg> msg);
 	virtual void UpdatePosition(Ogre::Vector3 position);
 	virtual void UpdateOrientation(Ogre::Quaternion orientation);
 

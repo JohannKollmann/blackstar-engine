@@ -4,18 +4,6 @@
 #include "SGTGameObject.h"
 #include "SGTSceneManager.h"
 
-void SGTGOCNodeRenderable::ReceiveObjectMessage(Ogre::SharedPtr<SGTObjectMsg> msg)
-{
-	if (msg->mName == "Update_Transform" || msg->mName == "Update_Position")
-	{
-		UpdatePosition(msg->mData.GetOgreVec3("Position"));
-	}
-	if (msg->mName == "Update_Transform" || msg->mName == "Update_Orientation")
-	{
-		UpdateOrientation(msg->mData.GetOgreQuat("Orientation"));
-	}
-}
-
 void SGTGOCNodeRenderable::UpdatePosition(Ogre::Vector3 position)
 {
 	mNode->setPosition(position);

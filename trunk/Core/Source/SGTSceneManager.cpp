@@ -12,7 +12,7 @@
 #include "SGTGOCPhysics.h"
 #include "SGTGOCView.h"
 #include "SGTGOCPlayerInput.h"
-#include "SGTRagdoll.h"
+#include "SGTGOCAnimatedCharacter.h"
 #include "SGTGOCIntern.h"
 
 SGTSceneManager::SGTSceneManager(void)
@@ -130,16 +130,16 @@ void SGTSceneManager::Init()
 	SGTLoadSave::Instance().RegisterObject(&SGTGOCRigidBody::Register);
 	SGTLoadSave::Instance().RegisterObject(&SGTGOCStaticBody::Register);
 	SGTLoadSave::Instance().RegisterObject(&SGTGOCViewContainer::Register);
-	SGTLoadSave::Instance().RegisterObject(&SGTRagdoll::Register);
-	SGTLoadSave::Instance().RegisterObject(&SGTGOCRagdollBone::Register);
+	SGTLoadSave::Instance().RegisterObject(&SGTGOCAnimatedCharacter::Register);
+	SGTLoadSave::Instance().RegisterObject(&SGTGOCAnimatedCharacterBone::Register);
 	RegisterEditorInterface("View", "MeshRenderable", (EDTCreatorFn)&SGTMeshRenderable::NewEditorInterfaceInstance, SGTMeshRenderable::GetDefaultParameters);
 	RegisterEditorInterface("View", "ParticleSystem", (EDTCreatorFn)&SGTPfxRenderable::NewEditorInterfaceInstance, SGTPfxRenderable::GetDefaultParameters);
 	RegisterEditorInterface("View", "LocalLight", (EDTCreatorFn)&SGTLocalLightRenderable::NewEditorInterfaceInstance, SGTLocalLightRenderable::GetDefaultParameters);
 	RegisterEditorInterface("View", "Sound3D", (EDTCreatorFn)&SGTSound3D::NewEditorInterfaceInstance, SGTSound3D::GetDefaultParameters);
 	RegisterEditorInterface("Physics", "RigidBody", (EDTCreatorFn)&SGTGOCRigidBody::NewEditorInterfaceInstance, SGTGOCRigidBody::GetDefaultParameters);
 	RegisterEditorInterface("Physics", "StaticBody", (EDTCreatorFn)&SGTGOCRigidBody::NewEditorInterfaceInstance, SGTGOCRigidBody::GetDefaultParameters);
-	RegisterEditorInterface("", "Ragdoll", (EDTCreatorFn)&SGTRagdoll::NewEditorInterfaceInstance, SGTRagdoll::GetDefaultParameters);
-	RegisterEditorInterface("", "RagdollBone", (EDTCreatorFn)&SGTGOCRagdollBone::NewEditorInterfaceInstance, SGTGOCRagdollBone::GetDefaultParameters);
+	RegisterEditorInterface("", "AnimatedCharacter", (EDTCreatorFn)&SGTGOCAnimatedCharacter::NewEditorInterfaceInstance, SGTGOCAnimatedCharacter::GetDefaultParameters);
+	RegisterEditorInterface("", "AnimatedCharacterBone", (EDTCreatorFn)&SGTGOCAnimatedCharacterBone::NewEditorInterfaceInstance, SGTGOCAnimatedCharacterBone::GetDefaultParameters);
 
 	//Init NxOgre Resource System
 	HANDLE fHandle;
@@ -225,9 +225,8 @@ void SGTSceneManager::LoadLevel(Ogre::String levelfile)
 {
 	SGTLoadSystem *ls=SGTLoadSave::Instance().LoadFile(levelfile);
 
-	SGTDataMap levelparams;
-	ls->LoadAtom("SGTDataMap", &levelparams);
-	CreateFromDataMap(&levelparams);
+	SGTDataMap *levelparams = (SGTDataMap*)ls->LoadObject();
+	CreateFromDataMap(levelparams);
 
 	ls->LoadAtom("std::list<SGTSaveable*>", &mGameObjects);
 	mNextID = 0;
@@ -236,9 +235,9 @@ void SGTSceneManager::LoadLevel(Ogre::String levelfile)
 void SGTSceneManager::SaveLevel(Ogre::String levelfile)
 {
 	SGTSaveSystem *ss=SGTLoadSave::Instance().CreateSaveFile(levelfile, levelfile + ".xml");
-	//ss->SaveAtom("bool", &mIndoorRendering, "mIndoorRendering");
-	if (HasLevelMesh()) ss->SaveAtom("std::string", &std::string(mLevelMesh->GetMeshFileName().c_str()), "mLevelMesh");
-	else ss->SaveAtom("std::string", &std::string(""), "mLevelMesh");
+	SGTDataMap map;
+	GetParameters(&map);
+	ss->SaveObject(&map, "LevelParams");
 	ss->SaveAtom("std::list<SGTSaveable*>", &mGameObjects, "GameObjects");
 	ss->CloseFiles();
 	delete ss;
@@ -461,9 +460,8 @@ SGTSceneManager::Lua_InsertNpc(SGTScript& caller, std::vector<SGTScriptParam> vP
 	if (mesh != "")
 	{
 		SGTGameObject *go = new SGTGameObject();
-		SGTRagdoll *ragdoll = new SGTRagdoll(mesh, scale);
-		ragdoll->SetAnimationState("Walk");
-		ragdoll->SetControlToActors();
+		SGTGOCAnimatedCharacter *ragdoll = new SGTGOCAnimatedCharacter(mesh, scale);
+		ragdoll->Kill();
 		go->AddComponent(ragdoll);
 	}
 	return out;
@@ -483,9 +481,8 @@ void SGTSceneManager::CreatePlayer()
 	player->AddComponent(new SGTGOCPlayerInput());
 	player->AddComponent(new SGTGOCCameraController(SGTMain::Instance().GetCamera()));
 	player->AddComponent(new SGTGOCCharacterController(Ogre::Vector3(1,1.8,1)));
-	/*SGTRagdoll *ragdoll = new SGTRagdoll("zm_Skin.mesh", Ogre::Vector3(1,1,1));
-	ragdoll->SetAnimationState("Walk");
-	player->AddComponent(ragdoll);*/
+	/*SGTGOCAnimatedCharacter *animated = new SGTGOCAnimatedCharacter("ninja.mesh", Ogre::Vector3(0.01,0.01,0.01));
+	player->AddComponent(animated);*/
 	SGTGOCViewContainer *container = new SGTGOCViewContainer();
 	container->AddItem(new SGTMeshRenderable("cube.1m.mesh", true));
 	player->AddComponent(container);

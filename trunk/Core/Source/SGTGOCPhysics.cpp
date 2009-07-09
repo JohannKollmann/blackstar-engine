@@ -84,11 +84,11 @@ void SGTGOCRigidBody::Freeze(bool freeze)
 
 void SGTGOCRigidBody::UpdatePosition(Ogre::Vector3 position)
 {
-	mActor->setGlobalPosition(position);
+	if (!mOwnerGO->GetTranformingComponents()) mActor->setGlobalPosition(position);
 }
 void SGTGOCRigidBody::UpdateOrientation(Ogre::Quaternion orientation)
 {
-	mActor->setGlobalOrientation(orientation);
+	if (!mOwnerGO->GetTranformingComponents()) mActor->setGlobalOrientation(orientation);
 }
 void SGTGOCRigidBody::UpdateScale(Ogre::Vector3 scale)
 {
@@ -188,11 +188,11 @@ void SGTGOCStaticBody::Create(Ogre::String collision_mesh)
 
 void SGTGOCStaticBody::UpdatePosition(Ogre::Vector3 position)
 {
-	mActor->setGlobalPosition(position);
+	if (!mOwnerGO->GetTranformingComponents()) mActor->setGlobalPosition(position);
 }
 void SGTGOCStaticBody::UpdateOrientation(Ogre::Quaternion orientation)
 {
-	mActor->setGlobalOrientation(orientation);
+	if (!mOwnerGO->GetTranformingComponents()) mActor->setGlobalOrientation(orientation);
 }
 void SGTGOCStaticBody::UpdateScale(Ogre::Vector3 scale)
 {
@@ -229,98 +229,4 @@ void SGTGOCStaticBody::Save(SGTSaveSystem& mgr)
 void SGTGOCStaticBody::Load(SGTLoadSystem& mgr)
 {
 	mgr.LoadAtom("Ogre::String", &mCollisionMeshName);
-}
-
-
-//Character Controller
-
-#include "NxBoxController.h"
-#include "NxCapsuleController.h"
-#include "SGTMessageSystem.h"
-
-SGTGOCCharacterController::SGTGOCCharacterController(Ogre::Vector3 dimensions)
-{
-	Create(dimensions);
-}
-
-SGTGOCCharacterController::~SGTGOCCharacterController(void)
-{
-	SGTMain::Instance().GetNxCharacterManager()->releaseController(*mCharacterController);
-}
-
-void SGTGOCCharacterController::Create(Ogre::Vector3 dimensions)
-{
-	SGTMessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
-	mDirection = Ogre::Vector3(0,0,0);
-	//mDimensions = dimensions;
-	NxCapsuleControllerDesc desc;
-	desc.position.x		= 0;
-	desc.position.y		= 0;
-	desc.position.z		= 0;
-	desc.radius			= dimensions.x;
-	desc.height			= dimensions.y;
-	desc.upDirection	= NX_Y;
-	//		desc.slopeLimit		= cosf(NxMath::degToRad(45.0f));
-	desc.slopeLimit		= 0;
-	desc.skinWidth		= 0.2f;
-	desc.stepOffset		= desc.radius * 0.5;
-	bool test = desc.isValid();
-	mCharacterController = SGTMain::Instance().GetNxCharacterManager()->createController(SGTMain::Instance().GetNxScene()->getNxScene(), desc);
-}
-
-void SGTGOCCharacterController::UpdatePosition(Ogre::Vector3 position)
-{
-	mCharacterController->setPosition(NxExtendedVec3(position.x, position.y, position.z));
-}
-void SGTGOCCharacterController::UpdateOrientation(Ogre::Quaternion orientation)
-{
-}
-void SGTGOCCharacterController::UpdateScale(Ogre::Vector3 scale)
-{
-}
-
-void SGTGOCCharacterController::ReceiveMessage(SGTMsg &msg)
-{
-	if (msg.mNewsgroup == "UPDATE_PER_FRAME")
-	{
-		float time = msg.mData.GetFloat("TIME");
-		//if (time > 0.1) return;
-		Ogre::Vector3 dir_rotated = mOwnerGO->GetGlobalOrientation() * mDirection;
-		Ogre::Vector3 dir = (dir_rotated + Ogre::Vector3(0.0f, -5.81f, 0.0f)) * time;
-		NxU32 collisionFlags;
-		float minDist = 0.000001f;
-		mCharacterController->move(NxVec3(dir.x, dir.y, dir.z), 1<<SGTMain::Instance().GetNxScene()->getShapeGroup("Collidable")->getGroupID(), minDist, collisionFlags);
-		SGTObjectMsg *position_response = new SGTObjectMsg;
-		position_response->mName = "Update_Position";
-		NxExtendedVec3 nxPos = mCharacterController->getDebugPosition();
-		position_response->mData.AddOgreVec3("Position", Ogre::Vector3(nxPos.x, nxPos.y, nxPos.z));
-		mOwnerGO->SendMessage(Ogre::SharedPtr<SGTObjectMsg>(position_response));
-		SGTObjectMsg *collision_response = new SGTObjectMsg;
-		collision_response->mName = "CharacterCollisionReport";
-		collision_response->mData.AddFloat("collisionFlags", collisionFlags);
-		mOwnerGO->SendMessage(Ogre::SharedPtr<SGTObjectMsg>(collision_response));
-
-	}
-}
-
-void SGTGOCCharacterController::ReceiveObjectMessage(Ogre::SharedPtr<SGTObjectMsg> msg)
-{
-	if (msg->mName == "ChangeCharacterDirection")
-	{
-		mDirection = msg->mData.GetOgreVec3("Direction");
-		mDirection = mDirection * 10.0f;
-	}
-}
-
-void SGTGOCCharacterController::SetOwner(SGTGameObject *go)
-{
-	mOwnerGO = go;
-	UpdatePosition(mOwnerGO->GetGlobalPosition());
-}
-
-void SGTGOCCharacterController::Save(SGTSaveSystem& mgr)
-{
-}
-void SGTGOCCharacterController::Load(SGTLoadSystem& mgr)
-{
 }

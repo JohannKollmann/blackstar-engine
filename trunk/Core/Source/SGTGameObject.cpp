@@ -18,6 +18,7 @@ SGTGameObject::SGTGameObject(SGTGameObject *parent)
 	UpdateLocalTransform();
 	mFreezePosition = false;
 	mFreezeOrientation = false;
+	mTransformingComponents = false;
 	mTransformingChildren = false;
 	mUpdatingFromParent = false;
 }
@@ -42,7 +43,7 @@ void SGTGameObject::SendInstantMessage(Ogre::String receiver_family, Ogre::Share
 {
 	for (std::list<SGTGOComponent*>::iterator i = mComponents.begin(); i != mComponents.end(); i++)
 	{
-		if ((*i)->GetFamilyID() == receiver_family)
+		if ((*i)->GetFamilyID() == receiver_family || receiver_family == "")
 		{
 			(*i)->ReceiveObjectMessage(msg);
 		}
@@ -244,6 +245,13 @@ void SGTGameObject::UpdateTransform(Ogre::Vector3 pos, Ogre::Quaternion orientat
 {
 	mPosition = pos;
 	mOrientation = orientation;
+	mTransformingComponents = true;
+	for (std::list<SGTGOComponent*>::iterator i = mComponents.begin(); i != mComponents.end(); i++)
+	{
+		(*i)->UpdateOrientation(mOrientation);
+		(*i)->UpdatePosition(mPosition);
+	}
+	mTransformingComponents = false;
 	UpdateLocalTransform();
 	UpdateChildren();
 }

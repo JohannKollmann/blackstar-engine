@@ -236,6 +236,22 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\SGTGOCAnimatedCharacter.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Header\SGTGOCAnimatedCharacter.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\SGTGOCCharacterController.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Header\SGTGOCCharacterController.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Header\SGTGOCEditorInterface.h"
 				>
 			</File>
@@ -537,15 +553,15 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\Dependencies\Boost\thread\win32\once.hpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\Dependencies\Boost\thread\pthread\once.hpp"
 					>
 				</File>
 				<File
 					RelativePath="..\..\Dependencies\Boost\thread\once.hpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\Dependencies\Boost\thread\win32\once.hpp"
 					>
 				</File>
 				<File
@@ -557,15 +573,15 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\Dependencies\Boost\thread\pthread\recursive_mutex.hpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\Dependencies\Boost\thread\win32\recursive_mutex.hpp"
 					>
 				</File>
 				<File
 					RelativePath="..\..\Dependencies\Boost\thread\recursive_mutex.hpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\Dependencies\Boost\thread\pthread\recursive_mutex.hpp"
 					>
 				</File>
 				<File
@@ -585,15 +601,15 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\Dependencies\Boost\thread\win32\thread.hpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\Dependencies\Boost\thread\pthread\thread.hpp"
 					>
 				</File>
 				<File
 					RelativePath="..\..\Dependencies\Boost\thread\thread.hpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\Dependencies\Boost\thread\win32\thread.hpp"
 					>
 				</File>
 				<File

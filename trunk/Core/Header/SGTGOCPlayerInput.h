@@ -3,11 +3,10 @@
 #include "SGTGOComponent.h"
 #include "SGTIncludes.h"
 #include "SGTMessageListener.h"
+#include "SGTGOCCharacterController.h"
 
-class SGTGOCPlayerInput : public SGTGOComponent, public SGTMessageListener
+class SGTGOCPlayerInput : public SGTCharacterControllerInput, public SGTMessageListener
 {
-private:
-	Ogre::Vector3 mDirection;
 
 public:
 	SGTGOCPlayerInput(void);
@@ -15,7 +14,7 @@ public:
 
 	void ReceiveMessage(SGTMsg &msg);
 
-	goc_id_family& GetFamilyID() const { static std::string name = "GOCInput"; return name; }
+	void ReceiveObjectMessage(Ogre::SharedPtr<SGTObjectMsg> msg);
 	SGTGOComponent::goc_id_type& GetComponentID() const { static std::string name = "PlayerInput"; return name; }
 
 	std::string& TellName() { static std::string name = "PlayerInput"; return name; };
@@ -30,9 +29,11 @@ class SGTGOCCameraController : public SGTGOComponent, public SGTMessageListener
 {
 private:
 	Ogre::Camera *mCamera;
-	Ogre::SceneNode *mCenterNode;
-	Ogre::Vector3 mTargetOffset;
-	Ogre::Vector3 mPositionOffset;
+	Ogre::SceneNode *mTargetNode;
+	Ogre::SceneNode *mCameraNode;
+	Ogre::SceneNode *mCharacterCenterNode;
+	Ogre::SceneNode *mCameraCenterNode;
+	float mTightness;
 
 public:
 	SGTGOCCameraController() {};

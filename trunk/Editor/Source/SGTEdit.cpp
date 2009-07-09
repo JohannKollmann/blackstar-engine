@@ -9,7 +9,7 @@
 #include "SGTGamestate.h"
 #include "SGTGOCEditorInterface.h"
 #include "SGTGOCIntern.h"
-#include "SGTRagdoll.h"
+#include "SGTGOCAnimatedCharacter.h"
 
 
 SGTEdit::SGTEdit()
@@ -416,16 +416,12 @@ SGTGameObject* SGTEdit::OnInsertObject(SGTGameObject *parent, bool align)
 		{
 			object = (SGTGameObject*)ls->LoadObject();
 
-			if (align) AlignObjectWithMesh(object);
-			else object->SetGlobalPosition(SGTMain::Instance().GetCamera()->getDerivedPosition() + (SGTMain::Instance().GetCamera()->getDerivedOrientation() * Ogre::Vector3(0,0,-5))); 
-
 			if (parent != NULL) object->SetParent(parent);
 		}
 		else
 		{
 			object = new SGTGameObject(parent);
-			if (align) AlignObjectWithMesh(object);
-			else object->SetGlobalPosition(SGTMain::Instance().GetCamera()->getDerivedPosition() + (SGTMain::Instance().GetCamera()->getDerivedOrientation() * Ogre::Vector3(0,0,-5))); 
+			if (!align) object->SetGlobalPosition(SGTMain::Instance().GetCamera()->getDerivedPosition() + (SGTMain::Instance().GetCamera()->getDerivedOrientation() * Ogre::Vector3(0,0,-5))); 
 
 			std::list<ComponentSection> sections;
 			Ogre::Vector3 offset;
@@ -463,6 +459,9 @@ SGTGameObject* SGTEdit::OnInsertObject(SGTGameObject *parent, bool align)
 
 			//SGTMain::Instance().GetNxWorld()->getPhysXDriver()->simulate(0);
 		}
+
+		if (align) AlignObjectWithMesh(object);
+		else object->SetGlobalPosition(SGTMain::Instance().GetCamera()->getDerivedPosition() + (SGTMain::Instance().GetCamera()->getDerivedOrientation() * Ogre::Vector3(0,0,-5))); 
 
 		ls->CloseFile();
 		delete ls;
@@ -582,7 +581,7 @@ void SGTEdit::OnConnectWaypoints()
 
 void SGTEdit::OnSaveBones()
 {
-	SGTRagdoll *ragdoll = (SGTRagdoll*)(*mSelectedObjects.begin()).mObject->GetComponent("GOCRagdoll");
+	SGTGOCAnimatedCharacter *ragdoll = (SGTGOCAnimatedCharacter*)(*mSelectedObjects.begin()).mObject->GetComponent("GOCAnimatedCharacter");
 	ragdoll->SerialiseBoneObjects();
 }
 
@@ -820,7 +819,7 @@ void SGTEdit::AlignObjectWithMesh(SGTGameObject *object)
 		SGTGOCNodeRenderable *visuals = (SGTGOCNodeRenderable*)object->GetComponent("GOCView");
 		if (visuals != 0)
 		{
-			offset = visuals->GetNode()->getScale() * 0.5;//object->GetVisual()->getBoundingBox().getSize()
+			offset = (visuals->GetNode()->getScale() * 0.5) * normal;//object->GetVisual()->getBoundingBox().getSize()
 		}
 		object->SetGlobalPosition(position + offset);
 	}

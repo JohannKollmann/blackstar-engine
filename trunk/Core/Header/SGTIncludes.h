@@ -25,7 +25,6 @@ class SGTObjectLevelRayCaster;
 class SGTCameraController;
 class SGTWeatherController;
 class SGTCompositorLoader;
-class SGTNpc;
 class SGTCollisionCallback;
 class SGTGameObject;
 class SGTGOComponent;

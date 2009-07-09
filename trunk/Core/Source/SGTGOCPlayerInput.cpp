@@ -8,11 +8,12 @@
 
 SGTGOCPlayerInput::SGTGOCPlayerInput(void)
 {
-	mDirection = Ogre::Vector3(0,0,0);
 	SGTMessageSystem::Instance().JoinNewsgroup(this, "KEY_DOWN");
 	SGTMessageSystem::Instance().JoinNewsgroup(this, "KEY_UP");
 	SGTMessageSystem::Instance().JoinNewsgroup(this, "MOUSE_MOVE");
 	SGTMessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
+
+	mCharacterMovementState = 0;
 }
 
 SGTGOCPlayerInput::~SGTGOCPlayerInput(void)
@@ -24,84 +25,71 @@ void SGTGOCPlayerInput::ReceiveMessage(SGTMsg &msg)
 	if (msg.mNewsgroup == "KEY_DOWN")
 	{
 		OIS::KeyCode kc = (OIS::KeyCode)msg.mData.GetInt("KEY_ID_OIS");
-		bool move = false;
 		if (kc == OIS::KC_W)
 		{
-			mDirection = Ogre::Vector3(0,0,-1);
-			move = true;
+			mCharacterMovementState = mCharacterMovementState | SGTCharacterMovement::FORWARD;
 		}
 		if (kc == OIS::KC_S)
 		{
-			mDirection = Ogre::Vector3(0,0,1);
-			move = true;
+			mCharacterMovementState = mCharacterMovementState | SGTCharacterMovement::BACKWARD;
 		}
 		if (kc == OIS::KC_A)
 		{
-			mDirection = Ogre::Vector3(-1,0,0);
-			move = true;
+			mCharacterMovementState = mCharacterMovementState | SGTCharacterMovement::LEFT;
 		}
 		if (kc == OIS::KC_D)
 		{
-			mDirection = Ogre::Vector3(1,0,0);
-			move = true;
+			mCharacterMovementState = mCharacterMovementState | SGTCharacterMovement::RIGHT;
 		}
-		if (move)
+		if (kc == OIS::KC_SPACE)
 		{
-			SGTObjectMsg *objmsg = new SGTObjectMsg();
-			objmsg->mName = "ChangeCharacterDirection";
-			objmsg->mData.AddOgreVec3("Direction", mDirection);
-			mOwnerGO->SendInstantMessage("GOCPhysics", Ogre::SharedPtr<SGTObjectMsg>(objmsg));
+			mCharacterMovementState = mCharacterMovementState | SGTCharacterMovement::JUMP;
 		}
-		return;
 	}
 	if (msg.mNewsgroup == "KEY_UP")
 	{
 		OIS::KeyCode kc = (OIS::KeyCode)msg.mData.GetInt("KEY_ID_OIS");
-		bool move = false;
 		if (kc == OIS::KC_W)
 		{
-			mDirection = Ogre::Vector3(0,0,0);
-			move = true;
+			mCharacterMovementState = mCharacterMovementState & ~SGTCharacterMovement::FORWARD;
 		}
 		if (kc == OIS::KC_S)
 		{
-			mDirection = Ogre::Vector3(0,0,0);
-			move = true;
+			mCharacterMovementState = mCharacterMovementState & ~SGTCharacterMovement::BACKWARD;
 		}
 		if (kc == OIS::KC_A)
 		{
-			mDirection = Ogre::Vector3(0,0,0);
-			move = true;
+			mCharacterMovementState = mCharacterMovementState & ~SGTCharacterMovement::LEFT;
 		}
 		if (kc == OIS::KC_D)
 		{
-			mDirection = Ogre::Vector3(0,0,0);
-			move = true;
+			mCharacterMovementState = mCharacterMovementState & ~SGTCharacterMovement::RIGHT;
 		}
-		if (move)
-		{
-			SGTObjectMsg *objmsg = new SGTObjectMsg();
-			objmsg->mName = "ChangeCharacterDirection";
-			objmsg->mData.AddOgreVec3("Direction", mDirection);
-			mOwnerGO->SendInstantMessage("GOCPhysics", Ogre::SharedPtr<SGTObjectMsg>(objmsg));
-		}
-		return;
 	}
+	BroadcastMovementState();
+
 	if (msg.mNewsgroup == "MOUSE_MOVE")
 	{
 		mOwnerGO->Rotate(Ogre::Vector3(0,1,0), Ogre::Radian((Ogre::Degree(-msg.mData.GetInt("ROT_X_REL") * 0.2f))));
-		//mOwnerGO->Rotate(Ogre::Vector3(1,0,0), Ogre::Radian((Ogre::Degree(-msg.mData.GetInt("ROT_Y_REL") * 0.2f))));
 	}
-	/*if (msg.mNewsgroup == "UPDATE_PER_FRAME")
+	if (msg.mNewsgroup == "UPDATE_PER_FRAME")
 	{
-		if (mDirection != Ogre::Vector3(0,0,0))
-		{
-			SGTObjectMsg *objmsg = new SGTObjectMsg();
-			objmsg->mName = "ChangeCharacterDirection";
-			objmsg->mData.AddOgreVec3("Direction", mDirection * msg.mData.GetFloat("TIME"));
-			mOwnerGO->SendInstantMessage("GOCPhysics", Ogre::SharedPtr<SGTObjectMsg>(objmsg));
-		}
-	}*/
+	}
+}
+
+#include "NxController.h"
+
+void SGTGOCPlayerInput::ReceiveObjectMessage(Ogre::SharedPtr<SGTObjectMsg> msg)
+{
+	if (msg->mName == "CharacterJumpEnded")
+	{
+		mCharacterMovementState = mCharacterMovementState & ~SGTCharacterMovement::JUMP;
+		BroadcastMovementState();
+	}
+	if (msg->mName == "CharacterCollisionReport")
+	{
+		NxU32 collisionFlags = msg->mData.GetFloat("collisionFlags");
+	}
 }
 
 
@@ -110,47 +98,53 @@ void SGTGOCPlayerInput::ReceiveMessage(SGTMsg &msg)
 SGTGOCCameraController::SGTGOCCameraController(Ogre::Camera *camera)
 {
 	mCamera = camera;
-	mCenterNode = SGTMain::Instance().GetOgreSceneMgr()->getRootSceneNode()->createChildSceneNode();
-	mCenterNode->attachObject(camera);
-	mTargetOffset = Ogre::Vector3(0, 2, -0.5);
-	mPositionOffset = Ogre::Vector3(0, 1, 5);
-	mCamera->setPosition(mPositionOffset);
+	mCharacterCenterNode = SGTMain::Instance().GetOgreSceneMgr()->getRootSceneNode()->createChildSceneNode();
+	mCameraCenterNode = mCharacterCenterNode->createChildSceneNode();
+	mTargetNode = mCameraCenterNode->createChildSceneNode(Ogre::Vector3(0,0,10));
+	mCameraNode = mCameraCenterNode->createChildSceneNode(Ogre::Vector3(0,1.5,-5));
+	mCameraNode->setAutoTracking(true, mTargetNode);
+	mCameraNode->attachObject(mCamera);
+	mCameraNode->setFixedYawAxis (true);
+
+	mTightness = 0.04f;
 
 	SGTMain::Instance().GetCameraController()->mMove = false;
 	SGTMain::Instance().GetCameraController()->mXRot = false;
 	SGTMain::Instance().GetCameraController()->mYRot = false;
+
+	SGTMessageSystem::Instance().JoinNewsgroup(this, "MOUSE_MOVE");
 }
 
 SGTGOCCameraController::~SGTGOCCameraController()
 {
-	SGTMain::Instance().GetOgreSceneMgr()->destroySceneNode(mCenterNode);
+	SGTMain::Instance().GetOgreSceneMgr()->destroySceneNode(mCharacterCenterNode);
+	SGTMain::Instance().GetOgreSceneMgr()->destroySceneNode(mCameraCenterNode);
+	SGTMain::Instance().GetOgreSceneMgr()->destroySceneNode(mCameraNode);
+	SGTMain::Instance().GetOgreSceneMgr()->destroySceneNode(mTargetNode);
 }
 
 void SGTGOCCameraController::ReceiveMessage(SGTMsg &msg)
 {
+	if (msg.mNewsgroup == "MOUSE_MOVE")
+	{
+		Ogre::Radian pitch = Ogre::Radian((Ogre::Degree(-msg.mData.GetInt("ROT_Y_REL"))));
+		if (mCameraCenterNode->getOrientation().getPitch().valueDegrees() > -40.0f && pitch.valueDegrees() < 0) mCameraCenterNode->rotate(Ogre::Vector3(1,0,0), Ogre::Radian(pitch * mTightness));
+		else if (mCameraCenterNode->getOrientation().getPitch().valueDegrees() < 40.0f && pitch.valueDegrees() > 0) mCameraCenterNode->rotate(Ogre::Vector3(1,0,0), Ogre::Radian(pitch * mTightness));
+	}
+
 }
 
 void SGTGOCCameraController::ReceiveObjectMessage(Ogre::SharedPtr<SGTObjectMsg> msg)
 {
-	if (msg->mName == "Update_Position" || msg->mName == "Update_Transform")
-	{
-		Ogre::Vector3 pos = msg->mData.GetOgreVec3("Position");
-		mCenterNode->setPosition(pos);
-		mCamera->lookAt(mCenterNode->getPosition());
-	}
-	if (msg->mName == "Update_Orientation" || msg->mName == "Update_Transform")
-	{
-		mCenterNode->setOrientation(msg->mData.GetOgreQuat("Orientation"));
-	}
 }
 
 void SGTGOCCameraController::UpdatePosition(Ogre::Vector3 position)
 {
-	mCenterNode->setPosition(position);
-	mCamera->lookAt(mCenterNode->getPosition());
+	mCharacterCenterNode->setPosition(position);
+	//mCamera->lookAt(mCenterNode->getPosition());
 }
 
 void SGTGOCCameraController::UpdateOrientation(Ogre::Quaternion orientation)
 {
-	mCenterNode->setOrientation(orientation);
+	mCharacterCenterNode->setOrientation(orientation);
 }

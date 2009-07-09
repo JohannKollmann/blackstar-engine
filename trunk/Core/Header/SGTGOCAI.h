@@ -4,19 +4,17 @@
 #include "SGTGOComponent.h"
 #include "SGTIncludes.h"
 #include "SGTMessageListener.h"
+#include "SGTGOCCharacterController.h"
 
-class SGTDllExport SGTGOCAI : public SGTGOComponent, public SGTMessageListener
+class SGTDllExport SGTGOCAI : public SGTCharacterControllerInput, public SGTMessageListener
 {
-private:
-	Ogre::Vector3 mDirection;
-
 public:
 	SGTGOCAI(void);
 	~SGTGOCAI(void);
 
 	void ReceiveMessage(SGTMsg &msg);
+	void ReceiveObjectMessage(Ogre::SharedPtr<SGTObjectMsg> msg);
 
-	goc_id_family& GetFamilyID() const { static std::string name = "GOCAI"; return name; }
 	SGTGOComponent::goc_id_type& GetComponentID() const { static std::string name = "AI"; return name; }
 
 	std::string& TellName() { static std::string name = "AI"; return name; };

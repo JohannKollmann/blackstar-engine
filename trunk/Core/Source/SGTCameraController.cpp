@@ -6,7 +6,7 @@
 #include "SGTMsg.h"
 #include "SGTConsole.h"
 #include "SGTSceneManager.h"
-#include "SGTRagdoll.h"
+#include "SGTGOCAnimatedCharacter.h"
 
 SGTCameraController::SGTCameraController(void)
 {
@@ -75,12 +75,12 @@ void SGTCameraController::ReceiveMessage(SGTMsg &msg)
 			rnode->attachObject(jaiqua);
 			rnode->scale(0.1,0.1,0.1);*/
 			SGTGameObject *object = new SGTGameObject();
-			SGTRagdoll *ragdoll = new SGTRagdoll("robot.mesh", Ogre::Vector3(0.1,0.1,0.1));
+			SGTGOCAnimatedCharacter *ragdoll = new SGTGOCAnimatedCharacter("robot.mesh", Ogre::Vector3(0.1,0.1,0.1));
 			//ragdoll->SetAnimationState("Walk");
 			object->AddComponent(ragdoll);
 			object->SetGlobalPosition(mCamera->getDerivedPosition());
-			ragdoll->Update(0);
-			ragdoll->SetControlToActors();
+			ragdoll->GetRagdoll()->Update(0);
+			ragdoll->Kill();
 		}
 	}
 

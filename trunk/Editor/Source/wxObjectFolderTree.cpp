@@ -5,7 +5,7 @@
 #include "boost/filesystem/operations.hpp"
 #include "boost/filesystem/path.hpp"
 
-#include "SGTRagdoll.h"
+#include "SGTGOCAnimatedCharacter.h"
 
 
 enum
@@ -192,8 +192,8 @@ void wxObjectFolderTree::OnMenuEvent(wxCommandEvent& event)
 		wxEditSGTGameObject* page = ((wxEditSGTGameObject*)(wxEdit::Instance().GetpropertyWindow()->SetPage("EditGameObject")));
 		page->NewResource(Path + File + ".ocs", false);
 		SGTDataMap map;
-		SGTRagdoll::GetDefaultParameters(&map);
-		page->AddGOCSection("Ragdoll", map);
+		SGTGOCAnimatedCharacter::GetDefaultParameters(&map);
+		page->AddGOCSection("AnimatedCharacter", map);
 	}
 
 }
@@ -254,7 +254,7 @@ void wxObjectFolderTree::ShowMenu(VdtcTreeItemBase *item, const wxPoint& pt)
 	{
 		wxMenu *addMenu = new wxMenu("");
 		addMenu->Append(ResTree_addGOC, "Component Assembly");
-		addMenu->Append(ResTree_addRagdoll, "Ragdoll");
+		addMenu->Append(ResTree_addRagdoll, "AnimatedCharacter");
 		addMenu->Append(ResTree_addNpc, "Npc");
 		menu.AppendSubMenu(addMenu, "Add");
 

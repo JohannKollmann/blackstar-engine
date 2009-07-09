@@ -21,11 +21,6 @@ public:
 	void setPose(const NxOgre::Pose& p)
 	{
 		mOwner->UpdateTransform(p, p);
-		SGTObjectMsg *p_msg = new SGTObjectMsg();
-		p_msg->mName = "Update_Transform";
-		p_msg->mData.AddOgreVec3("Position", p);
-		p_msg->mData.AddOgreQuat("Orientation", p);
-		mOwner->SendMessage(Ogre::SharedPtr<SGTObjectMsg>(p_msg));
 	}
 	NxOgre::Pose getPose() const
 	{
@@ -134,38 +129,4 @@ public:
 	static void Register(std::string* pstrName, SGTSaveableInstanceFn* pFn) { *pstrName = "StaticBody"; *pFn = (SGTSaveableInstanceFn)&NewInstance; };
 	static SGTSaveable* NewInstance() { return new SGTGOCStaticBody; };
 	static SGTGOCEditorInterface* NewEditorInterfaceInstance() { return new SGTGOCStaticBody(); }
-};
-
-
-#include "NxControllerManager.h"
-#include "SGTMessageListener.h"
-
-class SGTDllExport SGTGOCCharacterController : public SGTGOCPhysics, public SGTMessageListener
-{
-private:
-	NxController *mCharacterController;
-	void Create(Ogre::Vector3 dimensions);
-	Ogre::Vector3 mDirection;
-
-public:
-	SGTGOCCharacterController() { mCharacterController = 0; }
-	SGTGOCCharacterController(Ogre::Vector3 dimensions);
-	~SGTGOCCharacterController(void);
-
-	SGTGOComponent::goc_id_type& GetComponentID() const { static std::string name = "CharacterController"; return name; }
-
-	void UpdatePosition(Ogre::Vector3 position);
-	void UpdateOrientation(Ogre::Quaternion orientation);
-	void UpdateScale(Ogre::Vector3 scale);
-
-	void ReceiveObjectMessage(Ogre::SharedPtr<SGTObjectMsg> msg);
-	void ReceiveMessage(SGTMsg &msg);
-
-	void SetOwner(SGTGameObject *go);
-
-	void Save(SGTSaveSystem& mgr);
-	void Load(SGTLoadSystem& mgr);
-	std::string& TellName() { static std::string name = "CharacterController"; return name; };
-	static void Register(std::string* pstrName, SGTSaveableInstanceFn* pFn) { *pstrName = "CharacterController"; *pFn = (SGTSaveableInstanceFn)&NewInstance; };
-	static SGTSaveable* NewInstance() { return new SGTGOCCharacterController; };
 };
