@@ -17,30 +17,24 @@ SGTGUISystem::SGTGUISystem(void)
 	m_fXPos=m_fYPos=0.5f;
 	m_wMouse=MakeWindow(m_fXPos, m_fYPos, 0.05, 0.05, true);
 	m_wMouse.Bake();
-	/*Window w1=MakeWindow(0.0, 0.0, 0.25, 0.25);
 	
-	SGTGUISystem::SubWindow sw=CreateSubWindow(0.5, 0.25, 0.5, 0.5, w1.GetHandle());
-	CreateSubWindow(0.0, 0.25, 0.5, 0.5, w1.GetHandle());
-	SGTGUISystem::SubWindow ssw=CreateSubWindow(0.25, 0.25, 0.5, 0.5, sw.GetHandle());
-	Window w2=MakeWindow(0.25, 0.0, 0.25, 0.5);
-	
-	w1.Bake();
-	w2.Bake();
-
-	sw.SetMaterial("gui/subwin-test0");
-
-	sw.SetHoverInCallback("HoverInCallback");
-	sw.SetHoverOutCallback("HoverOutCallback");
-	sw.SetOnClickCallback("ClickCallback");
-	*/
 	Window wExitMenu=MakeWindow(0.25, 0.25, 0.5, 0.5);
 	SGTGUISystem::SubWindow wContinue=CreateSubWindow(0.25, 0.12, 0.5, 0.20, wExitMenu.GetHandle());
 	SGTGUISystem::SubWindow wStart=CreateSubWindow(0.25, 0.37, 0.5, 0.20, wExitMenu.GetHandle());
 	SGTGUISystem::SubWindow wQuit=CreateSubWindow(0.25, 0.63, 0.5, 0.20, wExitMenu.GetHandle());
-		
-	wExitMenu.Bake();
 
-	wContinue.SetMaterial("gui/ResumeGame");
+	wExitMenu.Bake();
+	
+	SGTFontTextures ft("D:\\coding\\blackstar_studios\\Esgaroth_Engine\\bin\\Data\\Scripts\\materials\\scripts\\Templates\\morpheus_spacings.txt");
+	int iWidth, iHeight;
+	Ogre::MaterialPtr pMat=ft.CreateTextMaterial(ft.CreateTextTexture("$ff001$fff0N$f0f0S$f0ffA$f00fN$ff0fE$f0f0", 100, 3, iWidth, iHeight), "SubWindowFont", "TextPass", "TextTexture", 100, 3);
+
+	//wExitMenu.SetMaterial(strTestMatName);
+	//wExitMenu.SetMaterial("GuiFont");
+	
+	//wContinue.SetMaterial("gui/ResumeGame");
+	wContinue.SetMaterial(pMat->getName());
+
 	wStart.SetMaterial("gui/StartGame");
 	wQuit.SetMaterial("gui/QuitGame");
 
@@ -55,8 +49,7 @@ SGTGUISystem::SGTGUISystem(void)
 	wQuit.SetHoverInCallback("QuitHoverInCallback");
 	wQuit.SetHoverOutCallback("QuitHoverOutCallback");
 	wQuit.SetOnClickCallback("QuitClickCallback");
-	
-	
+
 	SGTScriptSystem::GetInstance().ShareCFunction("set_window_material", Window::Lua_SetMaterial);
 	m_iHoverWin=-1;
 	m_bMenuActive=false;
@@ -308,10 +301,10 @@ SGTGUISystem::Window::Bake()
 			SGTGUISystem::SWindowInfo subwininfo=SGTGUISystem::GetInstance().m_mWindowInfos.find(vSubWindows[iSubWin])->second;
 			float z=0.0001-0.00009*(float)(iSubWin+1)/(float)nSubWindows;
 			float afSubWinVerts[]={
-			(subwininfo.x)*2.0,subwininfo.y*2.0,z,0.0,1.0,
-			(subwininfo.x+subwininfo.w)*2.0,subwininfo.y*2.0,z,1.0,1.0,
-			subwininfo.x*2.0,(subwininfo.y+subwininfo.h)*2.0,z,0.0,0.0,
-			(subwininfo.x+subwininfo.w)*2.0,(subwininfo.y+subwininfo.h)*2.0,z,1.0,0.0};
+			(subwininfo.x)*2.0,subwininfo.y*2.0,z,0.0,0.0,
+			(subwininfo.x+subwininfo.w)*2.0,subwininfo.y*2.0,z,1.0,0.0,
+			subwininfo.x*2.0,(subwininfo.y+subwininfo.h)*2.0,z,0.0,1.0,
+			(subwininfo.x+subwininfo.w)*2.0,(subwininfo.y+subwininfo.h)*2.0,z,1.0,1.0};
 			vbuf->writeData((16+iSubWin*4)*decl->getVertexSize(0), 4*decl->getVertexSize(0), afSubWinVerts, false);
 		}
 
@@ -353,7 +346,7 @@ SGTGUISystem::Window::Bake()
 		meshptr.get()->getSubMesh("windowface")->indexData->indexBuffer = ibuf;
 		meshptr.get()->getSubMesh("windowface")->indexData->indexCount = 18*3;
 		meshptr.get()->getSubMesh("windowface")->indexData->indexStart = 0;
-		meshptr.get()->getSubMesh("windowface")->setMaterialName("gui/win-test");
+		meshptr.get()->getSubMesh("windowface")->setMaterialName("gui/win-test");		
 	}
 	
 
@@ -422,9 +415,7 @@ SGTGUISystem::Window::Lua_SetMaterial(SGTScript& caller, std::vector<SGTScriptPa
 void
 SGTGUISystem::Window::SetMaterial(Ogre::String strMat)
 {
-	SGTMain::Instance().GetOgreSceneMgr()->getEntity(SGTGUISystem::GetInstance().m_mWindowInfos.find(m_iHandle)->second.strName)->getMesh()->getSubMesh("windowface")->setMaterialName(strMat);
-	//Ogre::MeshPtr meshptr=Ogre::MeshManager::getSingleton().getByName(SGTGUISystem::GetInstance().m_mWindowInfos.find(m_iHandle)->second.strName)->;
-	//pMesh->getSubMesh("windowface")->setMaterialName(strMat);
+	SGTMain::Instance().GetOgreSceneMgr()->getEntity(SGTGUISystem::GetInstance().m_mWindowInfos.find(m_iHandle)->second.strName)->getSubEntity("windowface")->setMaterialName(strMat);
 }
 
 void

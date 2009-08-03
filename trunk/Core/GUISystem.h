@@ -6,6 +6,7 @@
 #include "SGTMessageSystem.h"
 #include "SGTMain.h"
 #include "SGTSceneManager.h"
+#include "SGTFontTextures.h"
 #include <map>
 #include <vector>
 #include <list>
