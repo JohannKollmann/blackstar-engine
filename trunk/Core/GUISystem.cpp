@@ -25,7 +25,7 @@ SGTGUISystem::SGTGUISystem(void)
 
 	wExitMenu.Bake();
 	
-	SGTFontTextures ft("D:\\coding\\blackstar_studios\\Esgaroth_Engine\\bin\\Data\\Scripts\\materials\\scripts\\Templates\\morpheus_spacings.txt");
+	SGTFontTextures ft("morpheus_spacings.txt");
 	int iWidth, iHeight;
 	Ogre::MaterialPtr pMat=ft.CreateTextMaterial(ft.CreateTextTexture("$ff001$fff0N$f0f0S$f0ffA$f00fN$ff0fE$f0f0", 100, 3, iWidth, iHeight), "SubWindowFont", "TextPass", "TextTexture", 100, 3);
 
