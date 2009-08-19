@@ -25,13 +25,18 @@ SGTGUISystem::SGTGUISystem(void)
 	SetCursor(wMouse.GetHandle());
 	
 	Window wExitMenu=MakeWindow(0.25, 0.25, 0.5, 0.5);
-	SGTGUISystem::SubWindow wContinue=CreateSubWindow(0.25, 0.12, 0.5, 0.20, wExitMenu.GetHandle());
+/*	SGTGUISystem::SubWindow wContinue=CreateSubWindow(0.25, 0.12, 0.5, 0.20, wExitMenu.GetHandle());
 	SGTGUISystem::SubWindow wStart=CreateSubWindow(0.25, 0.37, 0.5, 0.20, wExitMenu.GetHandle());
 	SGTGUISystem::SubWindow wQuit=CreateSubWindow(0.25, 0.63, 0.5, 0.20, wExitMenu.GetHandle());
-
+*/
+	SGTGUISystem::SubWindow wClear=CreateSubWindow(0.5, 0.8, 0.49, 0.19, wExitMenu.GetHandle());
 	wExitMenu.Bake();
 	
-	SGTFontTextures ft("morpheus_spacings.txt");
+	wExitMenu.SetKeyCallback("KeyDownCallback");
+	wClear.SetOnClickCallback("ClickCallback");
+	wClear.SetHoverInCallback("HoverInCallback");
+	wClear.SetHoverOutCallback("HoverOutCallback");
+/*	SGTFontTextures ft("morpheus_spacings.txt");
 	int iWidth, iHeight;
 	//Ogre::MaterialPtr pMat=ft.CreateTextMaterial(ft.CreateTextTexture("$ff001$fff0N$f0f0S$f0ffA$f00fN$ff0fE$f0f0", 100, 3, iWidth, iHeight), "SubWindowFont", "TextPass", "TextTexture", 100, 3);
 	Ogre::MaterialPtr pMat=ft.CreateTextMaterial(ft.CreateTextTexture("$f0f0YAY SGTGUISYSTEM MIT Z-ORDER!!", 100, 3, iWidth, iHeight), "SubWindowFont", "TextPass", "TextTexture", 100, 3);
@@ -46,7 +51,8 @@ SGTGUISystem::SGTGUISystem(void)
 	wContinue.SetMaterial(pMat->getName());
 	wStart.SetMaterial(pMat->getName());
 	wQuit.SetMaterial(pMat->getName());
-/**/
+*/
+	/*
 	wContinue.SetHoverInCallback("ResumeHoverInCallback");
 	wContinue.SetHoverOutCallback("ResumeHoverOutCallback");
 	wContinue.SetOnClickCallback("ResumeClickCallback");
@@ -58,9 +64,12 @@ SGTGUISystem::SGTGUISystem(void)
 	wQuit.SetHoverInCallback("QuitHoverInCallback");
 	wQuit.SetHoverOutCallback("QuitHoverOutCallback");
 	wQuit.SetOnClickCallback("QuitClickCallback");
-
-	SGTScriptSystem::GetInstance().ShareCFunction("set_window_material", Window::Lua_SetMaterial);
-	m_iHoverWin=-1;
+*/
+	SGTScriptSystem::GetInstance().ShareCFunction("set_window_material", Lua_SetMaterial);
+	SGTScriptSystem::GetInstance().ShareCFunction("gui_change_font_material", Lua_ChangeFontMaterial);
+	SGTScriptSystem::GetInstance().ShareCFunction("gui_create_font_material", Lua_CreateFontMaterial);
+	SGTScriptSystem::GetInstance().ShareCFunction("gui_create_font_texture", Lua_CreateFontTexture);
+	SGTScriptSystem::GetInstance().ShareCFunction("gui_delete_texture", Lua_DeleteTexture);
 	m_bMenuActive=false;
 }
 
@@ -78,11 +87,35 @@ void SGTGUISystem::ReceiveMessage(SGTMsg &msg)
 				m_bMenuActive=!m_bMenuActive;
 			else
 			{
-				if(m_mWindowInfos.find(m_iFocusWin)->second.strKeyPressCallback.size())
+				if(m_mWindowInfos.find(m_iFocusWin)->second.strKeyPressCallback.size() && m_bMenuActive)
 				{
-					char ac[2]={msg.mData.GetInt("KEY_ID_OIS"), '\0'};
-					m_CallbackScript.CallFunction(m_mWindowInfos.find(m_iFocusWin)->second.strKeyPressCallback,
-						std::vector<SGTScriptParam>(1, SGTScriptParam(std::string(ac))));
+					int aaOISCodeToAscii[256]=
+					{0,0,'1','2','3','4','5','6','7','8','9','0',0,0,'\b',0,
+					'Q','W','E','R','T','Z','U','I','O','P','Ü',0,'\n','$','A','S',
+					'D','F','G','H','J','K','L','Ö','Ä',0,0,0,'Y','X','C','V',
+					'B','N','M',0,0,0,0,0,0,' ',0,0,0,0,0,0,
+					0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+					0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+					0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+					0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+
+					0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+					0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+					0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+					0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+					0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+					0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+					0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+					0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+					};
+					if(aaOISCodeToAscii[msg.mData.GetInt("KEY_ID_OIS")])
+					{
+						char ac[2]={aaOISCodeToAscii[msg.mData.GetInt("KEY_ID_OIS")], '\0'};
+						std::vector<SGTScriptParam> vResults;
+						vResults.push_back(SGTScriptParam(m_iFocusWin));
+						vResults.push_back(SGTScriptParam(std::string(ac)));
+						m_CallbackScript.CallFunction(m_mWindowInfos.find(m_iFocusWin)->second.strKeyPressCallback, vResults);
+					}
 				}
 			}
 		}
@@ -366,7 +399,7 @@ void SGTGUISystem::SubWindow::SetHoverOutCallback(std::string strCallback){SGTGU
 void SGTGUISystem::SubWindow::SetKeyCallback(std::string strCallback){SGTGUISystem::GetInstance().m_mWindowInfos.find(m_iHandle)->second.strKeyPressCallback=strCallback;}
 
 std::vector<SGTScriptParam>
-SGTGUISystem::Window::Lua_SetMaterial(SGTScript& caller, std::vector<SGTScriptParam> vParams)
+SGTGUISystem::Lua_SetMaterial(SGTScript& caller, std::vector<SGTScriptParam> vParams)
 {
 	std::vector<SGTScriptParam> ret;
 	if(vParams.size()!=2)
@@ -380,6 +413,68 @@ SGTGUISystem::Window::Lua_SetMaterial(SGTScript& caller, std::vector<SGTScriptPa
 		SubWindow((int)vParams[0].getFloat()).SetMaterial(vParams[1].getString());
 
 	return ret;
+}
+
+std::vector<SGTScriptParam>
+SGTGUISystem::Lua_CreateFontTexture(SGTScript& caller, std::vector<SGTScriptParam> vParams)
+{//arguments: spacing file, text, maxwidth, maxheight
+//outputs: texture name, actual width, actual height
+	std::map<std::string, SGTFontTextures>::iterator it=GetInstance().m_mFontTextures.find(vParams[0].getString());
+	if(it==GetInstance().m_mFontTextures.end())
+	{//we don't have this spacing in memory, load it
+		GetInstance().m_mFontTextures.insert(std::pair<std::string, SGTFontTextures>(vParams[0].getString(), SGTFontTextures(vParams[0].getString())));
+		it=GetInstance().m_mFontTextures.find(vParams[0].getString());
+	}
+	//use that font textures object to crate the texture
+	int iActualWidth, iActualHeight;
+	std::vector<SGTScriptParam> vRes;
+	Ogre::TexturePtr pTex=it->second.CreateTextTexture(vParams[1].getString(), (int)vParams[2].getFloat(), (int)vParams[3].getFloat(), iActualWidth, iActualHeight);
+	vRes.push_back(SGTScriptParam(pTex->getName()));
+	vRes.push_back(SGTScriptParam(iActualWidth));
+	vRes.push_back(SGTScriptParam(iActualHeight));
+	return vRes;
+}
+
+std::vector<SGTScriptParam>
+SGTGUISystem::Lua_CreateFontMaterial(SGTScript& caller, std::vector<SGTScriptParam> vParams)
+{//arguments: spacing file, texture name, base material name, pass name, target texture name, maxwidth, maxheight
+//outputs: material name
+	std::map<std::string, SGTFontTextures>::iterator it=GetInstance().m_mFontTextures.find(vParams[0].getString());
+	if(it==GetInstance().m_mFontTextures.end())
+	{//we don't have this spacing in memory, load it
+		GetInstance().m_mFontTextures.insert(std::pair<std::string, SGTFontTextures>(vParams[0].getString(), SGTFontTextures(vParams[0].getString())));
+		it=GetInstance().m_mFontTextures.find(vParams[0].getString());
+	}
+	Ogre::MaterialPtr pMat=it->second.CreateTextMaterial(Ogre::TextureManager::getSingleton().getByName(vParams[1].getString()), vParams[2].getString(), vParams[3].getString(), vParams[4].getString(), (int)vParams[5].getFloat(), (int)vParams[6].getFloat());
+	return std::vector<SGTScriptParam>(1, SGTScriptParam(pMat->getName()));
+}
+
+std::vector<SGTScriptParam>
+SGTGUISystem::Lua_ChangeFontMaterial(SGTScript& caller, std::vector<SGTScriptParam> vParams)
+{//arguments: spacing file, material name, texture name, pass name, target texture name, maxwidth, maxheight
+//outputs: none
+	std::map<std::string, SGTFontTextures>::iterator it=GetInstance().m_mFontTextures.find(vParams[0].getString());
+	if(it==GetInstance().m_mFontTextures.end())
+	{//we don't have this spacing in memory, load it
+		GetInstance().m_mFontTextures.insert(std::pair<std::string, SGTFontTextures>(vParams[0].getString(), SGTFontTextures(vParams[0].getString())));
+		it=GetInstance().m_mFontTextures.find(vParams[0].getString());
+	}
+	it->second.ChangeTextMaterial(
+		Ogre::MaterialManager::getSingleton().getByName(vParams[1].getString()),
+		Ogre::TextureManager::getSingleton().getByName(vParams[2].getString()),
+		vParams[3].getString(),
+		vParams[4].getString(),
+		(int)vParams[5].getFloat(),
+		(int)vParams[6].getFloat());
+
+	return std::vector<SGTScriptParam>();
+}
+
+std::vector<SGTScriptParam>
+SGTGUISystem::Lua_DeleteTexture(SGTScript& caller, std::vector<SGTScriptParam> vParams)
+{//arguments: texture name
+	Ogre::TextureManager::getSingleton().remove(vParams[0].getString());
+	return std::vector<SGTScriptParam>();
 }
 
 void

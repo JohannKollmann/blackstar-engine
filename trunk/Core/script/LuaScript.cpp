@@ -13,6 +13,7 @@ SGTLuaScript::LoadScript(std::string strFile)
 	m_strScriptName=strFile;
 	m_pState=luaL_newstate();
 	luaopen_base(m_pState);
+	luaopen_string(m_pState);
 
 	if(luaL_loadfile(m_pState, strFile.c_str()) || lua_pcall(m_pState, 0, 0, 0))
 	{

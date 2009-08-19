@@ -39,8 +39,6 @@ public:
 		void SetHoverInCallback(std::string strCallback);
 		void SetHoverOutCallback(std::string strCallback);
 		void SetKeyCallback(std::string strCallback);
-
-		static std::vector<SGTScriptParam> Lua_SetMaterial(SGTScript& caller, std::vector<SGTScriptParam> vParams);
 	private:
 		std::vector<int> GetSubWindows();
 		static std::list<int> FindSubWindows(int iHandle);
@@ -68,6 +66,15 @@ public:
 	void SetVisible(int iHandle, bool bVisible);
 	bool GetVisible(int iHandle);
 	void SetCursor(int iHandle);
+
+	//scripting stuff
+
+	static std::vector<SGTScriptParam> Lua_SetMaterial(SGTScript& caller, std::vector<SGTScriptParam> vParams);
+
+	static std::vector<SGTScriptParam> Lua_CreateFontMaterial(SGTScript& caller, std::vector<SGTScriptParam> vParams);
+	static std::vector<SGTScriptParam> Lua_CreateFontTexture(SGTScript& caller, std::vector<SGTScriptParam> vParams);
+	static std::vector<SGTScriptParam> Lua_ChangeFontMaterial(SGTScript& caller, std::vector<SGTScriptParam> vParams);
+	static std::vector<SGTScriptParam> Lua_DeleteTexture(SGTScript& caller, std::vector<SGTScriptParam> vParams);
 private:
 	int FindParentWindow(int iSubWindowHandle);
 	float m_fXPos, m_fYPos;
@@ -94,6 +101,9 @@ private:
 	float m_fMaxZ;
 	float m_fZStep;
 	int m_iFocusWin;
+
+	//scripting..
+	std::map<std::string, SGTFontTextures> m_mFontTextures;
 };
 
 #endif
