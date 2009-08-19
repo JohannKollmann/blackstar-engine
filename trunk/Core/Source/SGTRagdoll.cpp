@@ -175,7 +175,7 @@ void SGTRagdoll::Serialise(std::vector<sBoneActorBindConfig> boneconfig)
 	f.close();
 }
 
-Ogre::Bone* SGTRagdoll::GetRealParent(Ogre::Bone *bone)
+Ogre::Bone* SGTRagdoll::GetRealParent(Ogre::Bone *bone) //Currently not used
 {
 	Ogre::Bone *node = bone;
 	bool found = false;
@@ -246,8 +246,6 @@ void SGTRagdoll::CreateSkeleton(std::vector<sBoneActorBindConfig> &config)
 		bone_actor_bind.mBoneLength = (*i).mBoneLength;
 		bone_actor_bind.mBoneRadius = (*i).mRadius;
 		bone_actor_bind.mVisualBone = 0;
-		//bone_actor_bind.mBoneGlobalBindPosition = bone_actor_bind.mActor->getGlobalPositionAsOgreVector3();
-		bone_actor_bind.mBoneActorGlobalBindOrientation = bone_actor_bind.mActor->getGlobalOrientationAsOgreQuaternion();
 		bone_actor_bind.mBoneGlobalBindOrientation = bone_actor_bind.mBone->_getDerivedOrientation();
 		bone_actor_bind.mBoneActorGlobalBindOrientationInverse = bone_actor_bind.mActor->getGlobalOrientationAsOgreQuaternion().Inverse();
 		mSkeleton.push_back(bone_actor_bind);
@@ -371,14 +369,12 @@ void SGTRagdoll::CreateJoints()
 		NxD6JointDesc d6Desc;
 		d6Desc.actor[0] = (*i).mParent->mActor->getNxActor();
 		d6Desc.actor[1] = (*i).mActor->getNxActor();
-		Ogre::Vector3 position = (*i).mActor->getGlobalPositionAsOgreVector3() - (*i).mParent->mActor->getGlobalPositionAsOgreVector3();//(*i).mBone->getPosition();
-		Ogre::Quaternion orientation = (*i).mJointOrientation;//(*i).mParent->mActor->getGlobalOrientationAsOgreQuaternion().Inverse() * (*i).mActor->getGlobalOrientationAsOgreQuaternion();//(*i).mBone->_getDerivedOrientation();
+		Ogre::Vector3 position = (*i).mActor->getGlobalPositionAsOgreVector3() - (*i).mParent->mActor->getGlobalPositionAsOgreVector3();
+		Ogre::Quaternion orientation = (*i).mJointOrientation;
 		position = position * scale;
 
 		Ogre::LogManager::getSingleton().logMessage("Creating joint: " + (*i).mParent->mBone->getName() + " + " + (*i).mBone->getName());
 
-		
-		//NxMat34 basePose = NxOgre::Pose((*i).mParent->mActor->getGlobalPositionAsOgreVector3(), (*i).mParent->mActor->getGlobalOrientationAsOgreQuaternion());
 		NxMat34 basePose = NxOgre::Pose((*i).mActor->getGlobalPositionAsOgreVector3(), (*i).mActor->getGlobalOrientationAsOgreQuaternion());
 		NxMat34 localPose = NxOgre::Pose(position, orientation);
 		d6Desc.localAxis[0] = localPose.M*NxVec3(1.0f,0.0f,0.0f);
@@ -392,34 +388,6 @@ void SGTRagdoll::CreateJoints()
 		d6Desc.twistMotion = NX_D6JOINT_MOTION_FREE;
 		d6Desc.swing1Motion = NX_D6JOINT_MOTION_FREE;
 		d6Desc.swing2Motion = NX_D6JOINT_MOTION_FREE;
-		/*if ((*i).mTwistMax.mValue != 0.0f || (*i).mTwistMax.mValue != 0.0f)
-			{
-				d6Desc.twistMotion = NX_D6JOINT_MOTION_LIMITED;
-				d6Desc.twistLimit.low.value=NxMath::degToRad((*i).mTwistMin.mValue);
-				d6Desc.twistLimit.low.damping=(*i).mTwistMin.mDamping;
-				d6Desc.twistLimit.low.restitution=(*i).mTwistMin.mRestitution;
-				d6Desc.twistLimit.low.spring=(*i).mTwistMin.mSpring;
-				d6Desc.twistLimit.high.value=NxMath::degToRad((*i).mTwistMax.mValue);
-				d6Desc.twistLimit.high.damping=(*i).mTwistMax.mDamping;
-				d6Desc.twistLimit.high.restitution=(*i).mTwistMax.mRestitution;
-				d6Desc.twistLimit.high.spring=(*i).mTwistMax.mSpring;
-			}
-			if ((*i).mSwing1.mValue > 0.0f)
-			{
-				d6Desc.swing1Motion = NX_D6JOINT_MOTION_LIMITED;
-				d6Desc.swing1Limit.value=NxMath::degToRad((*i).mSwing1.mValue);
-				d6Desc.swing1Limit.damping=(*i).mSwing1.mDamping;
-				d6Desc.swing1Limit.restitution=(*i).mSwing1.mRestitution;
-				d6Desc.swing1Limit.spring=(*i).mSwing1.mSpring;
-			}
-			if ((*i).mSwing2.mValue > 0.0f)
-			{
-				d6Desc.swing2Motion = NX_D6JOINT_MOTION_LIMITED;
-				d6Desc.swing2Limit.value=NxMath::degToRad((*i).mSwing2.mValue);
-				d6Desc.swing2Limit.damping=(*i).mSwing2.mDamping;
-				d6Desc.swing2Limit.restitution=(*i).mSwing2.mRestitution;
-				d6Desc.swing2Limit.spring=(*i).mSwing2.mSpring;
-			}*/
 
 		d6Desc.flags|=NX_D6JOINT_SLERP_DRIVE;
 		d6Desc.slerpDrive.driveType=NX_D6JOINT_DRIVE_POSITION;// | NX_D6JOINT_DRIVE_VELOCITY;
@@ -456,14 +424,7 @@ void SGTRagdoll::UpdateBoneActors()
 		{
 			position = (mEntity->getParentSceneNode()->_getDerivedOrientation() * ((*i).mBone->_getDerivedPosition() + (*i).mOffset) * scale) + mEntity->getParentSceneNode()->_getDerivedPosition();
 			(*i).mActor->setGlobalPosition(position);  
-			//(*i).mActor->setGlobalOrientation(NxOgre::NxConvert<NxQuat, Ogre::Quaternion>((*i).mBoneActorGlobalBindOrientation * (*i).mBone->_getDerivedOrientation() * mEntity->getParentSceneNode()->_getDerivedOrientation()));
 		}
-		/*if ((*i).mVisualBone)
-		{
-			(*i).mVisualBone->SetGlobalPosition(position);
-			Ogre::Quaternion q = Ogre::Vector3(1,0,0).getRotationTo(Ogre::Vector3(0,1,0));
-			(*i).mVisualBone->SetGlobalOrientation(((*i).mBoneActorGlobalBindOrientation * (*i).mBone->_getDerivedOrientation() * mEntity->getParentSceneNode()->_getDerivedOrientation()) * q);
-		}*/
 	} 
 }
 
@@ -476,10 +437,6 @@ void SGTRagdoll::UpdateVisualBones()
 		PhysxRotation = (*i).mActor->getGlobalOrientationAsOgreQuaternion() * (*i).mBoneActorGlobalBindOrientationInverse;
 		OgreGlobalQuat = PhysxRotation * (*i).mBoneGlobalBindOrientation;
 		Ogre::Quaternion ParentInverse = NodeRotation.Inverse();
-		/*if (bone->getParent())
-		{
-			ParentInverse = (NodeRotation * bone->getParent()->_getDerivedOrientation()).Inverse();
-		}*/
 		if ((*i).mParent == 0)
 		{
 			Ogre::Vector3 newPos = (*i).mActor->getGlobalPositionAsOgreVector3() - (mEntity->getParentSceneNode()->_getDerivedOrientation() * (bone->_getDerivedPosition() * mEntity->getParentSceneNode()->getScale()));
@@ -528,7 +485,6 @@ void SGTRagdoll::SetControlToActors()
 	SetAllBonesToManualControl(true);
 	for (std::vector<sBoneActorBind>::iterator i = mSkeleton.begin(); i != mSkeleton.end(); i++)
 	{
-		//(*i).mBoneActorGlobalBindOrientation = (*i).mActor->getGlobalOrientationAsOgreQuaternion();
 		//(*i).mBoneGlobalBindOrientation = mEntity->getParentSceneNode()->_getDerivedOrientation() * (*i).mBone->_getDerivedOrientation();
 		//(*i).mBoneActorGlobalBindOrientationInverse = (*i).mActor->getGlobalOrientationAsOgreQuaternion().Inverse();
 		(*i).mBone->setInheritOrientation(false); //!!!

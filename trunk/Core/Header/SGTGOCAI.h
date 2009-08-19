@@ -5,12 +5,21 @@
 #include "SGTIncludes.h"
 #include "SGTMessageListener.h"
 #include "SGTGOCCharacterController.h"
+#include "SGTAIState.h"
 
 class SGTDllExport SGTGOCAI : public SGTCharacterControllerInput, public SGTMessageListener
 {
+private:
+	std::list<SGTAIState*> mQueue;
+	SGTAIState *mActiveState;
+
 public:
 	SGTGOCAI(void);
 	~SGTGOCAI(void);
+
+	void AddState(SGTAIState *state);
+	void ClearStates();
+	void SelectState();
 
 	void ReceiveMessage(SGTMsg &msg);
 	void ReceiveObjectMessage(Ogre::SharedPtr<SGTObjectMsg> msg);

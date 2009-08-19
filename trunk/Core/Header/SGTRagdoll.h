@@ -45,8 +45,6 @@ struct sBoneActorBind
 	sJointLimitParams mSwing2;
 	sJointLimitParams mTwistMax;
 	sJointLimitParams mTwistMin;
-	Ogre::Vector3 mBoneGlobalBindPosition;
-	Ogre::Quaternion mBoneActorGlobalBindOrientation;
 	Ogre::Quaternion mBoneGlobalBindOrientation;
 	Ogre::Quaternion mBoneActorGlobalBindOrientationInverse;
 };

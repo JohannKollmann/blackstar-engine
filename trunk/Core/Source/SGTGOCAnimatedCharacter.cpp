@@ -480,13 +480,13 @@ void SGTGOCAnimatedCharacter::SetOwner(SGTGameObject *go)
 void SGTGOCAnimatedCharacter::CreateFromDataMap(SGTDataMap *parameters)
 {
 	Ogre::String meshname = parameters->GetOgreString("MeshName");
-	Ogre::String animstate = parameters->GetOgreString("AnimState");
+	mAnimationStateStr = parameters->GetOgreString("AnimState");
 	bool shadowcaster = parameters->GetBool("ShadowCaster");
 	mSetControlToActorsTemp = parameters->GetBool("Ragdoll");
 	Ogre::Vector3 scale = Ogre::Vector3(1,1,1);
 	scale = parameters->GetOgreVec3("Scale");
 	Create(meshname, scale);
-	if (animstate != "") mRagdoll->SetAnimationState(animstate);
+	if (mAnimationStateStr != "") mRagdoll->SetAnimationState(mAnimationStateStr);
 	mRagdoll->GetEntity()->setCastShadows(shadowcaster);
 	mRagdoll->ResetBones();
 	mEditorMode = true;

@@ -31,5 +31,6 @@ class SGTGOComponent;
 class ComponentSection;
 struct SGTObjectMsg;
 class SGTGOCViewListener;
+class SGTGOCAI;
 
 #endif
