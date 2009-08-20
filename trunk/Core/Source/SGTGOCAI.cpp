@@ -20,30 +20,39 @@ void SGTGOCAI::AddState(SGTAIState *state)
 	}
 	if (state->GetPriority() > mActiveState->GetPriority())
 	{
-		mQueue.push_front(mActiveState);
+		mActionQueue.push_front(mActiveState);
 		mActiveState = state;
 		return;
 	}
-	mQueue.push_back(state);
+	mActionQueue.push_back(state);
 }
 
-void SGTGOCAI::ClearStates()
+void SGTGOCAI::ClearActionQueue()
 {
-	for (std::list<SGTAIState*>::iterator i = mQueue.begin(); i != mQueue.end(); i++)
+	for (std::list<SGTAIState*>::iterator i = mActionQueue.begin(); i != mActionQueue.end(); i++)
 	{
 		delete (*i);
 	}
-	mQueue.clear();
+	mActionQueue.clear();
 	delete mActiveState;
 	mActiveState = 0;
 }
 
+void SGTGOCAI::ClearIdleQueue()
+{
+	for (std::list<SGTScriptedAIState*>::iterator i = mIdleQueue.begin(); i != mIdleQueue.end(); i++)
+	{
+		delete (*i);
+	}
+	mIdleQueue.clear();
+}
+
 void SGTGOCAI::SelectState()
 {
-	if (mQueue.size() > 0)
+	if (mActionQueue.size() > 0)
 	{
-		std::list<SGTAIState*>::iterator highest = mQueue.begin();
-		for (std::list<SGTAIState*>::iterator i = mQueue.begin(); i != mQueue.end(); i++)
+		std::list<SGTAIState*>::iterator highest = mActionQueue.begin();
+		for (std::list<SGTAIState*>::iterator i = mActionQueue.begin(); i != mActionQueue.end(); i++)
 		{
 			if ((*i)->GetPriority() > (*highest)->GetPriority())
 			{
@@ -51,9 +60,10 @@ void SGTGOCAI::SelectState()
 			}
 		}
 		mActiveState = (*highest);
-		mQueue.erase(highest);
+		mActionQueue.erase(highest);
 		mActiveState->OnEnter();
 	}
+	else mActiveState = 0;
 }
 
 void SGTGOCAI::ReceiveMessage(SGTMsg &msg)
@@ -70,6 +80,16 @@ void SGTGOCAI::ReceiveMessage(SGTMsg &msg)
 				delete mActiveState;
 				mActiveState = 0;
 				SelectState();
+			}
+		}
+		else if (mIdleQueue.size() > 0)
+		{
+			SGTScriptedAIState *state = *mIdleQueue.begin();
+			if (state->OnUpdate())
+			{
+				mIdleQueue.pop_front();
+				mIdleQueue.push_back(state);
+				(*mIdleQueue.begin())->OnEnter();
 			}
 		}
 	}

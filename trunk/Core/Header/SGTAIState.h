@@ -20,3 +20,16 @@ public:
 	virtual bool OnUpdate(float time) = 0;
 	virtual void OnLeave() {};
 };
+
+class SGTScriptedAIState
+{
+protected:
+	SGTGOCAI *mAIObject;
+
+public:
+	SGTScriptedAIState () {};
+	~SGTScriptedAIState () {};
+
+	void OnEnter () {};
+	bool OnUpdate () { return false; };
+};

@@ -10,7 +10,22 @@
 class SGTDllExport SGTGOCAI : public SGTCharacterControllerInput, public SGTMessageListener
 {
 private:
-	std::list<SGTAIState*> mQueue;
+	/*
+	Die Idle-Routine des AI Objekts (Tagesablauf).
+	*/
+	std::list<SGTScriptedAIState*> mIdleQueue;
+
+	/*
+	Die aktive Queue nach dem FIFO Prinzip mit Priorisierung, ueberlagert immer Idle-Routine.
+	Die einzige Möglichkeit, tatsaechlich etwas zu tun. Die gescripteten Idle Routinen (Tagesablaeufe)
+	befuellen die ActionQueue.
+	*/
+	std::list<SGTAIState*> mActionQueue;
+
+	
+	/*
+	Der aktuelle AIState aus der ActionQueue.
+	*/
 	SGTAIState *mActiveState;
 
 public:
@@ -18,7 +33,8 @@ public:
 	~SGTGOCAI(void);
 
 	void AddState(SGTAIState *state);
-	void ClearStates();
+	void ClearActionQueue();
+	void ClearIdleQueue();
 	void SelectState();
 
 	void ReceiveMessage(SGTMsg &msg);

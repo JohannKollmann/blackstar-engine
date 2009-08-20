@@ -11,7 +11,6 @@ Interface for Editors.
 class SGTGOCEditorInterface
 {
 public:
-	//SGTGOCEditorInterface() //virtual ~SGTGOCEditorInterface() {};
 	virtual void CreateFromDataMap(SGTDataMap *parameters) = 0;
 	virtual void GetParameters(SGTDataMap *parameters) = 0;
 	virtual void* GetUserData() { return 0; }
