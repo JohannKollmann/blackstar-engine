@@ -1,4 +1,4 @@
-#include "../Header/SGTPathway.h"
+#include "SGTPathway.h"
 
 SGTPathway::SGTPathway(std::vector<Ogre::Vector3> WPList, float radius)
 {

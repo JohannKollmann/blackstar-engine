@@ -254,7 +254,7 @@ void SGTConsole::ExecCommand(Ogre::String command)
 			SGTMsg msg;
 			msg.mNewsgroup = "CONSOLE_INGAME";
 			msg.mData.AddOgreString("COMMAND", (*i).first);
-			for (int paramindex = 1; paramindex < inputs.size(); paramindex++)
+			for (unsigned int paramindex = 1; paramindex < inputs.size(); paramindex++)
 			{
 				Ogre::String paramname = "PARAM" + Ogre::StringConverter::toString(paramindex);
 				msg.mData.AddOgreString(paramname, inputs[paramindex]);

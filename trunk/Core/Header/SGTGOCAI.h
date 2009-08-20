@@ -6,6 +6,7 @@
 #include "SGTMessageListener.h"
 #include "SGTGOCCharacterController.h"
 #include "SGTAIState.h"
+#include "SGTScriptedAIState.h"
 
 class SGTDllExport SGTGOCAI : public SGTCharacterControllerInput, public SGTMessageListener
 {

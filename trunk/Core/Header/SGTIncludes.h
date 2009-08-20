@@ -32,5 +32,6 @@ class ComponentSection;
 struct SGTObjectMsg;
 class SGTGOCViewListener;
 class SGTGOCAI;
+class SGTScriptedAIState;
 
 #endif

@@ -426,6 +426,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\SGTScriptedAIState.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Header\SGTScriptedAIState.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Header\SGTWaypoint.h"
 				>
 			</File>
