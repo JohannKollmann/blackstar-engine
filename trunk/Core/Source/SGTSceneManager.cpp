@@ -14,6 +14,8 @@
 #include "SGTGOCPlayerInput.h"
 #include "SGTGOCAnimatedCharacter.h"
 #include "SGTGOCIntern.h"
+#include "SGTGOCAI.h"
+#include "SGTAIManager.h"
 
 SGTSceneManager::SGTSceneManager(void)
 {
@@ -157,6 +159,9 @@ void SGTSceneManager::Init()
 	SGTScriptSystem::GetInstance().ShareCFunction("LogMessage", &SGTSceneManager::Lua_LogMessage);
 	SGTScriptSystem::GetInstance().ShareCFunction("LoadLevel", &SGTSceneManager::Lua_LoadLevel);
 	SGTScriptSystem::GetInstance().ShareCFunction("InsertNpc", &SGTSceneManager::Lua_InsertNpc);
+	SGTScriptSystem::GetInstance().ShareCFunction("Npc_AddState", &SGTSceneManager::Lua_Npc_AddState);
+	SGTScriptSystem::GetInstance().ShareCFunction("Npc_AddTA", &SGTSceneManager::Lua_Npc_AddTA);
+
 	SGTScriptSystem::GetInstance().ShareCFunction("InsertMesh", &SGTSceneManager::Lua_InsertMesh);
 	SGTScriptSystem::GetInstance().ShareCFunction("SetObjectPosition", &SGTSceneManager::Lua_SetObjectPosition);
 	SGTScriptSystem::GetInstance().ShareCFunction("SetObjectOrientation", &SGTSceneManager::Lua_SetObjectOrientation);
@@ -349,6 +354,40 @@ SGTSceneManager::Lua_LogMessage(SGTScript& caller, std::vector<SGTScriptParam> v
 	return std::vector<SGTScriptParam>();
 }
 
+
+std::vector<SGTScriptParam> SGTSceneManager::Lua_Npc_AddState(SGTScript& caller, std::vector<SGTScriptParam> vParams)
+{
+	std::vector<SGTScriptParam> out;
+	return out;
+}
+
+std::vector<SGTScriptParam> SGTSceneManager::Lua_Npc_AddTA(SGTScript& caller, std::vector<SGTScriptParam> vParams)
+{
+	std::vector<SGTScriptParam> out;
+	if (vParams.size() < 2) return out;
+	if (vParams[0].getType() != SGTScriptParam::PARM_TYPE_INT) return out;
+	if (vParams[1].getType() != SGTScriptParam::PARM_TYPE_STRING) return out;
+	int id = vParams[0].getInt();
+	std::string s = vParams[1].getString();
+	int end_timeH = 25;
+	int end_timeM = 61;
+	bool time_abs = true;
+	if (vParams.size() >= 4)
+	{
+		if (vParams[2].getType() == SGTScriptParam::PARM_TYPE_INT) end_timeH = vParams[2].getInt();
+		if (vParams[3].getType() == SGTScriptParam::PARM_TYPE_INT) end_timeH = vParams[3].getInt();
+	}
+	if (vParams.size() == 5)
+	{
+		if (vParams[4].getType() == SGTScriptParam::PARM_TYPE_BOOL) time_abs = vParams[4].getBool();
+	}
+
+	SGTGOCAI *ai = SGTAIManager::Instance().GetAIByID(id);
+	if (ai) ai->AddScriptedState(new SGTScriptedAIState(ai, s, end_timeH, end_timeM, time_abs));
+	return out;
+}
+
+
 std::vector<SGTScriptParam> SGTSceneManager::Lua_InsertMesh(SGTScript& caller, std::vector<SGTScriptParam> vParams)
 {
 	std::vector<SGTScriptParam> out;
@@ -435,6 +474,7 @@ SGTSceneManager::Lua_InsertNpc(SGTScript& caller, std::vector<SGTScriptParam> vP
 	std::vector<SGTScriptParam> out;
 	Ogre::Vector3 scale(1,1,1);
 	Ogre::String mesh = "";
+	int returnerID = -1;
 	if (vParams.size() > 0)
 	{
 		if (vParams[0].getType() == SGTScriptParam::PARM_TYPE_STRING)
@@ -461,9 +501,12 @@ SGTSceneManager::Lua_InsertNpc(SGTScript& caller, std::vector<SGTScriptParam> vP
 	{
 		SGTGameObject *go = new SGTGameObject();
 		SGTGOCAnimatedCharacter *ragdoll = new SGTGOCAnimatedCharacter(mesh, scale);
-		ragdoll->Kill();
-		go->AddComponent(ragdoll);
+		SGTGOCAI *ai = new SGTGOCAI();
+		go->AddComponent(ai);		//Brain
+		go->AddComponent(ragdoll);	//Body
+		returnerID = (int)ai->GetID();
 	}
+	out.push_back(SGTScriptParam(returnerID));
 	return out;
 }
 

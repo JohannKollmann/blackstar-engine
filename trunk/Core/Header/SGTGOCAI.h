@@ -8,7 +8,7 @@
 #include "SGTAIState.h"
 #include "SGTScriptedAIState.h"
 
-class SGTDllExport SGTGOCAI : public SGTCharacterControllerInput, public SGTMessageListener
+class SGTDllExport SGTGOCAI : public SGTCharacterControllerInput
 {
 private:
 	/*
@@ -29,16 +29,25 @@ private:
 	*/
 	SGTAIState *mActiveState;
 
+	/*
+	Fuer Lua.
+	*/
+	unsigned int mID;
+
 public:
 	SGTGOCAI(void);
 	~SGTGOCAI(void);
 
 	void AddState(SGTAIState *state);
+	void AddScriptedState(SGTScriptedAIState *state);
 	void ClearActionQueue();
 	void ClearIdleQueue();
 	void SelectState();
 
-	void ReceiveMessage(SGTMsg &msg);
+	unsigned int GetID() { return mID; }
+
+	void Update(float time);
+
 	void ReceiveObjectMessage(Ogre::SharedPtr<SGTObjectMsg> msg);
 
 	SGTGOComponent::goc_id_type& GetComponentID() const { static std::string name = "AI"; return name; }

@@ -1,14 +1,17 @@
 
 #include "SGTGOCAI.h"
+#include "SGTAIManager.h"
 
 SGTGOCAI::SGTGOCAI(void)
 {
 	mCharacterMovementState = 0;
 	mActiveState = 0;
+	mID = SGTAIManager::Instance().RegisterAIObject(this);
 }
 
 SGTGOCAI::~SGTGOCAI(void)
 {
+	SGTAIManager::Instance().UnregisterAIObject(this);
 }
 
 void SGTGOCAI::AddState(SGTAIState *state)
@@ -25,6 +28,11 @@ void SGTGOCAI::AddState(SGTAIState *state)
 		return;
 	}
 	mActionQueue.push_back(state);
+}
+
+void SGTGOCAI::AddScriptedState(SGTScriptedAIState *state)
+{
+	mIdleQueue.push_back(state);
 }
 
 void SGTGOCAI::ClearActionQueue()
@@ -66,33 +74,29 @@ void SGTGOCAI::SelectState()
 	else mActiveState = 0;
 }
 
-void SGTGOCAI::ReceiveMessage(SGTMsg &msg)
+void SGTGOCAI::Update(float time)
 {
-	if (msg.mNewsgroup == "UPDATE_PER_FRAME")
+	if (mActiveState)
 	{
-		float time = msg.mData.GetFloat("TIME");
-		if (mActiveState)
+		bool finished = mActiveState->OnUpdate(time);
+		if (finished)
 		{
-			bool finished = mActiveState->OnUpdate(time);
-			if (finished)
-			{
-				mActiveState->OnLeave();
-				delete mActiveState;
-				mActiveState = 0;
-				SelectState();
-			}
-		}
-		else if (mIdleQueue.size() > 0)
-		{
-			SGTScriptedAIState *state = *mIdleQueue.begin();
-			if (state->OnUpdate())
-			{
-				mIdleQueue.pop_front();
-				mIdleQueue.push_back(state);
-				(*mIdleQueue.begin())->OnEnter();
-			}
+			mActiveState->OnLeave();
+			delete mActiveState;
+			mActiveState = 0;
+			SelectState();
 		}
 	}
+	else if (mIdleQueue.size() > 0)
+	{
+		SGTScriptedAIState *state = *mIdleQueue.begin();
+		if (state->OnUpdate())
+		{
+			mIdleQueue.pop_front();
+			mIdleQueue.push_back(state);
+			(*mIdleQueue.begin())->OnEnter();
+		}
+	}	
 }
 
 void SGTGOCAI::ReceiveObjectMessage(Ogre::SharedPtr<SGTObjectMsg> msg)

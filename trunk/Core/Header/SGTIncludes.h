@@ -33,5 +33,6 @@ struct SGTObjectMsg;
 class SGTGOCViewListener;
 class SGTGOCAI;
 class SGTScriptedAIState;
+class SGTAIManager;
 
 #endif
