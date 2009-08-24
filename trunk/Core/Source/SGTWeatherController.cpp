@@ -35,7 +35,7 @@ SGTWeatherController::SGTWeatherController(void)
 	mCaelumSystem->setMinimumAmbientLight(Ogre::ColourValue(0.3, 0.3,0.3));
     mCaelumSystem->setManageAmbientLight (true); 
 
-	mCaelumSystem->getUniversalClock ()->setGregorianDateTime (2007, 4, 9, 9, 33, 0);
+	mCaelumSystem->getUniversalClock ()->setGregorianDateTime (2007, 4, 9, 9, 30, 0);
 
 	mCaelumSystem->getSun ()->setDiffuseMultiplier (Ogre::ColourValue (1.5, 1.5, 1.3));
 	mCaelumSystem->getSun ()->setSpecularMultiplier (Ogre::ColourValue (1, 1, 1));

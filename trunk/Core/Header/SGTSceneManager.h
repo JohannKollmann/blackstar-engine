@@ -11,14 +11,18 @@
 #include "SGTScriptSystem.h"
 #include "SGTGameObject.h"
 #include "SGTGOCEditorInterface.h"
+#include "SGTMessageSystem.h"
 
 typedef SGTGOCEditorInterface* (*EDTCreatorFn)();
 typedef void (*GOCDefaultParametersFn)(SGTDataMap*);
 
-class SGTDllExport SGTSceneManager : public SGTGOCEditorInterface
+class SGTDllExport SGTSceneManager : public SGTGOCEditorInterface, public SGTMessageListener
 {
 private:
 	unsigned int mNextID;
+	float mDayTime;
+	float mMaxDayTime;
+	float mTimeScale;
 
 	SGTWeatherController *mWeatherController;
 
@@ -109,6 +113,13 @@ public:
 	void CreateFromDataMap(SGTDataMap *parameters);
 	void GetParameters(SGTDataMap *parameters);
 	bool IsViewComponent() { return false; }
+
+	//Game clock
+	void SetTimeScale(float scale);
+	void SetTime(int hours, int minutes);
+	int GetHour();
+	int GetMinutes();
+	void ReceiveMessage(SGTMsg &msg);
 
 	//Singleton
 	static SGTSceneManager& Instance();

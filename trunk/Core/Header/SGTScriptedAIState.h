@@ -10,6 +10,7 @@ class SGTScriptedAIState
 protected:
 	SGTGOCAI *mAIObject;
 	SGTScript mScript;
+	Ogre::String mWaypoint;
 	int mStartTimeH;
 	int mStartTimeM;
 	int mEndTimeH;		//Stunden
@@ -18,7 +19,7 @@ protected:
 
 
 public:
-	SGTScriptedAIState(SGTGOCAI* ai, Ogre::String scriptFileName, int endtimeH, int endtimeM, bool time_abs);
+	SGTScriptedAIState(SGTGOCAI* ai, Ogre::String scriptFileName, Ogre::String waypoint, int endtimeH, int endtimeM, bool time_abs);
 	~SGTScriptedAIState();
 
 	void OnEnter();

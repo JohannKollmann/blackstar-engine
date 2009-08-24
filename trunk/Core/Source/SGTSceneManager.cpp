@@ -23,10 +23,15 @@ SGTSceneManager::SGTSceneManager(void)
 	mIndoorRendering = false;
 	mLevelMesh = NULL;
 	mNextID = 0;
+	mDayTime = 0.0f;
+	mMaxDayTime = 86400.0f;
+	mTimeScale = 512.0f;
+	SGTMessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
 }
 
 SGTSceneManager::~SGTSceneManager(void)
 {
+	SGTMessageSystem::Instance().QuitNewsgroup(this, "UPDATE_PER_FRAME");
 }
 
 unsigned int SGTSceneManager::RequestID()
@@ -158,7 +163,7 @@ void SGTSceneManager::Init()
 	//Setup Lua Callback
 	SGTScriptSystem::GetInstance().ShareCFunction("LogMessage", &SGTSceneManager::Lua_LogMessage);
 	SGTScriptSystem::GetInstance().ShareCFunction("LoadLevel", &SGTSceneManager::Lua_LoadLevel);
-	SGTScriptSystem::GetInstance().ShareCFunction("InsertNpc", &SGTSceneManager::Lua_InsertNpc);
+	SGTScriptSystem::GetInstance().ShareCFunction("CreateNpc", &SGTSceneManager::Lua_InsertNpc);
 	SGTScriptSystem::GetInstance().ShareCFunction("Npc_AddState", &SGTSceneManager::Lua_Npc_AddState);
 	SGTScriptSystem::GetInstance().ShareCFunction("Npc_AddTA", &SGTSceneManager::Lua_Npc_AddTA);
 
@@ -364,26 +369,28 @@ std::vector<SGTScriptParam> SGTSceneManager::Lua_Npc_AddState(SGTScript& caller,
 std::vector<SGTScriptParam> SGTSceneManager::Lua_Npc_AddTA(SGTScript& caller, std::vector<SGTScriptParam> vParams)
 {
 	std::vector<SGTScriptParam> out;
-	if (vParams.size() < 2) return out;
+	if (vParams.size() < 3) return out;
 	if (vParams[0].getType() != SGTScriptParam::PARM_TYPE_INT) return out;
 	if (vParams[1].getType() != SGTScriptParam::PARM_TYPE_STRING) return out;
+	if (vParams[2].getType() != SGTScriptParam::PARM_TYPE_STRING) return out;
 	int id = vParams[0].getInt();
-	std::string s = vParams[1].getString();
+	std::string ta_script = vParams[1].getString();
+	std::string wp = vParams[2].getString();
 	int end_timeH = 25;
 	int end_timeM = 61;
 	bool time_abs = true;
-	if (vParams.size() >= 4)
+	if (vParams.size() >= 5)
 	{
-		if (vParams[2].getType() == SGTScriptParam::PARM_TYPE_INT) end_timeH = vParams[2].getInt();
 		if (vParams[3].getType() == SGTScriptParam::PARM_TYPE_INT) end_timeH = vParams[3].getInt();
+		if (vParams[4].getType() == SGTScriptParam::PARM_TYPE_INT) end_timeH = vParams[4].getInt();
 	}
-	if (vParams.size() == 5)
+	if (vParams.size() == 6)
 	{
-		if (vParams[4].getType() == SGTScriptParam::PARM_TYPE_BOOL) time_abs = vParams[4].getBool();
+		if (vParams[5].getType() == SGTScriptParam::PARM_TYPE_BOOL) time_abs = vParams[5].getBool();
 	}
 
 	SGTGOCAI *ai = SGTAIManager::Instance().GetAIByID(id);
-	if (ai) ai->AddScriptedState(new SGTScriptedAIState(ai, s, end_timeH, end_timeM, time_abs));
+	if (ai) ai->AddScriptedState(new SGTScriptedAIState(ai, ta_script, wp, end_timeH, end_timeM, time_abs));
 	return out;
 }
 
@@ -535,6 +542,37 @@ void SGTSceneManager::CreatePlayer()
 	view->GetNode()->scale(0.1,0.1,0.1);
 	view->AddItem(new SGTMeshRenderable("jaiqua.mesh", true));
 	player->AddComponent(view);*/
+}
+
+void SGTSceneManager::ReceiveMessage(SGTMsg &msg)
+{
+	if (msg.mNewsgroup == "UPDATE_PER_FRAME")
+	{
+		float time = msg.mData.GetFloat("TIME");
+		mDayTime += (time*0.001*mTimeScale);
+		if (mDayTime >= mMaxDayTime) mDayTime = 0.0f;
+	}
+}
+
+void SGTSceneManager::SetTimeScale(float scale)
+{
+	mTimeScale = scale;
+	if (mWeatherController) mWeatherController->SetSpeedFactor(scale);
+}
+void SGTSceneManager::SetTime(int hours, int minutes)
+{
+	mDayTime = (float)(hours * 3600.0f + minutes * 60.0f);
+}
+int SGTSceneManager::GetHour()
+{
+	return (int)(mDayTime / 3600);
+}
+int SGTSceneManager::GetMinutes()
+{
+	int hour = GetHour();
+	float fhour = 3600.0f * hour;
+	float dif = mDayTime - fhour;
+	return dif / 60;
 }
 
 SGTSceneManager& SGTSceneManager::Instance()
