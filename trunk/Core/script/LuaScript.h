@@ -11,14 +11,15 @@ extern "C"
 #include "SGTScriptParam.h"
 #include <vector>
 #include <map>
+#include "SGTIncludes.h"
 
 class SGTScript;
 class SGTLuaScript;
 
-typedef std::vector<SGTScriptParam> (*SGTScriptFunction)(SGTScript &caller, std::vector<SGTScriptParam>);
-typedef std::vector<SGTScriptParam> (*SGTStaticScriptFunction)(SGTScript &caller, SGTLuaScript& script, std::vector<SGTScriptParam>);
+typedef SGTDllExport std::vector<SGTScriptParam> (*SGTScriptFunction)(SGTScript &caller, std::vector<SGTScriptParam>);
+typedef SGTDllExport std::vector<SGTScriptParam> (*SGTStaticScriptFunction)(SGTScript &caller, SGTLuaScript& script, std::vector<SGTScriptParam>);
 
-class SGTLuaScript
+class SGTDllExport SGTLuaScript
 {
 public:
 	SGTLuaScript(std::string strFile);
@@ -38,13 +39,13 @@ private:
 	lua_State* m_pState;
 	std::string m_strScriptName;
 
-	struct SExternalShare
+	struct SGTDllExport SExternalShare
 	{
 		std::string strInternalName;
 		SGTLuaScript& script;
 	};
 
-	struct SCShare
+	struct SGTDllExport SCShare
 	{
 		SCShare(bool bStatic, void* pFn){bIsStatic=bStatic; fn=(SGTScriptFunction)pFn; fns=(SGTStaticScriptFunction)pFn;}
 		bool bIsStatic;

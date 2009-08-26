@@ -238,6 +238,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\wxFileTree.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Header\wxFileTree.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\wxMainMenu.cpp"
 				>
 			</File>
@@ -319,6 +327,14 @@
 			</File>
 			<File
 				RelativePath=".\Header\wxPropertyGridWindow.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\wxScriptFileTree.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Header\wxScriptFileTree.h"
 				>
 			</File>
 			<File

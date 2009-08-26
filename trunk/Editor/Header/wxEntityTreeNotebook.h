@@ -5,6 +5,7 @@
 #include "wxObjectFolderTree.h"
 #include "wxOgreSceneTree.h"
 #include "wxMaterialTree.h"
+#include "wxScriptFileTree.h"
 
 class wxEntityTreeNotebook : public wxAuiNotebook
 {
@@ -15,6 +16,7 @@ private:
 	wxObjectFolderTree *mResourcesTree;
 	wxOgreSceneTree *mSceneTree;
 	wxMaterialTree *mMaterialTree;
+	wxScriptFileTree *mScriptTree;
 
 protected:
 	DECLARE_EVENT_TABLE() 

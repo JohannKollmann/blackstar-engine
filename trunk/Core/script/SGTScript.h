@@ -2,8 +2,9 @@
 #define __SGT_SCRIPT__
 
 #include "LuaScript.h"
+#include "SGTIncludes.h"
 
-class SGTScriptSystem;
+class SGTDllExport SGTScriptSystem;
 
 class SGTScript
 {

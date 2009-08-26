@@ -89,7 +89,7 @@ public:
 	//Script
 	static std::vector<SGTScriptParam> Lua_LogMessage(SGTScript& caller, std::vector<SGTScriptParam> vParams);
 	static std::vector<SGTScriptParam> Lua_LoadLevel(SGTScript& caller, std::vector<SGTScriptParam> vParams);
-	static std::vector<SGTScriptParam> Lua_InsertNpc(SGTScript& caller, std::vector<SGTScriptParam> vParams);
+	static std::vector<SGTScriptParam> Lua_CreateNpc(SGTScript& caller, std::vector<SGTScriptParam> vParams);
 
 	/*
 	Alle Methoden im Format Npc_* erwarten als ersten Parameter die eindeutige ID des AI-Objekts.
@@ -103,6 +103,11 @@ public:
 	Erwartet den Dateinamen des Script-TAs als String (z. B. TA_Sleep.lua)
 	*/
 	static std::vector<SGTScriptParam> Lua_Npc_AddTA(SGTScript& caller, std::vector<SGTScriptParam> vParams);
+
+	/*
+	Erstellt eine neue Instanz des als String übergebenen Scripts.
+	*/
+	static std::vector<SGTScriptParam> Lua_New(SGTScript& caller, std::vector<SGTScriptParam> vParams);
 
 	static std::vector<SGTScriptParam> Lua_InsertMesh(SGTScript& caller, std::vector<SGTScriptParam> vParams);
 	static std::vector<SGTScriptParam> Lua_SetObjectPosition(SGTScript& caller, std::vector<SGTScriptParam> vParams);

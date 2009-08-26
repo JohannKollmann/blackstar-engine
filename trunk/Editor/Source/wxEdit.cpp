@@ -17,12 +17,8 @@ wxEdit::wxEdit(wxWindow* parent) : wxFrame(parent, -1, _("Blackstar Edit"),
 		m_mgr.SetManagedWindow(this);
 
 		mProgressBar = new wxProgressBar(this, -1);
-		//mProgressBar->SetProgress(0);
-		//mProgressBar->SetFieldsCount(2);
 		this->SetStatusBar(mProgressBar);
 
-		//CreateStatusBar();
-		//SetStatusText(_("Blackstar Editor - Ready"));
 
 		// ************************
 		mMainNotebook = new wxMainNotebook(this, -1);
@@ -30,7 +26,6 @@ wxEdit::wxEdit(wxWindow* parent) : wxFrame(parent, -1, _("Blackstar Edit"),
 		mDummy->Show(false);
 
 		m_mgr.AddPane(mMainNotebook, wxCENTER, wxT("Main"));
-		//Ogre::LogManager::getSingleton().logMessage("1");
 
 		//Setup Menu
 		mMenuBar = new wxMainMenu();
@@ -76,11 +71,8 @@ wxEdit::wxEdit(wxWindow* parent) : wxFrame(parent, -1, _("Blackstar Edit"),
 
 		Ogre::String handle;
 		handle = Ogre::StringConverter::toString((size_t)((HWND)this->GetHandle()));
-		//Ogre::LogManager::getSingleton().logMessage("Gesamtfenster Handle: " + handle);
 
 		PushEventHandler(mMenuBar);
-		//PushEventHandler(mWorldExplorer);
-
 };
 
 void wxEdit::PostCreate()

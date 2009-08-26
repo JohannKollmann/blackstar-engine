@@ -133,17 +133,18 @@ wxOgre::~wxOgre()
 void wxOgre::initEdit()
 {
 	Ogre::LogManager::getSingleton().logMessage("init Edit");
-	wxArrayString extensions;
 	/*std::vector<Ogre::String> entityTypes = SGTSceneManager::Instance().GetAvailableEntityTypes();
 	for (std::vector<Ogre::String>::iterator i = entityTypes.begin(); i != entityTypes.end(); i++)
 	{
 		extensions.Add("*." + wxString((*i).c_str()));
 		Ogre::LogManager::getSingleton().logMessage("Adding extension " + (*i));
 	}*/
+	/*
+	wxArrayString extensions;
 	extensions.Add("*.ot");
 	extensions.Add("*.ocs");
 	wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->SetExtensions(extensions);
-	wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->SetRootPath("Data/Editor/Objects");
+	wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->SetRootPath("Data/Editor/Objects");*/
 	mEdit = new SGTEdit();
 };
 

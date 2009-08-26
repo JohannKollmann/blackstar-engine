@@ -7,7 +7,7 @@
 
 #pragma warning(disable:4482)
 
-#define BOOST_ALL_DYN_LINK
+//#define BOOST_ALL_DYN_LINK
 
 #define SCRIPT_BASE_DIR Ogre::String("Data/Scripts/Game/")
 

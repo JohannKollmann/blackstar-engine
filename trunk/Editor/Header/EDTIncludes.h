@@ -3,7 +3,7 @@
 #ifndef __EDTIncludes_H__
 #define __EDTIncludes_H__
 
-#define BOOST_ALL_DYN_LINK
+//#define BOOST_ALL_DYN_LINK
 
 class SGTEdit;
 class wxOgre;
@@ -20,5 +20,6 @@ class wxEntityTreeNotebook;
 class wxProgressBar;
 class wxMeshMagick;
 class wxMainNotebook;
+class wxFileTree;
 
 #endif

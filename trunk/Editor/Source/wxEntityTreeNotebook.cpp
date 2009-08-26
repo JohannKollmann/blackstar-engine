@@ -15,13 +15,16 @@ wxEntityTreeNotebook::wxEntityTreeNotebook(wxWindow* parent, wxWindowID id, cons
 
 	mResourcesTree = new wxObjectFolderTree(this,  -1, wxDefaultPosition, wxSize(250,400));
 
+	mScriptTree = new wxScriptFileTree(this,  -1, wxDefaultPosition, wxSize(250,400));
+
 	mSceneTree = new wxOgreSceneTree(this, -1, wxDefaultPosition,
 		wxSize(250,500));
 	mMaterialTree = new wxMaterialTree(this, -1, wxDefaultPosition,
 		wxSize(250,500));
-	AddPage(mSceneTree, "Scenetree", false);
+	AddPage(mSceneTree, "Scene", false);
 	AddPage(mResourcesTree, "Resources", false);
 	AddPage(mMaterialTree, "Materials", false);
+	AddPage(mScriptTree, "Scripts", false);
 }
 
 wxEntityTreeNotebook::~wxEntityTreeNotebook(void)

@@ -2,10 +2,11 @@
 #pragma once
 
 #include <string>
+#include "SGTIncludes.h"
 
 class SGTLuaScript;
 
-class SGTScriptParam
+class SGTDllExport SGTScriptParam
 {
 public:
 	enum ETypes
