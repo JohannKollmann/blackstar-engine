@@ -104,11 +104,6 @@ public:
 	*/
 	static std::vector<SGTScriptParam> Lua_Npc_AddTA(SGTScript& caller, std::vector<SGTScriptParam> vParams);
 
-	/*
-	Erstellt eine neue Instanz des als String übergebenen Scripts.
-	*/
-	static std::vector<SGTScriptParam> Lua_New(SGTScript& caller, std::vector<SGTScriptParam> vParams);
-
 	static std::vector<SGTScriptParam> Lua_InsertMesh(SGTScript& caller, std::vector<SGTScriptParam> vParams);
 	static std::vector<SGTScriptParam> Lua_SetObjectPosition(SGTScript& caller, std::vector<SGTScriptParam> vParams);
 	static std::vector<SGTScriptParam> Lua_SetObjectOrientation(SGTScript& caller, std::vector<SGTScriptParam> vParams);

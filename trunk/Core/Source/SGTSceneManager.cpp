@@ -166,7 +166,6 @@ void SGTSceneManager::Init()
 	SGTScriptSystem::GetInstance().ShareCFunction("CreateNpc", &SGTSceneManager::Lua_CreateNpc);
 	SGTScriptSystem::GetInstance().ShareCFunction("Npc_AddState", &SGTSceneManager::Lua_Npc_AddState);
 	SGTScriptSystem::GetInstance().ShareCFunction("Npc_AddTA", &SGTSceneManager::Lua_Npc_AddTA);
-	SGTScriptSystem::GetInstance().ShareCFunction("New", &SGTSceneManager::Lua_New);
 
 	SGTScriptSystem::GetInstance().ShareCFunction("InsertMesh", &SGTSceneManager::Lua_InsertMesh);
 	SGTScriptSystem::GetInstance().ShareCFunction("SetObjectPosition", &SGTSceneManager::Lua_SetObjectPosition);
@@ -364,20 +363,6 @@ SGTSceneManager::Lua_LogMessage(SGTScript& caller, std::vector<SGTScriptParam> v
 std::vector<SGTScriptParam> SGTSceneManager::Lua_Npc_AddState(SGTScript& caller, std::vector<SGTScriptParam> vParams)
 {
 	std::vector<SGTScriptParam> out;
-	return out;
-}
-
-std::vector<SGTScriptParam> SGTSceneManager::Lua_New(SGTScript& caller, std::vector<SGTScriptParam> vParams)
-{
-	std::vector<SGTScriptParam> out;
-	if (vParams.size() == 1)
-	{
-		if (vParams[0].getType() == SGTScriptParam::PARM_TYPE_STRING)
-		{
-			std::string scriptname = vParams[0].getString();
-			SGTScriptSystem::GetInstance().CreateInstance(SCRIPT_BASE_DIR + scriptname);
-		}
-	}
 	return out;
 }
 
