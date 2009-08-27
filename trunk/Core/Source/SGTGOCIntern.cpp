@@ -2,13 +2,16 @@
 #include "SGTGOCIntern.h"
 #include "SGTMain.h"
 #include "SGTGameObject.h"
+#include "SGTPathfinder.h"
 
 SGTGOCWaypoint::SGTGOCWaypoint(void)
 {
+	SGTPathfinder::Instance().RegisterWaypoint(this);
 }
 
 SGTGOCWaypoint::~SGTGOCWaypoint(void)
 {
+	SGTPathfinder::Instance().UnregisterWaypoint(this);
 	while (mConnectedWaypoints.size() > 0)
 	{
 		(*mConnectedWaypoints.begin())->DisconnectWaypoint(this);
@@ -127,6 +130,28 @@ bool SGTGOCWaypoint::HasConnectedWaypoint(SGTGOCWaypoint *waypoint)
 		if ((*i) == waypoint) return true;
 	}
 	return false;
+}
+
+Ogre::Vector3 SGTGOCWaypoint::GetPosition()
+{
+	return GetOwner()->GetGlobalPosition();
+}
+Ogre::Quaternion SGTGOCWaypoint::GetOrientation()
+{
+	return GetOwner()->GetGlobalOrientation();
+}
+
+void SGTGOCWaypoint::GetNeighbors(std::list<WPEdge> *edges, Ogre::Vector3 targetPos)
+{
+	for (std::list<SGTGOCWaypoint*>::iterator i = mConnectedWaypoints.begin(); i != mConnectedWaypoints.end(); i++)
+	{
+		WPEdge edge;
+		edge.mCost = GetPosition().distance((*i)->GetPosition());
+		edge.mWP = this;
+		edge.mNeighbor = (*i);
+		edge.mCostOffset = (*i)->GetPosition().distance(targetPos);
+		edges->push_back(edge);
+	}
 }
 
 void SGTGOCWaypoint::Save(SGTSaveSystem& mgr)

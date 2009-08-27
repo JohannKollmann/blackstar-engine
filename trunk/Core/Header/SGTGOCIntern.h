@@ -13,6 +13,14 @@ struct LineNeighborBind
 	LineNeighborBind(Ogre::ManualObject* line, SGTGOCWaypoint* waypoint) { mLine = line; mNeighbor = waypoint; }
 };
 
+struct WPEdge
+{
+	SGTGOCWaypoint *mWP;
+	SGTGOCWaypoint *mNeighbor;
+	float mCost;
+	float mCostOffset;		//Fuer Heuristik
+};
+
 class SGTDllExport SGTGOCWaypoint : public SGTGOComponent
 {
 private:
@@ -35,9 +43,13 @@ public:
 	void AddLine(Ogre::ManualObject* line, SGTGOCWaypoint *waypoint);
 	void RemoveLine(Ogre::ManualObject* line);
 
+	void GetNeighbors(std::list<WPEdge> *edges, Ogre::Vector3 targetPos);
+
 	void ShowEditorVisual(bool show);
 
 	void UpdatePosition(Ogre::Vector3 position);
+	Ogre::Vector3 GetPosition();	//AI soll sauber getrennt sein von Objektsystem
+	Ogre::Quaternion GetOrientation();
 
 	void Save(SGTSaveSystem& mgr);
 	void Load(SGTLoadSystem& mgr);
