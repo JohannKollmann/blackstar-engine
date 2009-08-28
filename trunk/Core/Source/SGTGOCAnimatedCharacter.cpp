@@ -367,7 +367,7 @@ SGTGOCAnimatedCharacter::SGTGOCAnimatedCharacter(Ogre::String meshname, Ogre::Ve
 	mSetControlToActorsTemp = false;
 	mEditorMode = false;
 	Create(meshname, scale);
-	mRagdoll->SetAnimationState("Idle1");
+	mRagdoll->SetAnimationState("Idle");
 }
 
 void SGTGOCAnimatedCharacter::Create(Ogre::String meshname, Ogre::Vector3 scale)

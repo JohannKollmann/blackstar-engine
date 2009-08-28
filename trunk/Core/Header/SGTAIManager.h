@@ -9,7 +9,7 @@
 Verwaltet AI Objekte, vergibt IDs und entscheidet, was aktualisiert wird und was nicht.
 */
 
-class SGTAIManager : public SGTMessageListener
+class SGTDllExport SGTAIManager : public SGTMessageListener
 {
 private:
 	std::list<SGTGOCAI*> mAIObjects;

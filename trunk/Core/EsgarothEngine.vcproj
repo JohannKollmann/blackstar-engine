@@ -406,15 +406,23 @@
 			Name="AI"
 			>
 			<File
+				RelativePath=".\Source\SGTAIManager.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Header\SGTAIManager.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Header\SGTAIQueueEntry.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\SGTPathfindingManager.cpp"
+				RelativePath=".\Source\SGTPathfinder.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Header\SGTPathfindingManager.h"
+				RelativePath=".\Header\SGTPathfinder.h"
 				>
 			</File>
 			<File
@@ -426,7 +434,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Header\SGTWaypoint.h"
+				RelativePath=".\Source\SGTScriptedAIState.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Header\SGTScriptedAIState.h"
 				>
 			</File>
 		</Filter>
@@ -553,15 +565,15 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\Dependencies\Boost\thread\pthread\once.hpp"
-					>
-				</File>
-				<File
 					RelativePath="..\..\Dependencies\Boost\thread\once.hpp"
 					>
 				</File>
 				<File
 					RelativePath="..\..\Dependencies\Boost\thread\win32\once.hpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Dependencies\Boost\thread\pthread\once.hpp"
 					>
 				</File>
 				<File
@@ -573,15 +585,15 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\Dependencies\Boost\thread\win32\recursive_mutex.hpp"
-					>
-				</File>
-				<File
 					RelativePath="..\..\Dependencies\Boost\thread\recursive_mutex.hpp"
 					>
 				</File>
 				<File
 					RelativePath="..\..\Dependencies\Boost\thread\pthread\recursive_mutex.hpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Dependencies\Boost\thread\win32\recursive_mutex.hpp"
 					>
 				</File>
 				<File
@@ -601,15 +613,15 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\Dependencies\Boost\thread\pthread\thread.hpp"
-					>
-				</File>
-				<File
 					RelativePath="..\..\Dependencies\Boost\thread\thread.hpp"
 					>
 				</File>
 				<File
 					RelativePath="..\..\Dependencies\Boost\thread\win32\thread.hpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Dependencies\Boost\thread\pthread\thread.hpp"
 					>
 				</File>
 				<File

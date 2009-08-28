@@ -182,5 +182,3 @@ SGTScriptSystem::Clear()
 	m_mScriptFunctions.clear();
 	m_mScripts.clear();
 }
-	}
-}
