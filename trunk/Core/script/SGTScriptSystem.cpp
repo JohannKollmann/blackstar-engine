@@ -152,8 +152,35 @@ SGTScriptSystem::CreateInstance(std::string strFileName)
 	else
 	{
 		//just make an instance
-		SGTScript scriptInst=SGTScript(m_iCurrID++, &m_mScripts.find(strFileName)->second);
-		scriptInst.CallFunction("create", std::vector<SGTScriptParam>());
-		return scriptInst;
+		SGTScript script=SGTScript(m_iCurrID++, &m_mScripts.find(strFileName)->second);
+		script.CallFunction("create", std::vector<SGTScriptParam>());
+		return script;
+	}
+}
+
+void
+SGTScriptSystem::KillScript(std::string strFileName)
+{
+	std::map<std::string, SGTLuaScript>::const_iterator it;
+	if((it=m_mScripts.find(strFileName))==m_mScripts.end())
+		return;
+	for(std::map<std::string, SGTLuaScript*>::const_iterator itFunctions=m_mScriptFunctions.begin();
+		itFunctions!=m_mScriptFunctions.end(); itFunctions++)
+		if(!itFunctions->second->GetScriptName().compare(strFileName))
+		{
+			std::map<std::string, SGTLuaScript*>::const_iterator itTemp=itFunctions;
+			itFunctions--;
+			m_mScriptFunctions.erase(itTemp);
+		}
+
+	m_mScripts.erase(it);
+}
+
+void
+SGTScriptSystem::Clear()
+{
+	m_mScriptFunctions.clear();
+	m_mScripts.clear();
+}
 	}
 }

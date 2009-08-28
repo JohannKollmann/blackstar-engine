@@ -406,23 +406,7 @@
 			Name="AI"
 			>
 			<File
-				RelativePath=".\Source\SGTAIManager.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Header\SGTAIManager.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Header\SGTAIState.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\SGTPathfinder.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Header\SGTPathfinder.h"
+				RelativePath=".\Header\SGTAIQueueEntry.h"
 				>
 			</File>
 			<File
@@ -439,14 +423,6 @@
 			</File>
 			<File
 				RelativePath=".\Header\SGTPathway.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\SGTScriptedAIState.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Header\SGTScriptedAIState.h"
 				>
 			</File>
 			<File
