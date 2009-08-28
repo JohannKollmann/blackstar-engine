@@ -14,6 +14,8 @@ public:
 	void ShareScriptFunction(std::string strName, SGTLuaScript& script);
 
 	SGTScript CreateInstance(std::string strFileName);
+	void KillScript(std::string strFileName);
+	void Clear();
 private:
 	std::map<std::string, SGTScriptFunction> m_mCFunctions;
 	std::map<std::string, SGTLuaScript*> m_mScriptFunctions;
