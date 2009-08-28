@@ -4,7 +4,6 @@ SGTScript::SGTScript(int iID, SGTLuaScript* pScript)
 {
 	m_iID=iID;
 	m_pLuaScript=pScript;
-	//m_pLuaScript->CallFunction(*this, "create", std::vector<SGTScriptParam>());
 }
 
 SGTScript::SGTScript()
