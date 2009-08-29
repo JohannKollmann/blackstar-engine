@@ -4,12 +4,26 @@
 #include "SGTIncludes.h"
 #include "SGTGOCAI.h"
 #include "SGTScriptSystem.h"
+#include "SGTAIState.h"
 
-class SGTScriptedAIState
+class SGTScriptedAIState : public SGTAIState
 {
 protected:
-	SGTGOCAI *mAIObject;
 	SGTScript mScript;
+	SGTScriptedAIState() {}
+	virtual bool OnSimulate(float time) { return false; }
+
+public:
+	SGTScriptedAIState(SGTGOCAI* ai, Ogre::String scriptFileName);
+	~SGTScriptedAIState();
+
+	virtual void OnEnter();
+	virtual bool OnUpdate(float time);
+};
+
+class SGTDayCycle : public SGTScriptedAIState
+{
+protected:
 	Ogre::String mWaypoint;
 	int mStartTimeH;
 	int mStartTimeM;
@@ -19,9 +33,8 @@ protected:
 
 
 public:
-	SGTScriptedAIState(SGTGOCAI* ai, Ogre::String scriptFileName, Ogre::String waypoint, int endtimeH, int endtimeM, bool time_abs);
-	~SGTScriptedAIState();
+	SGTDayCycle(SGTGOCAI* ai, Ogre::String scriptFileName, Ogre::String waypoint, int endtimeH, int endtimeM, bool time_abs);
+	~SGTDayCycle();
 
-	void OnEnter();
-	bool OnUpdate();
+	bool OnUpdate(float time);
 };

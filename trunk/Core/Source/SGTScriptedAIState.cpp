@@ -1,7 +1,39 @@
 
 #include "SGTScriptedAIState.h"
 
-SGTScriptedAIState::SGTScriptedAIState(SGTGOCAI* ai, Ogre::String scriptFileName, Ogre::String waypoint, int endtimeH, int endtimeM, bool time_abs)
+
+
+SGTScriptedAIState::SGTScriptedAIState(SGTGOCAI* ai, Ogre::String scriptFileName)
+{
+	mAIObject = ai;
+	mScript = SGTScriptSystem::GetInstance().CreateInstance(SCRIPT_BASE_DIR + scriptFileName);
+}
+
+SGTScriptedAIState::~SGTScriptedAIState()
+{
+}
+
+void SGTScriptedAIState::OnEnter()
+{
+	std::vector<SGTScriptParam> params;
+	params.push_back(SGTScriptParam((int)mAIObject->GetID()));
+	mScript.CallFunction("OnEnter", params);
+}
+
+bool SGTScriptedAIState::OnUpdate(float time)
+{
+	if (OnSimulate(time)) return true;
+	std::vector<SGTScriptParam> params;
+	params.push_back(SGTScriptParam((int)mAIObject->GetID()));
+	std::vector<SGTScriptParam> returns = mScript.CallFunction("OnUpdate", params);
+	if (returns.size() == 0) return false;
+	if ((*returns.begin()).getType() != SGTScriptParam::PARM_TYPE_BOOL) return false;
+	return (*returns.begin()).getBool();
+}
+
+
+
+SGTDayCycle::SGTDayCycle(SGTGOCAI* ai, Ogre::String scriptFileName, Ogre::String waypoint, int endtimeH, int endtimeM, bool time_abs)
 {
 	mAIObject = ai;
 	mScript = SGTScriptSystem::GetInstance().CreateInstance(SCRIPT_BASE_DIR + scriptFileName);
@@ -10,7 +42,7 @@ SGTScriptedAIState::SGTScriptedAIState(SGTGOCAI* ai, Ogre::String scriptFileName
 	mEndTimeM = endtimeM;
 	mStartTimeH = SGTSceneManager::Instance().GetHour();
 	mStartTimeM = SGTSceneManager::Instance().GetMinutes();
-	if (time_abs)
+	if (!time_abs)
 	{
 		mEndTimeM += mStartTimeH;
 		if (mEndTimeM > 60)
@@ -23,19 +55,11 @@ SGTScriptedAIState::SGTScriptedAIState(SGTGOCAI* ai, Ogre::String scriptFileName
 	}
 }
 
-SGTScriptedAIState::~SGTScriptedAIState()
+SGTDayCycle::~SGTDayCycle()
 {
 }
 
-void SGTScriptedAIState::OnEnter()
-{
-	std::vector<SGTScriptParam> params;
-	params.push_back(SGTScriptParam((int)mAIObject->GetID()));
-	params.push_back(SGTScriptParam(mWaypoint));
-	mScript.CallFunction("OnEnter", params);
-}
-
-bool SGTScriptedAIState::OnUpdate()
+bool SGTDayCycle::OnUpdate(float time)
 {
 	int hour = SGTSceneManager::Instance().GetHour();
 	int minutes = SGTSceneManager::Instance().GetMinutes();
@@ -44,7 +68,7 @@ bool SGTScriptedAIState::OnUpdate()
 	params.push_back(SGTScriptParam((int)mAIObject->GetID()));
 	params.push_back(SGTScriptParam(mWaypoint));
 	std::vector<SGTScriptParam> returns = mScript.CallFunction("OnUpdate", params);
-	if (returns.size() == 0) return true;
-	if ((*returns.begin()).getType() != SGTScriptParam::PARM_TYPE_BOOL) return true;
+	if (returns.size() == 0) return false;
+	if ((*returns.begin()).getType() != SGTScriptParam::PARM_TYPE_BOOL) return false;
 	return (*returns.begin()).getBool();
 }

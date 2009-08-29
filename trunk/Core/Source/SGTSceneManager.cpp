@@ -370,7 +370,7 @@ std::vector<SGTScriptParam> SGTSceneManager::Lua_Npc_AddTA(SGTScript& caller, st
 {
 	std::vector<SGTScriptParam> out;
 	if (vParams.size() < 3) return out;
-	if (vParams[0].getType() != SGTScriptParam::PARM_TYPE_INT) return out;
+	if (!vParams[0].hasInt()) return out;
 	if (vParams[1].getType() != SGTScriptParam::PARM_TYPE_STRING) return out;
 	if (vParams[2].getType() != SGTScriptParam::PARM_TYPE_STRING) return out;
 	int id = vParams[0].getInt();
@@ -381,8 +381,8 @@ std::vector<SGTScriptParam> SGTSceneManager::Lua_Npc_AddTA(SGTScript& caller, st
 	bool time_abs = true;
 	if (vParams.size() >= 5)
 	{
-		if (vParams[3].getType() == SGTScriptParam::PARM_TYPE_INT) end_timeH = vParams[3].getInt();
-		if (vParams[4].getType() == SGTScriptParam::PARM_TYPE_INT) end_timeH = vParams[4].getInt();
+		if (vParams[3].hasInt()) end_timeH = vParams[3].getInt();
+		if (vParams[4].hasInt()) end_timeH = vParams[4].getInt();
 	}
 	if (vParams.size() == 6)
 	{
@@ -390,7 +390,7 @@ std::vector<SGTScriptParam> SGTSceneManager::Lua_Npc_AddTA(SGTScript& caller, st
 	}
 
 	SGTGOCAI *ai = SGTAIManager::Instance().GetAIByID(id);
-	if (ai) ai->AddScriptedState(new SGTScriptedAIState(ai, ta_script, wp, end_timeH, end_timeM, time_abs));
+	if (ai) ai->AddScriptedState(new SGTDayCycle(ai, ta_script, wp, end_timeH, end_timeM, time_abs));
 	return out;
 }
 
@@ -507,10 +507,12 @@ SGTSceneManager::Lua_CreateNpc(SGTScript& caller, std::vector<SGTScriptParam> vP
 	if (mesh != "")
 	{
 		SGTGameObject *go = new SGTGameObject();
-		SGTGOCAnimatedCharacter *ragdoll = new SGTGOCAnimatedCharacter(mesh, scale);
+		//SGTGOCAnimatedCharacter *body = new SGTGOCAnimatedCharacter(mesh, scale);
+		SGTGOCViewContainer *body = new SGTGOCViewContainer();
+		body->AddItem(new SGTMeshRenderable("cube.1m.mesh", true));
 		SGTGOCAI *ai = new SGTGOCAI();
 		go->AddComponent(ai);		//Brain
-		go->AddComponent(ragdoll);	//Body
+		go->AddComponent(body);		//Body
 		returnerID = (int)ai->GetID();
 	}
 	out.push_back(SGTScriptParam(returnerID));

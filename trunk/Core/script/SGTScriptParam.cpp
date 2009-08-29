@@ -8,8 +8,9 @@ SGTScriptParam::SGTScriptParam(std::string s){m_Type=PARM_TYPE_STRING;m_strData=
 SGTScriptParam::SGTScriptParam(std::string strFnName, SGTLuaScript& script){m_Type=PARM_TYPE_FUNCTION;m_strData=strFnName;m_pScript=&script;}
 
 SGTScriptParam::ETypes SGTScriptParam::getType(){return m_Type;}
+bool SGTScriptParam::hasInt() { return (m_Type==PARM_TYPE_FLOAT || m_Type==PARM_TYPE_INT); }
 
-int SGTScriptParam::getInt(){return m_iData;}
+int SGTScriptParam::getInt(){return ((m_Type==PARM_TYPE_FLOAT) ? (int)m_fData : m_iData);}
 bool SGTScriptParam::getBool(){return m_bData;}
 double SGTScriptParam::getFloat(){return m_fData;}
 std::string SGTScriptParam::getString(){return m_strData;}

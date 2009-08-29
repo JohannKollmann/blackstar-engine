@@ -14,7 +14,7 @@ private:
 	/*
 	Die Idle-Routine des AI Objekts (Tagesablauf).
 	*/
-	std::list<SGTScriptedAIState*> mIdleQueue;
+	std::list<SGTDayCycle*> mIdleQueue;
 
 	/*
 	Die aktive Queue nach dem FIFO Prinzip mit Priorisierung, ueberlagert immer Idle-Routine.
@@ -39,7 +39,7 @@ public:
 	~SGTGOCAI(void);
 
 	void AddState(SGTAIState *state);
-	void AddScriptedState(SGTScriptedAIState *state);
+	void AddScriptedState(SGTDayCycle *state);
 	void ClearActionQueue();
 	void ClearIdleQueue();
 	void SelectState();

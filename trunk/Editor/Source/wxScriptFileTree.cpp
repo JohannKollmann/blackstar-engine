@@ -36,5 +36,6 @@ void wxScriptFileTree::OnMenuCallback(int id)
 		Ogre::String scriptFile = Ogre::String(GetRelativePath(mCurrentItem->GetId()).GetFullPath());
 		Ogre::LogManager::getSingleton().logMessage("Scriptfile: " + scriptFile);
 		SGTScript script = SGTScriptSystem::GetInstance().CreateInstance(SCRIPT_BASE_DIR + scriptFile);
+		SGTScriptSystem::GetInstance().KillScript(SCRIPT_BASE_DIR + scriptFile);
 	}
 }

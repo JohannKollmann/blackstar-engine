@@ -19,6 +19,7 @@ public:
 		PARM_TYPE_NONE //unknown or uninitialized
 	};
 	ETypes getType();
+	bool hasInt();
 	int getInt();
 	bool getBool();
 	double getFloat();

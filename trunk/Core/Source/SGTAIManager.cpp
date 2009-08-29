@@ -31,6 +31,16 @@ SGTGOCAI* SGTAIManager::GetAIByID(unsigned int id)
 	return 0;
 }
 
+void SGTAIManager::Clear()
+{
+	std::list<SGTGOCAI*>::iterator i = mAIObjects.begin();
+	while (i != mAIObjects.end())
+	{
+		delete (*i)->GetOwner();
+		i = mAIObjects.begin();
+	}
+}
+
 void SGTAIManager::ReceiveMessage(SGTMsg &msg)
 {
 	if (msg.mNewsgroup == "UPDATE_PER_FRAME")

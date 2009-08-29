@@ -11,6 +11,8 @@ SGTGOCAI::SGTGOCAI(void)
 
 SGTGOCAI::~SGTGOCAI(void)
 {
+	ClearActionQueue();
+	ClearIdleQueue();
 	SGTAIManager::Instance().UnregisterAIObject(this);
 }
 
@@ -30,9 +32,10 @@ void SGTGOCAI::AddState(SGTAIState *state)
 	mActionQueue.push_back(state);
 }
 
-void SGTGOCAI::AddScriptedState(SGTScriptedAIState *state)
+void SGTGOCAI::AddScriptedState(SGTDayCycle *state)
 {
 	mIdleQueue.push_back(state);
+	if (mIdleQueue.size() == 1) (*mIdleQueue.begin())->OnEnter();
 }
 
 void SGTGOCAI::ClearActionQueue()
@@ -48,7 +51,7 @@ void SGTGOCAI::ClearActionQueue()
 
 void SGTGOCAI::ClearIdleQueue()
 {
-	for (std::list<SGTScriptedAIState*>::iterator i = mIdleQueue.begin(); i != mIdleQueue.end(); i++)
+	for (std::list<SGTDayCycle*>::iterator i = mIdleQueue.begin(); i != mIdleQueue.end(); i++)
 	{
 		delete (*i);
 	}
@@ -89,8 +92,8 @@ void SGTGOCAI::Update(float time)
 	}
 	else if (mIdleQueue.size() > 0)
 	{
-		SGTScriptedAIState *state = *mIdleQueue.begin();
-		if (state->OnUpdate())
+		SGTDayCycle *state = *mIdleQueue.begin();
+		if (state->OnUpdate(0))
 		{
 			mIdleQueue.pop_front();
 			mIdleQueue.push_back(state);
