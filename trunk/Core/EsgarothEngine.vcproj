@@ -414,10 +414,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Header\SGTAIQueueEntry.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Header\SGTAIState.h"
 				>
 			</File>
