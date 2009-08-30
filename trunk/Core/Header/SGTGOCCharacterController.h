@@ -57,6 +57,8 @@ protected:
 
 public:
 	goc_id_family& GetFamilyID() const { static std::string name = "GOCCharacterInput"; return name; }
+	void BroadcastMovementState(int state);
+	int GetMovementState() { return mCharacterMovementState; }
 };
 
 class SGTDllExport SGTGOCCharacterController : public SGTGOCPhysics, public SGTMessageListener

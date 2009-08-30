@@ -16,6 +16,7 @@
 #include "SGTGOCIntern.h"
 #include "SGTGOCAI.h"
 #include "SGTAIManager.h"
+#include "SGTFollowPathway.h"
 
 SGTSceneManager::SGTSceneManager(void)
 {
@@ -166,6 +167,7 @@ void SGTSceneManager::Init()
 	SGTScriptSystem::GetInstance().ShareCFunction("CreateNpc", &SGTSceneManager::Lua_CreateNpc);
 	SGTScriptSystem::GetInstance().ShareCFunction("Npc_AddState", &SGTSceneManager::Lua_Npc_AddState);
 	SGTScriptSystem::GetInstance().ShareCFunction("Npc_AddTA", &SGTSceneManager::Lua_Npc_AddTA);
+	SGTScriptSystem::GetInstance().ShareCFunction("Npc_GotoWP", &SGTSceneManager::Lua_Npc_GotoWP);
 
 	SGTScriptSystem::GetInstance().ShareCFunction("InsertMesh", &SGTSceneManager::Lua_InsertMesh);
 	SGTScriptSystem::GetInstance().ShareCFunction("SetObjectPosition", &SGTSceneManager::Lua_SetObjectPosition);
@@ -393,7 +395,18 @@ std::vector<SGTScriptParam> SGTSceneManager::Lua_Npc_AddTA(SGTScript& caller, st
 	if (ai) ai->AddScriptedState(new SGTDayCycle(ai, ta_script, wp, end_timeH, end_timeM, time_abs));
 	return out;
 }
-
+std::vector<SGTScriptParam> SGTSceneManager::Lua_Npc_GotoWP(SGTScript& caller, std::vector<SGTScriptParam> vParams)
+{
+	std::vector<SGTScriptParam> out;
+	if (vParams.size() < 2) return out;
+	if (!vParams[0].hasInt()) return out;
+	if (vParams[1].getType() != SGTScriptParam::PARM_TYPE_STRING) return out;
+	int id = vParams[0].getInt();
+	std::string wp = vParams[1].getString();
+	SGTGOCAI *ai = SGTAIManager::Instance().GetAIByID(id);
+	if (ai) ai->AddState(new SGTFollowPathway(wp));
+	return out;
+}
 
 std::vector<SGTScriptParam> SGTSceneManager::Lua_InsertMesh(SGTScript& caller, std::vector<SGTScriptParam> vParams)
 {

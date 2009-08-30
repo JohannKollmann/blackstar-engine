@@ -1,5 +1,5 @@
-#ifndef __SGTFollowPathway_H__
-#define __SGTFollowPathway_H__
+
+#pragma once
 
 #include "Ogre.h"
 #include "SGTAIState.h"
@@ -7,15 +7,15 @@
 class SGTFollowPathway : public SGTAIState
 {
 private:
-	std::vector<Ogre::Vector3> mWPList;
+	std::vector<Ogre::Vector3> mPath;
 	std::vector<Ogre::Vector3>::iterator mCurrentTarget;
 	float mRadius;
 
+	void smoothPath();
+
 public:
-	SGTFollowPathway(Ogre::String targetWP);
+	SGTFollowPathway(Ogre::String target, float radius = 1.0f);
 	~SGTFollowPathway();
 
 	bool OnUpdate(float time);
 };
-
-#endif

@@ -1,45 +1,54 @@
 
 #include "SGTFollowPathway.h"
+#include "SGTPathfinder.h"
 #include "SGTGOCAI.h"
+#include "SGTGOCCharacterController.h"
 
-SGTFollowPathway::SGTFollowPathway(Ogre::String targetWP)
+SGTFollowPathway::SGTFollowPathway(Ogre::String targetWP, float radius)
 {
+	SGTPathfinder::Instance().FindPath(mAIObject->GetOwner()->GetGlobalPosition(), targetWP, &mPath);
+	mRadius = radius;
+	mCurrentTarget = mPath.begin();
 };
 
 SGTFollowPathway::~SGTFollowPathway()
 {
-	mWPList.clear();
+	mPath.clear();
 };
 
 bool SGTFollowPathway::OnUpdate(float time)
 {
-	if (mAIObject->GetOwner()->GetGlobalPosition().distance(*mCurrentTarget) < mRadius)
+	Ogre::Vector3 currPos = mAIObject->GetOwner()->GetGlobalPosition();
+
+	if (currPos.distance(*mCurrentTarget) < mRadius)
 	{
 		mCurrentTarget++;
 	}
-	if (mCurrentTarget == mWPList.end())
+	if (mCurrentTarget == mPath.end())
 	{
 		Ogre::LogManager::getSingleton().logMessage("Ziel erreicht!");
 		return true;
 	}
-	Ogre::Vector3 steerTarget = *mCurrentTarget;
-	Ogre::Quaternion q;
 
+	Ogre::Quaternion direction = currPos.getRotationTo(*mCurrentTarget);
+	mAIObject->GetOwner()->SetGlobalOrientation(direction);
+	int movementstate = SGTCharacterMovement::FORWARD;
+	mAIObject->BroadcastMovementState(movementstate);
 	return false;
-};
+}
 
-/*void SGTPathway::smoothPath()
+void SGTFollowPathway::smoothPath()
 {
 	Ogre::Vector3 wp1, wp2, wp3, strecke1, strecke2; //wp2 ist der wp an dem gesmooth wird, wp1 und wp3 wird nur fürs berechnen der strecken zwischen den wps gebraucht
     std::vector<Ogre::Vector3> newWPList;
     Ogre::LogManager::getSingleton().logMessage(Ogre::String("Initialised"));
-    newWPList.push_back (mWPList[0]);
-    for(unsigned int i = 1; i < mWPList.size()-1; ++i)
+    newWPList.push_back (mPath[0]);
+    for(unsigned int i = 1; i < mPath.size()-1; ++i)
     {
         Ogre::LogManager::getSingleton().logMessage(Ogre::String("neuer Durchgang:" + Ogre::StringConverter::toString(i)));
-        wp1 = mWPList[i-1];
-        wp2 = mWPList[i];
-        wp3 = mWPList[i+1];
+        wp1 = mPath[i-1];
+        wp2 = mPath[i];
+        wp3 = mPath[i+1];
 		strecke1 = wp1 - wp2;
 		strecke1 = strecke1.normalise();
 		strecke2 = wp3 - wp2;
@@ -55,13 +64,13 @@ bool SGTFollowPathway::OnUpdate(float time)
         Ogre::LogManager::getSingleton().logMessage(Ogre::String("Kurve berechnet"));
     }
     Ogre::LogManager::getSingleton().logMessage(Ogre::String("Smoothen beendet"));
-    int end = mWPList.size();
-    newWPList.push_back(mWPList[end-1]);
-	mWPList.clear();
+    int end = mPath.size();
+    newWPList.push_back(mPath[end-1]);
+	mPath.clear();
 	for(unsigned int i = 0; i<newWPList.size(); ++i)
 	{
-		mWPList.push_back(newWPList[i]);
+		mPath.push_back(newWPList[i]);
 	}
     Ogre::LogManager::getSingleton().logMessage(Ogre::String("einfügen des letzen wps"));
-    //mWPList = newWPList;
-}*/
+    //mPath = newWPList;
+}

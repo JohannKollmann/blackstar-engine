@@ -12,7 +12,11 @@ void SGTCharacterControllerInput::BroadcastMovementState()
 	objmsg->mData.AddInt("CharacterMovementState", mCharacterMovementState);
 	mOwnerGO->SendInstantMessage("", Ogre::SharedPtr<SGTObjectMsg>(objmsg));
 }
-
+void SGTCharacterControllerInput::BroadcastMovementState(int state)
+{
+	mCharacterMovementState = state;
+	BroadcastMovementState();
+}
 
 
 SGTGOCCharacterController::SGTGOCCharacterController(Ogre::Vector3 dimensions)
