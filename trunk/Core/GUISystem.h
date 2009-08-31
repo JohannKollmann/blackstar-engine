@@ -11,6 +11,8 @@
 #include <vector>
 #include <list>
 
+
+
 class SGTDllExport SGTGUISystem : public SGTMessageListener
 {
 public:
@@ -67,6 +69,8 @@ public:
 	bool GetVisible(int iHandle);
 	void SetCursor(int iHandle);
 
+
+private:
 	//scripting stuff
 
 	static std::vector<SGTScriptParam> Lua_SetMaterial(SGTScript& caller, std::vector<SGTScriptParam> vParams);
@@ -75,7 +79,7 @@ public:
 	static std::vector<SGTScriptParam> Lua_CreateFontTexture(SGTScript& caller, std::vector<SGTScriptParam> vParams);
 	static std::vector<SGTScriptParam> Lua_ChangeFontMaterial(SGTScript& caller, std::vector<SGTScriptParam> vParams);
 	static std::vector<SGTScriptParam> Lua_DeleteTexture(SGTScript& caller, std::vector<SGTScriptParam> vParams);
-private:
+
 	int FindParentWindow(int iSubWindowHandle);
 	float m_fXPos, m_fYPos;
 	int m_iHoverWin;
