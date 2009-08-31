@@ -7,14 +7,21 @@
 SGTGOCWaypoint::SGTGOCWaypoint(void)
 {
 	SGTPathfinder::Instance().RegisterWaypoint(this);
+	mRenderEditorVisuals = false;
 }
 
 SGTGOCWaypoint::~SGTGOCWaypoint(void)
 {
-	SGTPathfinder::Instance().UnregisterWaypoint(this);
+	/*SGTPathfinder::Instance().UnregisterWaypoint(this);
 	while (mConnectedWaypoints.size() > 0)
 	{
 		(*mConnectedWaypoints.begin())->DisconnectWaypoint(this);
+	}*/
+	for (std::list<LineNeighborBind>::iterator i = mLines.begin(); i != mLines.end(); i++)
+	{
+		SGTMain::Instance().GetOgreSceneMgr()->destroySceneNode((*i).mLine->getParentSceneNode());
+		SGTMain::Instance().GetOgreSceneMgr()->destroyManualObject((*i).mLine);
+		(*i).mNeighbor->DisconnectWaypoint(this, true);
 	}
 }
 
@@ -84,6 +91,18 @@ void SGTGOCWaypoint::DisconnectWaypoint(SGTGOCWaypoint *waypoint, bool notify_on
 	mConnectedWaypoints.remove(waypoint);
 }
 
+bool SGTGOCWaypoint::HasLine(SGTGOCWaypoint *waypoint)
+{
+	for (std::list<LineNeighborBind>::iterator i = mLines.begin(); i != mLines.end(); i++)
+	{
+		if ((*i).mNeighbor == waypoint)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 void SGTGOCWaypoint::UpdatePosition(Ogre::Vector3 position)
 {
 	if (mRenderEditorVisuals)
@@ -108,7 +127,7 @@ void SGTGOCWaypoint::ShowEditorVisual(bool show)
 	{
 		for (std::list<SGTGOCWaypoint*>::iterator i = mConnectedWaypoints.begin(); i != mConnectedWaypoints.end(); i++)
 		{
-			(*i)->AddLine(CreateEditorLine((*i)), this);
+			if (!HasLine((*i))) (*i)->AddLine(CreateEditorLine((*i)), this);
 		}
 	}
 	else
@@ -156,7 +175,7 @@ void SGTGOCWaypoint::GetNeighbors(std::list<WPEdge> *edges, Ogre::Vector3 target
 
 void SGTGOCWaypoint::Save(SGTSaveSystem& mgr)
 {
-	mgr.SaveAtom("std::list<SGTSaveable*>", (void*)(&mConnectedWaypoints), "mComponents");
+	mgr.SaveAtom("std::list<SGTSaveable*>", (void*)(&mConnectedWaypoints), "mConnectedWaypoints");
 }
 void SGTGOCWaypoint::Load(SGTLoadSystem& mgr)
 {

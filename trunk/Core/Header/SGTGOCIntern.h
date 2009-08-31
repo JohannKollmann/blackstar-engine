@@ -44,6 +44,7 @@ public:
 	void RemoveLine(Ogre::ManualObject* line);
 
 	void GetNeighbors(std::list<WPEdge> *edges, Ogre::Vector3 targetPos);
+	bool HasLine(SGTGOCWaypoint *waypoint);
 
 	void ShowEditorVisual(bool show);
 

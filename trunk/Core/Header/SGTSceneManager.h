@@ -54,6 +54,7 @@ public:
 	Ogre::String RequestIDStr();
 
 	SGTGameObject* GetObjectByInternID(int id);
+	void ClearGameObjects();
 
 	SGTWeatherController* GetWeatherController();
 

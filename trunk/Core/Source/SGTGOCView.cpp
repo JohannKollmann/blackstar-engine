@@ -182,7 +182,7 @@ SGTMeshDebugRenderable::SGTMeshDebugRenderable(Ogre::String meshname)
 		meshname = "DummyMesh.mesh";
 	}
 	mNode = SGTMain::Instance().GetOgreSceneMgr()->getRootSceneNode()->createChildSceneNode();
-	mEntity = SGTMain::Instance().GetOgreSceneMgr()->createEntity(Ogre::StringConverter::toString(SGTSceneManager::Instance().RequestID()), meshname);
+	mEntity = SGTMain::Instance().GetOgreSceneMgr()->createEntity("DebugRenderable"+SGTSceneManager::Instance().RequestIDStr(), meshname);
 	mEntity->setCastShadows(false);
 	mNode->attachObject(mEntity);
 }

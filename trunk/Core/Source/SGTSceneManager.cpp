@@ -130,6 +130,7 @@ void SGTSceneManager::Init()
 	SGTLoadSave::Instance().RegisterObject(&ComponentSection::Register);
 	SGTLoadSave::Instance().RegisterObject(&SGTGameObject::Register);
 	SGTLoadSave::Instance().RegisterObject(&SGTSaveableDummy::Register);
+	SGTLoadSave::Instance().RegisterObject(&SGTGOCWaypoint::Register);
 
 	SGTLoadSave::Instance().RegisterObject(&SGTMeshRenderable::Register);
 	SGTLoadSave::Instance().RegisterObject(&SGTPfxRenderable::Register);
@@ -174,6 +175,17 @@ void SGTSceneManager::Init()
 	SGTScriptSystem::GetInstance().ShareCFunction("SetObjectOrientation", &SGTSceneManager::Lua_SetObjectOrientation);
 	SGTScriptSystem::GetInstance().ShareCFunction("SetObjectScale", &SGTSceneManager::Lua_SetObjectScale);
 
+}
+
+void SGTSceneManager::ClearGameObjects()
+{
+	std::list<SGTGameObject*>::iterator i = mGameObjects.begin();
+	while (i != mGameObjects.end())
+	{
+		delete (*i);
+		i = mGameObjects.begin();
+	}
+	mGameObjects.clear();
 }
 
 void SGTSceneManager::Reset()
@@ -235,17 +247,20 @@ void SGTSceneManager::LoadLevelMesh(Ogre::String meshname)
 
 void SGTSceneManager::LoadLevel(Ogre::String levelfile)
 {
+	ClearGameObjects();
+	mNextID = 0;
+
 	SGTLoadSystem *ls=SGTLoadSave::Instance().LoadFile(levelfile);
 
 	SGTDataMap *levelparams = (SGTDataMap*)ls->LoadObject();
 	CreateFromDataMap(levelparams);
 
 	ls->LoadAtom("std::list<SGTSaveable*>", &mGameObjects);
-	mNextID = 0;
 }
 
 void SGTSceneManager::SaveLevel(Ogre::String levelfile)
 {
+	ShowEditorMeshes(false);
 	SGTSaveSystem *ss=SGTLoadSave::Instance().CreateSaveFile(levelfile, levelfile + ".xml");
 	SGTDataMap map;
 	GetParameters(&map);

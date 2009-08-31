@@ -118,6 +118,7 @@ void wxMainMenu::OnLoadWorld(wxCommandEvent& WXUNUSED(event))
 		mEdit->GetOgrePane()->mEdit->OnLoadWorld(dialog.GetPath().c_str());
 	}
 	wxEdit::Instance().GetProgressBar()->Reset();
+	SGTSceneManager::Instance().ShowEditorMeshes(IsChecked(wxMainMenu_EditorMeshes));
 };
 
 void wxMainMenu::OnSaveWorld(wxCommandEvent& WXUNUSED(event))
@@ -143,6 +144,7 @@ void wxMainMenu::OnSaveWorld(wxCommandEvent& WXUNUSED(event))
 		mEdit->GetOgrePane()->mEdit->OnSaveWorld(dialog.GetPath().c_str());
 	}
 	wxEdit::Instance().GetProgressBar()->Reset();
+	SGTSceneManager::Instance().ShowEditorMeshes(IsChecked(wxMainMenu_EditorMeshes));
 };
 
 void wxMainMenu::OnLoadMesh(wxCommandEvent& WXUNUSED(event))

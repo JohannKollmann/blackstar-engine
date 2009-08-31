@@ -398,6 +398,7 @@ void SGTEdit::OnSaveWorld(Ogre::String fileName)
 SGTGameObject* SGTEdit::OnInsertWaypoint()
 {
 	SGTGameObject *waypoint = SGTSceneManager::Instance().CreateWaypoint();
+	waypoint->ShowEditorVisuals(true);
 	waypoint->SetGlobalPosition(SGTMain::Instance().GetCamera()->getDerivedPosition() + (SGTMain::Instance().GetCamera()->getDerivedOrientation() * Ogre::Vector3(0,0,-5)));
 	waypoint->SetGlobalOrientation(Ogre::Quaternion(SGTMain::Instance().GetCamera()->getDerivedOrientation().getYaw(), Ogre::Vector3(0,1,0)));
 	SelectObject(waypoint);
