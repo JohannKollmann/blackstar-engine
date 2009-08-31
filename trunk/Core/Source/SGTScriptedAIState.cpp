@@ -2,7 +2,6 @@
 #include "SGTScriptedAIState.h"
 
 
-
 SGTScriptedAIState::SGTScriptedAIState(SGTGOCAI* ai, Ogre::String scriptFileName)
 {
 	mAIObject = ai;
@@ -17,7 +16,7 @@ void SGTScriptedAIState::OnEnter()
 {
 	std::vector<SGTScriptParam> params;
 	params.push_back(SGTScriptParam((int)mAIObject->GetID()));
-	mScript.CallFunction("OnEnter", params);
+	mScript.CallFunction("onEnter", params);
 }
 
 bool SGTScriptedAIState::OnUpdate(float time)
@@ -25,7 +24,7 @@ bool SGTScriptedAIState::OnUpdate(float time)
 	if (OnSimulate(time)) return true;
 	std::vector<SGTScriptParam> params;
 	params.push_back(SGTScriptParam((int)mAIObject->GetID()));
-	std::vector<SGTScriptParam> returns = mScript.CallFunction("OnUpdate", params);
+	std::vector<SGTScriptParam> returns = mScript.CallFunction("onUpdate", params);
 	if (returns.size() == 0) return false;
 	if ((*returns.begin()).getType() != SGTScriptParam::PARM_TYPE_BOOL) return false;
 	return (*returns.begin()).getBool();

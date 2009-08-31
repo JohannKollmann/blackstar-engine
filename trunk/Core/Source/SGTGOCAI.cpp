@@ -1,6 +1,7 @@
 
 #include "SGTGOCAI.h"
 #include "SGTAIManager.h"
+#include "SGTScriptSystem.h"
 
 SGTGOCAI::SGTGOCAI(void)
 {
@@ -113,4 +114,36 @@ void SGTGOCAI::ReceiveObjectMessage(Ogre::SharedPtr<SGTObjectMsg> msg)
 	{
 		NxU32 collisionFlags = msg->mData.GetFloat("collisionFlags");
 	}
+}
+
+
+void SGTGOCAI::Create(Ogre::String scriptFile)
+{
+	mScriptFileName = scriptFile;
+	std::vector<SGTScriptParam> params;
+	params.push_back(SGTScriptParam((int)GetID()));
+	mScript = SGTScriptSystem::GetInstance().CreateInstance(mScriptFileName, params);
+}
+
+void SGTGOCAI::CreateFromDataMap(SGTDataMap *parameters)
+{
+	Create(parameters->GetOgreString("Script"));
+}
+void SGTGOCAI::GetParameters(SGTDataMap *parameters)
+{
+	parameters->AddOgreString("Script", mScriptFileName);
+}
+void SGTGOCAI::GetDefaultParameters(SGTDataMap *parameters)
+{
+	parameters->AddOgreString("Script", "script.lua");
+}
+
+void SGTGOCAI::Save(SGTSaveSystem& mgr)
+{
+	mgr.SaveAtom("Ogre::String", &mScriptFileName, "Script");
+}
+void SGTGOCAI::Load(SGTLoadSystem& mgr)
+{
+	mgr.LoadAtom("Ogre::String", &mScriptFileName);
+	Create(mScriptFileName);
 }

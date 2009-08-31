@@ -7,8 +7,9 @@
 #include "SGTGOCCharacterController.h"
 #include "SGTAIState.h"
 #include "SGTScriptedAIState.h"
+#include "SGTDataMap.h"
 
-class SGTDllExport SGTGOCAI : public SGTCharacterControllerInput
+class SGTDllExport SGTGOCAI : public SGTGOCEditorInterface, public SGTCharacterControllerInput
 {
 private:
 	/*
@@ -28,6 +29,9 @@ private:
 	Der aktuelle AIState aus der ActionQueue.
 	*/
 	SGTAIState *mActiveState;
+
+	SGTScript mScript;
+	Ogre::String mScriptFileName;
 
 	/*
 	Fuer Lua.
@@ -52,9 +56,16 @@ public:
 
 	SGTGOComponent::goc_id_type& GetComponentID() const { static std::string name = "AI"; return name; }
 
+	void CreateFromDataMap(SGTDataMap *parameters);
+	void GetParameters(SGTDataMap *parameters);
+	static void GetDefaultParameters(SGTDataMap *parameters);
+	bool IsViewComponent() { return false; }
+	static SGTGOCAI* NewEditorInterfaceInstance() { return new SGTGOCAI(); }
+
+	void Create(Ogre::String scriptFile);
 	std::string& TellName() { static std::string name = "AI"; return name; };
 	static void Register(std::string* pstrName, SGTSaveableInstanceFn* pFn) { *pstrName = "AI"; *pFn = (SGTSaveableInstanceFn)&NewInstance; };
 	static SGTSaveable* NewInstance() { return new SGTGOCAI; };
-	virtual void Save(SGTSaveSystem& mgr) {};
-	virtual void Load(SGTLoadSystem& mgr) {};
+	void Save(SGTSaveSystem& mgr);
+	void Load(SGTLoadSystem& mgr);
 };
