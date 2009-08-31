@@ -14,6 +14,7 @@ public:
 	void ShareScriptFunction(std::string strName, SGTLuaScript& script);
 
 	SGTScript CreateInstance(std::string strFileName);
+	SGTScript CreateInstance(std::string strFileName, std::vector<SGTScriptParam> params);
 	void KillScript(std::string strFileName);
 	void Clear();
 private:

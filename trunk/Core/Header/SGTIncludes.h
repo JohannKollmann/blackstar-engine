@@ -6,6 +6,7 @@
 #define SGTDllExport __declspec(dllexport)
 
 #pragma warning(disable:4482)
+#pragma warning(disable:4251)
 
 //#define BOOST_ALL_DYN_LINK
 

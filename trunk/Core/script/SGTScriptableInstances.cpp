@@ -27,12 +27,14 @@ std::vector<SGTScriptParam>
 SGTScriptableInstances::Lua_InstantiateScript(SGTScript& caller, std::vector<SGTScriptParam> vParams)
 {
 	std::vector<SGTScriptParam> vRes;
-	if(vParams.size()==1)
+	if(vParams.size()>=1)
 	{
 		if(vParams[0].getType()!=SGTScriptParam::PARM_TYPE_STRING)
 			return vRes;
 		int iID=SGTSceneManager::Instance().RequestID();
-		SGTScript script=SGTScriptSystem::GetInstance().CreateInstance(vParams[0].getString());
+		std::string strScript=vParams[0].getString();
+		vParams.erase(vParams.begin());
+		SGTScript script=SGTScriptSystem::GetInstance().CreateInstance(strScript, vParams);
 		SGTScriptableInstances::GetInstance().m_mScripts.insert(std::pair<int, SGTScript>(iID, script));
 		vRes.push_back(SGTScriptParam(iID));
 		return vRes;

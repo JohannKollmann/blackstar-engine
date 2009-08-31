@@ -134,7 +134,7 @@ SGTScriptSystem::LoadScriptCallback(SGTScript &caller, std::vector<SGTScriptPara
 }
 
 SGTScript
-SGTScriptSystem::CreateInstance(std::string strFileName)
+SGTScriptSystem::CreateInstance(std::string strFileName, std::vector<SGTScriptParam> params)
 {
 	if(m_mScripts.find(strFileName)==m_mScripts.end())
 	{//script was not loaded yet
@@ -146,16 +146,22 @@ SGTScriptSystem::CreateInstance(std::string strFileName)
 		luaScript.ShareCFunction(std::string("load"), LoadScriptCallback);
 		SGTScript scriptInst=SGTScript(m_iCurrID++, &luaScript);
 		luaScript.CallFunction(scriptInst, "init", std::vector<SGTScriptParam>());
-		scriptInst.CallFunction("create", std::vector<SGTScriptParam>());
+		scriptInst.CallFunction("create", params);
 		return scriptInst;
 	}
 	else
 	{
 		//just make an instance
 		SGTScript script=SGTScript(m_iCurrID++, &m_mScripts.find(strFileName)->second);
-		script.CallFunction("create", std::vector<SGTScriptParam>());
+		script.CallFunction("create", params);
 		return script;
 	}
+}
+
+SGTScript
+SGTScriptSystem::CreateInstance(std::string strFileName)
+{
+	return CreateInstance(strFileName, std::vector<SGTScriptParam>());
 }
 
 void
