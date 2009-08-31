@@ -1,6 +1,7 @@
 #include "GUISystem.h"
 #include <windows.h>
 #include "SGTInput.h"
+#include "SGTScriptableInstances.h"
 
 
 const float SGTGUISystem::m_fFactor=0.001f;
@@ -8,6 +9,7 @@ const float SGTGUISystem::cfFrameWidth=0.02f;
 
 SGTGUISystem::SGTGUISystem(void)
 {
+	SGTScriptableInstances::GetInstance();
 	m_iCursorHandle=-1;
 	m_fMaxZ=0.0001f;
 	m_fZStep=m_fMaxZ/1000.0f;

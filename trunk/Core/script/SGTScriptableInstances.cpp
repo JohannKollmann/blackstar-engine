@@ -4,6 +4,8 @@
 
 SGTScriptableInstances::SGTScriptableInstances()
 {
+	SGTScriptSystem::GetInstance().ShareCFunction("InstantiateScript", Lua_InstantiateScript);
+	SGTScriptSystem::GetInstance().ShareCFunction("RunFunction", Lua_RunFunction);
 }
 
 SGTScriptableInstances&
