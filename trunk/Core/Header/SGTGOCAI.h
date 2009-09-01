@@ -33,9 +33,8 @@ private:
 	SGTScript mScript;
 	Ogre::String mScriptFileName;
 
-	/*
-	Fuer Lua.
-	*/
+	//Lua stuff
+	std::map<std::string, SGTScriptParam> mProperties;
 	unsigned int mID;
 
 public:
@@ -47,6 +46,9 @@ public:
 	void ClearActionQueue();
 	void ClearIdleQueue();
 	void SelectState();
+
+	void SetProperty(std::string key, SGTScriptParam prop);
+	SGTScriptParam GetProperty(std::string key);
 
 	unsigned int GetID() { return mID; }
 

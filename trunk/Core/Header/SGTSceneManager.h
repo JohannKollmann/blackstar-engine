@@ -97,6 +97,12 @@ public:
 	*/
 
 	/*
+	Getter und Setter für Npc-Properties.
+	Erwartet den Namen der Property als String und einen beliebigen Wert.
+	*/
+	static std::vector<SGTScriptParam> Lua_Npc_SetProperty(SGTScript& caller, std::vector<SGTScriptParam> vParams);
+	static std::vector<SGTScriptParam> Lua_Npc_GetProperty(SGTScript& caller, std::vector<SGTScriptParam> vParams);
+	/*
 	Erwartet den anzunehmenden Statename als String
 	*/
 	static std::vector<SGTScriptParam> Lua_Npc_AddState(SGTScript& caller, std::vector<SGTScriptParam> vParams);

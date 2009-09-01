@@ -167,6 +167,8 @@ void SGTSceneManager::Init()
 	SGTScriptSystem::GetInstance().ShareCFunction("LogMessage", &SGTSceneManager::Lua_LogMessage);
 	SGTScriptSystem::GetInstance().ShareCFunction("LoadLevel", &SGTSceneManager::Lua_LoadLevel);
 	SGTScriptSystem::GetInstance().ShareCFunction("CreateNpc", &SGTSceneManager::Lua_CreateNpc);
+	SGTScriptSystem::GetInstance().ShareCFunction("Npc_SetProperty", &SGTSceneManager::Lua_Npc_SetProperty);
+	SGTScriptSystem::GetInstance().ShareCFunction("Npc_GetProperty", &SGTSceneManager::Lua_Npc_GetProperty);
 	SGTScriptSystem::GetInstance().ShareCFunction("Npc_AddState", &SGTSceneManager::Lua_Npc_AddState);
 	SGTScriptSystem::GetInstance().ShareCFunction("Npc_AddTA", &SGTSceneManager::Lua_Npc_AddTA);
 	SGTScriptSystem::GetInstance().ShareCFunction("Npc_GotoWP", &SGTSceneManager::Lua_Npc_GotoWP);
@@ -391,6 +393,33 @@ SGTSceneManager::Lua_LogMessage(SGTScript& caller, std::vector<SGTScriptParam> v
 	return std::vector<SGTScriptParam>();
 }
 
+
+std::vector<SGTScriptParam> SGTSceneManager::Lua_Npc_SetProperty(SGTScript& caller, std::vector<SGTScriptParam> vParams)
+{
+	std::vector<SGTScriptParam> out;
+	if (vParams.size() < 3) return out;
+	if (!vParams[0].hasInt()) return out;
+	if (vParams[1].getType() != SGTScriptParam::PARM_TYPE_STRING) return out;
+	int id = vParams[0].getInt();
+	std::string key = vParams[1].getString();
+	SGTGOCAI *ai = SGTAIManager::Instance().GetAIByID(id);
+	if (ai) ai->SetProperty(key, vParams[2]);
+	return out;
+}
+std::vector<SGTScriptParam> SGTSceneManager::Lua_Npc_GetProperty(SGTScript& caller, std::vector<SGTScriptParam> vParams)
+{
+	std::vector<SGTScriptParam> out;
+	if (vParams.size() < 2) return out;
+	if (!vParams[0].hasInt()) return out;
+	if (vParams[1].getType() != SGTScriptParam::PARM_TYPE_STRING) return out;
+	int id = vParams[0].getInt();
+	std::string key = vParams[1].getString();
+	SGTGOCAI *ai = SGTAIManager::Instance().GetAIByID(id);
+	SGTScriptParam p(0);
+	if (ai) p = ai->GetProperty(key);
+	out.push_back(p);
+	return out;
+}
 
 std::vector<SGTScriptParam> SGTSceneManager::Lua_Npc_AddState(SGTScript& caller, std::vector<SGTScriptParam> vParams)
 {

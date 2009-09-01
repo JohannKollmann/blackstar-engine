@@ -103,6 +103,28 @@ void SGTGOCAI::Update(float time)
 	}	
 }
 
+void SGTGOCAI::SetProperty(std::string key, SGTScriptParam prop)
+{
+	std::map<Ogre::String, SGTScriptParam>::iterator i = mProperties.find(key);
+	if (i != mProperties.end())
+	{
+		(*i).second = prop;
+	}
+	else
+	{
+		mProperties.insert(std::make_pair(key, prop));
+	}
+}
+SGTScriptParam SGTGOCAI::GetProperty(std::string key)
+{
+	std::map<Ogre::String, SGTScriptParam>::iterator i = mProperties.find(key);
+	if (i != mProperties.end())
+	{
+		return (*i).second;
+	}
+	return SGTScriptParam(0);
+}
+
 void SGTGOCAI::ReceiveObjectMessage(Ogre::SharedPtr<SGTObjectMsg> msg)
 {
 	if (msg->mName == "CharacterJumpEnded")
