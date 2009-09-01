@@ -141,6 +141,7 @@ void SGTSceneManager::Init()
 	SGTLoadSave::Instance().RegisterObject(&SGTGOCViewContainer::Register);
 	SGTLoadSave::Instance().RegisterObject(&SGTGOCAnimatedCharacter::Register);
 	SGTLoadSave::Instance().RegisterObject(&SGTGOCAnimatedCharacterBone::Register);
+	SGTLoadSave::Instance().RegisterObject(&SGTGOCCharacterController::Register);
 	RegisterEditorInterface("A", "MeshRenderable", (EDTCreatorFn)&SGTMeshRenderable::NewEditorInterfaceInstance, SGTMeshRenderable::GetDefaultParameters);
 	RegisterEditorInterface("A", "ParticleSystem", (EDTCreatorFn)&SGTPfxRenderable::NewEditorInterfaceInstance, SGTPfxRenderable::GetDefaultParameters);
 	RegisterEditorInterface("A", "LocalLight", (EDTCreatorFn)&SGTLocalLightRenderable::NewEditorInterfaceInstance, SGTLocalLightRenderable::GetDefaultParameters);
@@ -148,8 +149,9 @@ void SGTSceneManager::Init()
 	RegisterEditorInterface("B", "RigidBody", (EDTCreatorFn)&SGTGOCRigidBody::NewEditorInterfaceInstance, SGTGOCRigidBody::GetDefaultParameters);
 	RegisterEditorInterface("B", "StaticBody", (EDTCreatorFn)&SGTGOCRigidBody::NewEditorInterfaceInstance, SGTGOCRigidBody::GetDefaultParameters);
 	RegisterEditorInterface("C", "Scripted AI", (EDTCreatorFn)&SGTGOCAI::NewEditorInterfaceInstance, SGTGOCAI::GetDefaultParameters);
-	RegisterEditorInterface("C", "Character", (EDTCreatorFn)&SGTGOCAnimatedCharacter::NewEditorInterfaceInstance, SGTGOCAnimatedCharacter::GetDefaultParameters);
+	RegisterEditorInterface("C", "Skeleton", (EDTCreatorFn)&SGTGOCAnimatedCharacter::NewEditorInterfaceInstance, SGTGOCAnimatedCharacter::GetDefaultParameters);
 	RegisterEditorInterface("", "AnimatedCharacterBone", (EDTCreatorFn)&SGTGOCAnimatedCharacterBone::NewEditorInterfaceInstance, SGTGOCAnimatedCharacterBone::GetDefaultParameters);
+	RegisterEditorInterface("C", "Character", (EDTCreatorFn)&SGTGOCCharacterController::NewEditorInterfaceInstance, SGTGOCCharacterController::GetDefaultParameters);
 
 	//Init NxOgre Resource System
 	HANDLE fHandle;

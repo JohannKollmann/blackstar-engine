@@ -27,6 +27,7 @@ SGTGOCCharacterController::SGTGOCCharacterController(Ogre::Vector3 dimensions)
 SGTGOCCharacterController::~SGTGOCCharacterController(void)
 {
 	SGTMain::Instance().GetNxCharacterManager()->releaseController(*mCharacterController);
+	SGTMessageSystem::Instance().QuitNewsgroup(this, "UPDATE_PER_FRAME");
 }
 
 void SGTGOCCharacterController::Create(Ogre::Vector3 dimensions)
@@ -123,9 +124,21 @@ void SGTGOCCharacterController::SetOwner(SGTGameObject *go)
 	UpdatePosition(mOwnerGO->GetGlobalPosition());
 }
 
+void SGTGOCCharacterController::CreateFromDataMap(SGTDataMap *parameters)
+{
+	Create(Ogre::Vector3(1,2,1));
+}
+void SGTGOCCharacterController::GetParameters(SGTDataMap *parameters)
+{
+}
+void SGTGOCCharacterController::GetDefaultParameters(SGTDataMap *parameters)
+{
+}
+
 void SGTGOCCharacterController::Save(SGTSaveSystem& mgr)
 {
 }
 void SGTGOCCharacterController::Load(SGTLoadSystem& mgr)
 {
+	Create(Ogre::Vector3(1,2,1));
 }

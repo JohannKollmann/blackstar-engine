@@ -61,7 +61,7 @@ public:
 	int GetMovementState() { return mCharacterMovementState; }
 };
 
-class SGTDllExport SGTGOCCharacterController : public SGTGOCPhysics, public SGTMessageListener
+class SGTDllExport SGTGOCCharacterController : public SGTGOCPhysics, public SGTMessageListener, public SGTGOCEditorInterface
 {
 private:
 	NxController *mCharacterController;
@@ -87,6 +87,12 @@ public:
 	void ReceiveMessage(SGTMsg &msg);
 
 	void SetOwner(SGTGameObject *go);
+
+	void CreateFromDataMap(SGTDataMap *parameters);
+	void GetParameters(SGTDataMap *parameters);
+	static void GetDefaultParameters(SGTDataMap *parameters);
+	bool IsViewComponent() { return false; }
+	static SGTGOCCharacterController* NewEditorInterfaceInstance() { return new SGTGOCCharacterController(); }
 
 	void Save(SGTSaveSystem& mgr);
 	void Load(SGTLoadSystem& mgr);
