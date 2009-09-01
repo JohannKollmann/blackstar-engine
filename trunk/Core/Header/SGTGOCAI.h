@@ -62,6 +62,8 @@ public:
 	bool IsViewComponent() { return false; }
 	static SGTGOCAI* NewEditorInterfaceInstance() { return new SGTGOCAI(); }
 
+	bool IsStatic() { return false; }
+
 	void Create(Ogre::String scriptFile);
 	std::string& TellName() { static std::string name = "AI"; return name; };
 	static void Register(std::string* pstrName, SGTSaveableInstanceFn* pFn) { *pstrName = "AI"; *pFn = (SGTSaveableInstanceFn)&NewInstance; };

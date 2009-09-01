@@ -270,6 +270,15 @@ void SGTGameObject::OnParentChanged()
 	mUpdatingFromParent = false;
 }
 
+bool SGTGameObject::IsStatic()
+{
+	for (std::list<SGTGOComponent*>::iterator i = mComponents.begin(); i != mComponents.end(); i++)
+	{
+		if (!(*i)->IsStatic()) return false;
+	}
+	return true;
+}
+
 void SGTGameObject::Save(SGTSaveSystem& mgr)
 {
 	mgr.SaveAtom("Ogre::String", (void*)(&mGOID), "ID");

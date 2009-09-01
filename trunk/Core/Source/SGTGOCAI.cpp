@@ -116,7 +116,6 @@ void SGTGOCAI::ReceiveObjectMessage(Ogre::SharedPtr<SGTObjectMsg> msg)
 	}
 }
 
-
 void SGTGOCAI::Create(Ogre::String scriptFile)
 {
 	mScriptFileName = scriptFile;

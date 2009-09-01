@@ -246,7 +246,7 @@ void SGTSceneManager::LoadLevelMesh(Ogre::String meshname)
 	}
 }
 
-void SGTSceneManager::LoadLevel(Ogre::String levelfile)
+void SGTSceneManager::LoadLevel(Ogre::String levelfile, bool load_dynamic)
 {
 	ClearGameObjects();
 	mNextID = 0;
@@ -257,6 +257,12 @@ void SGTSceneManager::LoadLevel(Ogre::String levelfile)
 	CreateFromDataMap(levelparams);
 
 	ls->LoadAtom("std::list<SGTSaveable*>", &mGameObjects);
+	if (load_dynamic)
+	{
+		ls->LoadAtom("std::list<SGTSaveable*>", &mGameObjects);
+	}
+	ls->CloseFile();
+	delete ls;
 }
 
 void SGTSceneManager::SaveLevel(Ogre::String levelfile)
@@ -266,7 +272,15 @@ void SGTSceneManager::SaveLevel(Ogre::String levelfile)
 	SGTDataMap map;
 	GetParameters(&map);
 	ss->SaveObject(&map, "LevelParams");
-	ss->SaveAtom("std::list<SGTSaveable*>", &mGameObjects, "GameObjects");
+	std::list<SGTGameObject*> staticobjects;
+	std::list<SGTGameObject*> dynamicobjects;
+	for (std::list<SGTGameObject*>::iterator i = mGameObjects.begin(); i != mGameObjects.end(); i++)
+	{
+		if ((*i)->IsStatic()) staticobjects.push_back(*i);
+		else dynamicobjects.push_back(*i);
+	}
+	ss->SaveAtom("std::list<SGTSaveable*>", &staticobjects, "Static Objects");
+	ss->SaveAtom("std::list<SGTSaveable*>", &dynamicobjects, "Dynamic Objects");
 	ss->CloseFiles();
 	delete ss;
 }

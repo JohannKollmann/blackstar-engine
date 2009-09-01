@@ -92,6 +92,8 @@ public:
 	void SetFreezePosition(bool freeze) { mFreezePosition = freeze; }
 	void SetFreezeOrientation(bool freeze) { mFreezeOrientation = freeze; }
 
+	bool IsStatic();
+
 	//Editor stuff
 	void Freeze(bool freeze);
 	void ShowEditorVisuals(bool show);

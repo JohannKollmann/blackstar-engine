@@ -67,7 +67,7 @@ public:
 
 	void LoadLevelMesh(Ogre::String meshname);
 
-	void LoadLevel(Ogre::String levelfile);
+	void LoadLevel(Ogre::String levelfile, bool load_dynamic = true);
 
 	void SaveLevel(Ogre::String levelfile);
 

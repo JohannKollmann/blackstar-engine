@@ -68,6 +68,7 @@ public:
 	void Freeze(bool freeze);
 
 	void SetOwner(SGTGameObject *go);
+	bool IsStatic() { return false; }
 
 	void CreateFromDataMap(SGTDataMap *parameters);
 	void GetParameters(SGTDataMap *parameters);

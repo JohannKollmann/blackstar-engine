@@ -36,6 +36,8 @@ public:
 	virtual void UpdateOrientation(Ogre::Quaternion orientation) {}
 	virtual void UpdateScale(Ogre::Vector3 scale) {}
 
+	virtual bool IsStatic() { return true; }
+
 	//Messaging
 	virtual void ReceiveObjectMessage(Ogre::SharedPtr<SGTObjectMsg> msg) {}
 
