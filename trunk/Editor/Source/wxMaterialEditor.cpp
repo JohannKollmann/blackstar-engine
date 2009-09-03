@@ -353,7 +353,13 @@ void wxMaterialEditor::EditMaterial(Ogre::MaterialPtr material)
 			Ogre::String temp = Scan_Line_For_Material(line);
 			if (temp == mCurrentMaterial->getName())
 			{
-				if (line.find(":") != Ogre::String::npos) IsCustom = true; 
+				if (line.find(":") != Ogre::String::npos)
+				{
+					Ogre::String templatename = line.substr(line.find(":")+1, line.size());
+					Ogre::String templatelocation = wxEdit::Instance().GetWorldExplorer()->GetMaterialTree()->GetTemplateLocation(templatename);
+					if (templatelocation != "") SetMaterialTemplate(templatename, templatelocation);
+					IsCustom = true; 
+				}
 				if (line.find("{") != Ogre::String::npos) bracket_counter++;
 				if (line.find("}") != Ogre::String::npos) bracket_counter--;
 				found = true;

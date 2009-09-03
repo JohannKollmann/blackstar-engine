@@ -139,6 +139,7 @@ protected:
 	void OnItemMenu(wxTreeEvent &event);
 	void ShowMenu(OgreMaterialTreeItemBase *item, const wxPoint& pt);
 	void OnItemActivated(wxTreeEvent &event);
+	void OnSelChanged(wxTreeEvent &event);
 
 	int mCallbackIDCounter;
 
@@ -172,9 +173,9 @@ public:
 	virtual OgreMaterialTreeItemBase* OnCreateTreeFolder(Ogre::String name);
 	virtual OgreMaterialTreeItemBase* OnCreateTreeMaterial(Ogre::MaterialPtr material);
 
-	void OnSelChanged(wxTreeEvent &event);
-
 	void ExpandToMaterial(Ogre::String mesh, Ogre::String material);
+
+	Ogre::String GetTemplateLocation(Ogre::String tmat);
 
 
 private:

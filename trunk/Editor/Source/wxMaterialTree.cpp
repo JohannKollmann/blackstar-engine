@@ -14,6 +14,7 @@
 
 BEGIN_EVENT_TABLE(wxMaterialTree, wxTreeCtrl)
 	EVT_TREE_ITEM_MENU(-1, wxMaterialTree::OnItemMenu)
+	EVT_TREE_SEL_CHANGED(-1, wxMaterialTree::OnSelChanged)
 	EVT_MENU(wxID_ANY, wxMaterialTree::OnMenuEvent)
 END_EVENT_TABLE()
 
@@ -248,6 +249,19 @@ OgreMaterialTreeItemBase* wxMaterialTree::OnCreateTreeMaterial(Ogre::MaterialPtr
 	return new OgreMaterialTreeItemBase(material->getName().c_str(), material);
 }; 
 
+void wxMaterialTree::OnSelChanged(wxTreeEvent &event)
+{
+	wxTreeItemId id = event.GetItem();
+	if(id.IsOk())
+	{
+		OgreMaterialTreeItemBase *t = (OgreMaterialTreeItemBase *)GetItemData(id);
+		if (t->IsFile())
+		{
+			mSelectedMaterial = t->GetMaterial();
+		}
+	}
+}
+
 void wxMaterialTree::OnMenuEvent(wxCommandEvent& event)
 {
 	int id = event.GetId();
@@ -363,4 +377,16 @@ void wxMaterialTree::AddOption(Ogre::String file, Ogre::String name)
 	option.mCallbackID = mCallbackIDCounter;
 	mMaterialOptions.push_back(option);
 	mCallbackIDCounter++;
+}
+
+Ogre::String wxMaterialTree::GetTemplateLocation(Ogre::String tmat)
+{
+	for (std::vector<MaterialOption>::iterator i = mMaterialOptions.begin(); i != mMaterialOptions.end(); i++)
+	{
+		if ((*i).mTemplateName == tmat)
+		{
+			return (*i).mTemplateFile;
+		}
+	}
+	return "";
 }
