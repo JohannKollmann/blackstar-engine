@@ -58,7 +58,10 @@ void wxObjectFolderTree::OnMenuCallback(int id)
 
 		mCurrentPath = Ogre::String(this->GetRelativePath(mCurrentItem->GetId()).GetFullPath().c_str()) + "/" + File;
 
-		((wxEditSGTGameObject*)(wxEdit::Instance().GetpropertyWindow()->SetPage("EditGameObject")))->NewResource(Path + File + ".ocs");
+		wxEditSGTGameObject *page = ((wxEditSGTGameObject*)(wxEdit::Instance().GetpropertyWindow()->SetPage("EditGameObject")));
+		page->NewResource(Path + File + ".ocs");
+		page->OnApply();
+		page->SetResource(Path + File + ".ocs");
 	}
 	if (id == ResTree_addRagdoll)
 	{

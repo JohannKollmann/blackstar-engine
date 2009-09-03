@@ -172,6 +172,7 @@ wxEditSGTGameObject::wxEditSGTGameObject()
 
 void wxEditSGTGameObject::OnLeave()
 {
+	//wxEdit::Instance().GetAuiManager().GetPane("Properties").Caption("Properties");
 	wxAuiPaneInfo& pane = wxEdit::Instance().GetAuiManager().GetPane(wxT("componentbar")).Show(false);
 	wxEdit::Instance().GetAuiManager().Update();
 }
@@ -461,6 +462,7 @@ void wxEditSGTGameObject::OnUpdate()
 
 void wxEditSGTGameObject::SetResource(Ogre::String savepath)
 {
+	//wxEdit::Instance().GetAuiManager().GetPane("Properties").Caption("Properties");
 	mPropGrid->Clear();
 	mGameObject = 0;
 	mCurrentEditPath = savepath;
@@ -480,6 +482,7 @@ void wxEditSGTGameObject::SetResource(Ogre::String savepath)
 
 void wxEditSGTGameObject::NewResource(Ogre::String savepath, bool showcomponentbar)
 {
+	//wxEdit::Instance().GetAuiManager().GetPane("Properties").Caption("New Object Resource");
 	mCurrentEditPath = savepath;
 	SGTDataMap data;
 	data.AddOgreVec3("Position", Ogre::Vector3(0,0,0));
