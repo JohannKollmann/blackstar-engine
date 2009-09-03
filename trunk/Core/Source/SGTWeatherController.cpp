@@ -32,7 +32,7 @@ SGTWeatherController::SGTWeatherController(void)
 
     mCaelumSystem->setManageSceneFog(false);
     mCaelumSystem->setSceneFogDensityMultiplier(0.0015);
-	mCaelumSystem->setMinimumAmbientLight(Ogre::ColourValue(0.3, 0.3,0.3));
+	mCaelumSystem->setMinimumAmbientLight(Ogre::ColourValue(0.1, 0.1,0.1));
     mCaelumSystem->setManageAmbientLight (true); 
 
 	mCaelumSystem->getUniversalClock ()->setGregorianDateTime (2007, 4, 9, 9, 30, 0);

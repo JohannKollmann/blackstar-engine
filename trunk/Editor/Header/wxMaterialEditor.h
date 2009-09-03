@@ -31,7 +31,8 @@ public:
 
 	void OnApply();
 	void OnActivate();
+	void OnLeave();
 
 	void SetMaterialTemplate(Ogre::String Name, Ogre::String File);
-	void EditMaterial(Ogre::MaterialPtr material);
+	void EditMaterial(Ogre::MaterialPtr material, bool detect_template = true);
 };

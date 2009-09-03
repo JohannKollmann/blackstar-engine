@@ -275,7 +275,7 @@ void SGTEdit::OnMouseMove(Ogre::Radian RotX,Ogre::Radian RotY)
 				mPerformingObjMov = true;
 				for (std::list<SGTEditorSelection>::iterator i = mSelectedObjects.begin(); i != mSelectedObjects.end(); i++)
 				{
-					(*i).mObject->Translate(SGTMain::Instance().GetCamera()->getDerivedOrientation() * Ogre::Vector3(0,-RotY.valueRadians() * mObjectMovSpeed,0), mYAxisLock == SGTAxisLock::UNLOCKED);
+					(*i).mObject->Translate(Ogre::Vector3(0,-RotY.valueRadians() * mObjectMovSpeed,0), mYAxisLock == SGTAxisLock::UNLOCKED);
 				}
 			}
 			if (mZAxisLock == SGTAxisLock::UNLOCKED || mZAxisLock == SGTAxisLock::UNLOCKED_SKIPCHILDREN)
@@ -283,7 +283,10 @@ void SGTEdit::OnMouseMove(Ogre::Radian RotX,Ogre::Radian RotY)
 				mPerformingObjMov = true;
 				for (std::list<SGTEditorSelection>::iterator i = mSelectedObjects.begin(); i != mSelectedObjects.end(); i++)
 				{
-					(*i).mObject->Translate(SGTMain::Instance().GetCamera()->getDerivedOrientation() * Ogre::Vector3(0,0,RotY.valueRadians() * mObjectMovSpeed), mZAxisLock == SGTAxisLock::UNLOCKED);
+					Ogre::Vector3 movaxis = SGTMain::Instance().GetCamera()->getDerivedDirection() * -1.0f;
+					movaxis.y = 0;
+					movaxis.normalise();
+					(*i).mObject->Translate(movaxis * RotY.valueRadians() * mObjectMovSpeed , mZAxisLock == SGTAxisLock::UNLOCKED);
 				}
 			}
 			((wxEditSGTGameObject*)(wxEdit::Instance().GetpropertyWindow()->GetCurrentPage()))->SetObject(((wxEditSGTGameObject*)(wxEdit::Instance().GetpropertyWindow()->GetCurrentPage()))->GetGameObject());
@@ -307,7 +310,7 @@ void SGTEdit::OnMouseMove(Ogre::Radian RotX,Ogre::Radian RotY)
 				mPerformingObjRot = true;
 				for (std::list<SGTEditorSelection>::iterator i = mSelectedObjects.begin(); i != mSelectedObjects.end(); i++)
 				{
-					(*i).mObject->Rotate((*i).mObject->GetGlobalOrientation().Inverse() * SGTMain::Instance().GetCamera()->getDerivedOrientation().yAxis(), RotX * mObjectRotSpeed, mYAxisLock == SGTAxisLock::UNLOCKED);
+					(*i).mObject->Rotate((*i).mObject->GetGlobalOrientation().Inverse() * Ogre::Vector3::UNIT_Y, RotX * mObjectRotSpeed, mYAxisLock == SGTAxisLock::UNLOCKED);
 				}
 			}
 			if (mZAxisLock == SGTAxisLock::UNLOCKED || mZAxisLock == SGTAxisLock::UNLOCKED_SKIPCHILDREN)
@@ -315,7 +318,10 @@ void SGTEdit::OnMouseMove(Ogre::Radian RotX,Ogre::Radian RotY)
 				mPerformingObjRot = true;
 				for (std::list<SGTEditorSelection>::iterator i = mSelectedObjects.begin(); i != mSelectedObjects.end(); i++)
 				{
-					(*i).mObject->Rotate((*i).mObject->GetGlobalOrientation().Inverse() * SGTMain::Instance().GetCamera()->getDerivedOrientation().zAxis(), RotX * mObjectRotSpeed, mZAxisLock == SGTAxisLock::UNLOCKED);
+					Ogre::Vector3 rotaxis = SGTMain::Instance().GetCamera()->getDerivedDirection() * -1.0f;
+					rotaxis.y = 0;
+					rotaxis.normalise();
+					(*i).mObject->Rotate((*i).mObject->GetGlobalOrientation().Inverse() * rotaxis, RotX * mObjectRotSpeed, mZAxisLock == SGTAxisLock::UNLOCKED);
 				}
 			}
 			((wxEditSGTGameObject*)(wxEdit::Instance().GetpropertyWindow()->GetCurrentPage()))->SetObject(((wxEditSGTGameObject*)(wxEdit::Instance().GetpropertyWindow()->GetCurrentPage()))->GetGameObject());

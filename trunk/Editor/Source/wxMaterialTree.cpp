@@ -258,6 +258,8 @@ void wxMaterialTree::OnSelChanged(wxTreeEvent &event)
 		if (t->IsFile())
 		{
 			mSelectedMaterial = t->GetMaterial();
+			wxMaterialEditor *editor = (wxMaterialEditor*)(wxEdit::Instance().GetpropertyWindow()->SetPage("material"));
+			editor->EditMaterial(mSelectedMaterial);
 		}
 	}
 }
@@ -271,7 +273,7 @@ void wxMaterialTree::OnMenuEvent(wxCommandEvent& event)
 		{
 			wxMaterialEditor *editor = (wxMaterialEditor*)(wxEdit::Instance().GetpropertyWindow()->SetPage("material"));
 			editor->SetMaterialTemplate((*i).mTemplateName, (*i).mTemplateFile);
-			editor->EditMaterial(mSelectedMaterial);
+			editor->EditMaterial(mSelectedMaterial, false);
 			break;
 		}
 	}
@@ -294,6 +296,36 @@ void wxMaterialTree::OnItemMenu(wxTreeEvent &event)
     event.Skip();
 };
 
+void wxMaterialTree::UpdateTemplates()
+{
+		mMaterialOptions.clear();
+		HANDLE fHandle;
+		WIN32_FIND_DATA wfd;
+		fHandle=FindFirstFile("Data/Scripts/materials/scripts/Templates/*.material",&wfd);
+		do
+		{
+			wxMenu *submenu = new wxMenu("");
+
+			Ogre::String filename = Ogre::String("Data/Scripts/materials/scripts/Templates/") + Ogre::String(wfd.cFileName);
+			std::fstream f;
+			char cstring[256];
+			f.open(filename.c_str(), std::ios::in);
+			while (!f.eof())
+			{
+				f.getline(cstring, sizeof(cstring));
+				Ogre::String line = cstring;
+				if (line.find("abstract material") != Ogre::String::npos)
+				{
+					Ogre::String name = line.substr(line.find("abstract material") + 18, line.size());
+					submenu->Append(mCallbackIDCounter, wxT(name.c_str()));
+					AddOption(filename, name);
+				}
+			}
+			f.close();
+		}
+		while (FindNextFile(fHandle,&wfd));
+		FindClose(fHandle);
+}
 void wxMaterialTree::ShowMenu(OgreMaterialTreeItemBase *item, const wxPoint& pt)
 {
 	wxMenu *menu = new wxMenu("");
@@ -304,6 +336,7 @@ void wxMaterialTree::ShowMenu(OgreMaterialTreeItemBase *item, const wxPoint& pt)
 		Ogre::Root::getSingleton().renderOneFrame();
 
 		mSelectedMaterial = item->GetMaterial();
+		mMaterialOptions.clear();
 
 		HANDLE fHandle;
 		WIN32_FIND_DATA wfd;
@@ -334,7 +367,6 @@ void wxMaterialTree::ShowMenu(OgreMaterialTreeItemBase *item, const wxPoint& pt)
 		}
 		while (FindNextFile(fHandle,&wfd));
 		FindClose(fHandle);
-
 	}
 
 	PopupMenu(menu, pt);
@@ -381,7 +413,8 @@ void wxMaterialTree::AddOption(Ogre::String file, Ogre::String name)
 
 Ogre::String wxMaterialTree::GetTemplateLocation(Ogre::String tmat)
 {
-	for (std::vector<MaterialOption>::iterator i = mMaterialOptions.begin(); i != mMaterialOptions.end(); i++)
+	UpdateTemplates();
+	for (std::list<MaterialOption>::iterator i = mMaterialOptions.begin(); i != mMaterialOptions.end(); i++)
 	{
 		if ((*i).mTemplateName == tmat)
 		{

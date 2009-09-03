@@ -176,6 +176,7 @@ public:
 	void ExpandToMaterial(Ogre::String mesh, Ogre::String material);
 
 	Ogre::String GetTemplateLocation(Ogre::String tmat);
+	void UpdateTemplates();
 
 
 private:

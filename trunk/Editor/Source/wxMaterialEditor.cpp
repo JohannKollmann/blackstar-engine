@@ -15,7 +15,7 @@ wxMaterialEditor::~wxMaterialEditor(void)
 
 Ogre::String wxMaterialEditor::FindResource(Ogre::MaterialPtr material)
 {
-	return ScanPath("Data/Scripts/materials/scripts", material->getOrigin());
+	return ScanPath("Data/Scripts/", material->getOrigin());
 }
 
 Ogre::String wxMaterialEditor::ScanPath(Ogre::String path, Ogre::String filename)
@@ -181,8 +181,16 @@ void wxMaterialEditor::OnActivate()
 	mCurrentFile = "";
 }
 
+void wxMaterialEditor::OnLeave()
+{
+	wxEdit::Instance().GetAuiManager().GetPane("Properties").Caption("Properties");
+	wxEdit::Instance().GetAuiManager().Update();
+}
+
 void wxMaterialEditor::SetMaterialTemplate(Ogre::String Name, Ogre::String File)
 {
+	wxEdit::Instance().GetAuiManager().GetPane("Properties").Caption(Name);
+	wxEdit::Instance().GetAuiManager().Update();
 	mCurrentTemplate = Name;
 	mCurrentTemplateFile = File;
 
@@ -272,7 +280,7 @@ void wxMaterialEditor::SetMaterialTemplate(Ogre::String Name, Ogre::String File)
 	mPropGrid->Refresh();
 }
 
-void wxMaterialEditor::EditMaterial(Ogre::MaterialPtr material)
+void wxMaterialEditor::EditMaterial(Ogre::MaterialPtr material, bool detect_template)
 {
 	mCurrentMaterial = material;
 	mCurrentFile = FindResource(mCurrentMaterial);
@@ -356,8 +364,14 @@ void wxMaterialEditor::EditMaterial(Ogre::MaterialPtr material)
 				if (line.find(":") != Ogre::String::npos)
 				{
 					Ogre::String templatename = line.substr(line.find(":")+1, line.size());
+					int blank_index = templatename.find(" ");
+					while (blank_index != Ogre::String::npos)
+					{
+						templatename = templatename.substr(0, blank_index) + templatename.substr(blank_index+1);
+						blank_index = templatename.find(" ");
+					}
 					Ogre::String templatelocation = wxEdit::Instance().GetWorldExplorer()->GetMaterialTree()->GetTemplateLocation(templatename);
-					if (templatelocation != "") SetMaterialTemplate(templatename, templatelocation);
+					if (templatelocation != "" && detect_template) SetMaterialTemplate(templatename, templatelocation);
 					IsCustom = true; 
 				}
 				if (line.find("{") != Ogre::String::npos) bracket_counter++;
