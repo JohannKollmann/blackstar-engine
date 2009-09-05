@@ -100,14 +100,21 @@ void SGTPathfinder::ExtractPath(std::list<WPEdge> paths, SGTGOCWaypoint *start, 
 	SGTGOCWaypoint *current = start;
 	do
 	{
+		bool found = false;
 		for (std::list<WPEdge>::iterator i = paths.begin(); i != paths.end(); i++)
 		{
 			if ((*i).mNeighbor == current)
 			{
 				returnpath->push_back(current->GetPosition());
 				current = (*i).mWP;
+				found = true;
 				break;
 			}
+		}
+		if (!found)
+		{
+			Ogre::LogManager::getSingleton().logMessage("Error: Could not find path for " + start->GetOwner()->GetName() + " - " + target->GetOwner()->GetName());
+			return;
 		}
 	} while (current != target);
 	returnpath->push_back(target->GetPosition());
