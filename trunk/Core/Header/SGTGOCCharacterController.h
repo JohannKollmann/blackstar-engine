@@ -92,7 +92,7 @@ public:
 	void GetParameters(SGTDataMap *parameters);
 	static void GetDefaultParameters(SGTDataMap *parameters);
 	bool IsViewComponent() { return false; }
-	static SGTGOCCharacterController* NewEditorInterfaceInstance() { return new SGTGOCCharacterController(); }
+	static SGTGOCEditorInterface* NewEditorInterfaceInstance() { return new SGTGOCCharacterController(); }
 
 	void Save(SGTSaveSystem& mgr);
 	void Load(SGTLoadSystem& mgr);

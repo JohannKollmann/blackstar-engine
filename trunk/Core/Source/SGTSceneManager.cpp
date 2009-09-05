@@ -465,7 +465,7 @@ std::vector<SGTScriptParam> SGTSceneManager::Lua_Npc_GotoWP(SGTScript& caller, s
 	int id = vParams[0].getInt();
 	std::string wp = vParams[1].getString();
 	SGTGOCAI *ai = SGTAIManager::Instance().GetAIByID(id);
-	if (ai) ai->AddState(new SGTFollowPathway(wp));
+	if (ai) ai->AddState(new SGTFollowPathway(ai, wp));
 	return out;
 }
 

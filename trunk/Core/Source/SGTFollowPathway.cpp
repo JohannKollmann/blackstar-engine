@@ -4,11 +4,11 @@
 #include "SGTGOCAI.h"
 #include "SGTGOCCharacterController.h"
 
-SGTFollowPathway::SGTFollowPathway(Ogre::String targetWP, float radius)
+SGTFollowPathway::SGTFollowPathway(SGTGOCAI *ai, Ogre::String targetWP, float radius)
 {
-	SGTPathfinder::Instance().FindPath(mAIObject->GetOwner()->GetGlobalPosition(), targetWP, &mPath);
+	mAIObject = ai;
 	mRadius = radius;
-	mCurrentTarget = mPath.begin();
+	mTargetWP = targetWP;
 };
 
 SGTFollowPathway::~SGTFollowPathway()
@@ -16,22 +16,31 @@ SGTFollowPathway::~SGTFollowPathway()
 	mPath.clear();
 };
 
+void SGTFollowPathway::OnEnter()
+{
+	SGTPathfinder::Instance().FindPath(mAIObject->GetOwner()->GetGlobalPosition(), mTargetWP, &mPath);
+	mCurrentTarget = mPath.begin();
+}
+
 bool SGTFollowPathway::OnUpdate(float time)
 {
 	Ogre::Vector3 currPos = mAIObject->GetOwner()->GetGlobalPosition();
-
-	if (currPos.distance(*mCurrentTarget) < mRadius)
+	float dist = currPos.distance(*mCurrentTarget);
+	if (dist < mRadius)
 	{
 		mCurrentTarget++;
 	}
 	if (mCurrentTarget == mPath.end())
 	{
 		Ogre::LogManager::getSingleton().logMessage("Ziel erreicht!");
+		mAIObject->BroadcastMovementState(0);
 		return true;
 	}
 
-	Ogre::Quaternion direction = currPos.getRotationTo(*mCurrentTarget);
-	mAIObject->GetOwner()->SetGlobalOrientation(direction);
+	Ogre::Vector3 direction = (*mCurrentTarget)-currPos;
+	direction.y = 0;
+	Ogre::Quaternion quat = Ogre::Vector3::UNIT_Z.getRotationTo(direction);
+	mAIObject->GetOwner()->SetGlobalOrientation(quat);
 	int movementstate = SGTCharacterMovement::FORWARD;
 	mAIObject->BroadcastMovementState(movementstate);
 	return false;

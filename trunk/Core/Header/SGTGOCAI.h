@@ -47,6 +47,8 @@ public:
 	void ClearIdleQueue();
 	void SelectState();
 
+	void SetOwner(SGTGameObject *go);
+
 	void SetProperty(std::string key, SGTScriptParam prop);
 	SGTScriptParam GetProperty(std::string key);
 
@@ -62,7 +64,7 @@ public:
 	void GetParameters(SGTDataMap *parameters);
 	static void GetDefaultParameters(SGTDataMap *parameters);
 	bool IsViewComponent() { return false; }
-	static SGTGOCAI* NewEditorInterfaceInstance() { return new SGTGOCAI(); }
+	static SGTGOCEditorInterface* NewEditorInterfaceInstance() { return new SGTGOCAI(); }
 
 	bool IsStatic() { return false; }
 

@@ -17,9 +17,17 @@ SGTGOCAI::~SGTGOCAI(void)
 	SGTAIManager::Instance().UnregisterAIObject(this);
 }
 
+void SGTGOCAI::SetOwner(SGTGameObject *go)
+{
+	mOwnerGO = go;
+	UpdatePosition(go->GetGlobalPosition());
+	UpdateOrientation(go->GetGlobalOrientation());
+}
+
 void SGTGOCAI::AddState(SGTAIState *state)
 {
-	if (!mActiveState)
+	mActionQueue.push_back(state);
+	/*if (!mActiveState) 
 	{
 		mActiveState = state;
 		return;
@@ -29,8 +37,7 @@ void SGTGOCAI::AddState(SGTAIState *state)
 		mActionQueue.push_front(mActiveState);
 		mActiveState = state;
 		return;
-	}
-	mActionQueue.push_back(state);
+	}*/
 }
 
 void SGTGOCAI::AddScriptedState(SGTDayCycle *state)
@@ -80,8 +87,10 @@ void SGTGOCAI::SelectState()
 
 void SGTGOCAI::Update(float time)
 {
-	if (mActiveState)
+	if (!mOwnerGO) return;
+	if (mActionQueue.size() > 0 || mActiveState)
 	{
+		if (!mActiveState) SelectState();
 		bool finished = mActiveState->OnUpdate(time);
 		if (finished)
 		{
@@ -148,7 +157,7 @@ void SGTGOCAI::Create(Ogre::String scriptFile)
 
 void SGTGOCAI::CreateFromDataMap(SGTDataMap *parameters)
 {
-	Create(parameters->GetOgreString("Script"));
+	Create(SCRIPT_BASE_DIR + parameters->GetOgreString("Script"));
 }
 void SGTGOCAI::GetParameters(SGTDataMap *parameters)
 {

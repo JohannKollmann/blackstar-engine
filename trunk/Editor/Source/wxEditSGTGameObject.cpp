@@ -321,7 +321,7 @@ void wxEditSGTGameObject::OnApply()
 		Ogre::String new_sectionname = "";
 		std::list<ComponentSection> sections;
 		ComponentSection tcs;
-		tcs.mSectionName = "Transform";
+		tcs.mSectionName = "GameObject";
 		tcs.mSectionData = Ogre::SharedPtr<SGTDataMap>(transformdata);
 		sections.push_back(tcs);
 		while (sectionname != "")
@@ -345,8 +345,9 @@ void wxEditSGTGameObject::OnApply()
 			}
 			for (std::list<ComponentSection>::iterator i = sections.begin(); i != sections.end(); i++)
 			{
-				if ((*i).mSectionName == "Transform")
+				if ((*i).mSectionName == "GameObject")
 				{
+					mGameObject->SetName((*i).mSectionData->GetOgreString("Name"));
 					mGameObject->SetGlobalPosition((*i).mSectionData->GetOgreVec3("Position"));
 					mGameObject->SetGlobalOrientation((*i).mSectionData->GetOgreQuat("Orientation"));
 					mGameObject->SetGlobalScale((*i).mSectionData->GetOgreVec3("Scale"));
@@ -408,10 +409,11 @@ void wxEditSGTGameObject::SetObject(SGTGameObject *object, bool update_ui)
 	mGameObject = object;
 	std::list<ComponentSection> sections;
 	SGTDataMap transform_data;
+	transform_data.AddOgreString("Name", mGameObject->GetName());
 	transform_data.AddOgreVec3("Position", mGameObject->GetGlobalPosition());
 	transform_data.AddOgreQuat("Orientation", mGameObject->GetGlobalOrientation());
 	transform_data.AddOgreVec3("Scale", mGameObject->GetGlobalScale());
-	AddGOCSection("Transform", transform_data);
+	AddGOCSection("GameObject", transform_data);
 	for (std::list<SGTGOComponent*>::iterator i = mGameObject->GetComponentIterator(); i != mGameObject->GetComponentIteratorEnd(); i++)
 	{
 		if ((*i)->GetComponentID() == "GOCViewContainer")
@@ -485,10 +487,11 @@ void wxEditSGTGameObject::NewResource(Ogre::String savepath, bool showcomponentb
 	//wxEdit::Instance().GetAuiManager().GetPane("Properties").Caption("New Object Resource");
 	mCurrentEditPath = savepath;
 	SGTDataMap data;
+	data.AddOgreString("Name", "");
 	data.AddOgreVec3("Position", Ogre::Vector3(0,0,0));
 	data.AddOgreQuat("Orientation", Ogre::Quaternion());
 	data.AddOgreVec3("Scale", Ogre::Vector3(1,1,1));
-	AddGOCSection("Transform", data);
+	AddGOCSection("Object", data);
 	if (showcomponentbar)
 	{
 		wxAuiPaneInfo& pane = wxEdit::Instance().GetAuiManager().GetPane(wxT("componentbar")).Show();

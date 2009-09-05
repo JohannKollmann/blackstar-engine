@@ -6,7 +6,8 @@ SGTGameObject::SGTGameObject(SGTGameObject *parent)
 	mSelectable = true;
 	mParent = parent;
 	mID = SGTSceneManager::Instance().RequestID();
-	mName = "GameObject_" + Ogre::StringConverter::toString(mID);
+	mGOID = "GameObject_" + Ogre::StringConverter::toString(mID);
+	mName = mGOID;
 	SGTSceneManager::Instance().mGameObjects.push_back(this);
 	if (mParent)
 	{
@@ -281,7 +282,13 @@ bool SGTGameObject::IsStatic()
 
 void SGTGameObject::Save(SGTSaveSystem& mgr)
 {
-	mgr.SaveAtom("Ogre::String", (void*)(&mGOID), "ID");
+	if (mName == mGOID)
+	{
+		mName = "Default";
+		mgr.SaveAtom("Ogre::String", (void*)(&mName), "mName");
+		mName = mGOID;
+	}
+	else mgr.SaveAtom("Ogre::String", (void*)(&mName), "mName");
 	mgr.SaveAtom("Ogre::Vector3", (void*)(&mPosition), "Position");
 	mgr.SaveAtom("Ogre::Quaternion", (void*)(&mOrientation), "Orientation");
 	mgr.SaveAtom("Ogre::Vector3", (void*)(&mScale), "Scale");
@@ -292,7 +299,8 @@ void SGTGameObject::Save(SGTSaveSystem& mgr)
 
 void SGTGameObject::Load(SGTLoadSystem& mgr)
 {
-	mgr.LoadAtom("Ogre::String", &mGOID);
+	mgr.LoadAtom("Ogre::String", &mName);
+	if (mName == "Default") mName = mGOID;
 	mgr.LoadAtom("Ogre::Vector3", &mPosition);
 	mgr.LoadAtom("Ogre::Quaternion", &mOrientation);
 	mgr.LoadAtom("Ogre::Vector3", &mScale);

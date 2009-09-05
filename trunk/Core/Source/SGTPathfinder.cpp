@@ -102,27 +102,29 @@ void SGTPathfinder::ExtractPath(std::list<WPEdge> paths, SGTGOCWaypoint *start, 
 	{
 		for (std::list<WPEdge>::iterator i = paths.begin(); i != paths.end(); i++)
 		{
-			if ((*i).mWP == current)
+			if ((*i).mNeighbor == current)
 			{
 				returnpath->push_back(current->GetPosition());
-				current = (*i).mNeighbor;
+				current = (*i).mWP;
 				break;
 			}
 		}
 	} while (current != target);
+	returnpath->push_back(target->GetPosition());
 }
 
 void SGTPathfinder::FindPath(SGTGOCWaypoint *start, SGTGOCWaypoint *target, std::vector<Ogre::Vector3> *path)
 {
 	std::list<WPEdge> eventList;
 	std::list<WPEdge> shortestPaths;
+	//eventList.push_back(target);
 	target->GetNeighbors(&eventList, start->GetPosition());		//Wir suchen vom Ziel aus nach dem Startknoten
 	while (eventList.size() > 0)
 	{
 		WPEdge current = GetBestEdge(&eventList);
 		std::list<WPEdge> neighbors;
 		current.mNeighbor->GetNeighbors(&neighbors, start->GetPosition());
-		for (std::list<WPEdge>::iterator i = neighbors.begin(); i != eventList.end(); i++)
+		for (std::list<WPEdge>::iterator i = neighbors.begin(); i != neighbors.end(); i++)
 		{
 			(*i).mCost += current.mCost;
 			if (!(UpdateEdgeList((*i), &eventList) || UpdateEdgeList((*i), &shortestPaths)))
