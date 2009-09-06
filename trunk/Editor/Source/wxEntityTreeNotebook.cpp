@@ -46,7 +46,7 @@ void wxEntityTreeNotebook::OnNotebookChanged(wxAuiNotebookEvent& event)
 		wxEdit::Instance().GetpropertyWindow()->SetPage("EditGameObject");
 		if (mResourcesTree->GetSelectedResource() != "None")
 		{
-			if (mResourcesTree->GetSelectedResource().find(".ot") == Ogre::String::npos)
+			if (mResourcesTree->GetSelectedResource().find(".ocs") != Ogre::String::npos)
 			{
 				((wxEditSGTGameObject*)(wxEdit::Instance().GetpropertyWindow()->GetCurrentPage()))->SetResource(mResourcesTree->GetSelectedResource());
 			}

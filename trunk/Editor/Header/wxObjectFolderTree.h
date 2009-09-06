@@ -19,6 +19,7 @@ public:
 		wxArrayString extensions;
 		extensions.Add("*.ot");
 		extensions.Add("*.ocs");
+		extensions.Add("*.static");
 		SetExtensions(extensions);
 		SetRootPath("Data/Editor/Objects");
 	}

@@ -56,7 +56,7 @@ public:
 	void OnSaveWorld(Ogre::String fileName);
 
 	SGTGameObject* OnInsertObject(SGTGameObject *parent = 0, bool align = false);
-	SGTGameObject* OnInsertWaypoint();
+	SGTGameObject* OnInsertWaypoint(bool align = false);
 	void OnInsertObjectAsChild();
 	void OnDeleteObject();
 	void OnCreateObjectGroup();

@@ -23,7 +23,6 @@ enum
 {
 	wxOgre_insertObject,
 	wxOgre_insertObjectAsChild,
-	wxOgre_insertWaypoint,
 	wxOgre_editObject,
 	wxOgre_deleteObject,
 	wxOgre_createObjectgroup,
@@ -75,7 +74,6 @@ enum
 
 		void OnInsertObject(wxCommandEvent& WXUNUSED(event));
 		void OnInsertObjectAsChild(wxCommandEvent& WXUNUSED(event));
-		void OnInsertWaypoint(wxCommandEvent& WXUNUSED(event));
 		void OnDeleteObject(wxCommandEvent& WXUNUSED(event));
 		void OnCreateObjectGroup(wxCommandEvent& WXUNUSED(event));
 		void OnSaveObjectGroup(wxCommandEvent& WXUNUSED(event));

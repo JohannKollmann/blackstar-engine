@@ -30,9 +30,10 @@ Ogre::ManualObject* SGTGOCWaypoint::CreateEditorLine(SGTGOCWaypoint *waypoint)
 	Ogre::ManualObject* WPLine = SGTMain::Instance().GetOgreSceneMgr()->createManualObject("WaynetLine_" + mOwnerGO->GetName() + waypoint->GetOwner()->GetName());
 	Ogre::SceneNode* WPLineNode = SGTMain::Instance().GetOgreSceneMgr()->getRootSceneNode()->createChildSceneNode("WaynetLine_" + mOwnerGO->GetName() + waypoint->GetOwner()->GetName());
 	WPLine->begin("WPLine", Ogre::RenderOperation::OT_LINE_LIST);
-	WPLine->position(GetOwner()->GetGlobalPosition());
-	WPLine->position(waypoint->GetOwner()->GetGlobalPosition());
+	WPLine->position(GetOwner()->GetGlobalPosition() + Ogre::Vector3(0,0.2f,0));
+	WPLine->position(waypoint->GetOwner()->GetGlobalPosition() + Ogre::Vector3(0,0.2f,0));
 	WPLine->end();
+	WPLine->setCastShadows(false);
 	WPLineNode->attachObject(WPLine);
 	mLines.push_back(LineNeighborBind(WPLine, waypoint));
 	return WPLine;

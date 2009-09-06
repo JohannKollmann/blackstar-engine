@@ -27,7 +27,6 @@ BEGIN_EVENT_TABLE(wxOgre, wxControl)
 
 	EVT_MENU(wxOgre_insertObject, wxOgre::OnInsertObject)
 	EVT_MENU(wxOgre_insertObjectAsChild, wxOgre::OnInsertObjectAsChild)
-	EVT_MENU(wxOgre_insertWaypoint, wxOgre::OnInsertWaypoint)
 	EVT_MENU(wxOgre_deleteObject, wxOgre::OnDeleteObject)
 	EVT_MENU(wxOgre_createObjectgroup, wxOgre::OnCreateObjectGroup)
 	EVT_MENU(wxOgre_saveObjectgroup, wxOgre::OnSaveObjectGroup)
@@ -219,11 +218,6 @@ void wxOgre::OnInsertObject(wxCommandEvent& WXUNUSED(event))
 void wxOgre::OnInsertObjectAsChild(wxCommandEvent& WXUNUSED(event))
 {
 	mEdit->OnInsertObjectAsChild();
-};
-
-void wxOgre::OnInsertWaypoint(wxCommandEvent& WXUNUSED(event))
-{
-	mEdit->OnInsertWaypoint();
 };
 
 void wxOgre::OnDeleteObject(wxCommandEvent& WXUNUSED(event))

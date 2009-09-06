@@ -109,7 +109,6 @@ void SGTEdit::OnMouseEvent(wxMouseEvent &ev)
 						menu.Append(wxOgre_insertObjectAsChild, "Insert " + mEdit->GetWorldExplorer()->GetResourceTree()->GetSelectedResource() + " as Child of " +  mSelectedObjects.end()._Mynode()->_Prev->_Myval.mObject->GetName());
 					}
 				}
-				menu.Append(wxOgre_insertWaypoint, "Insert Waypoint");
 
 				if (mSelectedObjects.size() > 1) menu.Append(wxOgre_createObjectgroup, "Merge");
 				if (mSelectedObjects.size() == 2)
@@ -171,8 +170,15 @@ void SGTEdit::OnMouseEvent(wxMouseEvent &ev)
 		{
 			if (!mPerformedLDClick)
 			{
-				DeselectMaterial();
-				OnSelectObject((float)(ev.GetX()) / SGTMain::Instance().GetWindow()->getWidth(), (float)(ev.GetY()) / SGTMain::Instance().GetWindow()->getHeight());
+				if (mBrushMode)
+				{
+					OnBrush();
+				}
+				else
+				{
+					DeselectMaterial();
+					OnSelectObject((float)(ev.GetX()) / SGTMain::Instance().GetWindow()->getWidth(), (float)(ev.GetY()) / SGTMain::Instance().GetWindow()->getHeight());
+				}
 			}
 		}
 		else mPerformingObjMov = false;
@@ -187,7 +193,7 @@ void SGTEdit::OnMouseEvent(wxMouseEvent &ev)
 		}
 		if (mBrushMode)
 		{
-			OnBrush();
+			//OnBrush();
 			mPerformedLDClick = true;
 		}
 	}
@@ -333,7 +339,11 @@ void SGTEdit::OnMouseMove(Ogre::Radian RotX,Ogre::Radian RotY)
 void SGTEdit::OnKeyDown(wxKeyEvent& key)
 {
 	if (key.GetKeyCode() == wxKeyCode::WXK_SHIFT) mMultiSelect = true;
-	if (key.GetKeyCode() == wxKeyCode::WXK_CONTROL) mStrgPressed = true;
+	if (key.GetKeyCode() == wxKeyCode::WXK_CONTROL)
+	{
+		mStrgPressed = true;
+		mBrushMode = true;
+	}
 	if (key.GetKeyCode() == wxKeyCode::WXK_ALT && !mAltIsDown)
 	{
 		mPivotNode->setOrientation(Ogre::Quaternion());
@@ -362,7 +372,11 @@ void SGTEdit::OnKeyDown(wxKeyEvent& key)
 void SGTEdit::OnKeyUp(wxKeyEvent& key)
 {
 	if (key.GetKeyCode() == wxKeyCode::WXK_SHIFT) mMultiSelect = false;
-	if (key.GetKeyCode() == wxKeyCode::WXK_CONTROL) mStrgPressed = false;
+	if (key.GetKeyCode() == wxKeyCode::WXK_CONTROL)
+	{
+		mBrushMode = false;
+		mStrgPressed = false;
+	}
 	if (key.GetKeyCode() == wxKeyCode::WXK_ALT) mAltIsDown = false;
 
 	if (key.GetKeyCode() == wxKeyCode::WXK_DELETE)
@@ -401,12 +415,18 @@ void SGTEdit::OnSaveWorld(Ogre::String fileName)
 	SGTSceneManager::Instance().SaveLevel(fileName);
 };
 
-SGTGameObject* SGTEdit::OnInsertWaypoint()
+SGTGameObject* SGTEdit::OnInsertWaypoint(bool align)
 {
 	SGTGameObject *waypoint = SGTSceneManager::Instance().CreateWaypoint();
 	waypoint->ShowEditorVisuals(true);
-	waypoint->SetGlobalPosition(SGTMain::Instance().GetCamera()->getDerivedPosition() + (SGTMain::Instance().GetCamera()->getDerivedOrientation() * Ogre::Vector3(0,0,-5)));
 	waypoint->SetGlobalOrientation(Ogre::Quaternion(SGTMain::Instance().GetCamera()->getDerivedOrientation().getYaw(), Ogre::Vector3(0,1,0)));
+	if (align) AlignObjectWithMesh(waypoint);
+	else waypoint->SetGlobalPosition(SGTMain::Instance().GetCamera()->getDerivedPosition() + (SGTMain::Instance().GetCamera()->getDerivedOrientation() * Ogre::Vector3(0,0,-5)));
+	if (mSelectedObjects.size() == 1)
+	{
+		SGTGOCWaypoint *wp2 = (SGTGOCWaypoint*)(*mSelectedObjects.begin()).mObject->GetComponent("Waypoint");
+		if (wp2) ((SGTGOCWaypoint*)waypoint->GetComponent("Waypoint"))->ConnectWaypoint(wp2);
+	}
 	SelectObject(waypoint);
 	wxEdit::Instance().GetWorldExplorer()->GetSceneTree()->Update();
 	return waypoint;
@@ -414,7 +434,11 @@ SGTGameObject* SGTEdit::OnInsertWaypoint()
 
 SGTGameObject* SGTEdit::OnInsertObject(SGTGameObject *parent, bool align)
 {
-	if (wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->GetSelectedResource().find(".") != Ogre::String::npos)
+	if (wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->GetSelectedResource().find("Waypoint.static") != Ogre::String::npos)
+	{
+		OnInsertWaypoint(align);
+	}
+	else if (wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->GetSelectedResource().find(".") != Ogre::String::npos)
 	{
 		//Ogre::LogManager::getSingleton().logMessage("OnInsertObject");
 		SGTLoadSystem *ls=SGTLoadSave::Instance().LoadFile(wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->GetSelectedResource());
@@ -686,7 +710,7 @@ void SGTEdit::OnSelectObject(float MouseX, float MouseY)
 
 void SGTEdit::OnBrush()
 {
-	OnInsertObject(NULL, true);
+	OnInsertObject(0, true);
 }
 
 void SGTEdit::SelectObject(SGTGameObject *object)
