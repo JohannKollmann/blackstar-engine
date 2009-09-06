@@ -432,28 +432,30 @@ std::vector<SGTScriptParam> SGTSceneManager::Lua_Npc_AddState(SGTScript& caller,
 std::vector<SGTScriptParam> SGTSceneManager::Lua_Npc_AddTA(SGTScript& caller, std::vector<SGTScriptParam> vParams)
 {
 	std::vector<SGTScriptParam> out;
-	if (vParams.size() < 3) return out;
+	if (vParams.size() < 4) return out;
 	if (!vParams[0].hasInt()) return out;
 	if (vParams[1].getType() != SGTScriptParam::PARM_TYPE_STRING) return out;
-	if (vParams[2].getType() != SGTScriptParam::PARM_TYPE_STRING) return out;
+	if (!vParams[2].hasInt()) return out;
+	if (!vParams[3].hasInt()) return out;
 	int id = vParams[0].getInt();
 	std::string ta_script = vParams[1].getString();
-	std::string wp = vParams[2].getString();
-	int end_timeH = 25;
-	int end_timeM = 61;
+	int end_timeH = vParams[2].getInt();
+	int end_timeM = vParams[3].getInt();
 	bool time_abs = true;
-	if (vParams.size() >= 5)
+	std::vector<SGTScriptParam> miscparams;
+	std::vector<SGTScriptParam>::iterator i = vParams.begin();
+	i++;i++;i++;i++;
+	for (; i != vParams.end(); i++)
 	{
-		if (vParams[3].hasInt()) end_timeH = vParams[3].getInt();
-		if (vParams[4].hasInt()) end_timeH = vParams[4].getInt();
+		miscparams.push_back((*i));
 	}
-	if (vParams.size() == 6)
+	/*if (vParams.size() == 6)
 	{
 		if (vParams[5].getType() == SGTScriptParam::PARM_TYPE_BOOL) time_abs = vParams[5].getBool();
-	}
+	}*/
 
 	SGTGOCAI *ai = SGTAIManager::Instance().GetAIByID(id);
-	if (ai) ai->AddScriptedState(new SGTDayCycle(ai, ta_script, wp, end_timeH, end_timeM, time_abs));
+	if (ai) ai->AddScriptedState(new SGTDayCycle(ai, ta_script, miscparams, end_timeH, end_timeM, time_abs));
 	return out;
 }
 std::vector<SGTScriptParam> SGTSceneManager::Lua_Npc_GotoWP(SGTScript& caller, std::vector<SGTScriptParam> vParams)

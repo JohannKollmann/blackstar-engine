@@ -45,8 +45,6 @@ SGTGameObject* wxOgreSceneTree::GetSelectedItem()
 
 void wxOgreSceneTree::Update()
 {
-
-	Ogre::LogManager::getSingleton().logMessage("OgreScenetree wird geleert");
 	// delete all items plus root first
 	DeleteAllItems();
 	OgreTreeItemBase *start = 0;

@@ -123,6 +123,8 @@ void wxMainMenu::OnLoadWorld(wxCommandEvent& WXUNUSED(event))
 
 void wxMainMenu::OnSaveWorld(wxCommandEvent& WXUNUSED(event))
 {
+	wxEdit::Instance().GetOgrePane()->mEdit->DeselectAllObjects();
+
 	//Ogre::LogManager::getSingleton().logMessage("OnSaveWorld");
     wxFileDialog dialog
                  (
@@ -222,7 +224,9 @@ void wxMainMenu::OnEnableBrushMode(wxCommandEvent& WXUNUSED(event))
 	{
 		wxEdit::Instance().GetOgrePane()->mEdit->mMaterialMode = false;
 		Check(wxMainMenu_Mode_Material, false);
+		wxEdit::Instance().GetOgrePane()->mEdit->OnSelectResource();
 	}
+	else wxEdit::Instance().GetOgrePane()->mEdit->ClearPreviewObject();
 	wxEdit::Instance().GetOgrePane()->mEdit->DeselectMaterial();
 	wxEdit::Instance().GetProgressBar()->Reset();
 };

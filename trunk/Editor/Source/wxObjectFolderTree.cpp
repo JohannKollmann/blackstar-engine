@@ -33,6 +33,7 @@ void wxObjectFolderTree::OnSelectItemCallback()
 		Ogre::String File = mCurrentItem->GetName().c_str();
 		mCurrentPath += File;
 		Ogre::String extension = File.substr(File.find(".")+1, File.length());
+		wxEdit::Instance().GetOgrePane()->mEdit->OnSelectResource();
 
 		if (extension == "ocs") ((wxEditSGTGameObject*)(wxEdit::Instance().GetpropertyWindow()->SetPage("EditGameObject")))->SetResource(Path + File);
 	}

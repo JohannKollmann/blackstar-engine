@@ -69,6 +69,7 @@ public:
 
 	void AddComponent(SGTGOComponent* component);
 	SGTGOComponent* GetComponent(const SGTGOComponent::goc_id_family& familyID);
+	std::vector<Ogre::String> GetComponentsStr();
 	std::list<SGTGOComponent*>::iterator GetComponentIterator() { return mComponents.begin(); }
 	std::list<SGTGOComponent*>::iterator GetComponentIteratorEnd() { return mComponents.end(); }
 	void RemoveComponent(const SGTGOComponent::goc_id_family& familyID);

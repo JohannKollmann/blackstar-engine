@@ -55,8 +55,8 @@ public:
 	void OnLoadWorld(Ogre::String fileName);
 	void OnSaveWorld(Ogre::String fileName);
 
-	SGTGameObject* OnInsertObject(SGTGameObject *parent = 0, bool align = false);
-	SGTGameObject* OnInsertWaypoint(bool align = false);
+	SGTGameObject* OnInsertObject(SGTGameObject *parent = 0, bool align = false, bool create_only = false);
+	SGTGameObject* OnInsertWaypoint(bool align = false, bool create_only = false);
 	void OnInsertObjectAsChild();
 	void OnDeleteObject();
 	void OnCreateObjectGroup();
@@ -68,6 +68,10 @@ public:
 	void OnSelectObject(float MouseX, float MouseY);
 	void OnBrush();
 	void OnSelectMaterial(float MouseX, float MouseY);
+
+	void OnSelectResource();
+	void ClearPreviewObject();
+	void CreatePreviewObject();
 
 	void DeselectMaterial();
 	void SelectObject(SGTGameObject *object);
@@ -96,6 +100,8 @@ public:
 
 private:
 	std::list<SGTEditorSelection> mSelectedObjects;	//Liste der angeklickten Objekte
+
+	std::list<SGTGameObject*> mPreviewObjects;
 
 	SGTMaterialSelection mCurrentMaterialSelection;
 

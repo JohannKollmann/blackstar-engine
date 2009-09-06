@@ -11,6 +11,7 @@ class SGTScriptedAIState : public SGTAIState
 protected:
 	SGTScript mScript;
 	SGTScriptedAIState() {}
+	float mLastUpdateCall;
 	virtual bool OnSimulate(float time) { return false; }
 
 public:
@@ -24,7 +25,7 @@ public:
 class SGTDayCycle : public SGTScriptedAIState
 {
 protected:
-	Ogre::String mWaypoint;
+	std::vector<SGTScriptParam> mScriptParams;
 	int mStartTimeH;
 	int mStartTimeM;
 	int mEndTimeH;		//Stunden
@@ -33,8 +34,9 @@ protected:
 
 
 public:
-	SGTDayCycle(SGTGOCAI* ai, Ogre::String scriptFileName, Ogre::String waypoint, int endtimeH, int endtimeM, bool time_abs);
+	SGTDayCycle(SGTGOCAI* ai, Ogre::String scriptFileName, std::vector<SGTScriptParam> params, int endtimeH, int endtimeM, bool time_abs);
 	~SGTDayCycle();
 
+	void OnEnter();
 	bool OnUpdate(float time);
 };

@@ -170,7 +170,7 @@ void SGTEdit::OnMouseEvent(wxMouseEvent &ev)
 		{
 			if (!mPerformedLDClick)
 			{
-				if (mBrushMode)
+				if (mBrushMode || mStrgPressed)
 				{
 					OnBrush();
 				}
@@ -255,7 +255,7 @@ void SGTEdit::OnMouseMove(Ogre::Radian RotX,Ogre::Radian RotY)
 		SGTMain::Instance().GetCamera()->yaw(-RotX * mRotSpeed);
 		SGTMain::Instance().GetCamera()->pitch(-RotY * mRotSpeed);
 	}
-	if (mLeftDown && mRightDown && mAltIsDown)
+	else if (mLeftDown && mRightDown && mAltIsDown)
 	{
 		mPivotNode->rotate(mPivotNode->getOrientation().Inverse() * Ogre::Vector3(0,1,0), -RotX * mRotSpeed);
 		mPivotNode->rotate(mPivotNode->getOrientation().Inverse() * Ogre::Vector3(1,0,0), -RotY * mRotSpeed);
@@ -264,7 +264,7 @@ void SGTEdit::OnMouseMove(Ogre::Radian RotX,Ogre::Radian RotY)
 		SGTMain::Instance().GetCamera()->lookAt(mPivotNode->getPosition());
 	}
 
-	if (mLeftDown == true)
+	else if (mLeftDown == true)
 	{
 		if (mSelectedObjects.size() > 0)
 		{
@@ -299,7 +299,7 @@ void SGTEdit::OnMouseMove(Ogre::Radian RotX,Ogre::Radian RotY)
 			wxEdit::Instance().GetpropertyWindow()->Refresh();
 		}
 	}
-	if (mRightDown == true)
+	else if (mRightDown == true)
 	{
 		if (mSelectedObjects.size() > 0)
 		{
@@ -334,6 +334,14 @@ void SGTEdit::OnMouseMove(Ogre::Radian RotX,Ogre::Radian RotY)
 			wxEdit::Instance().GetpropertyWindow()->Refresh();
 		}
 	}
+	else
+	{
+		for (std::list<SGTGameObject*>::iterator i = mPreviewObjects.begin(); i != mPreviewObjects.end(); i++)
+		{
+			(*i)->SetGlobalOrientation(Ogre::Quaternion());
+			AlignObjectWithMesh(*i);
+		}
+	}
 };
 
 void SGTEdit::OnKeyDown(wxKeyEvent& key)
@@ -341,8 +349,12 @@ void SGTEdit::OnKeyDown(wxKeyEvent& key)
 	if (key.GetKeyCode() == wxKeyCode::WXK_SHIFT) mMultiSelect = true;
 	if (key.GetKeyCode() == wxKeyCode::WXK_CONTROL)
 	{
+		if (!mStrgPressed)
+		{
+			ClearPreviewObject();
+			CreatePreviewObject();
+		}
 		mStrgPressed = true;
-		mBrushMode = true;
 	}
 	if (key.GetKeyCode() == wxKeyCode::WXK_ALT && !mAltIsDown)
 	{
@@ -374,8 +386,11 @@ void SGTEdit::OnKeyUp(wxKeyEvent& key)
 	if (key.GetKeyCode() == wxKeyCode::WXK_SHIFT) mMultiSelect = false;
 	if (key.GetKeyCode() == wxKeyCode::WXK_CONTROL)
 	{
-		mBrushMode = false;
 		mStrgPressed = false;
+		if (!mBrushMode)
+		{
+			ClearPreviewObject();
+		}
 	}
 	if (key.GetKeyCode() == wxKeyCode::WXK_ALT) mAltIsDown = false;
 
@@ -401,6 +416,40 @@ void SGTEdit::OnKeyUp(wxKeyEvent& key)
 
 };
 
+void SGTEdit::OnSelectResource()
+{
+	if (mStrgPressed || mBrushMode)
+	{
+		ClearPreviewObject();
+		CreatePreviewObject();
+	}
+}
+
+void SGTEdit::ClearPreviewObject()
+{
+	for (std::list<SGTGameObject*>::iterator i = mPreviewObjects.begin(); i != mPreviewObjects.end(); i++)
+	{
+		delete (*i);
+	}
+	mPreviewObjects.clear();
+}
+void SGTEdit::CreatePreviewObject()
+{
+	SGTGameObject *preview = OnInsertObject(0, true, true);
+	if (preview)
+	{
+		std::vector<Ogre::String> components = preview->GetComponentsStr();
+		for (std::vector<Ogre::String>::iterator i = components.begin(); i != components.end(); i++)
+		{
+			if ((*i) != "GOCView" && (*i) != "MeshDebugRenderable")
+			{
+				preview->RemoveComponent((*i));
+			}
+		}
+		mPreviewObjects.push_back(preview);
+	}
+}
+
 void SGTEdit::OnLoadWorld(Ogre::String fileName)
 {
 	wxEdit::Instance().GetpropertyWindow()->SetPage("None");
@@ -415,7 +464,7 @@ void SGTEdit::OnSaveWorld(Ogre::String fileName)
 	SGTSceneManager::Instance().SaveLevel(fileName);
 };
 
-SGTGameObject* SGTEdit::OnInsertWaypoint(bool align)
+SGTGameObject* SGTEdit::OnInsertWaypoint(bool align, bool create_only)
 {
 	SGTGameObject *waypoint = SGTSceneManager::Instance().CreateWaypoint();
 	waypoint->ShowEditorVisuals(true);
@@ -427,16 +476,19 @@ SGTGameObject* SGTEdit::OnInsertWaypoint(bool align)
 		SGTGOCWaypoint *wp2 = (SGTGOCWaypoint*)(*mSelectedObjects.begin()).mObject->GetComponent("Waypoint");
 		if (wp2) ((SGTGOCWaypoint*)waypoint->GetComponent("Waypoint"))->ConnectWaypoint(wp2);
 	}
-	SelectObject(waypoint);
-	wxEdit::Instance().GetWorldExplorer()->GetSceneTree()->Update();
+	if (!create_only)
+	{
+		SelectObject(waypoint);
+		wxEdit::Instance().GetWorldExplorer()->GetSceneTree()->Update();
+	}
 	return waypoint;
 }
 
-SGTGameObject* SGTEdit::OnInsertObject(SGTGameObject *parent, bool align)
+SGTGameObject* SGTEdit::OnInsertObject(SGTGameObject *parent, bool align, bool create_only)
 {
 	if (wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->GetSelectedResource().find("Waypoint.static") != Ogre::String::npos)
 	{
-		OnInsertWaypoint(align);
+		return OnInsertWaypoint(align, create_only);
 	}
 	else if (wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->GetSelectedResource().find(".") != Ogre::String::npos)
 	{
@@ -496,14 +548,18 @@ SGTGameObject* SGTEdit::OnInsertObject(SGTGameObject *parent, bool align)
 
 		ls->CloseFile();
 		delete ls;
-		wxEdit::Instance().GetWorldExplorer()->GetSceneTree()->Update();
-		SelectObject(object);
 
-		wxEdit::Instance().GetWorldExplorer()->GetMaterialTree()->Update();
+		if (!create_only)
+		{
+			wxEdit::Instance().GetWorldExplorer()->GetSceneTree()->Update();
+			SelectObject(object);
 
-		wxEdit::Instance().GetOgrePane()->SetFocus();
+			wxEdit::Instance().GetWorldExplorer()->GetMaterialTree()->Update();
 
-		return object;
+			wxEdit::Instance().GetOgrePane()->SetFocus();
+		}
+
+			return object;
 	}
 	return 0;
 }
