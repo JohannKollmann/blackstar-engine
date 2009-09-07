@@ -51,7 +51,11 @@ void SGTPathfinder::FindPath(Ogre::Vector3 position, Ogre::String targetWP, std:
 {
 	SGTGOCWaypoint *start = GetNextWP(position);
 	SGTGOCWaypoint *target = GetWPByName(targetWP);
-	if (start == 0 || target == 0) return;
+	if (start == 0 || target == 0)
+	{
+		Ogre::LogManager::getSingleton().logMessage("Error: Could not find start or target Waypoint!");
+		return;
+	}
 	FindPath(start, target, path);
 }
 
@@ -98,7 +102,7 @@ WPEdge SGTPathfinder::GetBestEdge(std::list<WPEdge> *WPEdges)
 void SGTPathfinder::ExtractPath(std::list<WPEdge> paths, SGTGOCWaypoint *start, SGTGOCWaypoint *target, std::vector<Ogre::Vector3> *returnpath)
 {
 	SGTGOCWaypoint *current = start;
-	do
+	while (current != target)
 	{
 		bool found = false;
 		for (std::list<WPEdge>::iterator i = paths.begin(); i != paths.end(); i++)
@@ -116,7 +120,7 @@ void SGTPathfinder::ExtractPath(std::list<WPEdge> paths, SGTGOCWaypoint *start, 
 			Ogre::LogManager::getSingleton().logMessage("Error: Could not find path for " + start->GetOwner()->GetName() + " - " + target->GetOwner()->GetName());
 			return;
 		}
-	} while (current != target);
+	}
 	returnpath->push_back(target->GetPosition());
 }
 

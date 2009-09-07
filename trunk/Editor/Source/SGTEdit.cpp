@@ -513,7 +513,7 @@ SGTGameObject* SGTEdit::OnInsertObject(SGTGameObject *parent, bool align, bool c
 			ls->LoadAtom("std::list<ComponentSection>", (void*)(&sections));
 			for (std::list<ComponentSection>::iterator i = sections.begin(); i != sections.end(); i++)
 			{
-				if ((*i).mSectionName == "Transform")
+				if ((*i).mSectionName == "GameObject")
 				{
 					offset = (*i).mSectionData->GetOgreVec3("Position");
 					orientation = (*i).mSectionData->GetOgreQuat("Orientation");

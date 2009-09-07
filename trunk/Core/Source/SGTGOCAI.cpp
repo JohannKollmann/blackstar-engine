@@ -6,6 +6,7 @@
 SGTGOCAI::SGTGOCAI(void)
 {
 	mCharacterMovementState = 0;
+	mOwnerGO = 0;
 	mActiveState = 0;
 	mID = SGTAIManager::Instance().RegisterAIObject(this);
 }
@@ -87,7 +88,7 @@ void SGTGOCAI::SelectState()
 
 void SGTGOCAI::Update(float time)
 {
-	if (!mOwnerGO) return;
+	if (mOwnerGO == 0) return;
 	if (mActionQueue.size() > 0 || mActiveState)
 	{
 		if (!mActiveState) SelectState();

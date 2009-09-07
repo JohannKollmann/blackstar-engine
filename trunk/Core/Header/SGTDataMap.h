@@ -39,7 +39,7 @@ public:
 	void Save(SGTSaveSystem& myManager);
 	void Load(SGTLoadSystem& mgr); 
 	static void Register(std::string* pstrName, SGTSaveableInstanceFn* pFn) { *pstrName = "SGTGenericProperty"; *pFn = (SGTSaveableInstanceFn)&NewInstance; };
-	static SGTGenericProperty* NewInstance() { return new SGTGenericProperty; };
+	static SGTSaveable* NewInstance() { return new SGTGenericProperty; };
 	std::string& TellName() { static std::string name = "SGTGenericProperty"; return name; }
 };
 
@@ -101,7 +101,7 @@ public:
 	void Save(SGTSaveSystem& myManager);
 	void Load(SGTLoadSystem& mgr); 
 	static void Register(std::string* pstrName, SGTSaveableInstanceFn* pFn) { *pstrName = "SGTDataMap"; *pFn = (SGTSaveableInstanceFn)&NewInstance; };
-	static SGTDataMap* NewInstance() { return new SGTDataMap; };
+	static SGTSaveable* NewInstance() { return new SGTDataMap; };
 	std::string& TellName() { static std::string name = "SGTDataMap"; return name; };
 };
 
