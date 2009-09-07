@@ -24,6 +24,12 @@ void SGTFollowPathway::OnEnter()
 
 bool SGTFollowPathway::OnUpdate(float time)
 {
+	if (mCurrentTarget == mPath.end())
+	{
+		Ogre::LogManager::getSingleton().logMessage("Ziel erreicht!");
+		mAIObject->BroadcastMovementState(0);
+		return true;
+	}
 	Ogre::Vector3 currPos = mAIObject->GetOwner()->GetGlobalPosition();
 	float dist = currPos.distance(*mCurrentTarget);
 	if (dist < mRadius)

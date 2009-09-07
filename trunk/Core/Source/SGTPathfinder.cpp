@@ -63,7 +63,11 @@ void SGTPathfinder::FindPath(Ogre::String startWP, Ogre::String targetWP, std::v
 {
 	SGTGOCWaypoint *start = GetWPByName(startWP);
 	SGTGOCWaypoint *target = GetWPByName(targetWP);
-	if (start == 0 || target == 0) return;
+	if (start == 0 || target == 0)
+	{
+		Ogre::LogManager::getSingleton().logMessage("Error: Could not find start or target Waypoint!");
+		return;
+	}
 	FindPath(start, target, path);
 }
 

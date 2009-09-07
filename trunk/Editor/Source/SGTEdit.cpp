@@ -418,7 +418,7 @@ void SGTEdit::OnKeyUp(wxKeyEvent& key)
 
 void SGTEdit::OnSelectResource()
 {
-	if (mStrgPressed || mBrushMode)
+	if (SGTMain::Instance().GetInputManager()->isKeyDown(OIS::KeyCode::KC_RCONTROL) || mBrushMode)
 	{
 		ClearPreviewObject();
 		CreatePreviewObject();
@@ -481,6 +481,7 @@ SGTGameObject* SGTEdit::OnInsertWaypoint(bool align, bool create_only)
 		SelectObject(waypoint);
 		wxEdit::Instance().GetWorldExplorer()->GetSceneTree()->Update();
 	}
+	wxEdit::Instance().GetOgrePane()->SetFocus();
 	return waypoint;
 }
 
@@ -559,7 +560,8 @@ SGTGameObject* SGTEdit::OnInsertObject(SGTGameObject *parent, bool align, bool c
 			wxEdit::Instance().GetOgrePane()->SetFocus();
 		}
 
-			return object;
+		wxEdit::Instance().GetOgrePane()->SetFocus();
+		return object;
 	}
 	return 0;
 }
