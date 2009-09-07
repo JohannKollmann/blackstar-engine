@@ -29,7 +29,7 @@ public:
 
 	void OnEnableBrushMode(wxCommandEvent& WXUNUSED(event));
 	void OnEnableMaterialMode(wxCommandEvent& WXUNUSED(event));
-	void OnClearAI(wxCommandEvent& WXUNUSED(event));
+	void OnReloadScripts(wxCommandEvent& WXUNUSED(event));
 
 	void OnEnablePhysics(wxCommandEvent& WXUNUSED(event));
 	void OnEnableEditorMeshes(wxCommandEvent& WXUNUSED(event));

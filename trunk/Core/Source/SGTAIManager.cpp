@@ -31,6 +31,14 @@ SGTGOCAI* SGTAIManager::GetAIByID(unsigned int id)
 	return 0;
 }
 
+void SGTAIManager::ReloadScripts()
+{
+	for (std::list<SGTGOCAI*>::iterator i = mAIObjects.begin(); i != mAIObjects.end(); i++)
+	{
+		(*i)->ReloadScript();
+	}
+}
+
 void SGTAIManager::Clear()
 {
 	std::list<SGTGOCAI*>::iterator i = mAIObjects.begin();

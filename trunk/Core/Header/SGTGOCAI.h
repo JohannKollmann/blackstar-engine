@@ -47,6 +47,8 @@ public:
 	void ClearIdleQueue();
 	void SelectState();
 
+	void ReloadScript();
+
 	void SetOwner(SGTGameObject *go);
 
 	void SetProperty(std::string key, SGTScriptParam prop);

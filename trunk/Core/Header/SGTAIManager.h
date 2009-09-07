@@ -24,6 +24,8 @@ public:
 
 	SGTGOCAI* GetAIByID(unsigned int ID);
 
+	void ReloadScripts();
+
 	void Clear();
 
 	void ReceiveMessage(SGTMsg &msg);

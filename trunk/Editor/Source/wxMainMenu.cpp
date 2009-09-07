@@ -15,7 +15,7 @@ enum
 	wxMainMenu_Mode_Normal,
 	wxMainMenu_Mode_Brush,
 	wxMainMenu_Mode_Material,
-	wxMainMenu_ClearAI,
+	wxMainMenu_ReloadScripts,
 	wxMainMenu_Meshes,
 	wxMainMenu_Physics,
 	wxMainMenu_EditorMeshes,
@@ -37,7 +37,7 @@ BEGIN_EVENT_TABLE(wxMainMenu, wxMenuBar)
 	EVT_MENU(wxMainMenu_Mode_Material, wxMainMenu::OnEnableMaterialMode)
 	EVT_MENU(wxMainMenu_Meshes, wxMainMenu::OnMeshEditor)
 	EVT_MENU(wxMainMenu_Physics, wxMainMenu::OnEnablePhysics)
-	EVT_MENU(wxMainMenu_ClearAI, wxMainMenu::OnClearAI)
+	EVT_MENU(wxMainMenu_ReloadScripts, wxMainMenu::OnReloadScripts)
 	EVT_MENU(wxMainMenu_EditorMeshes, wxMainMenu::OnEnableEditorMeshes)
 	EVT_MENU(wxMainMenu_About, wxMainMenu::OnAbout)
 	EVT_MENU(wxMainMenu_Settings, wxMainMenu::OnSettings)
@@ -63,8 +63,8 @@ wxMainMenu::wxMainMenu()
 	mToolsMenu->Append(materialmode);
 	mToolsMenu->AppendSeparator();
 
-	wxMenuItem *clearai = new wxMenuItem(mToolsMenu, wxMainMenu_ClearAI, "Clear Scripts");
-	mToolsMenu->Append(clearai);
+	wxMenuItem *reloadscripts = new wxMenuItem(mToolsMenu, wxMainMenu_ReloadScripts, "Reload Scripts");
+	mToolsMenu->Append(reloadscripts);
 	mToolsMenu->AppendSeparator();
 
 	wxMenuItem *meshtool = new wxMenuItem(mToolsMenu, wxMainMenu_Meshes, "MeshMagick (by Haffax)", "Mesh Editor which allows you to perform some basic operations on your meshes such as scaling or center align.");
@@ -211,10 +211,10 @@ void wxMainMenu::OnMeshEditor(wxCommandEvent& WXUNUSED(event))
 	}
 }
 
-void wxMainMenu::OnClearAI(wxCommandEvent& WXUNUSED(event))
+void wxMainMenu::OnReloadScripts(wxCommandEvent& WXUNUSED(event))
 {
-	SGTAIManager::Instance().Clear();
 	SGTScriptSystem::GetInstance().Clear();
+	SGTAIManager::Instance().ReloadScripts();
 }
 
 void wxMainMenu::OnEnableBrushMode(wxCommandEvent& WXUNUSED(event))
