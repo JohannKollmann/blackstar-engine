@@ -17,6 +17,7 @@
 #include "wxMeshMagick.h"
 #include "wxComponentBar.h"
 #include "wxMainNotebook.h"
+#include "wxSGTToolbar.h"
 
 class wxEdit : public wxFrame
 {
@@ -35,6 +36,7 @@ private:
 	wxProgressBar *mProgressBar;
 	wxMeshMagick *mMeshMagick;
 	wxComponentBar *mComponentBar;
+	wxSGTToolbar *mToolbar;
 
 	//Menu
 	wxMainMenu* mMenuBar;
@@ -54,6 +56,7 @@ public:
 	wxMeshMagick* GetMeshMagick() { return mMeshMagick; };
 	wxProgressBar* GetProgressBar() { return mProgressBar; };
 	wxComponentBar* GetComponentBar() { return mComponentBar; };
+	wxSGTToolbar* GetToolbar() { return mToolbar; };
 
 	wxPoint GetStartPosition();
 

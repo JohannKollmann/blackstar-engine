@@ -345,6 +345,14 @@
 				RelativePath=".\Header\wxSettingsWindow.h"
 				>
 			</File>
+			<File
+				RelativePath=".\Source\wxSGTToolbar.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Header\wxSGTToolbar.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Main"
