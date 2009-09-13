@@ -63,7 +63,45 @@ SGTEdit::SGTEdit()
 	SGTMessageSystem::Instance().JoinNewsgroup(this, "MOUSE_MOVE");
 	SGTMessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
 
+	wxEdit::Instance().GetToolbar()->RegisterTool("SaveWorld", "General", "Data/Editor/Intern/BrushMode.png", SGTEdit::OnToolbarEvent);
+	wxEdit::Instance().GetToolbar()->SetGroupStatus("General", true);
+
+	wxEdit::Instance().GetToolbar()->RegisterTool("Physics", "WorldSettings", "Data/Editor/Intern/BrushMode.png", SGTEdit::OnToolbarEvent, true);
+	wxEdit::Instance().GetToolbar()->RegisterTool("TimeCycle", "WorldSettings", "Data/Editor/Intern/BrushMode.png", SGTEdit::OnToolbarEvent, true);
+	wxEdit::Instance().GetToolbar()->SetGroupStatus("WorldSettings", true);
+
+	wxEdit::Instance().GetToolbar()->RegisterTool("XAxisLock", "Transform", "Data/Editor/Intern/XAxis.png", SGTEdit::OnToolbarEvent, true);
+	wxEdit::Instance().GetToolbar()->RegisterTool("YAxisLock", "Transform", "Data/Editor/Intern/YAxis.png", SGTEdit::OnToolbarEvent, true);
+	wxEdit::Instance().GetToolbar()->RegisterTool("ZAxisLock", "Transform", "Data/Editor/Intern/ZAxis.png", SGTEdit::OnToolbarEvent, true);
+	wxEdit::Instance().GetToolbar()->RegisterTool("MoveRelative", "Transform", "Data/Editor/Intern/BrushMode.png", SGTEdit::OnToolbarEvent, true);
+	wxEdit::Instance().GetToolbar()->SetGroupStatus("Transform", true);
+
+	wxEdit::Instance().GetToolbar()->RegisterTool("BrushMode", "EditMode", "Data/Editor/Intern/BrushMode.png", SGTEdit::OnToolbarEvent, true);
+	wxEdit::Instance().GetToolbar()->RegisterTool("MaterialMode", "EditMode", "Data/Editor/Intern/BrushMode.png", SGTEdit::OnToolbarEvent, true);
+	wxEdit::Instance().GetToolbar()->SetGroupStatus("EditMode", true);
+
+	wxEdit::Instance().GetToolbar()->RegisterTool("NewFolder", "ResourceMgr", "Data/Editor/Intern/BrushMode.png", SGTEdit::OnToolbarEvent);
+	wxEdit::Instance().GetToolbar()->RegisterTool("NewResource", "ResourceMgr", "Data/Editor/Intern/BrushMode.png", SGTEdit::OnToolbarEvent);
+	wxEdit::Instance().GetToolbar()->SetGroupStatus("ResourceMgr", true);
+
+	wxEdit::Instance().GetToolbar()->RegisterTool("InsertObject", "ObjectMgr", "Data/Editor/Intern/BrushMode.png", SGTEdit::OnToolbarEvent);
+	wxEdit::Instance().GetToolbar()->RegisterTool("InsertObjectAsChild", "ObjectMgr", "Data/Editor/Intern/BrushMode.png", SGTEdit::OnToolbarEvent);
+	wxEdit::Instance().GetToolbar()->RegisterTool("DeleteObject", "ObjectMgr", "Data/Editor/Intern/BrushMode.png", SGTEdit::OnToolbarEvent);
+	wxEdit::Instance().GetToolbar()->RegisterTool("SaveObjectGroup", "ObjectMgr", "Data/Editor/Intern/BrushMode.png", SGTEdit::OnToolbarEvent);
+	wxEdit::Instance().GetToolbar()->RegisterTool("LoadObjectGroup", "ObjectMgr", "Data/Editor/Intern/BrushMode.png", SGTEdit::OnToolbarEvent);
+	wxEdit::Instance().GetToolbar()->SetGroupStatus("ObjectMgr", true);
+
+	wxEdit::Instance().GetToolbar()->RegisterTool("MapWizard", "Materials", "Data/Editor/Intern/BrushMode.png", SGTEdit::OnToolbarEvent);
+	wxEdit::Instance().GetToolbar()->SetGroupStatus("Materials", true);
+
+	wxEdit::Instance().GetToolbar()->RegisterTool("ReloadScripts", "Scripts", "Data/Editor/Intern/BrushMode.png", SGTEdit::OnToolbarEvent);
+	wxEdit::Instance().GetToolbar()->SetGroupStatus("Scripts", true);
 };
+
+void SGTEdit::OnToolbarEvent(int toolID, Ogre::String toolname)
+{
+	SGTEdit *edit = wxEdit::Instance().GetOgrePane()->mEdit;
+}
 
 void SGTEdit::OnMouseEvent(wxMouseEvent &ev)
 {

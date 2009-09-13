@@ -21,5 +21,6 @@ class wxProgressBar;
 class wxMeshMagick;
 class wxMainNotebook;
 class wxFileTree;
+class wxSGTToolbar;
 
 #endif

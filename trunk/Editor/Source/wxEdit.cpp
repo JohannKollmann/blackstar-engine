@@ -71,29 +71,21 @@ wxEdit::wxEdit(wxWindow* parent) : wxFrame(parent, -1, _("Blackstar Edit"),
 	wxInitAllImageHandlers();
 
 	mToolbar = new wxSGTToolbar(this);
-	wxImage image(_T("Data/Editor/Intern/XAxis.png"), wxBITMAP_TYPE_PNG);
-	mToolbar->AddCheckTool(101, wxT("X_Axis"), wxBitmap(image.Scale(28,24, wxIMAGE_QUALITY_HIGH)));
-	wxImage image2(_T("Data/Editor/Intern/YAxis.png"), wxBITMAP_TYPE_PNG);
-	mToolbar->AddCheckTool(102, wxT("Y_Axis"), wxBitmap(image2.Scale(28,24, wxIMAGE_QUALITY_HIGH)));
-	wxImage image3(_T("Data/Editor/Intern/ZAxis.png"), wxBITMAP_TYPE_PNG);
-	mToolbar->AddCheckTool(103, wxT("Z_Axis"), wxBitmap(image3.Scale(28,24, wxIMAGE_QUALITY_HIGH)));
-	mToolbar->AddSeparator();
-	mToolbar->Realize();
 	m_mgr.AddPane(mToolbar, wxAuiPaneInfo().
                   Name(wxT("toolbar")).Caption(wxT("")).
-				  Top().Fixed().ToolbarPane().Layer(0));
+				  Top().Fixed().ToolbarPane().Layer(1));
 	m_mgr.Update();
 
-		Ogre::String handle;
-		handle = Ogre::StringConverter::toString((size_t)((HWND)this->GetHandle()));
+	Ogre::String handle;
+	handle = Ogre::StringConverter::toString((size_t)((HWND)this->GetHandle()));
 
-		PushEventHandler(mMenuBar);
+	PushEventHandler(mMenuBar);
 };
 
 void wxEdit::PostCreate()
 {
 	mComponentBar = new wxComponentBar(this, -1, wxDefaultPosition, wxSize(100,100));
-    m_mgr.AddPane(	mComponentBar, wxAuiPaneInfo().
+	m_mgr.AddPane(	mComponentBar, wxAuiPaneInfo().
 					Name(wxT("componentbar")).
 					Caption(wxT("Components")).
 					Fixed().

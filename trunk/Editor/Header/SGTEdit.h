@@ -86,6 +86,8 @@ public:
 	void SetObjectMoveSpeed(float factor);
 	void SetObjectRotationSpeed(float factor);
 
+	static void OnToolbarEvent(int toolID, Ogre::String toolname);
+
 	SGTAxisLock mXAxisLock;
 	SGTAxisLock mYAxisLock;
 	SGTAxisLock mZAxisLock;
