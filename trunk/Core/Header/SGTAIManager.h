@@ -29,6 +29,7 @@ public:
 	void Clear();
 
 	void ReceiveMessage(SGTMsg &msg);
+	void Update(float time);
 
 	//Singleton
 	static SGTAIManager& Instance();

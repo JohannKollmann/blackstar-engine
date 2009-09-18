@@ -49,13 +49,13 @@ wxEdit::wxEdit(wxWindow* parent) : wxFrame(parent, -1, _("Blackstar Edit"),
 		// add the panes to the manager
 		m_mgr.AddPane(mWorldExplorer, wxAuiPaneInfo().Name(wxT("World")).
 			Right().
-			Position(0).
+			Position(1).
 			Layer(1).
 			CloseButton(false).
 			Caption("World"));
 		m_mgr.AddPane(mPropertyWindow, wxAuiPaneInfo().Name(wxT("Properties")).
 			Right().
-			Position(1).
+			Position(2).
 			Layer(1).
 			CloseButton(false).
 			Caption("Properties"));
@@ -70,10 +70,15 @@ wxEdit::wxEdit(wxWindow* parent) : wxFrame(parent, -1, _("Blackstar Edit"),
 
 	wxInitAllImageHandlers();
 
-	mToolbar = new wxSGTToolbar(this);
-	m_mgr.AddPane(mToolbar, wxAuiPaneInfo().
-                  Name(wxT("toolbar")).Caption(wxT("")).
-				  Top().Fixed().ToolbarPane().Layer(1));
+	mMainToolbar = new wxSGTToolbar(this);
+	m_mgr.AddPane(mMainToolbar, wxAuiPaneInfo().
+                  Name(wxT("maintoolbar")).Caption(wxT("")).
+				  Top().Fixed().ToolbarPane().Layer(0));
+
+	mExplorerToolbar = new wxSGTToolbar(this);
+	m_mgr.AddPane(mExplorerToolbar, wxAuiPaneInfo().
+		Name(wxT("explorertoolbar")).Caption(wxT("")).
+		Right().Fixed().ToolbarPane().Position(0).Layer(1));
 	m_mgr.Update();
 
 	Ogre::String handle;
@@ -81,6 +86,21 @@ wxEdit::wxEdit(wxWindow* parent) : wxFrame(parent, -1, _("Blackstar Edit"),
 
 	PushEventHandler(mMenuBar);
 };
+
+void wxEdit::RefreshToolbars()
+{
+	m_mgr.DetachPane(mMainToolbar);
+	m_mgr.AddPane(mMainToolbar, wxAuiPaneInfo().
+		Name(wxT("toolbar")).Caption(wxT("")).
+		Top().Fixed().ToolbarPane().Layer(0));
+
+	m_mgr.DetachPane(mExplorerToolbar);
+	m_mgr.AddPane(mExplorerToolbar, wxAuiPaneInfo().
+		Name(wxT("toolbar")).Caption(wxT("")).
+		Right().Fixed().ToolbarPane().Layer(1).Position(0));
+
+	m_mgr.Update();
+}
 
 void wxEdit::PostCreate()
 {
@@ -90,7 +110,7 @@ void wxEdit::PostCreate()
 					Caption(wxT("Components")).
 					Fixed().
 					Right().
-					Position(2).
+					Position(3).
 					Layer(1).
 					Show(false).
 					CloseButton(false));
@@ -100,6 +120,7 @@ void wxEdit::PostCreate()
 	GetWorldExplorer()->GetMaterialTree()->Update();
 	GetOgrePane()->SetFocus();
 	m_mgr.Update();
+	SGTSceneManager::Instance().EnableClock(false);
 }
 
 wxPoint wxEdit::GetStartPosition()

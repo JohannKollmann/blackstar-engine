@@ -14,8 +14,6 @@ private:
 	bool mPaused;
 
 	int mOneTime;
-	
-	void Update();
 
 public:
 	SGTWeatherController(void);
@@ -24,7 +22,7 @@ public:
 	Caelum::CaelumSystem* GetCaelumSystem();
 	void SetSpeedFactor(double speed);
 	void ReceiveMessage(SGTMsg &msg);
-
+	void Update(float time);
 	void SetGroundFogEnabled (bool enable);
 	bool GetGroundFogEnabled ();
 };

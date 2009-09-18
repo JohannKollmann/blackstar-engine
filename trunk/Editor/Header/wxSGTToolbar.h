@@ -10,6 +10,8 @@ struct SGTEDTTool
 {
 	Ogre::String mName;
 	wxBitmap mBitmap;
+	bool mActive;
+	bool mChecked;
 	SGTToolCallback mCallbackFunc;
 	int mToolID;
 	bool mCheckTool;
@@ -38,7 +40,9 @@ public:
 	wxSGTToolbar(wxWindow *parent);
 	~wxSGTToolbar(void);
 
-	void RegisterTool(Ogre::String toolname, Ogre::String toolgroup, Ogre::String bitmapname, SGTToolCallback callback, bool checktool = false);
+	int RegisterTool(Ogre::String toolname, Ogre::String toolgroup, Ogre::String bitmapname, SGTToolCallback callback, bool checktool = false, bool checked = false);
 	void SetGroupStatus(Ogre::String groupname, bool active);
+	void SetToolStatus(Ogre::String tool, bool active);
+	void CheckTool(Ogre::String toolname, bool check = true);
 	void RefreshAll();
 };

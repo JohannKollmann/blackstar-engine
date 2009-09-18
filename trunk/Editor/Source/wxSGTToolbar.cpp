@@ -12,7 +12,7 @@ wxSGTToolbar::wxSGTToolbar(wxWindow *parent)
 : 	wxToolBar(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize,
 		wxTB_FLAT | wxTB_NODIVIDER)// | wxTB_VERTICAL)
 {
-	SetToolBitmapSize(wxSize(28,24));
+	SetToolBitmapSize(wxSize(30,25));
 	mCurrentID = 101;
 }
 
@@ -33,6 +33,7 @@ void wxSGTToolbar::OnToolEvent(wxCommandEvent &event)
 		{
 			if (x->mToolID == event.GetId())
 			{
+				x->mChecked = GetToolState(x->mToolID);
 				x->mCallbackFunc(event.GetId(), x->mName);
 				return;
 			}
@@ -40,21 +41,23 @@ void wxSGTToolbar::OnToolEvent(wxCommandEvent &event)
 	}
 }
 
-void wxSGTToolbar::RegisterTool(Ogre::String toolname, Ogre::String toolgroup, Ogre::String bitmapname, SGTToolCallback callback, bool checktool)
+int wxSGTToolbar::RegisterTool(Ogre::String toolname, Ogre::String toolgroup, Ogre::String bitmapname, SGTToolCallback callback, bool checktool, bool checked)
 {
 	SGTEDTTool tool;
 	wxImage image(bitmapname);
-	tool.mBitmap = wxBitmap(image.Scale(28,24, wxIMAGE_QUALITY_HIGH));
+	tool.mBitmap = wxBitmap(image.Scale(30,25, wxIMAGE_QUALITY_HIGH));
 	tool.mCallbackFunc = callback;
 	tool.mName = toolname;
 	tool.mCheckTool = checktool;
+	tool.mChecked = checked;
+	tool.mActive = true;
 	tool.mToolID = NextID();
 	for (std::vector<SGTEDTToolGroup>::iterator i = mToolGroups.begin(); i != mToolGroups.end(); i++)
 	{
 		if (i->mGroupname == toolgroup)
 		{
 			i->mTools.push_back(tool);
-			return;
+			return tool.mToolID;
 		}
 	}
 	SGTEDTToolGroup group;
@@ -62,6 +65,7 @@ void wxSGTToolbar::RegisterTool(Ogre::String toolname, Ogre::String toolgroup, O
 	group.mGroupname = toolgroup;
 	group.mTools.push_back(tool);
 	mToolGroups.push_back(group);
+	return tool.mToolID;
 }
 
 void wxSGTToolbar::SetGroupStatus(Ogre::String groupname, bool active)
@@ -77,6 +81,38 @@ void wxSGTToolbar::SetGroupStatus(Ogre::String groupname, bool active)
 	RefreshAll();
 }
 
+void wxSGTToolbar::SetToolStatus(Ogre::String toolname, bool active)
+{
+	for (std::vector<SGTEDTToolGroup>::iterator i = mToolGroups.begin(); i != mToolGroups.end(); i++)
+	{
+		for (std::vector<SGTEDTTool>::iterator x = i->mTools.begin(); x != i->mTools.end(); x++)
+		{
+			if (x->mName == toolname)
+			{
+				x->mActive = active;
+				RefreshAll();
+				return;
+			}
+		}
+	}
+}
+
+void wxSGTToolbar::CheckTool(Ogre::String toolname, bool check)
+{
+	for (std::vector<SGTEDTToolGroup>::iterator i = mToolGroups.begin(); i != mToolGroups.end(); i++)
+	{
+		for (std::vector<SGTEDTTool>::iterator x = i->mTools.begin(); x != i->mTools.end(); x++)
+		{
+			if (x->mName == toolname)
+			{
+				x->mChecked = check;
+				ToggleTool(x->mToolID, check);
+				return;
+			}
+		}
+	}
+}
+
 void wxSGTToolbar::RefreshAll()
 {
 	ClearTools();
@@ -90,15 +126,18 @@ void wxSGTToolbar::RefreshAll()
 			}
 			for (std::vector<SGTEDTTool>::iterator x = i->mTools.begin(); x != i->mTools.end(); x++)
 			{
-				if (x->mCheckTool) AddCheckTool(x->mToolID, x->mName, x->mBitmap);
-				else AddTool(x->mToolID, x->mName, x->mBitmap);
+				if (i->mActive)
+				{
+					if (x->mCheckTool)
+					{
+						AddCheckTool(x->mToolID, x->mName, x->mBitmap);
+						if (x->mChecked) ToggleTool(x->mToolID, true);
+					}
+					else AddTool(x->mToolID, x->mName, x->mBitmap);
+				}
 			}
 		}
 	}
 	Realize();
-	wxEdit::Instance().GetAuiManager().DetachPane(this);
-	wxEdit::Instance().GetAuiManager().AddPane(this, wxAuiPaneInfo().
-		Name(wxT("toolbar")).Caption(wxT("")).
-		Top().Fixed().ToolbarPane().Layer(1));
-	wxEdit::Instance().GetAuiManager().Update();
+	wxEdit::Instance().RefreshToolbars();
 }

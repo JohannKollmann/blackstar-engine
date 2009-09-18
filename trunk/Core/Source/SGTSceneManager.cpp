@@ -20,13 +20,14 @@
 
 SGTSceneManager::SGTSceneManager(void)
 {
-	mWeatherController = NULL;
+	mWeatherController = 0;
 	mIndoorRendering = false;
-	mLevelMesh = NULL;
+	mClockEnabled = true;
+	mLevelMesh = 0;
 	mNextID = 0;
 	mDayTime = 0.0f;
 	mMaxDayTime = 86400.0f;
-	mTimeScale = 512.0f;
+	mTimeScale = 64.0f;
 	SGTMessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
 }
 
@@ -224,6 +225,7 @@ void SGTSceneManager::SetToOutdoor()
 	Light->setSpecularColour(Ogre::ColourValue(1, 0.9, 0.6)/5);*/
 	
 	if (!mWeatherController) mWeatherController = new SGTWeatherController();
+	SetTimeScale(mTimeScale);
 	mIndoorRendering = false;
 }
 
@@ -627,9 +629,24 @@ void SGTSceneManager::ReceiveMessage(SGTMsg &msg)
 	if (msg.mNewsgroup == "UPDATE_PER_FRAME")
 	{
 		float time = msg.mData.GetFloat("TIME");
-		mDayTime += (time*0.001*mTimeScale);
-		if (mDayTime >= mMaxDayTime) mDayTime = 0.0f;
+		if (mClockEnabled)
+		{
+			mDayTime += (time*0.001*mTimeScale);
+			if (mDayTime >= mMaxDayTime) mDayTime = 0.0f;
+			SGTAIManager::Instance().Update(time);
+			if (mWeatherController) mWeatherController->Update(time);
+		}
 	}
+}
+
+void SGTSceneManager::EnableClock(bool enable)
+{
+	mClockEnabled = enable;
+	/*if (enable)
+	{
+		SGTAIManager::Instance().mMsgPaused = !enable;
+		mWeatherController->mMsgPaused = !enable;
+	}*/
 }
 
 void SGTSceneManager::SetTimeScale(float scale)

@@ -186,49 +186,18 @@ void SGTWeatherController::SetSpeedFactor(double speed)
 };
 
 
-void SGTWeatherController::Update()
+void SGTWeatherController::Update(float time)
 {
-        // Update the haze sun light position
-        /*if (GetHazeEnabled() && mCaelumSystem->getSun ())
-		{
-            Ogre::MaterialPtr mat = static_cast<Ogre::MaterialPtr>(Ogre::MaterialManager::getSingleton ().getByName ("CaelumDemoTerrain1"));
-            if (mat.isNull() == false && mat->getTechnique(0) && mat->getTechnique (0)->getPass ("CaelumHaze"))
-			{
-                mat->getTechnique (0)->getPass ("CaelumHaze")->getVertexProgramParameters ()->setNamedConstant ("sunDirection", mCaelumSystem->getSun ()->getSunDirection ());
-            }
-        }*/
-
-
-	/*
-	Zufallsgeneriertes Wettersystem:
-		- Alle 4 Spielstunden zufallsbedingt schweren Wetterwechsel (Sonnenschein, bewölt, Regen, Gewitter) einleiten
-		- Alle halbe Spielstunden leichten Wetterwechsel (Variierung der Wolkendichte) zufallsbedingt einleiten
-	*/
+	mCaelumSystem->notifyCameraChanged(SGTMain::Instance().GetCamera());
+	mCaelumSystem->updateSubcomponents(time);
 };
 
 void SGTWeatherController::ReceiveMessage(SGTMsg &msg)
 {
-	if (msg.mNewsgroup == "UPDATE_PER_FRAME")
+	/*if (msg.mNewsgroup == "UPDATE_PER_FRAME")
 	{
 		mCaelumSystem->notifyCameraChanged(SGTMain::Instance().GetCamera());
 		mCaelumSystem->updateSubcomponents(msg.mData.GetFloat("TIME"));
 		Update();
-
-	/*if (mOneTime == 10)
-	{
-		Ogre::RenderSystem *psys = Ogre::Root::getSingletonPtr()->getRenderSystem();
-        if (psys != NULL)
-        {
-            Ogre::RenderSystem::RenderTargetIterator iter = psys->getRenderTargetIterator();
-            while (iter.hasMoreElements())
-            {
-                Ogre::RenderTarget *prt = iter.getNext();
-				Ogre::LogManager::getSingleton().logMessage("Dumping " + prt->getName());
-                prt->writeContentsToFile(prt->getName() + ".bmp");
-            }           
-        }
-		mOneTime++;
-	}
-	else mOneTime++;*/
-	}
+	}*/
 }

@@ -58,49 +58,93 @@ SGTEdit::SGTEdit()
 	mPivotNode = SGTMain::Instance().GetOgreSceneMgr()->getRootSceneNode()->createChildSceneNode();
 	mPivotOffsetNode = mPivotNode->createChildSceneNode();
 
-	if (SGTSceneManager::Instance().GetWeatherController() != NULL) SGTSceneManager::Instance().GetWeatherController()->GetCaelumSystem()->getUniversalClock()->setTimeScale(0);
-
 	SGTMessageSystem::Instance().JoinNewsgroup(this, "MOUSE_MOVE");
 	SGTMessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
 
-	wxEdit::Instance().GetToolbar()->RegisterTool("SaveWorld", "General", "Data/Editor/Intern/BrushMode.png", SGTEdit::OnToolbarEvent);
-	wxEdit::Instance().GetToolbar()->SetGroupStatus("General", true);
+	//wxEdit::Instance().GetMainToolbar()->RegisterTool("SaveWorld", "General", "Data/Editor/Intern/Engine_Icon08.png", SGTEdit::OnToolbarEvent);
+	//wxEdit::Instance().GetMainToolbar()->SetGroupStatus("General", true);
 
-	wxEdit::Instance().GetToolbar()->RegisterTool("Physics", "WorldSettings", "Data/Editor/Intern/BrushMode.png", SGTEdit::OnToolbarEvent, true);
-	wxEdit::Instance().GetToolbar()->RegisterTool("TimeCycle", "WorldSettings", "Data/Editor/Intern/BrushMode.png", SGTEdit::OnToolbarEvent, true);
-	wxEdit::Instance().GetToolbar()->SetGroupStatus("WorldSettings", true);
+	wxEdit::Instance().GetMainToolbar()->RegisterTool("Physics", "WorldSettings", "Data/Editor/Intern/Editor_gewicht_04.png", SGTEdit::OnToolbarEvent, true, true);
+	wxEdit::Instance().GetMainToolbar()->RegisterTool("TimeCycle", "WorldSettings", "Data/Editor/Intern/editor_clock.png", SGTEdit::OnToolbarEvent, true);
+	wxEdit::Instance().GetMainToolbar()->SetGroupStatus("WorldSettings", true);
 
-	wxEdit::Instance().GetToolbar()->RegisterTool("XAxisLock", "Transform", "Data/Editor/Intern/XAxis.png", SGTEdit::OnToolbarEvent, true);
-	wxEdit::Instance().GetToolbar()->RegisterTool("YAxisLock", "Transform", "Data/Editor/Intern/YAxis.png", SGTEdit::OnToolbarEvent, true);
-	wxEdit::Instance().GetToolbar()->RegisterTool("ZAxisLock", "Transform", "Data/Editor/Intern/ZAxis.png", SGTEdit::OnToolbarEvent, true);
-	wxEdit::Instance().GetToolbar()->RegisterTool("MoveRelative", "Transform", "Data/Editor/Intern/BrushMode.png", SGTEdit::OnToolbarEvent, true);
-	wxEdit::Instance().GetToolbar()->SetGroupStatus("Transform", true);
+	wxEdit::Instance().GetMainToolbar()->RegisterTool("XAxisLock", "Transform", "Data/Editor/Intern/xAxis.png", SGTEdit::OnToolbarEvent, true);
+	wxEdit::Instance().GetMainToolbar()->RegisterTool("YAxisLock", "Transform", "Data/Editor/Intern/yAxis.png", SGTEdit::OnToolbarEvent, true);
+	wxEdit::Instance().GetMainToolbar()->RegisterTool("ZAxisLock", "Transform", "Data/Editor/Intern/zAxis.png", SGTEdit::OnToolbarEvent, true);
+	//wxEdit::Instance().GetMainToolbar()->RegisterTool("MoveRelative", "Transform", "Data/Editor/Intern/BrushMode.png", SGTEdit::OnToolbarEvent, true);
+	wxEdit::Instance().GetMainToolbar()->SetGroupStatus("Transform", true);
 
-	wxEdit::Instance().GetToolbar()->RegisterTool("BrushMode", "EditMode", "Data/Editor/Intern/BrushMode.png", SGTEdit::OnToolbarEvent, true);
-	wxEdit::Instance().GetToolbar()->RegisterTool("MaterialMode", "EditMode", "Data/Editor/Intern/BrushMode.png", SGTEdit::OnToolbarEvent, true);
-	wxEdit::Instance().GetToolbar()->SetGroupStatus("EditMode", true);
+	wxEdit::Instance().GetMainToolbar()->RegisterTool("BrushMode", "EditMode", "Data/Editor/Intern/BrushMode.png", SGTEdit::OnToolbarEvent, true);
+	wxEdit::Instance().GetMainToolbar()->RegisterTool("MaterialMode", "EditMode", "Data/Editor/Intern/materialmode.png", SGTEdit::OnToolbarEvent, true);
+	wxEdit::Instance().GetMainToolbar()->SetGroupStatus("EditMode", true);
 
-	wxEdit::Instance().GetToolbar()->RegisterTool("NewFolder", "ResourceMgr", "Data/Editor/Intern/BrushMode.png", SGTEdit::OnToolbarEvent);
-	wxEdit::Instance().GetToolbar()->RegisterTool("NewResource", "ResourceMgr", "Data/Editor/Intern/BrushMode.png", SGTEdit::OnToolbarEvent);
-	wxEdit::Instance().GetToolbar()->SetGroupStatus("ResourceMgr", true);
+	wxEdit::Instance().GetExplorerToolbar()->RegisterTool("NewFolder", "ResourceMgr", "Data/Editor/Intern/1988.ico", SGTEdit::OnToolbarEvent);
+	wxEdit::Instance().GetExplorerToolbar()->RegisterTool("NewResource", "ResourceMgr", "Data/Editor/Intern/Engine_Icon07.png", SGTEdit::OnToolbarEvent);
+	wxEdit::Instance().GetExplorerToolbar()->SetGroupStatus("ResourceMgr", true);
 
-	wxEdit::Instance().GetToolbar()->RegisterTool("InsertObject", "ObjectMgr", "Data/Editor/Intern/BrushMode.png", SGTEdit::OnToolbarEvent);
-	wxEdit::Instance().GetToolbar()->RegisterTool("InsertObjectAsChild", "ObjectMgr", "Data/Editor/Intern/BrushMode.png", SGTEdit::OnToolbarEvent);
-	wxEdit::Instance().GetToolbar()->RegisterTool("DeleteObject", "ObjectMgr", "Data/Editor/Intern/BrushMode.png", SGTEdit::OnToolbarEvent);
-	wxEdit::Instance().GetToolbar()->RegisterTool("SaveObjectGroup", "ObjectMgr", "Data/Editor/Intern/BrushMode.png", SGTEdit::OnToolbarEvent);
-	wxEdit::Instance().GetToolbar()->RegisterTool("LoadObjectGroup", "ObjectMgr", "Data/Editor/Intern/BrushMode.png", SGTEdit::OnToolbarEvent);
-	wxEdit::Instance().GetToolbar()->SetGroupStatus("ObjectMgr", true);
+	wxEdit::Instance().GetMainToolbar()->RegisterTool("InsertObject", "ObjectMgr", "Data/Editor/Intern/Engine_Icon02.png", SGTEdit::OnToolbarEvent);
+	//wxEdit::Instance().GetMainToolbar()->RegisterTool("InsertObjectAsChild", "ObjectMgr", "Data/Editor/Intern/BrushMode.png", SGTEdit::OnToolbarEvent);
+	wxEdit::Instance().GetMainToolbar()->RegisterTool("DeleteObject", "ObjectMgr", "Data/Editor/Intern/Engine_Icon04.png", SGTEdit::OnToolbarEvent);
+	wxEdit::Instance().GetMainToolbar()->RegisterTool("SaveObjectGroup", "ObjectMgr", "Data/Editor/Intern/Engine_Icon06.png", SGTEdit::OnToolbarEvent);
+	wxEdit::Instance().GetMainToolbar()->SetGroupStatus("ObjectMgr", true);
 
-	wxEdit::Instance().GetToolbar()->RegisterTool("MapWizard", "Materials", "Data/Editor/Intern/BrushMode.png", SGTEdit::OnToolbarEvent);
-	wxEdit::Instance().GetToolbar()->SetGroupStatus("Materials", true);
+	wxEdit::Instance().GetExplorerToolbar()->RegisterTool("MapWizard", "Materials", "Data/Editor/Intern/BrushMode.png", SGTEdit::OnToolbarEvent);
+	wxEdit::Instance().GetExplorerToolbar()->SetGroupStatus("Materials", true);
 
-	wxEdit::Instance().GetToolbar()->RegisterTool("ReloadScripts", "Scripts", "Data/Editor/Intern/BrushMode.png", SGTEdit::OnToolbarEvent);
-	wxEdit::Instance().GetToolbar()->SetGroupStatus("Scripts", true);
+	wxEdit::Instance().GetExplorerToolbar()->RegisterTool("ReloadScripts", "Scripts", "Data/Editor/Intern/BrushMode.png", SGTEdit::OnToolbarEvent);
+	wxEdit::Instance().GetExplorerToolbar()->SetGroupStatus("Scripts", true);
 };
 
 void SGTEdit::OnToolbarEvent(int toolID, Ogre::String toolname)
 {
 	SGTEdit *edit = wxEdit::Instance().GetOgrePane()->mEdit;
+	bool checked = wxEdit::Instance().GetMainToolbar()->GetToolState(toolID);
+	if (toolname == "XAxisLock")
+	{
+		if (checked) edit->mXAxisLock = SGTAxisLock::UNLOCKED;
+		else edit->mXAxisLock = SGTAxisLock::LOCKED;
+	}
+	if (toolname == "YAxisLock")
+	{
+		if (checked) edit->mYAxisLock = SGTAxisLock::UNLOCKED;
+		else edit->mYAxisLock = SGTAxisLock::LOCKED;
+	}
+	if (toolname == "ZAxisLock")
+	{
+		if (checked) edit->mZAxisLock = SGTAxisLock::UNLOCKED;
+		else edit->mZAxisLock = SGTAxisLock::LOCKED;
+	}
+
+	if (toolname == "Physics")
+	{
+		SGTKernel::Instance().SetPhysics(checked);
+	}
+	if (toolname == "TimeCycle")
+	{
+		SGTSceneManager::Instance().EnableClock(checked);
+	}
+	if (toolname == "BrushMode")
+	{
+		edit->mBrushMode = checked;
+		edit->ClearPreviewObject();
+		if (checked) edit->CreatePreviewObject();
+	}
+	if (toolname == "MaterialMode")
+	{
+		edit->mMaterialMode = checked;
+	}
+	if (toolname == "InsertObject")
+	{
+		edit->OnInsertObject();
+	}
+	if (toolname == "DeleteObject")
+	{
+		edit->OnDeleteObject();
+	}
+	if (toolname == "SaveObjectGroup")
+	{
+		edit->OnSaveObjectGroup();
+	}
 }
 
 void SGTEdit::OnMouseEvent(wxMouseEvent &ev)
@@ -208,7 +252,7 @@ void SGTEdit::OnMouseEvent(wxMouseEvent &ev)
 		{
 			if (!mPerformedLDClick)
 			{
-				if (mBrushMode || mStrgPressed)
+				if (mBrushMode)
 				{
 					OnBrush();
 				}
@@ -385,13 +429,18 @@ void SGTEdit::OnMouseMove(Ogre::Radian RotX,Ogre::Radian RotY)
 void SGTEdit::OnKeyDown(wxKeyEvent& key)
 {
 	if (key.GetKeyCode() == wxKeyCode::WXK_SHIFT) mMultiSelect = true;
-	if (key.GetKeyCode() == wxKeyCode::WXK_CONTROL)
+	if (key.GetKeyCode() == wxKeyCode::WXK_SPACE)
 	{
-		if (!mStrgPressed)
+		if (!mBrushMode)
 		{
 			ClearPreviewObject();
 			CreatePreviewObject();
-		}
+			mBrushMode = true;
+			wxEdit::Instance().GetMainToolbar()->CheckTool("BrushMode", true);
+		}		
+	}
+	if (key.GetKeyCode() == wxKeyCode::WXK_CONTROL)
+	{
 		mStrgPressed = true;
 	}
 	if (key.GetKeyCode() == wxKeyCode::WXK_ALT && !mAltIsDown)
@@ -411,24 +460,23 @@ void SGTEdit::OnKeyDown(wxKeyEvent& key)
 	if (key.GetKeyCode() == 52) mXAxisLock = SGTAxisLock::UNLOCKED_SKIPCHILDREN;
 	if (key.GetKeyCode() == 53) mYAxisLock = SGTAxisLock::UNLOCKED_SKIPCHILDREN;
 	if (key.GetKeyCode() == 54) mZAxisLock = SGTAxisLock::UNLOCKED_SKIPCHILDREN;
-
-	if ((key.GetKeyCode() == 66) && (mStrgPressed == true))
-	{
-		if (mBrushMode == false) mBrushMode = true;
-		else mBrushMode = false;
-	}
+	wxEdit::Instance().GetMainToolbar()->CheckTool("XAxisLock", mXAxisLock != SGTAxisLock::LOCKED);
+	wxEdit::Instance().GetMainToolbar()->CheckTool("YAxisLock", mYAxisLock != SGTAxisLock::LOCKED);
+	wxEdit::Instance().GetMainToolbar()->CheckTool("ZAxisLock", mZAxisLock != SGTAxisLock::LOCKED);
 };
 
 void SGTEdit::OnKeyUp(wxKeyEvent& key)
 {
 	if (key.GetKeyCode() == wxKeyCode::WXK_SHIFT) mMultiSelect = false;
+	if (key.GetKeyCode() == wxKeyCode::WXK_SPACE)
+	{
+		mBrushMode = false;
+		ClearPreviewObject();
+		wxEdit::Instance().GetMainToolbar()->CheckTool("BrushMode", false);
+	}
 	if (key.GetKeyCode() == wxKeyCode::WXK_CONTROL)
 	{
 		mStrgPressed = false;
-		if (!mBrushMode)
-		{
-			ClearPreviewObject();
-		}
 	}
 	if (key.GetKeyCode() == wxKeyCode::WXK_ALT) mAltIsDown = false;
 
@@ -451,7 +499,9 @@ void SGTEdit::OnKeyUp(wxKeyEvent& key)
 	if (key.GetKeyCode() == 52) mXAxisLock = SGTAxisLock::LOCKED;
 	if (key.GetKeyCode() == 53) mYAxisLock = SGTAxisLock::LOCKED;
 	if (key.GetKeyCode() == 54) mZAxisLock = SGTAxisLock::LOCKED;
-
+	wxEdit::Instance().GetMainToolbar()->CheckTool("XAxisLock", mXAxisLock != SGTAxisLock::LOCKED);
+	wxEdit::Instance().GetMainToolbar()->CheckTool("YAxisLock", mYAxisLock != SGTAxisLock::LOCKED);
+	wxEdit::Instance().GetMainToolbar()->CheckTool("ZAxisLock", mZAxisLock != SGTAxisLock::LOCKED);
 };
 
 void SGTEdit::OnSelectResource()

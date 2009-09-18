@@ -23,6 +23,7 @@ private:
 	float mDayTime;
 	float mMaxDayTime;
 	float mTimeScale;
+	bool mClockEnabled;
 
 	SGTWeatherController *mWeatherController;
 
@@ -59,7 +60,6 @@ public:
 	SGTWeatherController* GetWeatherController();
 
 	void SetToIndoor();
-
 	void SetToOutdoor();
 
 	bool HasLevelMesh();
@@ -86,6 +86,8 @@ public:
 	SGTGOCEditorInterface* CreateComponent(Ogre::String type, SGTDataMap *parameters);
 
 	SGTGameObject* CreateWaypoint();
+
+	void EnableClock(bool enable);
 
 	//Script
 	static std::vector<SGTScriptParam> Lua_LogMessage(SGTScript& caller, std::vector<SGTScriptParam> vParams);

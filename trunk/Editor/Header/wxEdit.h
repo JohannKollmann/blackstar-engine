@@ -36,7 +36,8 @@ private:
 	wxProgressBar *mProgressBar;
 	wxMeshMagick *mMeshMagick;
 	wxComponentBar *mComponentBar;
-	wxSGTToolbar *mToolbar;
+	wxSGTToolbar *mMainToolbar;
+	wxSGTToolbar *mExplorerToolbar;
 
 	//Menu
 	wxMainMenu* mMenuBar;
@@ -56,9 +57,12 @@ public:
 	wxMeshMagick* GetMeshMagick() { return mMeshMagick; };
 	wxProgressBar* GetProgressBar() { return mProgressBar; };
 	wxComponentBar* GetComponentBar() { return mComponentBar; };
-	wxSGTToolbar* GetToolbar() { return mToolbar; };
+	wxSGTToolbar* GetMainToolbar() { return mMainToolbar; };
+	wxSGTToolbar* GetExplorerToolbar() { return mExplorerToolbar; };
 
 	wxPoint GetStartPosition();
+
+	void RefreshToolbars();
 
 	wxAuiManager& GetAuiManager() { return m_mgr; };
 

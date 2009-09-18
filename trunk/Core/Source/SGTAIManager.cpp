@@ -49,16 +49,24 @@ void SGTAIManager::Clear()
 	}
 }
 
+void SGTAIManager::Update(float time)
+{
+	for (std::list<SGTGOCAI*>::iterator i = mAIObjects.begin(); i != mAIObjects.end(); i++)
+	{
+		(*i)->Update(time);
+	}
+}
+
 void SGTAIManager::ReceiveMessage(SGTMsg &msg)
 {
-	if (msg.mNewsgroup == "UPDATE_PER_FRAME")
+	/*if (msg.mNewsgroup == "UPDATE_PER_FRAME")
 	{
 		float time = msg.mData.GetFloat("TIME");
 		for (std::list<SGTGOCAI*>::iterator i = mAIObjects.begin(); i != mAIObjects.end(); i++)
 		{
 			(*i)->Update(time);
 		}
-	}
+	}*/
 }
 
 SGTAIManager& SGTAIManager::Instance()
