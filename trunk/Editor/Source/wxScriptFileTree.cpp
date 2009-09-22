@@ -21,9 +21,11 @@ wxScriptFileTree::wxScriptFileTree(wxWindow* parent, wxWindowID id, const wxPoin
 	extensions.Add("*.lua");
 	SetExtensions(extensions);
 	SetRootPath("Data/Scripts/Game");
-	wxEdit::Instance().GetExplorerToolbar()->RegisterTool("ReloadScripts", "Scripts", "Data/Editor/Intern/editor_scriptreload_01.png", wxScriptFileTree::OnToolbarEvent);
-	wxEdit::Instance().GetExplorerToolbar()->RegisterTool("NewScript", "Scripts", "Data/Editor/Intern/editor_scripnew_01.png", wxScriptFileTree::OnToolbarEvent);
-	wxEdit::Instance().GetExplorerToolbar()->RegisterTool("DeleteScript", "Scripts", "Data/Editor/Intern/editor_scriptdelete_01.png", wxScriptFileTree::OnToolbarEvent);
+	wxEdit::Instance().GetExplorerToolbar()->RegisterTool("ReloadScripts", "Scripts1", "Data/Editor/Intern/editor_scriptreload_01.png", wxScriptFileTree::OnToolbarEvent);
+	wxEdit::Instance().GetExplorerToolbar()->RegisterTool("NewScript", "Scripts2", "Data/Editor/Intern/editor_scripnew_01.png", wxScriptFileTree::OnToolbarEvent);
+	wxEdit::Instance().GetExplorerToolbar()->RegisterTool("NewNpcScript", "Scripts2", "Data/Editor/Intern/editor_scriptnpc_01.png", wxScriptFileTree::OnToolbarEvent);
+	wxEdit::Instance().GetExplorerToolbar()->RegisterTool("NewStateScript", "Scripts2", "Data/Editor/Intern/editor_scriptstatus_01.png", wxScriptFileTree::OnToolbarEvent);
+	wxEdit::Instance().GetExplorerToolbar()->RegisterTool("DeleteScript", "Scripts3", "Data/Editor/Intern/editor_scriptdelete_01.png", wxScriptFileTree::OnToolbarEvent);
 }
 
 void wxScriptFileTree::OnShowMenuCallback(wxMenu *menu, VdtcTreeItemBase *item)
@@ -62,9 +64,13 @@ void wxScriptFileTree::OnToolbarEvent(int toolID, Ogre::String toolname)
 
 void wxScriptFileTree::OnEnterTab()
 {
-	wxEdit::Instance().GetExplorerToolbar()->SetGroupStatus("Scripts", true);
+	wxEdit::Instance().GetExplorerToolbar()->SetGroupStatus("Scripts1", true);
+	wxEdit::Instance().GetExplorerToolbar()->SetGroupStatus("Scripts2", true);
+	wxEdit::Instance().GetExplorerToolbar()->SetGroupStatus("Scripts3", true);
 }
 void wxScriptFileTree::OnLeaveTab()
 {
-	wxEdit::Instance().GetExplorerToolbar()->SetGroupStatus("Scripts", false);
+	wxEdit::Instance().GetExplorerToolbar()->SetGroupStatus("Scripts1", false);
+	wxEdit::Instance().GetExplorerToolbar()->SetGroupStatus("Scripts2", false);
+	wxEdit::Instance().GetExplorerToolbar()->SetGroupStatus("Scripts3", false);
 }

@@ -243,6 +243,8 @@ protected:
 	/** Inherited virtual function for SortChildren */
 	int OnCompareItems(const wxTreeItemId& item1, const wxTreeItemId& item2);
 
+	wxString mExpandedPath;
+
 public:
     /** Default constructor of this control. It is similar to the wxTreeCtrl */
     wxVirtualDirTreeCtrl(wxWindow* parent, wxWindowID id, const wxPoint& pos = wxDefaultPosition,

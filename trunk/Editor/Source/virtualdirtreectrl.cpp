@@ -396,6 +396,7 @@ wxTreeItemId wxVirtualDirTreeCtrl::ExpandToPath(const wxFileName &path)
 	VdtcTreeItemBase *ptr;
 
 	paths = path.GetDirs();
+	paths.Add(path.GetFullName());
 
 	// start in root section, and find the path sections that
 	// match the sequence
@@ -522,6 +523,7 @@ void wxVirtualDirTreeCtrl::OnExpanding(wxTreeEvent &event)
 	if(id.IsOk())
 	{
 		VdtcTreeItemBase *t = (VdtcTreeItemBase *)GetItemData(id);
+		mExpandedPath = GetRelativePath(id).GetFullPath();
 		if(t && t->IsDir())
 		{
 			// extract data element belonging to it, and scan.

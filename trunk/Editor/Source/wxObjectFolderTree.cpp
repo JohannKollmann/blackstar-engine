@@ -22,7 +22,7 @@ wxObjectFolderTree::wxObjectFolderTree(wxWindow* parent, wxWindowID id, const wx
 	extensions.Add("*.static");
 	SetExtensions(extensions);
 	SetRootPath("Data/Editor/Objects");
-	wxEdit::Instance().GetExplorerToolbar()->RegisterTool("NewFolder", "ResourceMgr", "Data/Editor/Intern/1988.ico", wxObjectFolderTree::OnToolbarEvent);
+	//wxEdit::Instance().GetExplorerToolbar()->RegisterTool("NewFolder", "ResourceMgr", "Data/Editor/Intern/1988.ico", wxObjectFolderTree::OnToolbarEvent);
 	wxEdit::Instance().GetExplorerToolbar()->RegisterTool("NewResource", "ResourceMgr", "Data/Editor/Intern/Engine_Icon07.png", wxObjectFolderTree::OnToolbarEvent);
 	wxEdit::Instance().GetExplorerToolbar()->SetGroupStatus("ResourceMgr", true);
 	//wxEdit::Instance().GetExplorerToolbar()->SetGroupStatus("ResourceMgr", false);
@@ -61,7 +61,8 @@ void wxObjectFolderTree::OnMenuCallback(int id)
 {
 	if (id == ResTree_addGOC)
 	{
-		Ogre::String Path = "Data\\Editor\\Objects\\" + Ogre::String(this->GetRelativePath(mCurrentItem->GetId()).GetFullPath().c_str()) + "\\";
+		Ogre::String relPath = Ogre::String(this->GetRelativePath(mCurrentItem->GetId()).GetFullPath().c_str()) + "\\";
+		Ogre::String Path = "Data\\Editor\\Objects\\" + relPath;
 		wxTextEntryDialog dialog(this,
 			_T("Enter file name:"),
 			_T("Please enter a string"),
@@ -75,12 +76,13 @@ void wxObjectFolderTree::OnMenuCallback(int id)
 		}
 		else return;
 
-		mCurrentPath = Ogre::String(this->GetRelativePath(mCurrentItem->GetId()).GetFullPath().c_str()) + "/" + File;
-
 		wxEditSGTGameObject *page = ((wxEditSGTGameObject*)(wxEdit::Instance().GetpropertyWindow()->SetPage("EditGameObject")));
 		page->NewResource(Path + File + ".ocs");
 		page->OnApply();
 		page->SetResource(Path + File + ".ocs");
+
+		wxTreeItemId id = ExpandToPath(wxFileName(relPath + File + ".ocs"));
+		SelectItem(id);
 	}
 	if (id == ResTree_addRagdoll)
 	{
@@ -111,6 +113,31 @@ void wxObjectFolderTree::OnMenuCallback(int id)
 
 void wxObjectFolderTree::OnToolbarEvent(int toolID, Ogre::String toolname)
 {
+	if (toolname == "NewResource")
+	{
+		Ogre::String relPath = Ogre::String(wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->mExpandedPath.c_str());
+		Ogre::String Path = "Data\\Editor\\Objects\\" + relPath;
+		wxTextEntryDialog dialog(wxEdit::Instance().GetWorldExplorer()->GetResourceTree(),
+			_T("Enter file name:"),
+			_T("Please enter a string"),
+			_T(""),
+			wxOK | wxCANCEL);
+
+		Ogre::String File = "";
+		if (dialog.ShowModal() == wxID_OK)
+		{
+			File = dialog.GetValue().c_str();
+		}
+		else return;
+
+		wxEditSGTGameObject *page = ((wxEditSGTGameObject*)(wxEdit::Instance().GetpropertyWindow()->SetPage("EditGameObject")));
+		page->NewResource(Path + File + ".ocs");
+		page->OnApply();
+		page->SetResource(Path + File + ".ocs");
+
+		wxTreeItemId id = wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->ExpandToPath(wxFileName(relPath + File + ".ocs"));
+		wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->SelectItem(id);
+	}
 }
 
 void wxObjectFolderTree::OnEnterTab()
