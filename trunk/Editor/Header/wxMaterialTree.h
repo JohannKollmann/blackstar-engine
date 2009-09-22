@@ -5,9 +5,11 @@
 #include <wx/treectrl.h>
 #include <wx/filesys.h>
 #include <wx/imaglist.h>
+#include "EDTIncludes.h"
 #include "virtualdirtreectrl.h"
 #include "Ogre.h"
 #include "wxEdit.h"
+#include "EntityTreeNotebookListener.h"
 
 class OgreMaterialTreeItemBase : public wxTreeItemData
 {
@@ -102,7 +104,7 @@ public:
 WX_DEFINE_ARRAY(OgreMaterialTreeItemBase *, OgreMaterialTreeItemBaseArray);
 
 
-class wxMaterialTree : public wxTreeCtrl
+class wxMaterialTree : public wxTreeCtrl, public EntityTreeNotebookListener
 {
 
 private:
@@ -166,6 +168,8 @@ public:
 
 	void Update();
 
+	static void OnToolbarEvent(int toolID, Ogre::String toolname);
+
 	void AddItemsToTreeCtrl(OgreMaterialTreeItemBase *item, OgreMaterialTreeItemBaseArray &items);
 
 	virtual void OnAssignIcons(wxImageList &icons);
@@ -177,6 +181,9 @@ public:
 
 	Ogre::String GetTemplateLocation(Ogre::String tmat);
 	void UpdateTemplates();
+
+	void OnEnterTab();
+	void OnLeaveTab();
 
 
 private:

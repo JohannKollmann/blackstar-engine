@@ -6,31 +6,29 @@
 #include "wxFileTree.h"
 #include "wxEditSGTGameObject.h"
 #include "SGTGameObject.h"
+#include "EntityTreeNotebookListener.h"
+#include "wxEdit.h"
 
-class wxObjectFolderTree : public wxFileTree
+class wxObjectFolderTree : public wxFileTree, public EntityTreeNotebookListener
 {
 public:
 	wxObjectFolderTree(wxWindow* parent, wxWindowID id, const wxPoint& pos = wxDefaultPosition,
                     const wxSize& size = wxDefaultSize, long style = wxTR_HAS_BUTTONS | wxTR_FULL_ROW_HIGHLIGHT,
                     const wxValidator& validator = wxDefaultValidator,
-                    const wxString& name = "wxVirtualDirTreeCtrl")
-		: wxFileTree(parent, id, pos, size, style, validator, name)
-	{
-		wxArrayString extensions;
-		extensions.Add("*.ot");
-		extensions.Add("*.ocs");
-		extensions.Add("*.static");
-		SetExtensions(extensions);
-		SetRootPath("Data/Editor/Objects");
-	}
+                    const wxString& name = "wxVirtualDirTreeCtrl");
     
 	~wxObjectFolderTree()
 	{
 	}
 
+	static void OnToolbarEvent(int toolID, Ogre::String toolname);
+
 	void OnShowMenuCallback(wxMenu *menu, VdtcTreeItemBase *item);
 	void OnMenuCallback(int id);
 	void OnSelectItemCallback();
+
+	void OnEnterTab();
+	void OnLeaveTab();
 };
 
 #endif

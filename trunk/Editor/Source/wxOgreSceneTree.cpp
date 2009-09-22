@@ -88,6 +88,24 @@ void wxOgreSceneTree::Update()
 	mSelectedItem = 0;
 };
 
+void wxOgreSceneTree::NotifyObject(SGTGameObject *object)
+{
+	SGTGameObject *parent = object->GetParent();
+	//Parent suchen, objekt unter parent einfügen.
+	if (parent)
+	{
+		Update();
+	}
+	else
+	{
+		OgreTreeItemBase *item = OnCreateTreeItem(VDTC_TI_FILE, object);
+		OgreTreeItemBaseArray addedItems;
+		addedItems.Add(item);
+		AddItemsToTreeCtrl(mStart, addedItems);
+		ScanFromNode(item, object);
+	}
+}
+
 void wxOgreSceneTree::ScanFromNode(OgreTreeItemBase *item, SGTGameObject *scanFrom, bool subScan)
 {
 	if (scanFrom == 0) return;
@@ -348,4 +366,16 @@ bool wxOgreSceneTree::ExpandToObject(OgreTreeItemBase *from, SGTGameObject *obje
 		child = GetNextChild(from->GetId(), cookie);
 	}
 	return false;
+}
+
+void wxOgreSceneTree::OnEnterTab()
+{
+	wxEdit::Instance().GetpropertyWindow()->SetPage("EditGameObject");
+	if (GetSelectedItem() != 0)
+	{
+		((wxEditSGTGameObject*)(wxEdit::Instance().GetpropertyWindow()->GetCurrentPage()))->SetObject(GetSelectedItem());
+	}
+}
+void wxOgreSceneTree::OnLeaveTab()
+{
 }

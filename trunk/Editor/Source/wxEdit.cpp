@@ -19,6 +19,17 @@ wxEdit::wxEdit(wxWindow* parent) : wxFrame(parent, -1, _("Blackstar Edit"),
 		mProgressBar = new wxProgressBar(this, -1);
 		this->SetStatusBar(mProgressBar);
 
+		wxInitAllImageHandlers();
+		mMainToolbar = new wxSGTToolbar(this);
+		mExplorerToolbar = new wxSGTToolbar(this);
+
+	m_mgr.AddPane(mMainToolbar, wxAuiPaneInfo().
+                  Name(wxT("maintoolbar")).Caption(wxT("")).
+				  Top().Fixed().ToolbarPane().Layer(0));
+
+	m_mgr.AddPane(mExplorerToolbar, wxAuiPaneInfo().
+		Name(wxT("explorertoolbar")).Caption(wxT("")).
+		Right().Fixed().ToolbarPane().Position(0).Layer(1));
 
 		// ************************
 		mMainNotebook = new wxMainNotebook(this, -1);
@@ -68,17 +79,6 @@ wxEdit::wxEdit(wxWindow* parent) : wxFrame(parent, -1, _("Blackstar Edit"),
                   Name(wxT("settings")).Caption(wxT("Editor Settings")).
                   Dockable(false).Float().Hide());
 
-	wxInitAllImageHandlers();
-
-	mMainToolbar = new wxSGTToolbar(this);
-	m_mgr.AddPane(mMainToolbar, wxAuiPaneInfo().
-                  Name(wxT("maintoolbar")).Caption(wxT("")).
-				  Top().Fixed().ToolbarPane().Layer(0));
-
-	mExplorerToolbar = new wxSGTToolbar(this);
-	m_mgr.AddPane(mExplorerToolbar, wxAuiPaneInfo().
-		Name(wxT("explorertoolbar")).Caption(wxT("")).
-		Right().Fixed().ToolbarPane().Position(0).Layer(1));
 	m_mgr.Update();
 
 	Ogre::String handle;
@@ -121,6 +121,7 @@ void wxEdit::PostCreate()
 	GetOgrePane()->SetFocus();
 	m_mgr.Update();
 	SGTSceneManager::Instance().EnableClock(false);
+	wxEdit::Instance().GetExplorerToolbar()->SetGroupStatus("ResourceMgr", false);	//Hack
 }
 
 wxPoint wxEdit::GetStartPosition()

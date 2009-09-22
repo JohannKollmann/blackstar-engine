@@ -10,6 +10,24 @@ enum
 	ResTree_addNpc = 3572
 };
 
+wxObjectFolderTree::wxObjectFolderTree(wxWindow* parent, wxWindowID id, const wxPoint& pos,
+                  const wxSize& size, long style,
+                  const wxValidator& validator,
+                  const wxString& name)
+		: wxFileTree(parent, id, pos, size, style, validator, name)
+{
+	wxArrayString extensions;
+	extensions.Add("*.ot");
+	extensions.Add("*.ocs");
+	extensions.Add("*.static");
+	SetExtensions(extensions);
+	SetRootPath("Data/Editor/Objects");
+	wxEdit::Instance().GetExplorerToolbar()->RegisterTool("NewFolder", "ResourceMgr", "Data/Editor/Intern/1988.ico", wxObjectFolderTree::OnToolbarEvent);
+	wxEdit::Instance().GetExplorerToolbar()->RegisterTool("NewResource", "ResourceMgr", "Data/Editor/Intern/Engine_Icon07.png", wxObjectFolderTree::OnToolbarEvent);
+	wxEdit::Instance().GetExplorerToolbar()->SetGroupStatus("ResourceMgr", true);
+	//wxEdit::Instance().GetExplorerToolbar()->SetGroupStatus("ResourceMgr", false);
+}
+
 void wxObjectFolderTree::OnShowMenuCallback(wxMenu *menu, VdtcTreeItemBase *item)
 {
 	if (item->IsRoot() || item->IsDir())
@@ -89,4 +107,26 @@ void wxObjectFolderTree::OnMenuCallback(int id)
 		SGTGOCAnimatedCharacter::GetDefaultParameters(&map);
 		page->AddGOCSection("AnimatedCharacter", map);
 	}
+}
+
+void wxObjectFolderTree::OnToolbarEvent(int toolID, Ogre::String toolname)
+{
+}
+
+void wxObjectFolderTree::OnEnterTab()
+{
+	wxEdit::Instance().GetpropertyWindow()->SetPage("EditGameObject");
+	if (GetSelectedResource() != "None")
+	{
+		if (GetSelectedResource().find(".ocs") != Ogre::String::npos)
+		{
+			((wxEditSGTGameObject*)(wxEdit::Instance().GetpropertyWindow()->GetCurrentPage()))->SetResource(GetSelectedResource());
+		}
+	}
+
+	wxEdit::Instance().GetExplorerToolbar()->SetGroupStatus("ResourceMgr", true);
+}
+void wxObjectFolderTree::OnLeaveTab()
+{
+	wxEdit::Instance().GetExplorerToolbar()->SetGroupStatus("ResourceMgr", false);
 }

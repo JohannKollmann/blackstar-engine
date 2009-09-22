@@ -26,6 +26,8 @@ wxMaterialTree::wxMaterialTree(wxWindow* parent, wxWindowID id, const wxPoint& p
 	_iconList = new wxImageList(16,16);
 	
 	mCallbackIDCounter = 10500;
+
+	wxEdit::Instance().GetExplorerToolbar()->RegisterTool("MapWizard", "Materials", "Data/Editor/Intern/BrushMode.png", wxMaterialTree::OnToolbarEvent);
 };
 
 wxMaterialTree::~wxMaterialTree()
@@ -422,4 +424,18 @@ Ogre::String wxMaterialTree::GetTemplateLocation(Ogre::String tmat)
 		}
 	}
 	return "";
+}
+
+void wxMaterialTree::OnToolbarEvent(int toolID, Ogre::String toolname)
+{
+}
+
+void wxMaterialTree::OnEnterTab()
+{
+	wxEdit::Instance().GetpropertyWindow()->SetPage("material");
+	wxEdit::Instance().GetExplorerToolbar()->SetGroupStatus("Materials", true);
+}
+void wxMaterialTree::OnLeaveTab()
+{
+	wxEdit::Instance().GetExplorerToolbar()->SetGroupStatus("Materials", false);
 }

@@ -22,5 +22,6 @@ class wxMeshMagick;
 class wxMainNotebook;
 class wxFileTree;
 class wxSGTToolbar;
+class EntityTreeNotebookListener;
 
 #endif

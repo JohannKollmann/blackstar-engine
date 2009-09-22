@@ -4,7 +4,6 @@
 
 #include "wx/aui/aui.h"
 #include "wx/wx.h"
-#include "wxObjectFolderTree.h"
 #include "wxOgreSceneTree.h"
 #include "wxMaterialTree.h"
 #include "EDTIncludes.h"

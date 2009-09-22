@@ -78,21 +78,11 @@ SGTEdit::SGTEdit()
 	wxEdit::Instance().GetMainToolbar()->RegisterTool("MaterialMode", "EditMode", "Data/Editor/Intern/materialmode.png", SGTEdit::OnToolbarEvent, true);
 	wxEdit::Instance().GetMainToolbar()->SetGroupStatus("EditMode", true);
 
-	wxEdit::Instance().GetExplorerToolbar()->RegisterTool("NewFolder", "ResourceMgr", "Data/Editor/Intern/1988.ico", SGTEdit::OnToolbarEvent);
-	wxEdit::Instance().GetExplorerToolbar()->RegisterTool("NewResource", "ResourceMgr", "Data/Editor/Intern/Engine_Icon07.png", SGTEdit::OnToolbarEvent);
-	wxEdit::Instance().GetExplorerToolbar()->SetGroupStatus("ResourceMgr", true);
-
 	wxEdit::Instance().GetMainToolbar()->RegisterTool("InsertObject", "ObjectMgr", "Data/Editor/Intern/Engine_Icon02.png", SGTEdit::OnToolbarEvent);
 	//wxEdit::Instance().GetMainToolbar()->RegisterTool("InsertObjectAsChild", "ObjectMgr", "Data/Editor/Intern/BrushMode.png", SGTEdit::OnToolbarEvent);
 	wxEdit::Instance().GetMainToolbar()->RegisterTool("DeleteObject", "ObjectMgr", "Data/Editor/Intern/Engine_Icon04.png", SGTEdit::OnToolbarEvent);
 	wxEdit::Instance().GetMainToolbar()->RegisterTool("SaveObjectGroup", "ObjectMgr", "Data/Editor/Intern/Engine_Icon06.png", SGTEdit::OnToolbarEvent);
 	wxEdit::Instance().GetMainToolbar()->SetGroupStatus("ObjectMgr", true);
-
-	wxEdit::Instance().GetExplorerToolbar()->RegisterTool("MapWizard", "Materials", "Data/Editor/Intern/BrushMode.png", SGTEdit::OnToolbarEvent);
-	wxEdit::Instance().GetExplorerToolbar()->SetGroupStatus("Materials", true);
-
-	wxEdit::Instance().GetExplorerToolbar()->RegisterTool("ReloadScripts", "Scripts", "Data/Editor/Intern/BrushMode.png", SGTEdit::OnToolbarEvent);
-	wxEdit::Instance().GetExplorerToolbar()->SetGroupStatus("Scripts", true);
 };
 
 void SGTEdit::OnToolbarEvent(int toolID, Ogre::String toolname)
@@ -567,7 +557,7 @@ SGTGameObject* SGTEdit::OnInsertWaypoint(bool align, bool create_only)
 	if (!create_only)
 	{
 		SelectObject(waypoint);
-		wxEdit::Instance().GetWorldExplorer()->GetSceneTree()->Update();
+		wxEdit::Instance().GetWorldExplorer()->GetSceneTree()->NotifyObject(waypoint);
 	}
 	wxEdit::Instance().GetOgrePane()->SetFocus();
 	return waypoint;
@@ -640,7 +630,7 @@ SGTGameObject* SGTEdit::OnInsertObject(SGTGameObject *parent, bool align, bool c
 
 		if (!create_only)
 		{
-			wxEdit::Instance().GetWorldExplorer()->GetSceneTree()->Update();
+			wxEdit::Instance().GetWorldExplorer()->GetSceneTree()->NotifyObject(object);
 			SelectObject(object);
 
 			wxEdit::Instance().GetWorldExplorer()->GetMaterialTree()->Update();

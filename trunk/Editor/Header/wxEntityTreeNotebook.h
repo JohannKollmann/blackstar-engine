@@ -13,6 +13,8 @@ class wxEntityTreeNotebook : public wxAuiNotebook
 	DECLARE_CLASS(wxEntityTreeNotebook)
 
 private:
+	std::vector<EntityTreeNotebookListener*> mTabs;
+	EntityTreeNotebookListener *mLastTab;
 	wxObjectFolderTree *mResourcesTree;
 	wxOgreSceneTree *mSceneTree;
 	wxMaterialTree *mMaterialTree;
@@ -27,6 +29,8 @@ public:
 	wxEntityTreeNotebook(wxWindow* parent, wxWindowID id, const wxPoint& pos = wxDefaultPosition,
                   const wxSize& size = wxDefaultSize, long style = wxTR_HAS_BUTTONS | wxTR_FULL_ROW_HIGHLIGHT);
 	~wxEntityTreeNotebook(void);
+
+	void AddTab(EntityTreeNotebookListener* tab, wxWindow *window, Ogre::String caption);
 
 	wxObjectFolderTree* GetResourceTree() { return mResourcesTree; };
 	wxOgreSceneTree* GetSceneTree() { return mSceneTree; };

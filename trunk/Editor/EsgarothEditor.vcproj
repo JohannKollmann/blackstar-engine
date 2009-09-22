@@ -190,6 +190,10 @@
 			Name="View"
 			>
 			<File
+				RelativePath=".\Header\EntityTreeNotebookListener.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\virtualdirtreectrl.cpp"
 				>
 			</File>

@@ -14,7 +14,7 @@ Zeigt ein SGTGameObject mit allen children geordnet nach Typ (Licht, Geometrie, 
 #include "Ogre.h"
 #include "wxEdit.h"
 #include "SGTGameObject.h"
-
+#include "EntityTreeNotebookListener.h"
 
 class OgreTreeItemBase : public wxTreeItemData
 {
@@ -103,7 +103,7 @@ public:
 
 WX_DEFINE_ARRAY(OgreTreeItemBase *, OgreTreeItemBaseArray);
 
-class wxOgreSceneTree : public wxTreeCtrl
+class wxOgreSceneTree : public wxTreeCtrl, public EntityTreeNotebookListener
 {
 private:
 	/** Icons image list */
@@ -148,6 +148,7 @@ public:
 	SGTGameObject* GetSelectedItem();
 
 	void Update();
+	void NotifyObject(SGTGameObject *object);
 
 	void ScanFromNode(OgreTreeItemBase *item, SGTGameObject *scanFrom, bool subScan = true);
 
@@ -165,6 +166,9 @@ public:
 	void OnSelChanged(wxTreeEvent &event);
 
 	void ExpandToObject(SGTGameObject *object);
+
+	void OnEnterTab();
+	void OnLeaveTab();
 
 
 private:
