@@ -3,7 +3,7 @@
 #include "wx/aui/aui.h"
 #include "wx/wx.h"
 #include "wxOgre.h"
-#include "../wxConnex/connexspace.h"
+#include "wxScriptEditor.h"
 
 class wxMainNotebook : public wxAuiNotebook
 {
@@ -11,7 +11,7 @@ class wxMainNotebook : public wxAuiNotebook
 
 private:
 	wxOgre *mOgreWindow;
-	wxConnexSpace* m_pCXSpace;
+	wxScriptEditor *mScriptEditor;
 
 protected:
 	DECLARE_EVENT_TABLE() 

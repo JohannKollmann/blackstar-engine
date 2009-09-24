@@ -14,10 +14,8 @@ wxMainNotebook::wxMainNotebook(wxWindow* parent, wxWindowID id, const wxPoint& p
 
 	mOgreWindow = new wxOgre(this, -1);
 	AddPage(mOgreWindow, "Scene", false);
-
-	m_pCXSpace = new wxConnexSpace( this, wxID_ANY, wxPoint(0,0), wxSize(150, 150), wxNO_BORDER);
-	m_pCXSpace->SetBackgroundColour( wxColor(128,128,128,255) );
-	AddPage(m_pCXSpace, "Game Logic", false);
+	mScriptEditor = new wxScriptEditor(this);
+	AddPage(mScriptEditor, "Empty Script *", false);
 }
 
 wxMainNotebook::~wxMainNotebook(void)

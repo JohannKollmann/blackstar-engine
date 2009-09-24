@@ -43,7 +43,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\Core\script;TinyXML;..\..\Dependencies\MeshMagick\include;..\..\Dependencies\wxWidgets\lib\vc_dll\mswd;..\..\Dependencies\wxWidgets\include\;..\..\Dependencies\wxWidgets\wxthings\include;..\LoadSave_dll\LoadSaveFrontend;..\..\Dependencies\OpenAL\include;..\..\Dependencies\OgreOggSound\include;..\..\Dependencies\Alut\include;..\Common\;..\..\Dependencies\Ogre3D\include\;..\..\Dependencies\Ogre3D\CEGUIRenderer\include\;..\..\Dependencies\Ogre3D\Dependencies\include;..\..\Dependencies\Caelum\include\;..\..\Dependencies\PhysX\SDKs\PhysXLoader\include;..\..\Dependencies\PhysX\SDKs\Physics\include;..\..\Dependencies\PhysX\SDKs\Foundation\include;..\..\Dependencies\PhysX\SDKs\Cooking\include;..\..\Dependencies\PhysX\SDKs\NxCharacter\include;..\..\Dependencies\NxOgre\include;..\Core\header\;..\LoadSave_dll\SGTLoadSave\ExternalHeaders;Header;..\..\Dependencies\Hydrax\include\;..\..\Dependencies\"
+				AdditionalIncludeDirectories="..\Core\script;TinyXML;..\..\Dependencies\MeshMagick\include;..\..\Dependencies\wxWidgets\lib\vc_dll\mswd;..\..\Dependencies\wxWidgets\stc;..\..\Dependencies\wxWidgets\include\;..\..\Dependencies\wxWidgets\wxthings\include;..\LoadSave_dll\LoadSaveFrontend;..\..\Dependencies\OpenAL\include;..\..\Dependencies\OgreOggSound\include;..\..\Dependencies\Alut\include;..\Common\;..\..\Dependencies\Ogre3D\include\;..\..\Dependencies\Ogre3D\CEGUIRenderer\include\;..\..\Dependencies\Ogre3D\Dependencies\include;..\..\Dependencies\Caelum\include\;..\..\Dependencies\PhysX\SDKs\PhysXLoader\include;..\..\Dependencies\PhysX\SDKs\Physics\include;..\..\Dependencies\PhysX\SDKs\Foundation\include;..\..\Dependencies\PhysX\SDKs\Cooking\include;..\..\Dependencies\PhysX\SDKs\NxCharacter\include;..\..\Dependencies\NxOgre\include;..\Core\header\;..\LoadSave_dll\SGTLoadSave\ExternalHeaders;Header;..\..\Dependencies\Hydrax\include\;..\..\Dependencies\"
 				PreprocessorDefinitions="WXUSINGDLL;__WXDEBUG__;__WXMSW__;_WINDOWS;_DEBUG"
 				MinimalRebuild="false"
 				BasicRuntimeChecks="3"
@@ -64,7 +64,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Rpcrt4.lib OgreMain_d.lib PhysXLoader.lib NxCooking.lib NxCharacter.lib nxOgre_d.lib CEGUIBase_d.lib OgreGUIRenderer_d.lib ws2_32.lib OgreOggSound_d.lib comctl32.lib wxbase28d_xml.lib wxmsw28d_xrc.lib wxmsw28d_adv.lib wxmsw28d_core.lib wxbase28d.lib wxmsw28d_aui.lib wxtiffd.lib wxjpegd.lib wxpngd.lib wxzlibd.lib wxregexd.lib wxexpatd.lib wxcode_msw28d_propgrid.lib caelum_d.lib EsgarothEngine_debug.lib SGTLoadSave_d.lib meshmagick_d.lib Hydrax_d.lib"
+				AdditionalDependencies="Rpcrt4.lib OgreMain_d.lib PhysXLoader.lib NxCooking.lib NxCharacter.lib nxOgre_d.lib CEGUIBase_d.lib OgreGUIRenderer_d.lib ws2_32.lib OgreOggSound_d.lib comctl32.lib wxbase28d_xml.lib wxmsw28d_xrc.lib wxmsw28d_adv.lib wxmsw28d_core.lib wxbase28d.lib wxmsw28d_aui.lib wxtiffd.lib wxjpegd.lib wxpngd.lib wxzlibd.lib wxregexd.lib wxexpatd.lib wxcode_msw28d_propgrid.lib caelum_d.lib EsgarothEngine_debug.lib SGTLoadSave_d.lib meshmagick_d.lib Hydrax_d.lib wxmsw28d_stc.lib"
 				OutputFile="$(OutDir)/EsgarothEditor_debug.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="..\..\Dependencies\MeshMagick\lib;..\..\Dependencies\boost\lib\;..\..\Dependencies\OgreOggSound\lib\;..\..\Dependencies\Ogre3D\lib;..\..\Dependencies\NxOgre\lib;..\..\Dependencies\Ogre3D\Dependencies\lib\Debug;..\..\Dependencies\PhysX\SDKs\lib\win32;..\..\Dependencies\wxWidgets\lib\vc_dll\;..\..\Dependencies\wxWidgets\wxthings\lib\;..\..\Dependencies\Caelum\lib\debug;..\..\Ogre3D\Dependencies\lib\Release\;..\..\lib\;..\..\Dependencies\Hydrax\lib"
@@ -126,7 +126,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="2"
-				AdditionalIncludeDirectories="TinyXML;..\..\Dependencies\wxWidgets\lib\vc_dll\msw;..\..\Dependencies\wxWidgets\include\msvc;..\..\Dependencies\wxWidgets\include\;..\..\Dependencies\wxWidgets\wxthings\include;..\..\Dependencies\OpenAL\include;..\..\Dependencies\OgreOggSound\include;..\..\Dependencies\Alut\include;..\Common\;..\..\Dependencies\Ogre3D\include\;..\..\Dependencies\Ogre3D\CEGUIRenderer\include\;..\..\Dependencies\Ogre3D\Dependencies\include;..\..\Dependencies\Caelum\include\;..\..\Dependencies\PhysX\SDKs\PhysXLoader\include;..\..\Dependencies\PhysX\SDKs\Physics\include;..\..\Dependencies\PhysX\SDKs\Foundation\include;..\..\Dependencies\PhysX\SDKs\Cooking\include;..\..\Dependencies\PhysX\SDKs\NxCharacter\include;..\..\Dependencies\NxOgre\include;..\Core\header\;..\Core\script;..\LoadSave_dll\SGTLoadSave\ExternalHeaders;Header;..\..\Dependencies\Hydrax\include\;..\..\Dependencies\;..\..\Dependencies\MeshMagick\include"
+				AdditionalIncludeDirectories="TinyXML;..\..\Dependencies\wxWidgets\lib\vc_dll\msw;..\..\Dependencies\wxWidgets\include\msvc;..\..\Dependencies\wxWidgets\include\;..\..\Dependencies\wxWidgets\stc;..\..\Dependencies\wxWidgets\wxthings\include;..\..\Dependencies\OpenAL\include;..\..\Dependencies\OgreOggSound\include;..\..\Dependencies\Alut\include;..\Common\;..\..\Dependencies\Ogre3D\include\;..\..\Dependencies\Ogre3D\CEGUIRenderer\include\;..\..\Dependencies\Ogre3D\Dependencies\include;..\..\Dependencies\Caelum\include\;..\..\Dependencies\PhysX\SDKs\PhysXLoader\include;..\..\Dependencies\PhysX\SDKs\Physics\include;..\..\Dependencies\PhysX\SDKs\Foundation\include;..\..\Dependencies\PhysX\SDKs\Cooking\include;..\..\Dependencies\PhysX\SDKs\NxCharacter\include;..\..\Dependencies\NxOgre\include;..\Core\header\;..\Core\script;..\LoadSave_dll\SGTLoadSave\ExternalHeaders;Header;..\..\Dependencies\Hydrax\include\;..\..\Dependencies\;..\..\Dependencies\MeshMagick\include"
 				PreprocessorDefinitions="WXUSINGDLL;WIN32;NDEBUG;_CONSOLE"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
@@ -146,7 +146,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				RegisterOutput="false"
-				AdditionalDependencies="meshmagick.lib OgreMain.lib PhysXLoader.lib NxCooking.lib NxCharacter.lib nxOgre.lib CEGUIBase.lib OgreGUIRenderer.lib ws2_32.lib OgreOggSound.lib wxbase28_xml.lib wxmsw28_xrc.lib wxmsw28_adv.lib wxmsw28_core.lib wxbase28.lib wxmsw28_aui.lib wxtiff.lib wxjpeg.lib wxpng.lib wxzlib.lib wxregex.lib wxexpat.lib winmm.lib rpcrt4.lib wsock32.lib odbc32.lib comctl32.lib wxcode_msw28_propgrid.lib caelum.lib EsgarothEngine.lib SGTLoadSave.lib Hydrax.lib"
+				AdditionalDependencies="meshmagick.lib OgreMain.lib PhysXLoader.lib NxCooking.lib NxCharacter.lib nxOgre.lib CEGUIBase.lib OgreGUIRenderer.lib ws2_32.lib OgreOggSound.lib wxbase28_xml.lib wxmsw28_xrc.lib wxmsw28_adv.lib wxmsw28_core.lib wxbase28.lib wxmsw28_aui.lib wxtiff.lib wxjpeg.lib wxpng.lib wxzlib.lib wxregex.lib wxexpat.lib winmm.lib rpcrt4.lib wsock32.lib odbc32.lib comctl32.lib wxcode_msw28_propgrid.lib caelum.lib EsgarothEngine.lib SGTLoadSave.lib Hydrax.lib wxmsw28_stc.lib"
 				OutputFile="$(OutDir)/EsgarothEditor.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="..\..\Dependencies\boost\lib\;..\..\Dependencies\MeshMagick\lib;..\..\Dependencies\OgreOggSound\lib;..\..\Dependencies\Ogre3D\lib;..\..\Dependencies\NxOgre\lib;..\..\Dependencies\Ogre3D\Dependencies\lib\Release;..\..\Dependencies\PhysX\SDKs\lib\win32;..\..\Dependencies\wxWidgets\lib\vc_dll\;..\..\Dependencies\wxWidgets\wxthings\lib\;..\..\Dependencies\Caelum\lib\release;..\..\Ogre3D\Dependencies\lib\Release\;..\..\lib\;..\..\Dependencies\Hydrax\lib"
@@ -334,6 +334,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\wxScriptEditor.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Header\wxScriptEditor.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\wxScriptFileTree.cpp"
 				>
 			</File>
@@ -357,6 +365,34 @@
 				RelativePath=".\Header\wxSGTToolbar.h"
 				>
 			</File>
+			<Filter
+				Name="TinyXML"
+				>
+				<File
+					RelativePath=".\Source\SGTDotSceneLoader.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Header\SGTDotSceneLoader.h"
+					>
+				</File>
+				<File
+					RelativePath=".\TinyXML\tinyxml.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\TinyXML\tinyxml.h"
+					>
+				</File>
+				<File
+					RelativePath=".\TinyXML\tinyxmlerror.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\TinyXML\tinyxmlparser.cpp"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Main"
@@ -399,70 +435,6 @@
 			</File>
 			<File
 				RelativePath=".\Header\SGTEntityMaterialInspector.h"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="wxConnex"
-			>
-			<File
-				RelativePath=".\wxConnex\connex.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\wxConnex\connex.h"
-				>
-			</File>
-			<File
-				RelativePath=".\wxConnex\connex_example.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\wxConnex\connex_example.h"
-				>
-			</File>
-			<File
-				RelativePath=".\wxConnex\connexnode.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\wxConnex\connexnode.h"
-				>
-			</File>
-			<File
-				RelativePath=".\wxConnex\connexspace.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\wxConnex\connexspace.h"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="TinyXML"
-			>
-			<File
-				RelativePath=".\Source\SGTDotSceneLoader.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Header\SGTDotSceneLoader.h"
-				>
-			</File>
-			<File
-				RelativePath=".\TinyXML\tinyxml.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\TinyXML\tinyxml.h"
-				>
-			</File>
-			<File
-				RelativePath=".\TinyXML\tinyxmlerror.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\TinyXML\tinyxmlparser.cpp"
 				>
 			</File>
 		</Filter>
