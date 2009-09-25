@@ -6,6 +6,7 @@
 BEGIN_EVENT_TABLE (wxScriptEditor, wxStyledTextCtrl)
     EVT_STC_MARGINCLICK (wxID_ANY,     wxScriptEditor::OnMarginClick)
     EVT_STC_CHARADDED (wxID_ANY,       wxScriptEditor::OnCharAdded)
+	EVT_STC_MODIFIED(wxID_ANY, wxScriptEditor::OnModified)
 	EVT_KEY_DOWN(wxScriptEditor::OnKeyPressed)
 END_EVENT_TABLE()
 
@@ -15,6 +16,8 @@ wxScriptEditor::wxScriptEditor(wxWindow *parent, wxWindowID id,
             long style)
     : wxStyledTextCtrl (parent, id, pos, size, style)
 {
+	mOverrideChange = true;
+
     // default font for all styles
     SetViewEOL (false);
     SetIndentationGuides (false);
@@ -78,7 +81,13 @@ void wxScriptEditor::OnKeyPressed(wxKeyEvent& key)
 	OnKeyDown(key);
 }
 
-void wxScriptEditor::OnCharAdded (wxStyledTextEvent &event)
+void wxScriptEditor::OnModified(wxStyledTextEvent &event)
+{
+	if (mOverrideChange) mOverrideChange = false;
+	else wxEdit::Instance().GetMainNotebook()->SetModified(this, true);
+}
+
+void wxScriptEditor::OnCharAdded(wxStyledTextEvent &event)
 {
 	char chr = (char)event.GetKey();
 	int currentLine = GetCurrentLine();
@@ -110,7 +119,6 @@ void wxScriptEditor::OnCharAdded (wxStyledTextEvent &event)
 			|| line.Find("function") != wxString::npos)
 				CmdKeyExecute (wxSTC_CMD_TAB);
 	}
-	wxEdit::Instance().GetMainNotebook()->SetModified(this, true);
 
 }
 void wxScriptEditor::OnMarginClick (wxStyledTextEvent &event)
@@ -121,6 +129,7 @@ void wxScriptEditor::LoadScript(wxString path)
 {
 	mCurrentFile = path;
 	LoadFile(path);
+	mOverrideChange = true;
 }
 
 void wxScriptEditor::SaveScript()

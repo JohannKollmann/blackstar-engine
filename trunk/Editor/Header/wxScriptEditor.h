@@ -7,11 +7,13 @@ class wxScriptEditor : public wxStyledTextCtrl
 {
 private:
 	wxString mCurrentFile;
+	bool mOverrideChange;
 
 protected:
 	DECLARE_EVENT_TABLE()
 	void OnCharAdded (wxStyledTextEvent &event);
 	void OnMarginClick (wxStyledTextEvent &event);
+	void OnModified (wxStyledTextEvent &event);
 	void OnKeyPressed(wxKeyEvent& key);
 
 public:
