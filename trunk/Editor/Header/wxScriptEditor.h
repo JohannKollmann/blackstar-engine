@@ -12,6 +12,7 @@ protected:
 	DECLARE_EVENT_TABLE()
 	void OnCharAdded (wxStyledTextEvent &event);
 	void OnMarginClick (wxStyledTextEvent &event);
+	void OnKeyPressed(wxKeyEvent& key);
 
 public:
     wxScriptEditor (wxWindow *parent, wxWindowID id = wxID_ANY,

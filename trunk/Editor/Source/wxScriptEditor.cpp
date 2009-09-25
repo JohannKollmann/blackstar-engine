@@ -6,6 +6,7 @@
 BEGIN_EVENT_TABLE (wxScriptEditor, wxStyledTextCtrl)
     EVT_STC_MARGINCLICK (wxID_ANY,     wxScriptEditor::OnMarginClick)
     EVT_STC_CHARADDED (wxID_ANY,       wxScriptEditor::OnCharAdded)
+	EVT_KEY_DOWN(wxScriptEditor::OnKeyPressed)
 END_EVENT_TABLE()
 
 wxScriptEditor::wxScriptEditor(wxWindow *parent, wxWindowID id,
@@ -71,6 +72,12 @@ wxScriptEditor::~wxScriptEditor(void)
 {
 }
 
+void wxScriptEditor::OnKeyPressed(wxKeyEvent& key)
+{
+	if (key.ControlDown() && key.GetKeyCode() == 83) SaveScript();
+	OnKeyDown(key);
+}
+
 void wxScriptEditor::OnCharAdded (wxStyledTextEvent &event)
 {
 	char chr = (char)event.GetKey();
@@ -82,7 +89,7 @@ void wxScriptEditor::OnCharAdded (wxStyledTextEvent &event)
 		wxString line;
 		if (currentLine > 0) line = GetLine(currentLine-1);
 		int tabs = 0;
-		for (int i = 0; i < line.length(); i++)
+		for (unsigned int i = 0; i < line.length(); i++)
 		{
 			char c = line[i];
 			if (c != 32) break;
