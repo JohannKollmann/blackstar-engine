@@ -1,5 +1,7 @@
 
 #include "wxScriptEditor.h"
+#include "wxEdit.h"
+
 
 BEGIN_EVENT_TABLE (wxScriptEditor, wxStyledTextCtrl)
     EVT_STC_MARGINCLICK (wxID_ANY,     wxScriptEditor::OnMarginClick)
@@ -101,8 +103,23 @@ void wxScriptEditor::OnCharAdded (wxStyledTextEvent &event)
 			|| line.Find("function") != wxString::npos)
 				CmdKeyExecute (wxSTC_CMD_TAB);
 	}
+	wxEdit::Instance().GetMainNotebook()->SetModified(this, true);
 
 }
 void wxScriptEditor::OnMarginClick (wxStyledTextEvent &event)
 {
+}
+
+void wxScriptEditor::LoadScript(wxString path)
+{
+	mCurrentFile = path;
+	LoadFile(path);
+}
+
+void wxScriptEditor::SaveScript()
+{
+	if (mCurrentFile == "") return;
+	SaveFile(mCurrentFile);
+	wxEdit::Instance().GetMainNotebook()->SetModified(this, false);
+
 }

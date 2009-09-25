@@ -7,6 +7,8 @@
 
 class wxScriptFileTree : public wxFileTree, public EntityTreeNotebookListener
 {
+protected:
+	void OnItemActivated(wxTreeEvent &event);
 public:
 	wxScriptFileTree(wxWindow* parent, wxWindowID id, const wxPoint& pos = wxDefaultPosition,
                     const wxSize& size = wxDefaultSize, long style = wxTR_HAS_BUTTONS | wxTR_FULL_ROW_HIGHLIGHT,

@@ -43,6 +43,20 @@ void wxScriptFileTree::OnShowMenuCallback(wxMenu *menu, VdtcTreeItemBase *item)
 	}
 }
 
+void wxScriptFileTree::OnItemActivated(wxTreeEvent &event)
+{
+	wxTreeItemId id = event.GetItem();
+	if(id.IsOk())
+	{
+		mCurrentItem = (VdtcTreeItemBase *)GetItemData(id);
+	}
+	if (mCurrentItem->IsFile())
+	{
+		wxMainNotebook *notebook = wxEdit::Instance().GetMainNotebook();
+		notebook->AddScriptTab(mCurrentItem->GetName(), (mRootPath + "/" + GetRelativePath(mCurrentItem->GetId()).GetFullPath()));
+	}
+}
+
 void wxScriptFileTree::OnSelectItemCallback()
 {
 }

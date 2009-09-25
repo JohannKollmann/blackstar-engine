@@ -5,18 +5,25 @@
 #include "wxOgre.h"
 #include "wxScriptEditor.h"
 
+struct ScriptEditorCaptionBind
+{
+	wxString mCaption;
+	wxScriptEditor *mScriptEditor;
+};
+
 class wxMainNotebook : public wxAuiNotebook
 {
 	DECLARE_CLASS(wxMainNotebook)
 
 private:
 	wxOgre *mOgreWindow;
-	wxScriptEditor *mScriptEditor;
+	std::list<ScriptEditorCaptionBind> mScriptTabs;
 
 protected:
 	DECLARE_EVENT_TABLE() 
 
 	void OnNotebookChanged(wxAuiNotebookEvent& event);
+	void OnPageClosed(wxAuiNotebookEvent& event);
 
 public:
 	wxMainNotebook(wxWindow* parent, wxWindowID id, const wxPoint& pos = wxDefaultPosition,
@@ -24,5 +31,10 @@ public:
 	~wxMainNotebook(void);
 
 	wxOgre* GetOgreWindow() { return mOgreWindow; };
+
+	static void OnToolbarEvent(int toolID, Ogre::String toolname);
+
+	void AddScriptTab(wxString caption, wxString fullPath);
+	void SetModified(wxScriptEditor *tab, bool modified);
 
 };

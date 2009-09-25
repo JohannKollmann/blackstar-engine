@@ -49,6 +49,7 @@ public:
 
 	void PostCreate();
 
+	wxMainNotebook* GetMainNotebook() { return mMainNotebook; };
 	wxOgre* GetOgrePane();
 	wxEntityTreeNotebook* GetWorldExplorer() { return mWorldExplorer; };
 	wxPropertyGridWindow* GetpropertyWindow() { return mPropertyWindow; };

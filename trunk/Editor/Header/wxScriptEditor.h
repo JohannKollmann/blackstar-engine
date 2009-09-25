@@ -5,6 +5,9 @@
 
 class wxScriptEditor : public wxStyledTextCtrl
 {
+private:
+	wxString mCurrentFile;
+
 protected:
 	DECLARE_EVENT_TABLE()
 	void OnCharAdded (wxStyledTextEvent &event);
@@ -17,4 +20,7 @@ public:
           long style = wxSUNKEN_BORDER|wxVSCROLL
          );
 	~wxScriptEditor(void);
+
+	void LoadScript(wxString path);
+	void SaveScript();
 };

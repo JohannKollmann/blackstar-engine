@@ -33,7 +33,8 @@ wxEdit::wxEdit(wxWindow* parent) : wxFrame(parent, -1, _("Blackstar Edit"),
 		Right().Fixed().ToolbarPane().Position(0).Layer(1));
 
 		// ************************
-		mMainNotebook = new wxMainNotebook(this, -1);
+		mMainNotebook = new wxMainNotebook(this, wxID_ANY, wxDefaultPosition, wxDefaultSize,
+			wxAUI_NB_TOP | wxAUI_NB_TAB_SPLIT | wxAUI_NB_TAB_MOVE | wxAUI_NB_SCROLL_BUTTONS);
 		mDummy = new wxOgre(this, -1);//, wxDefaultPosition, wxDefaultSize, 0, "dummypane");
 		mDummy->Show(false);
 

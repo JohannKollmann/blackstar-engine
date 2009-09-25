@@ -12,7 +12,7 @@ protected:
 
 	void OnItemMenu(wxTreeEvent &event);
 	void OnSelChanged(wxTreeEvent &event);
-	void OnItemActivated(wxTreeEvent &event);
+	virtual void OnItemActivated(wxTreeEvent &event);
 
 	void OnSetRootPath(const wxString &root);
 
