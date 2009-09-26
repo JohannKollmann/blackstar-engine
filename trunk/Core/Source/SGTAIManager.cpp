@@ -14,46 +14,45 @@ SGTAIManager::~SGTAIManager(void)
 
 unsigned int SGTAIManager::RegisterAIObject(SGTGOCAI* object)
 {
-	mAIObjects.push_back(object);
+	mAIObjects.insert(std::make_pair<int, SGTGOCAI*>(object->GetID(), object));
 	return mNextID++;
 }
 void SGTAIManager::UnregisterAIObject(SGTGOCAI* object)
 {
-	mAIObjects.remove(object);
+	std::map<int, SGTGOCAI*>::iterator i = mAIObjects.find(object->GetID());
+	if (i != mAIObjects.end()) mAIObjects.erase(i);
 }
 
 SGTGOCAI* SGTAIManager::GetAIByID(unsigned int id)
 {
-	for (std::list<SGTGOCAI*>::iterator i = mAIObjects.begin(); i != mAIObjects.end(); i++)
-	{
-		if ((*i)->GetID() == id) return (*i);
-	}
+	std::map<int, SGTGOCAI*>::iterator i = mAIObjects.find(id);
+	if (i != mAIObjects.end()) return i->second;
 	return 0;
 }
 
 void SGTAIManager::ReloadScripts()
 {
-	for (std::list<SGTGOCAI*>::iterator i = mAIObjects.begin(); i != mAIObjects.end(); i++)
+	for (std::map<int, SGTGOCAI*>::iterator i = mAIObjects.begin(); i != mAIObjects.end(); i++)
 	{
-		(*i)->ReloadScript();
+		i->second->ReloadScript();
 	}
 }
 
 void SGTAIManager::Clear()
 {
-	std::list<SGTGOCAI*>::iterator i = mAIObjects.begin();
+	std::map<int, SGTGOCAI*>::iterator i = mAIObjects.begin();
 	while (i != mAIObjects.end())
 	{
-		delete (*i)->GetOwner();
+		delete i->second->GetOwner();
 		i = mAIObjects.begin();
 	}
 }
 
 void SGTAIManager::Update(float time)
 {
-	for (std::list<SGTGOCAI*>::iterator i = mAIObjects.begin(); i != mAIObjects.end(); i++)
+	for (std::map<int, SGTGOCAI*>::iterator i = mAIObjects.begin(); i != mAIObjects.end(); i++)
 	{
-		(*i)->Update(time);
+		i->second->Update(time);
 	}
 }
 
