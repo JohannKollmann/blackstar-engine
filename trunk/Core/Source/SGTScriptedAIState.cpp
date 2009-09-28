@@ -7,7 +7,7 @@ SGTScriptedAIState::SGTScriptedAIState(SGTGOCAI* ai, Ogre::String scriptFileName
 {
 	mLastUpdateCall = 0.0f;
 	mAIObject = ai;
-	mScript = SGTScriptSystem::GetInstance().CreateInstance(SCRIPT_BASE_DIR + scriptFileName);
+	mScript = SGTSceneManager::Instance().CreateScript(scriptFileName);
 }
 
 SGTScriptedAIState::~SGTScriptedAIState()
@@ -43,7 +43,7 @@ SGTDayCycle::SGTDayCycle(SGTGOCAI* ai, Ogre::String scriptFileName, std::vector<
 {
 	mLastUpdateCall = 0.0f;
 	mAIObject = ai;
-	mScript = SGTScriptSystem::GetInstance().CreateInstance(SCRIPT_BASE_DIR + scriptFileName);
+	mScript = SGTSceneManager::Instance().CreateScript(scriptFileName);
 	mScriptParams = params;
 	mEndTimeH = endtimeH;
 	mEndTimeM = endtimeM;

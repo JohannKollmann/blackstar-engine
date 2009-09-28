@@ -15,7 +15,6 @@ class wxMaterialEditor : public wxPropertyGridListener
 {
 private:
 	Ogre::String FindResource(Ogre::MaterialPtr material);
-	Ogre::String ScanPath(Ogre::String path, Ogre::String filename);
 
 	Ogre::String Scan_Line_For_Material(Ogre::String line);
 

@@ -10,8 +10,6 @@
 
 //#define BOOST_ALL_DYN_LINK
 
-#define SCRIPT_BASE_DIR Ogre::String("Data/Scripts/Game/")
-
 class SGTMain;
 class SGTKernel;
 class SGTSceneManager;

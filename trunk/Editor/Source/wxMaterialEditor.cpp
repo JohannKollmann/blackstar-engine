@@ -15,32 +15,7 @@ wxMaterialEditor::~wxMaterialEditor(void)
 
 Ogre::String wxMaterialEditor::FindResource(Ogre::MaterialPtr material)
 {
-	return ScanPath("Data/Scripts/", material->getOrigin());
-}
-
-Ogre::String wxMaterialEditor::ScanPath(Ogre::String path, Ogre::String filename)
-{
-	HANDLE fHandle;
-	WIN32_FIND_DATA wfd;
-	fHandle=FindFirstFile((path + "/*").c_str(),&wfd);
-	do
-	{
-		if((wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY)
-		{
-			Ogre::String dir = wfd.cFileName;
-			if (dir == "." || dir == "..") continue;
-			Ogre::String result = "";
-			result = ScanPath(path + "/" + Ogre::String(wfd.cFileName),  filename);
-			if (result != "") return result;
-		}
-		if (Ogre::String(wfd.cFileName) == filename)
-		{
-			return path + "/" + Ogre::String(wfd.cFileName);
-		}
-	}
-	while (FindNextFile(fHandle,&wfd));
-	FindClose(fHandle);
-	return "";
+	return SGTSceneManager::Instance().FindResourcePath("Data", material->getOrigin());
 }
 
 Ogre::String wxMaterialEditor::Scan_Line_For_Material(Ogre::String line)

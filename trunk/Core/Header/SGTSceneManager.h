@@ -33,7 +33,7 @@ private:
 
 	std::map<Ogre::String, EDTCreatorFn> mEditorInterfaces;
 
-	Ogre::String ScanPath(Ogre::String path, Ogre::String filename);
+	std::vector<Ogre::String> mScriptLocations;
 
 public:
 
@@ -68,14 +68,12 @@ public:
 	void LoadLevelMesh(Ogre::String meshname);
 
 	void LoadLevel(Ogre::String levelfile, bool load_dynamic = true);
-
 	void SaveLevel(Ogre::String levelfile);
 
 	void BakeStaticMeshShape(Ogre::String meshname);
 
 	void Init();
 	void Reset();
-
 	void Shutdown();
 
 	void RegisterEditorInterface(Ogre::String family, Ogre::String type, EDTCreatorFn RegisterFn, GOCDefaultParametersFn DefaulParametersFn);
@@ -85,11 +83,15 @@ public:
 
 	SGTGOCEditorInterface* CreateComponent(Ogre::String type, SGTDataMap *parameters);
 
-	SGTGameObject* CreateWaypoint();
-
-	void EnableClock(bool enable);
+	Ogre::String FindResourcePath(Ogre::String path, Ogre::String filename);
 
 	//Script
+
+	void AddScriptLocation(Ogre::String dir);
+	Ogre::String GetScriptPath(Ogre::String script);
+	SGTScript CreateScript(Ogre::String script);
+	SGTScript CreateScript(Ogre::String script, std::vector<SGTScriptParam> params);
+
 	static std::vector<SGTScriptParam> Lua_LogMessage(SGTScript& caller, std::vector<SGTScriptParam> vParams);
 	static std::vector<SGTScriptParam> Lua_LoadLevel(SGTScript& caller, std::vector<SGTScriptParam> vParams);
 	static std::vector<SGTScriptParam> Lua_CreateNpc(SGTScript& caller, std::vector<SGTScriptParam> vParams);
@@ -113,7 +115,7 @@ public:
 	*/
 	static std::vector<SGTScriptParam> Lua_Npc_AddTA(SGTScript& caller, std::vector<SGTScriptParam> vParams);
 	/*
-	Erwarte den Ziel-WP
+	Erwartet den Ziel-WP
 	*/
 	static std::vector<SGTScriptParam> Lua_Npc_GotoWP(SGTScript& caller, std::vector<SGTScriptParam> vParams);
 
@@ -128,6 +130,7 @@ public:
 	bool IsViewComponent() { return false; }
 
 	//Game clock
+	void EnableClock(bool enable);
 	void SetTimeScale(float scale);
 	void SetTime(int hours, int minutes);
 	int GetHour();

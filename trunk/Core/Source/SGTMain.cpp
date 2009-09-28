@@ -16,6 +16,9 @@
 #include "..\GUISystem.h"
 #include "SSAOListener.h"
 
+#include "boost/filesystem/operations.hpp"
+#include "boost/filesystem/path.hpp"
+
 #define USE_REMOTEDEBUGGER 1
 
 SGTMain::SGTMain()
@@ -32,6 +35,12 @@ bool SGTMain::Run()
 {
 	ResetConfig();
 	GetConfig();
+
+#if		_DEBUG
+		mRoot = new Ogre::Root("","","ogre.graphics.log");
+#else
+		mRoot = new Ogre::Root("","","ogre.graphics.log");
+#endif
 
 	setupRenderSystem();
 
@@ -52,16 +61,20 @@ bool SGTMain::Run()
 	return true;
 }
 
-bool SGTMain::Run(Ogre::RenderWindow *window, size_t OISInputWindow)
+void SGTMain::ExternInit()
 {
-	Ogre::LogManager::getSingleton().logMessage("SGTMain (Embedded) Run");
-
 	mRoot = Ogre::Root::getSingletonPtr();
 
 	ResetConfig();
 	GetConfig();
 
-	setupRenderSystem(false);
+	setupRenderSystem();
+	mRoot->initialise(false);
+}
+
+bool SGTMain::Run(Ogre::RenderWindow *window, size_t OISInputWindow)
+{
+	Ogre::LogManager::getSingleton().logMessage("SGTMain (Embedded) Run");
 
 	mWindow = window;
 
@@ -74,26 +87,26 @@ bool SGTMain::Run(Ogre::RenderWindow *window, size_t OISInputWindow)
 	return true;
 };
 
+void SGTMain::AddOgreResourcePath(Ogre::String dir)
+{
+	boost::filesystem::path path(dir.c_str());
+	Ogre::ResourceGroupManager::getSingleton().addResourceLocation(dir, "FileSystem");
+	for (boost::filesystem::directory_iterator i(path); i != boost::filesystem::directory_iterator(); i++)
+	{
+		if (boost::filesystem::is_directory((*i))) AddOgreResourcePath((*i).path().directory_string().c_str());
+	}
+}
+
 void SGTMain::initScene()
 {
 	Ogre::LogManager::getSingleton().logMessage("SGTMain initScene");
 
-	Ogre::ConfigFile cf;
-	cf.load("Data/resources.cfg");
-	Ogre::ConfigFile::SectionIterator seci = cf.getSectionIterator();
-	Ogre::String secName, typeName, archName;
-		
-	while (seci.hasMoreElements())
+	//Init Ogre Resources
+	for (std::vector<KeyVal>::iterator i = mSettings["Resources"].begin(); i != mSettings["Resources"].end(); i++)
 	{
-		secName = seci.peekNextKey();
-		Ogre::ConfigFile::SettingsMultiMap *Settings = seci.getNext();
-		Ogre::ConfigFile::SettingsMultiMap::iterator i;
-		for (i = Settings->begin(); i != Settings->end(); ++i)
-		{
-			typeName = i->first;
-			archName = i->second;
-			Ogre::ResourceGroupManager::getSingleton().addResourceLocation(archName, typeName, secName);
-		}
+		if (i->Key == "OgreZip") Ogre::ResourceGroupManager::getSingleton().addResourceLocation(i->Val, "Zip");
+		if (i->Key == "OgreMedia") AddOgreResourcePath(i->Val);
+		if (i->Key == "LuaScripts") SGTSceneManager::Instance().AddScriptLocation(i->Val);
 	}
 
 	mSceneMgr = mRoot->createSceneManager(Ogre::ST_GENERIC, "Esgaroth");
@@ -153,26 +166,6 @@ void SGTMain::initScene()
 
 	SGTConsole::Instance().Init();
 	SGTConsole::Instance().Show(false);
-
-	//Plugins laden
-	Ogre::ConfigFile cf2;
-#if _DEBUG
-	cf2.load("BlackstarPlugins_Debug.cfg");
-#else
-	cf2.load("BlackstarPlugins.cfg");
-#endif
-	seci = cf2.getSectionIterator();
-				
-	while (seci.hasMoreElements())
-	{
-		seci.peekNextKey();
-		Ogre::ConfigFile::SettingsMultiMap *Settings = seci.getNext();
-		Ogre::ConfigFile::SettingsMultiMap::iterator i;
-		for (i = Settings->begin(); i != Settings->end(); ++i)
-		{
-			SGTKernel::Instance().LoadPlugin(i->second);
-		}
-	}
 
 	/*SSAOListener *ssaoParamUpdater = new SSAOListener();
 	SGTCompositorLoader::Instance().AddListener("ssao", ssaoParamUpdater);
@@ -279,61 +272,75 @@ void SGTMain::initScene()
 
 };
 
-void SGTMain::setupRenderSystem(bool createRoot)
+void SGTMain::LoadOgrePlugins()
 {
-	if (createRoot == true)
+	for (std::vector<KeyVal>::iterator i = mSettings["OgrePlugins"].begin(); i != mSettings["OgrePlugins"].end(); i++)
 	{
-#if		_DEBUG
-		mRoot = new Ogre::Root("Plugins_d.cfg","","ogre.graphics.log");
-#else
-		mRoot = new Ogre::Root("Plugins.cfg","","ogre.graphics.log");
-#endif
+		if (i->Key == "Plugin") mRoot->loadPlugin(i->Val);
+	}
+}
 
-		Ogre::RenderSystemList *pRenderSystemList; 
-		pRenderSystemList = mRoot->getAvailableRenderers(); 
-		Ogre::RenderSystemList::iterator pRenderSystem; 
-		pRenderSystem = pRenderSystemList->begin(); 
-		Ogre::RenderSystem *pSelectedRenderSystem; 
-		pSelectedRenderSystem = *pRenderSystem; 
+void SGTMain::setupRenderSystem()
+{
+	Ogre::String renderer = "";
+	Ogre::String vsync = "";
+	Ogre::String aa = "";
+	Ogre::String fullscreen = "";
+	Ogre::String width = "";
+	Ogre::String height = "";
+
+	for (std::vector<KeyVal>::iterator i = mSettings["Graphics"].begin(); i != mSettings["Graphics"].end(); i++)
+	{
+		if (i->Key == "Renderer") renderer = i->Val;
+		if (i->Key == "AA") aa = i->Val;
+		if (i->Key == "VSync") vsync = i->Val;
+		if (i->Key == "Fullscreen") fullscreen = i->Val;
+		if (i->Key == "ResolutionWidth") width = i->Val;
+		if (i->Key == "ResolutionHeight") height = i->Val;
+	}
+
+	LoadOgrePlugins();
+
+	Ogre::RenderSystemList *pRenderSystemList; 
+	pRenderSystemList = mRoot->getAvailableRenderers(); 
+	Ogre::RenderSystemList::iterator pRenderSystem; 
+	pRenderSystem = pRenderSystemList->begin(); 
+	Ogre::RenderSystem *pSelectedRenderSystem; 
+	pSelectedRenderSystem = *pRenderSystem; 
 		
-		while (pRenderSystem != pRenderSystemList->end())
-		{		
-			if ((*pRenderSystem)->getName() == mSettings["device"])
-			{
-				mRenderSystem = *pRenderSystem;
-				break;
-			}
-				
-			pRenderSystem++;
+	while (pRenderSystem != pRenderSystemList->end())
+	{
+		if ((*pRenderSystem)->getName() == renderer)
+		{
+			mRenderSystem = *pRenderSystem;
+			break;
 		}
-
-		mRoot->setRenderSystem(mRenderSystem);
-
-		mRenderSystem->setConfigOption("Full Screen", mSettings["fullscreen"]);
-	}
-	else
-	{
-		mRenderSystem = mRoot->getRenderSystem();
+				
+		pRenderSystem++;
 	}
 
-	mRenderSystem->setConfigOption("VSync", mSettings["vsync"]);
-	mRenderSystem->setConfigOption("Anti aliasing", "Level " + mSettings["aa"]);
+	mRoot->setRenderSystem(mRenderSystem);
 
-	if (mSettings["device"] == "Direct3D9 Rendering Subsystem")
+	mRenderSystem->setConfigOption("Full Screen", fullscreen);
+
+	mRenderSystem->setConfigOption("VSync", vsync);
+	mRenderSystem->setConfigOption("Anti aliasing", "Level " + aa);
+
+	if (renderer == "Direct3D9 Rendering Subsystem")
 	{
-		Ogre::LogManager::getSingleton().logMessage("setup Rendersystem: " + mSettings["width"] + " " + mSettings["height"]);
+		Ogre::LogManager::getSingleton().logMessage("setup Rendersystem: " + width + " " + height);
 		mRenderSystem->setConfigOption("Video Mode", 
-										mSettings["width"]
-										+ " x " +  mSettings["height"]
-										+ " @ " +  mSettings["depth"] + "-bit colour"  
+										width
+										+ " x " +  height
+										+ " @ " +  "32" + "-bit colour"  
 										);
 				
 	}
 	else
 	{
-		mRenderSystem->setConfigOption("Video Mode", mSettings["width"]   + " x " + mSettings["height"]);
+		mRenderSystem->setConfigOption("Video Mode", width   + " x " + height);
 
-		mRenderSystem->setConfigOption("Colour Depth",mSettings["depth"]);
+		mRenderSystem->setConfigOption("Colour Depth", "32");
 
 	}
 
@@ -343,19 +350,23 @@ void SGTMain::ResetConfig()
 {
 
 	mSettings.clear();
-	mSettings["device"] = "Direct3D9 Rendering Subsystem";
-	mSettings["width"] = "1280";
-	mSettings["height"] = "1024";
-	mSettings["depth"] = "32";
-	mSettings["aa"] = "0";
-	mSettings["vsync"] = "Yes";
-	mSettings["fullscreen"] = "1";
+	mSettings["Graphics"] = std::vector<KeyVal>();
+	mSettings["Graphics"].push_back(KeyVal("Renderer", "Direct3D9 Rendering Subsystem"));
+	mSettings["Graphics"].push_back(KeyVal("ResolutionWidth", "1280"));
+	mSettings["Graphics"].push_back(KeyVal("ResolutionHeight", "1024"));
+	mSettings["Graphics"].push_back(KeyVal("AA", "0"));
+	mSettings["Graphics"].push_back(KeyVal("Fullscreen", "No"));
+	mSettings["Graphics"].push_back(KeyVal("VSync", "Yes"));
 }
 
 void SGTMain::GetConfig()
 {
 	Ogre::ConfigFile cf;
-	cf.load("config.yaml",":",true);
+#if		_DEBUG
+		cf.load("BlackstarFramework_d.cfg");
+#else
+		cf.load("BlackstarFramework.cfg");
+#endif
 
 	Ogre::ConfigFile::SectionIterator seci = cf.getSectionIterator();
 	Ogre::String secName, typeName, archName;
@@ -363,26 +374,28 @@ void SGTMain::GetConfig()
 	while (seci.hasMoreElements())
 	{
 		secName = seci.peekNextKey();
-		Ogre::ConfigFile::SettingsMultiMap *cmSettings = seci.getNext();
+		Ogre::ConfigFile::SettingsMultiMap *Settings = seci.getNext();
 		Ogre::ConfigFile::SettingsMultiMap::iterator i;
+		if (mSettings.find("secName") == mSettings.end()) mSettings[secName] = std::vector<KeyVal>();
 
-		for (i = cmSettings->begin(); i != cmSettings->end(); ++i)
+		for (i = Settings->begin(); i != Settings->end(); i++)
 		{
-			if (i->first == "device") mSettings["device"] = i->second;
-			else if (i->first == "width") mSettings["width"] = Ogre::StringConverter::toString(Ogre::StringConverter::parseUnsignedInt(i->second));
-			else if (i->first == "height") mSettings["height"] = Ogre::StringConverter::toString(Ogre::StringConverter::parseUnsignedInt(i->second));
-			else if (i->first == "depth") mSettings["depth"] = Ogre::StringConverter::toString(Ogre::StringConverter::parseUnsignedInt(i->second));
-			else if (i->first == "aa") mSettings["aa"] = Ogre::StringConverter::toString(Ogre::StringConverter::parseUnsignedInt(i->second));
-			else if (i->first == "fullscreen") mSettings["fullscreen"] = i->second;
-			else if (i->first == "vsync") mSettings["vsync"] = i->second;
-
+			mSettings[secName].push_back(KeyVal(i->first, i->second));
 		}
 	}
 }
 	
 void SGTMain::createInputSystem(size_t windowHnd, bool freeCursor)
 {
-	mInputSystem = new SGTInput(windowHnd, Ogre::StringConverter::parseInt(mSettings["width"]), Ogre::StringConverter::parseInt(mSettings["height"]), freeCursor);
+	Ogre::String width = "";
+	Ogre::String height = "";
+
+	for (std::vector<KeyVal>::iterator i = mSettings["Graphics"].begin(); i != mSettings["Graphics"].end(); i++)
+	{
+		if (i->Key == "ResolutionWidth") width = i->Val;
+		if (i->Key == "ResolutionHeight") height = i->Val;
+	}
+	mInputSystem = new SGTInput(windowHnd, Ogre::StringConverter::parseInt(width), Ogre::StringConverter::parseInt(height), freeCursor);
 }
 
 void SGTMain::Shutdown()
@@ -399,7 +412,7 @@ void SGTMain::Shutdown()
 		delete mSoundManager;
 		delete mCameraController;
 		delete mRoot;
-		mRoot = NULL;
+		mRoot = 0;
 	}
 }
 

@@ -12,18 +12,18 @@ public:
 	bool OnInit()
 	{
 #if		_DEBUG
-		Ogre::Root* ogre = new Ogre::Root("Plugins_d.cfg","","ogre.graphics.log");
+		Ogre::Root* ogre = new Ogre::Root("OgrePlugins_d.cfg","","ogre.graphics.log");
 #else
-		Ogre::Root* ogre = new Ogre::Root("Plugins.cfg","","ogre.graphics.log");
+		Ogre::Root* ogre = new Ogre::Root("OgrePlugins.cfg","","ogre.graphics.log");
 #endif
-		Ogre::RenderSystemList *renderSystems = NULL;
+		/*Ogre::RenderSystemList *renderSystems = NULL;
 		Ogre::RenderSystemList::iterator r_it;
 		renderSystems = ogre->getAvailableRenderers();
 		r_it = renderSystems->begin();
-		ogre->setRenderSystem(*r_it);
-		ogre->initialise(false); 
+		ogre->setRenderSystem(*r_it);*/
 
 		Ogre::LogManager::getSingleton().logMessage("new wxEdit");
+		SGTMain::Instance().ExternInit();
 		mFrame = &wxEdit::Instance();
 		SetTopWindow(mFrame);
 		mFrame->Show();

@@ -24,6 +24,15 @@ Initialisiert Ogre und das Inputsystem.
 class SGTDllExport SGTMain
 {
 protected:
+	class KeyVal
+	{
+	public:
+		KeyVal(Ogre::String k, Ogre::String v)
+			: Key(k), Val(v) {}
+		Ogre::String Key;
+		Ogre::String Val;
+	};
+
 	SGTMain();
 	~SGTMain();
 
@@ -48,11 +57,13 @@ protected:
 
 	OgreOggSound::OgreOggSoundManager *mSoundManager;
 
+	void AddOgreResourcePath(Ogre::String dir);
+
 	int winHeight;
 	int winWidth;
 
 	// Settings
-	std::map<Ogre::String, Ogre::String> mSettings;
+	std::map<Ogre::String, std::vector<KeyVal> > mSettings;
 
 public:
 
@@ -60,10 +71,12 @@ public:
 
 	bool Run();	//Eigenes Fenster erstellen
 	bool Run(Ogre::RenderWindow *window, size_t OISInputWindow);
+	void ExternInit();
 
 	void initScene();
 
-	void setupRenderSystem(bool createRoot = true);
+	void LoadOgrePlugins();
+	void setupRenderSystem();
 
 	void ResetConfig();
 	void GetConfig();

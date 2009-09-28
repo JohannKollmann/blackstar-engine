@@ -4,6 +4,7 @@
 #include "SGTMain.h"
 #include "SGTInput.h"
 #include "SGTScriptSystem.h"
+#include "SGTSceneManager.h"
 
 #define CONSOLE_LINE_LENGTH 85
 #define CONSOLE_LINE_COUNT 8 
@@ -126,7 +127,7 @@ void SGTConsole::ReceiveMessage(SGTMsg &msg)
 			}
 			if (scriptfile != "" && funcname != "")
 			{
-				SGTScript script = SGTScriptSystem::GetInstance().CreateInstance(SCRIPT_BASE_DIR + scriptfile);
+				SGTScript script = SGTSceneManager::Instance().CreateScript(scriptfile);
 				script.CallFunction(funcname, params);
 			}
 			

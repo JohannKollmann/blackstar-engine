@@ -63,7 +63,7 @@ void SGTGame::OnEnter()
 {
 	if (!mInitialized)
 	{
-		SGTScript script = SGTScriptSystem::GetInstance().CreateInstance(SCRIPT_BASE_DIR + "NewGame.lua");
+		SGTScript script = SGTSceneManager::Instance().CreateScript("NewGame.lua");
 		std::vector<SGTScriptParam> params;
 		script.CallFunction("NewGame", params);
 		SGTSceneManager::Instance().CreatePlayer();

@@ -163,12 +163,12 @@ void SGTGOCAI::Create(Ogre::String scriptFile)
 	mScriptFileName = scriptFile;
 	std::vector<SGTScriptParam> params;
 	params.push_back(SGTScriptParam((int)GetID()));
-	mScript = SGTScriptSystem::GetInstance().CreateInstance(mScriptFileName, params);
+	mScript = SGTSceneManager::Instance().CreateScript(mScriptFileName, params);
 }
 
 void SGTGOCAI::CreateFromDataMap(SGTDataMap *parameters)
 {
-	Create(SCRIPT_BASE_DIR + parameters->GetOgreString("Script"));
+	Create(parameters->GetOgreString("Script"));
 }
 void SGTGOCAI::GetParameters(SGTDataMap *parameters)
 {

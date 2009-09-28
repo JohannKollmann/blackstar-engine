@@ -18,6 +18,9 @@
 #include "SGTAIManager.h"
 #include "SGTFollowPathway.h"
 
+#include "boost/filesystem/operations.hpp"
+#include "boost/filesystem/path.hpp"
+
 SGTSceneManager::SGTSceneManager(void)
 {
 	mWeatherController = 0;
@@ -307,28 +310,19 @@ void SGTSceneManager::GetParameters(SGTDataMap *parameters)
 	parameters->AddBool("Indoor", mIndoorRendering);
 }
 
-Ogre::String SGTSceneManager::ScanPath(Ogre::String path, Ogre::String filename)
+Ogre::String SGTSceneManager::FindResourcePath(Ogre::String path, Ogre::String filename)
 {
-	HANDLE fHandle;
-	WIN32_FIND_DATA wfd;
-	fHandle=FindFirstFile((path + "/*").c_str(),&wfd);
-	do
+	boost::filesystem::path bpath(path.c_str());
+	for (boost::filesystem::directory_iterator i(bpath); i != boost::filesystem::directory_iterator(); i++)
 	{
-		if((wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY)
+		Ogre::String file = Ogre::String((*i).path().leaf().c_str());
+		if (file == filename) return (*i).path().file_string();
+		if (boost::filesystem::is_directory((*i)))
 		{
-			Ogre::String dir = wfd.cFileName;
-			if (dir == "." || dir == "..") continue;
-			Ogre::String result = "";
-			result = ScanPath(path + "/" + Ogre::String(wfd.cFileName),  filename);
-			if (result != "") return result;
-		}
-		if (Ogre::String(wfd.cFileName) == filename)
-		{
-			return path + "/" + Ogre::String(wfd.cFileName);
+			Ogre::String csearch = FindResourcePath((*i).path().directory_string().c_str(), filename);
+			if (csearch != "") return csearch;
 		}
 	}
-	while (FindNextFile(fHandle,&wfd));
-	FindClose(fHandle);
 	return "";
 }
 
@@ -336,7 +330,7 @@ void SGTSceneManager::BakeStaticMeshShape(Ogre::String meshname)
 {
 	if (!NxOgre::Resources::ResourceSystem::getSingleton()->hasMesh("Data/Media/Meshes/NXS/" + meshname + ".nxs"))
 	{
-		Ogre::String path = ScanPath("Data/Media/Meshes", meshname);
+		Ogre::String path = FindResourcePath("Data/Media/Meshes", meshname);
 		if (path == "")
 		{
 			Ogre::LogManager::getSingleton().logMessage("SGTSceneManager::BakeStaticMeshShape: Could not find " + meshname);
@@ -359,6 +353,32 @@ SGTGameObject* SGTSceneManager::GetObjectByInternID(int id)
 		if ((*i)->GetID() == id) return (*i);
 	}
 	return 0;
+}
+
+void SGTSceneManager::AddScriptLocation(Ogre::String dir)
+{
+	mScriptLocations.push_back(dir);
+}
+Ogre::String SGTSceneManager::GetScriptPath(Ogre::String script)
+{
+	for (std::vector<Ogre::String>::iterator i = mScriptLocations.begin(); i != mScriptLocations.end(); i++)
+	{
+		boost::filesystem::path path(((*i) + script).c_str());
+		if (boost::filesystem::exists(path)) return (*i) + script;
+	}
+	Ogre::LogManager::getSingleton().logMessage("Error: Script not found: " + script);
+	return "";
+}
+SGTScript SGTSceneManager::CreateScript(Ogre::String script, std::vector<SGTScriptParam> params)
+{
+	Ogre::String path = GetScriptPath(script);
+	if (path != "") return SGTScriptSystem::GetInstance().CreateInstance(path);
+	return SGTScript();
+}
+SGTScript SGTSceneManager::CreateScript(Ogre::String script)
+{
+	std::vector<SGTScriptParam> params;
+	return CreateScript(script, params);
 }
 
 std::vector<SGTScriptParam>
@@ -595,14 +615,6 @@ SGTSceneManager::Lua_CreateNpc(SGTScript& caller, std::vector<SGTScriptParam> vP
 	}
 	out.push_back(SGTScriptParam(returnerID));
 	return out;
-}
-
-SGTGameObject* SGTSceneManager::CreateWaypoint()
-{
-	SGTGameObject *object = new SGTGameObject();
-	object->AddComponent(new SGTGOCWaypoint());
-	object->AddComponent(new SGTMeshDebugRenderable("Editor_Waypoint.mesh"));
-	return object;
 }
 
 void SGTSceneManager::CreatePlayer()
