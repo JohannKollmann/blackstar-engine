@@ -12,9 +12,9 @@ public:
 	bool OnInit()
 	{
 #if		_DEBUG
-		Ogre::Root* ogre = new Ogre::Root("OgrePlugins_d.cfg","","ogre.graphics.log");
+		Ogre::Root* ogre = new Ogre::Root("","","ogre.graphics.log");
 #else
-		Ogre::Root* ogre = new Ogre::Root("OgrePlugins.cfg","","ogre.graphics.log");
+		Ogre::Root* ogre = new Ogre::Root("","","ogre.graphics.log");
 #endif
 		/*Ogre::RenderSystemList *renderSystems = NULL;
 		Ogre::RenderSystemList::iterator r_it;

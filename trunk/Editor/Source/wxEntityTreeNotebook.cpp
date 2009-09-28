@@ -24,7 +24,7 @@ wxEntityTreeNotebook::wxEntityTreeNotebook(wxWindow* parent, wxWindowID id, cons
 	mMaterialTree = new wxMaterialTree(this, -1, wxDefaultPosition,
 		wxSize(250,500));
 	AddTab(mSceneTree, mSceneTree, "Scene");
-	AddTab(mResourcesTree, mResourcesTree, "Resources");
+	AddTab(mResourcesTree, mResourcesTree, "Object Resources");
 	AddTab(mMaterialTree, mMaterialTree, "Materials");
 	AddTab(mScriptTree, mScriptTree, "Scripts");
 }

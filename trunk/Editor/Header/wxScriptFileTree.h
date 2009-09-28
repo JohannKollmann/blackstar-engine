@@ -11,7 +11,7 @@ protected:
 	void OnItemActivated(wxTreeEvent &event);
 public:
 	wxScriptFileTree(wxWindow* parent, wxWindowID id, const wxPoint& pos = wxDefaultPosition,
-                    const wxSize& size = wxDefaultSize, long style = wxTR_HAS_BUTTONS | wxTR_FULL_ROW_HIGHLIGHT,
+                    const wxSize& size = wxDefaultSize, long style = wxTR_HAS_BUTTONS | wxTR_FULL_ROW_HIGHLIGHT | wxTR_EDIT_LABELS,
                     const wxValidator& validator = wxDefaultValidator,
                     const wxString& name = "wxVirtualDirTreeCtrl");
 	~wxScriptFileTree()

@@ -156,6 +156,9 @@ public:
 	const wxString &GetName() {
 		return _name;
 	};
+	void SetName(wxString name) {
+		_name = name;
+	};
 
 	/** Returns true if this is of type VDTC_TI_DIR */
 	bool IsDir() const {

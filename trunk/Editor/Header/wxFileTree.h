@@ -13,6 +13,8 @@ protected:
 	void OnItemMenu(wxTreeEvent &event);
 	void OnSelChanged(wxTreeEvent &event);
 	virtual void OnItemActivated(wxTreeEvent &event);
+	void OnBeginLabelEdit(wxTreeEvent& event);
+	void OnEndLabelEdit(wxTreeEvent& event);
 
 	void OnSetRootPath(const wxString &root);
 
@@ -22,7 +24,7 @@ protected:
 
 public:
 	wxFileTree(wxWindow* parent, wxWindowID id, const wxPoint& pos = wxDefaultPosition,
-                    const wxSize& size = wxDefaultSize, long style = wxTR_HAS_BUTTONS | wxTR_FULL_ROW_HIGHLIGHT,
+                    const wxSize& size = wxDefaultSize, long style = wxTR_HAS_BUTTONS | wxTR_FULL_ROW_HIGHLIGHT | wxTR_EDIT_LABELS,
                     const wxValidator& validator = wxDefaultValidator,
                     const wxString& name = "wxVirtualDirTreeCtrl")
 		: wxVirtualDirTreeCtrl(parent, id, pos, size, style, validator, name)
