@@ -52,8 +52,9 @@ wxPropertyGridWindow::wxPropertyGridWindow(wxWindow* parent, wxWindowID id, cons
 
 	this->SetSizer(sizer);
 
-	mCurrentPage = NULL;
+	mCurrentPage = 0;
 
+	SetDropTarget(this);
 }
 
 void wxPropertyGridWindow::AddPage(wxPropertyGridListener* page, wxString name)
@@ -121,8 +122,18 @@ void wxPropertyGridWindow::OnResize(wxSizeEvent& event)
 
 void wxPropertyGridWindow::OnApply(wxCommandEvent& event)
 {
-	if (mCurrentPage != NULL)
+	if (mCurrentPage != 0)
 	{
 		mCurrentPage->OnApply();
 	}
+}
+
+
+bool wxPropertyGridWindow::OnDropText(wxCoord x, wxCoord y, const wxString&  data)
+{
+	if (mCurrentPage != 0)
+	{
+		return mCurrentPage->OnDropText(data);
+	}
+	return false;
 }

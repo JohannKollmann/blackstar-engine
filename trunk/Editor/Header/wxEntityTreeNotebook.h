@@ -6,6 +6,7 @@
 #include "wxOgreSceneTree.h"
 #include "wxMaterialTree.h"
 #include "wxScriptFileTree.h"
+#include "wxMediaTree.h"
 
 class wxEntityTreeNotebook : public wxAuiNotebook
 {
@@ -19,6 +20,7 @@ private:
 	wxOgreSceneTree *mSceneTree;
 	wxMaterialTree *mMaterialTree;
 	wxScriptFileTree *mScriptTree;
+	wxMediaTree* mMediaTree;
 
 protected:
 	DECLARE_EVENT_TABLE() 
@@ -35,5 +37,7 @@ public:
 	wxObjectFolderTree* GetResourceTree() { return mResourcesTree; };
 	wxOgreSceneTree* GetSceneTree() { return mSceneTree; };
 	wxMaterialTree* GetMaterialTree() { return mMaterialTree; };
+	wxScriptFileTree* GetScriptTree() { return mScriptTree; };
+	wxMediaTree* GetMediaTree() { return mMediaTree; };
 
 };

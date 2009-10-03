@@ -100,3 +100,16 @@ void wxComponentBar::SetSections(std::list<ComponentSection> sections)
 		}
 	}
 }
+
+void wxComponentBar::SetSectionStatus(Ogre::String name, bool checked)
+{
+	for (std::map<int, ComponentParameters>::iterator x = mCallbackMap.begin(); x != mCallbackMap.end(); x++)
+	{
+		if ((*x).second.mName == name)
+		{
+			if (checked) (*x).second.mCheckBox->Set3StateValue(wxCheckBoxState::wxCHK_CHECKED);
+			else (*x).second.mCheckBox->Set3StateValue(wxCheckBoxState::wxCHK_UNCHECKED);
+			return;
+		}
+	}
+}

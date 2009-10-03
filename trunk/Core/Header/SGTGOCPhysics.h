@@ -44,7 +44,7 @@ namespace SGTShapes
 	const int SHAPE_CAPSULE = 4;
 };
 
-class SGTDllExport SGTGOCRigidBody : public SGTGOCEditorInterface, public SGTGOComponent, public NxOgre::RenderableSource
+class SGTDllExport SGTGOCRigidBody : public SGTGOCEditorInterface, public SGTGOCPhysics, public NxOgre::RenderableSource
 {
 private:
 	NxOgre::Actor *mActor;
@@ -54,11 +54,10 @@ private:
 	int mShapeType;
 
 public:
-	SGTGOCRigidBody() : SGTGOComponent() { mActor = 0; mRenderable = 0; }
+	SGTGOCRigidBody() { mActor = 0; mRenderable = 0; }
 	SGTGOCRigidBody(Ogre::String collision_mesh, float density, int shapetype);
 	~SGTGOCRigidBody(void);
 
-	goc_id_family& GetFamilyID() const { static std::string name = "GOCPhysics"; return name; }
 	SGTGOComponent::goc_id_type& GetComponentID() const { static std::string name = "RigidBody"; return name; }
 
 	void UpdatePosition(Ogre::Vector3 position);

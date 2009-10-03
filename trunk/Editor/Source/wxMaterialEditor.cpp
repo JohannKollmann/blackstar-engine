@@ -83,7 +83,7 @@ void wxMaterialEditor::OnApply()
 					wxPGProperty* p = *it;
 					if (p->IsCategory()) continue;
 					Ogre::String oValue = p->GetValue().GetString().c_str();
-					if (oValue == "") oValue = "0";
+					if (oValue == "") oValue = "1";
 					Ogre::String newline = Ogre::String("\tset $") + Ogre::String(p->GetName().c_str()) + " " + oValue;
 					newfile.push_back(newline);
 				}
@@ -205,7 +205,7 @@ void wxMaterialEditor::SetMaterialTemplate(Ogre::String Name, Ogre::String File)
 							if (!addstop)
 							{
 								added.push_back(prop);
-								if (line.find(" float ") != Ogre::String::npos) mPropGrid->Append( new wxFloatProperty(wxT(prop.c_str()), wxT(prop.c_str())));
+								if (line.find(" float ") != Ogre::String::npos) mPropGrid->Append( new wxFloatProperty(wxT(prop.c_str()), wxT(prop.c_str()), 1.0f));
 								else mPropGrid->Append( new wxStringProperty(wxT(prop.c_str()), wxT(prop.c_str())) );
 							}
 
@@ -356,4 +356,81 @@ void wxMaterialEditor::EditMaterial(Ogre::MaterialPtr material, bool detect_temp
 		}
 	}
 	f.close();
+}
+
+void wxMaterialEditor::RegisterDefaultMapTemplate(Ogre::String map_type, Ogre::String tname, Ogre::String tfile)
+{
+	MaterialTemplate mt;
+	mt.mName = tname;
+	mt.mFile = tfile;
+	mMapTemplates.insert(std::make_pair<Ogre::String, MaterialTemplate>(map_type, mt));
+}
+
+bool wxMaterialEditor::OnDropText(const wxString& text)
+{
+	if (text == "MediaDragged" && !mCurrentMaterial.isNull())
+	{
+		VdtcTreeItemBase *item = wxEdit::Instance().GetWorldExplorer()->GetMediaTree()->GetDraggedItem();
+		if (item)
+		{
+			if (item->IsFile())
+			{
+				if (item->GetName().find(".tga") != Ogre::String::npos
+					|| item->GetName().find(".png") != Ogre::String::npos
+					|| item->GetName().find(".tiff") != Ogre::String::npos
+					|| item->GetName().find(".dds") != Ogre::String::npos
+					|| item->GetName().find(".jpg") != Ogre::String::npos
+					|| item->GetName().find(".psd") != Ogre::String::npos)
+				{
+					wxArrayString choices;
+					for (std::map<Ogre::String, MaterialTemplate>::iterator i = mMapTemplates.begin(); i != mMapTemplates.end(); i++) choices.Add(i->first.c_str());
+
+					wxSingleChoiceDialog dialog(wxEdit::Instance().GetWorldExplorer()->GetMaterialTree(),
+						_T("Please select a map type:"),
+						"What's that?",
+						choices);
+
+					dialog.SetSelection(0);
+
+					if (dialog.ShowModal() == wxID_OK)
+					{
+						int selection = dialog.GetSelection();
+						std::map<Ogre::String, MaterialTemplate>::iterator it = mMapTemplates.begin();
+						for (int n = 0; n < selection; n++) it++;
+						bool found = false;
+						for (wxPropertyGridIterator pgi = mPropGrid->GetIterator(); !pgi.AtEnd(); pgi++)
+						{
+							wxPGProperty* p = *pgi;
+							if (p->IsCategory()) continue;
+							if (Ogre::String(p->GetName().c_str()) == it->first)
+							{
+								found = true;
+								p->SetValue(wxVariant(wxString(item->GetName().c_str())));
+								break;
+							}
+						}
+						if (!found)
+						{
+							mPropGrid->Clear();
+							SetMaterialTemplate(it->second.mName, it->second.mFile);
+							EditMaterial(mCurrentMaterial, false);
+							for (wxPropertyGridIterator pgi = mPropGrid->GetIterator(); !pgi.AtEnd(); pgi++)
+							{
+								wxPGProperty* p = *pgi;
+								if (p->IsCategory()) continue;
+								if (Ogre::String(p->GetName().c_str()) == it->first)
+								{
+									p->SetValue(wxVariant(wxString(item->GetName().c_str())));
+									break;
+								}
+							}
+						}
+						OnApply();
+						return true;
+					}
+				}
+			}
+		}
+	}
+	return false;
 }

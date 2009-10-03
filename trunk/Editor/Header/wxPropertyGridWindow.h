@@ -8,9 +8,11 @@
 #include <map>
 #include "EDTIncludes.h"
 #include "wxPropertyGridListener.h"
+#include <wx/dnd.h>
+#include "wxFileTree.h"
 
 
-class wxPropertyGridWindow : public wxPanel
+class wxPropertyGridWindow : public wxPanel, public wxTextDropTarget
 {
 	DECLARE_CLASS(wxPropertygridWindow)
 
@@ -32,6 +34,8 @@ protected:
 	  void OnApply(wxCommandEvent& event);
 	  void OnResize(wxSizeEvent& event);
 	  void OnSetFocus(wxFocusEvent& event);
+
+	bool OnDropText(wxCoord x, wxCoord y, const wxString&  data);
 
 private:
 

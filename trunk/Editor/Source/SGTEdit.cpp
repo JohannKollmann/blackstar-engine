@@ -141,6 +141,7 @@ void SGTEdit::OnMouseEvent(wxMouseEvent &ev)
 {
 	mLeftDown = ev.LeftIsDown();
 	mRightDown = ev.RightIsDown();
+
 	if (ev.LeftIsDown() || ev.RightIsDown())
 	{
 		wxEdit::Instance().GetOgrePane()->SetFocus();
@@ -769,8 +770,8 @@ void SGTEdit::OnSelectMaterial(float MouseX, float MouseY)
 {
 	DeselectMaterial();
 
-	if (wxEdit::Instance().GetWorldExplorer()->GetSelection() < 2) wxEdit::Instance().GetWorldExplorer()->AdvanceSelection(true);
-	if (wxEdit::Instance().GetWorldExplorer()->GetSelection() < 2) wxEdit::Instance().GetWorldExplorer()->AdvanceSelection(true);
+	//Potenziell unsicher!
+	wxEdit::Instance().GetWorldExplorer()->SetSelection(3);
 
 	Ogre::Ray ray = SGTMain::Instance().GetCamera()->getCameraToViewportRay(MouseX, MouseY);
 	SGTObjectLevelRayCaster rc(ray);

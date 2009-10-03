@@ -18,6 +18,14 @@ private:
 
 	Ogre::String Scan_Line_For_Material(Ogre::String line);
 
+	struct MaterialTemplate
+	{
+		Ogre::String mName;
+		Ogre::String mFile;
+	};
+
+	std::map<Ogre::String, MaterialTemplate> mMapTemplates;
+
 protected:
 	Ogre::MaterialPtr mCurrentMaterial;
 	Ogre::String mCurrentFile;
@@ -31,6 +39,9 @@ public:
 	void OnApply();
 	void OnActivate();
 	void OnLeave();
+	bool OnDropText(const wxString& text);
+
+	void RegisterDefaultMapTemplate(Ogre::String map_type, Ogre::String tname, Ogre::String tfile);
 
 	void SetMaterialTemplate(Ogre::String Name, Ogre::String File);
 	void EditMaterial(Ogre::MaterialPtr material, bool detect_template = true);

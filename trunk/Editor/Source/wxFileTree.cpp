@@ -16,6 +16,7 @@ BEGIN_EVENT_TABLE(wxFileTree, wxVirtualDirTreeCtrl)
 	EVT_TREE_SEL_CHANGED(-1, wxFileTree::OnSelChanged)
 	EVT_TREE_ITEM_MENU(-1, wxFileTree::OnItemMenu)
 	EVT_TREE_ITEM_ACTIVATED(-1, wxFileTree::OnItemActivated)
+	EVT_TREE_BEGIN_DRAG(-1, wxFileTree::OnBeginDrag)
 	EVT_TREE_BEGIN_LABEL_EDIT(-1, wxFileTree::OnBeginLabelEdit) 
 	EVT_TREE_END_LABEL_EDIT(-1, wxFileTree::OnEndLabelEdit) 
 
@@ -23,6 +24,50 @@ BEGIN_EVENT_TABLE(wxFileTree, wxVirtualDirTreeCtrl)
 
 END_EVENT_TABLE()
 
+
+bool wxDnDTreeItemData::SetData(size_t len, const void *buf)
+{
+	mTreeItem = (VdtcTreeItemBase*)buf;
+	return true;
+}
+
+size_t wxDnDTreeItemData::GetDataSize() const
+{
+	return 4;
+}
+
+bool wxDnDTreeItemData::GetDataHere(void *buf) const
+{
+	memcpy((char*)buf, (char*)mTreeItem, 4);
+	return true;
+}
+VdtcTreeItemBase* wxDnDTreeItemData::GetItem()
+{
+	return mTreeItem;
+}
+
+
+void wxFileTree::OnLeftDown(wxMouseEvent& ev)
+{
+	ev.Skip();
+}
+
+VdtcTreeItemBase* wxFileTree::GetDraggedItem()
+{
+	return mCurrentlyDragged;
+}
+void wxFileTree::OnBeginDrag(wxTreeEvent& event)
+{
+	wxTreeItemId id = event.GetItem();
+	mCurrentlyDragged = (VdtcTreeItemBase *)GetItemData(id);
+
+	wxTextDataObject data(GetDragName());
+	wxDropSource dragSource( this );
+	dragSource.SetData(data);
+	mDraggingFile = true;
+	wxDragResult result = dragSource.DoDragDrop( TRUE );
+	mDraggingFile = false;
+}
 
 void wxFileTree::OnSetRootPath(const wxString &root)
 {
@@ -49,7 +94,7 @@ void wxFileTree::OnEndLabelEdit(wxTreeEvent& event)
 	Ogre::String oldName = t->GetName();
 
 	Ogre::String BasePath = "\\" + Ogre::String(this->GetRelativePath(id).GetPath().c_str());
-	Ogre::String OldPath = "Data\\Editor\\Objects" + BasePath;
+	Ogre::String OldPath = mRootPath + BasePath;
 	if (t->IsDir())
 	{
 		int found = BasePath.find_last_of("\\");
@@ -73,11 +118,13 @@ void wxFileTree::OnEndLabelEdit(wxTreeEvent& event)
 	}
 	t->SetName(newName);
 
-	Ogre::String NewPath = "Data\\Editor\\Objects" + BasePath + "\\" + newName;
+	Ogre::String NewPath = mRootPath + BasePath + "\\" + newName;
 
 	boost::filesystem::path SourcePath(OldPath.c_str());
 	boost::filesystem::path TargetPath(NewPath.c_str());
 	boost::filesystem::rename(SourcePath, TargetPath);
+
+	OnRenameItemCallback(OldPath, NewPath);
 }
 
 void wxFileTree::OnMenuEvent(wxCommandEvent& event)
@@ -91,7 +138,7 @@ void wxFileTree::OnMenuEvent(wxCommandEvent& event)
 	if (id == ResTree_addDir)
 	{
 		Ogre::String BasePath = Ogre::String(this->GetRelativePath(mCurrentItem->GetId()).GetPath().c_str()) + "\\";
-		Ogre::String Path = "Data\\Editor\\Objects\\" + BasePath;
+		Ogre::String Path = mRootPath + BasePath;
 		wxTextEntryDialog dialog(this,
 			_T("Enter folder name:"),
 			_T("Please enter a string"),
@@ -121,7 +168,7 @@ void wxFileTree::OnMenuEvent(wxCommandEvent& event)
 	if (id == ResTree_del)
 	{
 		Ogre::String BasePath = Ogre::String(this->GetRelativePath(mCurrentItem->GetId()).GetPath().c_str());
-		Ogre::String Path = "Data\\Editor\\Objects\\" + BasePath;
+		Ogre::String Path = mRootPath + BasePath;
 		if (mCurrentItem->IsFile())
 		{
 			Path = Path + "\\" + Ogre::String(mCurrentItem->GetName().c_str());
@@ -129,7 +176,7 @@ void wxFileTree::OnMenuEvent(wxCommandEvent& event)
 		Ogre::LogManager::getSingleton().logMessage(Path);
 
 		boost::filesystem::path SourcePath(Path.c_str());
-		boost::filesystem::remove_all(SourcePath);
+		bool success = boost::filesystem::remove(SourcePath);
 
 		int found = BasePath.find_last_of("\\");
 		if (found != Ogre::String::npos)

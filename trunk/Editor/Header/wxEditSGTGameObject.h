@@ -33,7 +33,7 @@ public:
 	wxEditSGTDataMap() {};
 	virtual ~wxEditSGTDataMap() { };
 
-	virtual void AddDataMapSection(Ogre::String name, SGTDataMap &map);
+	virtual void AddDataMapSection(Ogre::String name, SGTDataMap &map, bool expand = false);
 
 protected:
 	/*
@@ -56,9 +56,10 @@ public:
 	void OnApply();
 	void OnLeave();
 	void OnActivate();
+	bool OnDropText(const wxString& text);
 	SGTGameObject* GetGameObject();
 
-	void AddGOCSection(Ogre::String name, SGTDataMap &map);
+	void AddGOCSection(Ogre::String name, SGTDataMap &map, bool expand = false);
 	void RemoveGOCSection(Ogre::String name);
 
 protected:

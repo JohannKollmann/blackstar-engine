@@ -52,7 +52,7 @@ wxEdit::wxEdit(wxWindow* parent) : wxFrame(parent, -1, _("Blackstar Edit"),
 
 		mWorldExplorer = new wxEntityTreeNotebook(this, wxID_ANY,
 									wxPoint(GetClientSize().x, GetClientSize().y),
-                                    wxSize(300,300),
+                                    wxSize(330,300),
                                     wxAUI_NB_TOP | wxAUI_NB_TAB_SPLIT | wxAUI_NB_TAB_MOVE | wxAUI_NB_SCROLL_BUTTONS | wxAUI_NB_TAB_EXTERNAL_MOVE | wxNO_BORDER);
 
 		mSettingsWindow = new wxSettingsWindow(this, wxID_ANY, wxDefaultPosition, wxSize(800,600));
@@ -80,6 +80,11 @@ wxEdit::wxEdit(wxWindow* parent) : wxFrame(parent, -1, _("Blackstar Edit"),
     m_mgr.AddPane(mSettingsWindow, wxAuiPaneInfo().
                   Name(wxT("settings")).Caption(wxT("Editor Settings")).
                   Dockable(false).Float().Hide());
+
+	/*mMediaTree = new wxMediaTree(this, wxID_ANY, wxDefaultPosition, wxSize(300,500));
+    m_mgr.AddPane(mMediaTree, wxAuiPaneInfo().
+                  Name(wxT("mediatree")).Caption(wxT("Loaded media files - drop new media here.")).
+				  Dockable(false).Float().Hide());*/
 
 	m_mgr.Update();
 

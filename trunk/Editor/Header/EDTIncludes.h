@@ -23,5 +23,6 @@ class wxMainNotebook;
 class wxFileTree;
 class wxSGTToolbar;
 class EntityTreeNotebookListener;
+class wxMediaTree;
 
 #endif

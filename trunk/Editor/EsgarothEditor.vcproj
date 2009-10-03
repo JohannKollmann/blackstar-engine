@@ -282,6 +282,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\wxMediaTree.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Header\wxMediaTree.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\wxMeshMagick.cpp"
 				>
 			</File>

@@ -13,6 +13,7 @@ public:
 	virtual void OnApply() { };
 	virtual void OnActivate() { };
 	virtual void OnLeave() { };
+	virtual bool OnDropText(const wxString& text) { return false; };
 
 	void Init(wxPropertyGrid* propgrid)
 	{

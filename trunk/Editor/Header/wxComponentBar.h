@@ -31,4 +31,5 @@ public:
 	void OnCheckBoxClicked(wxCommandEvent& event);
 	void ResetCheckBoxes();
 	void SetSections(std::list<ComponentSection> sections);
+	void SetSectionStatus(Ogre::String name, bool checked);
 };

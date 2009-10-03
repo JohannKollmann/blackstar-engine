@@ -17,6 +17,7 @@
 #include "wxComponentBar.h"
 #include "wxMainNotebook.h"
 #include "wxSGTToolbar.h"
+#include "wxMediaTree.h"
 
 class wxEdit : public wxFrame
 {

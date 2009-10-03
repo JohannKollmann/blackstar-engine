@@ -119,7 +119,7 @@ Ogre::String wxEditSGTDataMap::SectionToDataMap(wxPropertyGridIterator &it, SGTD
 	return "";
 }
 
-void wxEditSGTDataMap::AddDataMapSection(Ogre::String name, SGTDataMap &map)
+void wxEditSGTDataMap::AddDataMapSection(Ogre::String name, SGTDataMap &map, bool expand)
 {
 	wxPGProperty* csprop = mPropGrid->Append( new wxPropertyCategory(wxT(name.c_str()), wxT(name.c_str())));
 	while (map.HasNext())
@@ -158,7 +158,7 @@ void wxEditSGTDataMap::AddDataMapSection(Ogre::String name, SGTDataMap &map)
 			mPropGrid->AppendIn(csprop, new wxStringProperty(wxT(key.c_str()), wxT(internname.c_str()), wxT(str.c_str())) );
 		}
 	}
-	csprop->SetExpanded(false);
+	csprop->SetExpanded(expand);
 	mPropGrid->Refresh();
 }
 
@@ -195,9 +195,9 @@ void wxEditSGTGameObject::RemoveGOCSection(Ogre::String name)
 	}
 }
 
-void wxEditSGTGameObject::AddGOCSection(Ogre::String name, SGTDataMap &map)
+void wxEditSGTGameObject::AddGOCSection(Ogre::String name, SGTDataMap &map, bool expand)
 {
-	AddDataMapSection(name, map);
+	AddDataMapSection(name, map, expand);
 }
 
 Ogre::String wxEditSGTGameObject::SectionToDataMap(wxPropertyGridIterator &it, SGTDataMap *data)
@@ -396,7 +396,7 @@ void wxEditSGTGameObject::OnApply()
 			wxFileName path = wxFileName(wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->GetCurrentPath().c_str());//GetRelativePath(wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->GetSelection());
 			wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->SetRootPath("Data/Editor/Objects/");
 			Ogre::LogManager::getSingleton().logMessage("Filename: " + Ogre::String(path.GetPath().c_str()));
-			wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->ExpandToPath(path);//path);
+			wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->ExpandToPath(path);
 		}
 	}
 }
@@ -500,7 +500,43 @@ void wxEditSGTGameObject::NewResource(Ogre::String savepath, bool showcomponentb
 	wxEdit::Instance().GetAuiManager().Update();
 }
 
-
+bool wxEditSGTGameObject::OnDropText(const wxString& text)
+{
+	if (text == "ScriptDragged")
+	{
+		VdtcTreeItemBase *item = wxEdit::Instance().GetWorldExplorer()->GetScriptTree()->GetDraggedItem();
+		if (item)
+		{
+			if (item->IsFile())
+			{
+				return true;
+			}
+		}
+	}
+	if (text == "MediaDragged")
+	{
+		VdtcTreeItemBase *item = wxEdit::Instance().GetWorldExplorer()->GetMediaTree()->GetDraggedItem();
+		if (item)
+		{
+			if (item->IsFile())
+			{
+				if (item->GetName().find(".mesh") != wxString::npos)
+				{
+					SGTDataMap data;
+					data.AddOgreString("MeshName", item->GetName().c_str());
+					data.AddBool("ShadowCaster", true);
+					RemoveGOCSection("MeshRenderable");
+					AddGOCSection("MeshRenderable", data, true);
+					wxEdit::Instance().GetComponentBar()->SetSectionStatus("MeshRenderable", true);
+					OnApply();
+					wxEdit::Instance().GetAuiManager().Update();
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
 
 
 void wxEditSGTSceneParams::OnActivate()

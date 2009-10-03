@@ -28,6 +28,7 @@ wxMaterialTree::wxMaterialTree(wxWindow* parent, wxWindowID id, const wxPoint& p
 	mCallbackIDCounter = 10500;
 
 	wxEdit::Instance().GetExplorerToolbar()->RegisterTool("MapWizard", "Materials", "Data/Editor/Intern/BrushMode.png", wxMaterialTree::OnToolbarEvent);
+	UpdateTemplates();
 };
 
 wxMaterialTree::~wxMaterialTree()
@@ -309,6 +310,7 @@ void wxMaterialTree::UpdateTemplates()
 			wxMenu *submenu = new wxMenu("");
 
 			Ogre::String filename = Ogre::String("Data/Scripts/materials/scripts/Templates/") + Ogre::String(wfd.cFileName);
+			Ogre::String tmpMapName = "";
 			std::fstream f;
 			char cstring[256];
 			f.open(filename.c_str(), std::ios::in);
@@ -316,11 +318,21 @@ void wxMaterialTree::UpdateTemplates()
 			{
 				f.getline(cstring, sizeof(cstring));
 				Ogre::String line = cstring;
+				if (line.find("@BlackstarEdit:") != Ogre::String::npos)
+				{
+					tmpMapName = line.substr(line.find("@BlackstarEdit:") + 15);
+				}
 				if (line.find("abstract material") != Ogre::String::npos)
 				{
 					Ogre::String name = line.substr(line.find("abstract material") + 18, line.size());
 					submenu->Append(mCallbackIDCounter, wxT(name.c_str()));
 					AddOption(filename, name);
+					if (tmpMapName != "")
+					{
+						wxMaterialEditor *editor = (wxMaterialEditor*)wxEdit::Instance().GetpropertyWindow()->GetPage("material");
+						editor->RegisterDefaultMapTemplate(tmpMapName, name, filename);
+					}
+					tmpMapName = "";
 				}
 			}
 			f.close();
@@ -432,8 +444,10 @@ void wxMaterialTree::OnToolbarEvent(int toolID, Ogre::String toolname)
 
 void wxMaterialTree::OnEnterTab()
 {
-	wxEdit::Instance().GetpropertyWindow()->SetPage("material");
+	wxMaterialEditor *editor = (wxMaterialEditor*)(wxEdit::Instance().GetpropertyWindow()->SetPage("material"));
+	if (!mSelectedMaterial.isNull()) editor->EditMaterial(mSelectedMaterial);
 	wxEdit::Instance().GetExplorerToolbar()->SetGroupStatus("Materials", true);
+
 }
 void wxMaterialTree::OnLeaveTab()
 {
