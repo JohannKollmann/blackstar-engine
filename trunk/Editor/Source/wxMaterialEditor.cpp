@@ -40,7 +40,7 @@ Ogre::String wxMaterialEditor::Scan_Line_For_Material(Ogre::String line)
 
 void wxMaterialEditor::OnApply()
 {
-	if (mCurrentFile != "")
+	if (mCurrentFile != "" && mCurrentTemplate != "")
 	{
 	std::fstream f;
 	char cstring[256];
@@ -153,7 +153,6 @@ void wxMaterialEditor::OnApply()
 
 void wxMaterialEditor::OnActivate()
 {
-	mCurrentFile = "";
 }
 
 void wxMaterialEditor::OnLeave()
@@ -258,7 +257,12 @@ void wxMaterialEditor::SetMaterialTemplate(Ogre::String Name, Ogre::String File)
 void wxMaterialEditor::EditMaterial(Ogre::MaterialPtr material, bool detect_template)
 {
 	mCurrentMaterial = material;
+	mCurrentFile = "";
 	mCurrentFile = FindResource(mCurrentMaterial);
+	if (mCurrentFile == "") return;
+	if (detect_template) mCurrentTemplate = "";
+
+	if (detect_template) wxEdit::Instance().GetAuiManager().GetPane("Properties").Caption("Drop Maps here or choose template");
 	//Ogre::LogManager::getSingleton().logMessage("Edit Material: " + mCurrentFile);
 
 	std::fstream f;
@@ -319,7 +323,7 @@ void wxMaterialEditor::EditMaterial(Ogre::MaterialPtr material, bool detect_temp
 						wxPGProperty* p = *it;
 						if (p->IsCategory()) continue;
 						if (p->GetName() == "scale") p->SetValue(wxVariant(wxT("1.0")));
-						if (p->GetName() == "diffuse_map") p->SetValue(wxVariant(wxT(line.substr(line.find("texture ") + 8, line.size()))));
+						if (p->GetName() == "Diffuse") p->SetValue(wxVariant(wxT(line.substr(line.find("texture ") + 8, line.size()))));
 					}
 				}
 			}

@@ -989,7 +989,11 @@ void SGTEdit::AlignObjectWithMesh(SGTGameObject *object)
 		SGTGOCNodeRenderable *visuals = (SGTGOCNodeRenderable*)object->GetComponent("GOCView");
 		if (visuals != 0)
 		{
-			offset = (visuals->GetNode()->getScale() * 0.5) * normal;//object->GetVisual()->getBoundingBox().getSize()
+			if (visuals->GetNode()->getAttachedObject(0))
+			{
+  				offset = ((visuals->GetNode()->getScale() * visuals->GetNode()->getAttachedObject(0)->getBoundingBox().getSize()) * 0.475f) * normal;
+			}
+			else offset = (visuals->GetNode()->getScale() * 0.5f) * normal;//object->GetVisual()->getBoundingBox().getSize()
 		}
 		object->SetGlobalPosition(position + offset);
 	}

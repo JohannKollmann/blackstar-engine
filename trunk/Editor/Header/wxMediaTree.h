@@ -14,6 +14,9 @@ private:
 
 	void RefreshFilters();
 
+	void ApplyDefaultLightning(Ogre::String materialfile);
+	Ogre::String Scan_Line_For_Material(Ogre::String line);
+
 public:
 	wxMediaTree(wxWindow* parent, wxWindowID id, const wxPoint& pos = wxDefaultPosition,
                     const wxSize& size = wxDefaultSize, long style = wxTR_HAS_BUTTONS | wxTR_FULL_ROW_HIGHLIGHT | wxTR_EDIT_LABELS,

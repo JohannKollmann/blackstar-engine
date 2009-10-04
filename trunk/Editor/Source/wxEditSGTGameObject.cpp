@@ -373,10 +373,11 @@ void wxEditSGTGameObject::OnApply()
 					SGTGOComponent* component = dynamic_cast<SGTGOComponent*>(editor_interface);
 					Ogre::String familyID = component->GetFamilyID();
 					SGTGOCEditorInterface *oldinterface = dynamic_cast<SGTGOCEditorInterface*>(mGameObject->GetComponent(familyID));
-					void *userdata = oldinterface->GetUserData();
+					void *userdata = 0;
+					if (oldinterface) userdata = oldinterface->GetUserData();
 					mGameObject->RemoveComponent(familyID);
 					mGameObject->AddComponent(component);
-					editor_interface->InjectUserData(userdata);
+					if (userdata) editor_interface->InjectUserData(userdata);
 				}
 			}
 			if (select == true)

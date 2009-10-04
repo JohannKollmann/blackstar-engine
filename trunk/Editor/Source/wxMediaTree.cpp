@@ -168,6 +168,9 @@ bool wxMediaTree::OnDropFiles(wxCoord x, wxCoord y, const wxArrayString&  filena
 				meshmagick::OptionList transformOptions;
 				Ogre::Any value = Ogre::Any(Ogre::Vector3(scale_factor, scale_factor, scale_factor));
 				transformOptions.push_back(meshmagick::Option("scale", value));
+				transformOptions.push_back(meshmagick::Option("xalign", Ogre::Any(Ogre::String("center"))));
+				transformOptions.push_back(meshmagick::Option("yalign", Ogre::Any(Ogre::String("center"))));
+				transformOptions.push_back(meshmagick::Option("zalign", Ogre::Any(Ogre::String("center"))));
 				meshmagick::TransformTool tt;
 				meshmagick::OptionList globalOptions;
 				Ogre::StringVector sv;
@@ -221,7 +224,8 @@ bool wxMediaTree::OnDropFiles(wxCoord x, wxCoord y, const wxArrayString&  filena
 					f.close();
 				}
 			}
-			Ogre::DataStreamPtr stream = Ogre::ResourceGroupManager::getSingleton().openResource(source.leaf().c_str());
+			ApplyDefaultLightning(target.file_string().c_str());
+			Ogre::DataStreamPtr stream = Ogre::ResourceGroupManager::getSingleton().openResource(target.leaf().c_str());
 			Ogre::ScriptCompilerManager::getSingleton().parseScript(stream, "General");
 		}
 
@@ -231,6 +235,81 @@ bool wxMediaTree::OnDropFiles(wxCoord x, wxCoord y, const wxArrayString&  filena
 	ExpandToPath(expandto);
 	//AddItemsToTreeCtrl(mCurrentItem, items);
 	return true;
+}
+
+
+Ogre::String wxMediaTree::Scan_Line_For_Material(Ogre::String line)
+{
+	Ogre::String temp = "";
+	bool found_material_statement = false;
+	for (unsigned int i = 0; i < line.size(); i++)
+	{
+		if (temp.find("material") != Ogre::String::npos || temp.find("Material") != Ogre::String::npos && !found_material_statement)
+		{
+			found_material_statement = true;
+			temp = "";
+			continue;
+		}
+
+		if (line[i] == ':') return "";		//Das ist kein default material
+		if (line[i] == ' ' || line[i] == 9) continue;
+		temp += line[i];
+	}
+	return temp;
+}
+
+void wxMediaTree::ApplyDefaultLightning(Ogre::String materialfile)
+{
+	std::fstream f;
+	char cstring[256];
+	f.open(materialfile.c_str(), std::ios::in);
+	std::vector<Ogre::String> newfile;
+	int bracket_counter = 0;
+	Ogre::String curmat = "";
+	while (!f.eof())
+	{
+		f.getline(cstring, sizeof(cstring));
+		Ogre::String line = cstring;
+		if (curmat == "" && bracket_counter == 0)
+		{
+			curmat = Scan_Line_For_Material(line);
+			if (curmat != "")
+			{
+				newfile.push_back(line + " : Standard/PerPixelLightening");
+				newfile.push_back("{");
+				newfile.push_back("\tset $scale 1.0");
+				newfile.push_back("\tset $specular_factor 1.0");
+			}
+		}
+		if (curmat == "") newfile.push_back(line);
+		else
+		{
+			if (line.find("texture ") != Ogre::String::npos)
+			{
+				newfile.push_back("\tset $Diffuse " + line.substr(line.find("texture ") + 8, line.size()));
+			}
+		}
+		if (line.find("{") != Ogre::String::npos) bracket_counter++;
+		if (line.find("}") != Ogre::String::npos)
+		{
+			bracket_counter--;
+			if (curmat != "" && bracket_counter == 0)
+			{
+				curmat = "";
+				newfile.push_back("}");
+			}
+		}
+	}
+	f.close();
+	std::fstream f2;
+	f2.open(materialfile.c_str(), std::ios::out | std::ios::trunc);
+	f2 << Ogre::String("import * from Standard.material").c_str() << std::endl;
+	f2 << "" << std::endl;
+	for (std::vector<Ogre::String>::iterator i = newfile.begin(); i != newfile.end(); i++)
+	{
+		f2 << (*i).c_str() << std::endl;
+	}
+	f2.close();
 }
 
 wxDragResult wxMediaTree::OnDragOver(wxCoord x, wxCoord y, wxDragResult def)

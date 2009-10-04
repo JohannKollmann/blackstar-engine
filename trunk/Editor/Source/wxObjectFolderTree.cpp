@@ -116,6 +116,10 @@ void wxObjectFolderTree::OnToolbarEvent(int toolID, Ogre::String toolname)
 	if (toolname == "NewResource")
 	{
 		Ogre::String relPath = Ogre::String(wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->mExpandedPath.c_str());
+		if (wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->mCurrentItem->IsDir() || wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->mCurrentItem->IsRoot())
+		{
+			relPath = Ogre::String(wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->GetRelativePath(wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->mCurrentItem->GetId()).GetFullPath().c_str()) + "\\";
+		}
 		Ogre::String Path = "Data\\Editor\\Objects\\" + relPath;
 		wxTextEntryDialog dialog(wxEdit::Instance().GetWorldExplorer()->GetResourceTree(),
 			_T("Enter file name:"),
