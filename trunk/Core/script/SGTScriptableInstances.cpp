@@ -47,9 +47,13 @@ SGTScriptableInstances::Lua_RunFunction(SGTScript& caller, std::vector<SGTScript
 	std::vector<SGTScriptParam> vRes;
 	if(vParams.size()>=2)
 	{
-		if(vParams[1].getType()!=SGTScriptParam::PARM_TYPE_STRING || vParams[0].getType()!=SGTScriptParam::PARM_TYPE_INT)
+		if(vParams[1].getType()!=SGTScriptParam::PARM_TYPE_STRING || vParams[0].getType()!=SGTScriptParam::PARM_TYPE_FLOAT)
+		{
+			vRes.push_back(SGTScriptParam());
+			vRes.push_back(SGTScriptParam(std::string("first or second parameter has wrong type!")));
 			return vRes;
-		std::map<int, SGTScript>::iterator it=SGTScriptableInstances::GetInstance().m_mScripts.find(vParams[0].getInt());
+		}
+		std::map<int, SGTScript>::iterator it=SGTScriptableInstances::GetInstance().m_mScripts.find((int)vParams[0].getFloat());
 		if(it==SGTScriptableInstances::GetInstance().m_mScripts.end())
 			return vRes;
 		std::string strFunction=vParams[1].getString();
@@ -58,5 +62,7 @@ SGTScriptableInstances::Lua_RunFunction(SGTScript& caller, std::vector<SGTScript
 		vRes=it->second.CallFunction(strFunction, vParams);
 		return vRes;
 	}
+	vRes.push_back(SGTScriptParam());
+	vRes.push_back(SGTScriptParam(std::string("function needs >= 2 parameters!")));
 	return vRes;
 }

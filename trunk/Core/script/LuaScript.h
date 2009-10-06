@@ -36,6 +36,9 @@ private:
 	static int ApiCallback(lua_State* pState);
 	bool IncludeScript(SGTLuaScript& script);
 
+	static std::vector<SGTScriptParam> GetArguments(lua_State* pState, int iStartIndex, SGTScript& script);
+	static void PutArguments(lua_State *pState, std::vector<SGTScriptParam> params, SGTScript& script);
+
 	lua_State* m_pState;
 	std::string m_strScriptName;
 

@@ -5,6 +5,8 @@
 #include "SGTIncludes.h"
 
 class SGTLuaScript;
+class SGTScript;
+
 
 class SGTDllExport SGTScriptParam
 {
@@ -24,14 +26,14 @@ public:
 	bool getBool();
 	double getFloat();
 	std::string getString();
-	void getFunction(std::string& strFnName, SGTLuaScript*& script);
+	void getFunction(std::string& strFnName, SGTScript& script);
 	
 	SGTScriptParam();
 	SGTScriptParam(int i);
 	SGTScriptParam(bool b);
 	SGTScriptParam(double f);
 	SGTScriptParam(std::string s);
-	SGTScriptParam(std::string strFnName, SGTLuaScript& script);
+	SGTScriptParam(std::string strFnName, SGTScript& script);
 
 	void set(SGTScriptParam& param);
 private:
@@ -40,5 +42,6 @@ private:
 	double m_fData;
 	std::string m_strData;
 	SGTLuaScript* m_pScript;
+	int m_iScriptID;
 	ETypes m_Type;
 };

@@ -5,6 +5,7 @@
 #include <list>
 #include <sstream>
 #include "SGTIncludes.h"
+#include "ResidentVariables.h"
 
 #pragma once
 
@@ -529,6 +530,8 @@ CREATEMAPHANDLER(std::string, "std::string", int, "int", StringIntMapHandler)
 
 CREATELISTHANDLER(float, "float", FloatListHandler);
 
+CREATEMAPHANDLER(std::string, "std::string", ResidentVariables::SaveableScriptParam, "ResidentVariables::SaveableScriptParam", StringSGTScriptParamMapHandler)
+
 //CREATEMAPHANDLER(std::string, "std::string", ResidentManager::ResidentVariables::ScriptVar, "ResidentManager::ResidentVariables::ScriptVar", ResidentVariablesMapHandler)
 
 CREATELISTHANDLER(ComponentSection, "ComponentSection", ComponentSectionListHandler)
@@ -555,6 +558,8 @@ RegisterStandardAtoms()
 	SGTLoadSave::Instance().RegisterAtom((SGTAtomHandler*)new OgreQuaternionHandler());
 	SGTLoadSave::Instance().RegisterAtom((SGTAtomHandler*)new OgreStringHandler());
 	//Lua
+	//ResidentVariables
+	SGTLoadSave::Instance().RegisterAtom((SGTAtomHandler*)new StringSGTScriptParamMapHandler);
 	//SGTLoadSave::RegisterAtom((SGTAtomHandler*)new ResidentVariablesMapHandler());
 
 }

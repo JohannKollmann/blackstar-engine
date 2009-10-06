@@ -27,7 +27,7 @@ public:
 	friend class SGTGUISystem::SubWindow;
 	friend class SGTGUISystem::Window;
 
-	class Window
+	class SGTDllExport Window
 	{
 	public:
 		Window(int iHandle);
@@ -37,26 +37,18 @@ public:
 		void Move(float x, float y);
 		int GetHandle();
 		
-		void SetOnClickCallback(std::string strCallback);
-		void SetHoverInCallback(std::string strCallback);
-		void SetHoverOutCallback(std::string strCallback);
-		void SetKeyCallback(std::string strCallback);
+
 	private:
 		std::vector<int> GetSubWindows();
 		static std::list<int> FindSubWindows(int iHandle);
 		int m_iHandle;
 	};
-	class SubWindow
+	class SGTDllExport SubWindow
 	{
 	public:
 		SubWindow(int iHandle);
 		void SetMaterial(Ogre::String mat);
 		int GetHandle();
-	
-		void SetOnClickCallback(std::string strCallback);
-		void SetHoverInCallback(std::string strCallback);
-		void SetHoverOutCallback(std::string strCallback);
-		void SetKeyCallback(std::string strCallback);
 
 	private:
 		int m_iHandle;
@@ -69,9 +61,21 @@ public:
 	bool GetVisible(int iHandle);
 	void SetCursor(int iHandle);
 
-
+		
+	void SetOnClickCallback(int iHandle, std::string strCallback);
+	void SetKeyCallback(int iHandle, std::string strCallback);
+	void SetHoverInCallback(int iHandle, std::string strCallback);
+	void SetHoverOutCallback(int iHandle, std::string strCallback);
+	
+	void SetMouseDownCallback(std::string strCallback);
+	void SetMouseUpCallback(std::string strCallback);
 private:
 	//scripting stuff
+
+	static std::vector<SGTScriptParam> Lua_CreateWindow(SGTScript& caller, std::vector<SGTScriptParam> vParams);
+	static std::vector<SGTScriptParam> Lua_CreateSubWindow(SGTScript& caller, std::vector<SGTScriptParam> vParams);
+	static std::vector<SGTScriptParam> Lua_BakeWindow(SGTScript& caller, std::vector<SGTScriptParam> vParams);
+	static std::vector<SGTScriptParam> Lua_SetWindowVisible(SGTScript& caller, std::vector<SGTScriptParam> vParams);
 
 	static std::vector<SGTScriptParam> Lua_SetMaterial(SGTScript& caller, std::vector<SGTScriptParam> vParams);
 
@@ -85,7 +89,6 @@ private:
 	int m_iHoverWin;
 	bool m_bMenuActive;
 	static const float m_fFactor;
-	static const float cfFrameWidth;
 	SGTScript m_CallbackScript;
 
 	struct SWindowInfo

@@ -41,11 +41,13 @@ SGTScriptSystem::BindCFnCallback(SGTScript &caller, std::vector<SGTScriptParam> 
 	if(params[0].getType()!=SGTScriptParam::PARM_TYPE_STRING)
 	{
 		vRes.push_back(SGTScriptParam());
+		vRes.push_back(SGTScriptParam(std::string("the first parameter must be a string!")));
 		return vRes;
 	}
 	if(SGTScriptSystem::GetInstance().m_mCFunctions.find(params[0].getString())==SGTScriptSystem::GetInstance().m_mCFunctions.end())
 	{
 		vRes.push_back(SGTScriptParam());
+		vRes.push_back(SGTScriptParam(std::string("tried to bind a non-existing function!")));
 		return vRes;
 	}
 	switch(params.size())
@@ -59,12 +61,14 @@ SGTScriptSystem::BindCFnCallback(SGTScript &caller, std::vector<SGTScriptParam> 
 		if(params[1].getType()!=SGTScriptParam::PARM_TYPE_STRING)
 		{
 			vRes.push_back(SGTScriptParam());
+			vRes.push_back(SGTScriptParam(std::string("the second parameter must be a string!")));
 			return vRes;
 		}
 		caller.m_pLuaScript->ShareCFunction(params[1].getString(), SGTScriptSystem::GetInstance().m_mCFunctions.find(params[0].getString())->second);
 		break;
 	default:
 		vRes.push_back(SGTScriptParam());
+		vRes.push_back(SGTScriptParam(std::string("this function takes 2 arguments max!")));
 	}
 	return vRes;
 }
@@ -162,6 +166,21 @@ SGTScript
 SGTScriptSystem::CreateInstance(std::string strFileName)
 {
 	return CreateInstance(strFileName, std::vector<SGTScriptParam>());
+}
+
+std::vector<SGTScriptParam>
+SGTScriptSystem::RunCallbackFunction(SGTScriptParam function, std::vector<SGTScriptParam> params)
+{
+	std::vector<SGTScriptParam> vRes;
+	if(function.getType()!=SGTScriptParam::PARM_TYPE_FUNCTION)
+	{
+		vRes.push_back(SGTScriptParam());
+		return vRes;
+	}
+	std::string strFnName;
+	SGTScript script;
+	function.getFunction(strFnName, script);
+	return script.CallFunction(strFnName, params);
 }
 
 void
