@@ -62,27 +62,38 @@ public:
 	void SetCursor(int iHandle);
 
 		
-	void SetOnClickCallback(int iHandle, std::string strCallback);
-	void SetKeyCallback(int iHandle, std::string strCallback);
-	void SetHoverInCallback(int iHandle, std::string strCallback);
-	void SetHoverOutCallback(int iHandle, std::string strCallback);
-	
-	void SetMouseDownCallback(std::string strCallback);
-	void SetMouseUpCallback(std::string strCallback);
 private:
 	//scripting stuff
 
 	static std::vector<SGTScriptParam> Lua_CreateWindow(SGTScript& caller, std::vector<SGTScriptParam> vParams);
 	static std::vector<SGTScriptParam> Lua_CreateSubWindow(SGTScript& caller, std::vector<SGTScriptParam> vParams);
 	static std::vector<SGTScriptParam> Lua_BakeWindow(SGTScript& caller, std::vector<SGTScriptParam> vParams);
-	static std::vector<SGTScriptParam> Lua_SetWindowVisible(SGTScript& caller, std::vector<SGTScriptParam> vParams);
 
 	static std::vector<SGTScriptParam> Lua_SetMaterial(SGTScript& caller, std::vector<SGTScriptParam> vParams);
+	static std::vector<SGTScriptParam> Lua_SetWindowVisible(SGTScript& caller, std::vector<SGTScriptParam> vParams);
+	static std::vector<SGTScriptParam> Lua_SetForegroundWindow(SGTScript& caller, std::vector<SGTScriptParam> vParams);
 
+	static std::vector<SGTScriptParam> Lua_GetCursor(SGTScript& caller, std::vector<SGTScriptParam> vParams);
+	static std::vector<SGTScriptParam> Lua_SetCursor(SGTScript& caller, std::vector<SGTScriptParam> vParams);
+
+	//font system
 	static std::vector<SGTScriptParam> Lua_CreateFontMaterial(SGTScript& caller, std::vector<SGTScriptParam> vParams);
 	static std::vector<SGTScriptParam> Lua_CreateFontTexture(SGTScript& caller, std::vector<SGTScriptParam> vParams);
 	static std::vector<SGTScriptParam> Lua_ChangeFontMaterial(SGTScript& caller, std::vector<SGTScriptParam> vParams);
 	static std::vector<SGTScriptParam> Lua_DeleteTexture(SGTScript& caller, std::vector<SGTScriptParam> vParams);
+
+	//window callbacks
+	//mouse events
+	static std::vector<SGTScriptParam> Lua_SetOnClickCallback(SGTScript& caller, std::vector<SGTScriptParam> vParams);
+	static std::vector<SGTScriptParam> Lua_SetMouseDownCallback(SGTScript& caller, std::vector<SGTScriptParam> vParams);
+	static std::vector<SGTScriptParam> Lua_SetMouseUpCallback(SGTScript& caller, std::vector<SGTScriptParam> vParams);
+	static std::vector<SGTScriptParam> Lua_SetMouseMoveCallback(SGTScript& caller, std::vector<SGTScriptParam> vParams);
+	static std::vector<SGTScriptParam> Lua_SetMouseHoverInCallback(SGTScript& caller, std::vector<SGTScriptParam> vParams);
+	static std::vector<SGTScriptParam> Lua_SetMouseHoverOutCallback(SGTScript& caller, std::vector<SGTScriptParam> vParams);
+	//keyboard events
+	static std::vector<SGTScriptParam> Lua_SetOnCharCallback(SGTScript& caller, std::vector<SGTScriptParam> vParams);
+	static std::vector<SGTScriptParam> Lua_SetKeyDownCallback(SGTScript& caller, std::vector<SGTScriptParam> vParams);
+	static std::vector<SGTScriptParam> Lua_SetKeyUpCallback(SGTScript& caller, std::vector<SGTScriptParam> vParams);
 
 	int FindParentWindow(int iSubWindowHandle);
 	float m_fXPos, m_fYPos;
@@ -99,7 +110,8 @@ private:
 		bool bVisible;
 		int iParentHandle;
 		std::vector<int> vSubWindows;
-		std::string strOnClickCallback, strHoverInCallback, strHoverOutCallback, strKeyPressCallback;
+		SGTScriptParam parOnClick, parMouseDown, parMouseUp, parMouseMove, parMouseHoverIn, parMouseHoverOut,
+			parOnChar, parKeyDown, parKeyUp;
 	};
 	
 	std::map<int, SWindowInfo> m_mWindowInfos;

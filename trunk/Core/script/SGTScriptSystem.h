@@ -16,7 +16,7 @@ public:
 	SGTScript CreateInstance(std::string strFileName);
 	SGTScript CreateInstance(std::string strFileName, std::vector<SGTScriptParam> params);
 
-	std::vector<SGTScriptParam> RunCallbackFunction(SGTScriptParam function, std::vector<SGTScriptParam> params);
+	static std::vector<SGTScriptParam> RunCallbackFunction(SGTScriptParam function, std::vector<SGTScriptParam> params);
 
 	void KillScript(std::string strFileName);
 	void Clear();
