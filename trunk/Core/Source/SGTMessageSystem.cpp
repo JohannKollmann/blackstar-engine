@@ -127,6 +127,7 @@ void SGTMessageSystem::Update()
 		{
 			for (std::list<SGTMessageListener*>::iterator li = (*ni).mListeners.begin(); li != (*ni).mListeners.end(); li++)
 			{
+				//Ogre::LogManager::getSingleton().logMessage((*MsgIter).mNewsgroup);
 				(*li)->ReceiveMessage((*MsgIter));
 			}
 		}

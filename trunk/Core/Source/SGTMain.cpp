@@ -110,7 +110,6 @@ void SGTMain::initScene()
 	}
 
 	mSceneMgr = mRoot->createSceneManager(Ogre::ST_GENERIC, "Esgaroth");
-	mSecondarySceneMgr = mRoot->createSceneManager(Ogre::ST_GENERIC, "Esgaroth_Second");
 	mCamera = mSceneMgr->createCamera("MainCamera");
 	mCamera->lookAt(Ogre::Vector3(0,0,0));
 	mCamera->setNearClipDistance(1);

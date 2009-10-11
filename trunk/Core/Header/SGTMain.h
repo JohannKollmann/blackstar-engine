@@ -42,7 +42,6 @@ protected:
 	Ogre::RenderWindow* mWindow;
 	Ogre::Viewport* mViewport;
 	Ogre::SceneManager* mSceneMgr;
-	Ogre::SceneManager* mSecondarySceneMgr;
 	SGTCollisionCallback *mCollisionCallback;
 
 	Ogre::ShadowCameraSetupPtr mDirectionalShadowCameraSetup;
