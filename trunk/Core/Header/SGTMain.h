@@ -42,6 +42,7 @@ protected:
 	Ogre::RenderWindow* mWindow;
 	Ogre::Viewport* mViewport;
 	Ogre::SceneManager* mSceneMgr;
+	Ogre::SceneManager* mPreviewSceneMgr;
 	SGTCollisionCallback *mCollisionCallback;
 
 	Ogre::ShadowCameraSetupPtr mDirectionalShadowCameraSetup;
@@ -88,6 +89,7 @@ public:
 	Ogre::RenderWindow* GetWindow() { return mWindow; };
 	NxOgre::Scene* GetNxScene() { return mScene; };
 	Ogre::SceneManager* GetOgreSceneMgr();// { return mSceneMgr; };
+	Ogre::SceneManager* GetPreviewSceneMgr() { return mPreviewSceneMgr; };
 	Ogre::Viewport* GetViewport() { return mViewport; };
 	Ogre::Camera* GetCamera() { return mCamera; };
 	OgreOggSound::OgreOggSoundManager* GetSoundManager() { return mSoundManager; };
