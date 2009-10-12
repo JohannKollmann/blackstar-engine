@@ -125,9 +125,10 @@ SGTLuaScript::GetArguments(lua_State* pState, int iStartIndex, SGTScript& script
 		}
 		default:
 			//unsupported type
+			vParams.clear();
 			vParams.push_back(SGTScriptParam());
-			SGTLuaScript::LogError(std::string("unsupported type while extracting params"));
-			break;
+			vParams.push_back(SGTScriptParam(std::string("unsupported type while extracting params")));
+			return vParams;
 		};
 	return vParams;
 }
@@ -154,7 +155,7 @@ SGTLuaScript::PutArguments(lua_State *pState, std::vector<SGTScriptParam> params
 			lua_pushnumber(pState, params[iParam].getFloat());
 			break;
 		case SGTScriptParam::PARM_TYPE_FUNCTION:
-			//check if we have already added that function
+		{	//check if we have already added that function
 			std::string strTargetFnName;
 			SGTScript targetscript;
 			params[iParam].getFunction(strTargetFnName, targetscript);
@@ -181,6 +182,10 @@ SGTLuaScript::PutArguments(lua_State *pState, std::vector<SGTScriptParam> params
 			lua_getglobal(pState, CLongCallHandler::GetInstance().TargetSet(script.GetID(), targetscript.GetID(), strTargetFnName).c_str());
 			break;
 		}
+		case SGTScriptParam::PARM_TYPE_NONE:
+			lua_pushnil(pState);
+			break;
+		}
 	}
 }
 
@@ -205,6 +210,28 @@ std::string GetLuaLine(lua_State* pState)
 	return strLine;
 }
 
+//will return the inputs
+std::vector<SGTScriptParam>
+ReportError(std::string strScriptName, lua_State* pState, std::vector<SGTScriptParam> vResults, std::string strInfo=std::string(""))
+{
+	if(!vResults.size())
+		return vResults;
+	if(vResults[0].getType()==SGTScriptParam::PARM_TYPE_NONE)
+	{
+		//find out position in script
+		std::string strErr=std::string("");
+		if(vResults.size()==2)
+		{
+			if(vResults[1].getType()==SGTScriptParam::PARM_TYPE_STRING)
+				strErr+= std::string(": ") + vResults[1].getString();
+		}
+		else
+			strErr+= std::string(".");
+		SGTLuaScript::LogError(std::string("script error in ") + strScriptName + std::string(" (line ") + GetLuaLine(pState) + std::string(") (") + strInfo + std::string(")") + strErr);
+	}
+	return vResults;
+}
+
 std::vector<SGTScriptParam>
 SGTLuaScript::CallFunction(SGTScript &caller, std::string strName, std::vector<SGTScriptParam> params)
 {
@@ -222,6 +249,7 @@ SGTLuaScript::CallFunction(SGTScript &caller, std::string strName, std::vector<S
 	}
 
 	lua_getglobal(m_pState, strName.c_str());//push the function
+	
 	PutArguments(m_pState, params, caller);
 
 	
@@ -229,12 +257,12 @@ SGTLuaScript::CallFunction(SGTScript &caller, std::string strName, std::vector<S
 	if(lua_pcall(m_pState, params.size(), LUA_MULTRET,0 )!=0)
 	{
 		const char* pcErr=lua_tostring(m_pState, -1);
-		LogError(std::string(pcErr));
+		LogError(m_strScriptName + std::string(": error calling function ") + strName + std::string(": ") + std::string(pcErr));
 		outParams.push_back(SGTScriptParam());
 		return outParams;
 	}
 	else//get the returned arguments
-		outParams=GetArguments(m_pState, iStackSize, caller);
+		outParams=ReportError(m_strScriptName, m_pState, GetArguments(m_pState, iStackSize, caller), std::string("getting results from call to ") + strName);
 
 	return outParams;
 }
@@ -298,14 +326,14 @@ SGTLuaScript::ApiCallback(lua_State* pState)
 	if(pScript.m_mExternalFunctions.find(strFunction)==pScript.m_mExternalFunctions.end())
 	{
 		if(CLongCallHandler::GetInstance().GetTarget(pInstance.GetID(), strFunction).second.size())
-			vResults=CLongCallHandler::GetInstance().GetTarget(pInstance.GetID(), strFunction).first.CallFunction(CLongCallHandler::GetInstance().GetTarget(pInstance.GetID(), strFunction).second, GetArguments(pState, 1, pInstance));
+			vResults=CLongCallHandler::GetInstance().GetTarget(pInstance.GetID(), strFunction).first.CallFunction(CLongCallHandler::GetInstance().GetTarget(pInstance.GetID(), strFunction).second, ReportError(pScript.GetScriptName(), pState, GetArguments(pState, 1, pInstance)));
 		else if(pScript.m_mFunctions.find(strFunction)!=pScript.m_mFunctions.end())
 		{
 			SCShare share=pScript.m_mFunctions.find(strFunction)->second;
 			if(share.bIsStatic)
-				vResults=share.fns(pInstance, pScript, GetArguments(pState, 1, pInstance));
+				vResults=share.fns(pInstance, pScript, ReportError(pScript.GetScriptName(), pState, GetArguments(pState, 1, pInstance)));
 			else
-				vResults=share.fn(pInstance, GetArguments(pState, 1, pInstance));
+				vResults=share.fn(pInstance, ReportError(pScript.GetScriptName(), pState, GetArguments(pState, 1, pInstance)));
 		}
 		else
 		{
@@ -315,24 +343,10 @@ SGTLuaScript::ApiCallback(lua_State* pState)
 	else
 	{
 		SExternalShare data=pScript.m_mExternalFunctions.find(strFunction)->second;
-		vResults=data.script.CallFunction(pInstance, data.strInternalName, GetArguments(pState, 1, pInstance));
+		vResults=data.script.CallFunction(pInstance, data.strInternalName, ReportError(pScript.GetScriptName(), pState, GetArguments(pState, 1, pInstance)));
 	}
-	if(vResults.size())
-		if(vResults[0].getType()==SGTScriptParam::PARM_TYPE_NONE)
-		{
-			//find out position in script
-			
-			std::string strErr=std::string("\" returned an error");
-			if(vResults.size()==2)
-			{
-				if(vResults[1].getType()==SGTScriptParam::PARM_TYPE_STRING)
-					strErr+= std::string(": ") + vResults[1].getString();
-			}
-			else
-				strErr+= std::string(".");
-			LogError(pScript.GetScriptName() + std::string(" (line ") + GetLuaLine(pState) + std::string("): function call to \"") + strFunction + strErr);
-		}
-	PutArguments(pState, vResults, pInstance);
+
+	PutArguments(pState, ReportError(pScript.GetScriptName(), pState, vResults, std::string("call to ") + strFunction), pInstance);
 
 	lua_pushinteger(pState, iInstanceID);
 	lua_setglobal(pState, "_scriptID");

@@ -117,15 +117,16 @@ ResidentManager::SetCallback(SGTScript &caller, std::vector<SGTScriptParam> para
 std::vector<SGTScriptParam>
 ResidentManager::GetCallback(SGTScript &caller, std::vector<SGTScriptParam> params)
 {
+	std::vector<SGTScriptParam> vRes(1, SGTScriptParam());
 	if(params.size()!=1)
 	{
-		SGTLuaScript::LogError(std::string("rget: invalid number of arguments"));
-		return std::vector<SGTScriptParam>();
+		vRes.push_back(SGTScriptParam(std::string("invalid number of arguments")));
+		return vRes;
 	}
 	if(params[0].getType()!=SGTScriptParam::PARM_TYPE_STRING)
 	{
-		SGTLuaScript::LogError(std::string("rget: you gave no name"));
-		return std::vector<SGTScriptParam>();
+		vRes.push_back(SGTScriptParam(std::string("you gave no name")));
+		return vRes;
 	}
 	std::vector<SGTScriptParam> vTemp;
 	if(GetInstance().m_mResis.find(caller.GetID())==GetInstance().m_mResis.end())
@@ -145,20 +146,20 @@ ResidentManager::GetCallback(SGTScript &caller, std::vector<SGTScriptParam> para
 				if(parm.getType()==SGTScriptParam::PARM_TYPE_NONE)
 				{
 					//4 ifs. w00t :D
-					SGTLuaScript::LogError(std::string("rget: variable not set and no initial value found..."));
-					return std::vector<SGTScriptParam>();
+					vRes.push_back(SGTScriptParam(std::string("variable not set and no initial value found...")));
+					return vRes;
 				}
 			}
 			else
 			{
-				SGTLuaScript::LogError(std::string("rget: variable not set and no initial value found..."));
-				return std::vector<SGTScriptParam>();
+				vRes.push_back(SGTScriptParam(std::string("variable not set and no initial value found...")));
+				return vRes;
 			}
 		}
 		else
 		{
-			SGTLuaScript::LogError(std::string("rget: script has no resis allocated"));
-			return std::vector<SGTScriptParam>();
+			vRes.push_back(SGTScriptParam(std::string("script has no resis allocated")));
+			return vRes;
 		}
 	}
 	vTemp.push_back(parm);
