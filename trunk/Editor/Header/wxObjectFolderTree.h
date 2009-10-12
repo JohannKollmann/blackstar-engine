@@ -11,6 +11,8 @@
 
 class wxObjectFolderTree : public wxFileTree, public EntityTreeNotebookListener
 {
+private:
+	void CreateObjectPreview(Ogre::String file);
 public:
 	wxObjectFolderTree(wxWindow* parent, wxWindowID id, const wxPoint& pos = wxDefaultPosition,
                     const wxSize& size = wxDefaultSize, long style = wxTR_HAS_BUTTONS | wxTR_FULL_ROW_HIGHLIGHT | wxTR_EDIT_LABELS,

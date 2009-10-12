@@ -2,6 +2,7 @@
 #include "wxObjectFolderTree.h"
 #include "SGTScenemanager.h"
 #include "SGTGOCAnimatedCharacter.h"
+#include "GUISystem.h"
 
 enum
 {
@@ -53,8 +54,16 @@ void wxObjectFolderTree::OnSelectItemCallback()
 		Ogre::String extension = File.substr(File.find(".")+1, File.length());
 		wxEdit::Instance().GetOgrePane()->GetEdit()->OnSelectResource();
 
-		if (extension == "ocs") ((wxEditSGTGameObject*)(wxEdit::Instance().GetpropertyWindow()->SetPage("EditGameObject")))->SetResource(Path + File);
+		if (extension == "ocs")
+		{
+			CreateObjectPreview(Path + File);
+			((wxEditSGTGameObject*)(wxEdit::Instance().GetpropertyWindow()->SetPage("EditGameObject")))->SetResource(Path + File);
+		}
 	}
+}
+
+void wxObjectFolderTree::CreateObjectPreview(Ogre::String file)
+{
 }
 
 void wxObjectFolderTree::OnMenuCallback(int id)
@@ -155,9 +164,20 @@ void wxObjectFolderTree::OnEnterTab()
 		}
 	}
 
+	if (wxEdit::Instance().GetOgrePane()->GetEdit())
+	{
+		SGTGUISystem::GetInstance().SetVisible(wxEdit::Instance().GetOgrePane()->GetEdit()->mPreviewWindow.GetHandle(), true);
+		if (mCurrentItem) OnSelectItemCallback();
+	}
+
 	wxEdit::Instance().GetExplorerToolbar()->SetGroupStatus("ResourceMgr", true);
 }
 void wxObjectFolderTree::OnLeaveTab()
 {
 	wxEdit::Instance().GetExplorerToolbar()->SetGroupStatus("ResourceMgr", false);
+
+	Ogre::MaterialPtr material = Ogre::MaterialManager::getSingleton().getByName("gui/runtime");
+	material->getTechnique(0)->getPass(0)->removeAllTextureUnitStates();
+	SGTSceneManager::Instance().DestroyPreviewRender("EditorPreview");
+	SGTGUISystem::GetInstance().SetVisible(wxEdit::Instance().GetOgrePane()->GetEdit()->mPreviewWindow.GetHandle(), false);
 }
