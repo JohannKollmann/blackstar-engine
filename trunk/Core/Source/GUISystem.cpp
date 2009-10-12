@@ -288,7 +288,8 @@ SGTGUISystem::MakeWindow(float x, float y, float w, float h)
 	wininfo.iDepth=1;
 	wininfo.bWasBaked=false;
 	wininfo.strMaterial=Ogre::String();
-	m_mWindowInfos.insert(std::pair<int, SWindowInfo>(iHandle, wininfo));
+	wininfo.vSubWindows = std::vector<int>();
+	m_mWindowInfos.insert(std::make_pair<int, SWindowInfo>(iHandle, wininfo));
 	return Window(iHandle);
 }
 
@@ -488,7 +489,7 @@ SGTGUISystem::CreateSubWindow(float x, float y, float w, float h, int iParentHan
 	wininfo.h=h*parenthandle.h;
 	wininfo.iParentHandle=iParentHandle;
 	wininfo.strName=Ogre::String("GUI-System-Subwindow ") + SGTSceneManager::Instance().RequestIDStr();
-	m_mWindowInfos.insert(std::pair<int, SWindowInfo>(iHandle, wininfo));
+	m_mWindowInfos.insert(std::make_pair<int, SWindowInfo>(iHandle, wininfo));
 	return SubWindow(iHandle);
 }
 

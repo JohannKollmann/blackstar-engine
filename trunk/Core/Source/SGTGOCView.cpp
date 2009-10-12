@@ -28,6 +28,7 @@ SGTGOCViewContainer::SGTGOCViewContainer(void)
 SGTGOCViewContainer::~SGTGOCViewContainer(void)
 {
 	std::list<SGTGOCViewComponent*>::iterator i = mItems.begin();
+	mNode->detachAllObjects();
 	while (i != mItems.end())
 	{
 		SGTGOCViewComponent *component = (*i);

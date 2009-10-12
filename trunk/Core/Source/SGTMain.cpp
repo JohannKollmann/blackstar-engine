@@ -13,7 +13,7 @@
 #include "HDRListener.h"
 #include "SGTWeatherController.h"
 #include "SGTCollisionCallback.h"
-#include "..\GUISystem.h"
+#include "GUISystem.h"
 #include "SSAOListener.h"
 
 #include "boost/filesystem/operations.hpp"

@@ -27,6 +27,7 @@ wxObjectFolderTree::wxObjectFolderTree(wxWindow* parent, wxWindowID id, const wx
 	wxEdit::Instance().GetExplorerToolbar()->RegisterTool("NewResource", "ResourceMgr", "Data/Editor/Intern/Engine_Icon07.png", wxObjectFolderTree::OnToolbarEvent);
 	wxEdit::Instance().GetExplorerToolbar()->SetGroupStatus("ResourceMgr", true);
 	//wxEdit::Instance().GetExplorerToolbar()->SetGroupStatus("ResourceMgr", false);
+	mPreviewObject = 0;
 }
 
 void wxObjectFolderTree::OnShowMenuCallback(wxMenu *menu, VdtcTreeItemBase *item)
@@ -62,8 +63,62 @@ void wxObjectFolderTree::OnSelectItemCallback()
 	}
 }
 
+void wxObjectFolderTree::ClearObjectPreview()
+{
+	if (mPreviewObject)
+	{
+		SGTMain::Instance().SetSceneMgr(false);
+		delete mPreviewObject;
+		SGTMain::Instance().SetSceneMgr(true);
+		mPreviewObject = 0;
+	}
+	SGTSceneManager::Instance().DestroyPreviewRender("EditorPreview");
+}
+
 void wxObjectFolderTree::CreateObjectPreview(Ogre::String file)
 {
+	ClearObjectPreview();
+	SGTMain::Instance().SetSceneMgr(false);
+	mPreviewObject = new SGTGameObject(0);
+	SGTLoadSystem *ls=SGTLoadSave::Instance().LoadFile(file);
+	std::list<ComponentSection> sections;
+	ls->LoadAtom("std::list<ComponentSection>", (void*)(&sections));
+	Ogre::Vector3 scale(1,1,1);
+	SGTGOCViewContainer *container = 0;
+	for (std::list<ComponentSection>::iterator i = sections.begin(); i != sections.end(); i++)
+	{
+		if ((*i).mSectionName == "GameObject") continue;
+		(*i).mSectionData->AddOgreVec3("Scale", scale);
+		SGTGOCEditorInterface *component = SGTSceneManager::Instance().CreateComponent((*i).mSectionName, (*i).mSectionData.getPointer());
+		if (!component) continue;
+		if (component->IsViewComponent())
+		{
+			container = (SGTGOCViewContainer*)mPreviewObject->GetComponent("GOCView");
+			if (!container)
+			{
+				container = new SGTGOCViewContainer();
+				mPreviewObject->AddComponent(container);
+			}
+			container->AddItem(dynamic_cast<SGTGOCViewComponent*>(component));
+		}
+		else
+		{
+			delete component;
+		}
+	}
+	ls->CloseFile();
+	if (!container)
+	{
+		delete mPreviewObject;
+		mPreviewObject = 0;
+		return;
+	}
+	SGTMain::Instance().SetSceneMgr(true);
+	SGTSceneManager::Instance().CreatePreviewRender(container->GetNode(), "EditorPreview");
+	Ogre::MaterialPtr material = Ogre::MaterialManager::getSingleton().getByName("gui/runtime");
+	material->getTechnique(0)->getPass(0)->removeAllTextureUnitStates();
+	material->getTechnique(0)->getPass(0)->createTextureUnitState("EditorPreview_Tex");
+	wxEdit::Instance().GetOgrePane()->GetEdit()->mPreviewWindow.SetMaterial(material->getName());
 }
 
 void wxObjectFolderTree::OnMenuCallback(int id)

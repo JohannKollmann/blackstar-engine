@@ -683,9 +683,8 @@ int SGTSceneManager::GetMinutes()
 }
 
 
-Ogre::MaterialPtr SGTSceneManager::CreatePreviewRender(Ogre::SceneNode *node, float width, float height)
+Ogre::MaterialPtr SGTSceneManager::CreatePreviewRender(Ogre::SceneNode *node, Ogre::String name, float width, float height)
 {
-	Ogre::String name = node->getName();
 	Ogre::Camera *camera = node->getCreator()->createCamera(name + "_Cam");
 	camera->setNearClipDistance(0.1f);
 	camera->setFarClipDistance(0);
@@ -724,27 +723,8 @@ void SGTSceneManager::DestroyPreviewRender(Ogre::String name)
 {
 	Ogre::SceneManager *mgr = SGTMain::Instance().GetPreviewSceneMgr();
 	if (mgr->hasCamera(name + "_Cam")) mgr->destroyCamera(name + "_Cam");
-	if (mgr->hasSceneNode(name))
-	{
-		Ogre::SceneNode *node = mgr->getSceneNode(name);
-		for (unsigned int i = 0; i < node->numAttachedObjects(); i++)
-		{
-			mgr->destroyMovableObject(node->getAttachedObject(i));
-		}
-		mgr->destroySceneNode(name);
-	}
-
 	mgr = SGTMain::Instance().GetOgreSceneMgr();
 	if (mgr->hasCamera(name + "_Cam")) mgr->destroyCamera(name + "_Cam");
-	if (mgr->hasSceneNode(name))
-	{
-		Ogre::SceneNode *node = mgr->getSceneNode(name);
-		for (unsigned int i = 0; i < node->numAttachedObjects(); i++)
-		{
-			mgr->destroyMovableObject(node->getAttachedObject(i));
-		}
-		mgr->destroySceneNode(name);
-	}
 	if (Ogre::TextureManager::getSingleton().resourceExists(name + "_Tex"))		Ogre::TextureManager::getSingleton().remove(name + "_Tex");
 	if (Ogre::MaterialManager::getSingleton().resourceExists(name + "_Mat"))	Ogre::MaterialManager::getSingleton().remove(name + "_Mat");
 }
