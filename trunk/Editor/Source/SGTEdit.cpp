@@ -83,11 +83,15 @@ SGTEdit::SGTEdit()
 	wxEdit::Instance().GetMainToolbar()->RegisterTool("DeleteObject", "ObjectMgr", "Data/Editor/Intern/Engine_Icon04.png", SGTEdit::OnToolbarEvent);
 	wxEdit::Instance().GetMainToolbar()->RegisterTool("SaveObjectGroup", "ObjectMgr", "Data/Editor/Intern/Engine_Icon06.png", SGTEdit::OnToolbarEvent);
 	wxEdit::Instance().GetMainToolbar()->SetGroupStatus("ObjectMgr", true);
+
+	mPreviewWindow = SGTGUISystem::GetInstance().MakeWindow(0.8f, 0.0f, 0.2f, 0.2f * SGTMain::Instance().GetCamera()->getAspectRatio());
+	mPreviewWindow.Bake();
+	SGTGUISystem::GetInstance().SetVisible(mPreviewWindow.GetHandle(), true);
 };
 
 void SGTEdit::OnToolbarEvent(int toolID, Ogre::String toolname)
 {
-	SGTEdit *edit = wxEdit::Instance().GetOgrePane()->mEdit;
+	SGTEdit *edit = wxEdit::Instance().GetOgrePane()->GetEdit();
 	bool checked = wxEdit::Instance().GetMainToolbar()->GetToolState(toolID);
 	if (toolname == "XAxisLock")
 	{
@@ -858,8 +862,7 @@ void SGTEdit::SelectObject(SGTGameObject *object)
 	if (!mMultiSelect) DeselectAllObjects();
 	else DeselectObject(object);
 
-	if (wxEdit::Instance().GetWorldExplorer()->GetSelection() > 0) wxEdit::Instance().GetWorldExplorer()->AdvanceSelection(false);
-	if (wxEdit::Instance().GetWorldExplorer()->GetSelection() > 0) wxEdit::Instance().GetWorldExplorer()->AdvanceSelection(false);
+	if (wxEdit::Instance().GetWorldExplorer()->GetSelection() > 0) wxEdit::Instance().GetWorldExplorer()->SetSelection(3);
 	wxEdit::Instance().GetWorldExplorer()->GetSceneTree()->ExpandToObject(object);
 	wxEdit::Instance().GetpropertyWindow()->SetPage("EditGameObject");
 	((wxEditSGTGameObject*)(wxEdit::Instance().GetpropertyWindow()->GetCurrentPage()))->SetObject(object);
@@ -1051,6 +1054,12 @@ void SGTEdit::ReceiveMessage(SGTMsg &msg)
 	}
 	if (msg.mNewsgroup == "UPDATE_PER_FRAME")
 	{
+		//Hack: Die Preview node, wenn vorhanden, rotieren
+		if (SGTMain::Instance().GetPreviewSceneMgr()->hasSceneNode("EditorPreview"))
+		{
+			Ogre::SceneNode *preview = SGTMain::Instance().GetPreviewSceneMgr()->getSceneNode("EditorPreview");
+			preview->yaw(Ogre::Radian(msg.mData.GetFloat("TIME") * 0.5f));
+		}
 		/*if (wxEdit::Instance().GetpropertyWindow()->GetCurrentPageName() == "EditGameObject")
 		{
 			((wxEditSGTGameObject*)(wxEdit::Instance().GetpropertyWindow()->GetCurrentPage()))->Update();

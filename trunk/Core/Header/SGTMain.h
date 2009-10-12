@@ -43,6 +43,7 @@ protected:
 	Ogre::Viewport* mViewport;
 	Ogre::SceneManager* mSceneMgr;
 	Ogre::SceneManager* mPreviewSceneMgr;
+	bool mMainSceneMgr;
 	SGTCollisionCallback *mCollisionCallback;
 
 	Ogre::ShadowCameraSetupPtr mDirectionalShadowCameraSetup;
@@ -98,6 +99,8 @@ public:
 	NxControllerManager* GetNxCharacterManager() { return mCharacterControllerManager; };
 
 	SGTCameraController* GetCameraController() { return mCameraController; };
+
+	void SetSceneMgr(bool main = true) { mMainSceneMgr = main; }
 
 	Ogre::ShadowCameraSetupPtr GetDirectionalShadowCameraSetup() { return mDirectionalShadowCameraSetup; };
 	Ogre::ShadowCameraSetupPtr GetSpotShadowCameraSetup() { return mSpotShadowCameraSetup; };

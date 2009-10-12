@@ -49,7 +49,7 @@ enum
 
 		void initOgre();
 
-		SGTEdit *mEdit;
+		SGTEdit* GetEdit() { return mEdit; }
 
 		/** Renders a single Ogre frame */
 		void update();
@@ -107,6 +107,8 @@ enum
 		/** Local Ogre::RenderWindow pointer */
 		Ogre::RenderWindow* mRenderWindow;
 		Ogre::Camera *mCamera;
+
+		SGTEdit *mEdit;
 
 		bool mInitialized;
 

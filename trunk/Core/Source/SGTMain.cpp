@@ -23,7 +23,8 @@
 
 SGTMain::SGTMain()
 {
-	mNxWorld = NULL;
+	mNxWorld = 0;
+	mMainSceneMgr = true;
 }
 
 SGTMain::~SGTMain()
@@ -125,6 +126,14 @@ void SGTMain::initScene()
 	Ogre::MaterialManager::getSingleton().setDefaultTextureFiltering(Ogre::TFO_ANISOTROPIC);
 	Ogre::MaterialManager::getSingleton().setDefaultAnisotropy(8); 
 	Ogre::ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
+
+	//mPreviewSceneMgr->setSkyBox(true, "Sky/ClubTropicana", 2000);
+	mPreviewSceneMgr->setAmbientLight(Ogre::ColourValue(0.6f, 0.6f, 0.6f));
+	Ogre::Light *ambientlight = mPreviewSceneMgr->createLight("SkyLight");
+	ambientlight->setType(Ogre::Light::LightTypes::LT_DIRECTIONAL);
+	ambientlight->setDirection(Ogre::Vector3(0,-1,0.4f).normalisedCopy());
+	ambientlight->setDiffuseColour(Ogre::ColourValue(1,1,1));
+	ambientlight->setSpecularColour(Ogre::ColourValue(1,1,1));
 
 	mSceneMgr->setAmbientLight(Ogre::ColourValue(0.3,0.3,0.3));
 	//mSceneMgr->setFog(Ogre::FOG_LINEAR, Ogre::ColourValue::Blue, 0.015);
@@ -420,7 +429,7 @@ void SGTMain::Shutdown()
 
 Ogre::SceneManager* SGTMain::GetOgreSceneMgr()
 {
-	return mSceneMgr;
+	return mMainSceneMgr ? mSceneMgr : mPreviewSceneMgr;
 };
 
 SGTMain& SGTMain::Instance()

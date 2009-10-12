@@ -344,6 +344,7 @@ public:
 		wxCHECK(item, 0);
 		
 		wxTreeItemId p = GetItemParent(item->GetId());
+		if (!p.IsOk()) return 0;
 		return (VdtcTreeItemBase *)GetItemData(p);
 	};
 

@@ -682,6 +682,73 @@ int SGTSceneManager::GetMinutes()
 	return dif / 60;
 }
 
+
+Ogre::MaterialPtr SGTSceneManager::CreatePreviewRender(Ogre::SceneNode *node, float width, float height)
+{
+	Ogre::String name = node->getName();
+	Ogre::Camera *camera = node->getCreator()->createCamera(name + "_Cam");
+	camera->setNearClipDistance(0.1f);
+	camera->setFarClipDistance(0);
+	camera->setPosition(mNextPreviewPos);
+	camera->setDirection(0,0,1);
+	camera->setAspectRatio(width / height);
+	Ogre::Vector3 node_dimensions = Ogre::Vector3(1,1,1);
+	Ogre::Vector3 center = Ogre::Vector3(0,0,0);
+	if (node->getAttachedObject(0))
+	{
+		node_dimensions = node->getAttachedObject(0)->getBoundingBox().getSize();
+		center = node->getAttachedObject(0)->getBoundingBox().getCenter();
+	}
+	float max = node_dimensions.x > node_dimensions.y ? node_dimensions.x : node_dimensions.y;
+	max = max > node_dimensions.z ? max : node_dimensions.z;
+	float scale_factor = 1.0f / max;
+	float z_offset = (1.0f - (node_dimensions.z * scale_factor)) * 0.5f;
+	node->scale(scale_factor, scale_factor, scale_factor);
+	node->setPosition(mNextPreviewPos + Ogre::Vector3(0, 0, 1.9f-z_offset) + (scale_factor * center * -1.0f));
+	mNextPreviewPos.x += node_dimensions.x * 2;
+	Ogre::TexturePtr texture = Ogre::TextureManager::getSingleton().createManual(name + "_Tex", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, Ogre::TEX_TYPE_2D, width, height, 0, Ogre::PF_R8G8B8, Ogre::TU_RENDERTARGET); 
+    Ogre::RenderTexture *renderTexture = texture->getBuffer()->getRenderTarget();
+    renderTexture->addViewport(camera);
+	renderTexture->setAutoUpdated(true);
+    renderTexture->getViewport(0)->setClearEveryFrame(true);
+	renderTexture->getViewport(0)->setBackgroundColour(Ogre::ColourValue::Black);
+    renderTexture->getViewport(0)->setOverlaysEnabled(false);
+	Ogre::MaterialPtr material = Ogre::MaterialManager::getSingleton().create(name + "_Mat", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+    Ogre::Technique *technique = material->createTechnique();
+    technique->createPass();
+    material->getTechnique(0)->getPass(0)->setLightingEnabled(false);
+    material->getTechnique(0)->getPass(0)->createTextureUnitState(name + "_Tex");
+	return material;
+}
+void SGTSceneManager::DestroyPreviewRender(Ogre::String name)
+{
+	Ogre::SceneManager *mgr = SGTMain::Instance().GetPreviewSceneMgr();
+	if (mgr->hasCamera(name + "_Cam")) mgr->destroyCamera(name + "_Cam");
+	if (mgr->hasSceneNode(name))
+	{
+		Ogre::SceneNode *node = mgr->getSceneNode(name);
+		for (unsigned int i = 0; i < node->numAttachedObjects(); i++)
+		{
+			mgr->destroyMovableObject(node->getAttachedObject(i));
+		}
+		mgr->destroySceneNode(name);
+	}
+
+	mgr = SGTMain::Instance().GetOgreSceneMgr();
+	if (mgr->hasCamera(name + "_Cam")) mgr->destroyCamera(name + "_Cam");
+	if (mgr->hasSceneNode(name))
+	{
+		Ogre::SceneNode *node = mgr->getSceneNode(name);
+		for (unsigned int i = 0; i < node->numAttachedObjects(); i++)
+		{
+			mgr->destroyMovableObject(node->getAttachedObject(i));
+		}
+		mgr->destroySceneNode(name);
+	}
+	if (Ogre::TextureManager::getSingleton().resourceExists(name + "_Tex"))		Ogre::TextureManager::getSingleton().remove(name + "_Tex");
+	if (Ogre::MaterialManager::getSingleton().resourceExists(name + "_Mat"))	Ogre::MaterialManager::getSingleton().remove(name + "_Mat");
+}
+
 SGTSceneManager& SGTSceneManager::Instance()
 {
 	static SGTSceneManager TheOneAndOnly;

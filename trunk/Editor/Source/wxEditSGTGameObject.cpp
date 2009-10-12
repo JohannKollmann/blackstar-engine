@@ -338,10 +338,10 @@ void wxEditSGTGameObject::OnApply()
 		if (mCurrentEditPath == "DoNotSave")
 		{
 			bool select = false;
-			if (wxEdit::Instance().GetOgrePane()->mEdit->ObjectIsSelected(mGameObject))
+			if (wxEdit::Instance().GetOgrePane()->GetEdit()->ObjectIsSelected(mGameObject))
 			{
 				select = true;
-				wxEdit::Instance().GetOgrePane()->mEdit->DeselectObject(mGameObject);
+				wxEdit::Instance().GetOgrePane()->GetEdit()->DeselectObject(mGameObject);
 			}
 			for (std::list<ComponentSection>::iterator i = sections.begin(); i != sections.end(); i++)
 			{
@@ -382,7 +382,7 @@ void wxEditSGTGameObject::OnApply()
 			}
 			if (select == true)
 			{
-				wxEdit::Instance().GetOgrePane()->mEdit->SelectObject(mGameObject);
+				wxEdit::Instance().GetOgrePane()->GetEdit()->SelectObject(mGameObject);
 			}
 			wxEdit::Instance().GetWorldExplorer()->GetMaterialTree()->Update();
 			wxEdit::Instance().GetOgrePane()->SetFocus();

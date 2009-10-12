@@ -24,6 +24,7 @@ private:
 	float mMaxDayTime;
 	float mTimeScale;
 	bool mClockEnabled;
+	Ogre::Vector3 mNextPreviewPos;
 
 	SGTWeatherController *mWeatherController;
 
@@ -136,6 +137,10 @@ public:
 	int GetHour();
 	int GetMinutes();
 	void ReceiveMessage(SGTMsg &msg);
+
+	//Preview render helper functions (for items, editor object preview etc.) 
+	Ogre::MaterialPtr CreatePreviewRender(Ogre::SceneNode *node, float width = 512, float height = 512);
+	void DestroyPreviewRender(Ogre::String nodename);
 
 	//Singleton
 	static SGTSceneManager& Instance();

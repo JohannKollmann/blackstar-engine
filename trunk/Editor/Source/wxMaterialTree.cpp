@@ -346,7 +346,7 @@ void wxMaterialTree::ShowMenu(OgreMaterialTreeItemBase *item, const wxPoint& pt)
 
 	if (item->IsFile())
 	{
-		wxEdit::Instance().GetOgrePane()->mEdit->DeselectMaterial();
+		wxEdit::Instance().GetOgrePane()->GetEdit()->DeselectMaterial();
 		Ogre::Root::getSingleton().renderOneFrame();
 
 		mSelectedMaterial = item->GetMaterial();

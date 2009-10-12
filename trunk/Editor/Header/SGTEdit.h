@@ -11,6 +11,7 @@
 #include "SGTGameObject.h"
 #include "OgreAxisObject.h"
 #include "SGTEntityMaterialInspector.h"
+#include "../GUISystem.h"
 
 struct SGTEditorSelection
 {
@@ -91,6 +92,8 @@ public:
 	SGTAxisLock mXAxisLock;
 	SGTAxisLock mYAxisLock;
 	SGTAxisLock mZAxisLock;
+
+	SGTGUISystem::Window mPreviewWindow;
 
 	SGTEdit();
 	~SGTEdit() { };

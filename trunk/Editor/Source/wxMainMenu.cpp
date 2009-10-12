@@ -115,7 +115,7 @@ void wxMainMenu::OnLoadWorld(wxCommandEvent& WXUNUSED(event))
 
     if (dialog.ShowModal() == wxID_OK)
     {
-		mEdit->GetOgrePane()->mEdit->OnLoadWorld(dialog.GetPath().c_str());
+		mEdit->GetOgrePane()->GetEdit()->OnLoadWorld(dialog.GetPath().c_str());
 	}
 	wxEdit::Instance().GetProgressBar()->Reset();
 	SGTSceneManager::Instance().ShowEditorMeshes(IsChecked(wxMainMenu_EditorMeshes));
@@ -123,7 +123,7 @@ void wxMainMenu::OnLoadWorld(wxCommandEvent& WXUNUSED(event))
 
 void wxMainMenu::OnSaveWorld(wxCommandEvent& WXUNUSED(event))
 {
-	wxEdit::Instance().GetOgrePane()->mEdit->DeselectAllObjects();
+	wxEdit::Instance().GetOgrePane()->GetEdit()->DeselectAllObjects();
 
 	//Ogre::LogManager::getSingleton().logMessage("OnSaveWorld");
     wxFileDialog dialog
@@ -143,7 +143,7 @@ void wxMainMenu::OnSaveWorld(wxCommandEvent& WXUNUSED(event))
 
     if (dialog.ShowModal() == wxID_OK)
     {
-		mEdit->GetOgrePane()->mEdit->OnSaveWorld(dialog.GetPath().c_str());
+		mEdit->GetOgrePane()->GetEdit()->OnSaveWorld(dialog.GetPath().c_str());
 	}
 	wxEdit::Instance().GetProgressBar()->Reset();
 	SGTSceneManager::Instance().ShowEditorMeshes(IsChecked(wxMainMenu_EditorMeshes));
@@ -219,27 +219,27 @@ void wxMainMenu::OnReloadScripts(wxCommandEvent& WXUNUSED(event))
 
 void wxMainMenu::OnEnableBrushMode(wxCommandEvent& WXUNUSED(event))
 {
-	wxEdit::Instance().GetOgrePane()->mEdit->mBrushMode = (wxEdit::Instance().GetOgrePane()->mEdit->mBrushMode ? false : true);
-	if (wxEdit::Instance().GetOgrePane()->mEdit->mBrushMode)
+	wxEdit::Instance().GetOgrePane()->GetEdit()->mBrushMode = (wxEdit::Instance().GetOgrePane()->GetEdit()->mBrushMode ? false : true);
+	if (wxEdit::Instance().GetOgrePane()->GetEdit()->mBrushMode)
 	{
-		wxEdit::Instance().GetOgrePane()->mEdit->mMaterialMode = false;
+		wxEdit::Instance().GetOgrePane()->GetEdit()->mMaterialMode = false;
 		Check(wxMainMenu_Mode_Material, false);
-		wxEdit::Instance().GetOgrePane()->mEdit->OnSelectResource();
+		wxEdit::Instance().GetOgrePane()->GetEdit()->OnSelectResource();
 	}
-	else wxEdit::Instance().GetOgrePane()->mEdit->ClearPreviewObject();
-	wxEdit::Instance().GetOgrePane()->mEdit->DeselectMaterial();
+	else wxEdit::Instance().GetOgrePane()->GetEdit()->ClearPreviewObject();
+	wxEdit::Instance().GetOgrePane()->GetEdit()->DeselectMaterial();
 	wxEdit::Instance().GetProgressBar()->Reset();
 };
 
 void wxMainMenu::OnEnableMaterialMode(wxCommandEvent& WXUNUSED(event))
 {
-	wxEdit::Instance().GetOgrePane()->mEdit->mMaterialMode = (wxEdit::Instance().GetOgrePane()->mEdit->mMaterialMode ? false : true);
-	if (wxEdit::Instance().GetOgrePane()->mEdit->mMaterialMode)
+	wxEdit::Instance().GetOgrePane()->GetEdit()->mMaterialMode = (wxEdit::Instance().GetOgrePane()->GetEdit()->mMaterialMode ? false : true);
+	if (wxEdit::Instance().GetOgrePane()->GetEdit()->mMaterialMode)
 	{
-		wxEdit::Instance().GetOgrePane()->mEdit->mBrushMode = false;
+		wxEdit::Instance().GetOgrePane()->GetEdit()->mBrushMode = false;
 		Check(wxMainMenu_Mode_Brush, false);
 	}
-	wxEdit::Instance().GetOgrePane()->mEdit->DeselectMaterial();
+	wxEdit::Instance().GetOgrePane()->GetEdit()->DeselectMaterial();
 	wxEdit::Instance().GetProgressBar()->Reset();
 };
 

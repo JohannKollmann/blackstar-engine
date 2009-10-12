@@ -7,6 +7,7 @@
 #include "TransformTool.h"
 #include "OgreEnvironment.h"
 #include "OgreScriptCompiler.h"
+#include "../GUISystem.h"
 
 wxMediaTree::wxMediaTree(wxWindow* parent, wxWindowID id, const wxPoint& pos,
              const wxSize& size, long style,
@@ -78,6 +79,34 @@ void wxMediaTree::OnMenuCallback(int id)
 
 void wxMediaTree::OnSelectItemCallback()
 {
+	if (mCurrentItem->IsFile())
+	{
+		SGTSceneManager::Instance().DestroyPreviewRender("EditorPreview");
+		if (mCurrentItem->GetName().find(".mesh") != Ogre::String::npos)
+		{
+			Ogre::SceneNode *node = SGTMain::Instance().GetPreviewSceneMgr()->getRootSceneNode()->createChildSceneNode("EditorPreview");
+			Ogre::Entity *entity = SGTMain::Instance().GetPreviewSceneMgr()->createEntity("EditorPreview_Mesh", mCurrentItem->GetName().c_str());
+			node->attachObject(entity);
+			SGTSceneManager::Instance().CreatePreviewRender(node);
+			Ogre::MaterialPtr material = Ogre::MaterialManager::getSingleton().getByName("gui/runtime");
+			material->getTechnique(0)->getPass(0)->removeAllTextureUnitStates();
+			material->getTechnique(0)->getPass(0)->createTextureUnitState("EditorPreview_Tex");
+			wxEdit::Instance().GetOgrePane()->GetEdit()->mPreviewWindow.SetMaterial(material->getName());
+		}
+		else if	(		mCurrentItem->GetName().find(".tga")	!= Ogre::String::npos
+					||	mCurrentItem->GetName().find(".png")	!= Ogre::String::npos
+					||	mCurrentItem->GetName().find(".tiff")	!= Ogre::String::npos
+					||	mCurrentItem->GetName().find(".dds")	!= Ogre::String::npos
+					||	mCurrentItem->GetName().find(".jpg")	!= Ogre::String::npos
+					||	mCurrentItem->GetName().find(".psd")	!= Ogre::String::npos)
+		{
+			//Ogre::TexturePtr texture = Ogre::TextureManager::getSingleton().create(mCurrentItem->GetName(), "General");
+			Ogre::MaterialPtr material = Ogre::MaterialManager::getSingleton().getByName("gui/runtime");
+			material->getTechnique(0)->getPass(0)->removeAllTextureUnitStates();
+			material->getTechnique(0)->getPass(0)->createTextureUnitState(mCurrentItem->GetName().c_str())->setTextureAddressingMode(Ogre::TextureUnitState::TextureAddressingMode::TAM_CLAMP);
+			wxEdit::Instance().GetOgrePane()->GetEdit()->mPreviewWindow.SetMaterial(material->getName());
+		}
+	}
 }
 
 bool wxMediaTree::OnDropFiles(wxCoord x, wxCoord y, const wxArrayString&  filenames)
@@ -332,8 +361,14 @@ wxDragResult wxMediaTree::OnDragOver(wxCoord x, wxCoord y, wxDragResult def)
 void wxMediaTree::OnEnterTab()
 {
 	wxEdit::Instance().GetExplorerToolbar()->SetGroupStatus("MediaTree", true);
+	if (wxEdit::Instance().GetOgrePane()->GetEdit())
+	{
+		SGTGUISystem::GetInstance().SetVisible(wxEdit::Instance().GetOgrePane()->GetEdit()->mPreviewWindow.GetHandle(), true);
+		if (mCurrentItem) OnSelectItemCallback();
+	}
 }
 void wxMediaTree::OnLeaveTab()
 {
 	wxEdit::Instance().GetExplorerToolbar()->SetGroupStatus("MediaTree", false);
+	SGTGUISystem::GetInstance().SetVisible(wxEdit::Instance().GetOgrePane()->GetEdit()->mPreviewWindow.GetHandle(), false);
 }

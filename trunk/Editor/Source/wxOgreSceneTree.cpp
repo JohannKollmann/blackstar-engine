@@ -300,7 +300,7 @@ void wxOgreSceneTree::OnItemActivated(wxTreeEvent &event)
 		OgreTreeItemBase *t = (OgreTreeItemBase *)GetItemData(id);
 		if (t->IsFile())
 		{
-			wxEdit::Instance().GetOgrePane()->mEdit->SelectObject(t->getNode());
+			wxEdit::Instance().GetOgrePane()->GetEdit()->SelectObject(t->getNode());
 			SGTMain::Instance().GetCamera()->setPosition(t->getNode()->GetGlobalPosition() - Ogre::Vector3(0,0,5));
 			SGTMain::Instance().GetCamera()->lookAt(t->getNode()->GetGlobalPosition());
 			wxEdit::Instance().GetOgrePane()->update();

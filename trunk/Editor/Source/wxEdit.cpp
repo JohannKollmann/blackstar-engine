@@ -98,12 +98,12 @@ void wxEdit::RefreshToolbars()
 {
 	m_mgr.DetachPane(mMainToolbar);
 	m_mgr.AddPane(mMainToolbar, wxAuiPaneInfo().
-		Name(wxT("toolbar")).Caption(wxT("")).
+		Name(wxT("maintoolbar")).Caption(wxT("")).
 		Top().Fixed().ToolbarPane().Layer(0));
 
 	m_mgr.DetachPane(mExplorerToolbar);
 	m_mgr.AddPane(mExplorerToolbar, wxAuiPaneInfo().
-		Name(wxT("toolbar")).Caption(wxT("")).
+		Name(wxT("explorertoolbar")).Caption(wxT("")).
 		Right().Fixed().ToolbarPane().Layer(1).Position(0));
 
 	m_mgr.Update();
