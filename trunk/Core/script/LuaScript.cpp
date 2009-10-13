@@ -273,7 +273,9 @@ SGTLuaScript::ApiCallback(lua_State* pState)
 	lua_Debug ar;
 	lua_getstack(pState, 0, &ar);
 	lua_getinfo(pState, "n", &ar);
-	std::string strFunction(ar.name);
+	std::string strFunction("");
+	if(ar.name)
+		strFunction=std::string(ar.name);
 	
 	int iScriptID;
 	lua_getglobal(pState, "_SGTLuaScript");
@@ -306,7 +308,7 @@ SGTLuaScript::ApiCallback(lua_State* pState)
 	{
 		//it doesn't
 		//so check every share for identity with the function
-		lua_getglobal(pState, strFunction.c_str());
+		lua_getinfo(pState, "f", &ar);
 		for(std::map<std::string, std::pair<SGTScript, std::string>>::const_iterator it=CLongCallHandler::GetInstance().GetShares(pInstance.GetID()); it!=CLongCallHandler::GetInstance().GetSharesEnd(pInstance.GetID()); it++)
 		{
 			lua_getglobal(pState, it->first.c_str());

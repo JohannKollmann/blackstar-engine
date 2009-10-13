@@ -274,7 +274,7 @@ SGTGUISystem::GetInstance()
 }
 
 SGTGUISystem::Window
-SGTGUISystem::MakeWindow(float x, float y, float w, float h)
+SGTGUISystem::MakeWindow(float x, float y, float w, float h, float fUScale, float fVScale)
 {
 	int iHandle=SGTSceneManager::Instance().RequestID();
 	Window win(iHandle);
@@ -285,10 +285,10 @@ SGTGUISystem::MakeWindow(float x, float y, float w, float h)
 	wininfo.y=y;
 	wininfo.w=w;
 	wininfo.h=h;
+	wininfo.fUScale=fUScale;
+	wininfo.fVScale=fVScale;
 	wininfo.iDepth=1;
 	wininfo.bWasBaked=false;
-	wininfo.strMaterial=Ogre::String();
-	wininfo.vSubWindows = std::vector<int>();
 	m_mWindowInfos.insert(std::make_pair<int, SWindowInfo>(iHandle, wininfo));
 	return Window(iHandle);
 }
@@ -298,7 +298,7 @@ void
 SGTGUISystem::Window::Bake()
 {
 	SGTGUISystem::SWindowInfo wininfo=GetInstance().m_mWindowInfos.find(m_iHandle)->second;
-	float x=wininfo.x, y=wininfo.y, w=wininfo.w, h=wininfo.h;
+	float x=wininfo.x, y=wininfo.y, w=wininfo.w, h=wininfo.h, u=wininfo.fUScale, v=wininfo.fVScale;
 	Ogre::MeshPtr meshptr = Ogre::MeshManager::getSingleton().createManual(wininfo.strName, "General");
 	meshptr.get()->createSubMesh("windowface");
 
@@ -326,20 +326,20 @@ SGTGUISystem::Window::Bake()
 	afVertexData[5]=w;
 	afVertexData[6]=0.0f;
 	afVertexData[7]=0.0f;
-	afVertexData[8]=1.0f;
+	afVertexData[8]=u;
 	afVertexData[9]=0.0f;
 
 	afVertexData[10]=w;
 	afVertexData[11]=h;
 	afVertexData[12]=0.0f;
-	afVertexData[13]=1.0f;
-	afVertexData[14]=1.0f;
+	afVertexData[13]=u;
+	afVertexData[14]=v;
 
 	afVertexData[15]=0.0f;
 	afVertexData[16]=h;
 	afVertexData[17]=0.0f;
 	afVertexData[18]=0.0f;
-	afVertexData[19]=1.0f;
+	afVertexData[19]=v;
 	vbuf->unlock();
 
 	//now the sub-windows
@@ -361,9 +361,9 @@ SGTGUISystem::Window::Bake()
 		float z=-SGTGUISystem::GetInstance().m_fZStep*(float)iLevel;
 		float afSubWinVerts[]={
 		subwininfo.x,subwininfo.y,z,0.0,0.0,
-		subwininfo.x+subwininfo.w,subwininfo.y,z,1.0,0.0,
-		subwininfo.x,subwininfo.y+subwininfo.h,z,0.0,1.0,
-		subwininfo.x+subwininfo.w,subwininfo.y+subwininfo.h,z,1.0,1.0};
+		subwininfo.x+subwininfo.w,subwininfo.y,z,subwininfo.fUScale,0.0,
+		subwininfo.x,subwininfo.y+subwininfo.h,z,0.0,subwininfo.fVScale,
+		subwininfo.x+subwininfo.w,subwininfo.y+subwininfo.h,z,subwininfo.fUScale,subwininfo.fVScale};
 		vbuf->writeData((iSubWin+1)*4*decl->getVertexSize(0), 4*decl->getVertexSize(0), afSubWinVerts, false);
 	}
 	GetInstance().m_mWindowInfos.find(m_iHandle)->second.iDepth=wininfo.iDepth+1;
@@ -477,16 +477,18 @@ SGTGUISystem::SubWindow::SetMaterial(Ogre::String strMat)
 
 
 SGTGUISystem::SubWindow
-SGTGUISystem::CreateSubWindow(float x, float y, float w, float h, int iParentHandle)
+SGTGUISystem::CreateSubWindow(int iParentHandle, float x, float y, float w, float h, float fUScale, float fVScale)
 {
 	int iHandle=SGTSceneManager::Instance().RequestID();
 	m_mWindowInfos.find(iParentHandle)->second.vSubWindows.push_back(iHandle);
 	SWindowInfo parenthandle=m_mWindowInfos.find(iParentHandle)->second;
 	SWindowInfo wininfo;
-	wininfo.x=x*parenthandle.w;
-	wininfo.y=y*parenthandle.h;
+	wininfo.x=x*parenthandle.w + ((parenthandle.iParentHandle!=-1) ? parenthandle.x : 0);
+	wininfo.y=y*parenthandle.h + ((parenthandle.iParentHandle!=-1) ? parenthandle.y : 0);
 	wininfo.w=w*parenthandle.w;
 	wininfo.h=h*parenthandle.h;
+	wininfo.fUScale=fUScale;
+	wininfo.fVScale=fVScale;
 	wininfo.iParentHandle=iParentHandle;
 	wininfo.strName=Ogre::String("GUI-System-Subwindow ") + SGTSceneManager::Instance().RequestIDStr();
 	m_mWindowInfos.insert(std::make_pair<int, SWindowInfo>(iHandle, wininfo));
@@ -765,7 +767,10 @@ SGTGUISystem::Lua_CreateSubWindow(SGTScript &caller, std::vector<SGTScriptParam>
 		}
 	
 	ret.clear();
-	ret.push_back(SGTGUISystem::GetInstance().CreateSubWindow(vParams[0].getFloat(), vParams[1].getFloat(), vParams[2].getFloat(), vParams[3].getFloat(), (int)vParams[4].getFloat()).GetHandle());
+	if(vParams.size()==5)
+		ret.push_back(GetInstance().CreateSubWindow((int)vParams[0].getFloat(), vParams[1].getFloat(), vParams[2].getFloat(), vParams[3].getFloat(), vParams[4].getFloat()).GetHandle());
+	else
+		ret.push_back(GetInstance().CreateSubWindow((int)vParams[0].getFloat(), vParams[1].getFloat(), vParams[2].getFloat(), vParams[3].getFloat(), vParams[4].getFloat(), vParams[5].getFloat(), vParams[6].getFloat()).GetHandle());
 	return ret;
 }
 

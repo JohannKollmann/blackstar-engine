@@ -53,8 +53,8 @@ public:
 	private:
 		int m_iHandle;
 	};
-	SGTGUISystem::Window MakeWindow(float x, float y, float w, float h);
-	SGTGUISystem::SubWindow CreateSubWindow(float x, float y, float w, float h, int iParentHandle);
+	SGTGUISystem::Window MakeWindow(float x, float y, float w, float h, float fUScale=1.0f, float fVScale=1.0f);
+	SGTGUISystem::SubWindow CreateSubWindow(int iParentHandle, float x, float y, float w, float h, float fUScale=1.0f, float fVScale=1.0f);
 	void SetFocus(int iHandle);
 	void SetForegroundWindow(int iHandle);
 	void SetVisible(int iHandle, bool bVisible);
@@ -107,6 +107,7 @@ private:
 		Ogre::String strName;
 		Ogre::String strMaterial;
 		float x, y, w, h;
+		float fUScale, fVScale;
 		int iDepth;
 		bool bVisible;
 		int iParentHandle;
