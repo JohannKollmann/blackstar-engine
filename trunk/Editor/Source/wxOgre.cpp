@@ -100,6 +100,15 @@ void wxOgre::createOgreRenderWindow()
 #endif
 	params["externalWindowHandle"] = handle;
 
+	for (std::vector<SGTMain::KeyVal>::iterator i = SGTMain::Instance().mSettings["Graphics"].begin(); i != SGTMain::Instance().mSettings["Graphics"].end(); i++)
+	{
+		if (i->Key == "AA")
+		{
+			params["FSAA"] = i->Val;
+			break;
+		}
+	}
+
 	Ogre::LogManager::getSingletonPtr()->logMessage(handle);
 
 	// Get wx control window size
@@ -117,7 +126,7 @@ void wxOgre::toggleTimerRendering()
 	// Toggle Start/Stop
 	if (mTimer.IsRunning())
 		mTimer.Stop();
-	mTimer.Start(20);
+	mTimer.Start(30);
 }
 
 wxOgre::~wxOgre()

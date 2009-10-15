@@ -683,7 +683,7 @@ int SGTSceneManager::GetMinutes()
 }
 
 
-Ogre::MaterialPtr SGTSceneManager::CreatePreviewRender(Ogre::SceneNode *node, Ogre::String name, float width, float height)
+Ogre::TexturePtr SGTSceneManager::CreatePreviewRender(Ogre::SceneNode *node, Ogre::String name, float width, float height)
 {
 	Ogre::Camera *camera = node->getCreator()->createCamera(name + "_Cam");
 	camera->setNearClipDistance(0.1f);
@@ -712,21 +712,26 @@ Ogre::MaterialPtr SGTSceneManager::CreatePreviewRender(Ogre::SceneNode *node, Og
     renderTexture->getViewport(0)->setClearEveryFrame(true);
 	renderTexture->getViewport(0)->setBackgroundColour(Ogre::ColourValue::Black);
     renderTexture->getViewport(0)->setOverlaysEnabled(false);
-	Ogre::MaterialPtr material = Ogre::MaterialManager::getSingleton().create(name + "_Mat", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+	if (width == 256 && height == 256) Ogre::CompositorManager::getSingleton().addCompositor(renderTexture->getViewport(0), "AntiAlias_256")->setEnabled(true);
+	
+	/*Ogre::MaterialPtr material = Ogre::MaterialManager::getSingleton().create(name + "_Mat", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
     Ogre::Technique *technique = material->createTechnique();
     technique->createPass();
     material->getTechnique(0)->getPass(0)->setLightingEnabled(false);
-    material->getTechnique(0)->getPass(0)->createTextureUnitState(name + "_Tex");
-	return material;
+    material->getTechnique(0)->getPass(0)->createTextureUnitState(name + "_Tex");*/
+	return texture;
 }
 void SGTSceneManager::DestroyPreviewRender(Ogre::String name)
 {
-	Ogre::SceneManager *mgr = SGTMain::Instance().GetPreviewSceneMgr();
-	if (mgr->hasCamera(name + "_Cam")) mgr->destroyCamera(name + "_Cam");
-	mgr = SGTMain::Instance().GetOgreSceneMgr();
-	if (mgr->hasCamera(name + "_Cam")) mgr->destroyCamera(name + "_Cam");
-	if (Ogre::TextureManager::getSingleton().resourceExists(name + "_Tex"))		Ogre::TextureManager::getSingleton().remove(name + "_Tex");
-	if (Ogre::MaterialManager::getSingleton().resourceExists(name + "_Mat"))	Ogre::MaterialManager::getSingleton().remove(name + "_Mat");
+	if (Ogre::TextureManager::getSingleton().resourceExists(name + "_Tex"))
+	{
+		Ogre::TexturePtr texture = Ogre::TextureManager::getSingleton().getByName(name + "_Tex");
+		Ogre::Viewport *vp = texture->getBuffer()->getRenderTarget()->getViewport(0);
+		vp->getCamera()->getSceneManager()->destroyCamera(vp->getCamera());
+		texture->getBuffer()->getRenderTarget()->removeAllViewports();
+		Ogre::TextureManager::getSingleton().remove(name + "_Tex");
+	}
+	//if (Ogre::MaterialManager::getSingleton().resourceExists(name + "_Mat"))	Ogre::MaterialManager::getSingleton().remove(name + "_Mat");
 }
 
 SGTSceneManager& SGTSceneManager::Instance()

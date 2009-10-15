@@ -137,8 +137,9 @@ void wxFileTree::OnMenuEvent(wxCommandEvent& event)
 	}
 	if (id == ResTree_addDir)
 	{
-		Ogre::String BasePath = Ogre::String(this->GetRelativePath(mCurrentItem->GetId()).GetPath().c_str()) + "\\";
-		Ogre::String Path = mRootPath + BasePath;
+		if (mCurrentItem->IsFile()) return;
+		Ogre::String BasePath = Ogre::String(this->GetRelativePath(mCurrentItem->GetId()).GetPath().c_str());
+		Ogre::String Path = mRootPath + "/" + BasePath;
 		wxTextEntryDialog dialog(this,
 			_T("Enter folder name:"),
 			_T("Please enter a string"),
@@ -150,38 +151,30 @@ void wxFileTree::OnMenuEvent(wxCommandEvent& event)
 		{
 			Folder = dialog.GetValue().c_str();
 		}
-		TCHAR Buffer[100];
-		GetCurrentDirectory(100, Buffer);
-		Ogre::String FullPath = Ogre::String(Buffer) + "\\" + Path;
-
-		Ogre::String newPath = FullPath + Folder;
-		Ogre::LogManager::getSingleton().logMessage(newPath);
-		if (!CreateDirectory(newPath.c_str(), NULL))
-		{
-			Ogre::LogManager::getSingleton().logMessage("Error while creating directory.");
-		}
-		wxFileName path = GetRelativePath(GetSelection());
+		boost::filesystem::path newPath((Path + "/" + Folder.c_str()));
+		boost::filesystem::create_directory(newPath);
 		SetRootPath(mRootPath);
-		ExpandToPath(wxString((BasePath + Folder).c_str()));
+		ExpandToPath(wxString((BasePath + "/" + Folder).c_str()));
+		OnCreateFolderCallback(BasePath + "/" + Folder);
 		return;
 	}
 	if (id == ResTree_del)
 	{
 		Ogre::String BasePath = Ogre::String(this->GetRelativePath(mCurrentItem->GetId()).GetPath().c_str());
-		Ogre::String Path = mRootPath + BasePath;
+		Ogre::String Path = mRootPath + "/" + BasePath;
 		if (mCurrentItem->IsFile())
 		{
-			Path = Path + "\\" + Ogre::String(mCurrentItem->GetName().c_str());
+			Path = Path + "/" + Ogre::String(mCurrentItem->GetName().c_str());
 		}
 		Ogre::LogManager::getSingleton().logMessage(Path);
 
 		boost::filesystem::path SourcePath(Path.c_str());
 		bool success = boost::filesystem::remove(SourcePath);
 
-		int found = BasePath.find_last_of("\\");
+		int found = BasePath.find_last_of("/");
 		if (found != Ogre::String::npos)
 		{
-			BasePath = BasePath.substr(0, found) + "\\";
+			BasePath = BasePath.substr(0, found) + "/";
 		}
 		SetRootPath(mRootPath);
 		ExpandToPath(wxString((BasePath).c_str()));

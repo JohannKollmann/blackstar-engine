@@ -30,6 +30,7 @@ public:
 	void OnMenuCallback(int id);
 	void OnSelectItemCallback();
 	void OnRenameItemCallback(Ogre::String oldpath, Ogre::String newpath);
+	void OnCreateFolderCallback(Ogre::String path);
 
 	static void OnToolbarEvent(int toolID, Ogre::String toolname);
 

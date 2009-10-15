@@ -23,7 +23,7 @@ Initialisiert Ogre und das Inputsystem.
 
 class SGTDllExport SGTMain
 {
-protected:
+public:
 	class KeyVal
 	{
 	public:
@@ -35,6 +35,8 @@ protected:
 
 	SGTMain();
 	~SGTMain();
+
+protected:
 
 	Ogre::Root* mRoot;
 	Ogre::RenderSystem* mRenderSystem;
@@ -64,12 +66,12 @@ protected:
 	int winHeight;
 	int winWidth;
 
-	// Settings
-	std::map<Ogre::String, std::vector<KeyVal> > mSettings;
-
 public:
 
 	Ogre::Entity *mWaterTestEntity;
+
+	// Settings
+	std::map<Ogre::String, std::vector<KeyVal> > mSettings;
 
 	bool Run();	//Eigenes Fenster erstellen
 	bool Run(Ogre::RenderWindow *window, size_t OISInputWindow);

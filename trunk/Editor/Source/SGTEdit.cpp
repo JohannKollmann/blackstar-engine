@@ -83,10 +83,6 @@ SGTEdit::SGTEdit()
 	wxEdit::Instance().GetMainToolbar()->RegisterTool("DeleteObject", "ObjectMgr", "Data/Editor/Intern/Engine_Icon04.png", SGTEdit::OnToolbarEvent);
 	wxEdit::Instance().GetMainToolbar()->RegisterTool("SaveObjectGroup", "ObjectMgr", "Data/Editor/Intern/Engine_Icon06.png", SGTEdit::OnToolbarEvent);
 	wxEdit::Instance().GetMainToolbar()->SetGroupStatus("ObjectMgr", true);
-
-	mPreviewWindow = SGTGUISystem::GetInstance().MakeWindow(0.8f, 0.0f, 0.2f, 0.2f * SGTMain::Instance().GetCamera()->getAspectRatio());
-	mPreviewWindow.Bake();
-	SGTGUISystem::GetInstance().SetVisible(mPreviewWindow.GetHandle(), true);
 };
 
 void SGTEdit::OnToolbarEvent(int toolID, Ogre::String toolname)
@@ -1054,11 +1050,10 @@ void SGTEdit::ReceiveMessage(SGTMsg &msg)
 	}
 	if (msg.mNewsgroup == "UPDATE_PER_FRAME")
 	{
-		//Hack: Die Preview node, wenn vorhanden, rotieren
-		if (SGTMain::Instance().GetPreviewSceneMgr()->hasSceneNode("EditorPreview"))
+		//Die Preview node, wenn vorhanden, rotieren
+		if (wxEdit::Instance().GetAuiManager().GetPane("preview").IsShown())
 		{
-			Ogre::SceneNode *preview = SGTMain::Instance().GetPreviewSceneMgr()->getSceneNode("EditorPreview");
-			preview->yaw(Ogre::Radian(msg.mData.GetFloat("TIME") * 0.5f));
+			wxEdit::Instance().GetPreviewWindow()->Update(msg.mData.GetFloat("TIME"));
 		}
 		/*if (wxEdit::Instance().GetpropertyWindow()->GetCurrentPageName() == "EditGameObject")
 		{

@@ -6,23 +6,6 @@
 #include "SGTScriptSystem.h"
 #include "SGTAIManager.h"
 
-enum
-{
-	wxMainMenu_loadWorld,
-	wxMainMenu_saveWorld,
-	wxMainMenu_loadMesh,
-	wxMainMenu_exit,
-	wxMainMenu_Mode_Normal,
-	wxMainMenu_Mode_Brush,
-	wxMainMenu_Mode_Material,
-	wxMainMenu_ReloadScripts,
-	wxMainMenu_Meshes,
-	wxMainMenu_Physics,
-	wxMainMenu_EditorMeshes,
-	wxMainMenu_About,
-	wxMainMenu_Settings
-};
-
 
 // Required for WX
 IMPLEMENT_CLASS(wxMainMenu, wxMenuBar)
@@ -41,6 +24,7 @@ BEGIN_EVENT_TABLE(wxMainMenu, wxMenuBar)
 	EVT_MENU(wxMainMenu_EditorMeshes, wxMainMenu::OnEnableEditorMeshes)
 	EVT_MENU(wxMainMenu_About, wxMainMenu::OnAbout)
 	EVT_MENU(wxMainMenu_Settings, wxMainMenu::OnSettings)
+	EVT_MENU(wxMainMenu_PreviewWindow, wxMainMenu::OnPreviewWindow)
 END_EVENT_TABLE()
 
 wxMainMenu::wxMainMenu()
@@ -57,7 +41,7 @@ wxMainMenu::wxMainMenu()
 
 	mToolsMenu = new wxMenu;
 
-	wxMenuItem *brushmode = new wxMenuItem(mToolsMenu, wxMainMenu_Mode_Brush, "Brush Mode", "Enables/Disables the Brush Mode, which allows you to \"paint\" objects on Geometry.", true);
+	/*wxMenuItem *brushmode = new wxMenuItem(mToolsMenu, wxMainMenu_Mode_Brush, "Brush Mode", "Enables/Disables the Brush Mode, which allows you to \"paint\" objects on Geometry.", true);
 	wxMenuItem *materialmode = new wxMenuItem(mToolsMenu, wxMainMenu_Mode_Material, "Material Mode", "Enables/Disables the Material Mode, which allows you to edit Materials. (Double Click)", true);
 	mToolsMenu->Append(brushmode);
 	mToolsMenu->Append(materialmode);
@@ -65,7 +49,7 @@ wxMainMenu::wxMainMenu()
 
 	wxMenuItem *reloadscripts = new wxMenuItem(mToolsMenu, wxMainMenu_ReloadScripts, "Reload Scripts");
 	mToolsMenu->Append(reloadscripts);
-	mToolsMenu->AppendSeparator();
+	mToolsMenu->AppendSeparator();*/
 
 	wxMenuItem *meshtool = new wxMenuItem(mToolsMenu, wxMainMenu_Meshes, "MeshMagick (by Haffax)", "Mesh Editor which allows you to perform some basic operations on your meshes such as scaling or center align.");
 	mToolsMenu->Append(meshtool);
@@ -77,23 +61,29 @@ wxMainMenu::wxMainMenu()
 	mToolsMenu->Append(-1, "Play the Game");*/
 
 	mSettingsMenu = new wxMenu;
-	wxMenuItem *physics = new wxMenuItem(mToolsMenu, wxMainMenu_Physics, "Physics", "Enables/Disables the Physics Simulation.", true);
+	//wxMenuItem *physics = new wxMenuItem(mToolsMenu, wxMainMenu_Physics, "Physics", "Enables/Disables the Physics Simulation.", true);
 	wxMenuItem *showeditormeshes = new wxMenuItem(mToolsMenu, wxMainMenu_EditorMeshes, "Show Editor Meshes", "Enables/Disables Editor Meshes.", true);
 	mSettingsMenu->Append(wxMainMenu_Settings, "Settings");
 	mSettingsMenu->AppendSeparator();
-	mSettingsMenu->Append(physics);
+	//mSettingsMenu->Append(physics);
 	mSettingsMenu->Append(showeditormeshes);
 
 	mAboutMenu = new wxMenu;
 	mAboutMenu->Append(wxMainMenu_About, "About");
 
+	mWindowsMenu = new wxMenu;
+	wxMenuItem *showpreview = new wxMenuItem(mWindowsMenu, wxMainMenu_PreviewWindow, "Preview Window", "Enables/Disables the preview window.", true);
+	mWindowsMenu->Append(showpreview);
+
 	Append(mFileMenu, _T("File"));
 	Append(mToolsMenu, _T("Tools"));
+	Append(mWindowsMenu, _T("Windows"));
 	Append(mSettingsMenu, _T("Settings"));
 	Append(mAboutMenu, _T("About"));
 
-	Check(wxMainMenu_Physics, true);
+	//Check(wxMainMenu_Physics, true);
 	Check(wxMainMenu_EditorMeshes, true);
+	Check(wxMainMenu_PreviewWindow, true);
 
 	mEdit = &wxEdit::Instance();
 };
@@ -263,6 +253,12 @@ void wxMainMenu::OnSettings(wxCommandEvent& WXUNUSED(event))
 
 	wxEdit::Instance().GetProgressBar()->Reset();
     wxEdit::Instance().GetAuiManager().Update();
+}
+
+void wxMainMenu::OnPreviewWindow(wxCommandEvent& WXUNUSED(event))
+{
+	wxEdit::Instance().GetAuiManager().GetPane(wxT("preview")).Show(IsChecked(wxMainMenu_PreviewWindow));
+	wxEdit::Instance().GetAuiManager().Update();
 }
 
 void wxMainMenu::OnAbout(wxCommandEvent& WXUNUSED(event))

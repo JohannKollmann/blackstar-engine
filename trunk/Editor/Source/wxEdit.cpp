@@ -75,7 +75,12 @@ wxEdit::wxEdit(wxWindow* parent) : wxFrame(parent, -1, _("Blackstar Edit"),
 
     m_mgr.AddPane(mMeshMagick, wxAuiPaneInfo().
                   Name(wxT("meshmagick")).Caption(wxT("Mesh Magick Params")).
-                  Dockable(false).Float().Hide());
+				  Dockable(false).Float().Hide());
+
+	mPreviewWindow = new wxTextureDisplay(this, -1, wxDefaultPosition, wxDefaultSize);
+    m_mgr.AddPane(mPreviewWindow, wxAuiPaneInfo().
+                  Name(wxT("preview")).Caption(wxT("Preview")).
+				 Dockable(false).Float().FloatingPosition(wxPoint(GetPosition().x + GetSize().GetWidth(),GetPosition().y)).FloatingSize(256,256));
 
     m_mgr.AddPane(mSettingsWindow, wxAuiPaneInfo().
                   Name(wxT("settings")).Caption(wxT("Editor Settings")).

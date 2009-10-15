@@ -83,6 +83,7 @@ public:
 	virtual void OnMenuCallback(int id) {};
 	virtual void OnSelectItemCallback() {};
 	virtual void OnRenameItemCallback(Ogre::String oldpath, Ogre::String newpath) {};
+	virtual void OnCreateFolderCallback(Ogre::String path) {};
 
 	Ogre::String GetSelectedResource();
 	VdtcTreeItemBase* GetDraggedItem();

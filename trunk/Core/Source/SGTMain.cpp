@@ -128,7 +128,7 @@ void SGTMain::initScene()
 	Ogre::ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
 
 	//mPreviewSceneMgr->setSkyBox(true, "Sky/ClubTropicana", 2000);
-	mPreviewSceneMgr->setAmbientLight(Ogre::ColourValue(0.6f, 0.6f, 0.6f));
+	mPreviewSceneMgr->setAmbientLight(Ogre::ColourValue(0.8f, 0.8f, 0.8f));
 	Ogre::Light *ambientlight = mPreviewSceneMgr->createLight("SkyLight");
 	ambientlight->setType(Ogre::Light::LightTypes::LT_DIRECTIONAL);
 	ambientlight->setDirection(Ogre::Vector3(0,-1,0.4f).normalisedCopy());

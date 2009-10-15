@@ -18,6 +18,7 @@
 #include "wxMainNotebook.h"
 #include "wxSGTToolbar.h"
 #include "wxMediaTree.h"
+#include "wxTextureDisplay.h"
 
 class wxEdit : public wxFrame
 {
@@ -38,6 +39,7 @@ private:
 	wxComponentBar *mComponentBar;
 	wxSGTToolbar *mMainToolbar;
 	wxSGTToolbar *mExplorerToolbar;
+	wxTextureDisplay *mPreviewWindow;
 
 	//Menu
 	wxMainMenu* mMenuBar;
@@ -51,11 +53,13 @@ public:
 	void PostCreate();
 
 	wxMainNotebook* GetMainNotebook() { return mMainNotebook; };
+	wxMainMenu* GetMainMenu() { return mMenuBar; };
 	wxOgre* GetOgrePane();
 	wxEntityTreeNotebook* GetWorldExplorer() { return mWorldExplorer; };
 	wxPropertyGridWindow* GetpropertyWindow() { return mPropertyWindow; };
 	wxSettingsWindow* GetSettingsWindow() { return mSettingsWindow; };
 	wxMeshMagick* GetMeshMagick() { return mMeshMagick; };
+	wxTextureDisplay* GetPreviewWindow() { return mPreviewWindow; };
 	wxProgressBar* GetProgressBar() { return mProgressBar; };
 	wxComponentBar* GetComponentBar() { return mComponentBar; };
 	wxSGTToolbar* GetMainToolbar() { return mMainToolbar; };

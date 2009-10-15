@@ -373,6 +373,14 @@
 				RelativePath=".\Header\wxSGTToolbar.h"
 				>
 			</File>
+			<File
+				RelativePath=".\Source\wxTextureDisplay.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Header\wxTextureDisplay.h"
+				>
+			</File>
 			<Filter
 				Name="TinyXML"
 				>

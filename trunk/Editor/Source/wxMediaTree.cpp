@@ -82,18 +82,22 @@ void wxMediaTree::OnSelectItemCallback()
 	if (mCurrentItem->IsFile())
 	{
 		SGTSceneManager::Instance().DestroyPreviewRender("EditorPreview");
-		if (SGTMain::Instance().GetPreviewSceneMgr()->hasSceneNode("EditorPreview")) SGTMain::Instance().GetPreviewSceneMgr()->destroySceneNode("EditorPreview");
-		if (SGTMain::Instance().GetPreviewSceneMgr()->hasEntity("EditorPreview_Mesh")) SGTMain::Instance().GetPreviewSceneMgr()->destroyEntity("EditorPreview_Mesh");
+		wxEdit::Instance().GetPreviewWindow()->ClearDisplay();
 		if (mCurrentItem->GetName().find(".mesh") != Ogre::String::npos)
 		{
 			Ogre::SceneNode *node = SGTMain::Instance().GetPreviewSceneMgr()->getRootSceneNode()->createChildSceneNode("EditorPreview");
 			Ogre::Entity *entity = SGTMain::Instance().GetPreviewSceneMgr()->createEntity("EditorPreview_Mesh", mCurrentItem->GetName().c_str());
 			node->attachObject(entity);
-			SGTSceneManager::Instance().CreatePreviewRender(node, "EditorPreview");
-			Ogre::MaterialPtr material = Ogre::MaterialManager::getSingleton().getByName("gui/runtime");
+			float width = 256;//wxEdit::Instance().GetAuiManager().GetPane("preview").floating_size.GetWidth();
+			float height = 256;//wxEdit::Instance().GetAuiManager().GetPane("preview").floating_size.GetHeight();
+			SGTSceneManager::Instance().CreatePreviewRender(node, "EditorPreview", width, height);
+			Ogre::TexturePtr texture = Ogre::TextureManager::getSingleton().getByName("EditorPreview_Tex");
+			wxEdit::Instance().GetPreviewWindow()->SetTexture(texture);
+			wxEdit::Instance().GetPreviewWindow()->SetPreviewNode(node);
+			/*Ogre::MaterialPtr material = Ogre::MaterialManager::getSingleton().getByName("gui/runtime");
 			material->getTechnique(0)->getPass(0)->removeAllTextureUnitStates();
 			material->getTechnique(0)->getPass(0)->createTextureUnitState("EditorPreview_Tex");
-			wxEdit::Instance().GetOgrePane()->GetEdit()->mPreviewWindow.SetMaterial(material->getName());
+			wxEdit::Instance().GetOgrePane()->GetEdit()->mPreviewWindow.SetMaterial(material->getName());*/
 		}
 		else if	(		mCurrentItem->GetName().find(".tga")	!= Ogre::String::npos
 					||	mCurrentItem->GetName().find(".png")	!= Ogre::String::npos
@@ -102,13 +106,19 @@ void wxMediaTree::OnSelectItemCallback()
 					||	mCurrentItem->GetName().find(".jpg")	!= Ogre::String::npos
 					||	mCurrentItem->GetName().find(".psd")	!= Ogre::String::npos)
 		{
-			//Ogre::TexturePtr texture = Ogre::TextureManager::getSingleton().create(mCurrentItem->GetName(), "General");
-			Ogre::MaterialPtr material = Ogre::MaterialManager::getSingleton().getByName("gui/runtime");
+			Ogre::TexturePtr texture = Ogre::TextureManager::getSingleton().load(mCurrentItem->GetName().c_str(), "General");
+			wxEdit::Instance().GetPreviewWindow()->SetTexture(texture);
+			/*Ogre::MaterialPtr material = Ogre::MaterialManager::getSingleton().getByName("gui/runtime");
 			material->getTechnique(0)->getPass(0)->removeAllTextureUnitStates();
 			material->getTechnique(0)->getPass(0)->createTextureUnitState(mCurrentItem->GetName().c_str())->setTextureAddressingMode(Ogre::TextureUnitState::TextureAddressingMode::TAM_CLAMP);
-			wxEdit::Instance().GetOgrePane()->GetEdit()->mPreviewWindow.SetMaterial(material->getName());
+			wxEdit::Instance().GetOgrePane()->GetEdit()->mPreviewWindow.SetMaterial(material->getName());*/
 		}
 	}
+}
+
+void wxMediaTree::OnCreateFolderCallback(Ogre::String path)
+{
+	Ogre::ResourceGroupManager::getSingleton().addResourceLocation(path, "FileSystem");
 }
 
 bool wxMediaTree::OnDropFiles(wxCoord x, wxCoord y, const wxArrayString&  filenames)
@@ -366,7 +376,6 @@ void wxMediaTree::OnEnterTab()
 
 	if (wxEdit::Instance().GetOgrePane()->GetEdit())
 	{
-		SGTGUISystem::GetInstance().SetVisible(wxEdit::Instance().GetOgrePane()->GetEdit()->mPreviewWindow.GetHandle(), true);
 		if (mCurrentItem) OnSelectItemCallback();
 	}
 }
@@ -374,10 +383,6 @@ void wxMediaTree::OnLeaveTab()
 {
 	wxEdit::Instance().GetExplorerToolbar()->SetGroupStatus("MediaTree", false);
 
-	Ogre::MaterialPtr material = Ogre::MaterialManager::getSingleton().getByName("gui/runtime");
-	material->getTechnique(0)->getPass(0)->removeAllTextureUnitStates();
 	SGTSceneManager::Instance().DestroyPreviewRender("EditorPreview");
-	if (SGTMain::Instance().GetPreviewSceneMgr()->hasSceneNode("EditorPreview")) SGTMain::Instance().GetPreviewSceneMgr()->destroySceneNode("EditorPreview");
-	if (SGTMain::Instance().GetPreviewSceneMgr()->hasEntity("EditorPreview_Mesh")) SGTMain::Instance().GetPreviewSceneMgr()->destroyEntity("EditorPreview_Mesh");
-	SGTGUISystem::GetInstance().SetVisible(wxEdit::Instance().GetOgrePane()->GetEdit()->mPreviewWindow.GetHandle(), false);
+	wxEdit::Instance().GetPreviewWindow()->ClearDisplay();
 }

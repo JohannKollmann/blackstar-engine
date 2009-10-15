@@ -72,6 +72,8 @@ void wxObjectFolderTree::ClearObjectPreview()
 		SGTMain::Instance().SetSceneMgr(true);
 		mPreviewObject = 0;
 	}
+	wxEdit::Instance().GetPreviewWindow()->SetPreviewNode(0);
+	wxEdit::Instance().GetPreviewWindow()->ClearDisplay();
 	SGTSceneManager::Instance().DestroyPreviewRender("EditorPreview");
 }
 
@@ -98,6 +100,7 @@ void wxObjectFolderTree::CreateObjectPreview(Ogre::String file)
 			{
 				container = new SGTGOCViewContainer();
 				mPreviewObject->AddComponent(container);
+				wxEdit::Instance().GetPreviewWindow()->SetPreviewNode(container->GetNode());
 			}
 			container->AddItem(dynamic_cast<SGTGOCViewComponent*>(component));
 		}
@@ -114,11 +117,12 @@ void wxObjectFolderTree::CreateObjectPreview(Ogre::String file)
 		return;
 	}
 	SGTMain::Instance().SetSceneMgr(true);
-	SGTSceneManager::Instance().CreatePreviewRender(container->GetNode(), "EditorPreview");
-	Ogre::MaterialPtr material = Ogre::MaterialManager::getSingleton().getByName("gui/runtime");
-	material->getTechnique(0)->getPass(0)->removeAllTextureUnitStates();
-	material->getTechnique(0)->getPass(0)->createTextureUnitState("EditorPreview_Tex");
-	wxEdit::Instance().GetOgrePane()->GetEdit()->mPreviewWindow.SetMaterial(material->getName());
+	float width = 256;//wxEdit::Instance().GetAuiManager().GetPane("preview").floating_size.GetWidth();
+	float height = 256;//wxEdit::Instance().GetAuiManager().GetPane("preview").floating_size.GetHeight();
+	SGTSceneManager::Instance().CreatePreviewRender(container->GetNode(), "EditorPreview", width, height);
+	Ogre::TexturePtr texture = Ogre::TextureManager::getSingleton().getByName("EditorPreview_Tex");
+	wxEdit::Instance().GetPreviewWindow()->SetTexture(texture);
+	
 }
 
 void wxObjectFolderTree::OnMenuCallback(int id)
@@ -221,7 +225,6 @@ void wxObjectFolderTree::OnEnterTab()
 
 	if (wxEdit::Instance().GetOgrePane()->GetEdit())
 	{
-		SGTGUISystem::GetInstance().SetVisible(wxEdit::Instance().GetOgrePane()->GetEdit()->mPreviewWindow.GetHandle(), true);
 		if (mCurrentItem) OnSelectItemCallback();
 	}
 
@@ -231,8 +234,6 @@ void wxObjectFolderTree::OnLeaveTab()
 {
 	wxEdit::Instance().GetExplorerToolbar()->SetGroupStatus("ResourceMgr", false);
 
-	Ogre::MaterialPtr material = Ogre::MaterialManager::getSingleton().getByName("gui/runtime");
-	material->getTechnique(0)->getPass(0)->removeAllTextureUnitStates();
 	SGTSceneManager::Instance().DestroyPreviewRender("EditorPreview");
-	SGTGUISystem::GetInstance().SetVisible(wxEdit::Instance().GetOgrePane()->GetEdit()->mPreviewWindow.GetHandle(), false);
+	ClearObjectPreview();
 }

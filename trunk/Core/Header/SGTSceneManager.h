@@ -139,7 +139,7 @@ public:
 	void ReceiveMessage(SGTMsg &msg);
 
 	//Preview render helper functions (for items, editor object preview etc.) 
-	Ogre::MaterialPtr CreatePreviewRender(Ogre::SceneNode *node, Ogre::String name, float width = 512, float height = 512);
+	Ogre::TexturePtr CreatePreviewRender(Ogre::SceneNode *node, Ogre::String name, float width = 512, float height = 512);
 	void DestroyPreviewRender(Ogre::String name);
 
 	//Singleton

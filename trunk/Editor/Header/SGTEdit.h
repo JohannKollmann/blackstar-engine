@@ -93,8 +93,6 @@ public:
 	SGTAxisLock mYAxisLock;
 	SGTAxisLock mZAxisLock;
 
-	SGTGUISystem::Window mPreviewWindow;
-
 	SGTEdit();
 	~SGTEdit() { };
 
