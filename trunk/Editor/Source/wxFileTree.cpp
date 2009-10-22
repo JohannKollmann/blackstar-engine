@@ -2,6 +2,8 @@
 #include "boost/filesystem/operations.hpp"
 #include "boost/filesystem/path.hpp"
 #include "wxFileTree.h"
+#include "Commctrl.h"
+#include "wxEdit.h"
 
 enum
 {
@@ -60,13 +62,17 @@ void wxFileTree::OnBeginDrag(wxTreeEvent& event)
 {
 	wxTreeItemId id = event.GetItem();
 	mCurrentlyDragged = (VdtcTreeItemBase *)GetItemData(id);
+	SelectItem(id);
 
-	wxTextDataObject data(GetDragName());
-	wxDropSource dragSource( this );
-	dragSource.SetData(data);
+	wxFileDataObject data;
+	data.AddFile(GetDragName().c_str());
+	wxDropSource dropSource(this);
+	dropSource.SetData(data);
+	OnSetupDragCursor(dropSource);
 	mDraggingFile = true;
-	wxDragResult result = dragSource.DoDragDrop( TRUE );
+	wxDragResult result = dropSource.DoDragDrop( TRUE );
 	mDraggingFile = false;
+	ClearHighlightedItem();
 }
 
 void wxFileTree::OnSetRootPath(const wxString &root)
@@ -169,7 +175,7 @@ void wxFileTree::OnMenuEvent(wxCommandEvent& event)
 		Ogre::LogManager::getSingleton().logMessage(Path);
 
 		boost::filesystem::path SourcePath(Path.c_str());
-		bool success = boost::filesystem::remove(SourcePath);
+		unsigned long success = boost::filesystem::remove_all(SourcePath);
 
 		int found = BasePath.find_last_of("/");
 		if (found != Ogre::String::npos)
@@ -270,4 +276,58 @@ void wxFileTree::OnSelChanged(wxTreeEvent &event)
 Ogre::String wxFileTree::GetSelectedResource()
 {
 	return ((mCurrentItem == NULL) ? "None" : (mCurrentItem->IsFile() ? Ogre::String(GetFullPath(mCurrentItem->GetId()).GetFullPath().c_str()) : "None"));
+}
+
+bool wxFileTree::OnDropFiles(wxCoord x, wxCoord y, const wxArrayString& filenames)
+{
+	if (!mHighlightedItem.IsOk()) return false;
+	SelectItem(mHighlightedItem);
+	ClearHighlightedItem();
+	if (filenames.IsEmpty()) return false;
+	if (filenames[0] == GetDragName())
+	{
+	}
+	else if (IsExternFileDropTarget()) OnDropExternFilesCallback(filenames);
+	return false;
+}
+
+wxDragResult wxFileTree::OnDragOver(wxCoord x, wxCoord y, wxDragResult def)
+{
+	//if (mDraggingFile) return def;
+	wxPoint pt = wxPoint(x, y);
+	TV_HITTESTINFO tvhti;
+    tvhti.pt.x = pt.x;
+    tvhti.pt.y = pt.y;
+	wxTreeItemId item;
+	if (TreeView_HitTest((HWND)GetHWND(), &tvhti) )
+	{
+		item = wxTreeItemId(tvhti.hItem);
+		VdtcTreeItemBase *t = (VdtcTreeItemBase *)GetItemData(item);
+		if (!t->IsFile())
+		{
+			if (mHighlightedItem != item)
+			{
+				ClearHighlightedItem();
+				SetItemBackgroundColour(item, wxColour(0, 180, 20));
+				mHighlightedItem = item;
+			}
+		}
+		else ClearHighlightedItem();
+	}
+	else ClearHighlightedItem();
+	return def;
+}
+
+void wxFileTree::OnLeave()
+{
+	ClearHighlightedItem();
+}
+
+void wxFileTree::ClearHighlightedItem()
+{
+	if (mHighlightedItem.IsOk())
+	{
+		SetItemBackgroundColour(mHighlightedItem, "white");
+		mHighlightedItem.Unset();
+	}
 }

@@ -1,5 +1,6 @@
 #include "../Header/wxOgre.h"
 #include "SGTGamestate.h"
+#include "SGTWeatherController.h"
 
 #ifdef __WXGTK__
 #include <gdk/gdk.h>
@@ -171,6 +172,7 @@ void wxOgre::OnSize(wxSizeEvent& event)
 		if (SGTMain::Instance().GetCamera())
 			SGTMain::Instance().GetCamera()->setAspectRatio(Ogre::Real(width) / Ogre::Real(height));
 
+		if (SGTSceneManager::Instance().GetWeatherController()) SGTSceneManager::Instance().GetWeatherController()->UpdateViewport();
 		update();
 	}
 }

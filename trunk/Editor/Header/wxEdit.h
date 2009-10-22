@@ -19,6 +19,7 @@
 #include "wxSGTToolbar.h"
 #include "wxMediaTree.h"
 #include "wxTextureDisplay.h"
+#include "wxLogDisplay.h"
 
 class wxEdit : public wxFrame
 {
@@ -40,6 +41,7 @@ private:
 	wxSGTToolbar *mMainToolbar;
 	wxSGTToolbar *mExplorerToolbar;
 	wxTextureDisplay *mPreviewWindow;
+	wxLogDisplay *mLogDisplay;
 
 	//Menu
 	wxMainMenu* mMenuBar;

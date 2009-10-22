@@ -8,10 +8,20 @@ SGTWeatherController::SGTWeatherController(void)
         // Pick components to create in the demo.
         // You can comment any of those and it should still work
         // It makes little sense to comment the first three.
-	Caelum::CaelumSystem::CaelumComponent componentMask = Caelum::CaelumSystem::CAELUM_COMPONENTS_DEFAULT;
+	Caelum::CaelumSystem::CaelumComponent componentMask = static_cast<Caelum::CaelumSystem::CaelumComponent> (0
+		| Caelum::CaelumSystem::CaelumComponent::CAELUM_COMPONENT_SKY_DOME
+        | Caelum::CaelumSystem::CaelumComponent::CAELUM_COMPONENT_MOON
+        //| Caelum::CaelumSystem::CaelumComponent::CAELUM_COMPONENT_SUN
+        | Caelum::CaelumSystem::CaelumComponent::CAELUM_COMPONENT_POINT_STARFIELD
+        | Caelum::CaelumSystem::CaelumComponent::CAELUM_COMPONENT_CLOUDS
+        | Caelum::CaelumSystem::CaelumComponent::CAELUM_COMPONENT_PRECIPITATION);
+        //| Caelum::CaelumSystem::CaelumComponent::CAELUM_COMPONENT_SCREEN_SPACE_FOG);
+		//| Caelum::CaelumSystem::CaelumComponent::CAELUM_COMPONENT_GROUND_FOG);
 
 	// Initialise Caelum
 	mCaelumSystem = new Caelum::CaelumSystem (Ogre::Root::getSingletonPtr(), SGTMain::Instance().GetOgreSceneMgr(), componentMask);//Caelum::CaelumSystem::CAELUM_COMPONENTS_NONE);
+	//mCaelumSystem->setSun (new Caelum::SphereSun(SGTMain::Instance().GetOgreSceneMgr(), mCaelumSystem->getCaelumCameraNode ()));
+	mCaelumSystem->setSun (new Caelum::SpriteSun(SGTMain::Instance().GetOgreSceneMgr(), mCaelumSystem->getCaelumCameraNode (), "sun_disc.png", Ogre::Degree(10)));
 
 	/*mCaelumSystem->setSkyDome (new Caelum::SkyDome (SGTMain::Instance().GetOgreSceneMgr(), mCaelumSystem->getCaelumCameraNode ()));
     mCaelumSystem->setSun (new Caelum::SphereSun(SGTMain::Instance().GetOgreSceneMgr(), mCaelumSystem->getCaelumCameraNode ()));
@@ -30,8 +40,8 @@ SGTWeatherController::SGTWeatherController(void)
 
 	mCaelumSystem->getUniversalClock ()->setTimeScale (0);
 
-    mCaelumSystem->setManageSceneFog(false);
-    mCaelumSystem->setSceneFogDensityMultiplier(0.0015);
+    //mCaelumSystem->setManageSceneFog(true);
+    //mCaelumSystem->setSceneFogDensityMultiplier(0.0015);
 	mCaelumSystem->setMinimumAmbientLight(Ogre::ColourValue(0.1, 0.1,0.1));
     mCaelumSystem->setManageAmbientLight (true); 
 
@@ -41,9 +51,10 @@ SGTWeatherController::SGTWeatherController(void)
 	mCaelumSystem->getSun ()->setSpecularMultiplier (Ogre::ColourValue (1, 1, 1));
 
 	mCaelumSystem->setEnsureSingleShadowSource(true);
-	/*mCaelumSystem->getMoon()->setDiffuseMultiplier(Ogre::ColourValue (1, 1, 1));
-	mCaelumSystem->getMoon()->setSpecularMultiplier(Ogre::ColourValue (1, 1, 1));
 	mCaelumSystem->getMoon()->setPhase(1.0f);
+	mCaelumSystem->getMoon()->setForceDisable(true);
+	/*mCaelumSystem->getMoon()->setDiffuseMultiplier(Ogre::ColourValue (0, 0, 0.5));
+	mCaelumSystem->getMoon()->setSpecularMultiplier(Ogre::ColourValue (0.5, 0.5, 0.5));
 	mCaelumSystem->getMoon()->getMainLight()->setCastShadows(false);*/
 	  //mCaelumSystem->getSun()->getMainLight()->setCastShadows(false);
 
@@ -191,6 +202,16 @@ void SGTWeatherController::Update(float time)
 	mCaelumSystem->notifyCameraChanged(SGTMain::Instance().GetCamera());
 	mCaelumSystem->updateSubcomponents(time);
 };
+
+void SGTWeatherController::UpdateViewport()
+{
+	if (mCaelumSystem->getDepthComposer ())
+	{
+		Ogre::Viewport *v = SGTMain::Instance().GetViewport();
+		Caelum::DepthComposerInstance* inst = mCaelumSystem->getDepthComposer ()->getViewportInstance (v);
+		inst->getDepthRenderer()->getDepthRenderViewport()->setDimensions(v->getActualLeft(), v->getActualTop(), v->getActualWidth(), v->getActualHeight());
+	}
+}
 
 void SGTWeatherController::ReceiveMessage(SGTMsg &msg)
 {

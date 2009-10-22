@@ -1,7 +1,6 @@
 
 #include "wxMediaTree.h"
 #include "wxEdit.h"
-#include "Commctrl.h"
 #include "boost/filesystem/operations.hpp"
 #include "boost/filesystem/path.hpp"
 #include "TransformTool.h"
@@ -19,7 +18,6 @@ wxMediaTree::wxMediaTree(wxWindow* parent, wxWindowID id, const wxPoint& pos,
 	mShowTextures = true;
 	mShowSounds = true;
 	RefreshFilters();
-	SetDropTarget(this);
 
 	wxEdit::Instance().GetExplorerToolbar()->RegisterTool("ShowMeshes", "MediaTree", "Data/Editor/Intern/Editor_meshbox_01.png", wxMediaTree::OnToolbarEvent, true, true);
 	wxEdit::Instance().GetExplorerToolbar()->RegisterTool("ShowTextures", "MediaTree", "Data/Editor/Intern/Editor_textur_01.png", wxMediaTree::OnToolbarEvent, true, true);
@@ -44,6 +42,7 @@ void wxMediaTree::RefreshFilters()
 	if (mShowMeshes)
 	{
 		extensions.Add("*.mesh");
+		extensions.Add("*.scene");
 		extensions.Add("*.skeleton");
 	}
 	if (mShowTextures)
@@ -67,6 +66,11 @@ void wxMediaTree::RefreshFilters()
 
 void wxMediaTree::OnRenameItemCallback(Ogre::String oldpath, Ogre::String newpath)
 {
+	if (mCurrentItem->IsDir())
+	{
+		Ogre::ResourceGroupManager::getSingleton().removeResourceLocation("Data/Media/" + oldpath, "FileSystem");
+		Ogre::ResourceGroupManager::getSingleton().addResourceLocation("Data/Media/" + newpath, "FileSystem");
+	}
 }
 
 void wxMediaTree::OnShowMenuCallback(wxMenu *menu, VdtcTreeItemBase *item)
@@ -77,13 +81,51 @@ void wxMediaTree::OnMenuCallback(int id)
 {
 }
 
+bool wxMediaTree::IsTexture(wxString filename)
+{
+	if	(		filename.find(".tga")	!= Ogre::String::npos
+			||	filename.find(".png")	!= Ogre::String::npos
+			||	filename.find(".tiff")	!= Ogre::String::npos
+			||	filename.find(".dds")	!= Ogre::String::npos
+			||	filename.find(".jpg")	!= Ogre::String::npos
+			||	filename.find(".psd")	!= Ogre::String::npos)
+	{
+		return true;
+	}
+	return false;
+}
+bool wxMediaTree::IsMaterial(wxString filename)
+{
+	if (filename.find(".material") != Ogre::String::npos)
+	{
+		return true;
+	}
+	return false;
+}
+bool wxMediaTree::IsMesh(wxString filename)
+{
+	if (filename.find(".mesh") != Ogre::String::npos)
+	{
+		return true;
+	}
+	return false;
+}
+bool wxMediaTree::IsAudio(wxString filename)
+{
+	if (filename.find(".ogg") != Ogre::String::npos)
+	{
+		return true;
+	}
+	return false;
+}
+
 void wxMediaTree::OnSelectItemCallback()
 {
 	if (mCurrentItem->IsFile())
 	{
 		SGTSceneManager::Instance().DestroyPreviewRender("EditorPreview");
 		wxEdit::Instance().GetPreviewWindow()->ClearDisplay();
-		if (mCurrentItem->GetName().find(".mesh") != Ogre::String::npos)
+		if (IsMesh(mCurrentItem->GetName()))
 		{
 			Ogre::SceneNode *node = SGTMain::Instance().GetPreviewSceneMgr()->getRootSceneNode()->createChildSceneNode("EditorPreview");
 			Ogre::Entity *entity = SGTMain::Instance().GetPreviewSceneMgr()->createEntity("EditorPreview_Mesh", mCurrentItem->GetName().c_str());
@@ -94,36 +136,32 @@ void wxMediaTree::OnSelectItemCallback()
 			Ogre::TexturePtr texture = Ogre::TextureManager::getSingleton().getByName("EditorPreview_Tex");
 			wxEdit::Instance().GetPreviewWindow()->SetTexture(texture);
 			wxEdit::Instance().GetPreviewWindow()->SetPreviewNode(node);
-			/*Ogre::MaterialPtr material = Ogre::MaterialManager::getSingleton().getByName("gui/runtime");
-			material->getTechnique(0)->getPass(0)->removeAllTextureUnitStates();
-			material->getTechnique(0)->getPass(0)->createTextureUnitState("EditorPreview_Tex");
-			wxEdit::Instance().GetOgrePane()->GetEdit()->mPreviewWindow.SetMaterial(material->getName());*/
 		}
-		else if	(		mCurrentItem->GetName().find(".tga")	!= Ogre::String::npos
-					||	mCurrentItem->GetName().find(".png")	!= Ogre::String::npos
-					||	mCurrentItem->GetName().find(".tiff")	!= Ogre::String::npos
-					||	mCurrentItem->GetName().find(".dds")	!= Ogre::String::npos
-					||	mCurrentItem->GetName().find(".jpg")	!= Ogre::String::npos
-					||	mCurrentItem->GetName().find(".psd")	!= Ogre::String::npos)
+		else if	(IsTexture(mCurrentItem->GetName()))
 		{
 			Ogre::TexturePtr texture = Ogre::TextureManager::getSingleton().load(mCurrentItem->GetName().c_str(), "General");
 			wxEdit::Instance().GetPreviewWindow()->SetTexture(texture);
-			/*Ogre::MaterialPtr material = Ogre::MaterialManager::getSingleton().getByName("gui/runtime");
-			material->getTechnique(0)->getPass(0)->removeAllTextureUnitStates();
-			material->getTechnique(0)->getPass(0)->createTextureUnitState(mCurrentItem->GetName().c_str())->setTextureAddressingMode(Ogre::TextureUnitState::TextureAddressingMode::TAM_CLAMP);
-			wxEdit::Instance().GetOgrePane()->GetEdit()->mPreviewWindow.SetMaterial(material->getName());*/
+		}
+		else if (IsAudio(mCurrentItem->GetName()))
+		{
+			int id = SGTSceneManager::Instance().RequestID();
+			Ogre::SceneNode *node = SGTMain::Instance().GetPreviewSceneMgr()->getRootSceneNode()->createChildSceneNode("EditorPreview");
+			OgreOggSound::OgreOggISound *sound = SGTMain::Instance().GetSoundManager()->createSound(Ogre::StringConverter::toString(id), mCurrentItem->GetName().c_str(), true, false);
+			if (sound) sound->play();
+			node->attachObject(sound);
+			wxEdit::Instance().GetPreviewWindow()->SetPreviewNode(node);
 		}
 	}
 }
 
 void wxMediaTree::OnCreateFolderCallback(Ogre::String path)
 {
-	Ogre::ResourceGroupManager::getSingleton().addResourceLocation(path, "FileSystem");
+	Ogre::ResourceGroupManager::getSingleton().addResourceLocation("Data/Media/" + path, "FileSystem");
 }
 
-bool wxMediaTree::OnDropFiles(wxCoord x, wxCoord y, const wxArrayString&  filenames)
+void wxMediaTree::OnDropExternFilesCallback(const wxArrayString& filenames)
 {
-	if (mCurrentItem->IsFile()) return false;
+	if (mCurrentItem->IsFile()) return;
 	Ogre::String relative_base(GetRelativePath(mCurrentItem->GetId()).GetFullPath());
 	Ogre::String target_base("Data\\Media\\" + relative_base);
 	//VdtcTreeItemBaseArray items;
@@ -152,7 +190,7 @@ bool wxMediaTree::OnDropFiles(wxCoord x, wxCoord y, const wxArrayString&  filena
 			Ogre::LogManager::getSingleton().logMessage(Ogre::String("Exception: ") + e.what());
 		}
 
-		if (target.leaf().find(".mesh") != wxString::npos)
+		if (IsMesh(target.leaf()))
 		{
 			Ogre::ResourcePtr rp = Ogre::MeshManager::getSingleton().getByName(target.leaf().c_str());
 			if (!rp.isNull() && !removed)
@@ -161,7 +199,7 @@ bool wxMediaTree::OnDropFiles(wxCoord x, wxCoord y, const wxArrayString&  filena
 					_T("Error"), wxOK);
 				dialog.ShowModal();
 				boost::filesystem::remove(target);
-				return false;
+				return;
 			}
 			Ogre::MeshPtr meshpt = Ogre::MeshManager::getSingleton().load(target.leaf().c_str(), "General");
 			float height = meshpt->getBounds().getSize().y;
@@ -220,12 +258,7 @@ bool wxMediaTree::OnDropFiles(wxCoord x, wxCoord y, const wxArrayString&  filena
 				meshpt->reload();
 			}
 		}
-		else if (source.leaf().find(".tga") != wxString::npos
-					|| source.leaf().find(".png") != wxString::npos
-					|| source.leaf().find(".tiff") != wxString::npos
-					|| source.leaf().find(".dds") != wxString::npos
-					|| source.leaf().find(".jpg") != wxString::npos
-					|| source.leaf().find(".psd") != wxString::npos)
+		else if (IsTexture(source.leaf()))
 		{
 			Ogre::ResourcePtr rp = Ogre::TextureManager::getSingleton().getByName(target.leaf().c_str());
 			if (!rp.isNull() && !removed)
@@ -234,11 +267,11 @@ bool wxMediaTree::OnDropFiles(wxCoord x, wxCoord y, const wxArrayString&  filena
 					_T("Error"), wxOK);
 				dialog.ShowModal();
 				boost::filesystem::remove(target);
-				return false;
+				continue;
 			}
 			Ogre::TextureManager::getSingleton().load(target.leaf().c_str(), "General");
 		}
-		else if (source.leaf().find(".material") != wxString::npos)
+		else if (IsMaterial(source.leaf()))
 		{
 			if (!removed)
 			{
@@ -259,7 +292,7 @@ bool wxMediaTree::OnDropFiles(wxCoord x, wxCoord y, const wxArrayString&  filena
 							dialog.ShowModal();
 							f.close();
 							boost::filesystem::remove(target);
-							return false;
+							return;
 						}
 					}
 					f.close();
@@ -275,7 +308,7 @@ bool wxMediaTree::OnDropFiles(wxCoord x, wxCoord y, const wxArrayString&  filena
 	wxFileName expandto = wxFileName(relative_base.c_str());
 	ExpandToPath(expandto);
 	//AddItemsToTreeCtrl(mCurrentItem, items);
-	return true;
+	return;
 }
 
 
@@ -307,6 +340,7 @@ void wxMediaTree::ApplyDefaultLightning(Ogre::String materialfile)
 	std::vector<Ogre::String> newfile;
 	int bracket_counter = 0;
 	Ogre::String curmat = "";
+	bool texture_added = false;
 	while (!f.eof())
 	{
 		f.getline(cstring, sizeof(cstring));
@@ -327,6 +361,7 @@ void wxMediaTree::ApplyDefaultLightning(Ogre::String materialfile)
 		{
 			if (line.find("texture ") != Ogre::String::npos)
 			{
+				texture_added = true;
 				newfile.push_back("\tset $Diffuse " + line.substr(line.find("texture ") + 8, line.size()));
 			}
 		}
@@ -336,6 +371,8 @@ void wxMediaTree::ApplyDefaultLightning(Ogre::String materialfile)
 			bracket_counter--;
 			if (curmat != "" && bracket_counter == 0)
 			{
+				if (!texture_added) newfile.push_back("\tset $Diffuse blank.tga");
+				texture_added = false;
 				curmat = "";
 				newfile.push_back("}");
 			}
@@ -353,23 +390,6 @@ void wxMediaTree::ApplyDefaultLightning(Ogre::String materialfile)
 	f2.close();
 }
 
-wxDragResult wxMediaTree::OnDragOver(wxCoord x, wxCoord y, wxDragResult def)
-{
-	if (mDraggingFile) return def;
-	wxPoint pt = wxPoint(x, y);
-	TV_HITTESTINFO tvhti;
-    tvhti.pt.x = pt.x;
-    tvhti.pt.y = pt.y;
-	wxTreeItemId item;
-	if (TreeView_HitTest((HWND)GetHWND(), &tvhti) )
-	{
-		item = wxTreeItemId(tvhti.hItem);
-		VdtcTreeItemBase *t = (VdtcTreeItemBase *)GetItemData(item);
-		if (!t->IsFile()) SelectItem(item);
-	}
-	return def;
-}
-
 void wxMediaTree::OnEnterTab()
 {
 	wxEdit::Instance().GetExplorerToolbar()->SetGroupStatus("MediaTree", true);
@@ -385,4 +405,23 @@ void wxMediaTree::OnLeaveTab()
 
 	SGTSceneManager::Instance().DestroyPreviewRender("EditorPreview");
 	wxEdit::Instance().GetPreviewWindow()->ClearDisplay();
+}
+
+void wxMediaTree::OnSetupDragCursor(wxDropSource &dropSource)
+{
+	if (mCurrentlyDragged->IsFile())
+	{
+		if (IsMesh(mCurrentlyDragged->GetName()))
+		{
+			wxImage image("Data/Editor/Intern/Editor_meshbox_01.png");
+			wxCursor cursor(image.Scale(32,32, wxIMAGE_QUALITY_HIGH));
+			dropSource.SetCursor(wxDragResult::wxDragMove, cursor);
+		}
+		else if (IsTexture(mCurrentlyDragged->GetName()))
+		{
+			wxImage image("Data/Editor/Intern/Editor_TextureIcon02.png");
+			wxCursor cursor(image.Scale(32,32, wxIMAGE_QUALITY_HIGH));
+			dropSource.SetCursor(wxDragResult::wxDragMove, cursor);
+		}
+	}
 }

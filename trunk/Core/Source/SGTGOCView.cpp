@@ -269,7 +269,11 @@ SGTSound3D::SGTSound3D(Ogre::String audiofile, float referenceDistance, float ma
 
 SGTSound3D::~SGTSound3D()
 {
-	SGTMain::Instance().GetSoundManager()->destroySound(mSound->getName());
+	if (mSound)
+	{
+		mSound->stop();
+		SGTMain::Instance().GetSoundManager()->destroySound(mSound->getName());
+	}
 	SGTMain::Instance().GetOgreSceneMgr()->destroyEntity(mEditorVisual);
 }
 
@@ -283,9 +287,12 @@ void SGTSound3D::Create(Ogre::String audiofile, float referenceDistance, float m
 	mPrebuffered = preBuffered;
 	int id = SGTSceneManager::Instance().RequestID();
 	mSound = SGTMain::Instance().GetSoundManager()->createSound(Ogre::StringConverter::toString(id), mAudioFile.c_str(), mStreamed, mLooped, mPrebuffered);
-	mSound->setMaxDistance(mMaxDistance);
-	mSound->setReferenceDistance(mReferenceDistance);
-	mSound->play();
+	if (mSound)
+	{
+		mSound->setMaxDistance(mMaxDistance);
+		mSound->setReferenceDistance(mReferenceDistance);
+		mSound->play();
+	}
 
 	mEditorVisual = SGTMain::Instance().GetOgreSceneMgr()->createEntity(Ogre::StringConverter::toString(id) + "_EditorVisual", "Editor_Sound.mesh");
 	mEditorVisual->setCastShadows(false);
@@ -293,7 +300,7 @@ void SGTSound3D::Create(Ogre::String audiofile, float referenceDistance, float m
 
 void SGTSound3D::AttachToNode(Ogre::SceneNode *node)
 {
-	node->attachObject(mSound);
+	if (mSound) node->attachObject(mSound);
 	node->attachObject(mEditorVisual);
 }
 

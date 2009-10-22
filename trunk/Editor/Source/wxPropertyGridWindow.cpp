@@ -22,7 +22,7 @@ wxPropertyGridWindow::~wxPropertyGridWindow(void)
 wxPropertyGridWindow::wxPropertyGridWindow(wxWindow* parent, wxWindowID id, const wxPoint& pos,
                   const wxSize& size, long style,
                   const wxString& name) : 
-	wxPanel(parent, wxID_ANY, pos, size)
+	wxPanel(parent, wxID_ANY, pos, size), wxFileDropTarget()
 {
        // Construct wxPropertyGrid control
        long propstyle = // default style
@@ -128,12 +128,29 @@ void wxPropertyGridWindow::OnApply(wxCommandEvent& event)
 	}
 }
 
+bool wxPropertyGridWindow::OnDropFiles(wxCoord x, wxCoord y, const wxArrayString&  filenames)
+{
+	mPropGrid->SetEmptySpaceColour(wxColour("white"));
+	mPropGrid->Refresh();
+	if (filenames.IsEmpty()) return false;
+	if (mCurrentPage != 0) return mCurrentPage->OnDropText(filenames[0]);
+	return false;
+}
 
-bool wxPropertyGridWindow::OnDropText(wxCoord x, wxCoord y, const wxString&  data)
+wxDragResult wxPropertyGridWindow::OnEnter(wxCoord x, wxCoord y, wxDragResult def)
 {
 	if (mCurrentPage != 0)
 	{
-		return mCurrentPage->OnDropText(data);
+		mPropGrid->SetEmptySpaceColour(wxColour(0, 180, 20));
 	}
-	return false;
+	return def;
+}
+void wxPropertyGridWindow::OnLeave()
+{
+	SetEmptySpaceColour(wxColour("white"));
+}
+
+void wxPropertyGridWindow::SetEmptySpaceColour(wxColour colour)
+{
+	mPropGrid->SetEmptySpaceColour(colour);
 }

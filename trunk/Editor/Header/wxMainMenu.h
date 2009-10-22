@@ -22,7 +22,8 @@ enum
 	wxMainMenu_EditorMeshes,
 	wxMainMenu_About,
 	wxMainMenu_Settings,
-	wxMainMenu_PreviewWindow
+	wxMainMenu_PreviewWindow,
+	wxMainMenu_ShowLog
 };
 
 class wxMainMenu : public wxMenuBar
@@ -58,6 +59,7 @@ public:
 	void OnSettings(wxCommandEvent& WXUNUSED(event));
 
 	void OnPreviewWindow(wxCommandEvent& WXUNUSED(event));
+	void wxMainMenu::OnShowLog(wxCommandEvent& WXUNUSED(event));
 
 	void OnAbout(wxCommandEvent& WXUNUSED(event));
 

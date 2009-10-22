@@ -170,7 +170,7 @@ void SGTMain::initScene()
 	mCameraController = new SGTCameraController();
 	SGTGUISystem::GetInstance();
 
-	mSoundManager = new OgreOggSound::OgreOggSoundManager();
+	mSoundManager = OgreOggSound::OgreOggSoundManager::getSingletonPtr();
 	mSoundManager->init("");
 	mSoundManager->setDistanceModel(AL_LINEAR_DISTANCE);
 	//mCamera->getParentSceneNode()->attachObject(mSoundManager->getListener());
@@ -200,15 +200,15 @@ void SGTMain::initScene()
 
 	mSceneMgr->setShadowTextureCountPerLightType(Ogre::Light::LT_DIRECTIONAL, 3);
 	mSceneMgr->setShadowTextureCountPerLightType(Ogre::Light::LT_SPOTLIGHT, 1);
-	mSceneMgr->setShadowTextureCount(8);
+	mSceneMgr->setShadowTextureCount(3);
 	mSceneMgr->setShadowTextureConfig(0, 1024, 1024, Ogre::PF_FLOAT32_R);
 	mSceneMgr->setShadowTextureConfig(1, 1024, 1024, Ogre::PF_FLOAT32_R);
 	mSceneMgr->setShadowTextureConfig(2, 1024, 1024, Ogre::PF_FLOAT32_R);
-	mSceneMgr->setShadowTextureConfig(3, 1024, 1024, Ogre::PF_FLOAT32_R);
+	/*mSceneMgr->setShadowTextureConfig(3, 1024, 1024, Ogre::PF_FLOAT32_R);
 	mSceneMgr->setShadowTextureConfig(4, 1024, 1024, Ogre::PF_FLOAT32_R);
 	mSceneMgr->setShadowTextureConfig(5, 1024, 1024, Ogre::PF_FLOAT32_R);
 	mSceneMgr->setShadowTextureConfig(6, 1024, 1024, Ogre::PF_FLOAT32_R);
-	mSceneMgr->setShadowTextureConfig(7, 1024, 1024, Ogre::PF_FLOAT32_R);
+	mSceneMgr->setShadowTextureConfig(7, 1024, 1024, Ogre::PF_FLOAT32_R);*/
 	mSceneMgr->setShadowTextureSelfShadow(true);
 	mSceneMgr->setShadowTextureCasterMaterial("shadow_caster");
 
@@ -219,11 +219,11 @@ void SGTMain::initScene()
 	mSpotShadowCameraSetup = Ogre::ShadowCameraSetupPtr(spotSetup);
 
 	Ogre::PSSMShadowCameraSetup* pssmSetup = new Ogre::PSSMShadowCameraSetup();
-	pssmSetup->calculateSplitPoints(3, mCamera->getNearClipDistance(), 250, 0.95);
-	pssmSetup->setSplitPadding(1);
+	pssmSetup->calculateSplitPoints(3, mCamera->getNearClipDistance(), 500, 0.95);
+	pssmSetup->setSplitPadding(5);
 	pssmSetup->setOptimalAdjustFactor(0, 5);
 	pssmSetup->setOptimalAdjustFactor(1, 1);
-	pssmSetup->setOptimalAdjustFactor(2, 0.5);
+	pssmSetup->setOptimalAdjustFactor(2, 0.4);//2, 0.5);
 	mDirectionalShadowCameraSetup = Ogre::ShadowCameraSetupPtr(pssmSetup);
 	mSceneMgr->setShadowCameraSetup(mDirectionalShadowCameraSetup);
 	const Ogre::PSSMShadowCameraSetup::SplitPointList& splitPointList = pssmSetup->getSplitPoints();
@@ -420,7 +420,6 @@ void SGTMain::Shutdown()
 		SGTConsole::Instance().Shutdown();
 		SGTSceneManager::Instance().Shutdown();
 		SGTKernel::Instance().ClearPlugins();
-		delete mSoundManager;
 		delete mCameraController;
 		delete mRoot;
 		mRoot = 0;

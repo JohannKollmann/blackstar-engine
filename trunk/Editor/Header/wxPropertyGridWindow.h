@@ -12,7 +12,7 @@
 #include "wxFileTree.h"
 
 
-class wxPropertyGridWindow : public wxPanel, public wxTextDropTarget
+class wxPropertyGridWindow : public wxPanel, public wxFileDropTarget
 {
 	DECLARE_CLASS(wxPropertygridWindow)
 
@@ -28,6 +28,8 @@ public:
 	wxPropertyGridListener* GetCurrentPage();
 	Ogre::String GetCurrentPageName();
 
+	void SetEmptySpaceColour(wxColour colour);
+
 protected:
 	DECLARE_EVENT_TABLE()
 
@@ -35,7 +37,9 @@ protected:
 	  void OnResize(wxSizeEvent& event);
 	  void OnSetFocus(wxFocusEvent& event);
 
-	bool OnDropText(wxCoord x, wxCoord y, const wxString&  data);
+	bool OnDropFiles(wxCoord x, wxCoord y, const wxArrayString&  filenames);
+	wxDragResult OnEnter(wxCoord x, wxCoord y, wxDragResult def);
+	void OnLeave();
 
 private:
 

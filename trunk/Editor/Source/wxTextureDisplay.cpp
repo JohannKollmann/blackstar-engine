@@ -31,7 +31,7 @@ void wxTextureDisplay::OnShow(wxShowEvent& event)
 	wxEdit::Instance().GetMainMenu()->Check(wxMainMenu_PreviewWindow, event.GetShow());
 }
 
-void wxTextureDisplay::OnEraseBackground( wxEraseEvent& )
+void wxTextureDisplay::BakeBitmap()
 {
 	if (!mTexture.isNull())
 	{
@@ -72,6 +72,11 @@ void wxTextureDisplay::OnEraseBackground( wxEraseEvent& )
 	}
 }
 
+void wxTextureDisplay::OnEraseBackground( wxEraseEvent& )
+{
+	BakeBitmap();
+}
+
 void wxTextureDisplay::OnPaint(wxPaintEvent& event)
 {
 	wxPaintDC dc( this );
@@ -103,6 +108,8 @@ void wxTextureDisplay::ClearDisplay()
 	{
 		for (unsigned int i = 0; i < mPreviewNode->numAttachedObjects(); i++)
 		{
+			OgreOggSound::OgreOggISound *sound = dynamic_cast<OgreOggSound::OgreOggISound*>(mPreviewNode->getAttachedObject(i));
+			if (sound) sound->stop();
 			mPreviewNode->getCreator()->destroyMovableObject(mPreviewNode->getAttachedObject(i));
 		}
 		mPreviewNode->getCreator()->destroySceneNode(mPreviewNode);

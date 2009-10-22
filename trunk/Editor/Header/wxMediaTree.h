@@ -5,7 +5,7 @@
 #include "wx/dnd.h"
 #include "EntityTreeNotebookListener.h"
 
-class wxMediaTree : public wxFileTree, public wxFileDropTarget, public EntityTreeNotebookListener
+class wxMediaTree : public wxFileTree, public EntityTreeNotebookListener
 {
 private:
 	bool mShowMeshes;
@@ -16,6 +16,13 @@ private:
 
 	void ApplyDefaultLightning(Ogre::String materialfile);
 	Ogre::String Scan_Line_For_Material(Ogre::String line);
+
+	//Helper functions
+	bool IsTexture(wxString filename);
+	bool IsMaterial(wxString filename);
+	bool IsMesh(wxString filename);
+	bool IsAudio(wxString filename);
+
 
 public:
 	wxMediaTree(wxWindow* parent, wxWindowID id, const wxPoint& pos = wxDefaultPosition,
@@ -31,15 +38,13 @@ public:
 	void OnSelectItemCallback();
 	void OnRenameItemCallback(Ogre::String oldpath, Ogre::String newpath);
 	void OnCreateFolderCallback(Ogre::String path);
+	void OnDropExternFilesCallback(const wxArrayString& filenames);
+	bool IsExternFileDropTarget() { return true; }
+	void OnSetupDragCursor(wxDropSource &dropSource);
 
 	static void OnToolbarEvent(int toolID, Ogre::String toolname);
 
 	wxString GetDragName() { return "MediaDragged"; }
-
-	bool OnDropFiles(wxCoord x, wxCoord y, const wxArrayString&  filenames);
-
-	//Attention: MSW only!
-	wxDragResult OnDragOver(wxCoord x, wxCoord y, wxDragResult def);
 
 	void OnEnterTab();
 	void OnLeaveTab();

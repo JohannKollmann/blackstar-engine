@@ -28,8 +28,10 @@ public:
 	~wxTextureDisplay();
 
 	void SetTexture(Ogre::TexturePtr texture);
+	void BakeBitmap();
 	void ClearTexture();
 	void Update(float time);
 	void SetPreviewNode(Ogre::SceneNode *node);
 	void ClearDisplay();
+	wxBitmap& GetCurrentBitmap() { return mBitmap; }
 };

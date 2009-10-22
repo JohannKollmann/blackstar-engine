@@ -25,6 +25,7 @@ public:
 	void Update(float time);
 	void SetGroundFogEnabled (bool enable);
 	bool GetGroundFogEnabled ();
+	void UpdateViewport();
 };
 
 #endif

@@ -13,7 +13,6 @@ class wxObjectFolderTree;
 class wxMainMenu;
 class wxOgreSceneTree;
 class wxMaterialTree;
-class wxCustomSizer;
 class wxPropertyGridListener;
 class wxPropertyGridWindow;
 class wxEntityTreeNotebook;

@@ -25,6 +25,7 @@ BEGIN_EVENT_TABLE(wxMainMenu, wxMenuBar)
 	EVT_MENU(wxMainMenu_About, wxMainMenu::OnAbout)
 	EVT_MENU(wxMainMenu_Settings, wxMainMenu::OnSettings)
 	EVT_MENU(wxMainMenu_PreviewWindow, wxMainMenu::OnPreviewWindow)
+	EVT_MENU(wxMainMenu_ShowLog, wxMainMenu::OnShowLog)
 END_EVENT_TABLE()
 
 wxMainMenu::wxMainMenu()
@@ -74,6 +75,9 @@ wxMainMenu::wxMainMenu()
 	mWindowsMenu = new wxMenu;
 	wxMenuItem *showpreview = new wxMenuItem(mWindowsMenu, wxMainMenu_PreviewWindow, "Preview Window", "Enables/Disables the preview window.", true);
 	mWindowsMenu->Append(showpreview);
+
+	wxMenuItem *showlog = new wxMenuItem(mWindowsMenu, wxMainMenu_ShowLog, "Log", "Enables/Disables the log.", true);
+	mWindowsMenu->Append(showlog);
 
 	Append(mFileMenu, _T("File"));
 	Append(mToolsMenu, _T("Tools"));
@@ -258,6 +262,12 @@ void wxMainMenu::OnSettings(wxCommandEvent& WXUNUSED(event))
 void wxMainMenu::OnPreviewWindow(wxCommandEvent& WXUNUSED(event))
 {
 	wxEdit::Instance().GetAuiManager().GetPane(wxT("preview")).Show(IsChecked(wxMainMenu_PreviewWindow));
+	wxEdit::Instance().GetAuiManager().Update();
+}
+
+void wxMainMenu::OnShowLog(wxCommandEvent& WXUNUSED(event))
+{
+	wxEdit::Instance().GetAuiManager().GetPane(wxT("logdisplay")).Show(IsChecked(wxMainMenu_ShowLog));
 	wxEdit::Instance().GetAuiManager().Update();
 }
 

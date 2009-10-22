@@ -31,8 +31,11 @@ public:
 	DECLARE_NO_COPY_CLASS(wxDnDTreeItemData)
 };
 
-class wxFileTree : public wxVirtualDirTreeCtrl
+class wxFileTree : public wxVirtualDirTreeCtrl, public wxFileDropTarget
 {
+private:
+	void ClearHighlightedItem();
+
 protected:
     DECLARE_EVENT_TABLE()
 
@@ -42,6 +45,12 @@ protected:
 	virtual void OnBeginLabelEdit(wxTreeEvent& event);
 	virtual void OnEndLabelEdit(wxTreeEvent& event);
 	virtual void OnBeginDrag(wxTreeEvent& event);
+
+	bool OnDropFiles(wxCoord x, wxCoord y, const wxArrayString&  filenames);
+	//Attention: MSW only!
+	wxDragResult OnDragOver(wxCoord x, wxCoord y, wxDragResult def);
+	void OnLeave();
+
 
 	virtual wxString GetDragName() { return ""; }
 
@@ -55,6 +64,8 @@ protected:
 	Ogre::String mCurrentPath;
 	Ogre::String mRootPath;
 
+	wxTreeItemId mHighlightedItem;
+
 public:
 	wxFileTree(wxWindow* parent, wxWindowID id, const wxPoint& pos = wxDefaultPosition,
                     const wxSize& size = wxDefaultSize, long style = wxTR_HAS_BUTTONS | wxTR_FULL_ROW_HIGHLIGHT | wxTR_EDIT_LABELS,
@@ -65,6 +76,7 @@ public:
 		mCurrentItem = 0;
 		mCurrentlyDragged = 0;
 		mDraggingFile = false;
+		SetDropTarget(this);
 	}
 	virtual ~wxFileTree()
 	{
@@ -84,6 +96,9 @@ public:
 	virtual void OnSelectItemCallback() {};
 	virtual void OnRenameItemCallback(Ogre::String oldpath, Ogre::String newpath) {};
 	virtual void OnCreateFolderCallback(Ogre::String path) {};
+	virtual void OnDropExternFilesCallback(const wxArrayString& filenames) {};
+	virtual bool IsExternFileDropTarget() { return false; }
+	virtual void OnSetupDragCursor(wxDropSource &dropSource) {};
 
 	Ogre::String GetSelectedResource();
 	VdtcTreeItemBase* GetDraggedItem();

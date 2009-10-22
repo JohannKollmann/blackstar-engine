@@ -210,14 +210,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\wxCustomSizer.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Header\wxCustomSizer.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Source\wxEdit.cpp"
 				>
 			</File>
@@ -247,6 +239,14 @@
 			</File>
 			<File
 				RelativePath=".\Header\wxFileTree.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\wxLogDisplay.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Header\wxLogDisplay.h"
 				>
 			</File>
 			<File

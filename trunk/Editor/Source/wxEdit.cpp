@@ -86,12 +86,18 @@ wxEdit::wxEdit(wxWindow* parent) : wxFrame(parent, -1, _("Blackstar Edit"),
                   Name(wxT("settings")).Caption(wxT("Editor Settings")).
                   Dockable(false).Float().Hide());
 
+	mLogDisplay = new wxLogDisplay(this);
+	m_mgr.AddPane(mLogDisplay, wxAuiPaneInfo().
+					Name(wxT("logdisplay")).
+					Caption(wxT("Log")).Bottom().BestSize(200, 125).Hide());
+
 	/*mMediaTree = new wxMediaTree(this, wxID_ANY, wxDefaultPosition, wxSize(300,500));
     m_mgr.AddPane(mMediaTree, wxAuiPaneInfo().
                   Name(wxT("mediatree")).Caption(wxT("Loaded media files - drop new media here.")).
 				  Dockable(false).Float().Hide());*/
 
 	m_mgr.Update();
+	Refresh();
 
 	Ogre::String handle;
 	handle = Ogre::StringConverter::toString((size_t)((HWND)this->GetHandle()));

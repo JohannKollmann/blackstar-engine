@@ -858,7 +858,7 @@ void SGTEdit::SelectObject(SGTGameObject *object)
 	if (!mMultiSelect) DeselectAllObjects();
 	else DeselectObject(object);
 
-	if (wxEdit::Instance().GetWorldExplorer()->GetSelection() > 0) wxEdit::Instance().GetWorldExplorer()->SetSelection(3);
+	wxEdit::Instance().GetWorldExplorer()->SetSelection(4);
 	wxEdit::Instance().GetWorldExplorer()->GetSceneTree()->ExpandToObject(object);
 	wxEdit::Instance().GetpropertyWindow()->SetPage("EditGameObject");
 	((wxEditSGTGameObject*)(wxEdit::Instance().GetpropertyWindow()->GetCurrentPage()))->SetObject(object);
