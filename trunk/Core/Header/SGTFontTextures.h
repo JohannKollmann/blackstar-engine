@@ -13,7 +13,7 @@ private:
 	int m_TexelWidth;
 	struct SCharInfo
 	{
-		char cLetter;
+		unsigned char cLetter;
 		unsigned short wColor;
 		int iOffset;
 	};

@@ -75,6 +75,8 @@ SGTFontTextures::SGTFontTextures(std::string strFontSpacings)
 	delete pcFile;
 }
 
+#define UNSIGN_CHAR(c) ((int)c>=0 ? (int)c : 256+(int)c)
+
 Ogre::TexturePtr
 SGTFontTextures::CreateTextTexture(std::string strText, int iMaxWidth, int iMaxHeight, int& iActualWidth, int& iActualHeight)
 {
@@ -128,7 +130,7 @@ SGTFontTextures::CreateTextTexture(std::string strText, int iMaxWidth, int iMaxH
 			iActualHeight++;
 		}
 		//check if we have a non-alphanumerical character
-		if(!std::isalnum(strText[iChar]))
+		if(!std::isalnum(UNSIGN_CHAR(strText[iChar])))
 		{
 			if(strText[iChar]=='\n')
 			{
@@ -159,19 +161,19 @@ SGTFontTextures::CreateTextTexture(std::string strText, int iMaxWidth, int iMaxH
 				bForceLineBreak=true;
 			
 			//write the character
-			pChars[nChars].cLetter=strText[iChar];
+			pChars[nChars].cLetter=UNSIGN_CHAR(strText[iChar]);
 			pChars[nChars].iOffset=iCurrLinePos;
 			pChars[nChars++].wColor=wCurrColor;
-			iCurrLinePos+=m_aaiFontSpacings[strText[iChar]][1]-m_aaiFontSpacings[strText[iChar]][0];
+			iCurrLinePos+=m_aaiFontSpacings[pChars[nChars-1].cLetter][1]-m_aaiFontSpacings[pChars[nChars].cLetter][0];
 			if(iCurrLinePos>iActualWidth)
 				iActualWidth=iCurrLinePos;
 			
 			//check if there must be a line break for word wrapping
 			int iNextWordEnd=iCurrLinePos;
 			int iTempChar=iChar+1;
-			while(std::isalnum(strText[iTempChar]))
+			while(std::isalnum(UNSIGN_CHAR(strText[iTempChar])))
 			{
-				iNextWordEnd+=m_aaiFontSpacings[strText[iTempChar]][1]-m_aaiFontSpacings[strText[iTempChar]][0];
+				iNextWordEnd+=m_aaiFontSpacings[UNSIGN_CHAR(strText[iTempChar])][1]-m_aaiFontSpacings[UNSIGN_CHAR(strText[iTempChar])][0];
 				iTempChar++;
 			}
 			if((iNextWordEnd>=iMaxWidth || bForceLineBreak) && iCurrLinePos)
@@ -186,16 +188,20 @@ SGTFontTextures::CreateTextTexture(std::string strText, int iMaxWidth, int iMaxH
 		else
 		{
 			//write the character
-			pChars[nChars].cLetter=strText[iChar];
+			pChars[nChars].cLetter=UNSIGN_CHAR(strText[iChar]);
 			pChars[nChars].iOffset=iCurrLinePos;
 			pChars[nChars++].wColor=wCurrColor;
-			iCurrLinePos+=m_aaiFontSpacings[strText[iChar]][1]-m_aaiFontSpacings[strText[iChar]][0];
+			iCurrLinePos+=m_aaiFontSpacings[pChars[nChars-1].cLetter][1]-m_aaiFontSpacings[pChars[nChars-1].cLetter][0];
 			if(iCurrLinePos>iActualWidth)
 				iActualWidth=iCurrLinePos;
 		}
 		if(iActualHeight>=iMaxHeight)
 		{//luckily this will happen before any characters are placed in the line
 			iActualHeight=iMaxHeight-1;
+			//----------- EVIL HACK, have to fix this for release!!!! ------------------
+			delete pChars;
+			return CreateTextTexture(strText.substr(1), iMaxWidth, iMaxHeight, iActualWidth, iActualHeight);
+			//--------------------------------------------------------------------------
 			break;
 		}
 	}

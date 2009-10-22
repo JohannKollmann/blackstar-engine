@@ -78,8 +78,11 @@ SGTLuaScript::GetArguments(lua_State* pState, int iStartIndex, SGTScript& script
 			vParams.push_back(SGTScriptParam((bool)(lua_toboolean(pState, iParam)!=0)));
 			break;
 		case LUA_TSTRING:
-			vParams.push_back(SGTScriptParam(std::string(lua_tostring(pState, iParam))));
+		{
+			std::string str(lua_tostring(pState, iParam));
+			vParams.push_back(SGTScriptParam(str));
 			break;
+		}
 		case LUA_TFUNCTION:
 		{
 			bool bFinished=false;

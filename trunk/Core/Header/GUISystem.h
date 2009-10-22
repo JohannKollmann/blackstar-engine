@@ -72,6 +72,9 @@ private:
 	static std::vector<SGTScriptParam> Lua_SetMaterial(SGTScript& caller, std::vector<SGTScriptParam> vParams);
 	static std::vector<SGTScriptParam> Lua_SetWindowVisible(SGTScript& caller, std::vector<SGTScriptParam> vParams);
 	static std::vector<SGTScriptParam> Lua_SetForegroundWindow(SGTScript& caller, std::vector<SGTScriptParam> vParams);
+	static std::vector<SGTScriptParam> Lua_SetFocus(SGTScript& caller, std::vector<SGTScriptParam> vParams);
+
+	static std::vector<SGTScriptParam> Lua_GetScreenCoords(SGTScript& caller, std::vector<SGTScriptParam> vParams);
 
 	static std::vector<SGTScriptParam> Lua_GetCursor(SGTScript& caller, std::vector<SGTScriptParam> vParams);
 	static std::vector<SGTScriptParam> Lua_SetCursor(SGTScript& caller, std::vector<SGTScriptParam> vParams);

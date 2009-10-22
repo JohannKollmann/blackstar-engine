@@ -55,7 +55,11 @@ SGTScriptableInstances::Lua_RunFunction(SGTScript& caller, std::vector<SGTScript
 		}
 		std::map<int, SGTScript>::iterator it=SGTScriptableInstances::GetInstance().m_mScripts.find((int)vParams[0].getFloat());
 		if(it==SGTScriptableInstances::GetInstance().m_mScripts.end())
+		{
+			vRes.push_back(SGTScriptParam());
+			vRes.push_back(SGTScriptParam(std::string("could not find a scriptable instance with the given ID")));
 			return vRes;
+		}
 		std::string strFunction=vParams[1].getString();
 		vParams.erase(vParams.begin());
 		vParams.erase(vParams.begin());
