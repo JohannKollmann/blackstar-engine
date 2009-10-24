@@ -24,6 +24,11 @@ SGTLuaScript::SGTLuaScript(std::string strFile)
 	LoadScript(strFile);
 }
 
+SGTLuaScript::SGTLuaScript(char* pcBuffer, unsigned int nBytes, std::string strName)
+{
+	LoadScript(pcBuffer, nBytes, strName);
+}
+
 bool
 SGTLuaScript::LoadScript(std::string strFile)
 {
@@ -36,6 +41,23 @@ SGTLuaScript::LoadScript(std::string strFile)
 	{
 		std::string strError(lua_tostring(m_pState, -1));
 		LogError(std::string("error opening ") + strFile + std::string(": ") + strError);
+		return false;
+	}
+	return true;
+}
+
+bool
+SGTLuaScript::LoadScript(char* pcBuffer, unsigned int nBytes, std::string strName)
+{
+	m_strScriptName=strName;
+	m_pState=luaL_newstate();
+	luaopen_base(m_pState);
+	luaopen_string(m_pState);
+
+	if(luaL_loadbuffer(m_pState, pcBuffer, nBytes, strName.c_str()) || lua_pcall(m_pState, 0, 0, 0))
+	{
+		std::string strError(lua_tostring(m_pState, -1));
+		LogError(std::string("error opening ") + m_strScriptName + std::string(": ") + strError);
 		return false;
 	}
 	return true;

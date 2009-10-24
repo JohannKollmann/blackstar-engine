@@ -23,7 +23,9 @@ class SGTDllExport SGTLuaScript
 {
 public:
 	SGTLuaScript(std::string strFile);
+	SGTLuaScript(char* pcBuffer, unsigned int nBytes, std::string strName);
 	bool LoadScript(std::string strFile);
+	bool LoadScript(char* pcBuffer, unsigned int nBytes, std::string strName);
 	void ShareCFunction(std::string strName, SGTScriptFunction fn);
 	void ShareStaticCFunction(std::string strName, SGTStaticScriptFunction fn);
 	void ShareExternalFunction(std::string strShareName, std::string strInternalName, SGTLuaScript& script);
