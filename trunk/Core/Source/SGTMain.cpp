@@ -106,7 +106,6 @@ void SGTMain::initScene()
 	{
 		if (i->Key == "OgreZip") Ogre::ResourceGroupManager::getSingleton().addResourceLocation(i->Val, "Zip");
 		if (i->Key == "OgreMedia") AddOgreResourcePath(i->Val);
-		if (i->Key == "LuaScripts") SGTSceneManager::Instance().AddScriptLocation(i->Val);
 	}
 
 	mSceneMgr = mRoot->createSceneManager(Ogre::ST_GENERIC, "Esgaroth");

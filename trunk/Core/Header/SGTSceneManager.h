@@ -34,8 +34,6 @@ private:
 
 	std::map<Ogre::String, EDTCreatorFn> mEditorInterfaces;
 
-	std::vector<Ogre::String> mScriptLocations;
-
 public:
 
 	std::list<SGTGameObject*> mGameObjects;
@@ -85,13 +83,6 @@ public:
 	SGTGOCEditorInterface* CreateComponent(Ogre::String type, SGTDataMap *parameters);
 
 	Ogre::String FindResourcePath(Ogre::String path, Ogre::String filename);
-
-	//Script
-
-	void AddScriptLocation(Ogre::String dir);
-	Ogre::String GetScriptPath(Ogre::String script);
-	SGTScript CreateScript(Ogre::String script);
-	SGTScript CreateScript(Ogre::String script, std::vector<SGTScriptParam> params);
 
 	static std::vector<SGTScriptParam> Lua_LogMessage(SGTScript& caller, std::vector<SGTScriptParam> vParams);
 	static std::vector<SGTScriptParam> Lua_LoadLevel(SGTScript& caller, std::vector<SGTScriptParam> vParams);

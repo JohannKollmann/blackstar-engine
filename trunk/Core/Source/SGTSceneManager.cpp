@@ -354,33 +354,6 @@ SGTGameObject* SGTSceneManager::GetObjectByInternID(int id)
 	return 0;
 }
 
-void SGTSceneManager::AddScriptLocation(Ogre::String dir)
-{
-	mScriptLocations.push_back(dir);
-}
-Ogre::String SGTSceneManager::GetScriptPath(Ogre::String script)
-{
-	for (std::vector<Ogre::String>::iterator i = mScriptLocations.begin(); i != mScriptLocations.end(); i++)
-	{
-		boost::filesystem::path path(((*i) + script).c_str());
-		if (boost::filesystem::exists(path)) return (*i) + script;
-	}
-	Ogre::LogManager::getSingleton().logMessage("Error: Script not found: " + script);
-	return "";
-}
-SGTScript SGTSceneManager::CreateScript(Ogre::String script, std::vector<SGTScriptParam> params)
-{
-	return SGTScriptSystem::GetInstance().CreateInstance(script);
-	/*Ogre::String path = GetScriptPath(script);
-	if (path != "") return SGTScriptSystem::GetInstance().CreateInstance(path);
-	return SGTScript();*/
-}
-SGTScript SGTSceneManager::CreateScript(Ogre::String script)
-{
-	std::vector<SGTScriptParam> params;
-	return CreateScript(script, params);
-}
-
 std::vector<SGTScriptParam>
 SGTSceneManager::Lua_LoadLevel(SGTScript& caller, std::vector<SGTScriptParam> vParams)
 {

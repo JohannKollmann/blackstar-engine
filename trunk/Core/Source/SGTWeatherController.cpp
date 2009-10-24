@@ -20,8 +20,7 @@ SGTWeatherController::SGTWeatherController(void)
 
 	// Initialise Caelum
 	mCaelumSystem = new Caelum::CaelumSystem (Ogre::Root::getSingletonPtr(), SGTMain::Instance().GetOgreSceneMgr(), componentMask);//Caelum::CaelumSystem::CAELUM_COMPONENTS_NONE);
-	//mCaelumSystem->setSun (new Caelum::SphereSun(SGTMain::Instance().GetOgreSceneMgr(), mCaelumSystem->getCaelumCameraNode ()));
-	mCaelumSystem->setSun (new Caelum::SpriteSun(SGTMain::Instance().GetOgreSceneMgr(), mCaelumSystem->getCaelumCameraNode (), "sun_disc.png", Ogre::Degree(10)));
+	mCaelumSystem->setSun (new Caelum::SpriteSun(SGTMain::Instance().GetOgreSceneMgr(), mCaelumSystem->getCaelumCameraNode (), "sun_disc.png", Ogre::Degree(15)));
 
 	/*mCaelumSystem->setSkyDome (new Caelum::SkyDome (SGTMain::Instance().GetOgreSceneMgr(), mCaelumSystem->getCaelumCameraNode ()));
     mCaelumSystem->setSun (new Caelum::SphereSun(SGTMain::Instance().GetOgreSceneMgr(), mCaelumSystem->getCaelumCameraNode ()));
@@ -40,7 +39,7 @@ SGTWeatherController::SGTWeatherController(void)
 
 	mCaelumSystem->getUniversalClock ()->setTimeScale (0);
 
-    //mCaelumSystem->setManageSceneFog(true);
+    mCaelumSystem->setManageSceneFog(false);
     //mCaelumSystem->setSceneFogDensityMultiplier(0.0015);
 	mCaelumSystem->setMinimumAmbientLight(Ogre::ColourValue(0.1, 0.1,0.1));
     mCaelumSystem->setManageAmbientLight (true); 

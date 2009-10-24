@@ -127,7 +127,7 @@ void SGTConsole::ReceiveMessage(SGTMsg &msg)
 			}
 			if (scriptfile != "" && funcname != "")
 			{
-				SGTScript script = SGTSceneManager::Instance().CreateScript(scriptfile);
+				SGTScript script = SGTScriptSystem::GetInstance().CreateInstance(scriptfile);
 				script.CallFunction(funcname, params);
 			}
 			

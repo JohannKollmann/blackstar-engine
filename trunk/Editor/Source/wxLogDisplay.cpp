@@ -35,7 +35,7 @@ void wxLogDisplay::OnActivated(wxListEvent& event)
 		{
 			wxString scriptFile = msg.SubString(first, msg.find("\"", first+1));
 			wxMainNotebook *notebook = wxEdit::Instance().GetMainNotebook();
-			Ogre::String scriptPath = SGTSceneManager::Instance().GetScriptPath(scriptFile.c_str());
+			Ogre::String scriptPath = SGTSceneManager::Instance().FindResourcePath("Data", scriptFile.c_str());
 			notebook->AddScriptTab(scriptFile.c_str(), scriptPath);
 
 			size_t line_index = msg.find(", line ");
