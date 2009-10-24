@@ -1,6 +1,9 @@
 #include "SGTScriptSystem.h"
 #include <iostream>
 
+//Temporary!
+#include "Ogre.h"
+
 void
 SGTScriptSystem::DummyErrorLogger(std::string strErr)
 {
@@ -142,7 +145,12 @@ SGTScriptSystem::CreateInstance(std::string strFileName, std::vector<SGTScriptPa
 {
 	if(m_mScripts.find(strFileName)==m_mScripts.end())
 	{//script was not loaded yet
-		m_mScripts.insert(std::pair<std::string, SGTLuaScript>(strFileName, SGTLuaScript(strFileName)));
+		Ogre::DataStreamPtr ds = Ogre::ResourceGroupManager::getSingleton().openResource(strFileName);
+		char *buffer = new char[ds->size()];
+		ds->read(buffer, ds->size());
+		//m_mScripts.insert(std::pair<std::string, SGTLuaScript>(strFileName, SGTLuaScript(strFileName)));
+		m_mScripts.insert(std::pair<std::string, SGTLuaScript>(strFileName, SGTLuaScript(buffer, ds->size(), strFileName)));
+		delete buffer;
 		SGTLuaScript& luaScript=m_mScripts.find(strFileName)->second;
 		luaScript.ShareCFunction(std::string("bindc"), BindCFnCallback);
 		luaScript.ShareCFunction(std::string("bindlua"), BindScriptFnCallback);

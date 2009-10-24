@@ -9,7 +9,6 @@
 //#include "standard_atoms.h"		//Load Save
 #include "SGTCompositorLoader.h"
 #include "SGTSceneListener.h"
-#include "SGTOcean.h"
 #include "HDRListener.h"
 #include "SGTWeatherController.h"
 #include "SGTCollisionCallback.h"
@@ -175,8 +174,8 @@ void SGTMain::initScene()
 	mSoundManager->setDistanceModel(AL_LINEAR_DISTANCE);
 	//mCamera->getParentSceneNode()->attachObject(mSoundManager->getListener());
 
-	SGTConsole::Instance().Init();
-	SGTConsole::Instance().Show(false);
+	//SGTConsole::Instance().Init();
+	//SGTConsole::Instance().Show(false);
 
 	/*SSAOListener *ssaoParamUpdater = new SSAOListener();
 	SGTCompositorLoader::Instance().AddListener("ssao", ssaoParamUpdater);
@@ -417,7 +416,7 @@ void SGTMain::Shutdown()
 		mSpotShadowCameraSetup.setNull();
 		mPointShadowCameraSetup.setNull();
 		Ogre::LogManager::getSingleton().logMessage("Ogre shutdown!");
-		SGTConsole::Instance().Shutdown();
+		//SGTConsole::Instance().Shutdown();
 		SGTSceneManager::Instance().Shutdown();
 		SGTKernel::Instance().ClearPlugins();
 		delete mCameraController;

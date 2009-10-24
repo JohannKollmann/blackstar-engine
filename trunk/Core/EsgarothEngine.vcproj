@@ -64,7 +64,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Rpcrt4.lib OgreMain_d.lib PhysXLoader.lib NxCooking.lib NxCharacter.lib nxOgre_d.lib CEGUIBase_d.lib OgreGUIRenderer_d.lib ws2_32.lib OgreOggSound_d.lib comctl32.lib caelum_d.lib WinMM.lib SGTLoadSave_d.lib Hydrax_d.lib"
+				AdditionalDependencies="Rpcrt4.lib OgreMain_d.lib PhysXLoader.lib NxCooking.lib NxCharacter.lib nxOgre_d.lib CEGUIBase_d.lib OgreGUIRenderer_d.lib ws2_32.lib OgreOggSound_d.lib comctl32.lib caelum_d.lib WinMM.lib SGTLoadSave_d.lib"
 				OutputFile="$(OutDir)/EsgarothEngine_debug.dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="..\..\Dependencies\OgreOggSound\lib\;..\..\Dependencies\Ogre3D\lib;..\..\Dependencies\NxOgre\lib;..\..\Dependencies\Ogre3D\Dependencies\lib\Debug;..\..\Dependencies\PhysX\SDKs\lib\win32;..\..\Dependencies\wxWidgets\lib\vc_lib\;..\..\Dependencies\wxWidgets\wxthings\lib\;..\..\Dependencies\Caelum\lib\debug;..\..\Ogre3D\Dependencies\lib\Release\;..\..\lib\;..\..\Dependencies\Hydrax\lib;..\..\Dependencies\boost\lib\"
@@ -148,7 +148,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				RegisterOutput="false"
-				AdditionalDependencies="OgreMain.lib PhysXLoader.lib NxCooking.lib NxCharacter.lib nxOgre.lib CEGUIBase.lib OgreGUIRenderer.lib ws2_32.lib OgreOggSound.lib caelum.lib WinMM.lib SGTLoadSave.lib Hydrax.lib"
+				AdditionalDependencies="OgreMain.lib PhysXLoader.lib NxCooking.lib NxCharacter.lib nxOgre.lib CEGUIBase.lib OgreGUIRenderer.lib ws2_32.lib OgreOggSound.lib caelum.lib WinMM.lib SGTLoadSave.lib"
 				OutputFile="$(OutDir)/EsgarothEngine.dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\..\Dependencies\OgreOggSound\lib\;..\..\Dependencies\Ogre3D\lib;..\..\Dependencies\NxOgre\lib;..\..\Dependencies\Ogre3D\Dependencies\lib\Release;..\..\Dependencies\PhysX\SDKs\lib\win32;..\..\Dependencies\Caelum\lib\release;..\..\Ogre3D\Dependencies\lib\Release\;..\..\lib\;..\..\Dependencies\Hydrax\lib;..\..\Dependencies\boost\lib\"
@@ -462,14 +462,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\SGTOcean.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Header\SGTOcean.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Source\SGTSceneListener.cpp"
 				>
 			</File>
@@ -565,15 +557,15 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\Dependencies\Boost\thread\once.hpp"
-					>
-				</File>
-				<File
 					RelativePath="..\..\Dependencies\Boost\thread\win32\once.hpp"
 					>
 				</File>
 				<File
 					RelativePath="..\..\Dependencies\Boost\thread\pthread\once.hpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Dependencies\Boost\thread\once.hpp"
 					>
 				</File>
 				<File
@@ -585,15 +577,15 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\Dependencies\Boost\thread\recursive_mutex.hpp"
-					>
-				</File>
-				<File
 					RelativePath="..\..\Dependencies\Boost\thread\pthread\recursive_mutex.hpp"
 					>
 				</File>
 				<File
 					RelativePath="..\..\Dependencies\Boost\thread\win32\recursive_mutex.hpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Dependencies\Boost\thread\recursive_mutex.hpp"
 					>
 				</File>
 				<File
@@ -613,15 +605,15 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\Dependencies\Boost\thread\thread.hpp"
-					>
-				</File>
-				<File
 					RelativePath="..\..\Dependencies\Boost\thread\win32\thread.hpp"
 					>
 				</File>
 				<File
 					RelativePath="..\..\Dependencies\Boost\thread\pthread\thread.hpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Dependencies\Boost\thread\thread.hpp"
 					>
 				</File>
 				<File

@@ -4,7 +4,6 @@
 #include "SGTWeatherController.h"
 #include "SGTSaveable.h"
 #include "SGTLevelMesh.h"
-#include "SGTOcean.h"
 #include "shellapi.h"
 #include "SGTScriptSystem.h"
 #include "standard_atoms.h"
@@ -371,9 +370,10 @@ Ogre::String SGTSceneManager::GetScriptPath(Ogre::String script)
 }
 SGTScript SGTSceneManager::CreateScript(Ogre::String script, std::vector<SGTScriptParam> params)
 {
-	Ogre::String path = GetScriptPath(script);
+	return SGTScriptSystem::GetInstance().CreateInstance(script);
+	/*Ogre::String path = GetScriptPath(script);
 	if (path != "") return SGTScriptSystem::GetInstance().CreateInstance(path);
-	return SGTScript();
+	return SGTScript();*/
 }
 SGTScript SGTSceneManager::CreateScript(Ogre::String script)
 {
