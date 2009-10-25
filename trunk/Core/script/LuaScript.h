@@ -25,7 +25,7 @@ public:
 	SGTLuaScript(std::string strFile);
 	SGTLuaScript(char* pcBuffer, unsigned int nBytes, std::string strName);
 	bool LoadScript(std::string strFile);
-	bool LoadScript(char* pcBuffer, unsigned int nBytes, std::string strName);
+	//bool LoadScript(char* pcBuffer, unsigned int nBytes, std::string strName);
 	void ShareCFunction(std::string strName, SGTScriptFunction fn);
 	void ShareStaticCFunction(std::string strName, SGTStaticScriptFunction fn);
 	void ShareExternalFunction(std::string strShareName, std::string strInternalName, SGTLuaScript& script);
@@ -34,6 +34,8 @@ public:
 	bool FunctionExists(std::string strFunction);
 	static void SetLogFn(void (*logFn)(std::string));
 	static void LogError(std::string strError);
+
+	static void SetLoader(std::string (*pfLoader)(lua_State* pState, std::string strFileName));
 private:
 	static int ApiCallback(lua_State* pState);
 	bool IncludeScript(SGTLuaScript& script);
@@ -62,6 +64,7 @@ private:
 	std::map<std::string, SExternalShare> m_mExternalFunctions;
 
 	static void (*m_LogFn)(std::string);
+	static std::string (*m_pfLoader)(lua_State*, std::string);
 };
 
 #endif

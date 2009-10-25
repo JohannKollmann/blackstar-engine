@@ -3,6 +3,7 @@
 #include <sstream>
 
 void (*SGTLuaScript::m_LogFn)(std::string) =0;
+std::string (*SGTLuaScript::m_pfLoader)(lua_State*, std::string) =0;
 
 //handler for transparent function calls across VMs
 class CLongCallHandler
@@ -23,11 +24,11 @@ SGTLuaScript::SGTLuaScript(std::string strFile)
 {
 	LoadScript(strFile);
 }
-
+/*
 SGTLuaScript::SGTLuaScript(char* pcBuffer, unsigned int nBytes, std::string strName)
 {
 	LoadScript(pcBuffer, nBytes, strName);
-}
+}*/
 
 bool
 SGTLuaScript::LoadScript(std::string strFile)
@@ -36,16 +37,22 @@ SGTLuaScript::LoadScript(std::string strFile)
 	m_pState=luaL_newstate();
 	luaopen_base(m_pState);
 	luaopen_string(m_pState);
-
+/*
 	if(luaL_loadfile(m_pState, strFile.c_str()) || lua_pcall(m_pState, 0, 0, 0))
 	{
 		std::string strError(lua_tostring(m_pState, -1));
 		LogError(std::string("error opening ") + strFile + std::string(": ") + strError);
 		return false;
+	}*/
+	std::string strErr=m_pfLoader(m_pState, strFile);
+	if(strErr.length())
+	{
+		LogError(std::string("error opening ") + strFile + std::string(": ") + strErr);
+		return false;
 	}
 	return true;
 }
-
+/*
 bool
 SGTLuaScript::LoadScript(char* pcBuffer, unsigned int nBytes, std::string strName)
 {
@@ -61,7 +68,7 @@ SGTLuaScript::LoadScript(char* pcBuffer, unsigned int nBytes, std::string strNam
 		return false;
 	}
 	return true;
-}
+}*/
 
 void
 SGTLuaScript::ShareCFunction(std::string strName, SGTScriptFunction fn)
@@ -148,6 +155,9 @@ SGTLuaScript::GetArguments(lua_State* pState, int iStartIndex, SGTScript& script
 			}
 			break;
 		}
+		case LUA_TNIL:
+			vParams.push_back(SGTScriptParam());
+			break;
 		default:
 			//unsupported type
 			vParams.clear();
@@ -396,6 +406,12 @@ SGTLuaScript::LogError(std::string strError)
 {
 	if(m_LogFn!=0)
 		m_LogFn(strError);
+}
+
+void
+SGTLuaScript::SetLoader(std::string (*pfLoader)(lua_State* pState, std::string strFileName))
+{
+	m_pfLoader=pfLoader;
 }
 
 CLongCallHandler::CLongCallHandler()

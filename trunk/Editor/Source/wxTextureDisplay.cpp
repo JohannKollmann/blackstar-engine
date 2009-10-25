@@ -52,14 +52,26 @@ void wxTextureDisplay::BakeBitmap()
 		size_t height = 0;
 		if (pixelBox.format == Ogre::PixelFormat::PF_A8R8G8B8) image.InitAlpha();
 		unsigned int format_size = Ogre::PixelUtil::getNumElemBytes(pixelBox.format);
+
+		unsigned char* pcRGBs=(unsigned char*)malloc(mTexture->getWidth()*mTexture->getHeight()*3);
+		unsigned char* pcAlphas;
+		if(image.HasAlpha())
+			pcAlphas=(unsigned char*)malloc(pixelBox.getWidth()*pixelBox.getHeight());
+
 		for (unsigned int i = 0; i < bytesize-format_size; i+=format_size)
 		{
 			Ogre::ColourValue color;
 			Ogre::PixelUtil::unpackColour(&color, pixelBox.format, mTempData+i);
 			
-			image.SetRGB(width, height, (unsigned char)(color.r * 255.0f), (unsigned char)(color.g * 255.0f), (unsigned char)(color.b * 255.0f));
-			if (image.HasAlpha()) image.SetAlpha(width, height, (unsigned char)(color.a * 255.0f));
-	
+			int offset=3*(width+pixelBox.getWidth()*height);
+			Ogre::ARGB rgbVal=color.getAsARGB();
+			pcRGBs[offset]=(rgbVal&0x00ff0000)>>16;
+			pcRGBs[offset+1]=(rgbVal&0x0000ff00)>>8;
+			pcRGBs[offset+2]=(rgbVal&0xff);
+
+			if(image.HasAlpha())
+				pcAlphas[offset/3]=(rgbVal&0xff000000)>>24;
+
 			width++;
 			if (width == pitch)
 			{
@@ -67,6 +79,9 @@ void wxTextureDisplay::BakeBitmap()
 				height++;
 			}
 		}
+		image.SetData(pcRGBs);
+		if (image.HasAlpha())
+			image.SetAlpha(pcAlphas);
 	
 		mBitmap = wxBitmap(image.Scale(GetSize().GetWidth(), GetSize().GetHeight(), wxIMAGE_QUALITY_NORMAL));
 	}

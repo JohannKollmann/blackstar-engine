@@ -20,6 +20,25 @@
 
 #define USE_REMOTEDEBUGGER 1
 
+//loader for SGTScriptSystem
+std::string
+OgreFileLoader(lua_State* pState, std::string strFile)
+{
+	Ogre::DataStreamPtr ds = Ogre::ResourceGroupManager::getSingleton().openResource(strFile);
+	char *buffer = new char[ds->size()];
+	ds->read(buffer, ds->size());
+	ds->close();
+
+	if(luaL_loadbuffer(pState, buffer, ds->size(), strFile.c_str()) || lua_pcall(pState, 0, 0, 0))
+	{
+		delete buffer;
+		std::string strError(lua_tostring(pState, -1));
+		return std::string(lua_tostring(pState, -1));
+	}
+	delete buffer;
+	return std::string();
+}
+
 SGTMain::SGTMain()
 {
 	mNxWorld = 0;
@@ -166,7 +185,10 @@ void SGTMain::initScene()
 	mScene->createActor("FakeFloor", new NxOgre::Cube(500,0.1f,500), Ogre::Vector3(0,-500,0), "static: yes");
 
 	mCameraController = new SGTCameraController();
+
+	//init scripting stuff
 	SGTGUISystem::GetInstance();
+	SGTLuaScript::SetLoader(OgreFileLoader);
 
 	mSoundManager = OgreOggSound::OgreOggSoundManager::getSingletonPtr();
 	mSoundManager->init("");

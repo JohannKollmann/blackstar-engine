@@ -538,19 +538,14 @@ SGTGUISystem::SetForegroundWindow(int iHandle)
 	//get window for subwindow
 	SWindowInfo wininfo=m_mWindowInfos.find(iHandle)->second;
 	while(wininfo.iParentHandle!=-1)
-		wininfo=SGTGUISystem::GetInstance().m_mWindowInfos.find(wininfo.iParentHandle)->second;
-
-	if(m_iCursorHandle!=iHandle)
 	{
-		//m_lZOrder.remove(iHandle);
-		for(std::list<int>::iterator it=m_lZOrder.begin(); it!=m_lZOrder.end(); it++)
-		{
-			if(*it==iHandle)
-			{
-				m_lZOrder.erase(it);
-				it=m_lZOrder.begin();
-			}
-		}
+		iHandle=wininfo.iParentHandle;
+		wininfo=SGTGUISystem::GetInstance().m_mWindowInfos.find(wininfo.iParentHandle)->second;
+	}
+
+	if(m_iCursorHandle!=iHandle && m_lZOrder.size())
+	{
+		m_lZOrder.remove(iHandle);
 	}
 	if(m_iCursorHandle!=-1)
 		m_lZOrder.pop_front();
