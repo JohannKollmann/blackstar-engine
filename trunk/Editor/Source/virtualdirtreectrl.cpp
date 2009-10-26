@@ -432,7 +432,7 @@ wxTreeItemId wxVirtualDirTreeCtrl::ExpandToPath(const wxFileName &path)
 						seekpath = GetFullPath(id);
 						ScanFromDir(ptr, seekpath, VDTC_MIN_SCANDEPTH);
 					}
-					if (ptr->IsFile()) SelectItem(id);
+					SelectItem(id);
 
 					curr = id;
 					Expand(curr);

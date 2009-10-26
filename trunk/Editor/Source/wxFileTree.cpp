@@ -189,6 +189,36 @@ void wxFileTree::OnMenuEvent(wxCommandEvent& event)
 	OnMenuCallback(id);
 }
 
+Ogre::String wxFileTree::GetInsertPath()
+{
+	Ogre::String relPath = mExpandedPath.c_str();
+	if (mCurrentItem)
+	{
+		if (mCurrentItem->IsDir())// || mCurrentItem->IsRoot())
+		{
+			relPath = Ogre::String(GetRelativePath(mCurrentItem->GetId()).GetFullPath().c_str()) + "\\";
+		}
+	}
+	Ogre::String Path = relPath + "\\";
+	return Path;
+}
+
+Ogre::String wxFileTree::DoCreateFileDialog()
+{
+	wxTextEntryDialog dialog(this,
+		_T("Enter file name:"),
+		_T("Please enter a string"),
+		_T(""),
+		wxOK | wxCANCEL);
+
+	Ogre::String File = "";
+	if (dialog.ShowModal() == wxID_OK)
+	{
+		File = dialog.GetValue().c_str();
+	}
+	return File;
+}
+
 bool wxFileTree::OnAddDirectory(VdtcTreeItemBase &item, const wxFileName &name)
 {
 	wxString str = item.GetName();

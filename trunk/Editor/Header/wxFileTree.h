@@ -51,6 +51,8 @@ protected:
 	wxDragResult OnDragOver(wxCoord x, wxCoord y, wxDragResult def);
 	void OnLeave();
 
+	Ogre::String DoCreateFileDialog();
+	Ogre::String GetInsertPath();
 
 	virtual wxString GetDragName() { return ""; }
 

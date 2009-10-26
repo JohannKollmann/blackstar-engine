@@ -27,7 +27,7 @@ wxMaterialTree::wxMaterialTree(wxWindow* parent, wxWindowID id, const wxPoint& p
 	
 	mCallbackIDCounter = 10500;
 
-	wxEdit::Instance().GetExplorerToolbar()->RegisterTool("MapWizard", "Materials", "Data/Editor/Intern/BrushMode.png", wxMaterialTree::OnToolbarEvent);
+	//wxEdit::Instance().GetExplorerToolbar()->RegisterTool("MapWizard", "Materials", "Data/Editor/Intern/BrushMode.png", wxMaterialTree::OnToolbarEvent);
 	UpdateTemplates();
 };
 
@@ -446,10 +446,10 @@ void wxMaterialTree::OnEnterTab()
 {
 	wxMaterialEditor *editor = (wxMaterialEditor*)(wxEdit::Instance().GetpropertyWindow()->SetPage("material"));
 	if (!mSelectedMaterial.isNull()) editor->EditMaterial(mSelectedMaterial);
-	wxEdit::Instance().GetExplorerToolbar()->SetGroupStatus("Materials", true);
+	//wxEdit::Instance().GetExplorerToolbar()->SetGroupStatus("Materials", true);
 
 }
 void wxMaterialTree::OnLeaveTab()
 {
-	wxEdit::Instance().GetExplorerToolbar()->SetGroupStatus("Materials", false);
+	//wxEdit::Instance().GetExplorerToolbar()->SetGroupStatus("Materials", false);
 }
