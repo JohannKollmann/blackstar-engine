@@ -11,8 +11,9 @@
 
 SGTConsole::SGTConsole()
 {
-	mActive = false;
-	mInitialized = false;
+	SGTMessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
+	SGTMessageSystem::Instance().JoinNewsgroup(this, "CONSOLE_INGAME");
+	AddCommand("lua_loadscript", "string");
 }
 
 SGTConsole::~SGTConsole()
@@ -21,61 +22,14 @@ SGTConsole::~SGTConsole()
 
 void SGTConsole::Init()
 {
-	if (!mInitialized)
-	{
-		mHeight=0.4;
-
-		// Create background rectangle covering the whole screen
-		mRect = new Ogre::Rectangle2D(true);
-		mRect->setCorners(-1, 1, 1, 1-mHeight);
-		mRect->setMaterial("console/background");
-		mRect->setRenderQueueGroup(Ogre::RENDER_QUEUE_OVERLAY);
-		mRect->setBoundingBox(Ogre::AxisAlignedBox(-100000.0*Ogre::Vector3::UNIT_SCALE, 100000.0*Ogre::Vector3::UNIT_SCALE));
-		mNode = SGTMain::Instance().GetOgreSceneMgr()->getRootSceneNode()->createChildSceneNode("#Console");
-		mNode->attachObject(mRect);
-		mRect->setCastShadows(false);
-	
-		mTextbox=Ogre::OverlayManager::getSingleton().createOverlayElement("TextArea","ConsoleText");
-		mTextbox->setCaption(">");
-		mTextbox->setMetricsMode(Ogre::GMM_RELATIVE);
-		mTextbox->setPosition(0,0);
-		mTextbox->setParameter("font_name","Bluehigh");
-		mTextbox->setParameter("colour_top","1 1 1");
-		mTextbox->setParameter("colour_bottom","1 1 1");
-		mTextbox->setParameter("char_height","0.025");
-   
-		mOverlay=Ogre::OverlayManager::getSingleton().create("Console");   
-		mOverlay->add2D((Ogre::OverlayContainer*)mTextbox);
-		mOverlay->show(); 
-
-		SGTMessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
-		SGTMessageSystem::Instance().JoinNewsgroup(this, "KEY_DOWN");
-		SGTMessageSystem::Instance().JoinNewsgroup(this, "KEY_UP");
-		SGTMessageSystem::Instance().JoinNewsgroup(this, "CONSOLE_INGAME");
-		SGTConsole::Instance().AddCommand("lua_loadscript", "string");
-		mInitialized = true;
-	}
 }
 
 void SGTConsole::Shutdown()
 {
-   if(!mInitialized) return;
-   SGTMain::Instance().GetOgreSceneMgr()->destroySceneNode(mNode);
-   /*delete mRect;
-   delete mNode;
-   delete mTextbox;
-   delete mOverlay;*/
 }
 
 void SGTConsole::Show(bool show)
 {
-	if (mInitialized)
-	{
-		mActive = show;
-		mNode->setVisible(show);
-		if (show) mOverlay->show();
-		else mOverlay->hide();
-	}
 }
 
 void SGTConsole::ReceiveMessage(SGTMsg &msg)
@@ -134,100 +88,10 @@ void SGTConsole::ReceiveMessage(SGTMsg &msg)
 		}
 		
 	}
-	if (msg.mNewsgroup == "KEY_UP")
-	{
-		OIS::KeyCode okc = (OIS::KeyCode)(msg.mData.GetInt("KEY_ID_OIS"));
-		if (okc == OIS::KeyCode::KC_F1)
-		{
-			if (!mActive) SGTConsole::Instance().Show(true);
-			else SGTConsole::Instance().Show(false);
-		}
-	}
-	if (mActive)
-	{
-		if (msg.mNewsgroup == "KEY_DOWN")
-		{
-			unsigned int kc = msg.mData.GetInt("KEY_ID");
-			OIS::KeyCode okc = (OIS::KeyCode)(msg.mData.GetInt("KEY_ID_OIS"));
-
-			if (okc == OIS::KC_RETURN)
-			{
-				ExecCommand(mCurrentPrompt);
-				mCurrentPrompt = "";
-			}
-			else if (okc == OIS::KC_BACK)
-			{
-				mCurrentPrompt = mCurrentPrompt.substr(0, mCurrentPrompt.length()-1);
-			}
-			else if (kc != 0)
-			{
-				mCurrentPrompt += kc;
-			}
-			mUpdateOverlay = true;
-		}
-
-		if (msg.mNewsgroup == "UPDATE_PER_FRAME")
-		{
-			if (mUpdateOverlay)
-			{
-				Ogre::String text;
-				std::list<Ogre::String>::iterator i,start,end; 
-				//make sure is in range
-				if(mStartLine>mLines.size())
-					mStartLine=mLines.size();
-
-				int lcount=0;
-				start=mLines.begin();
-				for(unsigned int c=0;c<mStartLine;c++)
-					start++;
-				end=start;
-				for(unsigned int c=0;c<CONSOLE_LINE_COUNT;c++){
-					if(end==mLines.end())
-						break;
-					end++;
-				}
-				for(i=start;i!=end;i++)
-					text+=(*i)+"\n";
-      
-				//add the prompt
-				text+=("> "+mCurrentPrompt);
-
-				mTextbox->setCaption(text); 
-
-				mUpdateOverlay = false;
-			}
-		}
-	}
 }
 
 void SGTConsole::Print(Ogre::String text)
 {
-	if (mActive)
-	{
-   //subdivide it into lines
-   const char *str=text.c_str();
-   int start=0,count=0;
-   unsigned int len=text.length();
-   Ogre::String line;
-   for(unsigned int c=0;c<len;c++)
-   {
-      if(str[c]=='\n'||line.length()>=CONSOLE_LINE_LENGTH)
-	  {
-         mLines.push_back(line);
-         line="";
-      }
-      if(str[c]!='\n')
-         line+=str[c];
-   }
-   if(line.length())
-      mLines.push_back(line);
-   if(mLines.size()>CONSOLE_LINE_COUNT)
-	   mStartLine=mLines.size()-CONSOLE_LINE_COUNT;
-   else
-      mStartLine=0;
-
-   mUpdateOverlay = true;
-	}
 }
 
 void SGTConsole::ExecCommand(Ogre::String command)
@@ -289,6 +153,17 @@ void SGTConsole::AddCommand(Ogre::String name, Ogre::String parameters)
 	if (current != "") types.push_back(current);
 
 	mCommands.insert(std::make_pair(name, types));
+}
+
+unsigned int SGTConsole::GetNumCommands()
+{
+	return mCommands.size();
+}
+Ogre::String SGTConsole::GetCommand(unsigned int index)
+{
+	std::map<Ogre::String, std::vector<Ogre::String> >::iterator i = mCommands.begin();
+	for (unsigned int n = 0; n < index; n++) i++;
+	return i->first;
 }
 
 SGTConsole& SGTConsole::Instance()

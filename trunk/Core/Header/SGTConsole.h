@@ -11,19 +11,6 @@ class SGTDllExport SGTConsole : public SGTMessageListener
 {
 private:
 	std::map<Ogre::String, std::vector<Ogre::String> > mCommands;
-	Ogre::String mCurrentPrompt;
-
-	bool mActive;
-	bool mInitialized;
-
-	Ogre::Rectangle2D   *mRect;
-    Ogre::SceneNode      *mNode;
-    Ogre::OverlayElement *mTextbox;
-    Ogre::Overlay      *mOverlay; 
-	float mHeight;
-	std::list<Ogre::String> mLines;
-	bool mUpdateOverlay;
-	unsigned int mStartLine;
 
 public:
 	SGTConsole();
@@ -33,6 +20,9 @@ public:
 	void Shutdown();
 
 	void Show(bool show);
+
+	unsigned int GetNumCommands();
+	Ogre::String GetCommand(unsigned int index);
 
 	/*
 	Benutzung:
