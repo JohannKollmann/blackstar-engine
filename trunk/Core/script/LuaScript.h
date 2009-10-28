@@ -32,8 +32,8 @@ public:
 	std::vector<SGTScriptParam> CallFunction(SGTScript &caller, std::string strName, std::vector<SGTScriptParam> params);
 	std::string GetScriptName();
 	bool FunctionExists(std::string strFunction);
-	static void SetLogFn(void (*logFn)(std::string));
-	static void LogError(std::string strError);
+	static void SetLogFn(void (*logFn)(std::string, int, std::string));
+	static void LogError(std::string strScript, int iLine, std::string strError);
 
 	static void SetLoader(std::string (*pfLoader)(lua_State* pState, std::string strFileName));
 private:
@@ -63,7 +63,7 @@ private:
 	std::map<std::string, SCShare> m_mFunctions;
 	std::map<std::string, SExternalShare> m_mExternalFunctions;
 
-	static void (*m_LogFn)(std::string);
+	static void (*m_LogFn)(std::string, int, std::string);
 	static std::string (*m_pfLoader)(lua_State*, std::string);
 };
 

@@ -2,7 +2,7 @@
 #include <iostream>
 
 void
-SGTScriptSystem::DummyErrorLogger(std::string strErr)
+SGTScriptSystem::DummyErrorLogger(std::string strScript, int iLine, std::string strErr)
 {
 	std::cout<<strErr;
 	std::cout<<'\n';
@@ -156,6 +156,7 @@ SGTScriptSystem::CreateInstance(std::string strFileName, std::vector<SGTScriptPa
 	{//script was not loaded yet
 		m_mScripts.insert(std::pair<std::string, SGTLuaScript>(strFileName, SGTLuaScript(strFileName)));
 		SGTLuaScript& luaScript=m_mScripts.find(strFileName)->second;
+		m_lScriptInstances.push_back(std::pair<SGTLuaScript*, int>(&luaScript, m_iCurrID));
 		luaScript.ShareCFunction(std::string("bindc"), BindCFnCallback);
 		luaScript.ShareCFunction(std::string("bindlua"), BindScriptFnCallback);
 		luaScript.ShareCFunction(std::string("sharelua"), ShareScriptFnCallback);
@@ -168,6 +169,7 @@ SGTScriptSystem::CreateInstance(std::string strFileName, std::vector<SGTScriptPa
 	else
 	{
 		//just make an instance
+		m_lScriptInstances.push_back(std::pair<SGTLuaScript*, int>(&m_mScripts.find(strFileName)->second, m_iCurrID));
 		SGTScript script=SGTScript(m_iCurrID++, &m_mScripts.find(strFileName)->second);
 		script.CallFunction("create", params);
 		return script;

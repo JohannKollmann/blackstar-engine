@@ -37,15 +37,18 @@ ResidentManager::GetResis(SGTScript &script)
 std::vector<SGTScriptParam>
 ResidentManager::AllocCallback(SGTScript &caller, std::vector<SGTScriptParam> params)
 {
+	std::vector<SGTScriptParam> vRes;
+	vRes.push_back(SGTScriptParam());//an error
+
 	if(params.size()!=1 && params.size()!=2)
 	{
-		SGTLuaScript::LogError(std::string("ralloc: you gave no name"));
-		return std::vector<SGTScriptParam>();
+		vRes.push_back(SGTScriptParam(std::string("you gave no name")));
+		return vRes;
 	}
 	if(params[0].getType()!=SGTScriptParam::PARM_TYPE_STRING)
 	{
-		SGTLuaScript::LogError(std::string("ralloc: you gave no name"));
-		return std::vector<SGTScriptParam>();		
+		vRes.push_back(SGTScriptParam(std::string("you gave no name")));
+		return vRes;
 	}
 	std::string strScript=caller.GetScriptName();
 	if(GetInstance().m_mAllocatedVars.find(strScript)!=GetInstance().m_mAllocatedVars.end())
@@ -53,8 +56,8 @@ ResidentManager::AllocCallback(SGTScript &caller, std::vector<SGTScriptParam> pa
 		std::map<std::string, SGTScriptParam>& mTemp=GetInstance().m_mAllocatedVars.find(strScript)->second;
 		if(mTemp.find(params[0].getString())!=mTemp.end())
 		{
-			SGTLuaScript::LogError(std::string("ralloc: you tried to alloc the same var twice"));
-			return std::vector<SGTScriptParam>();
+			vRes.push_back(SGTScriptParam(std::string("you tried to alloc \"") + params[0].getString() +  std::string("\" twice")));
+			return vRes;
 		}
 		if(params.size()==2)
 			mTemp.insert(std::pair<std::string, SGTScriptParam>(params[0].getString(), params[1]));
@@ -94,7 +97,7 @@ ResidentManager::SetCallback(SGTScript &caller, std::vector<SGTScriptParam> para
 		std::map<std::string, SGTScriptParam>& mTemp=GetInstance().m_mAllocatedVars.find(strScript)->second;
 		if(mTemp.find(params[0].getString())==mTemp.end())
 		{
-			vRes.push_back(SGTScriptParam(std::string("tried to set a non-existing var")));
+			vRes.push_back(SGTScriptParam(std::string("tried to set non-existing var \"") + params[0].getString() +  std::string("\"")));
 			return vRes;
 		}
 		else
@@ -109,7 +112,7 @@ ResidentManager::SetCallback(SGTScript &caller, std::vector<SGTScriptParam> para
 	}
 	else
 	{
-		vRes.push_back(SGTScriptParam(std::string("tried to set a non-existing var")));
+		vRes.push_back(SGTScriptParam(std::string("tried to set non-existing var \"") + params[0].getString() +  std::string("\"")));
 		return vRes;
 	}
 	return std::vector<SGTScriptParam>();
@@ -146,13 +149,13 @@ ResidentManager::GetCallback(SGTScript &caller, std::vector<SGTScriptParam> para
 				if(parm.getType()==SGTScriptParam::PARM_TYPE_NONE)
 				{
 					//4 ifs. w00t :D
-					vRes.push_back(SGTScriptParam(std::string("variable not set and no initial value found...")));
+					vRes.push_back(SGTScriptParam(std::string("variable \"") + params[0].getString() +  std::string("\" not set and no initial value found...")));
 					return vRes;
 				}
 			}
 			else
 			{
-				vRes.push_back(SGTScriptParam(std::string("variable not set and no initial value found...")));
+				vRes.push_back(SGTScriptParam(std::string("variable \"") + params[0].getString() +  std::string("\" not set and no initial value found...")));
 				return vRes;
 			}
 		}

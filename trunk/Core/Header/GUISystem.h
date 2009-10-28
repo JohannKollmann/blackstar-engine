@@ -3,9 +3,6 @@
 
 #include "Ogre.h"
 #include "SGTMessageListener.h"
-#include "SGTMessageSystem.h"
-#include "SGTMain.h"
-#include "SGTSceneManager.h"
 #include "SGTFontTextures.h"
 #include <map>
 #include <vector>
@@ -17,7 +14,6 @@ class SGTDllExport SGTGUISystem : public SGTMessageListener
 {
 public:
 	SGTGUISystem(void);
-	~SGTGUISystem(void);
 	static SGTGUISystem& GetInstance(); 
 
 	void ReceiveMessage(SGTMsg &msg);
@@ -73,6 +69,9 @@ private:
 	static std::vector<SGTScriptParam> Lua_SetWindowVisible(SGTScript& caller, std::vector<SGTScriptParam> vParams);
 	static std::vector<SGTScriptParam> Lua_SetForegroundWindow(SGTScript& caller, std::vector<SGTScriptParam> vParams);
 	static std::vector<SGTScriptParam> Lua_SetFocus(SGTScript& caller, std::vector<SGTScriptParam> vParams);
+	static std::vector<SGTScriptParam> Lua_MoveWindow(SGTScript& caller, std::vector<SGTScriptParam> vParams);
+	static std::vector<SGTScriptParam> Lua_GetWindowPos(SGTScript& caller, std::vector<SGTScriptParam> vParams);
+	static std::vector<SGTScriptParam> Lua_SetCursorPos(SGTScript& caller, std::vector<SGTScriptParam> vParams);
 
 	static std::vector<SGTScriptParam> Lua_GetScreenCoords(SGTScript& caller, std::vector<SGTScriptParam> vParams);
 
@@ -97,6 +96,9 @@ private:
 	static std::vector<SGTScriptParam> Lua_SetOnCharCallback(SGTScript& caller, std::vector<SGTScriptParam> vParams);
 	static std::vector<SGTScriptParam> Lua_SetKeyDownCallback(SGTScript& caller, std::vector<SGTScriptParam> vParams);
 	static std::vector<SGTScriptParam> Lua_SetKeyUpCallback(SGTScript& caller, std::vector<SGTScriptParam> vParams);
+	//input states
+	static std::vector<SGTScriptParam> Lua_GetKeyDown(SGTScript& caller, std::vector<SGTScriptParam> vParams);
+	static std::vector<SGTScriptParam> Lua_GetMouseButtons(SGTScript& caller, std::vector<SGTScriptParam> vParams);
 
 	int FindParentWindow(int iSubWindowHandle);
 	float m_fXPos, m_fYPos;

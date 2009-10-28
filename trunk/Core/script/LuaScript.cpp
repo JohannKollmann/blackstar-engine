@@ -2,7 +2,7 @@
 #include "SGTScriptSystem.h"
 #include <sstream>
 
-void (*SGTLuaScript::m_LogFn)(std::string) =0;
+void (*SGTLuaScript::m_LogFn)(std::string, int, std::string) =0;
 std::string (*SGTLuaScript::m_pfLoader)(lua_State*, std::string) =0;
 
 //handler for transparent function calls across VMs
@@ -47,7 +47,7 @@ SGTLuaScript::LoadScript(std::string strFile)
 	std::string strErr=m_pfLoader(m_pState, strFile);
 	if(strErr.length())
 	{
-		LogError(std::string("error opening ") + strFile + std::string(": ") + strErr);
+		LogError(strFile, -1, strErr);
 		return false;
 	}
 	return true;
@@ -155,9 +155,6 @@ SGTLuaScript::GetArguments(lua_State* pState, int iStartIndex, SGTScript& script
 			}
 			break;
 		}
-		case LUA_TNIL:
-			vParams.push_back(SGTScriptParam());
-			break;
 		default:
 			//unsupported type
 			vParams.clear();
@@ -233,16 +230,12 @@ SGTLuaScript::FunctionExists(std::string strFunction)
 	return bRes;
 }
 
-std::string GetLuaLine(lua_State* pState)
+int GetLuaLine(lua_State* pState)
 {
 	lua_Debug ar;
-	std::string strLine;
 	lua_getstack(pState, 1, &ar);
 	lua_getinfo(pState, "l", &ar);
-	std::stringstream ss;
-	ss << ar.currentline;
-	ss>>strLine;
-	return strLine;
+	return ar.currentline;
 }
 
 //will return the inputs
@@ -262,7 +255,7 @@ ReportError(std::string strScriptName, lua_State* pState, std::vector<SGTScriptP
 		}
 		else
 			strErr+= std::string(".");
-		SGTLuaScript::LogError(std::string("script error in ") + strScriptName + std::string(" (line ") + GetLuaLine(pState) + std::string(") (") + strInfo + std::string(")") + strErr);
+		SGTLuaScript::LogError(strScriptName, GetLuaLine(pState), std::string("(") + strInfo + std::string(")") + strErr);
 	}
 	return vResults;
 }
@@ -292,7 +285,7 @@ SGTLuaScript::CallFunction(SGTScript &caller, std::string strName, std::vector<S
 	if(lua_pcall(m_pState, params.size(), LUA_MULTRET,0 )!=0)
 	{
 		const char* pcErr=lua_tostring(m_pState, -1);
-		LogError(m_strScriptName + std::string(": error calling function ") + strName + std::string(": ") + std::string(pcErr));
+		LogError(m_strScriptName, GetLuaLine(m_pState), std::string(": error calling function ") + strName + std::string(": ") + std::string(pcErr));
 		outParams.push_back(SGTScriptParam());
 		return outParams;
 	}
@@ -374,7 +367,7 @@ SGTLuaScript::ApiCallback(lua_State* pState)
 		}
 		else
 		{
-			LogError(std::string("could not find shared function ") + strFunction);
+			LogError(pScript.GetScriptName(), GetLuaLine(pState), std::string("could not find shared function ") + strFunction);
 		}
 	}
 	else
@@ -396,16 +389,16 @@ SGTLuaScript::GetScriptName(){return m_strScriptName;}
 //error stuff
 
 void
-SGTLuaScript::SetLogFn(void (*logFn)(std::string))
+SGTLuaScript::SetLogFn(void (*logFn)(std::string, int, std::string))
 {
 	m_LogFn=logFn;
 }
 
 void
-SGTLuaScript::LogError(std::string strError)
+SGTLuaScript::LogError(std::string strScript, int iLine, std::string strError)
 {
 	if(m_LogFn!=0)
-		m_LogFn(strError);
+		m_LogFn(strScript, iLine, strError);
 }
 
 void

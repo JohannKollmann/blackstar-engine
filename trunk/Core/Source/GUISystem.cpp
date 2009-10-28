@@ -1,8 +1,8 @@
 #include "GUISystem.h"
-#include <windows.h>
 #include "SGTInput.h"
 #include "SGTScriptableInstances.h"
 #include "ResidentVariables.h"
+
 #include "SGTUtils.h"
 
 
@@ -28,43 +28,6 @@ SGTGUISystem::SGTGUISystem(void)
 	wMouse.SetMaterial("gui/mouse");
 	SetCursor(wMouse.GetHandle());
 	
-/*	Window wExitMenu=MakeWindow(0.25, 0.25, 0.5, 0.5);
-	SGTGUISystem::SubWindow wContinue=CreateSubWindow(0.25, 0.12, 0.5, 0.20, wExitMenu.GetHandle());
-	SGTGUISystem::SubWindow wStart=CreateSubWindow(0.25, 0.37, 0.5, 0.20, wExitMenu.GetHandle());
-	SGTGUISystem::SubWindow wQuit=CreateSubWindow(0.25, 0.63, 0.5, 0.20, wExitMenu.GetHandle());
-
-	SGTGUISystem::SubWindow wClear=CreateSubWindow(0.5, 0.8, 0.49, 0.19, wExitMenu.GetHandle());
-	wExitMenu.Bake();
-*/	
-/*	SGTFontTextures ft("morpheus_spacings.txt");
-	int iWidth, iHeight;
-	//Ogre::MaterialPtr pMat=ft.CreateTextMaterial(ft.CreateTextTexture("$ff001$fff0N$f0f0S$f0ffA$f00fN$ff0fE$f0f0", 100, 3, iWidth, iHeight), "SubWindowFont", "TextPass", "TextTexture", 100, 3);
-	Ogre::MaterialPtr pMat=ft.CreateTextMaterial(ft.CreateTextTexture("$f0f0YAY SGTGUISYSTEM MIT Z-ORDER!!", 100, 3, iWidth, iHeight), "SubWindowFont", "TextPass", "TextTexture", 100, 3);
-
-
-	wExitMenu.SetMaterial("gui/win-test");
-	wContinue.SetMaterial("gui/ResumeGame");
-	wStart.SetMaterial("gui/StartGame");
-	wQuit.SetMaterial("gui/QuitGame");
-
-//	wExitMenu.SetMaterial(pMat->getName());
-	wContinue.SetMaterial(pMat->getName());
-	wStart.SetMaterial(pMat->getName());
-	wQuit.SetMaterial(pMat->getName());
-*/
-	/*
-	wContinue.SetHoverInCallback("ResumeHoverInCallback");
-	wContinue.SetHoverOutCallback("ResumeHoverOutCallback");
-	wContinue.SetOnClickCallback("ResumeClickCallback");
-
-	wStart.SetHoverInCallback("StartHoverInCallback");
-	wStart.SetHoverOutCallback("StartHoverOutCallback");
-	wStart.SetOnClickCallback("StartClickCallback");
-
-	wQuit.SetHoverInCallback("QuitHoverInCallback");
-	wQuit.SetHoverOutCallback("QuitHoverOutCallback");
-	wQuit.SetOnClickCallback("QuitClickCallback");
-*/
 	SGTScriptSystem::GetInstance().ShareCFunction("gui_create_window", Lua_CreateWindow);
 	SGTScriptSystem::GetInstance().ShareCFunction("gui_create_subwindow", Lua_CreateSubWindow);
 	SGTScriptSystem::GetInstance().ShareCFunction("gui_bake_window", Lua_BakeWindow);
@@ -73,6 +36,10 @@ SGTGUISystem::SGTGUISystem(void)
 	SGTScriptSystem::GetInstance().ShareCFunction("gui_set_visible", Lua_SetWindowVisible);
 	SGTScriptSystem::GetInstance().ShareCFunction("gui_set_foreground_window", Lua_SetForegroundWindow);
 	SGTScriptSystem::GetInstance().ShareCFunction("gui_set_focus", Lua_SetFocus);
+	SGTScriptSystem::GetInstance().ShareCFunction("gui_move_window", Lua_MoveWindow);
+	SGTScriptSystem::GetInstance().ShareCFunction("gui_get_window_pos", Lua_GetWindowPos);
+	SGTScriptSystem::GetInstance().ShareCFunction("gui_set_cursor_pos", Lua_SetCursorPos);
+	
 
 	SGTScriptSystem::GetInstance().ShareCFunction("gui_get_screen_coords", Lua_GetScreenCoords);
 	
@@ -95,12 +62,11 @@ SGTGUISystem::SGTGUISystem(void)
 	SGTScriptSystem::GetInstance().ShareCFunction("gui_set_on_char_callback", Lua_SetOnCharCallback);
 	SGTScriptSystem::GetInstance().ShareCFunction("gui_set_key_down_callback", Lua_SetKeyDownCallback);
 	SGTScriptSystem::GetInstance().ShareCFunction("gui_set_key_up_callback", Lua_SetKeyUpCallback);
+	//input states
+	SGTScriptSystem::GetInstance().ShareCFunction("input_get_key_down", Lua_GetKeyDown);
+	SGTScriptSystem::GetInstance().ShareCFunction("input_get_mouse_buttons", Lua_GetMouseButtons);
 
 	m_bMenuActive=false;
-}
-
-SGTGUISystem::~SGTGUISystem(void)
-{
 }
 
 void SGTGUISystem::ReceiveMessage(SGTMsg &msg)
@@ -147,6 +113,14 @@ void SGTGUISystem::ReceiveMessage(SGTMsg &msg)
 		//SGTMain::Instance().GetOgreSceneMgr()->getSceneNode("mySceneNode")->setPosition(m_fXPos, m_fYPos, 0);
 		//SGTMain::Instance().GetOgreSceneMgr()->getEntity("bleh")->getSubEntity(0)->setCustomParameter(0, Ogre::Vector4(m_fXPos, m_fYPos, 0, 0));
 		Window(m_iCursorHandle).Move(m_fXPos, m_fYPos);
+		//call mousemove on the cursor
+		if(m_mWindowInfos.find(m_iCursorHandle)->second.parMouseMove.getType()==SGTScriptParam::PARM_TYPE_FUNCTION)
+		{
+			std::vector<SGTScriptParam> parms(1, SGTScriptParam(m_iCursorHandle));
+			parms.push_back(SGTScriptParam(m_fXPos));
+			parms.push_back(SGTScriptParam(m_fYPos));
+			SGTScriptSystem::RunCallbackFunction(m_mWindowInfos.find(m_iCursorHandle)->second.parMouseMove, parms);
+		}
 
 		std::list<int>::iterator itZ=m_lZOrder.begin();
 		std::map<int, SWindowInfo>::iterator it;
@@ -166,7 +140,7 @@ void SGTGUISystem::ReceiveMessage(SGTMsg &msg)
 		*/
 		//mouse is somewhere inside this window, trace it down
 		int iCurrHover=-1;
-		if(it!=m_mWindowInfos.end())
+		if(itZ!=m_lZOrder.end())
 		{
 			float xoff=it->second.x;
 			float yoff=it->second.y;
@@ -178,6 +152,14 @@ void SGTGUISystem::ReceiveMessage(SGTMsg &msg)
 					iSubWin=-1;
 				}
 			iCurrHover=it->first;
+			//call the mousemove event
+			if(it->second.parMouseMove.getType()==SGTScriptParam::PARM_TYPE_FUNCTION)
+			{
+				std::vector<SGTScriptParam> parms(1, SGTScriptParam(it->first));
+				parms.push_back(SGTScriptParam(m_fXPos));
+				parms.push_back(SGTScriptParam(m_fYPos));
+				SGTScriptSystem::RunCallbackFunction(it->second.parMouseMove, parms);
+			}
 
 			if(iCurrHover!=m_iHoverWin)
 			{
@@ -253,6 +235,8 @@ void SGTGUISystem::ReceiveMessage(SGTMsg &msg)
 				}*/
 
 				std::vector<SGTScriptParam> parms(1, SGTScriptParam(it->first));
+				parms.push_back(SGTScriptParam(m_fXPos));
+				parms.push_back(SGTScriptParam(m_fYPos));
 				if(it->second.parMouseDown.getType()==SGTScriptParam::PARM_TYPE_FUNCTION && msg.mNewsgroup=="MOUSE_DOWN")
 					SGTScriptSystem::RunCallbackFunction(it->second.parMouseDown, parms);
 				if(it->second.parMouseUp.getType()==SGTScriptParam::PARM_TYPE_FUNCTION && msg.mNewsgroup=="MOUSE_UP")
@@ -262,6 +246,8 @@ void SGTGUISystem::ReceiveMessage(SGTMsg &msg)
 			//send it to the cursor itself, too
 			it=m_mWindowInfos.find(m_iCursorHandle);
 			std::vector<SGTScriptParam> parms(1, m_iCursorHandle);
+			parms.push_back(SGTScriptParam(m_fXPos));
+			parms.push_back(SGTScriptParam(m_fYPos));
 			if(it!=m_mWindowInfos.end())
 			{
 				if(it->second.parMouseDown.getType()==SGTScriptParam::PARM_TYPE_FUNCTION && msg.mNewsgroup=="MOUSE_DOWN")
@@ -818,6 +804,85 @@ SGTGUISystem::Lua_SetFocus(SGTScript& caller, std::vector<SGTScriptParam> vParam
 }
 
 std::vector<SGTScriptParam>
+SGTGUISystem::Lua_MoveWindow(SGTScript& caller, std::vector<SGTScriptParam> vParams)
+{
+	std::vector<SGTScriptParam> errout;
+	errout.push_back(SGTScriptParam());
+	std::vector<SGTScriptParam> vRef=std::vector<SGTScriptParam>(1, SGTScriptParam(0.1));
+	vRef.push_back(SGTScriptParam(0.1));
+	vRef.push_back(SGTScriptParam(0.1));
+
+	std::string strErrString=SGTUtils::TestParameters(vParams, vRef, false);
+	if(strErrString.length())
+	{
+		errout.push_back(strErrString);
+		return errout;
+	}
+	
+	std::map<int, SWindowInfo>::const_iterator it=GetInstance().m_mWindowInfos.find((int)vParams[0].getFloat());
+	if(it==GetInstance().m_mWindowInfos.end())
+	{
+		errout.push_back(SGTScriptParam(std::string("could not find a window with given ID")));
+		return errout;
+	}
+	SGTGUISystem::SWindowInfo wininfo=it->second;
+	int iHandle=it->first;
+	while(wininfo.iParentHandle!=-1)
+	{
+		wininfo=SGTGUISystem::GetInstance().m_mWindowInfos.find(wininfo.iParentHandle)->second;
+		iHandle=wininfo.iParentHandle;
+	}
+	Window(iHandle).Move(vParams[1].getFloat(), vParams[2].getFloat());
+	return std::vector<SGTScriptParam>();
+}
+
+std::vector<SGTScriptParam>
+SGTGUISystem::Lua_GetWindowPos(SGTScript& caller, std::vector<SGTScriptParam> vParams)
+{
+	std::vector<SGTScriptParam> errout;
+	errout.push_back(SGTScriptParam());
+	std::vector<SGTScriptParam> vRef=std::vector<SGTScriptParam>(1, SGTScriptParam(0.1));
+
+	std::string strErrString=SGTUtils::TestParameters(vParams, vRef, false);
+	if(strErrString.length())
+	{
+		errout.push_back(strErrString);
+		return errout;
+	}
+	std::map<int, SWindowInfo>::const_iterator it=GetInstance().m_mWindowInfos.find((int)vParams[0].getFloat());
+	if(it==GetInstance().m_mWindowInfos.end())
+	{
+		errout.push_back(SGTScriptParam(std::string("could not find a window with given ID")));
+		return errout;
+	}
+	SGTGUISystem::SWindowInfo wininfo=it->second;
+	while(wininfo.iParentHandle!=-1)
+		wininfo=SGTGUISystem::GetInstance().m_mWindowInfos.find(wininfo.iParentHandle)->second;
+
+	errout.clear();
+	errout.push_back(SGTScriptParam(wininfo.x));
+	errout.push_back(SGTScriptParam(wininfo.y));
+	return errout;
+}
+
+std::vector<SGTScriptParam>
+SGTGUISystem::Lua_SetCursorPos(SGTScript& caller, std::vector<SGTScriptParam> vParams)
+{
+	std::vector<SGTScriptParam> errout;
+	errout.push_back(SGTScriptParam());
+	std::vector<SGTScriptParam> vRef=std::vector<SGTScriptParam>(1, SGTScriptParam(0.1));
+	vRef.push_back(SGTScriptParam(0.1));
+	std::string strErrString=SGTUtils::TestParameters(vParams, vRef, false);
+	if(strErrString.length())
+	{
+		errout.push_back(strErrString);
+		return errout;
+	}
+	GetInstance().m_fXPos=vParams[0].getFloat();
+	GetInstance().m_fYPos=vParams[1].getFloat();
+	return std::vector<SGTScriptParam>();
+}
+std::vector<SGTScriptParam>
 SGTGUISystem::Lua_GetScreenCoords(SGTScript& caller, std::vector<SGTScriptParam> vParams)
 {
 	std::vector<SGTScriptParam> errout;
@@ -894,3 +959,35 @@ std::vector<SGTScriptParam> SGTGUISystem::Lua_SetMouseHoverOutCallback(SGTScript
 std::vector<SGTScriptParam> SGTGUISystem::Lua_SetOnCharCallback(SGTScript& caller, std::vector<SGTScriptParam> vParams){LUA_CALLBACK_SETTER_MACRO(vParams, parOnChar, caller);}
 std::vector<SGTScriptParam> SGTGUISystem::Lua_SetKeyDownCallback(SGTScript& caller, std::vector<SGTScriptParam> vParams){LUA_CALLBACK_SETTER_MACRO(vParams, parKeyDown, caller);}
 std::vector<SGTScriptParam> SGTGUISystem::Lua_SetKeyUpCallback(SGTScript& caller, std::vector<SGTScriptParam> vParams){LUA_CALLBACK_SETTER_MACRO(vParams, parKeyUp, caller);}
+
+std::vector<SGTScriptParam>
+SGTGUISystem::Lua_GetKeyDown(SGTScript& caller, std::vector<SGTScriptParam> vParams)
+{
+	std::vector<SGTScriptParam> errout;
+	errout.push_back(SGTScriptParam());
+	std::string strErrString=SGTUtils::TestParameters(vParams, std::vector<SGTScriptParam>(1, SGTScriptParam(0.1)), false);
+	if(strErrString.length())
+	{
+		errout.push_back(strErrString);
+		return errout;
+	}
+	return std::vector<SGTScriptParam>(1, SGTScriptParam(SGTMain::Instance().GetInputManager()->isKeyDown((OIS::KeyCode)(int)vParams[0].getFloat())));
+}
+
+std::vector<SGTScriptParam>
+SGTGUISystem::Lua_GetMouseButtons(SGTScript& caller, std::vector<SGTScriptParam> vParams)
+{
+	std::vector<SGTScriptParam> errout;
+	errout.push_back(SGTScriptParam());
+	std::string strErrString=SGTUtils::TestParameters(vParams, std::vector<SGTScriptParam>(1, SGTScriptParam(0.1)), false);
+	if(strErrString.length())
+	{
+		errout.push_back(strErrString);
+		return errout;
+	}
+	errout.clear();
+	EMouseButtons buttons=SGTMain::Instance().GetInputManager()->getMouseButton();
+	errout.push_back(SGTScriptParam((bool)(buttons==MOUSE_LEFT || buttons==MOUSE_BOTH)));
+	errout.push_back(SGTScriptParam((bool)(buttons==MOUSE_RIGHT || buttons==MOUSE_BOTH)));
+	return errout;
+}

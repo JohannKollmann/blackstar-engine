@@ -52,7 +52,7 @@ std::string SGTUtils::TestParameters(std::vector<SGTScriptParam> testparams, std
 		strErr=strErr + strNum + std::string(" , not ");
 		sstr<<testparams.size();
 		sstr>>strNum;
-		strErr=strErr + strNum + std::string("! ");
+		strErr=strErr + strNum + std::string(" parameters! ");
 		strOut=strOut + strErr;
 	}
 	//test every single parameter

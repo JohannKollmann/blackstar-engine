@@ -39,6 +39,12 @@ OgreFileLoader(lua_State* pState, std::string strFile)
 	return std::string();
 }
 
+void
+ScriptLogFn(std::string strScript, int iLine, std::string strError)
+{
+	Ogre::LogManager::getSingleton().logMessage(std::string("[Script]Error ") + (strScript.length() ? (std::string("in \"") + strScript + std::string("\"")) : std::string("")) + (iLine==-1 ? std::string("") : (std::string(", line ") + Ogre::StringConverter::toString(iLine))) + std::string(": ") + strError);
+}
+
 SGTMain::SGTMain()
 {
 	mNxWorld = 0;
@@ -187,9 +193,12 @@ void SGTMain::initScene()
 	mCameraController = new SGTCameraController();
 
 	//init scripting stuff
-	//SGTGUISystem::GetInstance();
+	SGTGUISystem::GetInstance();
+	SGTScriptSystem::GetInstance();
 	SGTLuaScript::SetLoader(OgreFileLoader);
+	SGTLuaScript::SetLogFn(ScriptLogFn);
 
+	//sound
 	mSoundManager = OgreOggSound::OgreOggSoundManager::getSingletonPtr();
 	mSoundManager->init("");
 	mSoundManager->setDistanceModel(AL_LINEAR_DISTANCE);

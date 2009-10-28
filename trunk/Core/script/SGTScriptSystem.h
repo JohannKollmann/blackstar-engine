@@ -2,7 +2,7 @@
 #define __SGT_SCRIPT_SYSTEM__
 
 #include "SGTScript.h"
-#include "SGTIncludes.h"
+#include <list>
 
 class SGTDllExport SGTScriptSystem
 {
@@ -25,6 +25,7 @@ private:
 	std::map<std::string, SGTScriptFunction> m_mCFunctions;
 	std::map<std::string, SGTLuaScript*> m_mScriptFunctions;
 	std::map<std::string, SGTLuaScript> m_mScripts;
+	std::list<std::pair<SGTLuaScript*, int>> m_lScriptInstances;//hack for deletion
 
 	int m_iCurrID;
 
@@ -33,7 +34,7 @@ private:
 	static std::vector<SGTScriptParam> ShareScriptFnCallback(SGTScript &caller, std::vector<SGTScriptParam> params);
 	static std::vector<SGTScriptParam> LoadScriptCallback(SGTScript &caller, std::vector<SGTScriptParam> params);
 
-	static void DummyErrorLogger(std::string strErr);//for lazy people ;)
+	static void DummyErrorLogger(std::string strScript, int iLine, std::string strErr);//for lazy people ;)
 };
 
 #endif
