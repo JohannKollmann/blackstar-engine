@@ -82,8 +82,6 @@ public:
 
 	SGTGOCEditorInterface* CreateComponent(Ogre::String type, SGTDataMap *parameters);
 
-	Ogre::String FindResourcePath(Ogre::String path, Ogre::String filename);
-
 	static std::vector<SGTScriptParam> Lua_LogMessage(SGTScript& caller, std::vector<SGTScriptParam> vParams);
 	static std::vector<SGTScriptParam> Lua_LoadLevel(SGTScript& caller, std::vector<SGTScriptParam> vParams);
 	static std::vector<SGTScriptParam> Lua_CreateNpc(SGTScript& caller, std::vector<SGTScriptParam> vParams);

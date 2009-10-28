@@ -2,6 +2,7 @@
 #include "wxLogDisplay.h"
 #include "wxEdit.h"
 #include "SGTSceneManager.h"
+#include "SGTUtils.h"
 
 IMPLEMENT_CLASS(wxLogDisplay, wxListCtrl)
 
@@ -35,7 +36,7 @@ void wxLogDisplay::OnActivated(wxListEvent& event)
 		{
 			wxString scriptFile = msg.SubString(first, msg.find("\"", first+1));
 			wxMainNotebook *notebook = wxEdit::Instance().GetMainNotebook();
-			Ogre::String scriptPath = SGTSceneManager::Instance().FindResourcePath("Data", scriptFile.c_str());
+			Ogre::String scriptPath = SGTUtils::FindResourcePath("Data", scriptFile.c_str());
 			notebook->AddScriptTab(scriptFile.c_str(), scriptPath);
 
 			size_t line_index = msg.find(", line ");

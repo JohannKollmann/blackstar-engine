@@ -3,6 +3,7 @@
 #include "SGTInput.h"
 #include "SGTScriptableInstances.h"
 #include "ResidentVariables.h"
+#include "SGTUtils.h"
 
 
 SGTGUISystem::SGTGUISystem(void)
@@ -621,60 +622,6 @@ SGTGUISystem::SetCursor(int iHandle)
 	SetForegroundWindow(iHandle);
 }
 
-std::string GetTypeName(SGTScriptParam param)
-{
-	switch(param.getType())
-	{
-	case SGTScriptParam::PARM_TYPE_BOOL:
-		return std::string("bool");
-	case SGTScriptParam::PARM_TYPE_FLOAT:
-		return std::string("float");
-	case SGTScriptParam::PARM_TYPE_FUNCTION:
-		return std::string("function");
-	case SGTScriptParam::PARM_TYPE_INT:
-		return std::string("int");
-	case SGTScriptParam::PARM_TYPE_STRING:
-		return std::string("string");
-	default:
-		return std::string("unknown type");
-	}
-}
-
-std::string
-TestParameters(std::vector<SGTScriptParam> testparams, std::vector<SGTScriptParam> refparams, bool bAllowMore)
-{
-	std::string strOut("");
-	//test the number of parameters
-	if(testparams.size()<refparams.size() || (testparams.size()>refparams.size() && !bAllowMore))
-	{
-		std::stringstream sstr;
-		std::string strNum;
-		std::string strErr=std::string("expecting ") + (bAllowMore ? std::string("at least ") : std::string(""));
-		sstr<<refparams.size();
-		sstr>>strNum;
-		sstr.clear();
-		strErr=strErr + strNum + std::string(" , not ");
-		sstr<<testparams.size();
-		sstr>>strNum;
-		strErr=strErr + strNum + std::string("! ");
-		strOut=strOut + strErr;
-	}
-	//test every single parameter
-	for(unsigned int iParam=0; iParam<((refparams.size()<testparams.size()) ? refparams.size() : testparams.size()) ; iParam++)
-	{
-		if(refparams[iParam].getType()!=testparams[iParam].getType())
-		{
-			std::stringstream sstr;
-			std::string strErr;
-			sstr<<iParam;
-			sstr>>strErr;
-			strErr=std::string("expecting parameter ") + strErr + std::string(" to be of type ") + GetTypeName(refparams[iParam]) + std::string(", not ") + GetTypeName(testparams[iParam]) + std::string("! ");
-			strOut+=strErr;
-		}
-	}
-	return strOut;
-}
-
 std::vector<SGTScriptParam>
 SGTGUISystem::Lua_CreateFontTexture(SGTScript& caller, std::vector<SGTScriptParam> vParams)
 {//arguments: spacing file, text, maxwidth, maxheight
@@ -760,7 +707,7 @@ SGTGUISystem::Lua_CreateSubWindow(SGTScript &caller, std::vector<SGTScriptParam>
 	std::vector<SGTScriptParam> ret;
 	for(int iParm=0; iParm<5; iParm++)
 		ret.push_back(SGTScriptParam(0.0));
-	std::string strError=TestParameters(vParams, ret, true);
+	std::string strError=SGTUtils::TestParameters(vParams, ret, true);
 	ret.clear();
 	ret.push_back(SGTScriptParam());
 	if(strError.size())
@@ -835,7 +782,7 @@ SGTGUISystem::Lua_SetForegroundWindow(SGTScript& caller, std::vector<SGTScriptPa
 {
 	std::vector<SGTScriptParam> errout;
 	errout.push_back(SGTScriptParam());
-	std::string strErrString=TestParameters(vParams, std::vector<SGTScriptParam>(1, SGTScriptParam(0.1)), false);
+	std::string strErrString=SGTUtils::TestParameters(vParams, std::vector<SGTScriptParam>(1, SGTScriptParam(0.1)), false);
 	if(strErrString.length())
 	{
 		errout.push_back(strErrString);
@@ -855,7 +802,7 @@ SGTGUISystem::Lua_SetFocus(SGTScript& caller, std::vector<SGTScriptParam> vParam
 {
 	std::vector<SGTScriptParam> errout;
 	errout.push_back(SGTScriptParam());
-	std::string strErrString=TestParameters(vParams, std::vector<SGTScriptParam>(1, SGTScriptParam(0.1)), false);
+	std::string strErrString=SGTUtils::TestParameters(vParams, std::vector<SGTScriptParam>(1, SGTScriptParam(0.1)), false);
 	if(strErrString.length())
 	{
 		errout.push_back(strErrString);
@@ -875,7 +822,7 @@ SGTGUISystem::Lua_GetScreenCoords(SGTScript& caller, std::vector<SGTScriptParam>
 {
 	std::vector<SGTScriptParam> errout;
 	errout.push_back(SGTScriptParam());
-	std::string strErrString=TestParameters(vParams, std::vector<SGTScriptParam>(1, SGTScriptParam(0.1)), false);
+	std::string strErrString=SGTUtils::TestParameters(vParams, std::vector<SGTScriptParam>(1, SGTScriptParam(0.1)), false);
 	if(strErrString.length())
 	{
 		errout.push_back(strErrString);
@@ -905,7 +852,7 @@ std::vector<SGTScriptParam> SGTGUISystem::Lua_SetCursor(SGTScript& caller, std::
 {
 	std::vector<SGTScriptParam> errout;
 	errout.push_back(SGTScriptParam());
-	std::string strErrString=TestParameters(vParams, std::vector<SGTScriptParam>(1, SGTScriptParam(0.1)), false);
+	std::string strErrString=SGTUtils::TestParameters(vParams, std::vector<SGTScriptParam>(1, SGTScriptParam(0.1)), false);
 	if(strErrString.length())
 	{
 		errout.push_back(strErrString);
@@ -928,7 +875,7 @@ std::vector<SGTScriptParam> SGTGUISystem::Lua_SetCursor(SGTScript& caller, std::
 	std::vector<SGTScriptParam> errout(1, SGTScriptParam());\
 	std::vector<SGTScriptParam> vRef(1, SGTScriptParam(0.1));\
 	vRef.push_back(SGTScriptParam("", script));\
-	std::string strErrString=TestParameters(vParams, vRef, false);\
+	std::string strErrString=SGTUtils::TestParameters(vParams, vRef, false);\
 	if(strErrString.length())\
 		{errout.push_back(strErrString);return errout;}\
 	if(GetInstance().m_mWindowInfos.find((int)params[0].getFloat())==GetInstance().m_mWindowInfos.end())\

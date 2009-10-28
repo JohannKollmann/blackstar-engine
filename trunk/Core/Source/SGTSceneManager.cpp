@@ -20,6 +20,8 @@
 #include "boost/filesystem/operations.hpp"
 #include "boost/filesystem/path.hpp"
 
+#include "SGTUtils.h"
+
 SGTSceneManager::SGTSceneManager(void)
 {
 	mWeatherController = 0;
@@ -309,27 +311,11 @@ void SGTSceneManager::GetParameters(SGTDataMap *parameters)
 	parameters->AddBool("Indoor", mIndoorRendering);
 }
 
-Ogre::String SGTSceneManager::FindResourcePath(Ogre::String path, Ogre::String filename)
-{
-	boost::filesystem::path bpath(path.c_str());
-	for (boost::filesystem::directory_iterator i(bpath); i != boost::filesystem::directory_iterator(); i++)
-	{
-		Ogre::String file = Ogre::String((*i).path().leaf().c_str());
-		if (file == filename) return (*i).path().file_string();
-		if (boost::filesystem::is_directory((*i)))
-		{
-			Ogre::String csearch = FindResourcePath((*i).path().directory_string().c_str(), filename);
-			if (csearch != "") return csearch;
-		}
-	}
-	return "";
-}
-
 void SGTSceneManager::BakeStaticMeshShape(Ogre::String meshname)
 {
 	if (!NxOgre::Resources::ResourceSystem::getSingleton()->hasMesh("Data/Media/Meshes/NXS/" + meshname + ".nxs"))
 	{
-		Ogre::String path = FindResourcePath("Data/Media/Meshes", meshname);
+		Ogre::String path = SGTUtils::FindResourcePath("Data/Media/Meshes", meshname);
 		if (path == "")
 		{
 			Ogre::LogManager::getSingleton().logMessage("SGTSceneManager::BakeStaticMeshShape: Could not find " + meshname);

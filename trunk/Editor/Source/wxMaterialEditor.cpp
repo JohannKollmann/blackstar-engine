@@ -4,6 +4,7 @@
 #include "windows.h"
 #include "OgreScriptCompiler.h"
 #include "MaterialReload.h"
+#include "SGTUtils.h"
 
 wxMaterialEditor::wxMaterialEditor(void)
 {
@@ -15,7 +16,7 @@ wxMaterialEditor::~wxMaterialEditor(void)
 
 Ogre::String wxMaterialEditor::FindResource(Ogre::MaterialPtr material)
 {
-	return SGTSceneManager::Instance().FindResourcePath("Data", material->getOrigin());
+	return SGTUtils::FindResourcePath("Data", material->getOrigin());
 }
 
 Ogre::String wxMaterialEditor::Scan_Line_For_Material(Ogre::String line)
