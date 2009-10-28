@@ -20,7 +20,7 @@ wxScriptFileTree::wxScriptFileTree(wxWindow* parent, wxWindowID id, const wxPoin
 	wxArrayString extensions;
 	extensions.Add("*.lua");
 	SetExtensions(extensions);
-	SetRootPath("Data/Scripts/Game");
+	SetRootPath("Data/Scripts/");
 	wxEdit::Instance().GetExplorerToolbar()->RegisterTool("ReloadScripts", "Scripts1", "Data/Editor/Intern/editor_scriptreload_01.png", wxScriptFileTree::OnToolbarEvent);
 	wxEdit::Instance().GetExplorerToolbar()->RegisterTool("NewScript", "Scripts2", "Data/Editor/Intern/editor_scripnew_01.png", wxScriptFileTree::OnToolbarEvent);
 	wxEdit::Instance().GetExplorerToolbar()->RegisterTool("NewNpcScript", "Scripts2", "Data/Editor/Intern/editor_scriptnpc_01.png", wxScriptFileTree::OnToolbarEvent);
