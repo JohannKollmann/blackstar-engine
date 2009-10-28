@@ -22,6 +22,7 @@ SGTRagdoll::SGTRagdoll(Ogre::SceneManager *ogre_scenemanager, NxOgre::Scene *nx_
 	Ogre::Vector3 scale = mNode->getScale();
 	mEntity = mOgreSceneMgr->createEntity(mNode->getName() + "_mesh", meshname);
 	mNode->attachObject(mEntity);
+	if (!mEntity->getSkeleton()) return;
 	ResetBones();
 	if (Ogre::ResourceGroupManager::getSingleton().resourceExists("General", mEntity->getMesh()->getName() + ".bones"))
 	{
@@ -462,10 +463,10 @@ void SGTRagdoll::SetAllBonesToManualControl(bool manual)
 void SGTRagdoll::ResetBones()
 {
    Ogre::SkeletonInstance* skeletonInst = mEntity->getSkeleton();
-   Ogre::Skeleton::BoneIterator boneI=skeletonInst->getBoneIterator();
+	Ogre::Skeleton::BoneIterator boneI=skeletonInst->getBoneIterator();
 
-   while(boneI.hasMoreElements())
-	   boneI.getNext()->reset();
+	while(boneI.hasMoreElements())
+		boneI.getNext()->reset();
 }
 
 void SGTRagdoll::SetControlToActors()

@@ -106,6 +106,6 @@ public:
 	void Load(SGTLoadSystem& mgr);
 	virtual std::string& TellName() { static std::string name = "AnimatedCharacter"; return name; };
 	static void Register(std::string* pstrName, SGTSaveableInstanceFn* pFn) { *pstrName = "AnimatedCharacter"; *pFn = (SGTSaveableInstanceFn)&NewInstance; };
-	static SGTSaveable* NewInstance() { return new SGTGOCAnimatedCharacter; };
+	static SGTSaveable* NewInstance() { return new SGTGOCAnimatedCharacter(); };
 	static SGTGOCEditorInterface* NewEditorInterfaceInstance() { return new SGTGOCAnimatedCharacter(); }
 };

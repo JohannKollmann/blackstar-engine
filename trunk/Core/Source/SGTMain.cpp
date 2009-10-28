@@ -187,7 +187,7 @@ void SGTMain::initScene()
 	mCameraController = new SGTCameraController();
 
 	//init scripting stuff
-	SGTGUISystem::GetInstance();
+	//SGTGUISystem::GetInstance();
 	SGTLuaScript::SetLoader(OgreFileLoader);
 
 	mSoundManager = OgreOggSound::OgreOggSoundManager::getSingletonPtr();

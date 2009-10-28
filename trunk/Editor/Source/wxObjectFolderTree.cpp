@@ -104,7 +104,9 @@ void wxObjectFolderTree::CreateObjectPreview(Ogre::String file)
 		}
 		else
 		{
-			delete component;
+			SGTGOComponent *remove = dynamic_cast<SGTGOComponent*>(component);
+			if (remove) delete remove;
+			//delete component;
 		}
 	}
 	ls->CloseFile();
@@ -112,6 +114,7 @@ void wxObjectFolderTree::CreateObjectPreview(Ogre::String file)
 	{
 		delete mPreviewObject;
 		mPreviewObject = 0;
+		SGTMain::Instance().SetSceneMgr(true);
 		return;
 	}
 	SGTMain::Instance().SetSceneMgr(true);

@@ -32,9 +32,10 @@ void wxLogDisplay::OnActivated(wxListEvent& event)
 	if (msg.find("[Script]") != wxString::npos)
 	{
 		size_t first = msg.find("\"");
-		if (first != wxString::npos)
+		size_t next = msg.find("\"", first+1);
+		if (first != wxString::npos && next != wxString::npos)
 		{
-			wxString scriptFile = msg.SubString(first, msg.find("\"", first+1));
+			wxString scriptFile = msg.SubString(first+1, next-1);
 			wxMainNotebook *notebook = wxEdit::Instance().GetMainNotebook();
 			Ogre::String scriptPath = SGTUtils::FindResourcePath("Data", scriptFile.c_str());
 			notebook->AddScriptTab(scriptFile.c_str(), scriptPath);
