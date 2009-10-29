@@ -156,7 +156,7 @@ SGTScriptSystem::CreateInstance(std::string strFileName, std::vector<SGTScriptPa
 	{//script was not loaded yet
 		m_mScripts.insert(std::pair<std::string, SGTLuaScript>(strFileName, SGTLuaScript(strFileName)));
 		SGTLuaScript& luaScript=m_mScripts.find(strFileName)->second;
-		m_lScriptInstances.push_back(std::pair<SGTLuaScript*, int>(&luaScript, m_iCurrID));
+		m_mScriptInstances.insert(std::pair<std::string, std::vector<int>>(strFileName, std::vector<int>(1, m_iCurrID)));
 		luaScript.ShareCFunction(std::string("bindc"), BindCFnCallback);
 		luaScript.ShareCFunction(std::string("bindlua"), BindScriptFnCallback);
 		luaScript.ShareCFunction(std::string("sharelua"), ShareScriptFnCallback);
@@ -169,7 +169,7 @@ SGTScriptSystem::CreateInstance(std::string strFileName, std::vector<SGTScriptPa
 	else
 	{
 		//just make an instance
-		m_lScriptInstances.push_back(std::pair<SGTLuaScript*, int>(&m_mScripts.find(strFileName)->second, m_iCurrID));
+		m_mScriptInstances.find(strFileName)->second.push_back(m_iCurrID);
 		SGTScript script=SGTScript(m_iCurrID++, &m_mScripts.find(strFileName)->second);
 		script.CallFunction("create", params);
 		return script;
@@ -197,12 +197,14 @@ SGTScriptSystem::RunCallbackFunction(SGTScriptParam function, std::vector<SGTScr
 	return script.CallFunction(strFnName, params);
 }
 
-void
+/*void
 SGTScriptSystem::KillScript(std::string strFileName)
 {
 	std::map<std::string, SGTLuaScript>::const_iterator it;
 	if((it=m_mScripts.find(strFileName))==m_mScripts.end())
 		return;
+	std::list m_lScriptInstances
+	it->second.CallFunction(
 	for(std::map<std::string, SGTLuaScript*>::const_iterator itFunctions=m_mScriptFunctions.begin();
 		itFunctions!=m_mScriptFunctions.end(); itFunctions++)
 		if(!itFunctions->second->GetScriptName().compare(strFileName))
@@ -213,11 +215,20 @@ SGTScriptSystem::KillScript(std::string strFileName)
 		}
 
 	m_mScripts.erase(it);
-}
+}*/
 
 void
 SGTScriptSystem::Clear()
 {
+	for(std::map<std::string, std::vector<int>>::const_iterator it=m_mScriptInstances.begin();
+		it!=m_mScriptInstances.end(); it++)
+	{
+		const std::vector<int> vInstances=it->second;
+		SGTLuaScript* pScript=&(m_mScripts.find(it->first)->second);
+		for(unsigned int i=0; i<vInstances.size(); i++)
+			SGTScript(vInstances[i], pScript).CallFunction("destruct", std::vector<SGTScriptParam>());
+		SGTScript(vInstances[0], pScript).CallFunction("die", std::vector<SGTScriptParam>());
+	}
 	m_mScriptFunctions.clear();
 	m_mScripts.clear();
 }

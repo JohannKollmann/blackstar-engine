@@ -5,6 +5,7 @@
 #include "SGTInput.h"
 #include "SGTScriptSystem.h"
 #include "SGTSceneManager.h"
+#include "SGTUtils.h"
 
 #define CONSOLE_LINE_LENGTH 85
 #define CONSOLE_LINE_COUNT 8 
@@ -14,6 +15,10 @@ SGTConsole::SGTConsole()
 	SGTMessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
 	SGTMessageSystem::Instance().JoinNewsgroup(this, "CONSOLE_INGAME");
 	AddCommand("lua_loadscript", "string");
+
+	SGTScriptSystem::GetInstance().ShareCFunction("console_get_num_commands", Lua_GetNumCommands);
+	SGTScriptSystem::GetInstance().ShareCFunction("console_get_command", Lua_GetCommand);
+	SGTScriptSystem::GetInstance().ShareCFunction("console_exec_command", Lua_ExecCommand);
 }
 
 SGTConsole::~SGTConsole()
@@ -171,3 +176,76 @@ SGTConsole& SGTConsole::Instance()
 	static SGTConsole TheOneAndOnly;
 	return TheOneAndOnly;
 };
+
+std::vector<SGTScriptParam>
+SGTConsole::Lua_GetNumCommands(SGTScript &caller, std::vector<SGTScriptParam> vParams)
+{
+	return std::vector<SGTScriptParam>(1, SGTScriptParam((int)Instance().GetNumCommands()));
+}
+
+std::vector<SGTScriptParam>
+SGTConsole::Lua_GetCommand(SGTScript &caller, std::vector<SGTScriptParam> vParams)
+{
+	std::vector<SGTScriptParam> errout(1, SGTScriptParam());
+	std::vector<SGTScriptParam> vRef=std::vector<SGTScriptParam>(1, SGTScriptParam(0.1));
+
+	std::string strErrString=SGTUtils::TestParameters(vParams, vRef, false);
+	if(strErrString.length())
+	{
+		errout.push_back(strErrString);
+		return errout;
+	}
+	
+	return std::vector<SGTScriptParam>(1, SGTScriptParam(Instance().GetCommand((int)vParams[0].getFloat())));
+}
+
+std::vector<SGTScriptParam>
+SGTConsole::Lua_ExecCommand(SGTScript &caller, std::vector<SGTScriptParam> vParams)
+{
+	std::vector<SGTScriptParam> errout(1, SGTScriptParam());
+	std::vector<SGTScriptParam> vRef=std::vector<SGTScriptParam>(1, SGTScriptParam(std::string()));
+
+	std::string strErrString=SGTUtils::TestParameters(vParams, vRef, false);
+	if(strErrString.length())
+	{
+		errout.push_back(strErrString);
+		return errout;
+	}
+	Instance().ExecCommand(vParams[0].getString());
+	
+	return std::vector<SGTScriptParam>();
+}
+
+/*
+std::vector<SGTScriptParam>
+SGTGUISystem::Lua_MoveWindow(SGTScript& caller, std::vector<SGTScriptParam> vParams)
+{
+	std::vector<SGTScriptParam> errout;
+	errout.push_back(SGTScriptParam());
+	std::vector<SGTScriptParam> vRef=std::vector<SGTScriptParam>(1, SGTScriptParam(0.1));
+	vRef.push_back(SGTScriptParam(0.1));
+	vRef.push_back(SGTScriptParam(0.1));
+
+	std::string strErrString=SGTUtils::TestParameters(vParams, vRef, false);
+	if(strErrString.length())
+	{
+		errout.push_back(strErrString);
+		return errout;
+	}
+	
+	std::map<int, SWindowInfo>::const_iterator it=GetInstance().m_mWindowInfos.find((int)vParams[0].getFloat());
+	if(it==GetInstance().m_mWindowInfos.end())
+	{
+		errout.push_back(SGTScriptParam(std::string("could not find a window with given ID")));
+		return errout;
+	}
+	SGTGUISystem::SWindowInfo wininfo=it->second;
+	int iHandle=it->first;
+	while(wininfo.iParentHandle!=-1)
+	{
+		wininfo=SGTGUISystem::GetInstance().m_mWindowInfos.find(wininfo.iParentHandle)->second;
+		iHandle=wininfo.iParentHandle;
+	}
+	Window(iHandle).Move(vParams[1].getFloat(), vParams[2].getFloat());
+	return std::vector<SGTScriptParam>();
+}*/

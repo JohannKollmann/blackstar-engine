@@ -18,14 +18,14 @@ public:
 
 	static std::vector<SGTScriptParam> RunCallbackFunction(SGTScriptParam function, std::vector<SGTScriptParam> params);
 
-	void KillScript(std::string strFileName);
+	//void KillScript(std::string strFileName);
 	void Clear();
 private:
 	friend class SGTScriptParam;//needs these maps for callbacks
 	std::map<std::string, SGTScriptFunction> m_mCFunctions;
 	std::map<std::string, SGTLuaScript*> m_mScriptFunctions;
 	std::map<std::string, SGTLuaScript> m_mScripts;
-	std::list<std::pair<SGTLuaScript*, int>> m_lScriptInstances;//hack for deletion
+	std::map<std::string, std::vector<int>> m_mScriptInstances;//hack for deletion
 
 	int m_iCurrID;
 
