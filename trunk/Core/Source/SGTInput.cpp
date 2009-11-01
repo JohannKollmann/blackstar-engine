@@ -45,8 +45,6 @@ SGTInput::SGTInput(size_t windowHnd, int width, int height, bool freeCursor)
 	mKeyboard->setEventCallback(this);
 	mKeyboard->setBuffered(true);
 
-	SGTMessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
-
 	Ogre::LogManager::getSingleton().logMessage("SGTInput wurde erfolgreich initialisiert!");
 };
 
@@ -130,15 +128,8 @@ bool SGTInput::mouseReleased (const OIS::MouseEvent &,OIS::MouseButtonID id)
 	return true;
 };
 
-void SGTInput::ReceiveMessage(SGTMsg &msg)
+void SGTInput::Update()
 {
-	if (msg.mNewsgroup == "UPDATE_PER_FRAME")
-	{
-		mMouse->capture();
-		mKeyboard->capture();
-		/*float time = msg.mData.GetFloat("TIME");
-		Ogre::Vector3 vec = msg.mData.GetOgreVec3("TESTVEC");
-		Ogre::Quaternion quat = msg.mData.GetOgreQuat("TESTQUAT");
-		Ogre::LogManager::getSingleton().logMessage(Ogre::StringConverter::toString(time) + " " + Ogre::StringConverter::toString(vec) + " " + Ogre::StringConverter::toString(quat));*/
-	}
+	mMouse->capture();
+	mKeyboard->capture();
 };

@@ -16,6 +16,7 @@ SGTRagdoll::~SGTRagdoll(void)
 
 SGTRagdoll::SGTRagdoll(Ogre::SceneManager *ogre_scenemanager, NxOgre::Scene *nx_scene, Ogre::String meshname, Ogre::SceneNode *node)
 {
+	mInitialised = false;
 	mOgreSceneMgr = ogre_scenemanager;
 	mNxOgreScene = nx_scene;
 	mNode = node;
@@ -125,13 +126,14 @@ SGTRagdoll::SGTRagdoll(Ogre::SceneManager *ogre_scenemanager, NxOgre::Scene *nx_
 		CreateSkeleton(boneconfig);
 	}
 	mAnimationState = 0;
+	mInitialised = true;
 	SetControlToBones();
 }
 
-void SGTRagdoll::Serialise(std::vector<sBoneActorBindConfig> boneconfig)
+void SGTRagdoll::Serialise(std::vector<sBoneActorBindConfig> boneconfig, Ogre::String filename)
 {
 	std::fstream f;
-	f.open((mEntity->getMesh()->getName() + ".bones").c_str(), std::ios::out | std::ios::trunc);
+	f.open(filename.c_str(), std::ios::out | std::ios::trunc);
 	for (std::vector<sBoneActorBindConfig>::iterator i = boneconfig.begin(); i != boneconfig.end(); i++)
 	{
 		f << "[Bone_" << (*i).mBoneName.c_str() << "]" << std::endl;
@@ -449,6 +451,7 @@ void SGTRagdoll::UpdateVisualBones()
 
 void SGTRagdoll::SetAllBonesToManualControl(bool manual)
 {
+if (!mInitialised) return;
    Ogre::SkeletonInstance* skeletonInst = mEntity->getSkeleton();
    Ogre::Skeleton::BoneIterator boneI=skeletonInst->getBoneIterator();
 
@@ -462,6 +465,7 @@ void SGTRagdoll::SetAllBonesToManualControl(bool manual)
 
 void SGTRagdoll::ResetBones()
 {
+	if (!mInitialised) return;
    Ogre::SkeletonInstance* skeletonInst = mEntity->getSkeleton();
 	Ogre::Skeleton::BoneIterator boneI=skeletonInst->getBoneIterator();
 
@@ -471,6 +475,7 @@ void SGTRagdoll::ResetBones()
 
 void SGTRagdoll::SetControlToActors()
 {
+	if (!mInitialised) return;
 	mControlledByActors = true;
 	Ogre::AnimationStateSet* set = mEntity->getAllAnimationStates();
 	Ogre::AnimationStateIterator it = set->getAnimationStateIterator();
@@ -539,6 +544,7 @@ void SGTRagdoll::SetControlToActors()
 
 void SGTRagdoll::SetControlToBones()
 {
+	if (!mInitialised) return;
 	mControlledByActors = false;
 	SetAllBonesToManualControl(false);
 	for (std::vector<sBoneActorBind>::iterator i = mSkeleton.begin(); i != mSkeleton.end(); i++)
@@ -558,13 +564,24 @@ void SGTRagdoll::SetControlToBones()
 
 void SGTRagdoll::SetAnimationState(Ogre::String statename)
 {
-	mAnimationState = mEntity->getAnimationState(statename);
-	mAnimationState->setLoop(true);
-	mAnimationState->setEnabled(true);
+	if (mInitialised)
+	{
+		if (mAnimationState) mAnimationState->setEnabled(false);
+		if (mEntity->getAllAnimationStates()->hasAnimationState(statename))
+		{
+			mAnimationState = mEntity->getAnimationState(statename);
+			if (mAnimationState)
+			{
+				mAnimationState->setLoop(true);
+				mAnimationState->setEnabled(true);
+			}
+		}
+	}
 }
 
 void SGTRagdoll::Update(float _time)
 {
+	if (!mInitialised) return;
 	if (mControlledByActors)
 	{
 		UpdateVisualBones();

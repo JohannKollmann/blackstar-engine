@@ -67,12 +67,27 @@ public:
 
 class SGTDllExport SGTGOCAnimatedCharacter : public SGTGOCEditorInterface, public SGTGOCNodeRenderable, public SGTMessageListener
 {
+	enum AnimationID
+	{
+		IDLE,
+		JUMP,
+		FORWARD,
+		BACKWARD,
+		LEFT,
+		RIGHT,
+		CROUCH,
+		RUN
+	};
 private:
 	SGTRagdoll *mRagdoll;
+
+	void ResetMovementAnis();
+	void GetMovementAnis(Ogre::String configfile);
 
 	bool mSetControlToActorsTemp;
 	bool mEditorMode;
 	Ogre::String mAnimationStateStr;
+	std::map<AnimationID, Ogre::String> mMovementAnimations;
 	int mMovementState;
 
 	void Create(Ogre::String meshname, Ogre::Vector3 scale);
@@ -87,12 +102,12 @@ public:
 	std::list<SGTGameObject*> mBoneObjects;
 
 	void CreateBoneObjects();
-	void SerialiseBoneObjects();
+	void SerialiseBoneObjects(Ogre::String filename);
 
 	void Kill();
 
-	goc_id_family& GetFamilyID() const { static std::string name = "GOCAnimatedCharacter"; return name; }
-	SGTGOComponent::goc_id_type& GetComponentID() const { static std::string name = "AnimatedCharacter"; return name; }
+	goc_id_family& GetFamilyID() const { static std::string name = "Skeleton"; return name; }
+	SGTGOComponent::goc_id_type& GetComponentID() const { static std::string name = "Skeleton"; return name; }
 
 	void ReceiveMessage(SGTMsg &msg);
 	void ReceiveObjectMessage(Ogre::SharedPtr<SGTObjectMsg> msg);
@@ -104,8 +119,8 @@ public:
 	bool IsViewComponent() { return false; }
 	void Save(SGTSaveSystem& mgr);
 	void Load(SGTLoadSystem& mgr);
-	virtual std::string& TellName() { static std::string name = "AnimatedCharacter"; return name; };
-	static void Register(std::string* pstrName, SGTSaveableInstanceFn* pFn) { *pstrName = "AnimatedCharacter"; *pFn = (SGTSaveableInstanceFn)&NewInstance; };
+	virtual std::string& TellName() { static std::string name = "Skeleton"; return name; };
+	static void Register(std::string* pstrName, SGTSaveableInstanceFn* pFn) { *pstrName = "Skeleton"; *pFn = (SGTSaveableInstanceFn)&NewInstance; };
 	static SGTSaveable* NewInstance() { return new SGTGOCAnimatedCharacter(); };
 	static SGTGOCEditorInterface* NewEditorInterfaceInstance() { return new SGTGOCAnimatedCharacter(); }
 };

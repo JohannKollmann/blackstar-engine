@@ -367,7 +367,6 @@ SGTGOCAnimatedCharacter::SGTGOCAnimatedCharacter(Ogre::String meshname, Ogre::Ve
 	mSetControlToActorsTemp = false;
 	mEditorMode = false;
 	Create(meshname, scale);
-	mRagdoll->SetAnimationState("Idle");
 }
 
 void SGTGOCAnimatedCharacter::Create(Ogre::String meshname, Ogre::Vector3 scale)
@@ -375,7 +374,18 @@ void SGTGOCAnimatedCharacter::Create(Ogre::String meshname, Ogre::Vector3 scale)
 	mMovementState = 0;
 	mNode = SGTMain::Instance().GetOgreSceneMgr()->getRootSceneNode()->createChildSceneNode(SGTSceneManager::Instance().RequestIDStr());
 	mNode->scale(scale);
+	if (!Ogre::ResourceGroupManager::getSingleton().resourceExists("General", meshname))
+	{
+		Ogre::LogManager::getSingleton().logMessage("Error: Resource \"" + meshname + "\" does not exist. Loading dummy Resource...");
+		meshname = "DummyMesh.mesh";
+	}
 	mRagdoll = new SGTRagdoll(SGTMain::Instance().GetOgreSceneMgr(), SGTMain::Instance().GetNxScene(), meshname, mNode);
+
+	ResetMovementAnis();
+	if (Ogre::ResourceGroupManager::getSingleton().resourceExists("General", mRagdoll->GetEntity()->getMesh()->getName() + ".anis"))
+	{
+		GetMovementAnis(mRagdoll->GetEntity()->getMesh()->getName() + ".anis");
+	}
 	SGTMessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
 }
 
@@ -384,7 +394,7 @@ void SGTGOCAnimatedCharacter::Kill()
 	mRagdoll->SetControlToActors();
 }
 
-void SGTGOCAnimatedCharacter::SerialiseBoneObjects()
+void SGTGOCAnimatedCharacter::SerialiseBoneObjects(Ogre::String filename)
 {
 	std::vector<sBoneActorBindConfig> boneconfig;
 	for (std::list<SGTGameObject*>::iterator i = mBoneObjects.begin(); i != mBoneObjects.end(); i++)
@@ -392,7 +402,7 @@ void SGTGOCAnimatedCharacter::SerialiseBoneObjects()
 		SGTGOCAnimatedCharacterBone *bone = (SGTGOCAnimatedCharacterBone*)(*i)->GetComponent("GOCAnimatedCharacterBone");
 		boneconfig.push_back(bone->GetBoneConfig());
 	}
-	mRagdoll->Serialise(boneconfig);
+	mRagdoll->Serialise(boneconfig, filename);
 }
 void SGTGOCAnimatedCharacter::CreateBoneObjects()
 {
@@ -426,6 +436,42 @@ void SGTGOCAnimatedCharacter::CreateBoneObjects()
 	}
 }
 
+void SGTGOCAnimatedCharacter::ResetMovementAnis()
+{
+	mMovementAnimations.clear();
+	mMovementAnimations.insert(std::make_pair<AnimationID, Ogre::String>(AnimationID::IDLE, "Idle"));
+	mMovementAnimations.insert(std::make_pair<AnimationID, Ogre::String>(AnimationID::JUMP, "Jump"));
+	mMovementAnimations.insert(std::make_pair<AnimationID, Ogre::String>(AnimationID::FORWARD, "Forward"));
+	mMovementAnimations.insert(std::make_pair<AnimationID, Ogre::String>(AnimationID::BACKWARD, "Backward"));
+	mMovementAnimations.insert(std::make_pair<AnimationID, Ogre::String>(AnimationID::LEFT, "Left"));
+	mMovementAnimations.insert(std::make_pair<AnimationID, Ogre::String>(AnimationID::RIGHT, "Right"));
+	mMovementAnimations.insert(std::make_pair<AnimationID, Ogre::String>(AnimationID::RUN, "Run"));
+	mMovementAnimations.insert(std::make_pair<AnimationID, Ogre::String>(AnimationID::CROUCH, "Crouch"));
+}
+void SGTGOCAnimatedCharacter::GetMovementAnis(Ogre::String configfile)
+{
+	Ogre::ConfigFile cf;
+	cf.loadFromResourceSystem(configfile, "General");
+	Ogre::ConfigFile::SectionIterator seci = cf.getSectionIterator();
+	Ogre::String secName, typeName, archName;
+			
+	while (seci.hasMoreElements())
+	{
+		secName = seci.peekNextKey();
+		Ogre::ConfigFile::SettingsMultiMap *settings = seci.getNext();
+		for (Ogre::ConfigFile::SettingsMultiMap::iterator i = settings->begin(); i != settings->end(); i++)
+		{
+			if (i->first == "Jump") mMovementAnimations[AnimationID::JUMP] = i->second;
+			if (i->first == "Forward") mMovementAnimations[AnimationID::FORWARD] = i->second;
+			if (i->first == "Backward") mMovementAnimations[AnimationID::BACKWARD] = i->second;
+			if (i->first == "Left") mMovementAnimations[AnimationID::LEFT] = i->second;
+			if (i->first == "Right") mMovementAnimations[AnimationID::RIGHT] = i->second;
+			if (i->first == "Run") mMovementAnimations[AnimationID::RUN] = i->second;
+			if (i->first == "Crouch") mMovementAnimations[AnimationID::CROUCH] = i->second;
+		}
+	}
+}
+
 void SGTGOCAnimatedCharacter::ReceiveMessage(SGTMsg &msg)
 {
 	if (msg.mNewsgroup == "UPDATE_PER_FRAME")
@@ -442,30 +488,31 @@ void SGTGOCAnimatedCharacter::ReceiveObjectMessage(Ogre::SharedPtr<SGTObjectMsg>
 
 		if (mMovementState & SGTCharacterMovement::JUMP)
 		{
-			mRagdoll->SetAnimationState("JumpNoHeight");
+			mRagdoll->SetAnimationState(mMovementAnimations[AnimationID::JUMP]);
 		}
 		else if (mMovementState & SGTCharacterMovement::FORWARD && !(mMovementState & SGTCharacterMovement::BACKWARD))
 		{
-			mRagdoll->SetAnimationState("Walk");
+			mRagdoll->SetAnimationState(mMovementAnimations[AnimationID::FORWARD]);
 		}
 		else if (mMovementState & SGTCharacterMovement::BACKWARD && !(mMovementState & SGTCharacterMovement::FORWARD))
 		{
-			mRagdoll->SetAnimationState("Backflip");
+			mRagdoll->SetAnimationState(mMovementAnimations[AnimationID::BACKWARD]);
 		}
 		else if (mMovementState & SGTCharacterMovement::LEFT)
 		{
-			mRagdoll->SetAnimationState("SideKick");
+			mRagdoll->SetAnimationState(mMovementAnimations[AnimationID::LEFT]);
 		}
 		else if (mMovementState & SGTCharacterMovement::RIGHT)
 		{
-			mRagdoll->SetAnimationState("SideKick");
+			mRagdoll->SetAnimationState(mMovementAnimations[AnimationID::RIGHT]);
 		}
-		else mRagdoll->SetAnimationState("Idle1");
+		else mRagdoll->SetAnimationState(mMovementAnimations[AnimationID::IDLE]);
 	}
 }
 
 void SGTGOCAnimatedCharacter::SetOwner(SGTGameObject *go)
 {
+	mRagdoll->GetEntity()->setUserObject(go);
 	UpdatePosition(go->GetGlobalPosition());
 	UpdateOrientation(go->GetGlobalOrientation());
 	mRagdoll->Update(0);

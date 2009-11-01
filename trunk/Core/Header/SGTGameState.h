@@ -61,9 +61,9 @@ protected:
 	bool mRunning;
 	bool mPaused;
 	bool mRunPhysics;
-	double mTimeSinceLastFrame;
-	double mTotalLastFrameTime;
-	double mTotalTimeElapsed;
+	DWORD mTotalLastFrameTime;
+	float mTimeSinceLastFrame;
+	float mTotalTimeElapsed;
 	//Ogre::Timer *mTimer;
 
 	// List of plugin DLLs loaded

@@ -22,7 +22,7 @@ enum SGTDllExport EMouseButtons
 	MOUSE_NONE
 };
 
-class SGTDllExport SGTInput : public OIS::KeyListener, public OIS::MouseListener, public SGTMessageListener
+class SGTDllExport SGTInput : public OIS::KeyListener, public OIS::MouseListener
 {
 
 private:
@@ -48,7 +48,7 @@ public:
 	bool mousePressed (const OIS::MouseEvent &,OIS::MouseButtonID id);
 	bool mouseReleased (const OIS::MouseEvent &,OIS::MouseButtonID id);
 
-	void ReceiveMessage(SGTMsg &msg);
+	void Update();
 };
 
 #endif

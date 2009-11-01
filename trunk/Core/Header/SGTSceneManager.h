@@ -45,8 +45,6 @@ public:
 
 	void UpdateGameObjects();
 
-	void CreatePlayer();
-
 	/*
 	Liefert eine neue, individuelle ID zurück.
 	*/
@@ -85,6 +83,8 @@ public:
 	static std::vector<SGTScriptParam> Lua_LogMessage(SGTScript& caller, std::vector<SGTScriptParam> vParams);
 	static std::vector<SGTScriptParam> Lua_LoadLevel(SGTScript& caller, std::vector<SGTScriptParam> vParams);
 	static std::vector<SGTScriptParam> Lua_CreateNpc(SGTScript& caller, std::vector<SGTScriptParam> vParams);
+
+	static std::vector<SGTScriptParam> Lua_CreatePlayer(SGTScript& caller, std::vector<SGTScriptParam> vParams);
 
 	/*
 	Alle Methoden im Format Npc_* erwarten als ersten Parameter die eindeutige ID des AI-Objekts.

@@ -78,7 +78,7 @@ void SGTGOCCharacterController::ReceiveMessage(SGTMsg &msg)
 		mCharacterController->move(NxVec3(dir.x, dir.y, dir.z), 1<<SGTMain::Instance().GetNxScene()->getShapeGroup("Collidable")->getGroupID(), minDist, collisionFlags);
 		SGTObjectMsg *position_response = new SGTObjectMsg;
 		NxExtendedVec3 nxPos = mCharacterController->getDebugPosition();
-		mOwnerGO->UpdateTransform(Ogre::Vector3(nxPos.x, nxPos.y, nxPos.z), mOwnerGO->GetGlobalOrientation());
+		mOwnerGO->UpdateTransform(Ogre::Vector3(nxPos.x, nxPos.y-2.0f, nxPos.z), mOwnerGO->GetGlobalOrientation());
 
 		if(collisionFlags &  NxControllerFlag::NXCC_COLLISION_DOWN && mJump.mJumping && mJump.GetHeight(0) <= 0.0f)
 		{

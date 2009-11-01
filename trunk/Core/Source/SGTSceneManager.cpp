@@ -173,6 +173,7 @@ void SGTSceneManager::Init()
 	//Setup Lua Callback
 	SGTScriptSystem::GetInstance().ShareCFunction("LogMessage", &SGTSceneManager::Lua_LogMessage);
 	SGTScriptSystem::GetInstance().ShareCFunction("LoadLevel", &SGTSceneManager::Lua_LoadLevel);
+	SGTScriptSystem::GetInstance().ShareCFunction("CreatePlayer", &SGTSceneManager::Lua_CreatePlayer);
 	SGTScriptSystem::GetInstance().ShareCFunction("CreateNpc", &SGTSceneManager::Lua_CreateNpc);
 	SGTScriptSystem::GetInstance().ShareCFunction("Npc_SetProperty", &SGTSceneManager::Lua_Npc_SetProperty);
 	SGTScriptSystem::GetInstance().ShareCFunction("Npc_GetProperty", &SGTSceneManager::Lua_Npc_GetProperty);
@@ -576,24 +577,28 @@ SGTSceneManager::Lua_CreateNpc(SGTScript& caller, std::vector<SGTScriptParam> vP
 	return out;
 }
 
-void SGTSceneManager::CreatePlayer()
+std::vector<SGTScriptParam> SGTSceneManager::Lua_CreatePlayer(SGTScript& caller, std::vector<SGTScriptParam> vParams)
 {
-	SGTGameObject* player = new SGTGameObject();
-	player->AddComponent(new SGTGOCPlayerInput());
-	player->AddComponent(new SGTGOCCameraController(SGTMain::Instance().GetCamera()));
-	player->AddComponent(new SGTGOCCharacterController(Ogre::Vector3(1,1.8,1)));
-	/*SGTGOCAnimatedCharacter *animated = new SGTGOCAnimatedCharacter("ninja.mesh", Ogre::Vector3(0.01,0.01,0.01));
-	player->AddComponent(animated);*/
-	SGTGOCViewContainer *container = new SGTGOCViewContainer();
-	container->AddItem(new SGTMeshRenderable("cube.1m.mesh", true));
-	player->AddComponent(container);
-	player->SetGlobalPosition(Ogre::Vector3(0,10,0));
-
-	/*SGTGOCViewContainer *view = new SGTGOCViewContainer();
-	view->GetNode()->scale(0.1,0.1,0.1);
-	view->AddItem(new SGTMeshRenderable("jaiqua.mesh", true));
-	player->AddComponent(view);*/
+	std::vector<SGTScriptParam> out;
+	std::vector<SGTScriptParam> ref;
+	std::string dummy;
+	ref.push_back(SGTScriptParam(dummy));
+	Ogre::String test = SGTUtils::TestParameters(vParams, ref, false);
+	if (test == "")
+	{
+		Ogre::String model = vParams[0].getString();
+		SGTGameObject* player = new SGTGameObject();
+		player->AddComponent(new SGTGOCPlayerInput());
+		player->AddComponent(new SGTGOCCameraController(SGTMain::Instance().GetCamera()));
+		player->AddComponent(new SGTGOCCharacterController(Ogre::Vector3(0.5,1.8,0.5)));
+		SGTGOCAnimatedCharacter *animated = new SGTGOCAnimatedCharacter(model);
+		player->AddComponent(animated);
+		player->SetGlobalPosition(Ogre::Vector3(0,10,0));
+	}
+	else Ogre::LogManager::getSingleton().logMessage(test);
+	return out;
 }
+
 
 void SGTSceneManager::ReceiveMessage(SGTMsg &msg)
 {
@@ -654,8 +659,11 @@ Ogre::TexturePtr SGTSceneManager::CreatePreviewRender(Ogre::SceneNode *node, Ogr
 	Ogre::Vector3 center = Ogre::Vector3(0,0,0);
 	if (node->getAttachedObject(0))
 	{
-		node_dimensions = node->getAttachedObject(0)->getBoundingBox().getSize();
-		center = node->getAttachedObject(0)->getBoundingBox().getCenter();
+		if (!node->getAttachedObject(0)->getBoundingBox().isNull())
+		{
+			node_dimensions = node->getAttachedObject(0)->getBoundingBox().getSize();
+			center = node->getAttachedObject(0)->getBoundingBox().getCenter();
+		}
 	}
 	float max = node_dimensions.x > node_dimensions.y ? node_dimensions.x : node_dimensions.y;
 	max = max > node_dimensions.z ? max : node_dimensions.z;

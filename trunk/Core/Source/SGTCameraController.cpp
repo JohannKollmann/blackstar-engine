@@ -39,7 +39,7 @@ void SGTCameraController::ReceiveMessage(SGTMsg &msg)
 		if (mYRot) mCamera->yaw(Ogre::Degree(-msg.mData.GetInt("ROT_X_REL") * mRotSpeed));
 		if (mXRot) mCamera->pitch(Ogre::Degree(-msg.mData.GetInt("ROT_Y_REL") * mRotSpeed));
 	}
-	if (msg.mNewsgroup == "UPDATE_PER_FRAME")
+	else if (msg.mNewsgroup == "UPDATE_PER_FRAME")
 	{
 		if (mMove)
 		{
@@ -56,14 +56,14 @@ void SGTCameraController::ReceiveMessage(SGTMsg &msg)
 		SGTMain::Instance().GetSoundManager()->getListener()->setPosition(mCamera->getDerivedPosition());
 		SGTMain::Instance().GetSoundManager()->getListener()->setOrientation(mCamera->getDerivedOrientation());
 	}
-	if (msg.mNewsgroup == "CONSOLE_INGAME")
+	else if (msg.mNewsgroup == "CONSOLE_INGAME")
 	{
 		if (msg.mData.GetOgreString("COMMAND") == "cam_goto_pos")
 		{
 			mCamera->setPosition(msg.mData.GetOgreVec3("PARAM1"));
 		}
 	}
-	if (msg.mNewsgroup == "KEY_UP")
+	else if (msg.mNewsgroup == "KEY_UP")
 	{
 		int keyid = msg.mData.GetInt("KEY_ID_OIS");
 		if (keyid == OIS::KC_F2)

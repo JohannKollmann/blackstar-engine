@@ -101,7 +101,7 @@ SGTGOCCameraController::SGTGOCCameraController(Ogre::Camera *camera)
 	mCharacterCenterNode = SGTMain::Instance().GetOgreSceneMgr()->getRootSceneNode()->createChildSceneNode();
 	mCameraCenterNode = mCharacterCenterNode->createChildSceneNode();
 	mTargetNode = mCameraCenterNode->createChildSceneNode(Ogre::Vector3(0,0,10));
-	mCameraNode = mCameraCenterNode->createChildSceneNode(Ogre::Vector3(0,1.5,-5));
+	mCameraNode = mCameraCenterNode->createChildSceneNode(Ogre::Vector3(0,1.5,-6));
 	mCameraNode->setAutoTracking(true, mTargetNode);
 	mCameraNode->attachObject(mCamera);
 	mCameraNode->setFixedYawAxis (true);

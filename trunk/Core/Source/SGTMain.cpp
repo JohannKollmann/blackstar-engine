@@ -69,8 +69,6 @@ bool SGTMain::Run()
 
 	setupRenderSystem();
 
-	SGTKernel::Instance();
-
 	Ogre::LogManager::getSingleton().logMessage("SGTMain Run");
 
 	mWindow = mRoot->initialise(true, "Blackstar Engine");

@@ -6,6 +6,7 @@
 #include "SGTMessageSystem.h"
 #include "SGTMain.h"
 #include "SGTSceneManager.h"
+#include "SGTInput.h"
 
 
 typedef void (*DLL_START_PLUGIN)(void);
@@ -18,6 +19,8 @@ void SGTEditor::OnUpdate(float time, float time_total)
 	msg.mData.AddFloat("TIME", time);
 	msg.mData.AddFloat("TIME_TOTAL", time_total);
 	SGTMessageSystem::Instance().SendMessage(msg);
+
+	SGTMain::Instance().GetInputManager()->Update();
 
 	SGTMessageSystem::Instance().Update();
 
@@ -43,6 +46,8 @@ void SGTGame::OnUpdate(float time, float time_total)
 	msg.mData.AddFloat("TIME_TOTAL", time_total);
 	SGTMessageSystem::Instance().SendMessage(msg);
 
+	SGTMain::Instance().GetInputManager()->Update();
+
 	//float BeforeMsgTime = timeGetTime();
 	SGTMessageSystem::Instance().Update();
 	//float AfterMsgTime = timeGetTime() - BeforeMsgTime;
@@ -66,7 +71,6 @@ void SGTGame::OnEnter()
 		SGTScript script = SGTScriptSystem::GetInstance().CreateInstance("NewGame.lua");
 		std::vector<SGTScriptParam> params;
 		script.CallFunction("NewGame", params);
-		SGTSceneManager::Instance().CreatePlayer();
 	}
 	mInitialized = true;
 }
@@ -118,9 +122,10 @@ void SGTKernel::startLoop()
 	mTimeSinceLastFrame = 0.0f;
 	mTotalTimeElapsed = 0.0f;
 	mTotalLastFrameTime = timeGetTime();
-	while (doLoop())
+	while (true)
 	{
 		Ogre::WindowEventUtilities::messagePump();
+		if (!doLoop()) break;;
 	}
 };
 
@@ -128,12 +133,13 @@ bool SGTKernel::doLoop()
 {
 	if (!mPaused)
 	{
-		float difference = timeGetTime() - mTotalLastFrameTime;
-		mTimeSinceLastFrame = difference * 0.001f;
-		mTotalLastFrameTime = timeGetTime();
+		DWORD time = timeGetTime();
+		DWORD difference = time - mTotalLastFrameTime;
+		mTotalLastFrameTime = time;
+		mTimeSinceLastFrame = static_cast<float>(difference * 0.001f);
 		mTotalTimeElapsed += mTimeSinceLastFrame;
 
-		mCurrentState->OnUpdate(mTimeSinceLastFrame, mTotalLastFrameTime);
+		mCurrentState->OnUpdate(mTimeSinceLastFrame, mTotalTimeElapsed);
 	}
 	return true;
 };

@@ -77,6 +77,8 @@ private:
 	Ogre::AnimationState *mAnimationState;
 	bool mControlledByActors;
 
+	bool mInitialised;
+
 	/*
 	CreateBoneActors and CreateJoints create a ragdoll skeleton from scratch.
 	They are only used the first time the ragdoll is created, after that a config file will be exported.
@@ -107,7 +109,7 @@ public:
 	bool ControlledByActors() { return mControlledByActors; }
 	void ResetBones();
 
-	void Serialise(std::vector<sBoneActorBindConfig> config);
+	void Serialise(std::vector<sBoneActorBindConfig> config, Ogre::String filename);
 
 	Ogre::Entity* GetEntity() { return mEntity; }
 
