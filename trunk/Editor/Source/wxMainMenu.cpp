@@ -1,6 +1,6 @@
 
 #include "../Header/wxMainMenu.h"
-#include "SGTGamestate.h"
+#include "SGTMainLoop.h"
 #include "SGTCameraController.h"
 #include "SGTDotSceneLoader.h"
 #include "SGTScriptSystem.h"
@@ -239,7 +239,7 @@ void wxMainMenu::OnEnableMaterialMode(wxCommandEvent& WXUNUSED(event))
 
 void wxMainMenu::OnEnablePhysics(wxCommandEvent& WXUNUSED(event))
 {
-	SGTKernel::Instance().SetPhysics(IsChecked(wxMainMenu_Physics));
+	SGTMainLoop::Instance().SetPhysics(IsChecked(wxMainMenu_Physics));
 	wxEdit::Instance().GetProgressBar()->Reset();
 }
 

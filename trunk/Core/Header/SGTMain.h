@@ -61,6 +61,11 @@ protected:
 
 	OgreOggSound::OgreOggSoundManager *mSoundManager;
 
+	// List of plugin DLLs loaded
+	std::vector<Ogre::DynLib*> mPluginLibs;
+	// List of Plugin instances registered
+	std::vector<Ogre::Plugin*> mPlugins;
+
 	void AddOgreResourcePath(Ogre::String dir);
 
 	int winHeight;
@@ -110,6 +115,14 @@ public:
 	void SetDirectionalShadowCameraSetup(Ogre::ShadowCameraSetupPtr setup) { mDirectionalShadowCameraSetup = setup; };
 	void SetSpotShadowCameraSetup(Ogre::ShadowCameraSetupPtr setup) { mSpotShadowCameraSetup = setup; };
 	void SetPointShadowCameraSetup(Ogre::ShadowCameraSetupPtr setup) { mPointShadowCameraSetup = setup; };
+
+	//Muss vom Plugin aus in dllStartPlugin aufgerufen werden!
+	void InstallPlugin(Ogre::Plugin* plugin);
+	//Muss vom Plugin aus dllStopPlugin aufgerufen werden!
+	void UninstallPlugin(Ogre::Plugin* plugin);
+	void LoadPlugin(const Ogre::String& pluginName);
+	void UnloadPlugin(const Ogre::String& pluginName);
+	void ClearPlugins();
 
 	//Singleton
 	static SGTMain& Instance();

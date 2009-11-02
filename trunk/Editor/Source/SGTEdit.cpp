@@ -6,7 +6,7 @@
 #include "SGTObjectLevelRayCaster.h"
 #include "SGTPhysicsLevelRayCaster.h"
 #include "SGTWeatherController.h"
-#include "SGTGamestate.h"
+#include "SGTMainLoop.h"
 #include "SGTGOCEditorInterface.h"
 #include "SGTGOCIntern.h"
 #include "SGTGOCAnimatedCharacter.h"
@@ -107,7 +107,7 @@ void SGTEdit::OnToolbarEvent(int toolID, Ogre::String toolname)
 
 	if (toolname == "Physics")
 	{
-		SGTKernel::Instance().SetPhysics(checked);
+		SGTMainLoop::Instance().SetPhysics(checked);
 	}
 	if (toolname == "TimeCycle")
 	{
@@ -730,11 +730,11 @@ void SGTEdit::OnSaveObjectGroup()
 			SGTSaveSystem *ss=SGTLoadSave::Instance().CreateSaveFile(dialog.GetPath().c_str(), Ogre::String(dialog.GetPath().c_str()) + ".xml");
 			Ogre::Vector3 position = (*mSelectedObjects.begin()).mObject->GetGlobalPosition();
 			(*mSelectedObjects.begin()).mObject->SetGlobalPosition(Ogre::Vector3(0,0,0));
-			SGTKernel::Instance().doLoop(); //Kleiner hack, damit alle children die temporären Positionen übernehmen
+			SGTMainLoop::Instance().doLoop(); //Kleiner hack, damit alle children die temporären Positionen übernehmen
 			ss->SaveObject((*mSelectedObjects.begin()).mObject, "Root");
 			ss->CloseFiles();
 			(*mSelectedObjects.begin()).mObject->SetGlobalPosition(position);
-			SGTKernel::Instance().doLoop();
+			SGTMainLoop::Instance().doLoop();
 			delete ss;
 		}
 	}

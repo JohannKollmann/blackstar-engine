@@ -11,7 +11,7 @@
 //#define BOOST_ALL_DYN_LINK
 
 class SGTMain;
-class SGTKernel;
+class SGTMainLoop;
 class SGTSceneManager;
 class SGTLevelMesh;
 class SGTInput;

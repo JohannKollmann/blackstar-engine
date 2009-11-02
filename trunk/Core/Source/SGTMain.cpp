@@ -15,8 +15,14 @@
 #include "GUISystem.h"
 #include "SSAOListener.h"
 
+#include "OgrePlugin.h"
+#include "OgreDynLibManager.h"
+#include "OgreDynLib.h"
+
 #include "boost/filesystem/operations.hpp"
 #include "boost/filesystem/path.hpp"
+
+#include "SGTMainLoop.h"
 
 #define USE_REMOTEDEBUGGER 1
 
@@ -79,7 +85,7 @@ bool SGTMain::Run()
 
 	initScene();
 
-	SGTKernel::Instance().SetState("Game");
+	SGTMainLoop::Instance().SetState("Game");
 
 	return true;
 }
@@ -105,7 +111,7 @@ bool SGTMain::Run(Ogre::RenderWindow *window, size_t OISInputWindow)
 
 	initScene();
 
-	SGTKernel::Instance().SetState("Editor");
+	SGTMainLoop::Instance().SetState("Editor");
 
 	return true;
 };
@@ -326,6 +332,7 @@ void SGTMain::setupRenderSystem()
 	Ogre::String fullscreen = "";
 	Ogre::String width = "";
 	Ogre::String height = "";
+	Ogre::String perfhud = "";
 
 	for (std::vector<KeyVal>::iterator i = mSettings["Graphics"].begin(); i != mSettings["Graphics"].end(); i++)
 	{
@@ -335,6 +342,7 @@ void SGTMain::setupRenderSystem()
 		if (i->Key == "Fullscreen") fullscreen = i->Val;
 		if (i->Key == "ResolutionWidth") width = i->Val;
 		if (i->Key == "ResolutionHeight") height = i->Val;
+		if (i->Key == "NVPerfHUD") perfhud = i->Val;
 	}
 
 	LoadOgrePlugins();
@@ -366,6 +374,8 @@ void SGTMain::setupRenderSystem()
 
 	if (renderer == "Direct3D9 Rendering Subsystem")
 	{
+		mRenderSystem->setConfigOption("Allow NVPerfHUD", perfhud);
+
 		Ogre::LogManager::getSingleton().logMessage("setup Rendersystem: " + width + " " + height);
 		mRenderSystem->setConfigOption("Video Mode", 
 										width
@@ -395,6 +405,7 @@ void SGTMain::ResetConfig()
 	mSettings["Graphics"].push_back(KeyVal("AA", "0"));
 	mSettings["Graphics"].push_back(KeyVal("Fullscreen", "No"));
 	mSettings["Graphics"].push_back(KeyVal("VSync", "Yes"));
+	mSettings["Graphics"].push_back(KeyVal("NVPerfHUD", "Yes"));
 }
 
 void SGTMain::GetConfig()
@@ -446,7 +457,7 @@ void SGTMain::Shutdown()
 		Ogre::LogManager::getSingleton().logMessage("Ogre shutdown!");
 		//SGTConsole::Instance().Shutdown();
 		SGTSceneManager::Instance().Shutdown();
-		SGTKernel::Instance().ClearPlugins();
+		ClearPlugins();
 		delete mCameraController;
 		delete mRoot;
 		mRoot = 0;
@@ -457,6 +468,91 @@ Ogre::SceneManager* SGTMain::GetOgreSceneMgr()
 {
 	return mMainSceneMgr ? mSceneMgr : mPreviewSceneMgr;
 };
+
+
+typedef void (*DLL_START_PLUGIN)(void);
+typedef void (*DLL_STOP_PLUGIN)(void);
+
+void SGTMain::InstallPlugin(Ogre::Plugin* plugin)
+{
+	Ogre::LogManager::getSingleton().logMessage("Installing SGT plugin: " + plugin->getName());
+
+	mPlugins.push_back(plugin);
+	plugin->install();
+
+	plugin->initialise();
+
+	Ogre::LogManager::getSingleton().logMessage("SGT Plugin successfully installed");
+}
+//---------------------------------------------------------------------
+void SGTMain::UninstallPlugin(Ogre::Plugin* plugin)
+{
+	Ogre::LogManager::getSingleton().logMessage("Uninstalling SGT plugin: " + plugin->getName());
+	std::vector<Ogre::Plugin*>::iterator i = std::find(mPlugins.begin(), mPlugins.end(), plugin);
+	if (i != mPlugins.end())
+	{
+		plugin->uninstall();
+		mPlugins.erase(i);
+	}
+
+	Ogre::LogManager::getSingleton().logMessage("SGT Plugin successfully uninstalled");
+
+}
+//-----------------------------------------------------------------------
+void SGTMain::LoadPlugin(const Ogre::String& pluginName)
+{
+	// Load plugin library
+    Ogre::DynLib* lib = Ogre::DynLibManager::getSingleton().load( pluginName );
+	// Store for later unload
+	mPluginLibs.push_back(lib);
+
+	// Call startup function
+	DLL_START_PLUGIN pFunc = (DLL_START_PLUGIN)lib->getSymbol("dllStartPlugin");
+
+	if (!pFunc)
+		Ogre::LogManager::getSingleton().logMessage("Cannot find symbol dllStartPlugin in library " + pluginName);
+
+	// This must call installPlugin
+	pFunc();
+
+}
+//-----------------------------------------------------------------------
+void SGTMain::UnloadPlugin(const Ogre::String& pluginName)
+{
+	std::vector<Ogre::DynLib*>::iterator i;
+
+    for (i = mPluginLibs.begin(); i != mPluginLibs.end(); ++i)
+	{
+		if ((*i)->getName() == pluginName)
+		{
+			// Call plugin shutdown
+			DLL_STOP_PLUGIN pFunc = (DLL_STOP_PLUGIN)(*i)->getSymbol("dllStopPlugin");
+			// this must call uninstallPlugin
+			pFunc();
+			// Unload library (destroyed by DynLibManager)
+			Ogre::DynLibManager::getSingleton().unload(*i);
+			mPluginLibs.erase(i);
+			return;
+		}
+
+	}
+}
+
+void SGTMain::ClearPlugins()
+{
+	for (std::vector<Ogre::Plugin*>::iterator i = mPlugins.begin(); i != mPlugins.end(); i++)
+	{
+		(*i)->shutdown();
+	}
+	mPlugins.clear();
+
+	for (std::vector<Ogre::DynLib*>::iterator i = mPluginLibs.begin(); i != mPluginLibs.end(); i++)
+	{
+		Ogre::DynLibManager::getSingleton().unload(*i);
+	}
+	mPluginLibs.clear();
+}
+
 
 SGTMain& SGTMain::Instance()
 {

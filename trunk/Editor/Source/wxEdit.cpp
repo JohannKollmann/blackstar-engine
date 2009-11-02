@@ -2,7 +2,7 @@
 #include "../Header/wxEdit.h"
 #include "wx/artprov.h"
 #include "wxMaterialEditor.h"
-#include "SGTGameState.h"
+#include "SGTMainLoop.h"
 
 
 BEGIN_EVENT_TABLE(wxEdit, wxFrame)
@@ -139,7 +139,7 @@ void wxEdit::PostCreate()
 	GetOgrePane()->SetFocus();
 	m_mgr.Update();
 	wxEdit::Instance().GetExplorerToolbar()->SetGroupStatus("ResourceMgr", false);	//Hack
-	SGTKernel::Instance().doLoop();
+	SGTMainLoop::Instance().doLoop();
 	SGTSceneManager::Instance().EnableClock(false);
 }
 

@@ -1,5 +1,5 @@
 #include "../Header/wxOgre.h"
-#include "SGTGamestate.h"
+#include "SGTMainLoop.h"
 #include "SGTWeatherController.h"
 
 #ifdef __WXGTK__
@@ -203,7 +203,7 @@ void wxOgre::OnRenderTimer(wxTimerEvent& event)
 
 void wxOgre::update()
 {
-	SGTKernel::Instance().doLoop();
+	SGTMainLoop::Instance().doLoop();
 }
 
 void wxOgre::OnKeyDown(wxKeyEvent& key)
