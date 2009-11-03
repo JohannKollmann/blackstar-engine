@@ -100,8 +100,8 @@ SGTGOCCameraController::SGTGOCCameraController(Ogre::Camera *camera)
 	mCamera = camera;
 	mCharacterCenterNode = SGTMain::Instance().GetOgreSceneMgr()->getRootSceneNode()->createChildSceneNode();
 	mCameraCenterNode = mCharacterCenterNode->createChildSceneNode();
-	mTargetNode = mCameraCenterNode->createChildSceneNode(Ogre::Vector3(0,0,10));
-	mCameraNode = mCameraCenterNode->createChildSceneNode(Ogre::Vector3(0,1.5,-6));
+	mTargetNode = mCameraCenterNode->createChildSceneNode(Ogre::Vector3(0,2.5f,10));
+	mCameraNode = mCameraCenterNode->createChildSceneNode(Ogre::Vector3(0,2.0f,-6));
 	mCameraNode->setAutoTracking(true, mTargetNode);
 	mCameraNode->attachObject(mCamera);
 	mCameraNode->setFixedYawAxis (true);
@@ -113,6 +113,7 @@ SGTGOCCameraController::SGTGOCCameraController(Ogre::Camera *camera)
 	SGTMain::Instance().GetCameraController()->mYRot = false;
 
 	SGTMessageSystem::Instance().JoinNewsgroup(this, "MOUSE_MOVE");
+	SGTMessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
 }
 
 SGTGOCCameraController::~SGTGOCCameraController()
@@ -128,8 +129,16 @@ void SGTGOCCameraController::ReceiveMessage(SGTMsg &msg)
 	if (msg.mNewsgroup == "MOUSE_MOVE")
 	{
 		Ogre::Radian pitch = Ogre::Radian((Ogre::Degree(-msg.mData.GetInt("ROT_Y_REL"))));
-		if (mCameraCenterNode->getOrientation().getPitch().valueDegrees() > -40.0f && pitch.valueDegrees() < 0) mCameraCenterNode->rotate(Ogre::Vector3(1,0,0), Ogre::Radian(pitch * mTightness));
+		Ogre::Radian newpitch =(mCameraCenterNode->getOrientation().getPitch() - pitch);
+		if (mCameraCenterNode->getOrientation().getPitch().valueDegrees() > -30.0f && pitch.valueDegrees() < 0) mCameraCenterNode->rotate(Ogre::Vector3(1,0,0), Ogre::Radian(pitch * mTightness));
 		else if (mCameraCenterNode->getOrientation().getPitch().valueDegrees() < 40.0f && pitch.valueDegrees() > 0) mCameraCenterNode->rotate(Ogre::Vector3(1,0,0), Ogre::Radian(pitch * mTightness));
+	}
+	if (msg.mNewsgroup == "UPDATE_PER_FRAME")
+	{
+		float time = msg.mData.GetFloat("TIME");
+		Ogre::Radian target_yaw = mCharacterOrientation.getYaw();
+		Ogre::Radian yaw_offset = (target_yaw - mCameraCenterNode->getOrientation().getYaw());
+		mCameraCenterNode->rotate(Ogre::Vector3(0,1,0), Ogre::Radian(yaw_offset * 30.0f * time));
 	}
 
 }
@@ -146,5 +155,6 @@ void SGTGOCCameraController::UpdatePosition(Ogre::Vector3 position)
 
 void SGTGOCCameraController::UpdateOrientation(Ogre::Quaternion orientation)
 {
-	mCharacterCenterNode->setOrientation(orientation);
+	mCharacterOrientation = orientation;
+	//mCharacterCenterNode->setOrientation(orientation);
 }

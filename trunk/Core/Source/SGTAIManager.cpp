@@ -14,7 +14,7 @@ SGTAIManager::~SGTAIManager(void)
 
 unsigned int SGTAIManager::RegisterAIObject(SGTGOCAI* object)
 {
-	mAIObjects.insert(std::make_pair<int, SGTGOCAI*>(object->GetID(), object));
+	mAIObjects.insert(std::make_pair<int, SGTGOCAI*>(mNextID, object));
 	return mNextID++;
 }
 void SGTAIManager::UnregisterAIObject(SGTGOCAI* object)

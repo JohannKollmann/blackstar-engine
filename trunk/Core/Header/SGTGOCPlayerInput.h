@@ -34,6 +34,7 @@ private:
 	Ogre::SceneNode *mCharacterCenterNode;
 	Ogre::SceneNode *mCameraCenterNode;
 	float mTightness;
+	Ogre::Quaternion mCharacterOrientation;
 
 public:
 	SGTGOCCameraController() {};

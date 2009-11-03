@@ -89,7 +89,7 @@ wxEdit::wxEdit(wxWindow* parent) : wxFrame(parent, -1, _("Blackstar Edit"),
 	mLogDisplay = new wxLogDisplay(this);
 	m_mgr.AddPane(mLogDisplay, wxAuiPaneInfo().
 					Name(wxT("logdisplay")).
-					Caption(wxT("Log")).Bottom().BestSize(200, 125).Hide());
+					Caption(wxT("Log")).Bottom().BestSize(200, 125));
 
 	/*mMediaTree = new wxMediaTree(this, wxID_ANY, wxDefaultPosition, wxSize(300,500));
     m_mgr.AddPane(mMediaTree, wxAuiPaneInfo().

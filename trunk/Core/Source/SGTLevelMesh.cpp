@@ -6,11 +6,7 @@ SGTLevelMesh::SGTLevelMesh(Ogre::String mesh)
 {
 	SGTSceneManager::Instance().BakeStaticMeshShape(mesh);
 
-	NxOgre::NodeRenderableParams nrp;
-	nrp.setToDefault();
-	nrp.mIdentifier = "LevelMesh";
-	nrp.mIdentifierUsage = NxOgre::NodeRenderableParams::IU_Use;
-	Ogre::SceneNode *node = SGTMain::Instance().GetOgreSceneMgr()->getRootSceneNode()->createChildSceneNode(nrp.mIdentifier);
+	Ogre::SceneNode *node = SGTMain::Instance().GetOgreSceneMgr()->getRootSceneNode()->createChildSceneNode("LevelMesh");
 	if (!Ogre::ResourceGroupManager::getSingleton().resourceExists("General", mesh))
 	{
 		Ogre::LogManager::getSingleton().logMessage("Error: Resource \"" + mesh + "\" does not exist. Loading dummy Resource...");
@@ -23,10 +19,9 @@ SGTLevelMesh::SGTLevelMesh(Ogre::String mesh)
 		ent->getMesh()->buildTangentVectors(Ogre::VES_TANGENT, src, dest, true, true, true);
 	// Second mode cleans mirrored / rotated UVs but requires quality models
 	//pMesh->buildTangentVectors(VES_TANGENT, src, dest, true, true);
+
 	node->attachObject(ent);
 	node->scale(1.0,1.0,1.0);
-	//nrp.mGraphicsModel = mesh;
-	//nrp.mGraphicsModelType = NxOgre::NodeRenderableParams::GMU_File;
 
 	NxOgre::ActorParams ap;
 	ap.setToDefault();
@@ -38,6 +33,11 @@ SGTLevelMesh::SGTLevelMesh(Ogre::String mesh)
 	sp.mDensity = 0.0f;
 	sp.mMass = 0.0f;
 	sp.mGroup = "Collidable";
+
+	NxOgre::NodeRenderableParams nrp;
+	nrp.setToDefault();
+	nrp.mIdentifier = "LevelMesh";
+	nrp.mIdentifierUsage = NxOgre::NodeRenderableParams::IU_Use;
 
 	mMeshFileName = mesh;
 	NxOgre::TriangleMesh *shape = new NxOgre::TriangleMesh(NxOgre::Resources::ResourceSystem::getSingleton()->getMesh("Data/Media/Meshes/NXS/" + mesh + ".nxs"), sp);

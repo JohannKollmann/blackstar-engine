@@ -127,6 +127,8 @@ void SGTSceneManager::Init()
 {
 	Reset();
 
+	SGTMain::Instance().GetOgreSceneMgr()->createStaticGeometry("StaticGeometry");
+
 	RegisterStandardAtoms();
 
 	SGTDataMap params;
@@ -414,30 +416,42 @@ std::vector<SGTScriptParam> SGTSceneManager::Lua_Npc_AddState(SGTScript& caller,
 std::vector<SGTScriptParam> SGTSceneManager::Lua_Npc_AddTA(SGTScript& caller, std::vector<SGTScriptParam> vParams)
 {
 	std::vector<SGTScriptParam> out;
-	if (vParams.size() < 4) return out;
-	if (!vParams[0].hasInt()) return out;
-	if (vParams[1].getType() != SGTScriptParam::PARM_TYPE_STRING) return out;
-	if (!vParams[2].hasInt()) return out;
-	if (!vParams[3].hasInt()) return out;
-	int id = vParams[0].getInt();
-	std::string ta_script = vParams[1].getString();
-	int end_timeH = vParams[2].getInt();
-	int end_timeM = vParams[3].getInt();
-	bool time_abs = true;
-	std::vector<SGTScriptParam> miscparams;
-	std::vector<SGTScriptParam>::iterator i = vParams.begin();
-	i++;i++;i++;i++;
-	for (; i != vParams.end(); i++)
+	std::vector<SGTScriptParam> ref;
+	std::string sdummy;
+	float fdummy = 0;
+	ref.push_back(SGTScriptParam(fdummy));
+	ref.push_back(SGTScriptParam(sdummy));
+	ref.push_back(SGTScriptParam(fdummy));
+	ref.push_back(SGTScriptParam(fdummy));
+	Ogre::String param_test = SGTUtils::TestParameters(vParams, ref, true);
+	if (param_test == "")
 	{
-		miscparams.push_back((*i));
-	}
+		int id = vParams[0].getInt();
+		std::string ta_script = vParams[1].getString();
+		int end_timeH = vParams[2].getInt();
+		int end_timeM = vParams[3].getInt();
+		bool time_abs = true;
+		std::vector<SGTScriptParam> miscparams;
+		std::vector<SGTScriptParam>::iterator i = vParams.begin();
+		i++;i++;i++;i++;
+		for (; i != vParams.end(); i++)
+		{
+			miscparams.push_back((*i));
+		}
+	
 	/*if (vParams.size() == 6)
 	{
 		if (vParams[5].getType() == SGTScriptParam::PARM_TYPE_BOOL) time_abs = vParams[5].getBool();
 	}*/
 
-	SGTGOCAI *ai = SGTAIManager::Instance().GetAIByID(id);
-	if (ai) ai->AddScriptedState(new SGTDayCycle(ai, ta_script, miscparams, end_timeH, end_timeM, time_abs));
+		SGTGOCAI *ai = SGTAIManager::Instance().GetAIByID(id);
+		if (ai) ai->AddScriptedState(new SGTDayCycle(ai, ta_script, miscparams, end_timeH, end_timeM, time_abs));
+	}
+	else
+	{
+		Ogre::String msg = "[Script] Error in \"" + caller.GetScriptName() + "\": " + param_test;
+		Ogre::LogManager::getSingleton().logMessage(msg);
+	}
 	return out;
 }
 std::vector<SGTScriptParam> SGTSceneManager::Lua_Npc_GotoWP(SGTScript& caller, std::vector<SGTScriptParam> vParams)

@@ -12,8 +12,8 @@ SGTGOCWaypoint::SGTGOCWaypoint(void)
 
 SGTGOCWaypoint::~SGTGOCWaypoint(void)
 {
-	/*SGTPathfinder::Instance().UnregisterWaypoint(this);
-	while (mConnectedWaypoints.size() > 0)
+	SGTPathfinder::Instance().UnregisterWaypoint(this);
+	/*while (mConnectedWaypoints.size() > 0)
 	{
 		(*mConnectedWaypoints.begin())->DisconnectWaypoint(this);
 	}*/

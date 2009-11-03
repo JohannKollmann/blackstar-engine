@@ -5,6 +5,7 @@
 #include "wxEdit.h"
 #include "boost/filesystem/operations.hpp"
 #include "boost/filesystem/path.hpp"
+#include "SGTAIManager.h"
 
 enum
 {
@@ -68,6 +69,11 @@ void wxScriptFileTree::OnMenuCallback(int id)
 
 void wxScriptFileTree::OnToolbarEvent(int toolID, Ogre::String toolname)
 {
+	if (toolname == "ReloadScripts")
+	{
+		SGTScriptSystem::GetInstance().Clear();
+		SGTAIManager::Instance().ReloadScripts();
+	}
 	if (toolname == "NewScript" || toolname == "NewNpcScript" || toolname == "NewStateScript")
 	{
 		Ogre::String insertpath = wxEdit::Instance().GetWorldExplorer()->GetScriptTree()->GetInsertPath();
@@ -87,7 +93,7 @@ void wxScriptFileTree::OnToolbarEvent(int toolID, Ogre::String toolname)
 			stream << "end" << std::endl;
 			stream << std::endl;
 		}
-		if (toolname == "NewStateScript")
+		else if (toolname == "NewStateScript")
 		{
 			stream << "function onEnter()" << std::endl;
 			stream << "end" << std::endl;

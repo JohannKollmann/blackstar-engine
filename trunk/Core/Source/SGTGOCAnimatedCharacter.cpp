@@ -521,7 +521,7 @@ void SGTGOCAnimatedCharacter::SetOwner(SGTGameObject *go)
 		mRagdoll->SetControlToActors();
 		mSetControlToActorsTemp = false;
 	}
-	else if (mEditorMode && mAnimationStateStr == "") CreateBoneObjects();
+	else if (mEditorMode && mAnimationStateStr == "DEBUG") CreateBoneObjects();
 }
 
 void SGTGOCAnimatedCharacter::CreateFromDataMap(SGTDataMap *parameters)

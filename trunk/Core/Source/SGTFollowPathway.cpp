@@ -9,6 +9,7 @@ SGTFollowPathway::SGTFollowPathway(SGTGOCAI *ai, Ogre::String targetWP, float ra
 	mAIObject = ai;
 	mRadius = radius;
 	mTargetWP = targetWP;
+	mCurrentTarget = mPath.begin();
 };
 
 SGTFollowPathway::~SGTFollowPathway()
