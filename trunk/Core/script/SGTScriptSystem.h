@@ -2,7 +2,6 @@
 #define __SGT_SCRIPT_SYSTEM__
 
 #include "SGTScript.h"
-#include <list>
 
 class SGTDllExport SGTScriptSystem
 {

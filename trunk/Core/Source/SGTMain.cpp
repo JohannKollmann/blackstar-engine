@@ -13,6 +13,7 @@
 #include "SGTWeatherController.h"
 #include "SGTCollisionCallback.h"
 #include "GUISystem.h"
+#include "SGTMusicSystem.h"
 #include "SSAOListener.h"
 
 #include "OgrePlugin.h"
@@ -197,10 +198,11 @@ void SGTMain::initScene()
 	mCameraController = new SGTCameraController();
 
 	//init scripting stuff
-	SGTGUISystem::GetInstance();
 	SGTScriptSystem::GetInstance();
 	SGTLuaScript::SetLoader(OgreFileLoader);
 	SGTLuaScript::SetLogFn(ScriptLogFn);
+	SGTGUISystem::GetInstance();
+	SGTMusicSystem::GetInstance();
 
 	//sound
 	mSoundManager = OgreOggSound::OgreOggSoundManager::getSingletonPtr();

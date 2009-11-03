@@ -36,6 +36,10 @@ private:
 	float mTightness;
 	Ogre::Quaternion mCharacterOrientation;
 
+	float mfCameraAngle,
+		  mfLastCharacterAngle,
+		  mfCharacterAngle;
+
 public:
 	SGTGOCCameraController() {};
 	SGTGOCCameraController(Ogre::Camera *camera);

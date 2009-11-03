@@ -136,9 +136,15 @@ void SGTGOCCameraController::ReceiveMessage(SGTMsg &msg)
 	if (msg.mNewsgroup == "UPDATE_PER_FRAME")
 	{
 		float time = msg.mData.GetFloat("TIME");
-		Ogre::Radian target_yaw = mCharacterOrientation.getYaw();
-		Ogre::Radian yaw_offset = (target_yaw - mCameraCenterNode->getOrientation().getYaw());
-		mCameraCenterNode->rotate(Ogre::Vector3(0,1,0), Ogre::Radian(yaw_offset * 30.0f * time));
+		float fCharacterAngle=mCharacterOrientation.getYaw().valueRadians();
+		float fAngleDelta=mfLastCharacterAngle-fCharacterAngle;
+		if(fAngleDelta>Ogre::Math::PI)
+			fAngleDelta-=2*Ogre::Math::PI;
+		if(fAngleDelta<-Ogre::Math::PI)
+			fAngleDelta+=2*Ogre::Math::PI;
+		mfCharacterAngle+=fAngleDelta;
+		mCameraCenterNode->rotate(Ogre::Vector3(0,1,0), Ogre::Radian((mfCameraAngle-mfCharacterAngle)*30.0f*time));
+		mfLastCharacterAngle=fCharacterAngle;
 	}
 
 }

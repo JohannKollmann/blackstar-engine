@@ -11,5 +11,5 @@ namespace SGTUtils
 	SGTDllExport Ogre::String FindResourcePath(Ogre::String path, Ogre::String filename);
 
 	SGTDllExport std::string GetTypeName(SGTScriptParam param);
-	SGTDllExport std::string TestParameters(std::vector<SGTScriptParam> testparams, std::vector<SGTScriptParam> refparams, bool bAllowMore);
+	SGTDllExport std::string TestParameters(std::vector<SGTScriptParam> testparams, std::vector<SGTScriptParam> refparams, bool bAllowMore=false);
 };

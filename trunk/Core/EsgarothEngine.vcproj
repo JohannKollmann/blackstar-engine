@@ -998,6 +998,18 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="SGTMusicSystem"
+			>
+			<File
+				RelativePath=".\Source\SGTMusicSystem.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Header\SGTMusicSystem.h"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\Components.cd"
 			>
