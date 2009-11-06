@@ -12,3 +12,13 @@ int main (int argc, char *argv[])
 	SGTMainLoop::Instance().startLoop();
 	SGTMain::Instance().Shutdown();
 };
+
+int WINAPI WinMain(HINSTANCE hInstance,
+                     HINSTANCE hPrevInstance,
+                     LPSTR lpCmdLine,
+                     int nCmdShow )
+{
+	SGTMain::Instance().Run();
+	SGTMainLoop::Instance().startLoop();
+	SGTMain::Instance().Shutdown();
+}

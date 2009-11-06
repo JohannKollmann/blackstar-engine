@@ -14,7 +14,7 @@ public:
 	virtual ~SGTGameState() {};
 
 	virtual Ogre::String GetName() = 0;
-	virtual void OnUpdate(float time, float time_total) {};
+	virtual bool OnUpdate(float time, float time_total) { return false; };
 	virtual void OnEnter() {};
 };
 
@@ -28,7 +28,7 @@ public:
 	~SGTGame() {};
 
 	Ogre::String GetName() { return "Game"; };
-	void OnUpdate(float time, float time_total);
+	bool OnUpdate(float time, float time_total);
 	void OnEnter();
 };
 
@@ -40,7 +40,7 @@ public:
 	~SGTEditor() {};
 
 	Ogre::String GetName() { return "Editor"; };
-	void OnUpdate(float time, float time_total);
+	bool OnUpdate(float time, float time_total);
 };
 
 class SGTDllExport SGTDefaultMenu : SGTGameState
@@ -50,7 +50,7 @@ public:
 	~SGTDefaultMenu() {};
 
 	Ogre::String GetName() { return "DefaultMenu"; };
-	void OnUpdate(float time, float time_total);
+	bool OnUpdate(float time, float time_total);
 	void OnEnter();
 };
 

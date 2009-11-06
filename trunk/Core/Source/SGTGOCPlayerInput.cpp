@@ -107,6 +107,9 @@ SGTGOCCameraController::SGTGOCCameraController(Ogre::Camera *camera)
 	mCameraNode->setFixedYawAxis (true);
 
 	mTightness = 0.04f;
+	mfCameraAngle = 0;
+	mfLastCharacterAngle = 0;
+	mfCharacterAngle = 0;
 
 	SGTMain::Instance().GetCameraController()->mMove = false;
 	SGTMain::Instance().GetCameraController()->mXRot = false;
@@ -143,7 +146,8 @@ void SGTGOCCameraController::ReceiveMessage(SGTMsg &msg)
 		if(fAngleDelta<-Ogre::Math::PI)
 			fAngleDelta+=2*Ogre::Math::PI;
 		mfCharacterAngle+=fAngleDelta;
-		mCameraCenterNode->rotate(Ogre::Vector3(0,1,0), Ogre::Radian((mfCameraAngle-mfCharacterAngle)*30.0f*time));
+		mCameraCenterNode->rotate(Ogre::Vector3(0,1,0), Ogre::Radian((mfCameraAngle-mfCharacterAngle)*1.0f*time));
+		mfCameraAngle-=(mfCameraAngle-mfCharacterAngle)*1.0f*time;
 		mfLastCharacterAngle=fCharacterAngle;
 	}
 

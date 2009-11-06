@@ -254,8 +254,8 @@ void SGTMain::initScene()
 	mSpotShadowCameraSetup = Ogre::ShadowCameraSetupPtr(spotSetup);
 
 	Ogre::PSSMShadowCameraSetup* pssmSetup = new Ogre::PSSMShadowCameraSetup();
-	pssmSetup->calculateSplitPoints(3, mCamera->getNearClipDistance(), 500, 0.95);
-	pssmSetup->setSplitPadding(5);
+	pssmSetup->calculateSplitPoints(3, mCamera->getNearClipDistance(), 300, 0.95);
+	pssmSetup->setSplitPadding(1);
 	pssmSetup->setOptimalAdjustFactor(0, 5);
 	pssmSetup->setOptimalAdjustFactor(1, 1);
 	pssmSetup->setOptimalAdjustFactor(2, 0.4);//2, 0.5);
@@ -269,6 +269,10 @@ void SGTMain::initScene()
 	}
 
 	Ogre::LogManager::getSingleton().logMessage("PSSMSplitPoints: " + Ogre::StringConverter::toString(PSSMSplitPoints));
+
+
+	//Call init script
+	SGTScript script = SGTScriptSystem::GetInstance().CreateInstance("InitEngine.lua");
 
 	/*RefractionTextureListener *TestRefractionListener = new RefractionTextureListener();
 	ReflectionTextureListener *TestReflectionListener = new ReflectionTextureListener(mCamera);*/

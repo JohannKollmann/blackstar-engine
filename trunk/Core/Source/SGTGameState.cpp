@@ -6,7 +6,7 @@
 #include "SGTInput.h"
 #include "SGTMainLoop.h"
 
-void SGTEditor::OnUpdate(float time, float time_total)
+bool SGTEditor::OnUpdate(float time, float time_total)
 {
 	SGTMsg msg;
 	msg.mNewsgroup = "UPDATE_PER_FRAME";
@@ -29,10 +29,10 @@ void SGTEditor::OnUpdate(float time, float time_total)
 
 	SGTSceneManager::Instance().UpdateGameObjects();
 
-	Ogre::Root::getSingleton().renderOneFrame();
+	return Ogre::Root::getSingleton().renderOneFrame();
 }
 
-void SGTGame::OnUpdate(float time, float time_total)
+bool SGTGame::OnUpdate(float time, float time_total)
 {
 	SGTMsg msg;
 	msg.mNewsgroup = "UPDATE_PER_FRAME";
@@ -55,7 +55,7 @@ void SGTGame::OnUpdate(float time, float time_total)
 
 	SGTSceneManager::Instance().UpdateGameObjects();
 
-	Ogre::Root::getSingleton().renderOneFrame();
+	return Ogre::Root::getSingleton().renderOneFrame();
 }
 
 void SGTGame::OnEnter()
@@ -69,9 +69,9 @@ void SGTGame::OnEnter()
 	mInitialized = true;
 }
 
-void SGTDefaultMenu::OnUpdate(float time, float time_total)
+bool SGTDefaultMenu::OnUpdate(float time, float time_total)
 {
-	Ogre::Root::getSingleton().renderOneFrame();
+	return Ogre::Root::getSingleton().renderOneFrame();
 }
 
 void SGTDefaultMenu::OnEnter()

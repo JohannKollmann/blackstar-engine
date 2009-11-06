@@ -56,7 +56,7 @@ bool SGTMainLoop::doLoop()
 		mTimeSinceLastFrame = static_cast<float>(difference * 0.001f);
 		mTotalTimeElapsed += mTimeSinceLastFrame;
 
-		mCurrentState->OnUpdate(mTimeSinceLastFrame, mTotalTimeElapsed);
+		return mCurrentState->OnUpdate(mTimeSinceLastFrame, mTotalTimeElapsed);
 	}
 	return true;
 };
