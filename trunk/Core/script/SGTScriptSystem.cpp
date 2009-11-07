@@ -59,7 +59,7 @@ SGTScriptSystem::BindCFnCallback(SGTScript &caller, std::vector<SGTScriptParam> 
 	if(SGTScriptSystem::GetInstance().m_mCFunctions.find(params[0].getString())==SGTScriptSystem::GetInstance().m_mCFunctions.end())
 	{
 		vRes.push_back(SGTScriptParam());
-		vRes.push_back(SGTScriptParam(std::string("tried to bind a non-existing function!")));
+		vRes.push_back(SGTScriptParam(std::string("tried to bind non-existing function \"") + params[0].getString() + std::string("\"!")));
 		return vRes;
 	}
 	switch(params.size())
@@ -231,4 +231,21 @@ SGTScriptSystem::Clear()
 	}
 	m_mScriptFunctions.clear();
 	m_mScripts.clear();
+}
+
+std::vector<std::string>
+SGTScriptSystem::GetFunctionNames()
+{
+	std::vector<std::string> vstrFunctions(m_mCFunctions.size()+m_mScriptFunctions.size());
+	int i=0;
+	for(std::map<std::string, SGTLuaScript*>::const_iterator it=m_mScriptFunctions.begin();it!=m_mScriptFunctions.end(); i++, it++)
+		vstrFunctions[i]=it->first;
+	return vstrFunctions;
+}
+
+void
+SGTScriptSystem::RunFunction(std::string strFunction, std::vector<SGTScriptParam> vParams)
+{
+	if(m_mScriptFunctions.find(strFunction)!=m_mScriptFunctions.end())
+		m_mScriptFunctions.find(strFunction)->second->CallFunction(SGTScript(), strFunction, vParams);
 }

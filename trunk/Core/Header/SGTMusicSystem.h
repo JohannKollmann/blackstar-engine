@@ -43,9 +43,11 @@ private:
 			TASK_TYPE_STOP,
 			TASK_TYPE_FADE_IN,
 			TASK_TYPE_FADE_OUT,
+			TASK_TYPE_CALL_TIMER
 		} task;
 		std::string strSound;
 		float fFadeTime;
+		SGTScriptParam callback;
 	};
 
 	float m_fBPM;

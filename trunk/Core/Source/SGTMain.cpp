@@ -31,6 +31,8 @@
 std::string
 OgreFileLoader(lua_State* pState, std::string strFile)
 {
+	if(!Ogre::ResourceGroupManager::getSingleton().resourceExists(Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, strFile))
+		return std::string("file not found");
 	Ogre::DataStreamPtr ds = Ogre::ResourceGroupManager::getSingleton().openResource(strFile);
 	char *buffer = new char[ds->size()];
 	ds->read(buffer, ds->size());
@@ -39,7 +41,6 @@ OgreFileLoader(lua_State* pState, std::string strFile)
 	if(luaL_loadbuffer(pState, buffer, ds->size(), strFile.c_str()) || lua_pcall(pState, 0, 0, 0))
 	{
 		delete buffer;
-		std::string strError(lua_tostring(pState, -1));
 		return std::string(lua_tostring(pState, -1));
 	}
 	delete buffer;

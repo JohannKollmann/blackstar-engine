@@ -103,9 +103,7 @@ private:
 	int FindParentWindow(int iSubWindowHandle);
 	float m_fXPos, m_fYPos;
 	int m_iHoverWin;
-	bool m_bMenuActive;
 	static const float m_fFactor;
-	SGTScript m_CallbackScript;
 
 	struct SWindowInfo
 	{
@@ -130,6 +128,7 @@ private:
 	float m_fZStep;
 	int m_iFocusWin;
 
+	SWindowInfo m_NullWindowCallbacks;
 	//scripting..
 	std::map<std::string, SGTFontTextures> m_mFontTextures;
 };

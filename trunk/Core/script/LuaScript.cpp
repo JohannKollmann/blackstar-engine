@@ -285,7 +285,7 @@ SGTLuaScript::CallFunction(SGTScript &caller, std::string strName, std::vector<S
 	if(lua_pcall(m_pState, params.size(), LUA_MULTRET,0 )!=0)
 	{
 		const char* pcErr=lua_tostring(m_pState, -1);
-		LogError(m_strScriptName, GetLuaLine(m_pState), std::string(": error calling function ") + strName + std::string(": ") + std::string(pcErr));
+		LogError(m_strScriptName, -1, std::string(": error calling function ") + strName + std::string(": ") + std::string(pcErr));
 		outParams.push_back(SGTScriptParam());
 		return outParams;
 	}

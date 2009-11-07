@@ -17,6 +17,9 @@ public:
 
 	static std::vector<SGTScriptParam> RunCallbackFunction(SGTScriptParam function, std::vector<SGTScriptParam> params);
 
+	//functions for command line-style use
+	std::vector<std::string> GetFunctionNames();
+	void RunFunction(std::string strFunction, std::vector<SGTScriptParam> vParams);
 	//void KillScript(std::string strFileName);
 	void Clear();
 private:

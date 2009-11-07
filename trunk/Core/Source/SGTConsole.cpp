@@ -134,6 +134,18 @@ void SGTConsole::ExecCommand(Ogre::String command)
 			return;
 		}
 	}
+	//check if it was a lua function
+	std::vector<std::string> vstrFunctions=SGTScriptSystem::GetInstance().GetFunctionNames();
+	for(unsigned int iCommand=0; iCommand<vstrFunctions.size(); iCommand++)
+	{
+		if(inputs[0]==vstrFunctions[iCommand])
+		{
+			std::vector<SGTScriptParam> vParams;
+			for(unsigned int i=1; i<inputs.size(); i++)
+				vParams.push_back(SGTScriptParam(inputs[i]));
+			SGTScriptSystem::GetInstance().RunFunction(inputs[0], vParams);
+		}
+	}
 	Print("Error: Unknown Command!");
 	Ogre::LogManager::getSingleton().logMessage("SGTConsole::ExecCommand: Unknown Command (" + command + ")");
 
@@ -162,13 +174,22 @@ void SGTConsole::AddCommand(Ogre::String name, Ogre::String parameters)
 
 unsigned int SGTConsole::GetNumCommands()
 {
-	return mCommands.size();
+	return mCommands.size() + SGTScriptSystem::GetInstance().GetFunctionNames().size();
 }
 Ogre::String SGTConsole::GetCommand(unsigned int index)
 {
-	std::map<Ogre::String, std::vector<Ogre::String> >::iterator i = mCommands.begin();
-	for (unsigned int n = 0; n < index; n++) i++;
-	return i->first;
+	
+	unsigned int i=0; 
+	for (std::map<Ogre::String,std::vector<Ogre::String>>::iterator it=mCommands.begin(); it!=mCommands.end(); i++, it++)
+		if(i==index)
+			return it->first;
+
+	std::vector<std::string> vstrFunctions=SGTScriptSystem::GetInstance().GetFunctionNames();
+	for(unsigned int iFunction=0; iFunction<vstrFunctions.size(); iFunction++, i++)
+		if(i==index)
+			return vstrFunctions[iFunction];
+
+	return Ogre::String();
 }
 
 SGTConsole& SGTConsole::Instance()
