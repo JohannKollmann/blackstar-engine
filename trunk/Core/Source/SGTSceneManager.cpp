@@ -1,6 +1,7 @@
 
 #include "SGTSceneManager.h"
 #include "SGTMain.h"
+#include "SGTLoadSave.h"
 #include "SGTWeatherController.h"
 #include "SGTSaveable.h"
 #include "SGTLevelMesh.h"
@@ -16,6 +17,7 @@
 #include "SGTGOCAI.h"
 #include "SGTAIManager.h"
 #include "SGTFollowPathway.h"
+#include "SGTLevelMesh.h"
 
 #include "boost/filesystem/operations.hpp"
 #include "boost/filesystem/path.hpp"

@@ -10,6 +10,17 @@
 
 //#define BOOST_ALL_DYN_LINK
 
+namespace NxOgre
+{
+	class World;
+	class Scene;
+};
+namespace OgreOggSound
+{
+	class OgreOggSoundManager;
+};
+class NxControllerManager;
+
 class SGTMain;
 class SGTMainLoop;
 class SGTSceneManager;

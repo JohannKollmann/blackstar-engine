@@ -5,6 +5,8 @@
 #include "SGTSceneManager.h"
 #include "SGTInput.h"
 #include "SGTMainLoop.h"
+#include "NxOgre.h"
+#include "OgreOggSound.h"
 
 bool SGTEditor::OnUpdate(float time, float time_total)
 {

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "SGTIncludes.h"
-#include "SGTMain.h"
+#include "NxOgre.h"
 
 class SGTLevelMesh
 {

@@ -3,6 +3,7 @@
 #include "wx/artprov.h"
 #include "wxMaterialEditor.h"
 #include "SGTMainLoop.h"
+#include "SGTSceneManager.h"
 
 
 BEGIN_EVENT_TABLE(wxEdit, wxFrame)

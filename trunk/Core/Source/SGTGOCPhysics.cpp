@@ -1,5 +1,19 @@
 
 #include "SGTGOCPhysics.h"
+#include "SGTMain.h"
+#include "SGTSceneManager.h"
+#include "SGTGameObject.h"
+
+
+void SGTGOCRenderable::setPose(const NxOgre::Pose& p)
+{
+	mOwner->UpdateTransform(p, p);
+}
+NxOgre::Pose SGTGOCRenderable::getPose() const
+{
+	return NxOgre::Pose(mOwner->GetGlobalPosition(), mOwner->GetGlobalOrientation());
+}
+
 
 SGTGOCRigidBody::SGTGOCRigidBody(Ogre::String collision_mesh, float density, int shapetype)
 {

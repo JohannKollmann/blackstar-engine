@@ -1,6 +1,5 @@
 #include "SGTScriptSystem.h"
 #include "SGTIncludes.h"
-#include "SGTSceneManager.h"
 #include "SGTScriptSystem.h"
 #include <map>
 

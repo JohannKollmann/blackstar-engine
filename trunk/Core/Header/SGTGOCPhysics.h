@@ -3,8 +3,8 @@
 
 #include "SGTIncludes.h"
 #include "NxOgre.h"
-#include "SGTGameObject.h"
 #include "SGTGOComponent.h"
+#include "SGTGOCEditorInterface.h"
 
 class SGTDllExport SGTGOCRenderable : public NxOgre::Renderable
 {
@@ -18,14 +18,8 @@ public:
 	NxOgre::NxString getType() {return "Esgaroth-Renderable";}
 	NxOgre::NxShortHashIdentifier getHashType() const {return 4179;}
 
-	void setPose(const NxOgre::Pose& p)
-	{
-		mOwner->UpdateTransform(p, p);
-	}
-	NxOgre::Pose getPose() const
-	{
-		return NxOgre::Pose(mOwner->GetGlobalPosition(), mOwner->GetGlobalOrientation());
-	}
+	void setPose(const NxOgre::Pose& p);
+	NxOgre::Pose getPose() const;
 };
 
 class SGTDllExport SGTGOCPhysics : public SGTGOComponent

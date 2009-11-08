@@ -3,6 +3,7 @@
 #include "SGTPathfinder.h"
 #include "SGTGOCAI.h"
 #include "SGTGOCCharacterController.h"
+#include "SGTGameObject.h"
 
 SGTFollowPathway::SGTFollowPathway(SGTGOCAI *ai, Ogre::String targetWP, float radius)
 {

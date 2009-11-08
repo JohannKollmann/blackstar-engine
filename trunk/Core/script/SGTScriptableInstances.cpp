@@ -1,4 +1,6 @@
+
 #include "SGTScriptableInstances.h"
+#include "SGTSceneManager.h"
 
 //singleton stuff
 

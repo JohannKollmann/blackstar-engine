@@ -6,7 +6,6 @@
 #include <list>
 #include "SGTLoadSave.h"
 #include <string>
-#include "SGTSceneManager.h"
 #include "SGTIncludes.h"
 #include "SGTGOComponent.h"
 

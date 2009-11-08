@@ -1,6 +1,7 @@
 
 #include "SGTScriptedAIState.h"
 #include "mmsystem.h"
+#include "SGTSceneManager.h"
 
 
 SGTScriptedAIState::SGTScriptedAIState(SGTGOCAI* ai, Ogre::String scriptFileName)

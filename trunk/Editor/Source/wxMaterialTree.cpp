@@ -11,6 +11,8 @@
 
 #include "SGTGOCView.h"
 
+#include "SGTSceneManager.h"
+
 
 BEGIN_EVENT_TABLE(wxMaterialTree, wxTreeCtrl)
 	EVT_TREE_ITEM_MENU(-1, wxMaterialTree::OnItemMenu)

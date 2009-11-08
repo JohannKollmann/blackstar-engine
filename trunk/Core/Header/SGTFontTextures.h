@@ -1,5 +1,4 @@
 #include "Ogre.h"
-#include "SGTSceneManager.h"
 
 class SGTFontTextures
 {

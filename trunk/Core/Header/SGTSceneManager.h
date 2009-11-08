@@ -6,12 +6,10 @@
 #include <list>
 #include <map>
 #include "Ogre.h"
-#include "SGTLoadSave.h"
-#include "SGTLevelMesh.h"
-#include "SGTScriptSystem.h"
 #include "SGTGameObject.h"
 #include "SGTGOCEditorInterface.h"
 #include "SGTMessageSystem.h"
+#include "SGTScriptSystem.h"
 
 typedef SGTGOCEditorInterface* (*EDTCreatorFn)();
 typedef void (*GOCDefaultParametersFn)(SGTDataMap*);

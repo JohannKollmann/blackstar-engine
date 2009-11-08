@@ -1,4 +1,8 @@
 
+#include "NxOgre.h"
+#include "OgreOggSound.h"
+#include "NxControllerManager.h"
+
 #include "SGTMain.h"
 #include "SGTGameState.h"
 #include "SGTInput.h"
@@ -135,8 +139,8 @@ void SGTMain::initScene()
 	//Init Ogre Resources
 	for (std::vector<KeyVal>::iterator i = mSettings["Resources"].begin(); i != mSettings["Resources"].end(); i++)
 	{
-		if (i->Key == "OgreZip") Ogre::ResourceGroupManager::getSingleton().addResourceLocation(i->Val, "Zip");
-		if (i->Key == "OgreMedia") AddOgreResourcePath(i->Val);
+		if (i->Key == "Zip") Ogre::ResourceGroupManager::getSingleton().addResourceLocation(i->Val, "Zip");
+		if (i->Key == "FileSystem") AddOgreResourcePath(i->Val);
 	}
 
 	mSceneMgr = mRoot->createSceneManager(Ogre::ST_GENERIC, "Esgaroth");
@@ -271,6 +275,8 @@ void SGTMain::initScene()
 
 	Ogre::LogManager::getSingleton().logMessage("PSSMSplitPoints: " + Ogre::StringConverter::toString(PSSMSplitPoints));
 
+	//Load Plugins
+	LoadSGTPlugins();
 
 	//Call init script
 	SGTScript script = SGTScriptSystem::GetInstance().CreateInstance("InitEngine.lua");
@@ -480,6 +486,14 @@ Ogre::SceneManager* SGTMain::GetOgreSceneMgr()
 typedef void (*DLL_START_PLUGIN)(void);
 typedef void (*DLL_STOP_PLUGIN)(void);
 
+void SGTMain::LoadSGTPlugins()
+{
+	for (std::vector<KeyVal>::iterator i = mSettings["BlackstarFrameworkPlugins"].begin(); i != mSettings["BlackstarFrameworkPlugins"].end(); i++)
+	{
+		if (i->Key == "Plugin") LoadPlugin(i->Val);
+	}
+}
+
 void SGTMain::InstallPlugin(Ogre::Plugin* plugin)
 {
 	Ogre::LogManager::getSingleton().logMessage("Installing SGT plugin: " + plugin->getName());
@@ -509,7 +523,7 @@ void SGTMain::UninstallPlugin(Ogre::Plugin* plugin)
 void SGTMain::LoadPlugin(const Ogre::String& pluginName)
 {
 	// Load plugin library
-    Ogre::DynLib* lib = Ogre::DynLibManager::getSingleton().load( pluginName );
+    Ogre::DynLib* lib = Ogre::DynLibManager::getSingleton().load( pluginName + ".dll");
 	// Store for later unload
 	mPluginLibs.push_back(lib);
 

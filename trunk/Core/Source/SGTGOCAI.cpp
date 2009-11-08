@@ -2,6 +2,7 @@
 #include "SGTGOCAI.h"
 #include "SGTAIManager.h"
 #include "SGTScriptSystem.h"
+#include "SGTGameObject.h"
 
 SGTGOCAI::SGTGOCAI(void)
 {

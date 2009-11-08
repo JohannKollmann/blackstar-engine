@@ -1,6 +1,7 @@
 
 #include "SGTLevelMesh.h"
 #include "SGTSceneManager.h"
+#include "SGTMain.h"
 
 SGTLevelMesh::SGTLevelMesh(Ogre::String mesh)
 {

@@ -1,6 +1,7 @@
 #include "../Header/wxOgre.h"
 #include "SGTMainLoop.h"
 #include "SGTWeatherController.h"
+#include "SGTSceneManager.h"
 
 #ifdef __WXGTK__
 #include <gdk/gdk.h>

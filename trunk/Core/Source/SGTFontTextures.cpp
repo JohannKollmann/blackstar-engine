@@ -1,5 +1,7 @@
 #include "SGTFontTextures.h"
 #include <fstream>
+#include <cctype>
+#include "SGTSceneManager.h"
 
 SGTFontTextures::SGTFontTextures(std::string strFontSpacings)
 {

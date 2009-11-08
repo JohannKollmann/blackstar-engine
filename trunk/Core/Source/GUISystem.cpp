@@ -2,8 +2,10 @@
 #include "SGTInput.h"
 #include "SGTScriptableInstances.h"
 #include "ResidentVariables.h"
-
+#include "SGTMain.h"
+#include "SGTMessageSystem.h"
 #include "SGTUtils.h"
+#include "SGTSceneManager.h"
 
 
 SGTGUISystem::SGTGUISystem(void)

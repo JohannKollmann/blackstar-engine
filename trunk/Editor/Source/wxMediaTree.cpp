@@ -7,6 +7,7 @@
 #include "OgreEnvironment.h"
 #include "OgreScriptCompiler.h"
 #include "GUISystem.h"
+#include "SGTSceneManager.h"
 
 wxMediaTree::wxMediaTree(wxWindow* parent, wxWindowID id, const wxPoint& pos,
              const wxSize& size, long style,

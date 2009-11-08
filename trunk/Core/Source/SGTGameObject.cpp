@@ -1,5 +1,6 @@
 
 #include "SGTGameObject.h"
+#include "SGTSceneManager.h"
 
 SGTGameObject::SGTGameObject(SGTGameObject *parent)
 {

@@ -4,6 +4,8 @@
 #include "NxBoxController.h"
 #include "NxCapsuleController.h"
 #include "SGTMessageSystem.h"
+#include "SGTMain.h"
+#include "SGTGameObject.h"
 
 void SGTCharacterControllerInput::BroadcastMovementState()
 {

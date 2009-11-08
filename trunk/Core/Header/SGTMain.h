@@ -9,17 +9,10 @@ Initialisiert Ogre und das Inputsystem.
 
 #include "SGTIncludes.h"
 
+#define NOMINMAX
 #include "windows.h"
 
-#include "NxOgre.h"
-#include "NxControllerManager.h"
 #include "Ogre.h"
-#include "OgreOggSound.h"
-
-#include "OgreStringConverter.h"
-#include "OgreException.h"
-
-#include <boost/thread/thread.hpp>
 
 class SGTDllExport SGTMain
 {
@@ -83,6 +76,8 @@ public:
 	void ExternInit();
 
 	void initScene();
+
+	void LoadSGTPlugins();
 
 	void LoadOgrePlugins();
 	void setupRenderSystem();

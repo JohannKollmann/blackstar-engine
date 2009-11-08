@@ -5,6 +5,7 @@
 #include "SGTDotSceneLoader.h"
 #include "SGTScriptSystem.h"
 #include "SGTAIManager.h"
+#include "SGTSceneManager.h"
 
 
 // Required for WX

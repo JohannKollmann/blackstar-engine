@@ -8,6 +8,7 @@
 #include "SGTAIState.h"
 #include "SGTScriptedAIState.h"
 #include "SGTDataMap.h"
+#include "SGTScriptSystem.h"
 
 class SGTDllExport SGTGOCAI : public SGTGOCEditorInterface, public SGTCharacterControllerInput
 {
