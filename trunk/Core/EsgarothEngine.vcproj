@@ -573,15 +573,15 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\Dependencies\Boost\thread\win32\once.hpp"
-					>
-				</File>
-				<File
 					RelativePath="..\..\Dependencies\Boost\thread\pthread\once.hpp"
 					>
 				</File>
 				<File
 					RelativePath="..\..\Dependencies\Boost\thread\once.hpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Dependencies\Boost\thread\win32\once.hpp"
 					>
 				</File>
 				<File
@@ -593,15 +593,15 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\Dependencies\Boost\thread\pthread\recursive_mutex.hpp"
-					>
-				</File>
-				<File
 					RelativePath="..\..\Dependencies\Boost\thread\win32\recursive_mutex.hpp"
 					>
 				</File>
 				<File
 					RelativePath="..\..\Dependencies\Boost\thread\recursive_mutex.hpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Dependencies\Boost\thread\pthread\recursive_mutex.hpp"
 					>
 				</File>
 				<File
@@ -621,15 +621,15 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\Dependencies\Boost\thread\win32\thread.hpp"
-					>
-				</File>
-				<File
 					RelativePath="..\..\Dependencies\Boost\thread\pthread\thread.hpp"
 					>
 				</File>
 				<File
 					RelativePath="..\..\Dependencies\Boost\thread\thread.hpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Dependencies\Boost\thread\win32\thread.hpp"
 					>
 				</File>
 				<File
@@ -714,27 +714,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\script\ResidentVariables.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\script\ResidentVariables.h"
-				>
-			</File>
-			<File
 				RelativePath=".\script\SGTScript.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\script\SGTScript.h"
-				>
-			</File>
-			<File
-				RelativePath=".\script\SGTScriptableInstances.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\script\SGTScriptableInstances.h"
 				>
 			</File>
 			<File
@@ -1007,6 +991,34 @@
 			</File>
 			<File
 				RelativePath=".\Header\SGTMusicSystem.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="ScriptLibs"
+			>
+			<File
+				RelativePath=".\script\ResidentVariables.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\script\ResidentVariables.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\ScriptedControls.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Header\ScriptedControls.h"
+				>
+			</File>
+			<File
+				RelativePath=".\script\SGTScriptableInstances.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\script\SGTScriptableInstances.h"
 				>
 			</File>
 		</Filter>

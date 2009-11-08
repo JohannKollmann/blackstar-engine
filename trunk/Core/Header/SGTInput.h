@@ -30,6 +30,9 @@ private:
 	OIS::Mouse*    mMouse;
 	OIS::Keyboard* mKeyboard;
 
+	std::map<Ogre::String, std::vector<std::pair<OIS::KeyCode, OIS::MouseButtonID>>> m_mControls;
+	std::map<OIS::KeyCode, std::vector<Ogre::String>> m_mKeyControls;
+	std::map<OIS::MouseButtonID, std::vector<Ogre::String>> m_mMouseControls;
 public:
 	SGTInput(size_t windowHnd, int width, int height, bool freeCursor = false);
 	~SGTInput(void);
@@ -49,6 +52,11 @@ public:
 	bool mouseReleased (const OIS::MouseEvent &,OIS::MouseButtonID id);
 
 	void Update();
+
+	//key mapped functions
+	void SetControl(Ogre::String strName, std::vector<std::pair<OIS::KeyCode, OIS::MouseButtonID>> buttons);
+	std::vector<std::pair<OIS::KeyCode, OIS::MouseButtonID>> GetControl(Ogre::String strName);
+	bool ControlPressed(Ogre::String strName);
 };
 
 #endif

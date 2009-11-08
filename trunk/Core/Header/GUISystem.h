@@ -129,7 +129,6 @@ private:
 	float m_fZStep;
 	int m_iFocusWin;
 
-	SWindowInfo m_NullWindowCallbacks;
 	//scripting..
 	std::map<std::string, SGTFontTextures> m_mFontTextures;
 };

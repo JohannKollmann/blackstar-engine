@@ -45,6 +45,9 @@ SGTInput::SGTInput(size_t windowHnd, int width, int height, bool freeCursor)
 	mKeyboard->setEventCallback(this);
 	mKeyboard->setBuffered(true);
 
+	SGTMessageSystem::Instance().CreateNewsgroup("CONTROL_DOWN");
+	SGTMessageSystem::Instance().CreateNewsgroup("CONTROL_UP");
+
 	Ogre::LogManager::getSingleton().logMessage("SGTInput wurde erfolgreich initialisiert!");
 };
 
@@ -85,6 +88,17 @@ bool SGTInput::keyPressed( const OIS::KeyEvent &arg )
 	msg.mData.AddInt("KEY_ID", arg.text);
 	SGTMessageSystem::Instance().SendMessage(msg);
 
+	if(m_mKeyControls.find(arg.key)!=m_mKeyControls.end())
+	{
+		for(unsigned int iControl=0; iControl<m_mKeyControls[arg.key].size(); iControl++)
+		{
+			SGTMsg msgControl;
+			msgControl.mNewsgroup= "CONTROL_DOWN";
+			msgControl.mData.AddOgreString("CONTROL_NAME", m_mKeyControls[arg.key][iControl]);
+			SGTMessageSystem::Instance().SendMessage(msgControl);
+		}
+	}
+
 	return true;
 };
 
@@ -95,6 +109,17 @@ bool SGTInput::keyReleased( const OIS::KeyEvent &arg )
 	msg.mData.AddInt("KEY_ID_OIS", arg.key);
 	msg.mData.AddInt("KEY_ID", arg.text);
 	SGTMessageSystem::Instance().SendMessage(msg);
+
+	if(m_mKeyControls.find(arg.key)!=m_mKeyControls.end())
+	{
+		for(unsigned int iControl=0; iControl<m_mKeyControls[arg.key].size(); iControl++)
+		{
+			SGTMsg msgControl;
+			msgControl.mNewsgroup= "CONTROL_UP";
+			msgControl.mData.AddOgreString("CONTROL_NAME", m_mKeyControls[arg.key][iControl]);
+			SGTMessageSystem::Instance().SendMessage(msgControl);
+		}
+	}
 	return true;
 };
 
@@ -116,6 +141,17 @@ bool SGTInput::mousePressed (const OIS::MouseEvent &,OIS::MouseButtonID id)
 	msg.mNewsgroup = "MOUSE_DOWN";
 	msg.mData.AddInt("MOUSE_ID", id);
 	SGTMessageSystem::Instance().SendMessage(msg);
+	
+	if(m_mMouseControls.find(id)!=m_mMouseControls.end())
+	{
+		for(unsigned int iControl=0; iControl<m_mMouseControls[id].size(); iControl++)
+		{
+			SGTMsg msgControl;
+			msgControl.mNewsgroup= "CONTROL_DOWN";
+			msgControl.mData.AddOgreString("CONTROL_NAME", m_mMouseControls[id][iControl]);
+			SGTMessageSystem::Instance().SendMessage(msgControl);
+		}
+	}
 	return true;
 };
 
@@ -125,6 +161,16 @@ bool SGTInput::mouseReleased (const OIS::MouseEvent &,OIS::MouseButtonID id)
 	msg.mNewsgroup = "MOUSE_UP";
 	msg.mData.AddInt("MOUSE_ID", id);
 	SGTMessageSystem::Instance().SendMessage(msg);
+	if(m_mMouseControls.find(id)!=m_mMouseControls.end())
+	{
+		for(unsigned int iControl=0; iControl<m_mMouseControls[id].size(); iControl++)
+		{
+			SGTMsg msgControl;
+			msgControl.mNewsgroup= "CONTROL_UP";
+			msgControl.mData.AddOgreString("CONTROL_NAME", m_mMouseControls[id][iControl]);
+			SGTMessageSystem::Instance().SendMessage(msgControl);
+		}
+	}
 	return true;
 };
 
@@ -133,3 +179,68 @@ void SGTInput::Update()
 	mMouse->capture();
 	mKeyboard->capture();
 };
+
+//key mapped functions
+
+void
+SGTInput::SetControl(Ogre::String strName, std::vector<std::pair<OIS::KeyCode, OIS::MouseButtonID>> buttons)
+{
+	if(m_mControls.find(strName)!=m_mControls.end())
+	{
+		//delete old bindings
+		std::vector<std::pair<OIS::KeyCode, OIS::MouseButtonID>> oldcontrols=m_mControls[strName];
+		for(unsigned int iButton=0; iButton<oldcontrols.size(); iButton++)
+		{
+			if(oldcontrols[iButton].first!=0)
+			{
+				for(std::vector<Ogre::String>::iterator it=m_mKeyControls[oldcontrols[iButton].first].begin();
+					it!=m_mKeyControls[oldcontrols[iButton].first].end(); it++)
+					if(*it==strName)
+						m_mKeyControls[oldcontrols[iButton].first].erase(it);
+			}
+			else
+				for(std::vector<Ogre::String>::iterator it=m_mMouseControls[oldcontrols[iButton].second].begin();
+					it!=m_mMouseControls[oldcontrols[iButton].second].end(); it++)
+					if(*it==strName)
+						m_mMouseControls[oldcontrols[iButton].second].erase(it);
+		}
+	}
+	m_mControls[strName]=buttons;
+	for(unsigned int iButton=0; iButton<buttons.size(); iButton++)
+	{
+		if(buttons[iButton].first!=0)
+			m_mKeyControls[buttons[iButton].first].push_back(strName);
+		else
+			m_mMouseControls[buttons[iButton].second].push_back(strName);
+	}
+}
+
+std::vector<std::pair<OIS::KeyCode, OIS::MouseButtonID>>
+SGTInput::GetControl(Ogre::String strName)
+{
+	if(m_mControls.find(strName)==m_mControls.end())
+		return std::vector<std::pair<OIS::KeyCode, OIS::MouseButtonID>>();
+	else
+		return m_mControls[strName];
+}
+
+bool
+SGTInput::ControlPressed(Ogre::String strName)
+{
+	if(m_mControls.find(strName)==m_mControls.end())
+		return false;
+	std::vector<std::pair<OIS::KeyCode, OIS::MouseButtonID>> controls=m_mControls[strName];
+	const OIS::MouseState &ms = mMouse->getMouseState();
+	for(unsigned int iControl=0; iControl<controls.size(); iControl++)
+	{
+		if(controls[iControl].first!=0)
+		{
+			if(isKeyDown(controls[iControl].first))
+				return true;
+		}
+		else
+			if(ms.buttonDown(controls[iControl].second))
+				return true;
+	}
+	return false;
+}

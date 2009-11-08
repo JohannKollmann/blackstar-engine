@@ -70,32 +70,24 @@ SGTGUISystem::SGTGUISystem(void)
 	SGTScriptSystem::GetInstance().ShareCFunction("input_get_mouse_buttons", Lua_GetMouseButtons);
 }
 
-void SGTGUISystem::ReceiveMessage(SGTMsg &msg)
+void
+SGTGUISystem::ReceiveMessage(SGTMsg &msg)
 {
 	if(msg.mNewsgroup == "KEY_DOWN")
 	{
-		if(msg.mNewsgroup == "KEY_DOWN")
+		if(m_mWindowInfos.find(m_iFocusWin)->second.bVisible && m_mWindowInfos.find(m_iFocusWin)->second.parKeyDown.getType()==SGTScriptParam::PARM_TYPE_FUNCTION)
 		{
-			if(m_mWindowInfos.find(m_iFocusWin)->second.bVisible && m_mWindowInfos.find(m_iFocusWin)->second.parKeyDown.getType()==SGTScriptParam::PARM_TYPE_FUNCTION)
-			{
-				std::vector<SGTScriptParam> vResults;
-				vResults.push_back(SGTScriptParam(m_iFocusWin));
-				vResults.push_back(SGTScriptParam(msg.mData.GetInt("KEY_ID_OIS")));
-				SGTScriptSystem::RunCallbackFunction(m_mWindowInfos.find(m_iFocusWin)->second.parKeyDown, vResults);
-			}
-			else if(m_NullWindowCallbacks.parKeyDown.getType()==SGTScriptParam::PARM_TYPE_FUNCTION && m_iFocusWin==-1)
-			{
-				std::vector<SGTScriptParam> vResults;
-				vResults.push_back(SGTScriptParam(m_iFocusWin));
-				vResults.push_back(SGTScriptParam(msg.mData.GetInt("KEY_ID_OIS")));
-				SGTScriptSystem::RunCallbackFunction(m_NullWindowCallbacks.parKeyDown, vResults);
-			}
+			std::vector<SGTScriptParam> vResults;
+			vResults.push_back(SGTScriptParam(m_iFocusWin));
+			vResults.push_back(SGTScriptParam(msg.mData.GetInt("KEY_ID_OIS")));
+			SGTScriptSystem::RunCallbackFunction(m_mWindowInfos.find(m_iFocusWin)->second.parKeyDown, vResults);
 		}
-		std::map<int, SWindowInfo>::const_iterator it=m_mWindowInfos.begin();
-		/*for(; it!=m_mWindowInfos.end(); it++)
-			if(it->second.iParentHandle==-1)
-				SGTMain::Instance().GetOgreSceneMgr()->getEntity(it->second.strName)->setVisible(m_bMenuActive);*/
 	}
+	/*std::map<int, SWindowInfo>::const_iterator it=m_mWindowInfos.begin();
+	for(; it!=m_mWindowInfos.end(); it++)
+		if(it->second.iParentHandle==-1)
+			SGTMain::Instance().GetOgreSceneMgr()->getEntity(it->second.strName)->setVisible(m_bMenuActive);*/
+
 	if (msg.mNewsgroup == "MOUSE_MOVE")
 	{
 		m_fXPos+=(float)msg.mData.GetInt("ROT_X_REL")/(float)SGTMain::Instance().GetViewport()->getActualWidth();

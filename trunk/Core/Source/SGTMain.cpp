@@ -18,6 +18,7 @@
 #include "SGTCollisionCallback.h"
 #include "GUISystem.h"
 #include "SGTMusicSystem.h"
+#include "ScriptedControls.h"
 #include "SSAOListener.h"
 
 #include "OgrePlugin.h"
@@ -208,6 +209,7 @@ void SGTMain::initScene()
 	SGTLuaScript::SetLogFn(ScriptLogFn);
 	SGTGUISystem::GetInstance();
 	SGTMusicSystem::GetInstance();
+	ScriptedControls::GetInstance();
 
 	//sound
 	mSoundManager = OgreOggSound::OgreOggSoundManager::getSingletonPtr();
