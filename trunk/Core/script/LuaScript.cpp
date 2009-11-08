@@ -273,6 +273,7 @@ SGTLuaScript::CallFunction(SGTScript &caller, std::string strName, std::vector<S
 	if(!FunctionExists(strName))
 	{
 		outParams.push_back(SGTScriptParam());
+		outParams.push_back(SGTScriptParam(std::string("function \"") + strName + std::string("\" does not exist")));
 		return outParams;
 	}
 

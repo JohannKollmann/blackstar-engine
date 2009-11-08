@@ -75,7 +75,10 @@ SGTGUISystem::ReceiveMessage(SGTMsg &msg)
 {
 	if(msg.mNewsgroup == "KEY_DOWN")
 	{
-		if(m_mWindowInfos.find(m_iFocusWin)->second.bVisible && m_mWindowInfos.find(m_iFocusWin)->second.parKeyDown.getType()==SGTScriptParam::PARM_TYPE_FUNCTION)
+		SWindowInfo wininfo=SGTGUISystem::GetInstance().m_mWindowInfos.find(m_iFocusWin)->second;
+		while(wininfo.iParentHandle!=-1)
+			wininfo=SGTGUISystem::GetInstance().m_mWindowInfos.find(wininfo.iParentHandle)->second;
+		if(m_mWindowInfos.find(m_iFocusWin)->second.bVisible && wininfo.bVisible && m_mWindowInfos.find(m_iFocusWin)->second.parKeyDown.getType()==SGTScriptParam::PARM_TYPE_FUNCTION)
 		{
 			std::vector<SGTScriptParam> vResults;
 			vResults.push_back(SGTScriptParam(m_iFocusWin));
@@ -118,6 +121,8 @@ SGTGUISystem::ReceiveMessage(SGTMsg &msg)
 		for(; itZ!=m_lZOrder.end(); itZ++)
 		{
 			it=m_mWindowInfos.find(*itZ);
+			if(!it->second.bVisible)
+					continue;
 			if(m_fXPos>it->second.x && m_fXPos<it->second.x+it->second.w &&
 				m_fYPos>it->second.y && m_fYPos<it->second.y+it->second.h && it->first!=m_iCursorHandle)
 				break;
@@ -195,6 +200,8 @@ SGTGUISystem::ReceiveMessage(SGTMsg &msg)
 			for(; itZ!=m_lZOrder.end(); itZ++)
 			{
 				it=m_mWindowInfos.find(*itZ);
+				if(!it->second.bVisible)
+					continue;
 				if(m_fXPos>it->second.x && m_fXPos<it->second.x+it->second.w &&
 					m_fYPos>it->second.y && m_fYPos<it->second.y+it->second.h && it->first!=m_iCursorHandle)
 					break;

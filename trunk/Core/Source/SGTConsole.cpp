@@ -144,6 +144,7 @@ void SGTConsole::ExecCommand(Ogre::String command)
 			for(unsigned int i=1; i<inputs.size(); i++)
 				vParams.push_back(SGTScriptParam(inputs[i]));
 			SGTScriptSystem::GetInstance().RunFunction(inputs[0], vParams);
+			return;
 		}
 	}
 	Print("Error: Unknown Command!");
