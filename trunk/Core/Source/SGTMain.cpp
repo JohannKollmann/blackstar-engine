@@ -16,9 +16,9 @@
 #include "HDRListener.h"
 #include "SGTWeatherController.h"
 #include "SGTCollisionCallback.h"
-#include "GUISystem.h"
-#include "SGTMusicSystem.h"
-#include "ScriptedControls.h"
+//#include "GUISystem.h"
+//#include "SGTMusicSystem.h"
+//#include "ScriptedControls.h"
 #include "SSAOListener.h"
 
 #include "OgrePlugin.h"
@@ -207,9 +207,9 @@ void SGTMain::initScene()
 	SGTScriptSystem::GetInstance();
 	SGTLuaScript::SetLoader(OgreFileLoader);
 	SGTLuaScript::SetLogFn(ScriptLogFn);
-	SGTGUISystem::GetInstance();
+/*	SGTGUISystem::GetInstance();
 	SGTMusicSystem::GetInstance();
-	ScriptedControls::GetInstance();
+	ScriptedControls::GetInstance();*/
 
 	//sound
 	mSoundManager = OgreOggSound::OgreOggSoundManager::getSingletonPtr();

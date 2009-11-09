@@ -3,7 +3,7 @@
 
 #include "SGTScript.h"
 
-class SGTDllExport SGTScriptSystem
+class __declspec(dllexport) SGTScriptSystem
 {
 public:
 	SGTScriptSystem();
@@ -24,6 +24,7 @@ public:
 	void Clear();
 private:
 	friend class SGTScriptParam;//needs these maps for callbacks
+
 	std::map<std::string, SGTScriptFunction> m_mCFunctions;
 	std::map<std::string, SGTLuaScript*> m_mScriptFunctions;
 	std::map<std::string, SGTLuaScript> m_mScripts;

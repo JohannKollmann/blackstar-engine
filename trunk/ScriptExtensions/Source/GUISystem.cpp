@@ -1,7 +1,5 @@
 #include "GUISystem.h"
 #include "SGTInput.h"
-#include "SGTScriptableInstances.h"
-#include "ResidentVariables.h"
 #include "SGTMain.h"
 #include "SGTMessageSystem.h"
 #include "SGTUtils.h"
@@ -10,8 +8,7 @@
 
 SGTGUISystem::SGTGUISystem(void)
 {
-	SGTScriptableInstances::GetInstance();
-	ResidentManager::GetInstance();
+
 	m_iCursorHandle=-1;
 	m_iFocusWin=-1;
 	m_fMaxZ=0.0001f;

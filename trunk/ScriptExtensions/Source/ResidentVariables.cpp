@@ -1,6 +1,8 @@
 #include "ResidentVariables.h"
 #include <string>
 
+CREATEMAPHANDLER(std::string, "std::string", ResidentVariables::SaveableScriptParam, "ResidentVariables::SaveableScriptParam", StringSGTScriptParamMapHandler);
+
 ResidentManager&
 ResidentManager::GetInstance()
 {
@@ -15,7 +17,7 @@ ResidentManager::ResidentManager()
 	SGTScriptSystem::GetInstance().ShareCFunction("rget", GetCallback);
 
 	SGTLoadSave::Instance().RegisterObject(&ResidentVariables::Register);
-
+	SGTLoadSave::Instance().RegisterAtom((SGTAtomHandler*)new StringSGTScriptParamMapHandler);
 }
 
 void

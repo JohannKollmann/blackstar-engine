@@ -1,14 +1,13 @@
-
-#pragma once
+#ifndef __SGT_SCRIPT_PARAM__
+#define __SGT_SCRIPT_PARAM__
 
 #include <string>
-#include "SGTIncludes.h"
 
 class SGTLuaScript;
 class SGTScript;
 
 
-class SGTDllExport SGTScriptParam
+class __declspec(dllexport) SGTScriptParam
 {
 public:
 	enum ETypes
@@ -45,3 +44,5 @@ private:
 	int m_iScriptID;
 	ETypes m_Type;
 };
+
+#endif

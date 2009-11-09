@@ -5,7 +5,7 @@
 #include "OgreOggSound.h"
 #include "SGTMessageListener.h"
 
-class SGTDllExport SGTMusicSystem : public SGTMessageListener
+class SGTMusicSystem : public SGTMessageListener
 {
 public:
 	SGTMusicSystem();

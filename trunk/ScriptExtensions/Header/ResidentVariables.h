@@ -1,7 +1,12 @@
+#ifndef __RESIS_INCL__
+#define __RESIS_INCL__
+
 #include "SGTLoadSave.h"
 #include "SGTScriptSystem.h"
+#include "LoadSaveMapHandler.h"
 
 class ResidentVariables;
+
 
 class ResidentManager
 {
@@ -50,3 +55,5 @@ private:
 	
 	std::map<std::string, SaveableScriptParam> m_mVars;
 };
+
+#endif

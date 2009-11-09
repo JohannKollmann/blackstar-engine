@@ -11,7 +11,7 @@
 
 
 
-class SGTDllExport SGTGUISystem : public SGTMessageListener
+class SGTGUISystem : public SGTMessageListener
 {
 public:
 	SGTGUISystem(void);
@@ -24,7 +24,7 @@ public:
 	friend class SGTGUISystem::SubWindow;
 	friend class SGTGUISystem::Window;
 
-	class SGTDllExport Window
+	class Window
 	{
 	public:
 		Window(int iHandle);
@@ -40,7 +40,7 @@ public:
 		static std::list<int> FindSubWindows(int iHandle);
 		int m_iHandle;
 	};
-	class SGTDllExport SubWindow
+	class SubWindow
 	{
 	public:
 		SubWindow(int iHandle);

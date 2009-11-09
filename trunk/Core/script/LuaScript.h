@@ -11,15 +11,14 @@ extern "C"
 #include "SGTScriptParam.h"
 #include <vector>
 #include <map>
-#include "SGTIncludes.h"
 
 class SGTScript;
 class SGTLuaScript;
 
-typedef SGTDllExport std::vector<SGTScriptParam> (*SGTScriptFunction)(SGTScript &caller, std::vector<SGTScriptParam>);
-typedef SGTDllExport std::vector<SGTScriptParam> (*SGTStaticScriptFunction)(SGTScript &caller, SGTLuaScript& script, std::vector<SGTScriptParam>);
+typedef __declspec(dllexport) std::vector<SGTScriptParam> (*SGTScriptFunction)(SGTScript &caller, std::vector<SGTScriptParam>);
+typedef __declspec(dllexport) std::vector<SGTScriptParam> (*SGTStaticScriptFunction)(SGTScript &caller, SGTLuaScript& script, std::vector<SGTScriptParam>);
 
-class SGTDllExport SGTLuaScript
+class __declspec(dllexport) SGTLuaScript
 {
 public:
 	SGTLuaScript(std::string strFile);
@@ -36,7 +35,7 @@ public:
 	static void LogError(std::string strScript, int iLine, std::string strError);
 
 	static void SetLoader(std::string (*pfLoader)(lua_State* pState, std::string strFileName));
-private:
+protected:
 	static int ApiCallback(lua_State* pState);
 	bool IncludeScript(SGTLuaScript& script);
 
@@ -46,13 +45,13 @@ private:
 	lua_State* m_pState;
 	std::string m_strScriptName;
 
-	struct SGTDllExport SExternalShare
+	struct SExternalShare
 	{
 		std::string strInternalName;
 		SGTLuaScript& script;
 	};
 
-	struct SGTDllExport SCShare
+	struct SCShare
 	{
 		SCShare(bool bStatic, void* pFn){bIsStatic=bStatic; fn=(SGTScriptFunction)pFn; fns=(SGTStaticScriptFunction)pFn;}
 		bool bIsStatic;

@@ -151,7 +151,7 @@
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="..\..\Dependencies\boost\lib\;..\..\Dependencies\MeshMagick\lib;..\..\Dependencies\OgreOggSound\lib;..\..\Dependencies\Ogre3D\lib;..\..\Dependencies\NxOgre\lib;..\..\Dependencies\Ogre3D\Dependencies\lib\Release;..\..\Dependencies\PhysX\SDKs\lib\win32;..\..\Dependencies\wxWidgets\lib\vc_dll\;..\..\Dependencies\wxWidgets\wxthings\lib\;..\..\Dependencies\Caelum\lib\release;..\..\Ogre3D\Dependencies\lib\Release\;..\..\lib\;..\..\Dependencies\Hydrax\lib"
 				GenerateDebugInformation="true"
-				SubSystem="1"
+				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				RandomizedBaseAddress="1"
