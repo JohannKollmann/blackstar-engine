@@ -11,7 +11,6 @@
 #include "SGTGameObject.h"
 #include "OgreAxisObject.h"
 #include "SGTEntityMaterialInspector.h"
-#include "GUISystem.h"
 
 struct SGTEditorSelection
 {

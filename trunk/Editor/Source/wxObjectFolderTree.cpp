@@ -2,7 +2,6 @@
 #include "wxObjectFolderTree.h"
 #include "SGTScenemanager.h"
 #include "SGTGOCAnimatedCharacter.h"
-#include "GUISystem.h"
 
 enum
 {
