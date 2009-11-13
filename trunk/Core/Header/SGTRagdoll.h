@@ -8,7 +8,6 @@
 #include "SGTMessageListener.h"	//Temp
 #include "SGTMessageSystem.h"
 #include "SGTGOCView.h"
-#include "SGTGOCEditorInterface.h"
 
 struct sD6Joint
 {

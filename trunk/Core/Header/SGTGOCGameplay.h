@@ -9,7 +9,7 @@ public:
 	SGTGOCGameplay(void);
 	virtual ~SGTGOCGameplay(void);
 
-	goc_id_family& GetFamilyID() const { static std::string name = "GOCGameplay"; return name; }
+	goc_id_family& GetFamilyID() const { static std::string name = "Gameplay"; return name; }
 };
 
 
@@ -19,11 +19,11 @@ public:
 	SGTGOCItem(void);
 	~SGTGOCItem(void);
 
-	SGTGOComponent::goc_id_type& GetComponentID() const { static std::string name = "GOCItem"; return name; }
+	SGTGOComponent::goc_id_type& GetComponentID() const { static std::string name = "Item"; return name; }
 
 	void Save(SGTSaveSystem& mgr);
 	void Load(SGTLoadSystem& mgr);
-	static void Register(std::string* pstrName, SGTSaveableInstanceFn* pFn) { *pstrName = "GOCItem"; *pFn = (SGTSaveableInstanceFn)&NewInstance; }
+	static void Register(std::string* pstrName, SGTSaveableInstanceFn* pFn) { *pstrName = "Item"; *pFn = (SGTSaveableInstanceFn)&NewInstance; }
 	static SGTSaveable* NewInstance() { return new SGTGOCItem; }
-	std::string& TellName() { static std::string name = "GOCItem"; return name; };
+	std::string& TellName() { static std::string name = "Item"; return name; };
 };

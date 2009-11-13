@@ -102,16 +102,13 @@ void wxMaterialTree::Update()
 
 		for (std::list<SGTGameObject*>::iterator i = SGTSceneManager::Instance().mGameObjects.begin(); i != SGTSceneManager::Instance().mGameObjects.end(); i++)
 		{
-			SGTGOCNodeRenderable *visuals = (SGTGOCNodeRenderable*)(*i)->GetComponent("GOCView");
+			SGTGOCViewContainer *visuals = (SGTGOCViewContainer*)(*i)->GetComponent("View", "ViewContainer");
 			if (visuals != 0)
 			{
-				if (visuals->GetComponentID() == "GOCViewContainer")
+				SGTMeshRenderable *gocmesh = (SGTMeshRenderable*)visuals->GetItem("MeshRenderable");
+				if (gocmesh != 0)
 				{
-					SGTMeshRenderable *gocmesh = (SGTMeshRenderable*)((SGTGOCViewContainer*)visuals)->GetItem("MeshRenderable");
-					if (gocmesh != 0)
-					{
-						AddEntity((Ogre::Entity*)gocmesh->GetEditorVisual());
-					}
+					AddEntity((Ogre::Entity*)gocmesh->GetEditorVisual());
 				}
 			}
 		}

@@ -137,16 +137,13 @@ void AxisComponent::SetOwner(SGTGameObject *go)
 		SGTMain::Instance().GetOgreSceneMgr()->destroyManualObject(mAxisObject);
 	}
 	Ogre::Vector3 vAxisDimensions = Ogre::Vector3(1,1,1);
-	SGTGOCNodeRenderable *visuals = (SGTGOCNodeRenderable*)mOwnerGO->GetComponent("GOCView");
+	SGTGOCViewContainer *visuals = (SGTGOCViewContainer*)mOwnerGO->GetComponent("View", "ViewContainer");
 	if (visuals != 0)
 	{
-		if (visuals->GetComponentID() == "GOCViewContainer")
+		SGTMeshRenderable *gocmesh = (SGTMeshRenderable*)visuals->GetItem("MeshRenderable");
+		if (gocmesh != 0)
 		{
-			SGTMeshRenderable *gocmesh = (SGTMeshRenderable*)((SGTGOCViewContainer*)visuals)->GetItem("MeshRenderable");
-			if (gocmesh != 0)
-			{
-				vAxisDimensions = gocmesh->GetEditorVisual()->getBoundingBox().getSize() * visuals->GetNode()->_getDerivedScale();
-			}
+			vAxisDimensions = gocmesh->GetEditorVisual()->getBoundingBox().getSize() * visuals->GetNode()->_getDerivedScale();
 		}
 	}
 	createAxis("AxisObject_" + Ogre::StringConverter::toString(SGTSceneManager::Instance().RequestID()), vAxisDimensions);

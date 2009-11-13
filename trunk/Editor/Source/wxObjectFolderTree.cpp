@@ -83,33 +83,19 @@ void wxObjectFolderTree::CreateObjectPreview(Ogre::String file)
 	std::list<ComponentSection> sections;
 	ls->LoadAtom("std::list<ComponentSection>", (void*)(&sections));
 	Ogre::Vector3 scale(1,1,1);
-	SGTGOCViewContainer *container = 0;
 	for (std::list<ComponentSection>::iterator i = sections.begin(); i != sections.end(); i++)
 	{
 		if ((*i).mSectionName == "GameObject") continue;
 		(*i).mSectionData->AddOgreVec3("Scale", scale);
 		SGTGOCEditorInterface *component = SGTSceneManager::Instance().CreateComponent((*i).mSectionName, (*i).mSectionData.getPointer());
 		if (!component) continue;
-		if (component->IsViewComponent())
-		{
-			container = (SGTGOCViewContainer*)mPreviewObject->GetComponent("GOCView");
-			if (!container)
-			{
-				container = new SGTGOCViewContainer();
-				mPreviewObject->AddComponent(container);
-				wxEdit::Instance().GetPreviewWindow()->SetPreviewNode(container->GetNode());
-			}
-			container->AddItem(dynamic_cast<SGTGOCViewComponent*>(component));
-		}
-		else
-		{
-			SGTGOComponent *remove = dynamic_cast<SGTGOComponent*>(component);
-			if (remove) delete remove;
-			//delete component;
-		}
+		SGTGOComponent *remove = dynamic_cast<SGTGOComponent*>(component);
+		if (remove) delete remove;
+		else component->AttachToGO(mPreviewObject);
 	}
 	ls->CloseFile();
-	if (!container)
+	SGTGOCNodeRenderable *renderable = (SGTGOCNodeRenderable*)mPreviewObject->GetComponent("View");
+	if (!renderable)
 	{
 		delete mPreviewObject;
 		mPreviewObject = 0;
@@ -119,8 +105,9 @@ void wxObjectFolderTree::CreateObjectPreview(Ogre::String file)
 	SGTMain::Instance().SetSceneMgr(true);
 	float width = 256;//wxEdit::Instance().GetAuiManager().GetPane("preview").floating_size.GetWidth();
 	float height = 256;//wxEdit::Instance().GetAuiManager().GetPane("preview").floating_size.GetHeight();
-	SGTSceneManager::Instance().CreatePreviewRender(container->GetNode(), "EditorPreview", width, height);
+	SGTSceneManager::Instance().CreatePreviewRender(renderable->GetNode(), "EditorPreview", width, height);
 	Ogre::TexturePtr texture = Ogre::TextureManager::getSingleton().getByName("EditorPreview_Tex");
+	wxEdit::Instance().GetPreviewWindow()->SetPreviewNode(renderable->GetNode());
 	wxEdit::Instance().GetPreviewWindow()->SetTexture(texture);
 	
 }

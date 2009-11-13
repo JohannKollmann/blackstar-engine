@@ -218,9 +218,9 @@ bool SGTGOCAnimatedCharacterBone::GetTestAnimation()
 	if (!mDebugAnimation) return false;
 	if (mOwnerGO->GetParent())
 	{
-		if (mOwnerGO->GetParent()->GetComponent("GOCAnimatedCharacterBone"))
+		if (mOwnerGO->GetParent()->GetComponent("AnimatedCharacterBone"))
 		{
-			return ((SGTGOCAnimatedCharacterBone*)(mOwnerGO->GetParent()->GetComponent("GOCAnimatedCharacterBone")))->GetTestAnimation();
+			return ((SGTGOCAnimatedCharacterBone*)(mOwnerGO->GetParent()->GetComponent("AnimatedCharacterBone")))->GetTestAnimation();
 		}
 	}
 	return mDebugAnimation;
@@ -399,7 +399,7 @@ void SGTGOCAnimatedCharacter::SerialiseBoneObjects(Ogre::String filename)
 	std::vector<sBoneActorBindConfig> boneconfig;
 	for (std::list<SGTGameObject*>::iterator i = mBoneObjects.begin(); i != mBoneObjects.end(); i++)
 	{
-		SGTGOCAnimatedCharacterBone *bone = (SGTGOCAnimatedCharacterBone*)(*i)->GetComponent("GOCAnimatedCharacterBone");
+		SGTGOCAnimatedCharacterBone *bone = (SGTGOCAnimatedCharacterBone*)(*i)->GetComponent("AnimatedCharacterBone");
 		boneconfig.push_back(bone->GetBoneConfig());
 	}
 	mRagdoll->Serialise(boneconfig, filename);
@@ -430,7 +430,7 @@ void SGTGOCAnimatedCharacter::CreateBoneObjects()
 			if (search != bonemap.end())
 			{
 				(*i).second->SetParent(search->second);
-				((SGTGOCAnimatedCharacterBone*)(*i).second->GetComponent("GOCAnimatedCharacterBone"))->CreateJointAxis();
+				((SGTGOCAnimatedCharacterBone*)(*i).second->GetComponent("AnimatedCharacterBone"))->CreateJointAxis();
 			}
 		}
 	}
@@ -579,4 +579,15 @@ void SGTGOCAnimatedCharacter::Load(SGTLoadSystem& mgr)
 	if (animstate != "") mRagdoll->SetAnimationState(animstate);
 	mRagdoll->GetEntity()->setCastShadows(shadowcaster);
 	if (ragdoll) mRagdoll->SetControlToActors();
+}
+
+void SGTGOCAnimatedCharacter::AttachToGO(SGTGameObject *go)
+{
+	go->RemoveComponent(GetFamilyID());
+	go->AddComponent(this);
+}
+void SGTGOCAnimatedCharacterBone::AttachToGO(SGTGameObject *go)
+{
+	go->RemoveComponent(GetFamilyID());
+	go->AddComponent(this);
 }

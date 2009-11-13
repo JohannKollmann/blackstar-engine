@@ -56,7 +56,7 @@ protected:
 	void BroadcastMovementState();
 
 public:
-	goc_id_family& GetFamilyID() const { static std::string name = "GOCCharacterInput"; return name; }
+	goc_id_family& GetFamilyID() const { static std::string name = "CharacterInput"; return name; }
 	void BroadcastMovementState(int state);
 	int GetMovementState() { return mCharacterMovementState; }
 };
@@ -91,8 +91,8 @@ public:
 	void CreateFromDataMap(SGTDataMap *parameters);
 	void GetParameters(SGTDataMap *parameters);
 	static void GetDefaultParameters(SGTDataMap *parameters);
-	bool IsViewComponent() { return false; }
 	static SGTGOCEditorInterface* NewEditorInterfaceInstance() { return new SGTGOCCharacterController(); }
+	void AttachToGO(SGTGameObject *go); 
 
 	void Save(SGTSaveSystem& mgr);
 	void Load(SGTLoadSystem& mgr);

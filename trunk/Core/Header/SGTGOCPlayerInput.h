@@ -51,7 +51,7 @@ public:
 	void UpdatePosition(Ogre::Vector3 position);
 	void UpdateOrientation(Ogre::Quaternion orientation);
 
-	goc_id_family& GetFamilyID() const { static std::string name = "GOCCamera"; return name; }
+	goc_id_family& GetFamilyID() const { static std::string name = "Camera"; return name; }
 	SGTGOComponent::goc_id_type& GetComponentID() const { static std::string name = "CameraController"; return name; }
 
 	std::string& TellName() { static std::string name = "CameraController"; return name; };

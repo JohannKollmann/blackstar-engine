@@ -134,6 +134,19 @@ SGTGOComponent* SGTGameObject::GetComponent(const SGTGOComponent::goc_id_family 
 	return 0;
 }
 
+SGTGOComponent* SGTGameObject::GetComponent(const SGTGOComponent::goc_id_family& familyID, SGTGOComponent::goc_id_type typeID)
+{
+	for (std::list<SGTGOComponent*>::iterator i = mComponents.begin(); i != mComponents.end(); i++)
+	{
+		if ((*i)->GetFamilyID() == familyID)
+		{
+			if ((*i)->GetComponentID() == typeID) return (*i);
+			else return 0;
+		}
+	}
+	return 0;
+}
+
 std::vector<Ogre::String> SGTGameObject::GetComponentsStr()
 {
 	std::vector<Ogre::String> returner;

@@ -66,8 +66,8 @@ public:
 	void CreateFromDataMap(SGTDataMap *parameters);
 	void GetParameters(SGTDataMap *parameters);
 	static void GetDefaultParameters(SGTDataMap *parameters);
-	bool IsViewComponent() { return false; }
 	static SGTGOCEditorInterface* NewEditorInterfaceInstance() { return new SGTGOCAI(); }
+	void AttachToGO(SGTGameObject *go);
 
 	bool IsStatic() { return false; }
 

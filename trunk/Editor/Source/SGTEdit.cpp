@@ -276,10 +276,10 @@ void SGTEdit::OnMouseEvent(wxMouseEvent &ev)
 		{
 			for (std::list<SGTEditorSelection>::iterator i = mSelectedObjects.begin(); i != mSelectedObjects.end(); i++)
 			{
-				/*SGTGOCNodeRenderable *visuals = (SGTGOCNodeRenderable*)(*i).mObject->GetComponent("GOCView");
+				/*SGTGOCNodeRenderable *visuals = (SGTGOCNodeRenderable*)(*i).mObject->GetComponent("View");
 				if (visuals != 0)
 				{
-					if (visuals->GetComponentID() == "GOCViewContainer")
+					if (visuals->GetComponentID() == "ViewContainer")
 					{
 						SGTMeshRenderable *gocmesh = (SGTMeshRenderable*)((SGTGOCViewContainer*)visuals)->GetItem("MeshRenderable");
 						if (gocmesh != 0)
@@ -312,13 +312,13 @@ void SGTEdit::OnMouseEvent(wxMouseEvent &ev)
 
 void SGTEdit::AttachAxisObject(SGTGameObject *object)
 {
-	object->RemoveComponent("GOCAxisObject");
+	object->RemoveComponent("AxisObject");
 	AxisComponent* caxis = new AxisComponent();
 	object->AddComponent(caxis);
 }
 void SGTEdit::DetachAxisObject(SGTGameObject *object)
 {
-	object->RemoveComponent("GOCAxisObject");
+	object->RemoveComponent("AxisObject");
 }
 
 void SGTEdit::OnMouseMove(Ogre::Radian RotX,Ogre::Radian RotY)
@@ -520,7 +520,7 @@ void SGTEdit::CreatePreviewObject()
 		std::vector<Ogre::String> components = preview->GetComponentsStr();
 		for (std::vector<Ogre::String>::iterator i = components.begin(); i != components.end(); i++)
 		{
-			if ((*i) != "GOCView" && (*i) != "MeshDebugRenderable")
+			if ((*i) != "View" && (*i) != "MeshDebugRenderable")
 			{
 				preview->RemoveComponent((*i));
 			}
@@ -605,24 +605,11 @@ SGTGameObject* SGTEdit::OnInsertObject(SGTGameObject *parent, bool align, bool c
 					continue;
 				} 
 				(*i).mSectionData->AddOgreVec3("Scale", scale);
+
 				SGTGOCEditorInterface *component = SGTSceneManager::Instance().CreateComponent((*i).mSectionName, (*i).mSectionData.getPointer());
-				if (component->IsViewComponent())
-				{
-					SGTGOCViewContainer *container = (SGTGOCViewContainer*)object->GetComponent("GOCView");
-					if (!container)
-					{
-						container = new SGTGOCViewContainer();
-						object->AddComponent(container);
-					}
-					container->AddItem(dynamic_cast<SGTGOCViewComponent*>(component));
-				}
-				else
-				{
-					object->AddComponent(dynamic_cast<SGTGOComponent*>(component));
-				}
+				if (component) component->AttachToGO(object);
 			}
 
-			//SGTMain::Instance().GetNxWorld()->getPhysXDriver()->simulate(0);
 		}
 
 		if (align) AlignObjectWithMesh(object);
@@ -778,24 +765,21 @@ void SGTEdit::OnSelectMaterial(float MouseX, float MouseY)
 	SGTGameObject *object = rc.GetFirstHit(true);
 	if (object)
 	{
-		SGTGOCNodeRenderable *visuals = (SGTGOCViewContainer*)object->GetComponent("GOCView");
+		SGTGOCViewContainer *visuals = (SGTGOCViewContainer*)object->GetComponent("View", "ViewContainer");
 		if (visuals != 0)
 		{
-			if (visuals->GetComponentID() == "GOCViewContainer")
+			SGTMeshRenderable *gocmesh = (SGTMeshRenderable*)visuals->GetItem("MeshRenderable");
+			if (gocmesh != 0)
 			{
-				SGTMeshRenderable *gocmesh = (SGTMeshRenderable*)((SGTGOCViewContainer*)visuals)->GetItem("MeshRenderable");
-				if (gocmesh != 0)
-				{
-					SGTEntityMaterialInspector emi((Ogre::Entity*)gocmesh->GetEditorVisual());
-					Ogre::SubEntity *ent = emi.GetSubEntity(ray);
-					if (ent == NULL) return;
-					mCurrentMaterialSelection.mSubEntity = ent;
-					mCurrentMaterialSelection.mOriginalMaterialName = ent->getMaterialName();
-					ent->setMaterialName("Editor_Submesh_Selected");
-					wxEdit::Instance().GetWorldExplorer()->GetMaterialTree()->ExpandToMaterial(((Ogre::Entity*)gocmesh->GetEditorVisual())->getMesh()->getName(), mCurrentMaterialSelection.mOriginalMaterialName);
-					wxEdit::Instance().GetOgrePane()->SetFocus();
-					return;
-				}
+				SGTEntityMaterialInspector emi((Ogre::Entity*)gocmesh->GetEditorVisual());
+				Ogre::SubEntity *ent = emi.GetSubEntity(ray);
+				if (ent == 0) return;
+				mCurrentMaterialSelection.mSubEntity = ent;
+				mCurrentMaterialSelection.mOriginalMaterialName = ent->getMaterialName();
+				ent->setMaterialName("Editor_Submesh_Selected");
+				wxEdit::Instance().GetWorldExplorer()->GetMaterialTree()->ExpandToMaterial(((Ogre::Entity*)gocmesh->GetEditorVisual())->getMesh()->getName(), mCurrentMaterialSelection.mOriginalMaterialName);
+				wxEdit::Instance().GetOgrePane()->SetFocus();
+				return;
 			}
 		}
 	}
@@ -864,7 +848,7 @@ void SGTEdit::SelectObject(SGTGameObject *object)
 	((wxEditSGTGameObject*)(wxEdit::Instance().GetpropertyWindow()->GetCurrentPage()))->SetObject(object);
 
 	object->Freeze(true);
-	SGTGOCNodeRenderable *visuals = (SGTGOCNodeRenderable*)object->GetComponent("GOCView");
+	SGTGOCNodeRenderable *visuals = (SGTGOCNodeRenderable*)object->GetComponent("View");
 	if (visuals != 0)
 	{
 		visuals->GetNode()->showBoundingBox(true);
@@ -884,7 +868,7 @@ void SGTEdit::SelectChildren(SGTGameObject *object)
 	{
 		SGTGameObject *child = object->GetChild(i);
 		child->Freeze(true);
-		SGTGOCNodeRenderable *visuals = (SGTGOCNodeRenderable*)child->GetComponent("GOCView");
+		SGTGOCNodeRenderable *visuals = (SGTGOCNodeRenderable*)child->GetComponent("View");
 		if (visuals != 0)
 		{
 			visuals->GetNode()->showBoundingBox(true);
@@ -900,7 +884,7 @@ void SGTEdit::DeselectChildren(SGTGameObject *object)
 	{
 		SGTGameObject *child = object->GetChild(i);
 		child->Freeze(false);
-		SGTGOCNodeRenderable *visuals = (SGTGOCNodeRenderable*)child->GetComponent("GOCView");
+		SGTGOCNodeRenderable *visuals = (SGTGOCNodeRenderable*)child->GetComponent("View");
 		if (visuals != 0)
 		{
 			visuals->GetNode()->showBoundingBox(false);
@@ -930,7 +914,7 @@ void SGTEdit::DeselectObject(SGTGameObject *object)
 		if ((*i).mObject == object)
 		{
 			DetachAxisObject((*i).mObject);
-			SGTGOCNodeRenderable *visuals = (SGTGOCNodeRenderable*)(*i).mObject->GetComponent("GOCView");
+			SGTGOCNodeRenderable *visuals = (SGTGOCNodeRenderable*)(*i).mObject->GetComponent("View");
 			if (visuals != 0)
 			{
 				visuals->GetNode()->showBoundingBox(false);
@@ -948,7 +932,7 @@ void SGTEdit::DeselectAllObjects()
 	for (std::list<SGTEditorSelection>::iterator i = mSelectedObjects.begin(); i != mSelectedObjects.end(); i++)
 	{
 		DetachAxisObject((*i).mObject);
-		SGTGOCNodeRenderable *visuals = (SGTGOCNodeRenderable*)(*i).mObject->GetComponent("GOCView");
+		SGTGOCNodeRenderable *visuals = (SGTGOCNodeRenderable*)(*i).mObject->GetComponent("View");
 		if (visuals != 0)
 		{
 			visuals->GetNode()->showBoundingBox(false);
@@ -985,7 +969,7 @@ void SGTEdit::AlignObjectWithMesh(SGTGameObject *object)
 			object->Rotate(Ogre::Vector3::UNIT_X, Ogre::Radian(Ogre::Degree(-normal.y * 180)));
 		}
 		Ogre::Vector3 offset = Ogre::Vector3(0,0,0);
-		SGTGOCNodeRenderable *visuals = (SGTGOCNodeRenderable*)object->GetComponent("GOCView");
+		SGTGOCNodeRenderable *visuals = (SGTGOCNodeRenderable*)object->GetComponent("View");
 		if (visuals != 0)
 		{
 			if (visuals->GetNode()->getAttachedObject(0))

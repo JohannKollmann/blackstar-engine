@@ -144,3 +144,9 @@ void SGTGOCCharacterController::Load(SGTLoadSystem& mgr)
 {
 	Create(Ogre::Vector3(1,2,1));
 }
+
+void SGTGOCCharacterController::AttachToGO(SGTGameObject *go)
+{
+	go->RemoveComponent(GetFamilyID());
+	go->AddComponent(this);
+}

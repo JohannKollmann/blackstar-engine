@@ -144,6 +144,12 @@ void SGTGOCRigidBody::GetDefaultParameters(SGTDataMap *parameters)
 	parameters->AddInt("ShapeType", 0);
 }
 
+void SGTGOCRigidBody::AttachToGO(SGTGameObject *go)
+{
+	go->RemoveComponent(GetFamilyID());
+	go->AddComponent(this);
+}
+
 void SGTGOCRigidBody::Save(SGTSaveSystem& mgr)
 {
 	mgr.SaveAtom("Ogre::String", &mCollisionMeshName, "CollisionMeshFile");
@@ -234,6 +240,11 @@ void SGTGOCStaticBody::GetParameters(SGTDataMap *parameters)
 void SGTGOCStaticBody::GetDefaultParameters(SGTDataMap *parameters)
 {
 	parameters->AddOgreString("CollisionMeshFile", "");
+}
+void SGTGOCStaticBody::AttachToGO(SGTGameObject *go)
+{
+	go->RemoveComponent(GetFamilyID());
+	go->AddComponent(this);
 }
 
 void SGTGOCStaticBody::Save(SGTSaveSystem& mgr)

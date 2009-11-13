@@ -352,33 +352,25 @@ void wxEditSGTGameObject::OnApply()
 					mGameObject->SetGlobalOrientation((*i).mSectionData->GetOgreQuat("Orientation"));
 					mGameObject->SetGlobalScale((*i).mSectionData->GetOgreVec3("Scale"));
 					continue;
-				}        
+				}     
+
+				//Component data
+
 				(*i).mSectionData->AddOgreVec3("Scale", mGameObject->GetGlobalScale());	//HACK - Some components require scale value for initialisation (f.o. rigid bodies)
+
 				SGTGOCEditorInterface *editor_interface = SGTSceneManager::Instance().CreateComponent((*i).mSectionName, (*i).mSectionData.getPointer());
-				if (editor_interface->IsViewComponent())
+				if (!editor_interface) continue;
+				//We need to perform some RTTI magic to find out whether our interface is a component, if yes, we retrieve the old user data and inject it into the new interface.
+				SGTGOComponent* component = dynamic_cast<SGTGOComponent*>(editor_interface);
+				void *userdata = 0;
+				if (component)
 				{
-					SGTGOCViewContainer *container = dynamic_cast<SGTGOCViewContainer*>(mGameObject->GetComponent("GOCView"));
-					if (!container)
-					{
-						container = new SGTGOCViewContainer();
-						mGameObject->AddComponent(container);
-					}
-					SGTGOCViewComponent *viewcomponent = dynamic_cast<SGTGOCViewComponent*>(editor_interface);
-					Ogre::String gocTypeName = viewcomponent->GetTypeName();
-					container->RemoveItem(gocTypeName);
-					container->AddItem(viewcomponent);
-				}
-				else
-				{
-					SGTGOComponent* component = dynamic_cast<SGTGOComponent*>(editor_interface);
-					Ogre::String familyID = component->GetFamilyID();
-					SGTGOCEditorInterface *oldinterface = dynamic_cast<SGTGOCEditorInterface*>(mGameObject->GetComponent(familyID));
-					void *userdata = 0;
+					SGTGOCEditorInterface *oldinterface = dynamic_cast<SGTGOCEditorInterface*>(mGameObject->GetComponent(component->GetFamilyID()));
 					if (oldinterface) userdata = oldinterface->GetUserData();
-					mGameObject->RemoveComponent(familyID);
-					mGameObject->AddComponent(component);
-					if (userdata) editor_interface->InjectUserData(userdata);
 				}
+				editor_interface->AttachToGO(mGameObject);
+				if (userdata) editor_interface->InjectUserData(userdata);
+
 			}
 			if (select == true)
 			{
@@ -417,7 +409,7 @@ void wxEditSGTGameObject::SetObject(SGTGameObject *object, bool update_ui)
 	AddGOCSection("GameObject", transform_data);
 	for (std::list<SGTGOComponent*>::iterator i = mGameObject->GetComponentIterator(); i != mGameObject->GetComponentIteratorEnd(); i++)
 	{
-		if ((*i)->GetComponentID() == "GOCViewContainer")
+		if ((*i)->GetComponentID() == "ViewContainer")
 		{
 			SGTGOCViewContainer *container = (SGTGOCViewContainer*)(*i);
 			for (std::list<SGTGOCViewComponent*>::iterator x = container->GetItemIterator(); x != container->GetItemIteratorEnd(); x++)

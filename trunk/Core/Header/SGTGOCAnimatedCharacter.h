@@ -33,13 +33,12 @@ public:
 	SGTGOCAnimatedCharacterBone(void);
 	~SGTGOCAnimatedCharacterBone(void);
 
-	goc_id_family& GetFamilyID() const { static std::string name = "GOCAnimatedCharacterBone"; return name; }
+	goc_id_family& GetFamilyID() const { static std::string name = "AnimatedCharacterBone"; return name; }
 	SGTGOComponent::goc_id_type& GetComponentID() const { static std::string name = "AnimatedCharacterBone"; return name; }
 
 	void CreateFromDataMap(SGTDataMap *parameters);
 	void GetParameters(SGTDataMap *parameters);
 	static void GetDefaultParameters(SGTDataMap *parameters);
-	bool IsViewComponent() { return false; }
 	void* GetUserData();
 	void InjectUserData(void* data);
 
@@ -63,6 +62,7 @@ public:
 	static void Register(std::string* pstrName, SGTSaveableInstanceFn* pFn) { *pstrName = "AnimatedCharacterBone"; *pFn = (SGTSaveableInstanceFn)&NewInstance; };
 	static SGTSaveable* NewInstance() { return new SGTGOCAnimatedCharacterBone; };
 	static SGTGOCEditorInterface* NewEditorInterfaceInstance() { return new SGTGOCAnimatedCharacterBone(); }
+	void AttachToGO(SGTGameObject *go);
 };
 
 class SGTDllExport SGTGOCAnimatedCharacter : public SGTGOCEditorInterface, public SGTGOCNodeRenderable, public SGTMessageListener
@@ -116,11 +116,11 @@ public:
 	void CreateFromDataMap(SGTDataMap *parameters);
 	void GetParameters(SGTDataMap *parameters);
 	static void GetDefaultParameters(SGTDataMap *parameters);
-	bool IsViewComponent() { return false; }
 	void Save(SGTSaveSystem& mgr);
 	void Load(SGTLoadSystem& mgr);
 	virtual std::string& TellName() { static std::string name = "Skeleton"; return name; };
 	static void Register(std::string* pstrName, SGTSaveableInstanceFn* pFn) { *pstrName = "Skeleton"; *pFn = (SGTSaveableInstanceFn)&NewInstance; };
 	static SGTSaveable* NewInstance() { return new SGTGOCAnimatedCharacter(); };
 	static SGTGOCEditorInterface* NewEditorInterfaceInstance() { return new SGTGOCAnimatedCharacter(); }
+	void AttachToGO(SGTGameObject *go);
 };

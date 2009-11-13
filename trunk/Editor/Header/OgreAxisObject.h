@@ -28,8 +28,8 @@ private:
 public:
 	AxisComponent();
 	~AxisComponent();
-	goc_id_type& GetComponentID() const { static std::string name = "GOCAxisObject"; return name; } 
-	goc_id_family& GetFamilyID() const { static std::string name = "GOCAxisObject"; return name; } 
+	goc_id_type& GetComponentID() const { static std::string name = "AxisObject"; return name; } 
+	goc_id_family& GetFamilyID() const { static std::string name = "AxisObject"; return name; } 
 	void SetOwner(SGTGameObject *go);
 
 	void Save(SGTSaveSystem& mgr) {};

@@ -26,7 +26,7 @@ class SGTDllExport SGTGOCPhysics : public SGTGOComponent
 {
 public:
 	virtual ~SGTGOCPhysics(void) {};
-	goc_id_family& GetFamilyID() const { static std::string name = "GOCPhysics"; return name; }
+	goc_id_family& GetFamilyID() const { static std::string name = "Physics"; return name; }
 };
 
 namespace SGTShapes
@@ -66,7 +66,6 @@ public:
 	void CreateFromDataMap(SGTDataMap *parameters);
 	void GetParameters(SGTDataMap *parameters);
 	static void GetDefaultParameters(SGTDataMap *parameters);
-	bool IsViewComponent() { return false; }
 
 	void Save(SGTSaveSystem& mgr);
 	void Load(SGTLoadSystem& mgr);
@@ -74,7 +73,7 @@ public:
 	static void Register(std::string* pstrName, SGTSaveableInstanceFn* pFn) { *pstrName = "RigidBody"; *pFn = (SGTSaveableInstanceFn)&NewInstance; };
 	static SGTSaveable* NewInstance() { return new SGTGOCRigidBody; };
 	static SGTGOCEditorInterface* NewEditorInterfaceInstance() { return new SGTGOCRigidBody(); }
-
+	void AttachToGO(SGTGameObject *go);
 
 	// Required by the RenderableSource. (Tells where the Actor is)
 	NxOgre::Pose getSourcePose(const NxOgre::TimeStep&) const {
@@ -115,7 +114,7 @@ public:
 	void CreateFromDataMap(SGTDataMap *parameters);
 	void GetParameters(SGTDataMap *parameters);
 	static void GetDefaultParameters(SGTDataMap *parameters);
-	bool IsViewComponent() { return false; }
+	void AttachToGO(SGTGameObject *go);
 
 	void Save(SGTSaveSystem& mgr);
 	void Load(SGTLoadSystem& mgr);

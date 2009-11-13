@@ -115,7 +115,7 @@ public:
 	//Editor
 	void CreateFromDataMap(SGTDataMap *parameters);
 	void GetParameters(SGTDataMap *parameters);
-	bool IsViewComponent() { return false; }
+	void AttachToGO(SGTGameObject *go) {};
 
 	//Game clock
 	void EnableClock(bool enable);

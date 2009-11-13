@@ -1,5 +1,6 @@
 
 #include "SGTAIManager.h"
+#include "SGTGameObject.h"
 
 SGTAIManager::SGTAIManager(void)
 {

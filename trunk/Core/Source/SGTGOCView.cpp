@@ -4,6 +4,26 @@
 #include "SGTGameObject.h"
 #include "SGTSceneManager.h"
 
+void SGTGOCViewComponentEDT::AttachToGO(SGTGameObject *go)
+{
+	SGTGOCViewContainer *container = (SGTGOCViewContainer*)go->GetComponent("View");
+	if (container != 0)
+	{
+		if (container->GetComponentID() != "ViewContainer") 
+		{
+			Ogre::LogManager::getSingleton().logMessage("Error in SGTGOCViewComponentEDT::AttachToGO: Game Object already has another view component!");
+			return;
+		}
+	}
+	else
+	{
+		container = new SGTGOCViewContainer();
+		go->AddComponent(container);
+	}
+	container->RemoveItem(GetTypeName());
+	container->AddItem(this);
+}
+
 void SGTGOCNodeRenderable::UpdatePosition(Ogre::Vector3 position)
 {
 	mNode->setPosition(position);

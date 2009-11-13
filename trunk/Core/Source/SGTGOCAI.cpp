@@ -189,3 +189,9 @@ void SGTGOCAI::Load(SGTLoadSystem& mgr)
 	mgr.LoadAtom("Ogre::String", &mScriptFileName);
 	Create(mScriptFileName);
 }
+
+void SGTGOCAI::AttachToGO(SGTGameObject *go)
+{
+	go->RemoveComponent(GetFamilyID());
+	go->AddComponent(this);
+}

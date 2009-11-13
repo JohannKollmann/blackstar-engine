@@ -4,3 +4,6 @@
 -script remove über icon löscht die datei nicht.
 -scrollen im dokument setzt den stern im reiter
 -(wenn man alles rückgängig macht bleibt der stern auch...)
+
+[Editor]
+- möglicherweise Crash bei Materialauswahl
