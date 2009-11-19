@@ -33,6 +33,7 @@ private:
 	static std::vector<SGTScriptParam> Lua_DeleteTimer(SGTScript& caller, std::vector<SGTScriptParam> vParams);
 	static std::vector<SGTScriptParam> Lua_GetBeatCounter(SGTScript& caller, std::vector<SGTScriptParam> vParams);
 	static std::vector<SGTScriptParam> Lua_GetMood(SGTScript& caller, std::vector<SGTScriptParam> vParams);
+	static std::vector<SGTScriptParam> Lua_SetMood(SGTScript& caller, std::vector<SGTScriptParam> vParams);
 
 	struct SScheduledTask
 	{
