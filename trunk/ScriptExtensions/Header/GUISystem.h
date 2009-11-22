@@ -58,7 +58,7 @@ public:
 	bool GetVisible(int iHandle);
 	void SetCursor(int iHandle);
 
-		
+	void Clear();
 private:
 	//scripting stuff
 
@@ -84,6 +84,7 @@ private:
 	static std::vector<SGTScriptParam> Lua_CreateFontTexture(SGTScript& caller, std::vector<SGTScriptParam> vParams);
 	static std::vector<SGTScriptParam> Lua_ChangeFontMaterial(SGTScript& caller, std::vector<SGTScriptParam> vParams);
 	static std::vector<SGTScriptParam> Lua_DeleteTexture(SGTScript& caller, std::vector<SGTScriptParam> vParams);
+	static std::vector<SGTScriptParam> Lua_DeleteMaterial(SGTScript& caller, std::vector<SGTScriptParam> vParams);
 
 	//window callbacks
 	//mouse events
@@ -124,6 +125,8 @@ private:
 	
 	std::map<int, SWindowInfo> m_mWindowInfos;
 	std::list<int> m_lZOrder;
+	std::list<Ogre::String> m_lTextures;
+	std::list<Ogre::String> m_lMaterials;
 	int m_iCursorHandle;
 	float m_fMaxZ;
 	float m_fZStep;

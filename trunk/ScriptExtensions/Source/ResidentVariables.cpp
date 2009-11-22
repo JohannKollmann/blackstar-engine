@@ -36,6 +36,13 @@ ResidentManager::GetResis(SGTScript &script)
 	return m_mResis.find(script.GetID())->second;
 }
 
+void
+ResidentManager::Clear()
+{
+	m_mResis.clear();
+	m_mAllocatedVars.clear();
+}
+
 std::vector<SGTScriptParam>
 ResidentManager::AllocCallback(SGTScript &caller, std::vector<SGTScriptParam> params)
 {

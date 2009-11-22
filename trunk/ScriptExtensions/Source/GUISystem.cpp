@@ -519,7 +519,7 @@ SGTGUISystem::SetForegroundWindow(int iHandle)
 		wininfo=SGTGUISystem::GetInstance().m_mWindowInfos.find(wininfo.iParentHandle)->second;
 	}
 
-	if(m_iCursorHandle!=iHandle && m_lZOrder.size())
+	if(m_iCursorHandle!=FindParentWindow(iHandle) && m_lZOrder.size())
 	{
 		m_lZOrder.remove(iHandle);
 	}
@@ -597,6 +597,34 @@ SGTGUISystem::SetCursor(int iHandle)
 	SetForegroundWindow(iHandle);
 }
 
+void
+SGTGUISystem::Clear()
+{
+	for(std::map<int, SWindowInfo>::iterator it=m_mWindowInfos.begin(); it!=m_mWindowInfos.end(); it++)
+	{
+		int iHandle=FindParentWindow(it->first);
+		SWindowInfo wininfo=m_mWindowInfos.find(iHandle)->second;
+		if(wininfo.bWasBaked)
+		{
+			Ogre::MeshManager::getSingleton().remove(wininfo.strName);
+			wininfo.bWasBaked=false;
+		}
+	}
+	//delete materials created by font textures
+	for(std::list<Ogre::String>::iterator it=m_lMaterials.begin(); it!=m_lMaterials.end(); it++)
+		if(Ogre::MaterialManager::getSingleton().resourceExists(*it))
+			Ogre::MaterialManager::getSingleton().remove(*it);
+	//delete textures created by font textures
+	for(std::list<Ogre::String>::iterator it=m_lTextures.begin(); it!=m_lTextures.end(); it++)
+		if(Ogre::TextureManager::getSingleton().resourceExists(*it))
+			Ogre::TextureManager::getSingleton().remove(*it);
+	m_mFontTextures.clear();
+	m_lZOrder.clear();
+	m_mWindowInfos.clear();
+	m_lMaterials.clear();
+	m_lTextures.clear();
+}
+
 std::vector<SGTScriptParam>
 SGTGUISystem::Lua_CreateFontTexture(SGTScript& caller, std::vector<SGTScriptParam> vParams)
 {//arguments: spacing file, text, maxwidth, maxheight
@@ -611,6 +639,7 @@ SGTGUISystem::Lua_CreateFontTexture(SGTScript& caller, std::vector<SGTScriptPara
 	int iActualWidth, iActualHeight;
 	std::vector<SGTScriptParam> vRes;
 	Ogre::TexturePtr pTex=it->second.CreateTextTexture(vParams[1].getString(), (int)vParams[2].getFloat(), (int)vParams[3].getFloat(), iActualWidth, iActualHeight);
+	GetInstance().m_lTextures.push_back(pTex->getName());
 	vRes.push_back(SGTScriptParam(pTex->getName()));
 	vRes.push_back(SGTScriptParam(iActualWidth));
 	vRes.push_back(SGTScriptParam(iActualHeight));
@@ -628,6 +657,7 @@ SGTGUISystem::Lua_CreateFontMaterial(SGTScript& caller, std::vector<SGTScriptPar
 		it=GetInstance().m_mFontTextures.find(vParams[0].getString());
 	}
 	Ogre::MaterialPtr pMat=it->second.CreateTextMaterial(Ogre::TextureManager::getSingleton().getByName(vParams[1].getString()), vParams[2].getString(), vParams[3].getString(), vParams[4].getString(), (int)vParams[5].getFloat(), (int)vParams[6].getFloat());
+	GetInstance().m_lMaterials.push_back(pMat->getName());
 	return std::vector<SGTScriptParam>(1, SGTScriptParam(pMat->getName()));
 }
 
@@ -656,6 +686,15 @@ std::vector<SGTScriptParam>
 SGTGUISystem::Lua_DeleteTexture(SGTScript& caller, std::vector<SGTScriptParam> vParams)
 {//arguments: texture name
 	Ogre::TextureManager::getSingleton().remove(vParams[0].getString());
+	return std::vector<SGTScriptParam>();
+}
+
+std::vector<SGTScriptParam>
+SGTGUISystem::Lua_DeleteMaterial(SGTScript& caller, std::vector<SGTScriptParam> vParams)
+{//arguments: texture name
+	Ogre::ResourcePtr p;
+	if(!(p=Ogre::MaterialManager::getSingleton().getByName(vParams[0].getString())).isNull())
+		Ogre::MaterialManager::getSingleton().remove(p);
 	return std::vector<SGTScriptParam>();
 }
 
@@ -814,14 +853,7 @@ SGTGUISystem::Lua_MoveWindow(SGTScript& caller, std::vector<SGTScriptParam> vPar
 		errout.push_back(SGTScriptParam(std::string("could not find a window with given ID")));
 		return errout;
 	}
-	SGTGUISystem::SWindowInfo wininfo=it->second;
-	int iHandle=it->first;
-	while(wininfo.iParentHandle!=-1)
-	{
-		wininfo=SGTGUISystem::GetInstance().m_mWindowInfos.find(wininfo.iParentHandle)->second;
-		iHandle=wininfo.iParentHandle;
-	}
-	Window(iHandle).Move(vParams[1].getFloat(), vParams[2].getFloat());
+	Window(GetInstance().FindParentWindow(it->first)).Move(vParams[1].getFloat(), vParams[2].getFloat());
 	return std::vector<SGTScriptParam>();
 }
 

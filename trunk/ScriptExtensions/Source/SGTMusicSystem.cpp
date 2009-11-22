@@ -22,7 +22,7 @@ SGTMusicSystem::SGTMusicSystem()
 	SGTScriptSystem::GetInstance().ShareCFunction("music_get_mood", Lua_GetMood);
 	SGTScriptSystem::GetInstance().ShareCFunction("music_set_mood", Lua_SetMood);
 
-	SGTMessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");	
+	SGTMessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
 }
 
 SGTMusicSystem&

@@ -15,6 +15,7 @@ public:
 	static ResidentManager& GetInstance();
 	void BindResisToScript(ResidentVariables resis, SGTScript& script);
 	ResidentVariables& GetResis(SGTScript& script);
+	void Clear();
 private:
 	std::map<int, ResidentVariables> m_mResis;
 	std::map<std::string, std::map<std::string, SGTScriptParam>> m_mAllocatedVars;

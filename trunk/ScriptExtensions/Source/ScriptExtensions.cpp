@@ -8,6 +8,8 @@
 #include "GUISystem.h"
 #include "SGTScriptableInstances.h"
 
+#include "SGTMessageSystem.h"
+
 const Ogre::String ScriptExtensions::m_cstrName=Ogre::String("ScriptExtensions");
 
 extern "C" void __declspec(dllexport) dllStartPlugin(void) throw()
@@ -54,6 +56,7 @@ ScriptExtensions::initialise()
 	ScriptedControls::GetInstance();
 	Ogre::LogManager::getSingleton().logMessage("ScriptExtensions: initializing music system");
 	SGTMusicSystem::GetInstance();
+	SGTMessageSystem::Instance().JoinNewsgroup(this, "REPARSE_SCRIPTS");
 }
 
 
@@ -61,6 +64,7 @@ void
 ScriptExtensions::shutdown()
 {
 	Ogre::LogManager::getSingleton().logMessage("Script Extensions shut down");
+	SGTMessageSystem::Instance().QuitNewsgroup(this, "REPARSE_SCRIPTS");
 }
 
 
@@ -68,4 +72,16 @@ void
 ScriptExtensions::uninstall()
 {
 	Ogre::LogManager::getSingleton().logMessage("Script Extensions uninstalled");
+}
+
+void
+ScriptExtensions::ReceiveMessage(SGTMsg &msg)
+{
+	if(msg.mNewsgroup == "REPARSE_SCRIPTS")
+	{
+		SGTGUISystem::GetInstance().Clear();
+		SGTMusicSystem::GetInstance().Clear();
+		ResidentManager::GetInstance().Clear();
+		SGTScriptableInstances::GetInstance().Clear();
+	}
 }
