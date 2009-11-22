@@ -41,7 +41,7 @@ void wxSGTToolbar::OnToolEvent(wxCommandEvent &event)
 	}
 }
 
-int wxSGTToolbar::RegisterTool(Ogre::String toolname, Ogre::String toolgroup, Ogre::String bitmapname, SGTToolCallback callback, bool checktool, bool checked)
+int wxSGTToolbar::RegisterTool(Ogre::String toolname, Ogre::String toolgroup, Ogre::String bitmapname, SGTToolCallback callback, Ogre::String tooltip, bool checktool, bool checked)
 {
 	SGTEDTTool tool;
 	wxImage image(bitmapname);
@@ -52,6 +52,7 @@ int wxSGTToolbar::RegisterTool(Ogre::String toolname, Ogre::String toolgroup, Og
 	tool.mChecked = checked;
 	tool.mActive = true;
 	tool.mToolID = NextID();
+	tool.mToolTip = tooltip;
 	for (std::vector<SGTEDTToolGroup>::iterator i = mToolGroups.begin(); i != mToolGroups.end(); i++)
 	{
 		if (i->mGroupname == toolgroup)
@@ -130,10 +131,10 @@ void wxSGTToolbar::RefreshAll()
 				{
 					if (x->mCheckTool)
 					{
-						AddCheckTool(x->mToolID, x->mName, x->mBitmap);
+						AddCheckTool(x->mToolID, x->mName, x->mBitmap, wxNullBitmap, x->mToolTip.c_str());
 						if (x->mChecked) ToggleTool(x->mToolID, true);
 					}
-					else AddTool(x->mToolID, x->mName, x->mBitmap);
+					else AddTool(x->mToolID, x->mName, x->mBitmap, x->mToolTip.c_str());
 				}
 			}
 		}

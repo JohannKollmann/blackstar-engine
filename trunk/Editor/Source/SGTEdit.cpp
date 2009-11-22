@@ -64,24 +64,24 @@ SGTEdit::SGTEdit()
 	//wxEdit::Instance().GetMainToolbar()->RegisterTool("SaveWorld", "General", "Data/Editor/Intern/Engine_Icon08.png", SGTEdit::OnToolbarEvent);
 	//wxEdit::Instance().GetMainToolbar()->SetGroupStatus("General", true);
 
-	wxEdit::Instance().GetMainToolbar()->RegisterTool("Physics", "WorldSettings", "Data/Editor/Intern/Editor_gewicht_04.png", SGTEdit::OnToolbarEvent, true, true);
-	wxEdit::Instance().GetMainToolbar()->RegisterTool("TimeCycle", "WorldSettings", "Data/Editor/Intern/editor_clock.png", SGTEdit::OnToolbarEvent, true);
+	wxEdit::Instance().GetMainToolbar()->RegisterTool("Physics", "WorldSettings", "Data/Editor/Intern/Editor_gewicht_04.png", SGTEdit::OnToolbarEvent, "Enables/Disables Physics simulation.", true, true);
+	wxEdit::Instance().GetMainToolbar()->RegisterTool("TimeCycle", "WorldSettings", "Data/Editor/Intern/editor_clock.png", SGTEdit::OnToolbarEvent, "Enables/Disables the game clock.", true);
 	wxEdit::Instance().GetMainToolbar()->SetGroupStatus("WorldSettings", true);
 
-	wxEdit::Instance().GetMainToolbar()->RegisterTool("XAxisLock", "Transform", "Data/Editor/Intern/xAxis.png", SGTEdit::OnToolbarEvent, true);
-	wxEdit::Instance().GetMainToolbar()->RegisterTool("YAxisLock", "Transform", "Data/Editor/Intern/yAxis.png", SGTEdit::OnToolbarEvent, true);
-	wxEdit::Instance().GetMainToolbar()->RegisterTool("ZAxisLock", "Transform", "Data/Editor/Intern/zAxis.png", SGTEdit::OnToolbarEvent, true);
+	wxEdit::Instance().GetMainToolbar()->RegisterTool("XAxisLock", "Transform", "Data/Editor/Intern/xAxis.png", SGTEdit::OnToolbarEvent, "Enables/Disables X Axis lock for object movements/rotations.", true);
+	wxEdit::Instance().GetMainToolbar()->RegisterTool("YAxisLock", "Transform", "Data/Editor/Intern/yAxis.png", SGTEdit::OnToolbarEvent, "Enables/Disables Y Axis lock for object movements/rotations.", true);
+	wxEdit::Instance().GetMainToolbar()->RegisterTool("ZAxisLock", "Transform", "Data/Editor/Intern/zAxis.png", SGTEdit::OnToolbarEvent, "Enables/Disables Z Axis lock for object movements/rotations.", true);
 	//wxEdit::Instance().GetMainToolbar()->RegisterTool("MoveRelative", "Transform", "Data/Editor/Intern/BrushMode.png", SGTEdit::OnToolbarEvent, true);
 	wxEdit::Instance().GetMainToolbar()->SetGroupStatus("Transform", true);
 
-	wxEdit::Instance().GetMainToolbar()->RegisterTool("BrushMode", "EditMode", "Data/Editor/Intern/BrushMode.png", SGTEdit::OnToolbarEvent, true);
-	wxEdit::Instance().GetMainToolbar()->RegisterTool("MaterialMode", "EditMode", "Data/Editor/Intern/materialmode.png", SGTEdit::OnToolbarEvent, true);
+	wxEdit::Instance().GetMainToolbar()->RegisterTool("BrushMode", "EditMode", "Data/Editor/Intern/BrushMode.png", SGTEdit::OnToolbarEvent, "Enables/Disables the Brush mode for object placement", true);
+	wxEdit::Instance().GetMainToolbar()->RegisterTool("MaterialMode", "EditMode", "Data/Editor/Intern/materialmode.png", SGTEdit::OnToolbarEvent, "Enables/Disables the Material mode for material selection.", true);
 	wxEdit::Instance().GetMainToolbar()->SetGroupStatus("EditMode", true);
 
-	wxEdit::Instance().GetMainToolbar()->RegisterTool("InsertObject", "ObjectMgr", "Data/Editor/Intern/Engine_Icon02.png", SGTEdit::OnToolbarEvent);
+	wxEdit::Instance().GetMainToolbar()->RegisterTool("InsertObject", "ObjectMgr", "Data/Editor/Intern/Engine_Icon02.png", SGTEdit::OnToolbarEvent, "Inserts an object.");
 	//wxEdit::Instance().GetMainToolbar()->RegisterTool("InsertObjectAsChild", "ObjectMgr", "Data/Editor/Intern/BrushMode.png", SGTEdit::OnToolbarEvent);
-	wxEdit::Instance().GetMainToolbar()->RegisterTool("DeleteObject", "ObjectMgr", "Data/Editor/Intern/Engine_Icon04.png", SGTEdit::OnToolbarEvent);
-	wxEdit::Instance().GetMainToolbar()->RegisterTool("SaveObjectGroup", "ObjectMgr", "Data/Editor/Intern/Engine_Icon06.png", SGTEdit::OnToolbarEvent);
+	wxEdit::Instance().GetMainToolbar()->RegisterTool("DeleteObject", "ObjectMgr", "Data/Editor/Intern/Engine_Icon04.png", SGTEdit::OnToolbarEvent, "Removes an object.");
+	wxEdit::Instance().GetMainToolbar()->RegisterTool("SaveObjectGroup", "ObjectMgr", "Data/Editor/Intern/Engine_Icon06.png", SGTEdit::OnToolbarEvent, "Save Object group.");
 	wxEdit::Instance().GetMainToolbar()->SetGroupStatus("ObjectMgr", true);
 };
 

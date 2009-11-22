@@ -41,6 +41,8 @@ public:
 	*/
 	void SendMessage(SGTMsg &msg);
 
+	void SendInstantMessage(SGTMsg &msg);
+
 	/*
 	Erstellt eine Newsgroup mit dem Namen groupname.
 	*/

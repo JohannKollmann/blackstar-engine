@@ -134,6 +134,20 @@ void SGTMessageSystem::Update()
 	}
 };
 
+void SGTMessageSystem::SendInstantMessage(SGTMsg &msg)
+{
+	for (std::list<SGTNewsgroup>::iterator ni = mNewsgroups.begin(); ni != mNewsgroups.end(); ni++)
+	{
+		if ((*ni).mName == msg.mNewsgroup)
+		{
+			for (std::list<SGTMessageListener*>::iterator li = (*ni).mListeners.begin(); li != (*ni).mListeners.end(); li++)
+			{
+				(*li)->ReceiveMessage(msg);
+			}
+		}
+	}
+}
+
 
 SGTMessageSystem& SGTMessageSystem::Instance()
 {

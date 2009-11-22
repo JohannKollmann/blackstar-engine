@@ -19,9 +19,9 @@ wxMediaTree::wxMediaTree(wxWindow* parent, wxWindowID id, const wxPoint& pos,
 	mShowSounds = true;
 	RefreshFilters();
 
-	wxEdit::Instance().GetExplorerToolbar()->RegisterTool("ShowMeshes", "MediaTree", "Data/Editor/Intern/Editor_meshbox_01.png", wxMediaTree::OnToolbarEvent, true, true);
-	wxEdit::Instance().GetExplorerToolbar()->RegisterTool("ShowTextures", "MediaTree", "Data/Editor/Intern/Editor_textur_01.png", wxMediaTree::OnToolbarEvent, true, true);
-	wxEdit::Instance().GetExplorerToolbar()->RegisterTool("ShowSounds", "MediaTree", "Data/Editor/Intern/Editor_music_01_small.png", wxMediaTree::OnToolbarEvent, true, true);
+	wxEdit::Instance().GetExplorerToolbar()->RegisterTool("ShowMeshes", "MediaTree", "Data/Editor/Intern/Editor_meshbox_01.png", wxMediaTree::OnToolbarEvent, "Show mesh files.", true, true);
+	wxEdit::Instance().GetExplorerToolbar()->RegisterTool("ShowTextures", "MediaTree", "Data/Editor/Intern/Editor_textur_01.png", wxMediaTree::OnToolbarEvent, "Show texture files.", true, true);
+	wxEdit::Instance().GetExplorerToolbar()->RegisterTool("ShowSounds", "MediaTree", "Data/Editor/Intern/Editor_music_01_small.png", wxMediaTree::OnToolbarEvent, "Show sound files.", true, true);
 	wxEdit::Instance().GetExplorerToolbar()->SetGroupStatus("MediaTree", false);
 }
 
