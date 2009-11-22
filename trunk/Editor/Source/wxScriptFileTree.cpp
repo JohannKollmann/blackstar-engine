@@ -71,7 +71,6 @@ void wxScriptFileTree::OnToolbarEvent(int toolID, Ogre::String toolname)
 {
 	if (toolname == "ReloadScripts")
 	{
-		SGTAIManager::Instance().ReloadScripts();
 		SGTMsg msg;
 		msg.mNewsgroup = "REPARSE_SCRIPTS";
 		SGTMessageSystem::Instance().SendMessage(msg);
