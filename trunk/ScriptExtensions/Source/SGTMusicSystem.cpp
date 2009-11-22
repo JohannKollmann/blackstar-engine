@@ -433,3 +433,10 @@ SGTMusicSystem::Lua_SetMood(SGTScript& caller, std::vector<SGTScriptParam> vPara
 	GetInstance().SetMood(vParams[0].getString(), vParams[1].getBool());
 	return std::vector<SGTScriptParam>();
 }
+
+void
+SGTMusicSystem::Clear()
+{
+	m_lTasks.clear();
+	m_mMoods.clear();
+}

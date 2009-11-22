@@ -17,7 +17,7 @@ public:
 
 	void ReceiveMessage(SGTMsg &msg);
 
-	void Clear(){m_mMoods.clear();m_lTasks.clear();}
+	void Clear();
 private:
 	static std::vector<SGTScriptParam> Lua_CreateSound(SGTScript& caller, std::vector<SGTScriptParam> vParams);
 	static std::vector<SGTScriptParam> Lua_PlaySound(SGTScript& caller, std::vector<SGTScriptParam> vParams);

@@ -196,13 +196,23 @@ SGTInput::SetControl(Ogre::String strName, std::vector<std::pair<OIS::KeyCode, O
 				for(std::vector<Ogre::String>::iterator it=m_mKeyControls[oldcontrols[iButton].first].begin();
 					it!=m_mKeyControls[oldcontrols[iButton].first].end(); it++)
 					if(*it==strName)
+					{
 						m_mKeyControls[oldcontrols[iButton].first].erase(it);
+						it=m_mKeyControls[oldcontrols[iButton].first].begin();
+						if(it==m_mKeyControls[oldcontrols[iButton].first].end())
+							break;
+					}
 			}
 			else
 				for(std::vector<Ogre::String>::iterator it=m_mMouseControls[oldcontrols[iButton].second].begin();
 					it!=m_mMouseControls[oldcontrols[iButton].second].end(); it++)
 					if(*it==strName)
+					{
 						m_mMouseControls[oldcontrols[iButton].second].erase(it);
+						it=m_mMouseControls[oldcontrols[iButton].second].begin();
+						if(it==m_mMouseControls[oldcontrols[iButton].second].end())
+							break;
+					}
 		}
 	}
 	m_mControls[strName]=buttons;

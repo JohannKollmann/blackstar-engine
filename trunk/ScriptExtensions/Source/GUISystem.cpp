@@ -606,23 +606,40 @@ SGTGUISystem::Clear()
 		SWindowInfo wininfo=m_mWindowInfos.find(iHandle)->second;
 		if(wininfo.bWasBaked)
 		{
+			SGTMain::Instance().GetOgreSceneMgr()->getSceneNode("SGTGuiSystemNode")->detachObject(wininfo.strName);
+			Ogre::MeshManager::getSingleton().unload(wininfo.strName);
 			Ogre::MeshManager::getSingleton().remove(wininfo.strName);
-			wininfo.bWasBaked=false;
+			m_mWindowInfos.find(iHandle)->second.bWasBaked=false;
 		}
 	}
 	//delete materials created by font textures
 	for(std::list<Ogre::String>::iterator it=m_lMaterials.begin(); it!=m_lMaterials.end(); it++)
 		if(Ogre::MaterialManager::getSingleton().resourceExists(*it))
+		{
+			Ogre::MaterialManager::getSingleton().unload(*it);
 			Ogre::MaterialManager::getSingleton().remove(*it);
+		}
 	//delete textures created by font textures
 	for(std::list<Ogre::String>::iterator it=m_lTextures.begin(); it!=m_lTextures.end(); it++)
 		if(Ogre::TextureManager::getSingleton().resourceExists(*it))
+		{
+			Ogre::TextureManager::getSingleton().unload(*it);
 			Ogre::TextureManager::getSingleton().remove(*it);
+		}
 	m_mFontTextures.clear();
 	m_lZOrder.clear();
 	m_mWindowInfos.clear();
 	m_lMaterials.clear();
 	m_lTextures.clear();
+
+	m_iCursorHandle=-1;
+	m_iFocusWin=-1;
+	m_fXPos=m_fYPos=0.5f;
+
+	Window w=MakeWindow(0,0,0,0,0,0);
+	w.Bake();
+	SetVisible(w.GetHandle(), false);
+	m_iCursorHandle=w.GetHandle();
 }
 
 std::vector<SGTScriptParam>
