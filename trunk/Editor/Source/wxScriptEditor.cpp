@@ -50,7 +50,7 @@ wxScriptEditor::wxScriptEditor(wxWindow *parent, wxWindowID id,
 	//Keywords
 	StyleSetBold(5, true);
 	StyleSetForeground(5, wxColour("blue"));
-	SetKeyWords(0, wxT("and break do else elseif end for function if local nil not or repeat return then until while"));
+	SetKeyWords(0, wxT("and break do else elseif end for function if local nil not or repeat return then until while true false"));
 
 	//Strings
 	StyleSetForeground(6, wxColour("brown"));

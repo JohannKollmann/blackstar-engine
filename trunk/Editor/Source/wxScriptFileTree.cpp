@@ -71,8 +71,11 @@ void wxScriptFileTree::OnToolbarEvent(int toolID, Ogre::String toolname)
 {
 	if (toolname == "ReloadScripts")
 	{
-		SGTScriptSystem::GetInstance().Clear();
 		SGTAIManager::Instance().ReloadScripts();
+		SGTMsg msg;
+		msg.mNewsgroup = "REPARSE_SCRIPTS";
+		SGTMessageSystem::Instance().SendMessage(msg);
+		SGTScriptSystem::GetInstance().Clear();
 	}
 	if (toolname == "NewScript" || toolname == "NewNpcScript" || toolname == "NewStateScript")
 	{

@@ -5,12 +5,12 @@
 SGTAIManager::SGTAIManager(void)
 {
 	mNextID = 0;
-	SGTMessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
+	SGTMessageSystem::Instance().JoinNewsgroup(this, "REPARSE_SCRIPTS");
 }
 
 SGTAIManager::~SGTAIManager(void)
 {
-	SGTMessageSystem::Instance().QuitNewsgroup(this, "UPDATE_PER_FRAME");
+	SGTMessageSystem::Instance().QuitNewsgroup(this, "REPARSE_SCRIPTS");
 }
 
 unsigned int SGTAIManager::RegisterAIObject(SGTGOCAI* object)
@@ -59,14 +59,10 @@ void SGTAIManager::Update(float time)
 
 void SGTAIManager::ReceiveMessage(SGTMsg &msg)
 {
-	/*if (msg.mNewsgroup == "UPDATE_PER_FRAME")
+	if (msg.mNewsgroup == "REPARSE_SCRIPTS")
 	{
-		float time = msg.mData.GetFloat("TIME");
-		for (std::list<SGTGOCAI*>::iterator i = mAIObjects.begin(); i != mAIObjects.end(); i++)
-		{
-			(*i)->Update(time);
-		}
-	}*/
+		ReloadScripts();
+	}
 }
 
 SGTAIManager& SGTAIManager::Instance()

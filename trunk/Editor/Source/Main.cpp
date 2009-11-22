@@ -27,6 +27,7 @@ public:
 		mFrame = &wxEdit::Instance();
 		SetTopWindow(mFrame);
 		mFrame->Show();
+		CreateNewsgroup("REPARSE_SCRIPTS");
 		SGTMain::Instance().Run(mFrame->GetOgrePane()->getRenderWindow(), (size_t)((HWND)mFrame->GetHandle()));
 		mFrame->PostCreate();
 		//Ogre::LogManager::getSingleton().logMessage("Root Num Children: " + Ogre::StringConverter::toString(SGTMain::Instance().GetOgreSceneMgr()->getRootSceneNode()->numChildren()));

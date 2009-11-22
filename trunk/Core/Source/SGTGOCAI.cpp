@@ -153,7 +153,6 @@ void SGTGOCAI::ReloadScript()
 {
 	ClearActionQueue();
 	ClearIdleQueue();
-	//SGTScriptSystem::GetInstance().KillScript(mScript.GetScriptName());
 	std::vector<SGTScriptParam> params;
 	params.push_back(SGTScriptParam((int)GetID()));
 	mScript = SGTScriptSystem::GetInstance().CreateInstance(mScriptFileName, params);
