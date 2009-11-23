@@ -46,17 +46,17 @@ ScriptExtensions::install()
 void
 ScriptExtensions::initialise()
 {
-	Ogre::LogManager::getSingleton().logMessage("ScriptExtensions: initializing resident variables");
+/*	Ogre::LogManager::getSingleton().logMessage("ScriptExtensions: initializing resident variables");
 	ResidentManager::GetInstance();
 	Ogre::LogManager::getSingleton().logMessage("ScriptExtensions: initializing scriptable instances");
-	SGTScriptableInstances::GetInstance();
+	//SGTScriptableInstances::GetInstance();
 	Ogre::LogManager::getSingleton().logMessage("ScriptExtensions: initializing GUI");
-	SGTGUISystem::GetInstance();
+	//SGTGUISystem::GetInstance();
 	Ogre::LogManager::getSingleton().logMessage("ScriptExtensions: initializing scripted controls");
-	ScriptedControls::GetInstance();
+	//ScriptedControls::GetInstance();
 	Ogre::LogManager::getSingleton().logMessage("ScriptExtensions: initializing music system");
-	SGTMusicSystem::GetInstance();
-	SGTMessageSystem::Instance().JoinNewsgroup(this, "REPARSE_SCRIPTS");
+	//SGTMusicSystem::GetInstance();
+	SGTMessageSystem::Instance().JoinNewsgroup(this, "REPARSE_SCRIPTS");*/
 }
 
 

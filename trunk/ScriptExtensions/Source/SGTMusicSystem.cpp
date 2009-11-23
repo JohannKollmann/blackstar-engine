@@ -39,45 +39,46 @@ SGTMusicSystem::ReceiveMessage(SGTMsg &msg)
 	{
 		float time = msg.mData.GetFloat("TIME_TOTAL");
 		m_fCurrTime=time;
-		for(std::list<SScheduledTask>::iterator it=m_lTasks.begin(); it->fTime<=m_fCurrTime; )
-		{
-			OgreOggSound::OgreOggISound* pSound=OgreOggSound::OgreOggSoundManager::getSingleton().getSound(it->strSound);
-			switch(it->task)
+		if(!m_lTasks.empty())
+			for(std::list<SScheduledTask>::iterator it=m_lTasks.begin(); it->fTime<=m_fCurrTime; )
 			{
-			case SScheduledTask::TASK_TYPE_FADE_IN:
-				break;
-			case SScheduledTask::TASK_TYPE_FADE_OUT:
-				break;
-			case SScheduledTask::TASK_TYPE_PLAY:
-				pSound->stop();
-				pSound->play();
-				break;
-			case SScheduledTask::TASK_TYPE_STOP:
-				pSound->stop();
-				break;
-			case SScheduledTask::TASK_TYPE_CALL_TIMER:
-			{
-				SGTScriptSystem::RunCallbackFunction(it->callback, std::vector<SGTScriptParam>(1, SGTScriptParam(m_fCurrTime*m_fBPM/60.0f)));
-				/*float fInsertionTime=ceilf(m_fCurrTime/it->fFadeTime)*it->fFadeTime;
-				for(std::list<SScheduledTask>::iterator it2=m_lTasks.begin(); it2!=m_lTasks.end(); it2++)
+				OgreOggSound::OgreOggISound* pSound=OgreOggSound::OgreOggSoundManager::getSingleton().getSound(it->strSound);
+				switch(it->task)
 				{
-					if(it2->fTime>fInsertionTime)
+				case SScheduledTask::TASK_TYPE_FADE_IN:
+					break;
+				case SScheduledTask::TASK_TYPE_FADE_OUT:
+					break;
+				case SScheduledTask::TASK_TYPE_PLAY:
+					pSound->stop();
+					pSound->play();
+					break;
+				case SScheduledTask::TASK_TYPE_STOP:
+					pSound->stop();
+					break;
+				case SScheduledTask::TASK_TYPE_CALL_TIMER:
+				{
+					SGTScriptSystem::RunCallbackFunction(it->callback, std::vector<SGTScriptParam>(1, SGTScriptParam(m_fCurrTime*m_fBPM/60.0f)));
+					/*float fInsertionTime=ceilf(m_fCurrTime/it->fFadeTime)*it->fFadeTime;
+					for(std::list<SScheduledTask>::iterator it2=m_lTasks.begin(); it2!=m_lTasks.end(); it2++)
 					{
-						SScheduledTask st;
-						st.fTime=fInsertionTime;
-						st.task=SScheduledTask::TASK_TYPE_CALL_TIMER;
-						st.fFadeTime=it->fFadeTime;
-						st.callback=it->callback;
-						GetInstance().m_lTasks.insert(it2, st);
-						break;
-					}
-				}*/
-				break;
+						if(it2->fTime>fInsertionTime)
+						{
+							SScheduledTask st;
+							st.fTime=fInsertionTime;
+							st.task=SScheduledTask::TASK_TYPE_CALL_TIMER;
+							st.fFadeTime=it->fFadeTime;
+							st.callback=it->callback;
+							GetInstance().m_lTasks.insert(it2, st);
+							break;
+						}
+					}*/
+					break;
+				}
+				}
+				m_lTasks.pop_front();
+				it=m_lTasks.begin();
 			}
-			}
-			m_lTasks.pop_front();
-			it=m_lTasks.begin();
-		}
 	}
 }
 

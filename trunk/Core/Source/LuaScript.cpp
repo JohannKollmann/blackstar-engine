@@ -24,11 +24,6 @@ SGTLuaScript::SGTLuaScript(std::string strFile)
 {
 	LoadScript(strFile);
 }
-/*
-SGTLuaScript::SGTLuaScript(char* pcBuffer, unsigned int nBytes, std::string strName)
-{
-	LoadScript(pcBuffer, nBytes, strName);
-}*/
 
 bool
 SGTLuaScript::LoadScript(std::string strFile)
@@ -37,13 +32,7 @@ SGTLuaScript::LoadScript(std::string strFile)
 	m_pState=luaL_newstate();
 	luaopen_base(m_pState);
 	luaopen_string(m_pState);
-/*
-	if(luaL_loadfile(m_pState, strFile.c_str()) || lua_pcall(m_pState, 0, 0, 0))
-	{
-		std::string strError(lua_tostring(m_pState, -1));
-		LogError(std::string("error opening ") + strFile + std::string(": ") + strError);
-		return false;
-	}*/
+
 	std::string strErr=m_pfLoader(m_pState, strFile);
 	if(strErr.length())
 	{
@@ -52,23 +41,6 @@ SGTLuaScript::LoadScript(std::string strFile)
 	}
 	return true;
 }
-/*
-bool
-SGTLuaScript::LoadScript(char* pcBuffer, unsigned int nBytes, std::string strName)
-{
-	m_strScriptName=strName;
-	m_pState=luaL_newstate();
-	luaopen_base(m_pState);
-	luaopen_string(m_pState);
-
-	if(luaL_loadbuffer(m_pState, pcBuffer, nBytes, strName.c_str()) || lua_pcall(m_pState, 0, 0, 0))
-	{
-		std::string strError(lua_tostring(m_pState, -1));
-		LogError(std::string("error opening ") + m_strScriptName + std::string(": ") + strError);
-		return false;
-	}
-	return true;
-}*/
 
 void
 SGTLuaScript::ShareCFunction(std::string strName, SGTScriptFunction fn)
@@ -261,6 +233,27 @@ ReportError(std::string strScriptName, lua_State* pState, std::vector<SGTScriptP
 }
 
 std::vector<SGTScriptParam>
+ReportErrorWithoutLine(std::string strScriptName, lua_State* pState, std::vector<SGTScriptParam> vResults, std::string strInfo=std::string(""))
+{
+	if(!vResults.size())
+		return vResults;
+	if(vResults[0].getType()==SGTScriptParam::PARM_TYPE_NONE)
+	{
+		//find out position in script
+		std::string strErr=std::string("");
+		if(vResults.size()==2)
+		{
+			if(vResults[1].getType()==SGTScriptParam::PARM_TYPE_STRING)
+				strErr+= std::string(": ") + vResults[1].getString();
+		}
+		else
+			strErr+= std::string(".");
+		SGTLuaScript::LogError(strScriptName, -1, std::string("(") + strInfo + std::string(")") + strErr);
+	}
+	return vResults;
+}
+
+std::vector<SGTScriptParam>
 SGTLuaScript::CallFunction(SGTScript &caller, std::string strName, std::vector<SGTScriptParam> params)
 {
 	lua_pushinteger(m_pState, ((int)this));
@@ -291,7 +284,7 @@ SGTLuaScript::CallFunction(SGTScript &caller, std::string strName, std::vector<S
 		return outParams;
 	}
 	else//get the returned arguments
-		outParams=ReportError(m_strScriptName, m_pState, GetArguments(m_pState, iStackSize, caller), std::string("getting results from call to ") + strName);
+		outParams=ReportErrorWithoutLine(m_strScriptName, m_pState, GetArguments(m_pState, iStackSize, caller), std::string("getting results from call to ") + strName);
 
 	return outParams;
 }
