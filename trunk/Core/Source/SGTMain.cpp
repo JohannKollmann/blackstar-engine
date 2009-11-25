@@ -217,9 +217,6 @@ void SGTMain::initScene()
 	mSoundManager->setDistanceModel(AL_LINEAR_DISTANCE);
 	//mCamera->getParentSceneNode()->attachObject(mSoundManager->getListener());
 
-	//SGTConsole::Instance().Init();
-	//SGTConsole::Instance().Show(false);
-
 	/*SSAOListener *ssaoParamUpdater = new SSAOListener();
 	SGTCompositorLoader::Instance().AddListener("ssao", ssaoParamUpdater);
 	SGTCompositorLoader::Instance().EnableCompositor("ssao");*/

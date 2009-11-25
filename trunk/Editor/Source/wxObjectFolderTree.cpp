@@ -23,7 +23,7 @@ wxObjectFolderTree::wxObjectFolderTree(wxWindow* parent, wxWindowID id, const wx
 	SetExtensions(extensions);
 	SetRootPath("Data/Editor/Objects");
 	//wxEdit::Instance().GetExplorerToolbar()->RegisterTool("NewFolder", "ResourceMgr", "Data/Editor/Intern/1988.ico", wxObjectFolderTree::OnToolbarEvent);
-	wxEdit::Instance().GetExplorerToolbar()->RegisterTool("NewResource", "ResourceMgr", "Data/Editor/Intern/Engine_Icon07.png", wxObjectFolderTree::OnToolbarEvent);
+	wxEdit::Instance().GetExplorerToolbar()->RegisterTool("NewResource", "ResourceMgr", "Data/Editor/Intern/Engine_Icon07.png", wxObjectFolderTree::OnToolbarEvent, "New object resource");
 	wxEdit::Instance().GetExplorerToolbar()->SetGroupStatus("ResourceMgr", true);
 	//wxEdit::Instance().GetExplorerToolbar()->SetGroupStatus("ResourceMgr", false);
 	mPreviewObject = 0;

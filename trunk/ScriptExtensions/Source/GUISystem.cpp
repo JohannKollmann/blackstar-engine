@@ -385,7 +385,9 @@ SGTGUISystem::Window::Bake()
 	meshptr.get()->_setBounds(Ogre::AxisAlignedBox(-fInf,-fInf,-fInf,fInf,fInf,fInf));
 	meshptr.get()->_setBoundingSphereRadius(fInf);		
 	meshptr.get()->load();
-	SGTMain::Instance().GetOgreSceneMgr()->getSceneNode("SGTGuiSystemNode")->attachObject(SGTMain::Instance().GetOgreSceneMgr()->createEntity(wininfo.strName, wininfo.strName));
+	Ogre::Entity *ent = SGTMain::Instance().GetOgreSceneMgr()->createEntity(wininfo.strName, wininfo.strName);
+	ent->setRenderQueueGroup(Ogre::RENDER_QUEUE_OVERLAY);
+	SGTMain::Instance().GetOgreSceneMgr()->getSceneNode("SGTGuiSystemNode")->attachObject(ent);
 
 	GetInstance().m_mWindowInfos.find(m_iHandle)->second.bWasBaked=true;
 

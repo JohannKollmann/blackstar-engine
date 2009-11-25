@@ -22,9 +22,9 @@ wxScriptFileTree::wxScriptFileTree(wxWindow* parent, wxWindowID id, const wxPoin
 	extensions.Add("*.lua");
 	SetExtensions(extensions);
 	SetRootPath("Data/Scripts/");
-	wxEdit::Instance().GetExplorerToolbar()->RegisterTool("ReloadScripts", "Scripts1", "Data/Editor/Intern/editor_scriptreload_01.png", wxScriptFileTree::OnToolbarEvent, "Reload all scripts.");
-	wxEdit::Instance().GetExplorerToolbar()->RegisterTool("NewScript", "Scripts2", "Data/Editor/Intern/editor_scripnew_01.png", wxScriptFileTree::OnToolbarEvent, "Add empty script.");
-	wxEdit::Instance().GetExplorerToolbar()->RegisterTool("NewNpcScript", "Scripts2", "Data/Editor/Intern/editor_scriptnpc_01.png", wxScriptFileTree::OnToolbarEvent, "Add Npc script.");
+	wxEdit::Instance().GetExplorerToolbar()->RegisterTool("ReloadScripts", "Scripts1", "Data/Editor/Intern/editor_scriptreload_01.png", wxScriptFileTree::OnToolbarEvent, "Reload all scripts");
+	wxEdit::Instance().GetExplorerToolbar()->RegisterTool("NewScript", "Scripts2", "Data/Editor/Intern/editor_scripnew_01.png", wxScriptFileTree::OnToolbarEvent, "Add empty script");
+	wxEdit::Instance().GetExplorerToolbar()->RegisterTool("NewNpcScript", "Scripts2", "Data/Editor/Intern/editor_scriptnpc_01.png", wxScriptFileTree::OnToolbarEvent, "Add Npc script");
 	wxEdit::Instance().GetExplorerToolbar()->RegisterTool("NewStateScript", "Scripts2", "Data/Editor/Intern/editor_scriptstatus_01.png", wxScriptFileTree::OnToolbarEvent, "Add State script");
 	//wxEdit::Instance().GetExplorerToolbar()->RegisterTool("DeleteScript", "Scripts3", "Data/Editor/Intern/editor_scriptdelete_01.png", wxScriptFileTree::OnToolbarEvent);
 }

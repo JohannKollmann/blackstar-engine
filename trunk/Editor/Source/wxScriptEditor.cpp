@@ -98,13 +98,15 @@ void wxScriptEditor::OnCharAdded(wxStyledTextEvent &event)
 		wxString line;
 		if (currentLine > 0) line = GetLine(currentLine-1);
 		int tabs = 0;
+		int realtabs = 0;
 		for (unsigned int i = 0; i < line.length(); i++)
 		{
 			char c = line[i];
-			if (c != 32) break;
-			tabs++;
+			if (c != 32 && c != 9) break;
+			if (c == 32) tabs++;
+			if (c == 9) realtabs++;
 		}
-		tabs = tabs / 4;
+		tabs = (tabs / 4) + realtabs;
 		for (int i = 0; i < tabs; i++)  CmdKeyExecute (wxSTC_CMD_TAB);
 
 		int dos = line.Find("do");
