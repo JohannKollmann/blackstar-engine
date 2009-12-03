@@ -35,7 +35,10 @@ private:
 	static std::vector<SGTScriptParam> Lua_DeleteTimer(SGTScript& caller, std::vector<SGTScriptParam> vParams);
 	static std::vector<SGTScriptParam> Lua_GetBeatCounter(SGTScript& caller, std::vector<SGTScriptParam> vParams);
 	static std::vector<SGTScriptParam> Lua_GetMood(SGTScript& caller, std::vector<SGTScriptParam> vParams);
+	//for tests
 	static std::vector<SGTScriptParam> Lua_SetMood(SGTScript& caller, std::vector<SGTScriptParam> vParams);
+	static std::vector<SGTScriptParam> Lua_PostEvent(SGTScript& caller, std::vector<SGTScriptParam> vParams);
+
 
 	struct SScheduledTask
 	{
@@ -50,13 +53,22 @@ private:
 		} task;
 		std::string strSound;
 		float fFadeTime;
+		bool bIsLoop;
 		SGTScriptParam callback;
 	};
+
+	static void InsertEvent(SScheduledTask st);
 
 	float m_fBPM;
 	float m_fCurrTime;
 	std::list<SScheduledTask> m_lTasks;
 	std::map<std::string, bool> m_mMoods;
+	struct SSoundProperty
+	{
+		bool bLooping;
+		float fLoopTime;
+	};
+	std::map<std::string, SSoundProperty> m_mProperties;
 	SGTScriptParam m_EventCallback;
 };
 

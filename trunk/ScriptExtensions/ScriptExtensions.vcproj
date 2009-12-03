@@ -189,6 +189,10 @@
 				RelativePath=".\Header\ResidentVariables.h"
 				>
 			</File>
+			<File
+				RelativePath=".\Header\SGTMusicSystem.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="ScriptableInstances"
@@ -239,10 +243,6 @@
 			>
 			<File
 				RelativePath=".\Source\SGTMusicSystem.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Header\SGTMusicSystem.h"
 				>
 			</File>
 		</Filter>
