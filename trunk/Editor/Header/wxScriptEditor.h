@@ -2,12 +2,14 @@
 #pragma once
 
 #include "wx/stc/stc.h"
+#include <list>
 
 class wxScriptEditor : public wxStyledTextCtrl
 {
 private:
 	wxString mCurrentFile;
 	bool mOverrideChange;
+	std::list<wxString> GetFuncNames(wxString &text);
 
 protected:
 	DECLARE_EVENT_TABLE()
@@ -26,4 +28,5 @@ public:
 
 	void LoadScript(wxString path);
 	void SaveScript();
+	void IntelliSense(int currentPosition);
 };
