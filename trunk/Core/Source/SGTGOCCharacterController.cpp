@@ -52,7 +52,7 @@ void SGTGOCCharacterController::Create(Ogre::Vector3 dimensions)
 	mStepOffset			= desc.radius * 0.5;
 	desc.stepOffset		= mStepOffset;
 	bool test = desc.isValid();
-	mCharacterController = SGTMain::Instance().GetNxCharacterManager()->createController(SGTMain::Instance().GetNxScene()->getNxScene(), desc);
+	mCharacterController = SGTMain::Instance().GetNxCharacterManager()->createController(SGTMain::Instance().GetPhysXScene()->getNxScene(), desc);
 }
 
 void SGTGOCCharacterController::UpdatePosition(Ogre::Vector3 position)
@@ -77,7 +77,8 @@ void SGTGOCCharacterController::ReceiveMessage(SGTMsg &msg)
 		Ogre::Vector3 dir = (dir_rotated + Ogre::Vector3(0.0f, -9.81f, 0.0f)) * time;
 		NxU32 collisionFlags;
 		float minDist = 0.000001f;
-		mCharacterController->move(NxVec3(dir.x, dir.y, dir.z), 1<<SGTMain::Instance().GetNxScene()->getShapeGroup("Collidable")->getGroupID(), minDist, collisionFlags);
+		//TODO
+		mCharacterController->move(NxVec3(dir.x, dir.y, dir.z), 1<<SGTCollisionGroups::DEFAULT & 1<<SGTCollisionGroups::LEVELMESH, minDist, collisionFlags);
 		SGTObjectMsg *position_response = new SGTObjectMsg;
 		NxExtendedVec3 nxPos = mCharacterController->getDebugPosition();
 		mOwnerGO->UpdateTransform(Ogre::Vector3(nxPos.x, nxPos.y-2.0f, nxPos.z), mOwnerGO->GetGlobalOrientation());

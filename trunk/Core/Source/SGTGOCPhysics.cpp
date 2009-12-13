@@ -4,14 +4,13 @@
 #include "SGTSceneManager.h"
 #include "SGTGameObject.h"
 
-
-void SGTGOCRenderable::setPose(const NxOgre::Pose& p)
+void SGTGOPhysXRenderable::setTransform(Ogre::Vector3 position, Ogre::Quaternion rotation)
 {
-	mOwner->UpdateTransform(p, p);
+	if (mGO) mGO->UpdateTransform(position, rotation);
 }
-NxOgre::Pose SGTGOCRenderable::getPose() const
+void SGTGOPhysXRenderable::setGO(SGTGameObject *go)
 {
-	return NxOgre::Pose(mOwner->GetGlobalPosition(), mOwner->GetGlobalOrientation());
+	mGO = go;
 }
 
 
@@ -22,17 +21,13 @@ SGTGOCRigidBody::SGTGOCRigidBody(Ogre::String collision_mesh, float density, int
 	mShapeType = shapetype;
 	mActor = 0;
 	mRenderable = 0;
+	mOwnerGO = 0;
 }
 
 SGTGOCRigidBody::~SGTGOCRigidBody(void)
 {
-	if (mRenderable)
-	{
-		SGTMain::Instance().GetNxScene()->getSceneRenderer()->unregisterSource(this);
-		delete mRenderable;
-		mRenderable = 0;
-		SGTMain::Instance().GetNxScene()->destroyActor(mActor->getName());
-	}
+	SGTMain::Instance().GetPhysXScene()->destroyActor(mActor);
+	//This also destroys the renderable!
 }
 
 void SGTGOCRigidBody::Create(Ogre::String collision_mesh, float density, int shapetype, Ogre::Vector3 scale)
@@ -40,32 +35,20 @@ void SGTGOCRigidBody::Create(Ogre::String collision_mesh, float density, int sha
 	Ogre::String internname = "RigidBody" + Ogre::StringConverter::toString(SGTSceneManager::Instance().RequestID());
 	mCollisionMeshName = collision_mesh;
 	mDensity = density;
-	mShapeType = shapetype;
-	NxOgre::ActorParams ap;
-	ap.setToDefault();
-	ap.mDensity = mDensity;
-	//ap.mMass = 0;
-	NxOgre::ShapeParams sp;
-	sp.setToDefault();
-	sp.mDensity = mDensity;
-	sp.mGroup = "Collidable";
-	//sp.mMass = 0;
 	if (!Ogre::ResourceGroupManager::getSingleton().resourceExists("General", mCollisionMeshName))
 	{
 		Ogre::LogManager::getSingleton().logMessage("Error: Resource \"" + mCollisionMeshName + "\" does not exist. Loading dummy Resource...");
 		mCollisionMeshName = "DummyMesh.mesh";
 	}
 	Ogre::Entity *entity = SGTMain::Instance().GetOgreSceneMgr()->createEntity(internname, mCollisionMeshName);
-	//if (mShapeType == SGTShapes::SHAPE_CONVEX) mActor = SGTMain::Instance().GetNxScene()->createActor(internanem, shape, NxOgre::Pose(), ap);
-	if (mShapeType ==  SGTShapes::SHAPE_BOX)
-	{
-		Ogre::Vector3 cubeShapeSize = entity->getBoundingBox().getSize();
-		mActor = SGTMain::Instance().GetNxScene()->createActor(internname, new NxOgre::Cube(cubeShapeSize.x * scale.x, cubeShapeSize.y  * scale.y, cubeShapeSize.z * scale.z, sp), NxOgre::Pose(), ap);
-	}
+	if (!mRenderable) mRenderable = new SGTGOPhysXRenderable(mOwnerGO);
+	else mRenderable->setGO(mOwnerGO);
 	if (mShapeType ==  SGTShapes::SHAPE_SPHERE)
 	{
 		float sphereShapeRadius = entity->getBoundingRadius();
-		mActor = SGTMain::Instance().GetNxScene()->createActor(internname, new NxOgre::Sphere(sphereShapeRadius * ((scale.x + scale.y + scale.z) / 3), sp), NxOgre::Pose(), ap);
+		mActor = SGTMain::Instance().GetPhysXScene()->createRenderedActor(
+			mRenderable,
+			OgrePhysX::SphereShape(sphereShapeRadius * ((scale.x + scale.y + scale.z) / 3)).density(mDensity).group(SGTCollisionGroups::DEFAULT));
 	}
 	if (mShapeType == SGTShapes::SHAPE_CAPSULE)
 	{
@@ -74,25 +57,32 @@ void SGTGOCRigidBody::Create(Ogre::String collision_mesh, float density, int sha
 		float capsule_radius = cubeShapeSize.x > cubeShapeSize.z ? cubeShapeSize.x : cubeShapeSize.z;
 		float offset = 0.0f;
 		if (cubeShapeSize.y - capsule_radius > 0.0f) offset = (cubeShapeSize.y / capsule_radius) * 0.1;
-		mActor = SGTMain::Instance().GetNxScene()->createActor(internname, new NxOgre::Capsule(capsule_radius * 0.5, cubeShapeSize.y * 0.5 + offset, sp), NxOgre::Pose(), ap);
+		mActor = SGTMain::Instance().GetPhysXScene()->createRenderedActor(
+			mRenderable,
+			OgrePhysX::CapsuleShape(capsule_radius * 0.5, cubeShapeSize.y * 0.5 + offset).density(mDensity).group(SGTCollisionGroups::DEFAULT));
+	}
+	else		//Default: Box
+	{
+		Ogre::Vector3 cubeShapeSize = entity->getBoundingBox().getSize();
+		mActor = SGTMain::Instance().GetPhysXScene()->createRenderedActor(
+			mRenderable,
+			OgrePhysX::BoxShape(entity, scale).density(mDensity).group(SGTCollisionGroups::DEFAULT));
 	}
 	SGTMain::Instance().GetOgreSceneMgr()->destroyEntity(entity);
-	mActor->getVoidPointer()->RenderPtr = this;
-	setRenderMode(RM_Interpolate);
 }
 
 void SGTGOCRigidBody::Freeze(bool freeze)
 {
 	if (freeze)
 	{
-		mActor->raiseBodyFlag(NX_BF_DISABLE_GRAVITY);	
-		mActor->raiseBodyFlag(NX_BF_FROZEN);	
+		mActor->getNxActor()->raiseBodyFlag(NX_BF_DISABLE_GRAVITY);	
+		mActor->getNxActor()->raiseBodyFlag(NX_BF_FROZEN);	
 	}
 	else
 	{
-		mActor->clearBodyFlag(NX_BF_DISABLE_GRAVITY);	
-		mActor->clearBodyFlag(NX_BF_FROZEN);	
-		mActor->wakeUp();
+		mActor->getNxActor()->clearBodyFlag(NX_BF_DISABLE_GRAVITY);	
+		mActor->getNxActor()->clearBodyFlag(NX_BF_FROZEN);	
+		mActor->getNxActor()->wakeUp();
 	}
 }
 
@@ -106,20 +96,19 @@ void SGTGOCRigidBody::UpdateOrientation(Ogre::Quaternion orientation)
 }
 void SGTGOCRigidBody::UpdateScale(Ogre::Vector3 scale)
 {
-	if (mActor) SGTMain::Instance().GetNxScene()->destroyActor(mActor->getName());
+	if (mActor) SGTMain::Instance().GetPhysXScene()->destroyActor(mActor);
+	mRenderable = 0;
 	Create(mCollisionMeshName, mDensity, mShapeType, scale);
-	mActor->setGlobalPose(NxOgre::Pose(mOwnerGO->GetGlobalPosition(), mOwnerGO->GetGlobalOrientation()));
+	mActor->setGlobalOrientation(mOwnerGO->GetGlobalOrientation());
+	mActor->setGlobalPosition(mOwnerGO->GetGlobalPosition());
 }
 
 void SGTGOCRigidBody::SetOwner(SGTGameObject *go)
 {
 	mOwnerGO = go;
-	if (mRenderable) delete mRenderable;
-	else SGTMain::Instance().GetNxScene()->getSceneRenderer()->registerSource(this);
-	mRenderable = new SGTGOCRenderable(mOwnerGO);
-	if (mActor) SGTMain::Instance().GetNxScene()->destroyActor(mActor->getName());
 	Create(mCollisionMeshName, mDensity, mShapeType, mOwnerGO->GetGlobalScale());
-	mActor->setGlobalPose(NxOgre::Pose(mOwnerGO->GetGlobalPosition(), mOwnerGO->GetGlobalOrientation()));
+	mActor->setGlobalOrientation(mOwnerGO->GetGlobalOrientation());
+	mActor->setGlobalPosition(mOwnerGO->GetGlobalPosition());
 }
 
 void SGTGOCRigidBody::CreateFromDataMap(SGTDataMap *parameters)
@@ -129,7 +118,7 @@ void SGTGOCRigidBody::CreateFromDataMap(SGTDataMap *parameters)
 	scale = parameters->GetOgreVec3("Scale");
 	mDensity = parameters->GetFloat("Density");
 	mShapeType = parameters->GetInt("ShapeType");
-	Create(mCollisionMeshName, mDensity, mShapeType, scale);
+	if (mOwnerGO) Create(mCollisionMeshName, mDensity, mShapeType, scale);
 }
 void SGTGOCRigidBody::GetParameters(SGTDataMap *parameters)
 {
@@ -180,58 +169,56 @@ SGTGOCStaticBody::~SGTGOCStaticBody(void)
 {
 	if (mActor)
 	{
-		SGTMain::Instance().GetNxScene()->destroyActor(mActor->getName());
+		SGTMain::Instance().GetPhysXScene()->destroyActor(mActor);
 	}
 }
 
-void SGTGOCStaticBody::Create(Ogre::String collision_mesh)
+void SGTGOCStaticBody::Create(Ogre::String collision_mesh, Ogre::Vector3 scale)
 {
 	Ogre::String internname = "StaticBody" + Ogre::StringConverter::toString(SGTSceneManager::Instance().RequestID());
 	mCollisionMeshName = collision_mesh;
-	NxOgre::ActorParams ap;
-	ap.setToDefault();
-	ap.mDensity = 0.0f;
-	ap.mMass = 0.0f;
-	NxOgre::ShapeParams sp;
-	sp.setToDefault();
-	sp.mDensity = 0.0f;
-	sp.mMass = 0.0f;
-	sp.mGroup = "Collidable";
 	if (!Ogre::ResourceGroupManager::getSingleton().resourceExists("General", mCollisionMeshName))
 	{
 		Ogre::LogManager::getSingleton().logMessage("Error: Resource \"" + mCollisionMeshName + "\" does not exist. Loading dummy Resource...");
 		mCollisionMeshName = "DummyMesh.mesh";
 	}
-	SGTSceneManager::Instance().BakeStaticMeshShape(mCollisionMeshName);
-	mActor = SGTMain::Instance().GetNxScene()->createActor(internname, new NxOgre::TriangleMesh(NxOgre::Resources::ResourceSystem::getSingleton()->getMesh("Data/Media/Meshes/NXS/" + mCollisionMeshName + ".nxs"), sp), NxOgre::Pose(), ap);
+	Ogre::Entity *entity = SGTMain::Instance().GetOgreSceneMgr()->createEntity("tempCollisionModell", mCollisionMeshName);
+	mActor = SGTMain::Instance().GetPhysXScene()->createActor(
+		OgrePhysX::RTMeshShape(entity->getMesh()).scale(scale));
+	SGTMain::Instance().GetOgreSceneMgr()->destroyEntity(entity);
 }
 
 void SGTGOCStaticBody::UpdatePosition(Ogre::Vector3 position)
 {
-	if (!mOwnerGO->GetTranformingComponents()) mActor->setGlobalPosition(position);
+	mActor->setGlobalPosition(position);
 }
 void SGTGOCStaticBody::UpdateOrientation(Ogre::Quaternion orientation)
 {
-	if (!mOwnerGO->GetTranformingComponents()) mActor->setGlobalOrientation(orientation);
+	mActor->setGlobalOrientation(orientation);
 }
 void SGTGOCStaticBody::UpdateScale(Ogre::Vector3 scale)
 {
-	/*if (mActor) SGTMain::Instance().GetNxScene()->destroyActor(mActor->getName());
+	if (mActor) SGTMain::Instance().GetPhysXScene()->destroyActor(mActor);
 	Create(mCollisionMeshName, scale);
-	mActor->setGlobalPose(NxOgre::Pose(mOwnerGO->GetGlobalPosition(), mOwnerGO->GetGlobalOrientation()));*/
+	mActor->setGlobalOrientation(mOwnerGO->GetGlobalOrientation());
+	mActor->setGlobalPosition(mOwnerGO->GetGlobalPosition());
 }
 
 void SGTGOCStaticBody::SetOwner(SGTGameObject *go)
 {
 	mOwnerGO = go;
-	if (mActor) SGTMain::Instance().GetNxScene()->destroyActor(mActor->getName());
-	Create(mCollisionMeshName);
-	mActor->setGlobalPose(NxOgre::Pose(mOwnerGO->GetGlobalPosition(), mOwnerGO->GetGlobalOrientation()));
+	if (mActor) SGTMain::Instance().GetPhysXScene()->destroyActor(mActor);
+	Create(mCollisionMeshName, mOwnerGO->GetGlobalScale());
+	mActor->setGlobalOrientation(mOwnerGO->GetGlobalOrientation());
+	mActor->setGlobalPosition(mOwnerGO->GetGlobalPosition());
 }
 
 void SGTGOCStaticBody::CreateFromDataMap(SGTDataMap *parameters)
 {
 	mCollisionMeshName = parameters->GetOgreString("CollisionMeshFile");
+	Ogre::Vector3 scale = Ogre::Vector3(1,1,1);
+	scale = parameters->GetOgreVec3("Scale");
+	if (mOwnerGO) Create(mCollisionMeshName, scale);
 }
 void SGTGOCStaticBody::GetParameters(SGTDataMap *parameters)
 {

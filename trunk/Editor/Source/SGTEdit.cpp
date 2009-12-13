@@ -4,12 +4,13 @@
 #include "SGTCameraController.h"
 #include "SGTScenemanager.h"
 #include "SGTObjectLevelRayCaster.h"
-#include "SGTPhysicsLevelRayCaster.h"
 #include "SGTWeatherController.h"
 #include "SGTMainLoop.h"
 #include "SGTGOCEditorInterface.h"
 #include "SGTGOCIntern.h"
 #include "SGTGOCAnimatedCharacter.h"
+#include "OgrePhysX.h"
+#include "NxScene.h"
 
 
 SGTEdit::SGTEdit()
@@ -739,7 +740,7 @@ void SGTEdit::OnConnectWaypoints()
 void SGTEdit::OnSaveBones()
 {
 	SGTGOCAnimatedCharacter *ragdoll = (SGTGOCAnimatedCharacter*)(*mSelectedObjects.begin()).mObject->GetComponent("Skeleton");
-	ragdoll->SerialiseBoneObjects("Data\\Scripts\\Animation\\" + ragdoll->GetRagdoll()->GetEntity()->getMesh()->getName() + ".bones");
+	ragdoll->SerialiseBoneObjects("Data\\Scripts\\Animation\\" + ragdoll->GetRagdoll()->getEntity()->getMesh()->getName() + ".bones");
 }
 
 void SGTEdit::OnCreateChain()
@@ -946,21 +947,16 @@ void SGTEdit::DeselectAllObjects()
 void SGTEdit::AlignObjectWithMesh(SGTGameObject *object)
 {
 	Ogre::Ray mouseRay = SGTMain::Instance().GetCamera()->getCameraToViewportRay(mMousePosition.x, mMousePosition.y);
-	NxOgre::Raycaster *Ray = SGTMain::Instance().GetNxScene()->createRaycaster(); 
-	Ray->setToDefault();
-	Ray->filter(NxOgre::Raycaster::ActorFilter::AF_None);
-	Ray->type(NxOgre::Raycaster::RaycastType::RCT_Closest);
-	Ray->distance(200);
-	Ray->accuracy(NxOgre::Raycaster::Accuracy::AC_Accurate);
-	Ray->origin(mouseRay.getOrigin());
-	Ray->normal(mouseRay.getDirection().normalisedCopy());
-	Ray->cast();
-	NxOgre::ActorRaycastHitNodeIterator actors = Ray->Actors();
-	NxOgre::ActorRaycastHit* hit = actors.Begin();
-	if (hit != NULL)
+	NxRay ray(OgrePhysX::Convert::toNx(mouseRay.getOrigin()), OgrePhysX::Convert::toNx(mouseRay.getDirection().normalisedCopy()));
+	NxRaycastHit hit;
+	NxShape *shape = SGTMain::Instance().GetPhysXScene()->getNxScene()->raycastClosestShape(
+		ray,
+		NxShapesType::NX_ALL_SHAPES,
+		hit);
+	if (shape)
 	{
-		Ogre::Vector3 position = hit->getImpactAsOgreVector3();
-		Ogre::Vector3 normal = hit->getNormalAsOgreVector3();
+		Ogre::Vector3 position = OgrePhysX::Convert::toOgre(hit.worldImpact);
+		Ogre::Vector3 normal = OgrePhysX::Convert::toOgre(hit.worldNormal);
 		//Ogre::LogManager::getSingleton().logMessage("Raycast hit: " + Ogre::StringConverter::toString(position));
 		object->Rotate(Ogre::Vector3::UNIT_X, Ogre::Radian(Ogre::Degree(normal.z * 90)));
 		object->Rotate(Ogre::Vector3::UNIT_Z, Ogre::Radian(Ogre::Degree(-normal.x * 90)));
@@ -980,26 +976,6 @@ void SGTEdit::AlignObjectWithMesh(SGTGameObject *object)
 		}
 		object->SetGlobalPosition(position + offset);
 	}
-	SGTMain::Instance().GetNxScene()->destroyRaycaster(Ray);
-
-	/*if (!rayCaster.isEmpty())
-	{
-		if (rayCaster.getClosestActorHit() != NULL)
-		{
-			Ogre::Vector3 position = rayCaster.getClosestRaycastHit().mWorldImpact;
-			Ogre::Vector3 normal = rayCaster.getClosestRaycastHit().mWorldNormal;
-
-			object->Rotate(Ogre::Vector3::UNIT_X, Ogre::Radian(Ogre::Degree(normal.z * 90)));
-			object->Rotate(Ogre::Vector3::UNIT_Z, Ogre::Radian(Ogre::Degree(-normal.x * 90)));
-			if (normal.y < 0)
-			{
-				object->Rotate(Ogre::Vector3::UNIT_X, Ogre::Radian(Ogre::Degree(-normal.y * 180)));
-			}
-			Ogre::Vector3 offset = Ogre::Vector3(0,0,0);
-			if (object->GetVisual()) offset = normal * object->GetNode()->getScale() * 0.5;//object->GetVisual()->getBoundingBox().getSize()
-			object->SetGlobalPosition(position + offset);
-		}
-	}*/
 
 }
 

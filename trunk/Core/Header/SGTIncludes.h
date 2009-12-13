@@ -10,7 +10,7 @@
 
 //#define BOOST_ALL_DYN_LINK
 
-namespace NxOgre
+namespace OgrePhysX
 {
 	class World;
 	class Scene;
@@ -35,7 +35,7 @@ class SGTObjectLevelRayCaster;
 class SGTCameraController;
 class SGTWeatherController;
 class SGTCompositorLoader;
-class SGTCollisionCallback;
+class SGTScriptedCollisionCallback;
 class SGTGameObject;
 class SGTGOComponent;
 class ComponentSection;

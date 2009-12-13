@@ -79,7 +79,7 @@ void SGTCameraController::ReceiveMessage(SGTMsg &msg)
 			//ragdoll->SetAnimationState("Walk");
 			object->AddComponent(ragdoll);
 			object->SetGlobalPosition(mCamera->getDerivedPosition());
-			ragdoll->GetRagdoll()->Update(0);
+			ragdoll->GetRagdoll()->sync();
 			ragdoll->Kill();
 		}
 	}

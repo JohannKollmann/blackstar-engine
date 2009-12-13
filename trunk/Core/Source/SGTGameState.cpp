@@ -5,7 +5,7 @@
 #include "SGTSceneManager.h"
 #include "SGTInput.h"
 #include "SGTMainLoop.h"
-#include "NxOgre.h"
+#include "OgrePhysX.h"
 #include "OgreOggSound.h"
 
 bool SGTEditor::OnUpdate(float time, float time_total)
@@ -21,17 +21,21 @@ bool SGTEditor::OnUpdate(float time, float time_total)
 	SGTMessageSystem::Instance().Update();
 
 	if (SGTMainLoop::Instance().GetRunPhysics())
-	{
-		SGTMain::Instance().GetNxWorld()->getPhysXDriver()->simulate(time);
-	}
-	SGTMain::Instance().GetNxWorld()->render(time);
+		OgrePhysX::World::getSingleton().startSimulate(time);
+
+	OgrePhysX::World::getSingleton().syncRenderables();
 
 	//Sound
 	SGTMain::Instance().GetSoundManager()->update();
 
 	SGTSceneManager::Instance().UpdateGameObjects();
 
-	return Ogre::Root::getSingleton().renderOneFrame();
+	bool render = Ogre::Root::getSingleton().renderOneFrame();
+
+	if (SGTMainLoop::Instance().GetRunPhysics())
+		OgrePhysX::World::getSingleton().fetchSimulate();
+
+	return render;
 }
 
 bool SGTGame::OnUpdate(float time, float time_total)
@@ -44,20 +48,22 @@ bool SGTGame::OnUpdate(float time, float time_total)
 
 	SGTMain::Instance().GetInputManager()->Update();
 
-	//float BeforeMsgTime = timeGetTime();
-	SGTMessageSystem::Instance().Update();
-	//float AfterMsgTime = timeGetTime() - BeforeMsgTime;
-	//Ogre::LogManager::getSingleton().logMessage(Ogre::StringConverter::toString(AfterMsgTime));
+	if (SGTMainLoop::Instance().GetRunPhysics())
+		OgrePhysX::World::getSingleton().startSimulate(time);
 
-	SGTMain::Instance().GetNxWorld()->getPhysXDriver()->simulate(time);
-	SGTMain::Instance().GetNxWorld()->render(time);
+	OgrePhysX::World::getSingleton().syncRenderables();
 
 	//Sound
 	SGTMain::Instance().GetSoundManager()->update();
 
 	SGTSceneManager::Instance().UpdateGameObjects();
 
-	return Ogre::Root::getSingleton().renderOneFrame();
+	bool render = Ogre::Root::getSingleton().renderOneFrame();
+
+	if (SGTMainLoop::Instance().GetRunPhysics())
+		OgrePhysX::World::getSingleton().fetchSimulate();
+
+	return render;
 }
 
 void SGTGame::OnEnter()

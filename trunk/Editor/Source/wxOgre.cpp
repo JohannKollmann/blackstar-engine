@@ -183,7 +183,7 @@ void wxOgre::OnPaint(wxPaintEvent& event)
 }
 void wxOgre::OnEraseBackground( wxEraseEvent& )
 {
-	if (SGTMain::Instance().GetNxWorld()) update();
+	update();
 }
 void wxOgre::OnRenderTimer(wxTimerEvent& event)
 {

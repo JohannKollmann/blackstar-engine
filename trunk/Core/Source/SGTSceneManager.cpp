@@ -8,7 +8,6 @@
 #include "shellapi.h"
 #include "SGTScriptSystem.h"
 #include "standard_atoms.h"
-#include "SGTRagdoll.h"
 #include "SGTGOCPhysics.h"
 #include "SGTGOCView.h"
 #include "SGTGOCPlayerInput.h"
@@ -156,23 +155,11 @@ void SGTSceneManager::Init()
 	RegisterEditorInterface("A", "LocalLight", (EDTCreatorFn)&SGTLocalLightRenderable::NewEditorInterfaceInstance, SGTLocalLightRenderable::GetDefaultParameters);
 	RegisterEditorInterface("A", "Sound3D", (EDTCreatorFn)&SGTSound3D::NewEditorInterfaceInstance, SGTSound3D::GetDefaultParameters);
 	RegisterEditorInterface("B", "RigidBody", (EDTCreatorFn)&SGTGOCRigidBody::NewEditorInterfaceInstance, SGTGOCRigidBody::GetDefaultParameters);
-	RegisterEditorInterface("B", "StaticBody", (EDTCreatorFn)&SGTGOCRigidBody::NewEditorInterfaceInstance, SGTGOCRigidBody::GetDefaultParameters);
+	RegisterEditorInterface("B", "StaticBody", (EDTCreatorFn)&SGTGOCStaticBody::NewEditorInterfaceInstance, SGTGOCStaticBody::GetDefaultParameters);
 	RegisterEditorInterface("C", "Scripted AI", (EDTCreatorFn)&SGTGOCAI::NewEditorInterfaceInstance, SGTGOCAI::GetDefaultParameters);
 	RegisterEditorInterface("C", "Skeleton", (EDTCreatorFn)&SGTGOCAnimatedCharacter::NewEditorInterfaceInstance, SGTGOCAnimatedCharacter::GetDefaultParameters);
 	RegisterEditorInterface("", "AnimatedCharacterBone", (EDTCreatorFn)&SGTGOCAnimatedCharacterBone::NewEditorInterfaceInstance, SGTGOCAnimatedCharacterBone::GetDefaultParameters);
 	RegisterEditorInterface("C", "Character", (EDTCreatorFn)&SGTGOCCharacterController::NewEditorInterfaceInstance, SGTGOCCharacterController::GetDefaultParameters);
-
-	//Init NxOgre Resource System
-	HANDLE fHandle;
-	WIN32_FIND_DATA wfd;
-	fHandle=FindFirstFile("Data/Media/Meshes/NXS/*.nxs",&wfd);
-	do
-	{
-		NxOgre::Resources::ResourceSystem::getSingleton()->addMesh("file://Data/Media/Meshes/NXS/" + Ogre::String(wfd.cFileName));
-	}
-	while (FindNextFile(fHandle,&wfd) && fHandle != (HANDLE)ERROR_FILE_NOT_FOUND);
-	FindClose(fHandle);
-
 
 	//Setup Lua Callback
 	SGTScriptSystem::GetInstance().ShareCFunction("LogMessage", &SGTSceneManager::Lua_LogMessage);
@@ -314,26 +301,6 @@ void SGTSceneManager::GetParameters(SGTDataMap *parameters)
 	if (mLevelMesh) parameters->AddOgreString("LevelMesh", mLevelMesh->GetMeshFileName());
 	else parameters->AddOgreString("LevelMesh", "");
 	parameters->AddBool("Indoor", mIndoorRendering);
-}
-
-void SGTSceneManager::BakeStaticMeshShape(Ogre::String meshname)
-{
-	if (!NxOgre::Resources::ResourceSystem::getSingleton()->hasMesh("Data/Media/Meshes/NXS/" + meshname + ".nxs"))
-	{
-		Ogre::String path = SGTUtils::FindResourcePath("Data/Media/Meshes", meshname);
-		if (path == "")
-		{
-			Ogre::LogManager::getSingleton().logMessage("SGTSceneManager::BakeStaticMeshShape: Could not find " + meshname);
-			return;
-		}
-		Ogre::String command = "flour convert in: " + path + ", into: triangle, out: Data/Media/Meshes/NXS/" + meshname + ".nxs";
-		Ogre::LogManager::getSingleton().logMessage(command);
-		//spawnl(_P_WAIT, "flour.exe", command.c_str(), NULL);
-		//ShellExecute(0, "open", "flour.exe", command.c_str(), 0, SW_SHOWNORMAL); 
-		system(command.c_str());
-		Ogre::LogManager::getSingleton().logMessage("... Done");
-		NxOgre::Resources::ResourceSystem::getSingleton()->addMesh("file://Data/Media/Meshes/NXS/" + meshname + ".nxs");
-	}
 }
 
 SGTGameObject* SGTSceneManager::GetObjectByInternID(int id)

@@ -65,8 +65,6 @@ public:
 	void LoadLevel(Ogre::String levelfile, bool load_dynamic = true);
 	void SaveLevel(Ogre::String levelfile);
 
-	void BakeStaticMeshShape(Ogre::String meshname);
-
 	void Init();
 	void Reset();
 	void Shutdown();

@@ -1,7 +1,9 @@
 #pragma once
 
 #include "SGTIncludes.h"
-#include "SGTRagdoll.h"
+#include "OgrePhysXRagdoll.h"
+#include "SGTGOCView.h"
+#include "SGTMessageSystem.h"
 
 class SGTGOCAnimatedCharacter;
 struct RagBoneRef
@@ -20,7 +22,7 @@ private:
 	Ogre::SceneNode *mOffsetNode;
 	Ogre::SceneNode *mJointAxisNode;
 	Ogre::ManualObject *mJointAxis;
-	sBoneActorBindConfig mBoneConfig;
+	OgrePhysX::sBoneActorBindConfig mBoneConfig;
 	bool mDebugAnimation;
 	Ogre::Quaternion mBoneActorGlobalBindOrientationInverse;
 	Ogre::Quaternion mBoneGlobalBindOrientation;
@@ -46,13 +48,13 @@ public:
 
 	bool GetTestAnimation();
 
-	sBoneActorBindConfig GetBoneConfig() { return mBoneConfig; }
+	OgrePhysX::sBoneActorBindConfig GetBoneConfig() { return mBoneConfig; }
 
 	void UpdatePosition(Ogre::Vector3 position);
 	void UpdateScale(Ogre::Vector3 scale);
 	void UpdateOrientation(Ogre::Quaternion orientation);
 
-	void SetBone(Ogre::SceneNode *meshnode, SGTGOCAnimatedCharacter* ragdoll, sBoneActorBind &bone_config, bool controlBone);
+	void SetBone(Ogre::SceneNode *meshnode, SGTGOCAnimatedCharacter* ragdoll, OgrePhysX::sBoneActorBind &bone_config, bool controlBone);
 
 	void SetOwner(SGTGameObject *go);
 
@@ -79,7 +81,9 @@ class SGTDllExport SGTGOCAnimatedCharacter : public SGTGOCEditorInterface, publi
 		RUN
 	};
 private:
-	SGTRagdoll *mRagdoll;
+	Ogre::Entity *mEntity;
+	Ogre::AnimationState *mAnimationState;
+	OgrePhysX::Ragdoll *mRagdoll;
 
 	void ResetMovementAnis();
 	void GetMovementAnis(Ogre::String configfile);
@@ -97,7 +101,9 @@ public:
 	SGTGOCAnimatedCharacter(Ogre::String meshname, Ogre::Vector3 scale = Ogre::Vector3(1,1,1));
 	~SGTGOCAnimatedCharacter(void);
 
-	SGTRagdoll* GetRagdoll() { return mRagdoll; }
+	OgrePhysX::Ragdoll* GetRagdoll() { return mRagdoll; }
+
+	void SetAnimationState(Ogre::String statename);
 
 	std::list<SGTGameObject*> mBoneObjects;
 

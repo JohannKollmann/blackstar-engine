@@ -274,7 +274,7 @@ void wxMainMenu::OnShowLog(wxCommandEvent& WXUNUSED(event))
 
 void wxMainMenu::OnAbout(wxCommandEvent& WXUNUSED(event))
 {
-	wxMessageBox(_T("Blackstar Editor (C) 2009 Andreas Henne (Caphalor)\nBlackstar Engine (C) 2009 Benedikt (1nsane) / Andreas Henne\n\nDependencies: Ogre 1.6, NxOgre 1.022, PhysX 2.8, wxWidgets 2.87, Caelum, OpenAL, OgreOggSound, boost, Lua, MeshMagick\n\nContact: heandreas@live.de\nJOIN US! ;)"),
+	wxMessageBox(_T("Blackstar Editor (C) 2009 Andreas Henne (Caphalor)\nBlackstar Engine (C) 2009 Benedikt (1nsane) / Andreas Henne\n\nDependencies: Ogre 1.6, PhysX 2.8, wxWidgets 2.87, Caelum, OpenAL, OgreOggSound, boost, Lua, MeshMagick\n\nContact: heandreas@live.de\nJOIN US! ;)"),
                        _T("About Blackstar Editor 'Weathertop' PRE ALPHA"),
                        wxICON_INFORMATION);
 	wxEdit::Instance().GetProgressBar()->Reset();

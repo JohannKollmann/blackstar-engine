@@ -3,7 +3,6 @@
 
 #include "SGTGOComponent.h"
 #include "SGTIncludes.h"
-#include "SGTMessageListener.h"
 #include "SGTGOCCharacterController.h"
 #include "SGTAIState.h"
 #include "SGTScriptedAIState.h"

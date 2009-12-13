@@ -39,7 +39,7 @@ protected:
 	Ogre::SceneManager* mSceneMgr;
 	Ogre::SceneManager* mPreviewSceneMgr;
 	bool mMainSceneMgr;
-	SGTCollisionCallback *mCollisionCallback;
+	SGTScriptedCollisionCallback *mCollisionCallback;
 
 	Ogre::ShadowCameraSetupPtr mDirectionalShadowCameraSetup;
 	Ogre::ShadowCameraSetupPtr mSpotShadowCameraSetup;
@@ -47,8 +47,7 @@ protected:
 
 	SGTCameraController* mCameraController;
 
-	NxOgre::World			*mNxWorld;
-	NxOgre::Scene			*mScene;
+	OgrePhysX::Scene		*mPhysXScene;
 	NxControllerManager		*mCharacterControllerManager;
 	SGTInput *mInputSystem;
 
@@ -90,14 +89,13 @@ public:
 	void Shutdown();
 		
 	Ogre::RenderWindow* GetWindow() { return mWindow; };
-	NxOgre::Scene* GetNxScene() { return mScene; };
+	OgrePhysX::Scene* GetPhysXScene() { return mPhysXScene; };
 	Ogre::SceneManager* GetOgreSceneMgr();// { return mSceneMgr; };
 	Ogre::SceneManager* GetPreviewSceneMgr() { return mPreviewSceneMgr; };
 	Ogre::Viewport* GetViewport() { return mViewport; };
 	Ogre::Camera* GetCamera() { return mCamera; };
 	OgreOggSound::OgreOggSoundManager* GetSoundManager() { return mSoundManager; };
 	SGTInput* GetInputManager() { return mInputSystem; };
-	NxOgre::World* GetNxWorld() { return mNxWorld; };
 	NxControllerManager* GetNxCharacterManager() { return mCharacterControllerManager; };
 
 	SGTCameraController* GetCameraController() { return mCameraController; };

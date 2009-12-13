@@ -1,5 +1,5 @@
 
-#include "NxOgre.h"
+#include "OgrePhysX.h"
 #include "OgreOggSound.h"
 #include "NxControllerManager.h"
 
@@ -10,15 +10,11 @@
 #include "SGTCameraController.h"
 #include "SGTConsole.h"
 #include "SGTSceneManager.h"
-//#include "standard_atoms.h"		//Load Save
 #include "SGTCompositorLoader.h"
 #include "SGTSceneListener.h"
 #include "HDRListener.h"
 #include "SGTWeatherController.h"
-#include "SGTCollisionCallback.h"
-//#include "GUISystem.h"
-//#include "SGTMusicSystem.h"
-//#include "ScriptedControls.h"
+#include "SGTScriptedCollisionCallback.h"
 #include "SSAOListener.h"
 
 #include "OgrePlugin.h"
@@ -60,7 +56,6 @@ ScriptLogFn(std::string strScript, int iLine, std::string strError)
 
 SGTMain::SGTMain()
 {
-	mNxWorld = 0;
 	mMainSceneMgr = true;
 }
 
@@ -137,6 +132,17 @@ void SGTMain::initScene()
 {
 	Ogre::LogManager::getSingleton().logMessage("SGTMain initScene");
 
+	//Start up OgrePhysX
+	OgrePhysX::World::getSingleton().init();
+#if USE_REMOTEDEBUGGER
+	OgrePhysX::World::getSingleton().getSDK()->getFoundationSDK().getRemoteDebugger()->connect("localhost", 5425);
+#endif
+	mPhysXScene = OgrePhysX::World::getSingleton().addScene("Main");
+	//Ground
+	mPhysXScene->createActor(OgrePhysX::PlaneShape(Ogre::Vector3(0, 1, 0), -500));
+
+	mCharacterControllerManager = NxCreateControllerManager(&OgrePhysX::World::getSingleton().getSDK()->getFoundationSDK().getAllocator());
+
 	//Init Ogre Resources
 	for (std::vector<KeyVal>::iterator i = mSettings["Resources"].begin(); i != mSettings["Resources"].end(); i++)
 	{
@@ -172,35 +178,6 @@ void SGTMain::initScene()
 	mSceneMgr->setAmbientLight(Ogre::ColourValue(0.3,0.3,0.3));
 	//mSceneMgr->setFog(Ogre::FOG_LINEAR, Ogre::ColourValue::Blue, 0.015);
 
-	//Start up NxOgre and pass on Ogre Root and the SceneManager as arguments.
-	NxOgre::PhysXParams pp;
-	pp.setToDefault();
-	//pp.mFlags.mNoHardware = true;
-	mNxWorld = new NxOgre::World(pp);//"time-controller: ogre");
-	Ogre::LogManager::getSingleton().logMessage("Initialising NxOgre...");
-	NxOgre::SceneParams sp;
-	sp.setToDefault();
-	sp.mRenderer = NxOgre::SceneParams::RN_OGRE;
-	sp.mController = NxOgre::SceneParams::CN_ACCUMULATOR;
-	sp.mGravity = NxVec3(0, -9.81, 0);
-	//sp.mThreadMask = 0xffffffff;
-	//sp.mInternalThreadCount = 3;
-	sp.mSceneFlags.toDefault();
-	sp.mSceneFlags.mEnableMultithread = true;
-	sp.mSceneFlags.mSimulateSeperateThread = true;
-	mScene = mNxWorld->createScene("Esgaroth", mSceneMgr, sp);//"renderer: ogre, controller: accumulator, gravity: yes, flags: multithread");
-#if USE_REMOTEDEBUGGER
-	mNxWorld->getPhysXDriver()->createDebuggerConnection();
-#endif
-	Ogre::LogManager::getSingleton().logMessage("Done");
-
-	mScene->createShapeGroup("Collidable");
-	mScene->createShapeGroup("BoneActor");
-
-	mCharacterControllerManager = NxCreateControllerManager(mNxWorld->getPhysXDriver()->getUserAllocator());
-
-	mScene->createActor("FakeFloor", new NxOgre::Cube(500,0.1f,500), Ogre::Vector3(0,-500,0), "static: yes");
-
 	mCameraController = new SGTCameraController();
 
 	//init scripting stuff
@@ -230,9 +207,10 @@ void SGTMain::initScene()
 
 	SGTSceneManager::Instance().Init();
 
-	mCollisionCallback = new SGTCollisionCallback();
-	/*NxOgre::ActorGroup *dynamicbodies = mScene->createActorGroup("DynamicBody");
-	dynamicbodies->setCallback((NxOgre::GroupCallback::InheritedCallback*)(mCollisionCallback));
+	/*mCollisionCallback = new SGTScriptedCollisionCallback();
+	NxOgre::ActorGroup *dynamicbodies = mScene->createActorGroup("DynamicBody");
+	mScene->addMaterialPair(
+	dynamicbodies->((NxOgre::GroupCallback::InheritedCallback*)(mCollisionCallback));
 	dynamicbodies->setCollisionCallback(dynamicbodies, NX_NOTIFY_ALL, false);*/
 
 	mSceneMgr->setShadowTechnique(Ogre::SHADOWTYPE_TEXTURE_ADDITIVE_INTEGRATED);
@@ -471,6 +449,7 @@ void SGTMain::Shutdown()
 		SGTSceneManager::Instance().Shutdown();
 		ClearPlugins();
 		delete mCameraController;
+		OgrePhysX::World::getSingleton().shutdown();
 		delete mRoot;
 		mRoot = 0;
 	}

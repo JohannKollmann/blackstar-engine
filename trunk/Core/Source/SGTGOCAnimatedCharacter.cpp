@@ -3,6 +3,7 @@
 #include "SGTSceneManager.h"
 #include "SGTMain.h"
 #include "SGTGOCCharacterController.h"
+#include "SGTUtils.h"
 
 
 SGTGOCAnimatedCharacterBone::SGTGOCAnimatedCharacterBone(void)
@@ -277,7 +278,7 @@ void SGTGOCAnimatedCharacterBone::ScaleNode()
 	mOffsetNode->setPosition(offset);
 }
 
-void SGTGOCAnimatedCharacterBone::SetBone(Ogre::SceneNode *meshnode, SGTGOCAnimatedCharacter* ragdoll, sBoneActorBind &bone_config, bool controlBone)
+void SGTGOCAnimatedCharacterBone::SetBone(Ogre::SceneNode *meshnode, SGTGOCAnimatedCharacter* ragdoll, OgrePhysX::sBoneActorBind &bone_config, bool controlBone)
 {
 	mMeshNode = meshnode;
 	mBone = bone_config.mBone;
@@ -349,7 +350,7 @@ SGTGOCAnimatedCharacter::~SGTGOCAnimatedCharacter(void)
 	if (mRagdoll)
 	{
 		SGTMessageSystem::Instance().QuitNewsgroup(this, "UPDATE_PER_FRAME");
-		delete mRagdoll;
+		SGTMain::Instance().GetPhysXScene()->destroyRagdoll(mRagdoll);
 		mRagdoll = 0;
 	}
 }
@@ -360,12 +361,14 @@ SGTGOCAnimatedCharacter::SGTGOCAnimatedCharacter()
 	mMovementState = 0;
 	mSetControlToActorsTemp = false;
 	mEditorMode = false;
+	mAnimationState = 0;
 }
 
 SGTGOCAnimatedCharacter::SGTGOCAnimatedCharacter(Ogre::String meshname, Ogre::Vector3 scale)
 {
 	mSetControlToActorsTemp = false;
 	mEditorMode = false;
+	mAnimationState = 0;
 	Create(meshname, scale);
 }
 
@@ -379,51 +382,57 @@ void SGTGOCAnimatedCharacter::Create(Ogre::String meshname, Ogre::Vector3 scale)
 		Ogre::LogManager::getSingleton().logMessage("Error: Resource \"" + meshname + "\" does not exist. Loading dummy Resource...");
 		meshname = "DummyMesh.mesh";
 	}
-	mRagdoll = new SGTRagdoll(SGTMain::Instance().GetOgreSceneMgr(), SGTMain::Instance().GetNxScene(), meshname, mNode);
+	mEntity = SGTMain::Instance().GetOgreSceneMgr()->createEntity(SGTSceneManager::Instance().RequestIDStr(), meshname);
+	mRagdoll = SGTMain::Instance().GetPhysXScene()->createRagdoll(mEntity, mNode);
 
 	ResetMovementAnis();
-	if (Ogre::ResourceGroupManager::getSingleton().resourceExists("General", mRagdoll->GetEntity()->getMesh()->getName() + ".anis"))
+	if (Ogre::ResourceGroupManager::getSingleton().resourceExists("General", mEntity->getMesh()->getName() + ".anis"))
 	{
-		GetMovementAnis(mRagdoll->GetEntity()->getMesh()->getName() + ".anis");
+		GetMovementAnis(mEntity->getMesh()->getName() + ".anis");
 	}
 	SGTMessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
 }
 
+void SGTGOCAnimatedCharacter::SetAnimationState(Ogre::String statename)
+{
+	mAnimationStateStr = statename;
+	mAnimationState = mEntity->getAnimationState(statename);
+}
+
 void SGTGOCAnimatedCharacter::Kill()
 {
-	mRagdoll->SetControlToActors();
+	mRagdoll->setControlToActors();
 }
 
 void SGTGOCAnimatedCharacter::SerialiseBoneObjects(Ogre::String filename)
 {
-	std::vector<sBoneActorBindConfig> boneconfig;
+	std::vector<OgrePhysX::sBoneActorBindConfig> boneconfig;
 	for (std::list<SGTGameObject*>::iterator i = mBoneObjects.begin(); i != mBoneObjects.end(); i++)
 	{
 		SGTGOCAnimatedCharacterBone *bone = (SGTGOCAnimatedCharacterBone*)(*i)->GetComponent("AnimatedCharacterBone");
 		boneconfig.push_back(bone->GetBoneConfig());
 	}
-	mRagdoll->Serialise(boneconfig, filename);
+	mRagdoll->serialise(boneconfig, filename);
 }
 void SGTGOCAnimatedCharacter::CreateBoneObjects()
 {
 	mBoneObjects.clear();
 	std::map<Ogre::String, SGTGameObject*> bonemap;
-	for (std::vector<sBoneActorBind>::iterator i = mRagdoll->mSkeleton.begin(); i != mRagdoll->mSkeleton.end(); i++)
+	for (std::vector<OgrePhysX::sBoneActorBind>::iterator i = mRagdoll->mSkeleton.begin(); i != mRagdoll->mSkeleton.end(); i++)
 	{
 		SGTGameObject *go = new SGTGameObject();
 		SGTGOCAnimatedCharacterBone *bone = new SGTGOCAnimatedCharacterBone();
 		go->AddComponent(bone);
-		go->SetGlobalPosition((*i).mActor->getGlobalPositionAsOgreVector3());
+		go->SetGlobalPosition((*i).mActor->getGlobalPosition());
 		//Ogre::Quaternion q = Ogre::Vector3(1,0,0).getRotationTo(Ogre::Vector3(0,1,0));
-		go->SetGlobalOrientation((*i).mActor->getGlobalOrientationAsOgreQuaternion());// * q);
+		go->SetGlobalOrientation((*i).mActor->getGlobalOrientation());// * q);
 		bone->SetBone(mNode, this, (*i), true);
 		//go->SetFreezePosition(true);
-		(*i).mVisualBone = go;
 		bonemap.insert(std::make_pair<Ogre::String, SGTGameObject*>((*i).mBone->getName(), go));
 	}
 	for (std::map<Ogre::String, SGTGameObject*>::iterator i = bonemap.begin(); i != bonemap.end(); i++)
 	{
-		Ogre::Bone *bone = mRagdoll->GetEntity()->getSkeleton()->getBone((*i).first);
+		Ogre::Bone *bone = mEntity->getSkeleton()->getBone((*i).first);
 		if (bone->getParent())
 		{
 			std::map<Ogre::String, SGTGameObject*>::iterator search = bonemap.find(bone->getParent()->getName());
@@ -476,7 +485,7 @@ void SGTGOCAnimatedCharacter::ReceiveMessage(SGTMsg &msg)
 {
 	if (msg.mNewsgroup == "UPDATE_PER_FRAME")
 	{
-		mRagdoll->Update(msg.mData.GetFloat("TIME"));
+		if (mAnimationState) mAnimationState->addTime(msg.mData.GetFloat("TIME"));
 	}
 }
 
@@ -488,37 +497,37 @@ void SGTGOCAnimatedCharacter::ReceiveObjectMessage(Ogre::SharedPtr<SGTObjectMsg>
 
 		if (mMovementState & SGTCharacterMovement::JUMP)
 		{
-			mRagdoll->SetAnimationState(mMovementAnimations[AnimationID::JUMP]);
+			SetAnimationState(mMovementAnimations[AnimationID::JUMP]);
 		}
 		else if (mMovementState & SGTCharacterMovement::FORWARD && !(mMovementState & SGTCharacterMovement::BACKWARD))
 		{
-			mRagdoll->SetAnimationState(mMovementAnimations[AnimationID::FORWARD]);
+			SetAnimationState(mMovementAnimations[AnimationID::FORWARD]);
 		}
 		else if (mMovementState & SGTCharacterMovement::BACKWARD && !(mMovementState & SGTCharacterMovement::FORWARD))
 		{
-			mRagdoll->SetAnimationState(mMovementAnimations[AnimationID::BACKWARD]);
+			SetAnimationState(mMovementAnimations[AnimationID::BACKWARD]);
 		}
 		else if (mMovementState & SGTCharacterMovement::LEFT)
 		{
-			mRagdoll->SetAnimationState(mMovementAnimations[AnimationID::LEFT]);
+			SetAnimationState(mMovementAnimations[AnimationID::LEFT]);
 		}
 		else if (mMovementState & SGTCharacterMovement::RIGHT)
 		{
-			mRagdoll->SetAnimationState(mMovementAnimations[AnimationID::RIGHT]);
+			SetAnimationState(mMovementAnimations[AnimationID::RIGHT]);
 		}
-		else mRagdoll->SetAnimationState(mMovementAnimations[AnimationID::IDLE]);
+		else SetAnimationState(mMovementAnimations[AnimationID::IDLE]);
 	}
 }
 
 void SGTGOCAnimatedCharacter::SetOwner(SGTGameObject *go)
 {
-	mRagdoll->GetEntity()->setUserObject(go);
+	mEntity->setUserObject(go);
 	UpdatePosition(go->GetGlobalPosition());
 	UpdateOrientation(go->GetGlobalOrientation());
-	mRagdoll->Update(0);
+	mRagdoll->sync();
 	if (mSetControlToActorsTemp)
 	{
-		mRagdoll->SetControlToActors();
+		mRagdoll->setControlToActors();
 		mSetControlToActorsTemp = false;
 	}
 	else if (mEditorMode && mAnimationStateStr == "DEBUG") CreateBoneObjects();
@@ -533,17 +542,17 @@ void SGTGOCAnimatedCharacter::CreateFromDataMap(SGTDataMap *parameters)
 	Ogre::Vector3 scale = Ogre::Vector3(1,1,1);
 	scale = parameters->GetOgreVec3("Scale");
 	Create(meshname, scale);
-	if (mAnimationStateStr != "") mRagdoll->SetAnimationState(mAnimationStateStr);
-	mRagdoll->GetEntity()->setCastShadows(shadowcaster);
-	mRagdoll->ResetBones();
+	if (mAnimationStateStr != "") SetAnimationState(mAnimationStateStr);
+	mEntity->setCastShadows(shadowcaster);
+	mRagdoll->resetBones();
 	mEditorMode = true;
 }
 void SGTGOCAnimatedCharacter::GetParameters(SGTDataMap *parameters)
 {
-	parameters->AddOgreString("MeshName", mRagdoll->GetEntity()->getMesh()->getName());
+	parameters->AddOgreString("MeshName", mEntity->getMesh()->getName());
 	parameters->AddOgreString("AnimState", mAnimationStateStr);
 	parameters->AddBool("Ragdoll", false);
-	parameters->AddBool("ShadowCaster", mRagdoll->GetEntity()->getCastShadows());
+	parameters->AddBool("ShadowCaster", mEntity->getCastShadows());
 }
 void SGTGOCAnimatedCharacter::GetDefaultParameters(SGTDataMap *parameters)
 {
@@ -555,12 +564,12 @@ void SGTGOCAnimatedCharacter::GetDefaultParameters(SGTDataMap *parameters)
 
 void SGTGOCAnimatedCharacter::Save(SGTSaveSystem& mgr)
 {
-	mgr.SaveAtom("Ogre::String", (void*)&mRagdoll->GetEntity()->getMesh()->getName(), "MeshName");
+	mgr.SaveAtom("Ogre::String", (void*)&mEntity->getMesh()->getName(), "MeshName");
 	mgr.SaveAtom("Ogre::Vector3", &mOwnerGO->GetGlobalScale(), "Scale");
 	mgr.SaveAtom("Ogre::String", &mAnimationStateStr, "AnimState");
-	bool ragdoll = mRagdoll->ControlledByActors();
+	bool ragdoll = mRagdoll->isControlledByActors();
 	mgr.SaveAtom("bool", &ragdoll, "Ragdoll");
-	bool shadow = mRagdoll->GetEntity()->getCastShadows();
+	bool shadow = mEntity->getCastShadows();
 	mgr.SaveAtom("bool", &shadow, "ShadowCaster");
 }
 void SGTGOCAnimatedCharacter::Load(SGTLoadSystem& mgr)
@@ -576,9 +585,9 @@ void SGTGOCAnimatedCharacter::Load(SGTLoadSystem& mgr)
 	mgr.LoadAtom("bool", &shadowcaster);
 	mgr.LoadAtom("bool", &ragdoll);
 	Create(meshname, scale);
-	if (animstate != "") mRagdoll->SetAnimationState(animstate);
-	mRagdoll->GetEntity()->setCastShadows(shadowcaster);
-	if (ragdoll) mRagdoll->SetControlToActors();
+	if (animstate != "") SetAnimationState(animstate);
+	mEntity->setCastShadows(shadowcaster);
+	if (ragdoll) mRagdoll->setControlToActors();
 }
 
 void SGTGOCAnimatedCharacter::AttachToGO(SGTGameObject *go)

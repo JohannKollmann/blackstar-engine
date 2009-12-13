@@ -2,25 +2,9 @@
 #pragma once
 
 #include "SGTIncludes.h"
-#include "NxOgre.h"
 #include "SGTGOComponent.h"
 #include "SGTGOCEditorInterface.h"
-
-class SGTDllExport SGTGOCRenderable : public NxOgre::Renderable
-{
-private:
-	SGTGameObject *mOwner;
-
-public:
-	SGTGOCRenderable(SGTGameObject *owner) : Renderable(0) { mOwner = owner; }
-	~SGTGOCRenderable() {}
-
-	NxOgre::NxString getType() {return "Esgaroth-Renderable";}
-	NxOgre::NxShortHashIdentifier getHashType() const {return 4179;}
-
-	void setPose(const NxOgre::Pose& p);
-	NxOgre::Pose getPose() const;
-};
+#include "OgrePhysX.h"
 
 class SGTDllExport SGTGOCPhysics : public SGTGOComponent
 {
@@ -38,17 +22,34 @@ namespace SGTShapes
 	const int SHAPE_CAPSULE = 4;
 };
 
-class SGTDllExport SGTGOCRigidBody : public SGTGOCEditorInterface, public SGTGOCPhysics, public NxOgre::RenderableSource
+namespace SGTCollisionGroups
+{
+	const NxU16 DEFAULT = 0;
+	const NxU16 LEVELMESH = 1;
+};
+
+class SGTDllExport SGTGOPhysXRenderable : public OgrePhysX::PointRenderable
 {
 private:
-	NxOgre::Actor *mActor;
+	SGTGameObject *mGO;
+public:
+	SGTGOPhysXRenderable(SGTGameObject *mGO) : mGO(mGO) {};
+	void setTransform(Ogre::Vector3 position, Ogre::Quaternion rotation);
+	void setGO(SGTGameObject *go);
+};
+
+class SGTDllExport SGTGOCRigidBody : public SGTGOCEditorInterface, public SGTGOCPhysics
+{
+private:
+	OgrePhysX::RenderedActor *mActor;
+	SGTGOPhysXRenderable *mRenderable;
 	void Create(Ogre::String collision_mesh, float density, int shapetype, Ogre::Vector3 scale);
 	Ogre::String mCollisionMeshName;
 	float mDensity;
 	int mShapeType;
 
 public:
-	SGTGOCRigidBody() { mActor = 0; mRenderable = 0; }
+	SGTGOCRigidBody() { mActor = 0; mOwnerGO = 0; mRenderable = 0; }
 	SGTGOCRigidBody(Ogre::String collision_mesh, float density, int shapetype);
 	~SGTGOCRigidBody(void);
 
@@ -74,28 +75,14 @@ public:
 	static SGTSaveable* NewInstance() { return new SGTGOCRigidBody; };
 	static SGTGOCEditorInterface* NewEditorInterfaceInstance() { return new SGTGOCRigidBody(); }
 	void AttachToGO(SGTGameObject *go);
-
-	// Required by the RenderableSource. (Tells where the Actor is)
-	NxOgre::Pose getSourcePose(const NxOgre::TimeStep&) const {
-		return mActor->getGlobalPose();
-	}
-	// To work out what exactly the class is, if the pointer is passed
-	// around as an Actor.
-	NxOgre::NxShortHashIdentifier getType() const {
-		return 12445;
-	}
-	// Same as above, but uses a String. It is slower to check this way.
-	NxOgre::NxString getStringType() const {
-	   return "EsgarothActor";
-	}
 };
 
 
 class SGTDllExport SGTGOCStaticBody : public SGTGOCEditorInterface, public SGTGOCPhysics
 {
 private:
-	NxOgre::Actor *mActor;
-	void Create(Ogre::String collision_mesh);
+	OgrePhysX::Actor *mActor;
+	void Create(Ogre::String collision_mesh, Ogre::Vector3 scale = Ogre::Vector3(1,1,1));
 	Ogre::String mCollisionMeshName;
 
 public:

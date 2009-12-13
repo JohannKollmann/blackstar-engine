@@ -43,7 +43,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="0"
-				AdditionalIncludeDirectories="script\;..\..\Dependencies\wxWidgets\include\msvc;..\..\Dependencies\wxWidgets\include\;..\..\Dependencies\wxWidgets\wxthings\include;..\..\Dependencies\OpenAL\include;..\..\Dependencies\OgreOggSound\include;..\..\Dependencies\Alut\include;..\Common\;..\..\Dependencies\Ogre3D\include\;..\..\Dependencies\Ogre3D\CEGUIRenderer\include\;..\..\Dependencies\Ogre3D\Dependencies\include;..\..\Dependencies\Caelum\include\;..\..\Dependencies\PhysX\SDKs\PhysXLoader\include;..\..\Dependencies\PhysX\SDKs\Physics\include;..\..\Dependencies\PhysX\SDKs\Foundation\include;..\..\Dependencies\PhysX\SDKs\Cooking\include;..\..\Dependencies\PhysX\SDKs\NxCharacter\include;..\..\Dependencies\NxOgre\include;Header\;..\LoadSave_dll\SGTLoadSave\ExternalHeaders;..\..\Dependencies\Hydrax\include\;..\..\Dependencies\"
+				AdditionalIncludeDirectories="script\;..\..\Dependencies\wxWidgets\include\msvc;..\..\Dependencies\wxWidgets\include\;..\..\Dependencies\wxWidgets\wxthings\include;..\..\Dependencies\OpenAL\include;..\..\Dependencies\OgreOggSound\include;..\..\Dependencies\Alut\include;..\Common\;..\..\Dependencies\Ogre3D\include\;..\..\Dependencies\Ogre3D\CEGUIRenderer\include\;..\..\Dependencies\Ogre3D\Dependencies\include;..\..\Dependencies\Caelum\include\;..\..\Dependencies\PhysX\SDKs\PhysXLoader\include;..\..\Dependencies\PhysX\SDKs\Physics\include;..\..\Dependencies\PhysX\SDKs\Foundation\include;..\..\Dependencies\PhysX\SDKs\Cooking\include;..\..\Dependencies\PhysX\SDKs\NxCharacter\include;..\..\Dependencies\OgrePhysX\include;Header\;..\LoadSave_dll\SGTLoadSave\ExternalHeaders;..\..\Dependencies\"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="false"
 				BasicRuntimeChecks="3"
@@ -64,10 +64,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Rpcrt4.lib OgreMain_d.lib PhysXLoader.lib NxCooking.lib NxCharacter.lib nxOgre_d.lib CEGUIBase_d.lib OgreGUIRenderer_d.lib ws2_32.lib OgreOggSound_d.lib comctl32.lib caelum_d.lib WinMM.lib SGTLoadSave_d.lib"
+				AdditionalDependencies="Rpcrt4.lib OgreMain_d.lib PhysXLoader.lib PhysXCooking.lib NxCharacter.lib OgrePhysX_d.lib ws2_32.lib OgreOggSound_d.lib comctl32.lib caelum_d.lib WinMM.lib SGTLoadSave_d.lib"
 				OutputFile="$(OutDir)/EsgarothEngine_debug.dll"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="..\..\Dependencies\OgreOggSound\lib\;..\..\Dependencies\Ogre3D\lib;..\..\Dependencies\NxOgre\lib;..\..\Dependencies\Ogre3D\Dependencies\lib\Debug;..\..\Dependencies\PhysX\SDKs\lib\win32;..\..\Dependencies\wxWidgets\lib\vc_lib\;..\..\Dependencies\wxWidgets\wxthings\lib\;..\..\Dependencies\Caelum\lib\debug;..\..\Ogre3D\Dependencies\lib\Release\;..\..\lib\;..\..\Dependencies\Hydrax\lib;..\..\Dependencies\boost\lib\"
+				AdditionalLibraryDirectories="..\..\Dependencies\OgreOggSound\lib\;..\..\Dependencies\Ogre3D\lib;..\..\Dependencies\OgrePhysX\lib;..\..\Dependencies\Ogre3D\Dependencies\lib\Debug;..\..\Dependencies\PhysX\SDKs\lib\win32;..\..\Dependencies\wxWidgets\lib\vc_lib\;..\..\Dependencies\wxWidgets\wxthings\lib\;..\..\Dependencies\Caelum\lib\debug;..\..\Ogre3D\Dependencies\lib\Release\;..\..\lib\;..\..\Dependencies\Hydrax\lib;..\..\Dependencies\boost\lib\"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(TargetDir)$(TargetName).pdb"
 				SubSystem="1"
@@ -128,7 +128,7 @@
 				AdditionalOptions="/MP"
 				Optimization="2"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories="script\;..\..\Dependencies\OpenAL\include;..\..\Dependencies\Alut\include;..\Common\;..\..\Dependencies\Ogre3D\include\;..\..\Dependencies\Ogre3D\CEGUIRenderer\include\;..\..\Dependencies\Ogre3D\Dependencies\include;..\..\Dependencies\Caelum\include\;..\..\Dependencies\PhysX\SDKs\PhysXLoader\include;..\..\Dependencies\PhysX\SDKs\Physics\include;..\..\Dependencies\PhysX\SDKs\Foundation\include;..\..\Dependencies\PhysX\SDKs\Cooking\include;..\..\Dependencies\;..\..\Dependencies\PhysX\SDKs\NxCharacter\include;..\..\Dependencies\NxOgre\include;Header\;..\LoadSave_dll\SGTLoadSave\ExternalHeaders;..\..\Dependencies\Hydrax\include;..\..\Dependencies\OgreOggSound\include"
+				AdditionalIncludeDirectories="script\;..\..\Dependencies\OpenAL\include;..\..\Dependencies\Alut\include;..\Common\;..\..\Dependencies\Ogre3D\include\;..\..\Dependencies\Ogre3D\CEGUIRenderer\include\;..\..\Dependencies\Ogre3D\Dependencies\include;..\..\Dependencies\Caelum\include\;..\..\Dependencies\PhysX\SDKs\PhysXLoader\include;..\..\Dependencies\PhysX\SDKs\Physics\include;..\..\Dependencies\PhysX\SDKs\Foundation\include;..\..\Dependencies\PhysX\SDKs\Cooking\include;..\..\Dependencies\;..\..\Dependencies\PhysX\SDKs\NxCharacter\include;..\..\Dependencies\OgrePhysX\include;Header\;..\LoadSave_dll\SGTLoadSave\ExternalHeaders;..\..\Dependencies\Hydrax\include;..\..\Dependencies\OgreOggSound\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
@@ -148,10 +148,10 @@
 			<Tool
 				Name="VCLinkerTool"
 				RegisterOutput="false"
-				AdditionalDependencies="OgreMain.lib PhysXLoader.lib NxCooking.lib NxCharacter.lib nxOgre.lib CEGUIBase.lib OgreGUIRenderer.lib ws2_32.lib OgreOggSound.lib caelum.lib WinMM.lib SGTLoadSave.lib"
+				AdditionalDependencies="OgreMain.lib PhysXLoader.lib PhysXCooking.lib NxCharacter.lib OgrePhysX.lib ws2_32.lib OgreOggSound.lib caelum.lib WinMM.lib SGTLoadSave.lib"
 				OutputFile="$(OutDir)/EsgarothEngine.dll"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="..\..\Dependencies\OgreOggSound\lib\;..\..\Dependencies\Ogre3D\lib;..\..\Dependencies\NxOgre\lib;..\..\Dependencies\Ogre3D\Dependencies\lib\Release;..\..\Dependencies\PhysX\SDKs\lib\win32;..\..\Dependencies\Caelum\lib\release;..\..\Ogre3D\Dependencies\lib\Release\;..\..\lib\;..\..\Dependencies\Hydrax\lib;..\..\Dependencies\boost\lib\"
+				AdditionalLibraryDirectories="..\..\Dependencies\OgreOggSound\lib\;..\..\Dependencies\Ogre3D\lib;..\..\Dependencies\OgrePhysX\lib;..\..\Dependencies\Ogre3D\Dependencies\lib\Release;..\..\Dependencies\PhysX\SDKs\lib\win32;..\..\Dependencies\Caelum\lib\release;..\..\Ogre3D\Dependencies\lib\Release\;..\..\lib\;..\..\Dependencies\Hydrax\lib;..\..\Dependencies\boost\lib\"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				OptimizeReferences="2"
@@ -573,15 +573,15 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\Dependencies\Boost\thread\win32\once.hpp"
-					>
-				</File>
-				<File
 					RelativePath="..\..\Dependencies\Boost\thread\pthread\once.hpp"
 					>
 				</File>
 				<File
 					RelativePath="..\..\Dependencies\Boost\thread\once.hpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Dependencies\Boost\thread\win32\once.hpp"
 					>
 				</File>
 				<File
@@ -593,15 +593,15 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\Dependencies\Boost\thread\pthread\recursive_mutex.hpp"
-					>
-				</File>
-				<File
 					RelativePath="..\..\Dependencies\Boost\thread\win32\recursive_mutex.hpp"
 					>
 				</File>
 				<File
 					RelativePath="..\..\Dependencies\Boost\thread\recursive_mutex.hpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Dependencies\Boost\thread\pthread\recursive_mutex.hpp"
 					>
 				</File>
 				<File
@@ -621,15 +621,15 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\Dependencies\Boost\thread\win32\thread.hpp"
-					>
-				</File>
-				<File
 					RelativePath="..\..\Dependencies\Boost\thread\pthread\thread.hpp"
 					>
 				</File>
 				<File
 					RelativePath="..\..\Dependencies\Boost\thread\thread.hpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Dependencies\Boost\thread\win32\thread.hpp"
 					>
 				</File>
 				<File
@@ -678,27 +678,11 @@
 			Name="Physics"
 			>
 			<File
-				RelativePath=".\Source\SGTCollisionCallback.cpp"
+				RelativePath=".\Source\SGTScriptedCollisionCallback.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Header\SGTCollisionCallback.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\SGTPhysicsLevelRayCaster.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Header\SGTPhysicsLevelRayCaster.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\SGTRagdoll.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Header\SGTRagdoll.h"
+				RelativePath=".\Header\SGTScriptedCollisionCallback.h"
 				>
 			</File>
 		</Filter>

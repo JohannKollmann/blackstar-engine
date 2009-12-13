@@ -5,47 +5,30 @@
 
 SGTLevelMesh::SGTLevelMesh(Ogre::String mesh)
 {
-	SGTSceneManager::Instance().BakeStaticMeshShape(mesh);
-
-	Ogre::SceneNode *node = SGTMain::Instance().GetOgreSceneMgr()->getRootSceneNode()->createChildSceneNode("LevelMesh");
+	mNode = SGTMain::Instance().GetOgreSceneMgr()->getRootSceneNode()->createChildSceneNode("LevelMesh");
 	if (!Ogre::ResourceGroupManager::getSingleton().resourceExists("General", mesh))
 	{
 		Ogre::LogManager::getSingleton().logMessage("Error: Resource \"" + mesh + "\" does not exist. Loading dummy Resource...");
 		mesh = "DummyMesh.mesh";
 	}
-	Ogre::Entity *ent = SGTMain::Instance().GetOgreSceneMgr()->createEntity("LevelMesh-entity", mesh);
-	ent->setCastShadows(true);
+	mEntity = SGTMain::Instance().GetOgreSceneMgr()->createEntity("LevelMesh-entity", mesh);
+	mEntity->setCastShadows(true);
     unsigned short src, dest;
-	if (!ent->getMesh()->suggestTangentVectorBuildParams(Ogre::VES_TANGENT, src, dest))
-		ent->getMesh()->buildTangentVectors(Ogre::VES_TANGENT, src, dest, true, true, true);
+	if (!mEntity->getMesh()->suggestTangentVectorBuildParams(Ogre::VES_TANGENT, src, dest))
+		mEntity->getMesh()->buildTangentVectors(Ogre::VES_TANGENT, src, dest, true, true, true);
 	// Second mode cleans mirrored / rotated UVs but requires quality models
 	//pMesh->buildTangentVectors(VES_TANGENT, src, dest, true, true);
 
-	node->attachObject(ent);
-	node->scale(1.0,1.0,1.0);
+	mNode->attachObject(mEntity);
+	mNode->scale(1.0,1.0,1.0);
 
-	NxOgre::ActorParams ap;
-	ap.setToDefault();
-	ap.mDensity = 0.0f;
-	ap.mMass = 0.0f;
+	if (!OgrePhysX::Cooker::getSingleton().hasNxMesh(mesh + ".nxs"))
+		OgrePhysX::Cooker::getSingleton().cookNxMeshToFile(mEntity->getMesh(), "Data\\Media\\Meshes\\NXS\\" + mesh + ".nxs");
 
-	NxOgre::ShapeParams sp;
-	sp.setToDefault();
-	sp.mDensity = 0.0f;
-	sp.mMass = 0.0f;
-	sp.mGroup = "Collidable";
-
-	NxOgre::NodeRenderableParams nrp;
-	nrp.setToDefault();
-	nrp.mIdentifier = "LevelMesh";
-	nrp.mIdentifierUsage = NxOgre::NodeRenderableParams::IU_Use;
-
-	mMeshFileName = mesh;
-	NxOgre::TriangleMesh *shape = new NxOgre::TriangleMesh(NxOgre::Resources::ResourceSystem::getSingleton()->getMesh("Data/Media/Meshes/NXS/" + mesh + ".nxs"), sp);
-	mBody = (NxOgre::Body*)(SGTMain::Instance().GetNxScene()->createBody<NxOgre::Body>("LevelMesh", shape, Ogre::Vector3(0,0,0), nrp, ap));
+	mActor = SGTMain::Instance().GetPhysXScene()->createActor(OgrePhysX::CookedMeshShape(mesh + ".nxs"));
 }
 
 SGTLevelMesh::~SGTLevelMesh(void)
 {
-	SGTMain::Instance().GetNxScene()->destroyBody(mBody->getName());
+	SGTMain::Instance().GetPhysXScene()->destroyActor(mActor);
 }
