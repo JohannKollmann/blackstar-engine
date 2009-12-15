@@ -1,0 +1,21 @@
+#summary Einführung in das Objektsystem
+
+= Einleitung =
+
+Das Objektsystem ist eine Kernkomponente der Blackstar Engine. Alles, was im dreidimensionalem Raum irgendwo platziert ist, ist ein Objekt - eine Kiste, ein Npc, ein Licht, ein Trigger usw.
+Die entsprechende Klasse heißt SGTGameObject.
+
+
+= Das Komponentensystem =
+
+Die Klasse SGTGameObject speichert an Objekteigenschaften lediglich die globale Transformation eines Objekts. Es ist außerdem nicht vorgesehen, dass andere Klassen von SGTGameObject erben. Wie sind dann die verschiedenen Objekttypen implementiert? Dazu muss der Begriff 'Objekttyp' überdacht werden. In der Blackstar Engine besteht ein Objekt aus einer Kollektion von Komponenten. Komponentenklassen erben grundsätzlich von SGTGOComponent (GO = Game Object). Eine Komponente implementiert eine bestimmte Funktionalität, die dem Objekt hinzugefügt werden kann.
+Ein gutes Beispiel ist Feuer: Hier würde man ein Objekt erstellen mit den Komponenten 'Partikeleffekt', 'Sound' und 'Licht'. Auch Physik-Objekte werden auf diese Weise implementiert: Eine Kiste besteht zum einen aus der grafischen Repräsentation, einem Kisten-Mesh, zum anderen aus einem Kollisionsmodell, welches von der Phsysikengine berechnet wird.
+
+
+=== Einschränkungen ===
+
+Einem Objekt können theoretisch beliebig viele Komponenten hinzugefügt werden, allerdings darf ein Objekt jeweils nur ein Element einer Komponentendamilie speichern.
+
+=== Das Nachichtensystem ===
+
+Komponenten sollten prinzipiell unabhängig voneinander sein, allerdings ist es manchmal unerlässlich, dass sie miteinander kommunizieren. Mit dem lokalen Nachichtensystem existiert dafür eine komfortable Lösung. Wie beim globalen Nachichtensystem können Nachichten gesendet werden, ohne den Empfänger zu kennen - das lokale Nachichtensystem eines Objekts verzichtet aber auf Newsgroup-Registrierungen. Jede Nachicht wird an jede Komponente gesendet, allerdings können die Komponenten diese natürlich einfach ignorieren.
