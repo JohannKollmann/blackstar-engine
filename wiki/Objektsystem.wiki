@@ -18,4 +18,4 @@ Einem Objekt können theoretisch beliebig viele Komponenten hinzugefügt werden,
 
 === Das Nachichtensystem ===
 
-Komponenten sollten prinzipiell unabhängig voneinander sein, allerdings ist es manchmal unerlässlich, dass sie miteinander kommunizieren. Mit dem lokalen Nachichtensystem existiert dafür eine komfortable Lösung. Wie beim globalen Nachichtensystem können Nachichten gesendet werden, ohne den Empfänger zu kennen - das lokale Nachichtensystem eines Objekts verzichtet aber auf Newsgroup-Registrierungen. Jede Nachicht wird an jede Komponente gesendet, allerdings können die Komponenten diese natürlich einfach ignorieren.
+Komponenten sollten prinzipiell unabhängig voneinander sein, allerdings ist es manchmal unerlässlich, dass sie miteinander kommunizieren. Mit dem lokalem Nachichtensystem existiert dafür eine komfortable Lösung. Wie beim globalen Nachichtensystem können Nachichten gesendet werden, ohne den Empfänger zu kennen - das lokale Nachichtensystem eines Objekts verzichtet aber auf Newsgroup-Registrierungen. Jede Nachicht wird an jede Komponente gesendet, allerdings können die Komponenten diese natürlich einfach ignorieren.
