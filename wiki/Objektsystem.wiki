@@ -14,7 +14,7 @@ Ein gutes Beispiel ist Feuer: Hier würde man ein Objekt erstellen mit den Kompo
 
 === Einschränkungen ===
 
-Einem Objekt können theoretisch beliebig viele Komponenten hinzugefügt werden, allerdings darf ein Objekt jeweils nur ein Element einer Komponentendamilie speichern.
+Einem Objekt können theoretisch beliebig viele Komponenten hinzugefügt werden, allerdings darf ein Objekt jeweils nur ein Element einer Komponentenfamilie speichern.
 
 === Das Nachichtensystem ===
 
