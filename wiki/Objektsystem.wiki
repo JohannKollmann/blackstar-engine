@@ -30,9 +30,7 @@ SGTGOCViewContainer view = new SGTGOCViewContainer();
 view->AddItem(new SGTLocalLightRenderable(...));
 view->AddItem(new SGTPfxRenderable(...));
 object->AddComponent("View");
-object->SetGlobalPosition(...);
-object->SetGlobalOrientation(...);
-view = (SGTGOCViewContainer*)object->GetComponent("View");
+view = (SGTGOCViewContainer*)object->GetComponent("View"); //Beispielzugriff
 }}}
 
 {{{
