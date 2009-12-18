@@ -36,6 +36,7 @@ void SGTSceneManager::Init()
 ...
 }
 }}}
+"A" gibt die interne Gruppe an, welche alphabetisch sortiert werden. Dies hat Einfluss auf die Gui-Darstellung im Editor.
 {{{GetDefaultParameters}}} ist bei MeshRenderable wie folgt implementiert:
 {{{
 void SGTMeshRenderable::GetDefaultParameters(SGTDataMap *parameters)
