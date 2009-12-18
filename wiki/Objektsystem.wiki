@@ -14,8 +14,33 @@ Ein gutes Beispiel ist Feuer: Hier würde man ein Objekt erstellen mit den Kompo
 
 === Einschränkungen ===
 
-Einem Objekt können theoretisch beliebig viele Komponenten hinzugefügt werden, allerdings darf ein Objekt jeweils nur ein Element einer Komponentenfamilie speichern.
+Einem Objekt können theoretisch beliebig viele Komponenten hinzugefügt werden, allerdings darf ein Objekt jeweils nur ein Element einer Komponentenfamilie speichern. Diese Einschränkung ist wichtig, um nach außen eine transparente Schnittstelle anzubieten, mit der auf Komponentenfamilien zugegriffen werden können.
+Wenn ein Objekt mehrere Elemente einer Familie speichern soll (z. B. ein Licht und ein Partikeleffekt, beides Elemente der Familie "View"), muss eine Container-Komponente genutzt werden.
 
-=== Das Nachichtensystem ===
+=== Das lokale Nachichtensystem ===
 
 Komponenten sollten prinzipiell unabhängig voneinander sein, allerdings ist es manchmal unerlässlich, dass sie miteinander kommunizieren. Mit dem lokalen Nachichtensystem existiert dafür eine komfortable Lösung. Wie beim globalen Nachichtensystem können Nachichten gesendet werden, ohne den Empfänger zu kennen - das lokale Nachichtensystem eines Objekts verzichtet aber auf Newsgroup-Registrierungen. Jede Nachicht wird an jede Komponente gesendet, allerdings können die Komponenten diese natürlich einfach ignorieren.
+
+=== Beispiele ===
+
+{{{
+//Pfx-Effekt mit Licht
+SGTGameObject *object = new SGTGameObject();
+SGTGOCViewContainer view = new SGTGOCViewContainer();
+view->AddItem(new SGTLocalLightRenderable(...));
+view->AddItem(new SGTPfxRenderable(...));
+object->AddComponent("View");
+object->SetGlobalPosition(...);
+object->SetGlobalOrientation(...);
+view = (SGTGOCViewContainer*)object->GetComponent("View");
+}}}
+
+{{{
+//Player
+SGTGameObject* player = new SGTGameObject();
+player->AddComponent(new SGTGOCPlayerInput());
+player->AddComponent(new SGTGOCCameraController(SGTMain::Instance().GetCamera()));
+player->AddComponent(new SGTGOCCharacterController(Ogre::Vector3(0.5,1.8,0.5)));
+player->AddComponent(new SGTGOCAnimatedCharacter(model));
+player->SetGlobalPosition(Ogre::Vector3(0,10,0));
+}}}
