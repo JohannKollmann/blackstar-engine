@@ -1,0 +1,46 @@
+#summary Die Schnittstelle zum Editor
+
+=== Einleitung ===
+Mit dem Editor lassen sich Objekte platzieren - Lichter, Meshes, Npcs, Waypoints usw.
+Damit man nicht für jede neue Komponentenklasse, die im Editor benutzbar sein soll, den Gui-Code verändern muss, wurde das Editor Interface geschaffen. Klassen, die das Editor Interface bereitstellen wollen, müssen die Klasse EditorInterface implementieren.
+
+=== Funktionsweise ===
+Klassen, die das Editor Interface implementieren, müssen gewisse Methoden bereitstellen, die vom Editor benutzt werden:
+
+{{{void CreateFromDataMap(SGTDataMap *parameters)}}}
+Diese Methode initialisiert das Objekt, die Parameter werden in einer "Datamap" übergeben. Eine Datamap ist ein Set von Parametern, die vom Typ bool, int, float String, Vector3, Quaternion oder ColourValue sein können. Jedem Parameter ist außerdem ein Name zugeordnet. Man könnte den Typen auch so schreiben: {{{map<String, GenericBaseType>}}}
+Der Editor kann die Datamap in einer übersichtlichen PropertyGrid anzeigen.
+
+{{{void GetParameters(SGTDataMap *parameters)}}}
+In dieser Methode muss das Objekt seine aktuellen Zustandsparameter in die übergebene Datamap schreiben.
+
+{{{static SGTGOCEditorInterface* NewEditorInterfaceInstance();}}} Erstellt ein neues Objekt der Klasse.
+
+{{{void AttachToGO(SGTGameObject *go)}}} Im Regelfall wird diese Methode so implementiert:
+{{{
+void SGTGOCAI::AttachToGO(SGTGameObject *go)
+{
+	go->RemoveComponent(GetFamilyID());
+	go->AddComponent(this);        
+}
+}}}
+Relevant ist dies in erster Linie für Containerkomponenten, siehe {{{SGTGOCViewComponentEDT::AttachToGO}}}
+
+=== Registrierung ===
+Damit die Klasse, die das Editor Interface bereitstellt, auch wirklich im Editor sichtbar ist, muss das Interface registriert werden.
+{{{
+void SGTSceneManager::Init()
+{
+...
+	RegisterEditorInterface("A", "MeshRenderable", (EDTCreatorFn)&SGTMeshRenderable::NewEditorInterfaceInstance, SGTMeshRenderable::GetDefaultParameters);
+...
+}
+}}}
+{{{GetDefaultParameters}}} ist bei MeshRenderable wie folgt implementiert:
+{{{
+void SGTMeshRenderable::GetDefaultParameters(SGTDataMap *parameters)
+{
+	parameters->AddOgreString("MeshName", "");
+	parameters->AddBool("ShadowCaster", true);
+}
+}}}
