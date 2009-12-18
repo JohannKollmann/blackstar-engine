@@ -14,7 +14,7 @@ Der Editor kann die Datamap in einer übersichtlichen PropertyGrid anzeigen.
 {{{void GetParameters(SGTDataMap *parameters)}}}
 In dieser Methode muss das Objekt seine aktuellen Zustandsparameter in die übergebene Datamap schreiben.
 
-{{{static SGTGOCEditorInterface* NewEditorInterfaceInstance();}}} Erstellt ein neues Objekt der Klasse.
+{{{static SGTGOCEditorInterface* NewEditorInterfaceInstance()}}} Erstellt ein neues Objekt der Klasse.
 
 {{{void AttachToGO(SGTGameObject *go)}}} Im Regelfall wird diese Methode so implementiert:
 {{{
