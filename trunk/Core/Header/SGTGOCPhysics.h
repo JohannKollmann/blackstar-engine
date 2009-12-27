@@ -86,7 +86,7 @@ private:
 	Ogre::String mCollisionMeshName;
 
 public:
-	SGTGOCStaticBody() { mActor = 0; }
+	SGTGOCStaticBody() { mActor = 0; mOwnerGO = 0; }
 	SGTGOCStaticBody(Ogre::String collision_mesh);
 	~SGTGOCStaticBody(void);
 
@@ -109,4 +109,48 @@ public:
 	static void Register(std::string* pstrName, SGTSaveableInstanceFn* pFn) { *pstrName = "StaticBody"; *pFn = (SGTSaveableInstanceFn)&NewInstance; };
 	static SGTSaveable* NewInstance() { return new SGTGOCStaticBody; };
 	static SGTGOCEditorInterface* NewEditorInterfaceInstance() { return new SGTGOCStaticBody(); }
+};
+
+class SGTDllExport SGTGOCTrigger : public SGTGOCEditorInterface, public SGTGOCPhysics
+{
+	enum TriggerShapes
+	{
+		BOX = 0,
+		SPHERE = 1
+	};
+private:
+	OgrePhysX::Actor *mActor;
+	TriggerShapes mShapeType;
+	Ogre::Vector3 mBoxDimensions;
+	float mSphereRadius;
+	void Create(Ogre::Vector3 scale);
+
+public:
+	SGTGOCTrigger() { mActor = 0; mOwnerGO = 0; }
+	SGTGOCTrigger(Ogre::Vector3 boxDimensions);
+	SGTGOCTrigger(float sphereRadius);
+	~SGTGOCTrigger(void);
+
+	SGTGOComponent::goc_id_type& GetComponentID() const { static std::string name = "Trigger"; return name; }
+
+	void UpdatePosition(Ogre::Vector3 position);
+	void UpdateOrientation(Ogre::Quaternion orientation);
+	void UpdateScale(Ogre::Vector3 scale);
+
+	void onEnter(SGTGameObject *object);
+	void onLeave(SGTGameObject *object);
+
+	void SetOwner(SGTGameObject *go);
+
+	void CreateFromDataMap(SGTDataMap *parameters);
+	void GetParameters(SGTDataMap *parameters);
+	static void GetDefaultParameters(SGTDataMap *parameters);
+	void AttachToGO(SGTGameObject *go);
+
+	void Save(SGTSaveSystem& mgr);
+	void Load(SGTLoadSystem& mgr);
+	std::string& TellName() { static std::string name = "Trigger"; return name; };
+	static void Register(std::string* pstrName, SGTSaveableInstanceFn* pFn) { *pstrName = "Trigger"; *pFn = (SGTSaveableInstanceFn)&NewInstance; };
+	static SGTSaveable* NewInstance() { return new SGTGOCTrigger; };
+	static SGTGOCEditorInterface* NewEditorInterfaceInstance() { return new SGTGOCTrigger(); }
 };

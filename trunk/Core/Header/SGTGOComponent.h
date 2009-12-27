@@ -10,6 +10,7 @@ struct SGTObjectMsg
 {
 	Ogre::String mName;
 	SGTDataMap mData;
+	void *rawData;
 };
 
 class SGTDllExport SGTGOComponent : public SGTSaveable

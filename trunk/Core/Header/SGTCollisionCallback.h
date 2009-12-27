@@ -1,15 +1,14 @@
 
 #pragma once
 
-#include "NxOgre.h"
+#include "OgrePhysX.h"
 
-class SGTCollisionCallback
+class SGTTriggerCallback : public OgrePhysX::TriggerReportListener
 {
 public:
-	SGTCollisionCallback(void);
-	~SGTCollisionCallback(void);
+	SGTTriggerCallback(void) {}
+	~SGTTriggerCallback(void) {}
 
-	void onStartTouch(NxOgre::Actor*, NxOgre::Actor*, NxOgre::ContactStream*);
-	void onEndTouch(NxOgre::Actor*, NxOgre::Actor*, NxOgre::ContactStream*);
-	void onTouch(NxOgre::Actor*, NxOgre::Actor*, NxOgre::ContactStream*);
+	void onEnter(OgrePhysX::Actor *trigger, OgrePhysX::Actor *other);
+	void onLeave(OgrePhysX::Actor *trigger, OgrePhysX::Actor *other);
 };

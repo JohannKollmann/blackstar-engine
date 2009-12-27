@@ -14,7 +14,7 @@
 #include "SGTSceneListener.h"
 #include "HDRListener.h"
 #include "SGTWeatherController.h"
-#include "SGTScriptedCollisionCallback.h"
+#include "SGTCollisionCallback.h"
 #include "SSAOListener.h"
 
 #include "OgrePlugin.h"
@@ -140,6 +140,9 @@ void SGTMain::initScene()
 	mPhysXScene = OgrePhysX::World::getSingleton().addScene("Main");
 	//Ground
 	mPhysXScene->createActor(OgrePhysX::PlaneShape(Ogre::Vector3(0, 1, 0), -500));
+
+	//Collision Callback
+	mPhysXScene->setTriggerReport(new SGTTriggerCallback());
 
 	mCharacterControllerManager = NxCreateControllerManager(&OgrePhysX::World::getSingleton().getSDK()->getFoundationSDK().getAllocator());
 

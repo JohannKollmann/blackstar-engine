@@ -573,15 +573,15 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\Dependencies\Boost\thread\pthread\once.hpp"
-					>
-				</File>
-				<File
 					RelativePath="..\..\Dependencies\Boost\thread\once.hpp"
 					>
 				</File>
 				<File
 					RelativePath="..\..\Dependencies\Boost\thread\win32\once.hpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Dependencies\Boost\thread\pthread\once.hpp"
 					>
 				</File>
 				<File
@@ -593,15 +593,15 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\Dependencies\Boost\thread\win32\recursive_mutex.hpp"
-					>
-				</File>
-				<File
 					RelativePath="..\..\Dependencies\Boost\thread\recursive_mutex.hpp"
 					>
 				</File>
 				<File
 					RelativePath="..\..\Dependencies\Boost\thread\pthread\recursive_mutex.hpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Dependencies\Boost\thread\win32\recursive_mutex.hpp"
 					>
 				</File>
 				<File
@@ -621,15 +621,15 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\Dependencies\Boost\thread\pthread\thread.hpp"
-					>
-				</File>
-				<File
 					RelativePath="..\..\Dependencies\Boost\thread\thread.hpp"
 					>
 				</File>
 				<File
 					RelativePath="..\..\Dependencies\Boost\thread\win32\thread.hpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Dependencies\Boost\thread\pthread\thread.hpp"
 					>
 				</File>
 				<File
@@ -678,11 +678,11 @@
 			Name="Physics"
 			>
 			<File
-				RelativePath=".\Source\SGTScriptedCollisionCallback.cpp"
+				RelativePath=".\Source\SGTCollisionCallback.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Header\SGTScriptedCollisionCallback.h"
+				RelativePath=".\Header\SGTCollisionCallback.h"
 				>
 			</File>
 		</Filter>

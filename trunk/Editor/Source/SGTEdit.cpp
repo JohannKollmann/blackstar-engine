@@ -947,17 +947,11 @@ void SGTEdit::DeselectAllObjects()
 void SGTEdit::AlignObjectWithMesh(SGTGameObject *object)
 {
 	Ogre::Ray mouseRay = SGTMain::Instance().GetCamera()->getCameraToViewportRay(mMousePosition.x, mMousePosition.y);
-	NxRay ray(OgrePhysX::Convert::toNx(mouseRay.getOrigin()), OgrePhysX::Convert::toNx(mouseRay.getDirection().normalisedCopy()));
-	NxRaycastHit hit;
-	NxShape *shape = SGTMain::Instance().GetPhysXScene()->getNxScene()->raycastClosestShape(
-		ray,
-		NxShapesType::NX_ALL_SHAPES,
-		hit);
-	if (shape)
+	OgrePhysX::Scene::QueryHit report;
+	if (SGTMain::Instance().GetPhysXScene()->raycastClosestShape(report, mouseRay))
 	{
-		Ogre::Vector3 position = OgrePhysX::Convert::toOgre(hit.worldImpact);
-		Ogre::Vector3 normal = OgrePhysX::Convert::toOgre(hit.worldNormal);
-		//Ogre::LogManager::getSingleton().logMessage("Raycast hit: " + Ogre::StringConverter::toString(position));
+		Ogre::Vector3 position = report.point;
+		Ogre::Vector3 normal = report.normal;
 		object->Rotate(Ogre::Vector3::UNIT_X, Ogre::Radian(Ogre::Degree(normal.z * 90)));
 		object->Rotate(Ogre::Vector3::UNIT_Z, Ogre::Radian(Ogre::Degree(-normal.x * 90)));
 		if (normal.y < 0)

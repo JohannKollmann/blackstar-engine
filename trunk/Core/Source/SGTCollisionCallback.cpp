@@ -1,25 +1,33 @@
 
 #include "SGTCollisionCallback.h"
 #include "SGTMain.h"
+#include "SGTGameObject.h"
+#include "SGTGOCPhysics.h"
 
-SGTCollisionCallback::SGTCollisionCallback(void)
+
+void SGTTriggerCallback::onEnter(OgrePhysX::Actor *trigger, OgrePhysX::Actor *other)
 {
+	if (trigger->userData && other->userData)
+	{
+		SGTGameObject *triggerObject = (SGTGameObject*)trigger->userData;
+		SGTGOCTrigger *trigger = (SGTGOCTrigger*)triggerObject->GetComponent("Trigger");
+		if (trigger)
+		{
+			SGTGameObject *otherObject = (SGTGameObject*)other;
+			trigger->onEnter(otherObject);
+		}
+	}
 }
-
-SGTCollisionCallback::~SGTCollisionCallback(void)
+void SGTTriggerCallback::onLeave(OgrePhysX::Actor *trigger, OgrePhysX::Actor *other)
 {
-}
-
-
-void SGTCollisionCallback::onStartTouch(NxOgre::Actor* a, NxOgre::Actor* b, NxOgre::ContactStream* cs)
-{
-	//Ogre::LogManager::getSingleton().logMessage("Contact: " + Ogre::String(a->getName().c_str()));
-}
-
-void SGTCollisionCallback::onEndTouch(NxOgre::Actor* a, NxOgre::Actor* b, NxOgre::ContactStream* cs)
-{
-}
-
-void SGTCollisionCallback::onTouch(NxOgre::Actor* a, NxOgre::Actor* b, NxOgre::ContactStream* cs)
-{
+	if (trigger->userData && other->userData)
+	{
+		SGTGameObject *triggerObject = (SGTGameObject*)trigger->userData;
+		SGTGOCTrigger *trigger = (SGTGOCTrigger*)triggerObject->GetComponent("Trigger");
+		if (trigger)
+		{
+			SGTGameObject *otherObject = (SGTGameObject*)other;
+			trigger->onLeave(otherObject);
+		}
+	}
 }

@@ -68,6 +68,7 @@ void SGTGOCRigidBody::Create(Ogre::String collision_mesh, float density, int sha
 			mRenderable,
 			OgrePhysX::BoxShape(entity, scale).density(mDensity).group(SGTCollisionGroups::DEFAULT));
 	}
+	mActor->userData = mOwnerGO;
 	SGTMain::Instance().GetOgreSceneMgr()->destroyEntity(entity);
 }
 
@@ -163,6 +164,7 @@ SGTGOCStaticBody::SGTGOCStaticBody(Ogre::String collision_mesh)
 {
 	mCollisionMeshName = collision_mesh;
 	mActor = 0;
+	mOwnerGO = 0;
 }
 
 SGTGOCStaticBody::~SGTGOCStaticBody(void)
@@ -185,6 +187,7 @@ void SGTGOCStaticBody::Create(Ogre::String collision_mesh, Ogre::Vector3 scale)
 	Ogre::Entity *entity = SGTMain::Instance().GetOgreSceneMgr()->createEntity("tempCollisionModell", mCollisionMeshName);
 	mActor = SGTMain::Instance().GetPhysXScene()->createActor(
 		OgrePhysX::RTMeshShape(entity->getMesh()).scale(scale));
+	mActor->userData = mOwnerGO;
 	SGTMain::Instance().GetOgreSceneMgr()->destroyEntity(entity);
 }
 
@@ -241,4 +244,132 @@ void SGTGOCStaticBody::Save(SGTSaveSystem& mgr)
 void SGTGOCStaticBody::Load(SGTLoadSystem& mgr)
 {
 	mgr.LoadAtom("Ogre::String", &mCollisionMeshName);
+}
+
+
+//Trigger
+
+SGTGOCTrigger::SGTGOCTrigger(Ogre::Vector3 boxDimensions)
+{
+	mShapeType = TriggerShapes::BOX;
+	mBoxDimensions = boxDimensions;
+	mActor = 0;
+	mOwnerGO = 0;
+}
+
+SGTGOCTrigger::SGTGOCTrigger(float sphereRadius)
+{
+	mShapeType = TriggerShapes::SPHERE;
+	mSphereRadius = sphereRadius;
+	mActor = 0;
+	mOwnerGO = 0;
+}
+
+SGTGOCTrigger::~SGTGOCTrigger(void)
+{
+	if (mActor)
+	{
+		SGTMain::Instance().GetPhysXScene()->destroyActor(mActor);
+	}
+}
+
+void SGTGOCTrigger::Create(Ogre::Vector3 scale)
+{
+	if (mShapeType == TriggerShapes::BOX)
+	{
+		mActor = SGTMain::Instance().GetPhysXScene()->createActor(
+			OgrePhysX::BoxShape(mBoxDimensions * scale).setTrigger());
+	}
+	else
+	{
+		mActor = SGTMain::Instance().GetPhysXScene()->createActor(
+			OgrePhysX::SphereShape(mSphereRadius * scale.length()).setTrigger());
+	}
+	mActor->userData = mOwnerGO;
+}
+
+void SGTGOCTrigger::onEnter(SGTGameObject *object)
+{
+	if (mOwnerGO)
+	{
+		Ogre::SharedPtr<SGTObjectMsg> msg;
+		msg->mName = "TRIGGER_ENTER";
+		msg->rawData = object;
+		mOwnerGO->SendMessage(msg);
+	}
+}
+void SGTGOCTrigger::onLeave(SGTGameObject *object)
+{
+	if (mOwnerGO)
+	{
+		Ogre::SharedPtr<SGTObjectMsg> msg;
+		msg->mName = "TRIGGER_LEAVE";
+		msg->rawData = object;
+		mOwnerGO->SendMessage(msg);
+	}
+}
+
+void SGTGOCTrigger::UpdatePosition(Ogre::Vector3 position)
+{
+	mActor->setGlobalPosition(position);
+}
+void SGTGOCTrigger::UpdateOrientation(Ogre::Quaternion orientation)
+{
+	mActor->setGlobalOrientation(orientation);
+}
+void SGTGOCTrigger::UpdateScale(Ogre::Vector3 scale)
+{
+	if (mActor) SGTMain::Instance().GetPhysXScene()->destroyActor(mActor);
+	Create(scale);
+	mActor->setGlobalOrientation(mOwnerGO->GetGlobalOrientation());
+	mActor->setGlobalPosition(mOwnerGO->GetGlobalPosition());
+}
+
+void SGTGOCTrigger::SetOwner(SGTGameObject *go)
+{
+	mOwnerGO = go;
+	if (mActor) SGTMain::Instance().GetPhysXScene()->destroyActor(mActor);
+	Create(mOwnerGO->GetGlobalScale());
+	mActor->setGlobalOrientation(mOwnerGO->GetGlobalOrientation());
+	mActor->setGlobalPosition(mOwnerGO->GetGlobalPosition());
+}
+
+void SGTGOCTrigger::CreateFromDataMap(SGTDataMap *parameters)
+{
+	Ogre::Vector3 scale = Ogre::Vector3(1,1,1);
+	scale = parameters->GetOgreVec3("Scale");
+	mShapeType = (TriggerShapes)parameters->GetInt("ShapeType");
+	mBoxDimensions = parameters->GetOgreVec3("BoxSize");
+	mSphereRadius = parameters->GetFloat("Radius");
+	if (mOwnerGO) Create(scale);
+}
+void SGTGOCTrigger::GetParameters(SGTDataMap *parameters)
+{
+	parameters->AddInt("ShapeType", mShapeType);
+	parameters->AddOgreVec3("BoxSize", mBoxDimensions);
+	parameters->AddFloat("Radius", mSphereRadius);
+}
+void SGTGOCTrigger::GetDefaultParameters(SGTDataMap *parameters)
+{
+	parameters->AddInt("ShapeType", 0);
+	parameters->AddOgreVec3("BoxSize", Ogre::Vector3(1,1,1));
+	parameters->AddFloat("Radius", 0);
+}
+void SGTGOCTrigger::AttachToGO(SGTGameObject *go)
+{
+	go->RemoveComponent(GetFamilyID());
+	go->AddComponent(this);
+}
+
+void SGTGOCTrigger::Save(SGTSaveSystem& mgr)
+{
+	mgr.SaveAtom("int", &mShapeType, "ShapeType");
+	mgr.SaveAtom("Ogre::Vector3", &mBoxDimensions, "BoxSize");
+	mgr.SaveAtom("float", &mSphereRadius, "Radius");
+}
+void SGTGOCTrigger::Load(SGTLoadSystem& mgr)
+{
+	mgr.LoadAtom("int", &mShapeType);
+	mgr.LoadAtom("Ogre::Vector3", &mBoxDimensions);
+	mgr.LoadAtom("float", &mSphereRadius);
 }

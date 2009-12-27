@@ -418,7 +418,8 @@ void SGTGOCAnimatedCharacter::CreateBoneObjects()
 {
 	mBoneObjects.clear();
 	std::map<Ogre::String, SGTGameObject*> bonemap;
-	for (std::vector<OgrePhysX::sBoneActorBind>::iterator i = mRagdoll->mSkeleton.begin(); i != mRagdoll->mSkeleton.end(); i++)
+	std::vector<OgrePhysX::sBoneActorBind> skeleton = mRagdoll->getSkeleton();
+	for (std::vector<OgrePhysX::sBoneActorBind>::iterator i = skeleton.begin(); i != skeleton.end(); i++)
 	{
 		SGTGameObject *go = new SGTGameObject();
 		SGTGOCAnimatedCharacterBone *bone = new SGTGOCAnimatedCharacterBone();
