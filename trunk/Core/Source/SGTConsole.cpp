@@ -101,6 +101,8 @@ void SGTConsole::Print(Ogre::String text)
 
 void SGTConsole::ExecCommand(Ogre::String command)
 {
+	if(!command.length())
+		return;
 	std::vector<Ogre::String> inputs;
 	Ogre::String current = "";
 	for (unsigned int i = 0; i < command.length(); i++)

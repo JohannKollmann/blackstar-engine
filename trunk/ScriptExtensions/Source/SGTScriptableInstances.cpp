@@ -1,6 +1,7 @@
 
 #include "SGTScriptableInstances.h"
 #include "SGTSceneManager.h"
+#include "SGTUtils.h"
 
 //singleton stuff
 
@@ -41,7 +42,7 @@ SGTScriptableInstances::Lua_InstantiateScript(SGTScript& caller, std::vector<SGT
 		vRes.push_back(SGTScriptParam(iID));
 		return vRes;
 	}
-	return vRes;
+	return vRes; 
 }
 std::vector<SGTScriptParam>
 SGTScriptableInstances::Lua_RunFunction(SGTScript& caller, std::vector<SGTScriptParam> vParams)
@@ -49,12 +50,18 @@ SGTScriptableInstances::Lua_RunFunction(SGTScript& caller, std::vector<SGTScript
 	std::vector<SGTScriptParam> vRes;
 	if(vParams.size()>=2)
 	{
-		if(vParams[1].getType()!=SGTScriptParam::PARM_TYPE_STRING || vParams[0].getType()!=SGTScriptParam::PARM_TYPE_FLOAT)
+		std::vector<SGTScriptParam> errout(1, SGTScriptParam());
+		std::vector<SGTScriptParam> vRef(1, SGTScriptParam(0.1));
+		vRef.push_back(SGTScriptParam(std::string()));
+		std::string strErrString=SGTUtils::TestParameters(vParams, vRef, true);
+		if(strErrString.length())
+			{errout.push_back(strErrString);return errout;}
+		/*if(vParams[1].getType()!=SGTScriptParam::PARM_TYPE_STRING || vParams[0].getType()!=SGTScriptParam::PARM_TYPE_FLOAT)
 		{
 			vRes.push_back(SGTScriptParam());
 			vRes.push_back(SGTScriptParam(std::string("first or second parameter has wrong type!")));
 			return vRes;
-		}
+		}*/
 		std::map<int, SGTScript>::iterator it=SGTScriptableInstances::GetInstance().m_mScripts.find((int)vParams[0].getFloat());
 		if(it==SGTScriptableInstances::GetInstance().m_mScripts.end())
 		{

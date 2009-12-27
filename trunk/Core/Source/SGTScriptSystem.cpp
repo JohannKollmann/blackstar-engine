@@ -236,7 +236,7 @@ SGTScriptSystem::Clear()
 std::vector<std::string>
 SGTScriptSystem::GetFunctionNames()
 {
-	std::vector<std::string> vstrFunctions(m_mCFunctions.size()+m_mScriptFunctions.size());
+	std::vector<std::string> vstrFunctions(m_mScriptFunctions.size());
 	int i=0;
 	for(std::map<std::string, SGTLuaScript*>::const_iterator it=m_mScriptFunctions.begin();it!=m_mScriptFunctions.end(); i++, it++)
 		vstrFunctions[i]=it->first;

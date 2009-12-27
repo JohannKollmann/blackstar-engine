@@ -386,6 +386,7 @@ SGTGUISystem::Window::Bake()
 	meshptr.get()->_setBoundingSphereRadius(fInf);		
 	meshptr.get()->load();
 	Ogre::Entity *ent = SGTMain::Instance().GetOgreSceneMgr()->createEntity(wininfo.strName, wininfo.strName);
+	ent->setCastShadows(false);
 	ent->setRenderQueueGroup(Ogre::RENDER_QUEUE_OVERLAY);
 	SGTMain::Instance().GetOgreSceneMgr()->getSceneNode("SGTGuiSystemNode")->attachObject(ent);
 
