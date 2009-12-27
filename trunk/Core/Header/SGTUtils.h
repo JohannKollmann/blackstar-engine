@@ -6,7 +6,6 @@
 #include <string>
 #include "SGTScriptParam.h"
 #include "Ogre.h"
-#include "NxQuat.h"
 
 namespace SGTUtils
 {
