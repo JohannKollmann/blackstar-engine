@@ -9,6 +9,7 @@ SGTMainLoop::SGTMainLoop()
 	mRunning = true;
 	mPaused = false;
 	mRunPhysics = true;
+	mCurrentState = 0;
 	AddState((SGTGameState*)new SGTGame());
 	AddState((SGTGameState*)new SGTDefaultMenu());
 	AddState((SGTGameState*)new SGTEditor());
@@ -48,7 +49,7 @@ void SGTMainLoop::startLoop()
 
 bool SGTMainLoop::doLoop()
 {
-	if (!mPaused)
+	if (!mPaused && mCurrentState)
 	{
 		DWORD time = timeGetTime();
 		DWORD difference = time - mTotalLastFrameTime;

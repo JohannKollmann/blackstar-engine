@@ -204,7 +204,10 @@ void wxOgre::OnRenderTimer(wxTimerEvent& event)
 
 void wxOgre::update()
 {
-	SGTMainLoop::Instance().doLoop();
+	if (mInitialized)
+	{
+		SGTMainLoop::Instance().doLoop();
+	}
 }
 
 void wxOgre::OnKeyDown(wxKeyEvent& key)
