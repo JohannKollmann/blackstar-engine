@@ -113,6 +113,13 @@ private:
 	Ogre::SceneNode *mPivotNode;
 	Ogre::SceneNode *mPivotOffsetNode;
 
+	//Winapi Hack!
+	Ogre::Vector2 mWinMousePosition;
+	bool mMouseLocked;
+	bool mShowMouse;
+	void LockAndHideMouse();
+	void FreeAndShowMouse();
+
 	Ogre::Vector2 mMousePosition;
 
 	bool mPerformingObjRot;

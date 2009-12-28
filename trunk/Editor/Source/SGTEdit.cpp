@@ -25,6 +25,8 @@ SGTEdit::SGTEdit()
 	mStrgPressed = false;
 	mAltIsDown = false;
 
+	mMouseLocked = false;
+
 	mMaterialMode = false;
 	mBrushMode = false;
 
@@ -138,10 +140,33 @@ void SGTEdit::OnToolbarEvent(int toolID, Ogre::String toolname)
 	}
 }
 
+void SGTEdit::LockAndHideMouse()
+{
+	if (mShowMouse) ShowCursor(false);
+	POINT p;
+	GetCursorPos(&p);
+	mWinMousePosition.x = p.x;
+	mWinMousePosition.y = p.y;
+	mMouseLocked = true;
+	mShowMouse = false;
+}
+void SGTEdit::FreeAndShowMouse()
+{
+	if (!mShowMouse) ShowCursor(true);
+	SetCursorPos(mWinMousePosition.x, mWinMousePosition.y);
+	mMouseLocked = false;
+	mShowMouse = true;
+}
+
 void SGTEdit::OnMouseEvent(wxMouseEvent &ev)
 {
 	mLeftDown = ev.LeftIsDown();
 	mRightDown = ev.RightIsDown();
+
+	if (mMouseLocked)
+	{
+		SetCursorPos(mWinMousePosition.x, mWinMousePosition.y);
+	}
 
 	if (ev.LeftIsDown() || ev.RightIsDown())
 	{
@@ -150,14 +175,15 @@ void SGTEdit::OnMouseEvent(wxMouseEvent &ev)
 	/*
 	Sicherstellen, dass keine Kamerarotation vorliegt oder gerade abgeschlossen wird (sonst Abbruch)
 	*/
-	if (ev.LeftIsDown() && ev.RightIsDown())
+	if (ev.LeftIsDown() && ev.RightIsDown() && mCamRotating == false)
 	{
 		mCamRotating = true;
-		return;
-	};
-	if ((mCamRotating == true) && (mLeftDown == false) && (mRightDown == false))
+		LockAndHideMouse();
+	}
+	else if (mCamRotating == true && mLeftDown == false && mRightDown == false)
 	{
 		mCamRotating = false;
+		FreeAndShowMouse();
 		return;
 	}
 	if (mCamRotating == true) return;
@@ -235,7 +261,11 @@ void SGTEdit::OnMouseEvent(wxMouseEvent &ev)
 			mEdit->GetOgrePane()->PopupMenu(&menu, clientpt);
 
 		}
-		else mPerformingObjRot = false;
+		else
+		{
+			mPerformingObjRot = false;
+			FreeAndShowMouse();
+		}
 
 	}
 	if (ev.LeftUp())
@@ -255,7 +285,11 @@ void SGTEdit::OnMouseEvent(wxMouseEvent &ev)
 				}
 			}
 		}
-		else mPerformingObjMov = false;
+		else
+		{
+			mPerformingObjMov = false;
+			FreeAndShowMouse();
+		}
 		mPerformedLDClick = false;
 	}
 	if (ev.LeftDClick())
@@ -345,6 +379,7 @@ void SGTEdit::OnMouseMove(Ogre::Radian RotX,Ogre::Radian RotY)
 			if (mXAxisLock == SGTAxisLock::UNLOCKED || mXAxisLock == SGTAxisLock::UNLOCKED_SKIPCHILDREN)
 			{
 				mPerformingObjMov = true;
+				LockAndHideMouse();
 				for (std::list<SGTEditorSelection>::iterator i = mSelectedObjects.begin(); i != mSelectedObjects.end(); i++)
 				{
 					(*i).mObject->Translate(SGTMain::Instance().GetCamera()->getDerivedOrientation() * Ogre::Vector3(RotX.valueRadians() * mObjectMovSpeed,0,0), mXAxisLock == SGTAxisLock::UNLOCKED);
@@ -353,6 +388,7 @@ void SGTEdit::OnMouseMove(Ogre::Radian RotX,Ogre::Radian RotY)
 			if (mYAxisLock == SGTAxisLock::UNLOCKED || mYAxisLock == SGTAxisLock::UNLOCKED_SKIPCHILDREN)
 			{
 				mPerformingObjMov = true;
+				LockAndHideMouse();
 				for (std::list<SGTEditorSelection>::iterator i = mSelectedObjects.begin(); i != mSelectedObjects.end(); i++)
 				{
 					(*i).mObject->Translate(Ogre::Vector3(0,-RotY.valueRadians() * mObjectMovSpeed,0), mYAxisLock == SGTAxisLock::UNLOCKED);
@@ -361,6 +397,7 @@ void SGTEdit::OnMouseMove(Ogre::Radian RotX,Ogre::Radian RotY)
 			if (mZAxisLock == SGTAxisLock::UNLOCKED || mZAxisLock == SGTAxisLock::UNLOCKED_SKIPCHILDREN)
 			{
 				mPerformingObjMov = true;
+				LockAndHideMouse();
 				for (std::list<SGTEditorSelection>::iterator i = mSelectedObjects.begin(); i != mSelectedObjects.end(); i++)
 				{
 					Ogre::Vector3 movaxis = SGTMain::Instance().GetCamera()->getDerivedDirection() * -1.0f;
@@ -380,6 +417,7 @@ void SGTEdit::OnMouseMove(Ogre::Radian RotX,Ogre::Radian RotY)
 			if (mXAxisLock == SGTAxisLock::UNLOCKED || mXAxisLock == SGTAxisLock::UNLOCKED_SKIPCHILDREN)
 			{
 				mPerformingObjRot = true;
+				LockAndHideMouse();
 				for (std::list<SGTEditorSelection>::iterator i = mSelectedObjects.begin(); i != mSelectedObjects.end(); i++)
 				{
 					(*i).mObject->Rotate((*i).mObject->GetGlobalOrientation().Inverse() * SGTMain::Instance().GetCamera()->getDerivedOrientation().xAxis(), RotY * mObjectRotSpeed, mXAxisLock == SGTAxisLock::UNLOCKED);
@@ -388,6 +426,7 @@ void SGTEdit::OnMouseMove(Ogre::Radian RotX,Ogre::Radian RotY)
 			if (mYAxisLock == SGTAxisLock::UNLOCKED || mYAxisLock == SGTAxisLock::UNLOCKED_SKIPCHILDREN)
 			{
 				mPerformingObjRot = true;
+				LockAndHideMouse();
 				for (std::list<SGTEditorSelection>::iterator i = mSelectedObjects.begin(); i != mSelectedObjects.end(); i++)
 				{
 					(*i).mObject->Rotate((*i).mObject->GetGlobalOrientation().Inverse() * Ogre::Vector3::UNIT_Y, RotX * mObjectRotSpeed, mYAxisLock == SGTAxisLock::UNLOCKED);
@@ -396,6 +435,7 @@ void SGTEdit::OnMouseMove(Ogre::Radian RotX,Ogre::Radian RotY)
 			if (mZAxisLock == SGTAxisLock::UNLOCKED || mZAxisLock == SGTAxisLock::UNLOCKED_SKIPCHILDREN)
 			{
 				mPerformingObjRot = true;
+				LockAndHideMouse();
 				for (std::list<SGTEditorSelection>::iterator i = mSelectedObjects.begin(); i != mSelectedObjects.end(); i++)
 				{
 					Ogre::Vector3 rotaxis = SGTMain::Instance().GetCamera()->getDerivedDirection() * -1.0f;

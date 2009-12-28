@@ -150,16 +150,22 @@ void SGTSceneManager::Init()
 	SGTLoadSave::Instance().RegisterObject(&SGTGOCAnimatedCharacter::Register);
 	SGTLoadSave::Instance().RegisterObject(&SGTGOCAnimatedCharacterBone::Register);
 	SGTLoadSave::Instance().RegisterObject(&SGTGOCCharacterController::Register);
-	RegisterEditorInterface("A", "MeshRenderable", (EDTCreatorFn)&SGTMeshRenderable::NewEditorInterfaceInstance, SGTMeshRenderable::GetDefaultParameters);
-	RegisterEditorInterface("A", "ParticleSystem", (EDTCreatorFn)&SGTPfxRenderable::NewEditorInterfaceInstance, SGTPfxRenderable::GetDefaultParameters);
-	RegisterEditorInterface("A", "LocalLight", (EDTCreatorFn)&SGTLocalLightRenderable::NewEditorInterfaceInstance, SGTLocalLightRenderable::GetDefaultParameters);
+	SGTLoadSave::Instance().RegisterObject(&SGTGOCPlayerInput::Register);
+	RegisterEditorInterface("A", "Mesh", (EDTCreatorFn)&SGTMeshRenderable::NewEditorInterfaceInstance, SGTMeshRenderable::GetDefaultParameters);
+	RegisterEditorInterface("A", "PFX", (EDTCreatorFn)&SGTPfxRenderable::NewEditorInterfaceInstance, SGTPfxRenderable::GetDefaultParameters);
+	RegisterEditorInterface("A", "Light", (EDTCreatorFn)&SGTLocalLightRenderable::NewEditorInterfaceInstance, SGTLocalLightRenderable::GetDefaultParameters);
 	RegisterEditorInterface("A", "Sound3D", (EDTCreatorFn)&SGTSound3D::NewEditorInterfaceInstance, SGTSound3D::GetDefaultParameters);
-	RegisterEditorInterface("B", "RigidBody", (EDTCreatorFn)&SGTGOCRigidBody::NewEditorInterfaceInstance, SGTGOCRigidBody::GetDefaultParameters);
-	RegisterEditorInterface("B", "StaticBody", (EDTCreatorFn)&SGTGOCStaticBody::NewEditorInterfaceInstance, SGTGOCStaticBody::GetDefaultParameters);
-	RegisterEditorInterface("C", "Scripted AI", (EDTCreatorFn)&SGTGOCAI::NewEditorInterfaceInstance, SGTGOCAI::GetDefaultParameters);
-	RegisterEditorInterface("C", "Skeleton", (EDTCreatorFn)&SGTGOCAnimatedCharacter::NewEditorInterfaceInstance, SGTGOCAnimatedCharacter::GetDefaultParameters);
+	RegisterEditorInterface("A", "Skeleton", (EDTCreatorFn)&SGTGOCAnimatedCharacter::NewEditorInterfaceInstance, SGTGOCAnimatedCharacter::GetDefaultParameters);
 	RegisterEditorInterface("", "AnimatedCharacterBone", (EDTCreatorFn)&SGTGOCAnimatedCharacterBone::NewEditorInterfaceInstance, SGTGOCAnimatedCharacterBone::GetDefaultParameters);
-	RegisterEditorInterface("C", "Character", (EDTCreatorFn)&SGTGOCCharacterController::NewEditorInterfaceInstance, SGTGOCCharacterController::GetDefaultParameters);
+
+	RegisterEditorInterface("B_x", "RigidBody", (EDTCreatorFn)&SGTGOCRigidBody::NewEditorInterfaceInstance, SGTGOCRigidBody::GetDefaultParameters);
+	RegisterEditorInterface("B_x", "StaticBody", (EDTCreatorFn)&SGTGOCStaticBody::NewEditorInterfaceInstance, SGTGOCStaticBody::GetDefaultParameters);
+	RegisterEditorInterface("B_x", "Character", (EDTCreatorFn)&SGTGOCCharacterController::NewEditorInterfaceInstance, SGTGOCCharacterController::GetDefaultParameters);
+
+	RegisterEditorInterface("C_x", "Scripted AI", (EDTCreatorFn)&SGTGOCAI::NewEditorInterfaceInstance, SGTGOCAI::GetDefaultParameters);
+	RegisterEditorInterface("C_x", "Player Control", (EDTCreatorFn)&SGTGOCPlayerInput::NewEditorInterfaceInstance, SGTGOCPlayerInput::GetDefaultParameters);
+
+	RegisterEditorInterface("D", "Camera", (EDTCreatorFn)&SGTGOCCameraController::NewEditorInterfaceInstance, SGTGOCCameraController::GetDefaultParameters);
 
 	//Setup Lua Callback
 	SGTScriptSystem::GetInstance().ShareCFunction("LogMessage", &SGTSceneManager::Lua_LogMessage);

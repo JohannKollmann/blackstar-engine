@@ -67,6 +67,7 @@ public:
 	static void GetDefaultParameters(SGTDataMap *parameters);
 	static SGTGOCEditorInterface* NewEditorInterfaceInstance() { return new SGTGOCAI(); }
 	void AttachToGO(SGTGameObject *go);
+	Ogre::String GetLabel() { return "Scripted AI"; }
 
 	bool IsStatic() { return false; }
 

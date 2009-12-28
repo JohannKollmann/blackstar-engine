@@ -93,6 +93,7 @@ public:
 	static void GetDefaultParameters(SGTDataMap *parameters);
 	static SGTGOCEditorInterface* NewEditorInterfaceInstance() { return new SGTGOCCharacterController(); }
 	void AttachToGO(SGTGameObject *go); 
+	Ogre::String GetLabel() { return "Character"; }
 
 	void Save(SGTSaveSystem& mgr);
 	void Load(SGTLoadSystem& mgr);

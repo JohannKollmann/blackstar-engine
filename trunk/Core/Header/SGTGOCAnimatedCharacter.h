@@ -65,6 +65,7 @@ public:
 	static SGTSaveable* NewInstance() { return new SGTGOCAnimatedCharacterBone; };
 	static SGTGOCEditorInterface* NewEditorInterfaceInstance() { return new SGTGOCAnimatedCharacterBone(); }
 	void AttachToGO(SGTGameObject *go);
+	Ogre::String GetLabel() { return ""; }
 };
 
 class SGTDllExport SGTGOCAnimatedCharacter : public SGTGOCEditorInterface, public SGTGOCNodeRenderable, public SGTMessageListener
@@ -129,4 +130,5 @@ public:
 	static SGTSaveable* NewInstance() { return new SGTGOCAnimatedCharacter(); };
 	static SGTGOCEditorInterface* NewEditorInterfaceInstance() { return new SGTGOCAnimatedCharacter(); }
 	void AttachToGO(SGTGameObject *go);
+	Ogre::String GetLabel() { return "Skeleton"; }
 };

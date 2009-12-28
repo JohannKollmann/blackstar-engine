@@ -67,6 +67,7 @@ public:
 	void CreateFromDataMap(SGTDataMap *parameters);
 	void GetParameters(SGTDataMap *parameters);
 	static void GetDefaultParameters(SGTDataMap *parameters);
+	Ogre::String GetLabel() { return "Rigid Body"; }
 
 	void Save(SGTSaveSystem& mgr);
 	void Load(SGTLoadSystem& mgr);
@@ -102,6 +103,7 @@ public:
 	void GetParameters(SGTDataMap *parameters);
 	static void GetDefaultParameters(SGTDataMap *parameters);
 	void AttachToGO(SGTGameObject *go);
+	Ogre::String GetLabel() { return "Static Body"; }
 
 	void Save(SGTSaveSystem& mgr);
 	void Load(SGTLoadSystem& mgr);
@@ -146,6 +148,7 @@ public:
 	void GetParameters(SGTDataMap *parameters);
 	static void GetDefaultParameters(SGTDataMap *parameters);
 	void AttachToGO(SGTGameObject *go);
+	Ogre::String GetLabel() { return "Trigger"; }
 
 	void Save(SGTSaveSystem& mgr);
 	void Load(SGTLoadSystem& mgr);

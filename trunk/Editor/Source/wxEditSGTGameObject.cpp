@@ -419,23 +419,25 @@ void wxEditSGTGameObject::SetObject(SGTGameObject *object, bool update_ui)
 				{
 					SGTDataMap data;
 					editor_interface->GetParameters(&data);
-					AddGOCSection((*x)->GetTypeName().c_str(), data);
+					AddGOCSection(editor_interface->GetLabel(), data);
 					ComponentSection cs;
-					cs.mSectionName = (*x)->GetTypeName().c_str();
+					cs.mSectionName = editor_interface->GetLabel();
 					sections.push_back(cs);
 				}
 			}
-			continue;
 		}
-		SGTGOCEditorInterface *editor_interface = dynamic_cast<SGTGOCEditorInterface*>((*i));
-		if (editor_interface)
+		else
 		{
-			SGTDataMap data;
-			editor_interface->GetParameters(&data);
-			AddGOCSection((*i)->GetComponentID(), data);
-			ComponentSection cs;
-			cs.mSectionName = (*i)->GetComponentID();
-			sections.push_back(cs);
+			SGTGOCEditorInterface *editor_interface = dynamic_cast<SGTGOCEditorInterface*>((*i));
+			if (editor_interface)
+			{
+				SGTDataMap data;
+				editor_interface->GetParameters(&data);
+				AddGOCSection(editor_interface->GetLabel(), data);
+				ComponentSection cs;
+				cs.mSectionName = editor_interface->GetLabel();
+				sections.push_back(cs);
+			}
 		}
 	}
 	if (update_ui)
@@ -515,12 +517,35 @@ bool wxEditSGTGameObject::OnDropText(const wxString& text)
 			{
 				if (item->GetName().find(".mesh") != wxString::npos)
 				{
-					SGTDataMap data;
-					data.AddOgreString("MeshName", item->GetName().c_str());
-					data.AddBool("ShadowCaster", true);
-					RemoveGOCSection("MeshRenderable");
-					AddGOCSection("MeshRenderable", data, true);
-					wxEdit::Instance().GetComponentBar()->SetSectionStatus("MeshRenderable", true);
+					bool found = false;
+					wxPGProperty *currCat = 0;
+					for (wxPropertyGridIterator it = mPropGrid->GetIterator(wxPG_ITERATE_ALL); !it.AtEnd(); it++)
+					{
+						wxPGProperty* p = *it;
+						if (p->IsCategory())
+						{
+							currCat = p;
+							continue;
+						}
+						Ogre::String type = p->GetName().substr(0, p->GetName().find("|")).c_str();
+						Ogre::String key = p->GetName().substr(p->GetName().find("|") + 1, p->GetName().find("--") - p->GetName().find("|") - 1).c_str();
+						if (type == "Ogre::String" && key.find("Mesh") != Ogre::String::npos)
+						{
+							found = true;
+							p->SetValueFromString(item->GetName().c_str());
+							//if (currCat) currCat->SetExpanded(true);	TODO
+						}
+					}
+					if (!found)
+					{
+
+						SGTDataMap data;
+						data.AddOgreString("MeshName", item->GetName().c_str());
+						data.AddBool("ShadowCaster", true);
+						RemoveGOCSection("Mesh");
+						AddGOCSection("Mesh", data, true);
+						wxEdit::Instance().GetComponentBar()->SetSectionStatus("Mesh", true);
+					}
 					OnApply();
 					wxEdit::Instance().GetAuiManager().Update();
 					return true;

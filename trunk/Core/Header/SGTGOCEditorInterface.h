@@ -13,6 +13,7 @@ class SGTGOCEditorInterface
 public:
 	virtual void CreateFromDataMap(SGTDataMap *parameters) = 0;
 	virtual void GetParameters(SGTDataMap *parameters) = 0;
+	virtual Ogre::String GetLabel() = 0;
 	virtual void* GetUserData() { return 0; }
 	virtual void InjectUserData(void* data) { }
 

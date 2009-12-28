@@ -89,6 +89,7 @@ public:
 	virtual void CreateFromDataMap(SGTDataMap *parameters);
 	virtual void GetParameters(SGTDataMap *parameters);
 	static void GetDefaultParameters(SGTDataMap *parameters);
+	Ogre::String GetLabel() { return "Mesh"; }
 
 	virtual void Save(SGTSaveSystem& mgr);
 	virtual void Load(SGTLoadSystem& mgr);
@@ -148,6 +149,7 @@ public:
 	static void Register(std::string* pstrName, SGTSaveableInstanceFn* pFn) { *pstrName = "ParticleSystem"; *pFn = (SGTSaveableInstanceFn)&NewInstance; };
 	static SGTSaveable* NewInstance() { return new SGTPfxRenderable; };
 	static SGTGOCEditorInterface* NewEditorInterfaceInstance() { return new SGTPfxRenderable(); }
+	Ogre::String GetLabel() { return "PFX"; }
 
 	std::string GetTypeName() { return "ParticleSystem"; }
 };
@@ -186,6 +188,7 @@ public:
 	static void Register(std::string* pstrName, SGTSaveableInstanceFn* pFn) { *pstrName = "Sound3D"; *pFn = (SGTSaveableInstanceFn)&NewInstance; };
 	static SGTSaveable* NewInstance() { return new SGTSound3D; };
 	static SGTGOCEditorInterface* NewEditorInterfaceInstance() { return new SGTSound3D(); }
+	Ogre::String GetLabel() { return "Sound3D"; }
 
 	std::string GetTypeName() { return "Sound3D"; }
 };
@@ -222,6 +225,8 @@ public:
 	static void Register(std::string* pstrName, SGTSaveableInstanceFn* pFn) { *pstrName = "LocalLight"; *pFn = (SGTSaveableInstanceFn)&NewInstance; };
 	static SGTSaveable* NewInstance() { return new SGTLocalLightRenderable; };
 	static SGTGOCEditorInterface* NewEditorInterfaceInstance() { return new SGTLocalLightRenderable(); }
+
+	Ogre::String GetLabel() { return "Light"; }
 
 	std::string GetTypeName() { return "LocalLight"; }
 };

@@ -20,6 +20,12 @@ SGTGOCPlayerInput::~SGTGOCPlayerInput(void)
 {
 }
 
+void SGTGOCPlayerInput::AttachToGO(SGTGameObject *go)
+{
+	go->RemoveComponent(GetFamilyID());
+	go->AddComponent(this);
+}
+
 void SGTGOCPlayerInput::ReceiveMessage(SGTMsg &msg)
 {
 	if (msg.mNewsgroup == "KEY_DOWN")
@@ -95,21 +101,44 @@ void SGTGOCPlayerInput::ReceiveObjectMessage(Ogre::SharedPtr<SGTObjectMsg> msg)
 
 //CameraController
 
+SGTGOCCameraController::SGTGOCCameraController()
+{
+	CreateNodes();
+}
 SGTGOCCameraController::SGTGOCCameraController(Ogre::Camera *camera)
 {
-	mCamera = camera;
+	CreateNodes();
+	AttachCamera(camera);
+}
+
+SGTGOCCameraController::~SGTGOCCameraController()
+{
+	DetachCamera();
+	SGTMain::Instance().GetOgreSceneMgr()->destroySceneNode(mCharacterCenterNode);
+	SGTMain::Instance().GetOgreSceneMgr()->destroySceneNode(mCameraCenterNode);
+	SGTMain::Instance().GetOgreSceneMgr()->destroySceneNode(mCameraNode);
+	SGTMain::Instance().GetOgreSceneMgr()->destroySceneNode(mTargetNode);
+}
+
+void SGTGOCCameraController::CreateNodes()
+{
 	mCharacterCenterNode = SGTMain::Instance().GetOgreSceneMgr()->getRootSceneNode()->createChildSceneNode();
 	mCameraCenterNode = mCharacterCenterNode->createChildSceneNode();
 	mTargetNode = mCameraCenterNode->createChildSceneNode(Ogre::Vector3(0,2.5f,10));
 	mCameraNode = mCameraCenterNode->createChildSceneNode(Ogre::Vector3(0,2.0f,-6));
 	mCameraNode->setAutoTracking(true, mTargetNode);
-	mCameraNode->attachObject(mCamera);
 	mCameraNode->setFixedYawAxis (true);
 
 	mTightness = 0.04f;
 	mfCameraAngle = 0;
 	mfLastCharacterAngle = 0;
 	mfCharacterAngle = 0;
+}
+
+void SGTGOCCameraController::AttachCamera(Ogre::Camera *camera)
+{
+	mCamera = camera;
+	mCameraNode->attachObject(mCamera);
 
 	SGTMain::Instance().GetCameraController()->mMove = false;
 	SGTMain::Instance().GetCameraController()->mXRot = false;
@@ -118,13 +147,11 @@ SGTGOCCameraController::SGTGOCCameraController(Ogre::Camera *camera)
 	SGTMessageSystem::Instance().JoinNewsgroup(this, "MOUSE_MOVE");
 	SGTMessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
 }
-
-SGTGOCCameraController::~SGTGOCCameraController()
+void SGTGOCCameraController::DetachCamera()
 {
-	SGTMain::Instance().GetOgreSceneMgr()->destroySceneNode(mCharacterCenterNode);
-	SGTMain::Instance().GetOgreSceneMgr()->destroySceneNode(mCameraCenterNode);
-	SGTMain::Instance().GetOgreSceneMgr()->destroySceneNode(mCameraNode);
-	SGTMain::Instance().GetOgreSceneMgr()->destroySceneNode(mTargetNode);
+	mCameraNode->detachObject(mCamera);
+	SGTMessageSystem::Instance().QuitNewsgroup(this, "MOUSE_MOVE");
+	SGTMessageSystem::Instance().QuitNewsgroup(this, "UPDATE_PER_FRAME");
 }
 
 void SGTGOCCameraController::ReceiveMessage(SGTMsg &msg)
@@ -151,6 +178,12 @@ void SGTGOCCameraController::ReceiveMessage(SGTMsg &msg)
 		mfLastCharacterAngle=fCharacterAngle;
 	}
 
+}
+
+void SGTGOCCameraController::AttachToGO(SGTGameObject *go)
+{
+	go->RemoveComponent(GetFamilyID());
+	go->AddComponent(this);
 }
 
 void SGTGOCCameraController::ReceiveObjectMessage(Ogre::SharedPtr<SGTObjectMsg> msg)

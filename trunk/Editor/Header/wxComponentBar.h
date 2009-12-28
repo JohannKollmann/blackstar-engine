@@ -17,12 +17,15 @@ protected:
 
 	struct ComponentParameters
 	{
+		Ogre::String mFamily;
 		Ogre::String mName;
 		SGTDataMap *mParameters;
 		wxCheckBox *mCheckBox;
 	};
 
 	std::map<int, ComponentParameters> mCallbackMap;
+
+	void NotifyGroupCheck(bool checked, Ogre::String checked_name, Ogre::String group);
 
 public:
 	wxComponentBar(wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size);

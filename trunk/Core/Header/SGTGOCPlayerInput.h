@@ -5,7 +5,7 @@
 #include "SGTMessageListener.h"
 #include "SGTGOCCharacterController.h"
 
-class SGTGOCPlayerInput : public SGTCharacterControllerInput, public SGTMessageListener
+class SGTGOCPlayerInput : public SGTCharacterControllerInput, public SGTMessageListener, public SGTGOCEditorInterface
 {
 
 public:
@@ -22,10 +22,18 @@ public:
 	static SGTSaveable* NewInstance() { return new SGTGOCPlayerInput; };
 	virtual void Save(SGTSaveSystem& mgr) {};
 	virtual void Load(SGTLoadSystem& mgr) {};
+
+	//Editor
+	void CreateFromDataMap(SGTDataMap *parameters) {};
+	void GetParameters(SGTDataMap *parameters) {};
+	static void GetDefaultParameters(SGTDataMap *parameters) {};
+	static SGTGOCEditorInterface* NewEditorInterfaceInstance() { return new SGTGOCPlayerInput(); }
+	void AttachToGO(SGTGameObject *go); 
+	Ogre::String GetLabel() { return "Player Input"; }
 };
 
 
-class SGTGOCCameraController : public SGTGOComponent, public SGTMessageListener
+class SGTGOCCameraController : public SGTGOComponent, public SGTMessageListener, public SGTGOCEditorInterface
 {
 private:
 	Ogre::Camera *mCamera;
@@ -41,9 +49,13 @@ private:
 		  mfCharacterAngle;
 
 public:
-	SGTGOCCameraController() {};
+	SGTGOCCameraController();
 	SGTGOCCameraController(Ogre::Camera *camera);
 	~SGTGOCCameraController(void);
+
+	void CreateNodes();
+	void AttachCamera(Ogre::Camera *camera);
+	void DetachCamera();
 
 	void ReceiveMessage(SGTMsg &msg);
 
@@ -59,4 +71,12 @@ public:
 	static SGTSaveable* NewInstance() { return new SGTGOCCameraController; };
 	virtual void Save(SGTSaveSystem& mgr) {};
 	virtual void Load(SGTLoadSystem& mgr) {};
+
+	//Editor
+	void CreateFromDataMap(SGTDataMap *parameters) {};
+	void GetParameters(SGTDataMap *parameters) {};
+	static void GetDefaultParameters(SGTDataMap *parameters) {};
+	static SGTGOCEditorInterface* NewEditorInterfaceInstance() { return new SGTGOCCameraController(); }
+	void AttachToGO(SGTGameObject *go); 
+	Ogre::String GetLabel() { return "Camera"; }
 };

@@ -69,12 +69,7 @@ public:
 	void Reset();
 	void Shutdown();
 
-	void RegisterEditorInterface(Ogre::String family, Ogre::String type, EDTCreatorFn RegisterFn, GOCDefaultParametersFn DefaulParametersFn);
-	void RegisterComponentDefaultParameters(Ogre::String family, Ogre::String type, GOCDefaultParametersFn RegisterFn);
-
-	void ShowEditorMeshes(bool show);
-
-	SGTGOCEditorInterface* CreateComponent(Ogre::String type, SGTDataMap *parameters);
+	//Script
 
 	static std::vector<SGTScriptParam> Lua_LogMessage(SGTScript& caller, std::vector<SGTScriptParam> vParams);
 	static std::vector<SGTScriptParam> Lua_LoadLevel(SGTScript& caller, std::vector<SGTScriptParam> vParams);
@@ -114,6 +109,14 @@ public:
 	void CreateFromDataMap(SGTDataMap *parameters);
 	void GetParameters(SGTDataMap *parameters);
 	void AttachToGO(SGTGameObject *go) {};
+	Ogre::String GetLabel() { return ""; }
+
+	void RegisterEditorInterface(Ogre::String family, Ogre::String type, EDTCreatorFn RegisterFn, GOCDefaultParametersFn DefaulParametersFn);
+	void RegisterComponentDefaultParameters(Ogre::String family, Ogre::String type, GOCDefaultParametersFn RegisterFn);
+
+	void ShowEditorMeshes(bool show);
+
+	SGTGOCEditorInterface* CreateComponent(Ogre::String type, SGTDataMap *parameters);
 
 	//Game clock
 	void EnableClock(bool enable);
