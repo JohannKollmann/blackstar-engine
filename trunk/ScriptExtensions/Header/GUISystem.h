@@ -33,11 +33,9 @@ public:
 		void SetMaterial(Ogre::String mat);
 		void Move(float x, float y);
 		int GetHandle();
-		
-
+		static std::list<int> FindSubWindows(int iHandle);
 	private:
 		std::vector<int> GetSubWindows();
-		static std::list<int> FindSubWindows(int iHandle);
 		int m_iHandle;
 	};
 	class SubWindow
@@ -57,6 +55,7 @@ public:
 	void SetVisible(int iHandle, bool bVisible);
 	bool GetVisible(int iHandle);
 	void SetCursor(int iHandle);
+	void DeleteWindow(int iHandle);
 
 	void Clear();
 private:
@@ -65,6 +64,7 @@ private:
 	static std::vector<SGTScriptParam> Lua_CreateWindow(SGTScript& caller, std::vector<SGTScriptParam> vParams);
 	static std::vector<SGTScriptParam> Lua_CreateSubWindow(SGTScript& caller, std::vector<SGTScriptParam> vParams);
 	static std::vector<SGTScriptParam> Lua_BakeWindow(SGTScript& caller, std::vector<SGTScriptParam> vParams);
+	static std::vector<SGTScriptParam> Lua_DeleteWindow(SGTScript& caller, std::vector<SGTScriptParam> vParams);
 
 	static std::vector<SGTScriptParam> Lua_SetMaterial(SGTScript& caller, std::vector<SGTScriptParam> vParams);
 	static std::vector<SGTScriptParam> Lua_SetWindowVisible(SGTScript& caller, std::vector<SGTScriptParam> vParams);

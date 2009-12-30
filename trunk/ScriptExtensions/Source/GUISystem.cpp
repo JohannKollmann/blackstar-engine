@@ -31,6 +31,7 @@ SGTGUISystem::SGTGUISystem(void)
 	SGTScriptSystem::GetInstance().ShareCFunction("gui_create_window", Lua_CreateWindow);
 	SGTScriptSystem::GetInstance().ShareCFunction("gui_create_subwindow", Lua_CreateSubWindow);
 	SGTScriptSystem::GetInstance().ShareCFunction("gui_bake_window", Lua_BakeWindow);
+	SGTScriptSystem::GetInstance().ShareCFunction("gui_delete_window", Lua_DeleteWindow);
 
 	SGTScriptSystem::GetInstance().ShareCFunction("gui_set_window_material", Lua_SetMaterial);
 	SGTScriptSystem::GetInstance().ShareCFunction("gui_set_visible", Lua_SetWindowVisible);
@@ -601,6 +602,37 @@ SGTGUISystem::SetCursor(int iHandle)
 }
 
 void
+SGTGUISystem::DeleteWindow(int iHandle)
+{
+	std::map<int, SGTGUISystem::SWindowInfo>::iterator it;
+	if((it=m_mWindowInfos.find(iHandle))!=m_mWindowInfos.end())
+	{//if valid handle..
+		if(it->second.bWasBaked)
+		{
+			m_lZOrder.remove(iHandle);
+			SetForegroundWindow(m_lZOrder.front());
+			if(m_iFocusWin==iHandle)
+				SGTGUISystem::GetInstance().SetFocus(m_lZOrder.front());
+			if(m_iHoverWin==iHandle)
+				m_iHoverWin=-1;
+			SGTMain::Instance().GetOgreSceneMgr()->getSceneNode("SGTGuiSystemNode")->detachObject(SGTMain::Instance().GetOgreSceneMgr()->getEntity(it->second.strName));
+			Ogre::MeshManager::getSingleton().remove(it->second.strName);
+		}
+		//delete subwindows
+		std::list<int> lSubWindows=Window::FindSubWindows(iHandle);
+		for(std::list<int>::const_iterator itl=lSubWindows.begin(); itl!=lSubWindows.end(); itl++)
+		{
+			if(m_iFocusWin==*itl)
+				SGTGUISystem::GetInstance().SetFocus(m_lZOrder.front());
+			if(m_iHoverWin==*itl)
+				m_iHoverWin=-1;
+			m_mWindowInfos.erase(m_mWindowInfos.find(*itl));
+		}
+		m_mWindowInfos.erase(it);
+	}
+}
+
+void
 SGTGUISystem::Clear()
 {
 	for(std::map<int, SWindowInfo>::iterator it=m_mWindowInfos.begin(); it!=m_mWindowInfos.end(); it++)
@@ -781,6 +813,23 @@ SGTGUISystem::Lua_BakeWindow(SGTScript &caller, std::vector<SGTScriptParam> vPar
 	Window((int)vParams[0].getFloat()).Bake();
 	return ret;
 }
+
+std::vector<SGTScriptParam>
+SGTGUISystem::Lua_DeleteWindow(SGTScript &caller, std::vector<SGTScriptParam> vParams)
+{
+	std::vector<SGTScriptParam> errout;
+	errout.push_back(SGTScriptParam());
+	std::string strErrString=SGTUtils::TestParameters(vParams, std::vector<SGTScriptParam>(1, SGTScriptParam(0.1)), false);
+	if(strErrString.length())
+	{
+		errout.push_back(strErrString);
+		return errout;
+	}
+	GetInstance().DeleteWindow((int)vParams[0].getFloat());
+	return std::vector<SGTScriptParam>();
+}
+
+
 
 std::vector<SGTScriptParam>
 SGTGUISystem::Lua_SetMaterial(SGTScript& caller, std::vector<SGTScriptParam> vParams)
