@@ -52,6 +52,11 @@ Ogre::String SGTSceneManager::RequestIDStr()
 	return Ogre::StringConverter::toString(RequestID());
 }
 
+void SGTSceneManager::RegisterPlayer(SGTGameObject *player)
+{
+	mPlayer = player;
+}
+
 void SGTSceneManager::UpdateGameObjects()
 {
 	for (std::list<SGTGameObject*>::iterator i = mGameObjects.begin(); i != mGameObjects.end(); i++)
@@ -182,6 +187,8 @@ void SGTSceneManager::Init()
 	SGTScriptSystem::GetInstance().ShareCFunction("SetObjectPosition", &SGTSceneManager::Lua_SetObjectPosition);
 	SGTScriptSystem::GetInstance().ShareCFunction("SetObjectOrientation", &SGTSceneManager::Lua_SetObjectOrientation);
 	SGTScriptSystem::GetInstance().ShareCFunction("SetObjectScale", &SGTSceneManager::Lua_SetObjectScale);
+
+	SGTScriptSystem::GetInstance().ShareCFunction("GetFocusObject", &SGTSceneManager::Lua_GetFocusObject);
 
 }
 
@@ -688,6 +695,29 @@ void SGTSceneManager::DestroyPreviewRender(Ogre::String name)
 		Ogre::TextureManager::getSingleton().remove(name + "_Tex");
 	}
 	//if (Ogre::MaterialManager::getSingleton().resourceExists(name + "_Mat"))	Ogre::MaterialManager::getSingleton().remove(name + "_Mat");
+}
+
+std::vector<SGTScriptParam> SGTSceneManager::Lua_GetFocusObject(SGTScript& caller, std::vector<SGTScriptParam> params)
+{
+	OgrePhysX::Scene::QueryHit hit;
+	float maxDist = 5;
+	SGTMain::Instance().GetPhysXScene()->raycastClosestShape(hit, Ogre::Ray(SGTMain::Instance().GetCamera()->getDerivedPosition(), SGTMain::Instance().GetCamera()->getDerivedDirection()), NX_ALL_SHAPES, -1, maxDist);
+	std::string s = "";
+	if (hit.hitActor)
+	{
+		SGTGameObject *object = (SGTGameObject*)hit.hitActor->userData;
+		if (object)
+		{
+			if (1)			//Todo: if (object->GetComponent("Item"))
+			{
+				s = object->GetName().c_str();
+				//...
+			}
+		}
+	}
+	std::vector<SGTScriptParam> returner;
+	returner.push_back(SGTScriptParam(s));
+	return returner;
 }
 
 SGTSceneManager& SGTSceneManager::Instance()

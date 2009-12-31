@@ -32,4 +32,6 @@ SGTLevelMesh::SGTLevelMesh(Ogre::String mesh)
 SGTLevelMesh::~SGTLevelMesh(void)
 {
 	SGTMain::Instance().GetPhysXScene()->destroyActor(mActor);
+	SGTMain::Instance().GetOgreSceneMgr()->destroySceneNode(mNode);
+	SGTMain::Instance().GetOgreSceneMgr()->destroyEntity(mEntity);
 }

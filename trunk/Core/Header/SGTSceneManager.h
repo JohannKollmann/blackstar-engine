@@ -36,6 +36,10 @@ public:
 
 	std::list<SGTGameObject*> mGameObjects;
 
+	SGTGameObject *mPlayer;
+
+	void RegisterPlayer(SGTGameObject *player);
+
 	std::map<Ogre::String, std::map<Ogre::String, SGTDataMap*> > mGOCDefaultParameters; //For Editors
 
 	SGTSceneManager(void);
@@ -104,6 +108,8 @@ public:
 	static std::vector<SGTScriptParam> Lua_SetObjectPosition(SGTScript& caller, std::vector<SGTScriptParam> vParams);
 	static std::vector<SGTScriptParam> Lua_SetObjectOrientation(SGTScript& caller, std::vector<SGTScriptParam> vParams);
 	static std::vector<SGTScriptParam> Lua_SetObjectScale(SGTScript& caller, std::vector<SGTScriptParam> vParams);
+
+	static std::vector<SGTScriptParam> Lua_GetFocusObject(SGTScript& caller, std::vector<SGTScriptParam> params);
 
 	//Editor
 	void CreateFromDataMap(SGTDataMap *parameters);
