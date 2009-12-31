@@ -701,9 +701,8 @@ std::vector<SGTScriptParam> SGTSceneManager::Lua_GetFocusObject(SGTScript& calle
 {
 	OgrePhysX::Scene::QueryHit hit;
 	float maxDist = 5;
-	SGTMain::Instance().GetPhysXScene()->raycastClosestShape(hit, Ogre::Ray(SGTMain::Instance().GetCamera()->getDerivedPosition(), SGTMain::Instance().GetCamera()->getDerivedDirection()), NX_ALL_SHAPES, -1, maxDist);
 	std::string s = "";
-	if (hit.hitActor)
+	if (SGTMain::Instance().GetPhysXScene()->raycastClosestShape(hit, Ogre::Ray(SGTMain::Instance().GetCamera()->getDerivedPosition(), SGTMain::Instance().GetCamera()->getDerivedDirection()), NX_ALL_SHAPES, -1, maxDist))
 	{
 		SGTGameObject *object = (SGTGameObject*)hit.hitActor->userData;
 		if (object)
