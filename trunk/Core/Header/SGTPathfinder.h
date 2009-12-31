@@ -5,7 +5,7 @@
 #include <list>
 #include "SGTGOCIntern.h"
 
-class SGTPathfinder
+class SGTDllExport SGTPathfinder
 {
 private:
 	std::list<SGTGOCWaypoint*> mWaynet;

@@ -127,7 +127,7 @@ void wxSGTToolbar::RefreshAll()
 			}
 			for (std::vector<SGTEDTTool>::iterator x = i->mTools.begin(); x != i->mTools.end(); x++)
 			{
-				if (i->mActive)
+				if (x->mActive)
 				{
 					if (x->mCheckTool)
 					{

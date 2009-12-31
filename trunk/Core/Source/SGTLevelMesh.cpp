@@ -2,6 +2,7 @@
 #include "SGTLevelMesh.h"
 #include "SGTSceneManager.h"
 #include "SGTMain.h"
+#include "SGTGOCPhysics.h"
 
 SGTLevelMesh::SGTLevelMesh(Ogre::String mesh)
 {
@@ -25,7 +26,7 @@ SGTLevelMesh::SGTLevelMesh(Ogre::String mesh)
 	if (!OgrePhysX::Cooker::getSingleton().hasNxMesh(mesh + ".nxs"))
 		OgrePhysX::Cooker::getSingleton().cookNxMeshToFile(mEntity->getMesh(), "Data\\Media\\Meshes\\NXS\\" + mesh + ".nxs");
 
-	mActor = SGTMain::Instance().GetPhysXScene()->createActor(OgrePhysX::CookedMeshShape(mesh + ".nxs"));
+	mActor = SGTMain::Instance().GetPhysXScene()->createActor(OgrePhysX::CookedMeshShape(mesh + ".nxs").group(SGTCollisionGroups::LEVELMESH));
 }
 
 SGTLevelMesh::~SGTLevelMesh(void)

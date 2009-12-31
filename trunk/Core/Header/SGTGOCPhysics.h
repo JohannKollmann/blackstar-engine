@@ -22,10 +22,10 @@ namespace SGTShapes
 	const int SHAPE_CAPSULE = 4;
 };
 
-namespace SGTCollisionGroups
+enum SGTCollisionGroups
 {
-	const NxU16 DEFAULT = 0;
-	const NxU16 LEVELMESH = 1;
+	DEFAULT,
+	LEVELMESH
 };
 
 class SGTDllExport SGTGOPhysXRenderable : public OgrePhysX::PointRenderable

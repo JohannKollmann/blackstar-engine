@@ -14,10 +14,15 @@ SGTGOCPlayerInput::SGTGOCPlayerInput(void)
 	SGTMessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
 
 	mCharacterMovementState = 0;
+	mActive = false;
 }
 
 SGTGOCPlayerInput::~SGTGOCPlayerInput(void)
 {
+	SGTMessageSystem::Instance().QuitNewsgroup(this, "KEY_DOWN");
+	SGTMessageSystem::Instance().QuitNewsgroup(this, "KEY_UP");
+	SGTMessageSystem::Instance().QuitNewsgroup(this, "MOUSE_MOVE");
+	SGTMessageSystem::Instance().QuitNewsgroup(this, "UPDATE_PER_FRAME");
 }
 
 void SGTGOCPlayerInput::AttachToGO(SGTGameObject *go)
@@ -26,8 +31,14 @@ void SGTGOCPlayerInput::AttachToGO(SGTGameObject *go)
 	go->AddComponent(this);
 }
 
+void SGTGOCPlayerInput::SetActive(bool active)
+{
+	mActive = active;
+}
+
 void SGTGOCPlayerInput::ReceiveMessage(SGTMsg &msg)
 {
+	if (!mActive) return;
 	if (msg.mNewsgroup == "KEY_DOWN")
 	{
 		OIS::KeyCode kc = (OIS::KeyCode)msg.mData.GetInt("KEY_ID_OIS");
@@ -104,6 +115,7 @@ void SGTGOCPlayerInput::ReceiveObjectMessage(Ogre::SharedPtr<SGTObjectMsg> msg)
 SGTGOCCameraController::SGTGOCCameraController()
 {
 	CreateNodes();
+	mCamera = 0;
 }
 SGTGOCCameraController::SGTGOCCameraController(Ogre::Camera *camera)
 {
@@ -113,7 +125,7 @@ SGTGOCCameraController::SGTGOCCameraController(Ogre::Camera *camera)
 
 SGTGOCCameraController::~SGTGOCCameraController()
 {
-	DetachCamera();
+	if (mCamera) DetachCamera();
 	SGTMain::Instance().GetOgreSceneMgr()->destroySceneNode(mCharacterCenterNode);
 	SGTMain::Instance().GetOgreSceneMgr()->destroySceneNode(mCameraCenterNode);
 	SGTMain::Instance().GetOgreSceneMgr()->destroySceneNode(mCameraNode);
@@ -122,7 +134,7 @@ SGTGOCCameraController::~SGTGOCCameraController()
 
 void SGTGOCCameraController::CreateNodes()
 {
-	mCharacterCenterNode = SGTMain::Instance().GetOgreSceneMgr()->getRootSceneNode()->createChildSceneNode();
+	/*mCharacterCenterNode = SGTMain::Instance().GetOgreSceneMgr()->getRootSceneNode()->createChildSceneNode();
 	mCameraCenterNode = mCharacterCenterNode->createChildSceneNode();
 	mTargetNode = mCameraCenterNode->createChildSceneNode(Ogre::Vector3(0,2.5f,10));
 	mCameraNode = mCameraCenterNode->createChildSceneNode(Ogre::Vector3(0,2.0f,-6));
@@ -132,17 +144,24 @@ void SGTGOCCameraController::CreateNodes()
 	mTightness = 0.04f;
 	mfCameraAngle = 0;
 	mfLastCharacterAngle = 0;
-	mfCharacterAngle = 0;
+	mfCharacterAngle = 0;*/
+
+	//Simple first person setup
+	mCharacterCenterNode = SGTMain::Instance().GetOgreSceneMgr()->getRootSceneNode()->createChildSceneNode();
+	mCameraCenterNode = mCharacterCenterNode->createChildSceneNode(Ogre::Vector3(0, 2, 0));
+	mCameraNode = mCameraCenterNode->createChildSceneNode();
+	mTargetNode = mCameraCenterNode->createChildSceneNode(Ogre::Vector3(0,2.5f,10));		//unused
+
+	mTightness = 0.04f;
 }
 
 void SGTGOCCameraController::AttachCamera(Ogre::Camera *camera)
 {
+	mCameraCenterNode->resetOrientation();
 	mCamera = camera;
 	mCameraNode->attachObject(mCamera);
-
-	SGTMain::Instance().GetCameraController()->mMove = false;
-	SGTMain::Instance().GetCameraController()->mXRot = false;
-	SGTMain::Instance().GetCameraController()->mYRot = false;
+	mCamera->setPosition(0,0,0);
+	mCamera->setOrientation(Ogre::Vector3::UNIT_Z.getRotationTo(Ogre::Vector3(0,0,-1)));
 
 	SGTMessageSystem::Instance().JoinNewsgroup(this, "MOUSE_MOVE");
 	SGTMessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
@@ -152,20 +171,21 @@ void SGTGOCCameraController::DetachCamera()
 	mCameraNode->detachObject(mCamera);
 	SGTMessageSystem::Instance().QuitNewsgroup(this, "MOUSE_MOVE");
 	SGTMessageSystem::Instance().QuitNewsgroup(this, "UPDATE_PER_FRAME");
+	mCamera = 0;
 }
 
 void SGTGOCCameraController::ReceiveMessage(SGTMsg &msg)
 {
 	if (msg.mNewsgroup == "MOUSE_MOVE")
 	{
-		Ogre::Radian pitch = Ogre::Radian((Ogre::Degree(-msg.mData.GetInt("ROT_Y_REL"))));
+		Ogre::Radian pitch = Ogre::Radian((Ogre::Degree(msg.mData.GetInt("ROT_Y_REL"))));
 		Ogre::Radian newpitch =(mCameraCenterNode->getOrientation().getPitch() - pitch);
 		if (mCameraCenterNode->getOrientation().getPitch().valueDegrees() > -30.0f && pitch.valueDegrees() < 0) mCameraCenterNode->rotate(Ogre::Vector3(1,0,0), Ogre::Radian(pitch * mTightness));
 		else if (mCameraCenterNode->getOrientation().getPitch().valueDegrees() < 40.0f && pitch.valueDegrees() > 0) mCameraCenterNode->rotate(Ogre::Vector3(1,0,0), Ogre::Radian(pitch * mTightness));
 	}
 	if (msg.mNewsgroup == "UPDATE_PER_FRAME")
 	{
-		float time = msg.mData.GetFloat("TIME");
+		/*float time = msg.mData.GetFloat("TIME");
 		float fCharacterAngle=mCharacterOrientation.getYaw().valueRadians();
 		float fAngleDelta=mfLastCharacterAngle-fCharacterAngle;
 		if(fAngleDelta>Ogre::Math::PI)
@@ -175,7 +195,7 @@ void SGTGOCCameraController::ReceiveMessage(SGTMsg &msg)
 		mfCharacterAngle+=fAngleDelta;
 		mCameraCenterNode->rotate(Ogre::Vector3(0,1,0), Ogre::Radian((mfCameraAngle-mfCharacterAngle)*1.0f*time));
 		mfCameraAngle-=(mfCameraAngle-mfCharacterAngle)*1.0f*time;
-		mfLastCharacterAngle=fCharacterAngle;
+		mfLastCharacterAngle=fCharacterAngle;*/
 	}
 
 }
@@ -193,11 +213,10 @@ void SGTGOCCameraController::ReceiveObjectMessage(Ogre::SharedPtr<SGTObjectMsg> 
 void SGTGOCCameraController::UpdatePosition(Ogre::Vector3 position)
 {
 	mCharacterCenterNode->setPosition(position);
-	//mCamera->lookAt(mCenterNode->getPosition());
 }
 
 void SGTGOCCameraController::UpdateOrientation(Ogre::Quaternion orientation)
 {
-	mCharacterOrientation = orientation;
-	//mCharacterCenterNode->setOrientation(orientation);
+	//mCharacterOrientation = orientation;
+	mCharacterCenterNode->setOrientation(orientation);
 }

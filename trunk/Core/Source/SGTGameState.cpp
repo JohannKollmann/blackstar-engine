@@ -10,6 +10,13 @@
 
 bool SGTEditor::OnUpdate(float time, float time_total)
 {
+	if (SGTMainLoop::Instance().GetRunPhysics())
+		OgrePhysX::World::getSingleton().startSimulate(time);
+
+	if (SGTMainLoop::Instance().GetRunPhysics())
+		OgrePhysX::World::getSingleton().fetchSimulate();
+	OgrePhysX::World::getSingleton().syncRenderables();
+
 	SGTMsg msg;
 	msg.mNewsgroup = "UPDATE_PER_FRAME";
 	msg.mData.AddFloat("TIME", time);
@@ -20,20 +27,12 @@ bool SGTEditor::OnUpdate(float time, float time_total)
 
 	SGTMessageSystem::Instance().Update();
 
-	if (SGTMainLoop::Instance().GetRunPhysics())
-		OgrePhysX::World::getSingleton().startSimulate(time);
-
-	OgrePhysX::World::getSingleton().syncRenderables();
-
 	//Sound
 	SGTMain::Instance().GetSoundManager()->update();
 
 	SGTSceneManager::Instance().UpdateGameObjects();
 
 	bool render = Ogre::Root::getSingleton().renderOneFrame();
-
-	if (SGTMainLoop::Instance().GetRunPhysics())
-		OgrePhysX::World::getSingleton().fetchSimulate();
 
 	return render;
 }

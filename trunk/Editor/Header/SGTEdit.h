@@ -11,6 +11,7 @@
 #include "SGTGameObject.h"
 #include "OgreAxisObject.h"
 #include "SGTEntityMaterialInspector.h"
+#include "SGTGOCPlayerInput.h"
 
 struct SGTEditorSelection
 {
@@ -119,6 +120,12 @@ private:
 	bool mShowMouse;
 	void LockAndHideMouse();
 	void FreeAndShowMouse();
+
+	bool mPlaying;
+	SGTGOCCameraController *mPlayerCamera;
+	SGTGOCPlayerInput *mPlayerInput;
+	void PlayGame();
+	void PauseGame();
 
 	Ogre::Vector2 mMousePosition;
 

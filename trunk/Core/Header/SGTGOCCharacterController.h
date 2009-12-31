@@ -68,7 +68,9 @@ private:
 	void Create(Ogre::Vector3 dimensions);
 	SGTCharacterJump mJump;
 	Ogre::Vector3 mDirection;
+	Ogre::Vector3 mDimensions;
 	float mStepOffset;
+	bool mFreezed;
 
 	float mMovementSpeed;
 
@@ -85,6 +87,8 @@ public:
 
 	void ReceiveObjectMessage(Ogre::SharedPtr<SGTObjectMsg> msg);
 	void ReceiveMessage(SGTMsg &msg);
+
+	void Freeze(bool freeze);
 
 	void SetOwner(SGTGameObject *go);
 

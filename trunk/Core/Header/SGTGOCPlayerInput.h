@@ -5,14 +5,18 @@
 #include "SGTMessageListener.h"
 #include "SGTGOCCharacterController.h"
 
-class SGTGOCPlayerInput : public SGTCharacterControllerInput, public SGTMessageListener, public SGTGOCEditorInterface
+class SGTDllExport SGTGOCPlayerInput : public SGTCharacterControllerInput, public SGTMessageListener, public SGTGOCEditorInterface
 {
+private:
+	bool mActive;
 
 public:
 	SGTGOCPlayerInput(void);
 	~SGTGOCPlayerInput(void);
 
 	void ReceiveMessage(SGTMsg &msg);
+
+	void SetActive(bool active);
 
 	void ReceiveObjectMessage(Ogre::SharedPtr<SGTObjectMsg> msg);
 	SGTGOComponent::goc_id_type& GetComponentID() const { static std::string name = "PlayerInput"; return name; }
@@ -33,7 +37,7 @@ public:
 };
 
 
-class SGTGOCCameraController : public SGTGOComponent, public SGTMessageListener, public SGTGOCEditorInterface
+class SGTDllExport SGTGOCCameraController : public SGTGOComponent, public SGTMessageListener, public SGTGOCEditorInterface
 {
 private:
 	Ogre::Camera *mCamera;

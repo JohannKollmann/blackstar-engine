@@ -61,16 +61,15 @@ public:
 	bool HasKey(Ogre::String keyname);
 
 	template <class templateType>
-		templateType GetValue(Ogre::String keyname)
+	templateType GetValue(Ogre::String keyname) throw(Ogre::Exception)
+	{
+		for (std::vector<SGTGenericProperty>::iterator i = mData.begin(); i != mData.end(); i++)
 		{
-			for (std::vector<SGTGenericProperty>::iterator i = mData.begin(); i != mData.end(); i++)
-			{
-				if ((*i).mKey == keyname) return Ogre::any_cast<templateType>((*i).mData);
-			}
-			//Invalid key! Let's return some bullshit.
-			Ogre::LogManager::getSingleton().logMessage("SGTDataMap::Get Invalid key (" + keyname + ")!");
-			return templateType();
+			if ((*i).mKey == keyname) return Ogre::any_cast<templateType>((*i).mData);
 		}
+		//Invalid key! Let's return some bullshit.
+		throw Ogre::Exception(Ogre::Exception::ERR_ITEM_NOT_FOUND , "SGTDataMap::Get Invalid key (" + keyname + ")!", "SGTDataMap.h, line 71");
+	}
 
 	int GetInt(Ogre::String keyname);
 	bool GetBool(Ogre::String keyname);

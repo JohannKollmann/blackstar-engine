@@ -1,5 +1,5 @@
 
-#include "../Header/SGTEdit.h"
+#include "SGTEdit.h"
 #include "SGTInput.h"
 #include "SGTCameraController.h"
 #include "SGTScenemanager.h"
@@ -26,6 +26,7 @@ SGTEdit::SGTEdit()
 	mAltIsDown = false;
 
 	mMouseLocked = false;
+	mPlaying = false;
 
 	mMaterialMode = false;
 	mBrushMode = false;
@@ -86,6 +87,10 @@ SGTEdit::SGTEdit()
 	wxEdit::Instance().GetMainToolbar()->RegisterTool("DeleteObject", "ObjectMgr", "Data/Editor/Intern/Engine_Icon04.png", SGTEdit::OnToolbarEvent, "Removes an object");
 	wxEdit::Instance().GetMainToolbar()->RegisterTool("SaveObjectGroup", "ObjectMgr", "Data/Editor/Intern/Engine_Icon06.png", SGTEdit::OnToolbarEvent, "Save Object group");
 	wxEdit::Instance().GetMainToolbar()->SetGroupStatus("ObjectMgr", true);
+
+	wxEdit::Instance().GetMainToolbar()->RegisterTool("PlayGame", "Game", "Data/Editor/Intern/Icon_Play.png", SGTEdit::OnToolbarEvent, "Play!");
+	wxEdit::Instance().GetMainToolbar()->RegisterTool("StopGame", "Game", "Data/Editor/Intern/Icon_Stop.png", SGTEdit::OnToolbarEvent, "Reset everything to the state before you started playing.");
+	wxEdit::Instance().GetMainToolbar()->SetGroupStatus("Game", false);
 };
 
 void SGTEdit::OnToolbarEvent(int toolID, Ogre::String toolname)
@@ -138,6 +143,49 @@ void SGTEdit::OnToolbarEvent(int toolID, Ogre::String toolname)
 	{
 		edit->OnSaveObjectGroup();
 	}
+	if (toolname == "PlayGame")
+	{
+		edit->PlayGame();
+	}
+}
+
+void SGTEdit::PauseGame()
+{
+	if (mPlaying)
+	{
+		mPlayerCamera->DetachCamera();
+		SGTMain::Instance().GetCamera()->setPosition(mPlayerCamera->GetOwner()->GetGlobalPosition() + Ogre::Vector3(0, 2, -4));
+		SGTMain::Instance().GetCamera()->setDirection(0, 0, 1);
+		mPlayerInput->SetActive(false);
+		mPlayerCamera = 0;
+		mPlayerInput = 0;
+		mPlaying = false;
+		SGTMain::Instance().GetCameraController()->mMove = true;
+		FreeAndShowMouse();
+	}
+}
+
+void SGTEdit::PlayGame()
+{
+	if (mSelectedObjects.size () != 1) return;
+
+	SGTGameObject* obj = (*mSelectedObjects.begin()).mObject;
+	SGTGOCCameraController *cam = (SGTGOCCameraController*)obj->GetComponent("Camera", "CameraController");
+	SGTGOCPlayerInput *input = (SGTGOCPlayerInput*)obj->GetComponent("CharacterInput", "PlayerInput");
+	if (cam && input)
+	{
+		mPlayerCamera = cam;
+		mPlayerInput = input;
+		POINT p;
+		GetCursorPos(&p);
+		SetCursorPos(p.x, p.y + 100);
+		LockAndHideMouse();
+		cam->AttachCamera(SGTMain::Instance().GetCamera());
+		input->SetActive(true);
+		SGTMain::Instance().GetCameraController()->mMove = false;
+		mPlaying = true;
+		DeselectAllObjects();
+	}
 }
 
 void SGTEdit::LockAndHideMouse()
@@ -166,6 +214,7 @@ void SGTEdit::OnMouseEvent(wxMouseEvent &ev)
 	if (mMouseLocked)
 	{
 		SetCursorPos(mWinMousePosition.x, mWinMousePosition.y);
+		if (mPlaying) return;
 	}
 
 	if (ev.LeftIsDown() || ev.RightIsDown())
@@ -358,6 +407,11 @@ void SGTEdit::DetachAxisObject(SGTGameObject *object)
 
 void SGTEdit::OnMouseMove(Ogre::Radian RotX,Ogre::Radian RotY)
 {
+	if (mMouseLocked)
+	{
+		SetCursorPos(mWinMousePosition.x, mWinMousePosition.y);
+		if (mPlaying) return;
+	}
 	if (mLeftDown && mRightDown && !mAltIsDown)
 	{
 		SGTMain::Instance().GetCamera()->yaw(-RotX * mRotSpeed);
@@ -523,6 +577,11 @@ void SGTEdit::OnKeyUp(wxKeyEvent& key)
 	if (key.GetKeyCode() == 73 && mStrgPressed == true)
 	{
 		OnInsertObject();
+	}
+
+	if (key.GetKeyCode() == 27)		//Esc
+	{
+		PauseGame();
 	}
 
 	if (key.GetKeyCode() == 49) mXAxisLock = SGTAxisLock::LOCKED;
@@ -888,6 +947,13 @@ void SGTEdit::SelectObject(SGTGameObject *object)
 	wxEdit::Instance().GetpropertyWindow()->SetPage("EditGameObject");
 	((wxEditSGTGameObject*)(wxEdit::Instance().GetpropertyWindow()->GetCurrentPage()))->SetObject(object);
 
+	if (object->GetComponent("CharacterInput", "PlayerInput") && object->GetComponent("Camera"))
+	{
+		wxEdit::Instance().GetMainToolbar()->SetGroupStatus("Game", true);
+		wxEdit::Instance().GetMainToolbar()->SetToolStatus("PlayGame", true);
+		wxEdit::Instance().GetMainToolbar()->SetToolStatus("StopGame", false);
+	}
+
 	object->Freeze(true);
 	SGTGOCNodeRenderable *visuals = (SGTGOCNodeRenderable*)object->GetComponent("View");
 	if (visuals != 0)
@@ -948,6 +1014,10 @@ bool SGTEdit::ObjectIsSelected(SGTGameObject *object)
 
 void SGTEdit::DeselectObject(SGTGameObject *object)
 {
+	if (object->GetComponent("CharacterInput", "PlayerInput") && object->GetComponent("Camera"))
+	{
+		wxEdit::Instance().GetMainToolbar()->SetGroupStatus("Game", false);
+	}
 	//Ogre::LogManager::getSingleton().logMessage("Deselect Object " + object->GetName());
 	DeselectChildren(object);
 	for (std::list<SGTEditorSelection>::iterator i = mSelectedObjects.begin(); i != mSelectedObjects.end(); i++)
@@ -969,6 +1039,7 @@ void SGTEdit::DeselectObject(SGTGameObject *object)
 
 void SGTEdit::DeselectAllObjects()
 {
+	wxEdit::Instance().GetMainToolbar()->SetGroupStatus("Game", false);
 	//Ogre::LogManager::getSingleton().logMessage("Deselect all Objects");
 	for (std::list<SGTEditorSelection>::iterator i = mSelectedObjects.begin(); i != mSelectedObjects.end(); i++)
 	{

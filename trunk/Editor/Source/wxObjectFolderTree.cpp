@@ -116,6 +116,8 @@ void wxObjectFolderTree::OnMenuCallback(int id)
 {
 	if (id == ResTree_addGOC)
 	{
+		wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->ClearObjectPreview();
+
 		Ogre::String relPath = Ogre::String(this->GetRelativePath(mCurrentItem->GetId()).GetFullPath().c_str()) + "\\";
 		Ogre::String file = wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->DoCreateFileDialog();
 		if (file == "") return;
@@ -135,6 +137,7 @@ void wxObjectFolderTree::OnToolbarEvent(int toolID, Ogre::String toolname)
 {
 	if (toolname == "NewResource")
 	{
+		wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->ClearObjectPreview();
 		Ogre::String insertpath = wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->GetInsertPath();
 		Ogre::String file = wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->DoCreateFileDialog();
 
