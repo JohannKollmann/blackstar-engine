@@ -59,9 +59,9 @@ void SGTSceneManager::RegisterPlayer(SGTGameObject *player)
 
 void SGTSceneManager::UpdateGameObjects()
 {
-	for (std::list<SGTGameObject*>::iterator i = mGameObjects.begin(); i != mGameObjects.end(); i++)
+	for (std::map<int, SGTGameObject*>::iterator i = mGameObjects.begin(); i != mGameObjects.end(); i++)
 	{
-		(*i)->ProcessMessages();
+		i->second->ProcessMessages();
 	}
 }
 
@@ -90,23 +90,23 @@ void SGTSceneManager::RegisterComponentDefaultParameters(Ogre::String family, Og
 
 void SGTSceneManager::ShowEditorMeshes(bool show)
 {
-	for (std::list<SGTGameObject*>::iterator i = mGameObjects.begin(); i != mGameObjects.end(); i++)
+	for (std::map<int, SGTGameObject*>::iterator i = mGameObjects.begin(); i != mGameObjects.end(); i++)
 	{
 		if (show)
 		{
-			if ((*i)->GetComponent("Waypoint") && !((*i)->GetComponent("MeshDebugRenderable")))
+			if (i->second->GetComponent("Waypoint") && !(i->second->GetComponent("MeshDebugRenderable")))
 			{
-				(*i)->AddComponent(new SGTMeshDebugRenderable("Editor_Waypoint.mesh"));
+				i->second->AddComponent(new SGTMeshDebugRenderable("Editor_Waypoint.mesh"));
 			}
 		}
 		else
 		{
-			if ((*i)->GetComponent("MeshDebugRenderable"))
+			if (i->second->GetComponent("MeshDebugRenderable"))
 			{
-				(*i)->RemoveComponent("MeshDebugRenderable");
+				i->second->RemoveComponent("MeshDebugRenderable");
 			}
 		}
-		(*i)->ShowEditorVisuals(show);
+		i->second->ShowEditorVisuals(show);
 	}
 }
 
@@ -194,10 +194,10 @@ void SGTSceneManager::Init()
 
 void SGTSceneManager::ClearGameObjects()
 {
-	std::list<SGTGameObject*>::iterator i = mGameObjects.begin();
+	std::map<int, SGTGameObject*>::iterator i = mGameObjects.begin();
 	while (i != mGameObjects.end())
 	{
-		delete (*i);
+		delete i->second;
 		i = mGameObjects.begin();
 	}
 	mGameObjects.clear();
@@ -271,6 +271,7 @@ void SGTSceneManager::LoadLevel(Ogre::String levelfile, bool load_dynamic)
 	SGTDataMap *levelparams = (SGTDataMap*)ls->LoadObject();
 	CreateFromDataMap(levelparams);
 
+	//Todo
 	ls->LoadAtom("std::list<SGTSaveable*>", &mGameObjects);
 	if (load_dynamic)
 	{
@@ -283,7 +284,8 @@ void SGTSceneManager::LoadLevel(Ogre::String levelfile, bool load_dynamic)
 void SGTSceneManager::SaveLevel(Ogre::String levelfile)
 {
 	ShowEditorMeshes(false);
-	SGTSaveSystem *ss=SGTLoadSave::Instance().CreateSaveFile(levelfile, levelfile + ".xml");
+	//Todo
+	/*SGTSaveSystem *ss=SGTLoadSave::Instance().CreateSaveFile(levelfile, levelfile + ".xml");
 	SGTDataMap map;
 	GetParameters(&map);
 	ss->SaveObject(&map, "LevelParams");
@@ -297,7 +299,7 @@ void SGTSceneManager::SaveLevel(Ogre::String levelfile)
 	ss->SaveAtom("std::list<SGTSaveable*>", &staticobjects, "Static Objects");
 	ss->SaveAtom("std::list<SGTSaveable*>", &dynamicobjects, "Dynamic Objects");
 	ss->CloseFiles();
-	delete ss;
+	delete ss;*/
 }
 
 void SGTSceneManager::CreateFromDataMap(SGTDataMap *parameters)
@@ -316,12 +318,28 @@ void SGTSceneManager::GetParameters(SGTDataMap *parameters)
 	parameters->AddBool("Indoor", mIndoorRendering);
 }
 
+std::map<int, SGTGameObject*>& SGTSceneManager::GetGameObjects()
+{
+	return mGameObjects;
+}
+
+int SGTSceneManager::RegisterObject(SGTGameObject *object)
+{
+	int id = RequestID();
+	mGameObjects.insert(std::make_pair<int, SGTGameObject*>(id, object));
+	return id;
+}
+
+void  SGTSceneManager::UnregisterObject(int id)
+{
+	std::map<int, SGTGameObject*>::iterator i = mGameObjects.find(id);
+	if (i != mGameObjects.end()) mGameObjects.erase(i);
+}
+
 SGTGameObject* SGTSceneManager::GetObjectByInternID(int id)
 {
-	for (std::list<SGTGameObject*>::iterator i = mGameObjects.begin(); i != mGameObjects.end(); i++)
-	{
-		if ((*i)->GetID() == id) return (*i);
-	}
+	std::map<int, SGTGameObject*>::iterator i = mGameObjects.find(id);
+	if (i != mGameObjects.end()) return i->second;
 	return 0;
 }
 

@@ -68,15 +68,15 @@ void wxOgreSceneTree::Update()
 		wxTreeItemId id = AddRoot(start->GetCaption(), start->GetIconId(), start->GetSelectedIconId(), start);
 
 		// scan directory, either the smart way or not at all
-		for (std::list<SGTGameObject*>::iterator i = SGTSceneManager::Instance().mGameObjects.begin(); i != SGTSceneManager::Instance().mGameObjects.end(); i++)
+		for (std::map<int, SGTGameObject*>::iterator i = SGTSceneManager::Instance().GetGameObjects().begin(); i != SGTSceneManager::Instance().GetGameObjects().end(); i++)
 		{
-			if (!(*i)->GetParent())
+			if (!i->second->GetParent())
 			{
-				OgreTreeItemBase *item = OnCreateTreeItem(VDTC_TI_FILE, (*i));
+				OgreTreeItemBase *item = OnCreateTreeItem(VDTC_TI_FILE, i->second);
 				OgreTreeItemBaseArray addedItems;
 				addedItems.Add(item);
 				AddItemsToTreeCtrl(mStart, addedItems);
-				ScanFromNode(item, (*i));
+				ScanFromNode(item, i->second);
 			}
 		}
 

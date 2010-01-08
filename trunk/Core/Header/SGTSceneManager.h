@@ -30,15 +30,21 @@ private:
 
 	SGTLevelMesh *mLevelMesh;
 
+	std::map<int, SGTGameObject*> mGameObjects;
+
 	std::map<Ogre::String, EDTCreatorFn> mEditorInterfaces;
 
 public:
 
-	std::list<SGTGameObject*> mGameObjects;
 
 	SGTGameObject *mPlayer;
 
 	void RegisterPlayer(SGTGameObject *player);
+
+	std::map<int, SGTGameObject*>& GetGameObjects();
+
+	int RegisterObject(SGTGameObject *object);
+	void UnregisterObject(int id);
 
 	std::map<Ogre::String, std::map<Ogre::String, SGTDataMap*> > mGOCDefaultParameters; //For Editors
 

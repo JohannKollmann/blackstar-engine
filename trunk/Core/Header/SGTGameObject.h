@@ -14,9 +14,6 @@ typedef std::string go_id_type;
 class SGTDllExport SGTGameObject : public SGTSaveable, public Ogre::UserDefinedObject
 {
 private:
-	//Type identifier
-	go_id_type mGOID;
-
 	//Unique ID
 	int mID;
 

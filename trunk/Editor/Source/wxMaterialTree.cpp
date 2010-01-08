@@ -100,9 +100,9 @@ void wxMaterialTree::Update()
 
 		std::vector<Ogre::String> other_materials_added;
 
-		for (std::list<SGTGameObject*>::iterator i = SGTSceneManager::Instance().mGameObjects.begin(); i != SGTSceneManager::Instance().mGameObjects.end(); i++)
+		for (std::map<int, SGTGameObject*>::iterator i = SGTSceneManager::Instance().GetGameObjects().begin(); i != SGTSceneManager::Instance().GetGameObjects().end(); i++)
 		{
-			SGTGOCViewContainer *visuals = (SGTGOCViewContainer*)(*i)->GetComponent("View", "ViewContainer");
+			SGTGOCViewContainer *visuals = (SGTGOCViewContainer*)i->second->GetComponent("View", "ViewContainer");
 			if (visuals != 0)
 			{
 				SGTMeshRenderable *gocmesh = (SGTMeshRenderable*)visuals->GetItem("MeshRenderable");
