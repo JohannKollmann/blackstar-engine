@@ -5,12 +5,19 @@
 SGTMessageSystem::SGTMessageSystem()
 {
 	CreateNewsgroup("COMMON");
+
 	CreateNewsgroup("UPDATE_PER_FRAME");
+	CreateNewsgroup("START_PHYSICS");
+	CreateNewsgroup("END_PHYSICS");
+	CreateNewsgroup("START_RENDERING");
+	CreateNewsgroup("END_RENDERING");
+
 	CreateNewsgroup("KEY_UP");
 	CreateNewsgroup("KEY_DOWN");
 	CreateNewsgroup("MOUSE_DOWN");
 	CreateNewsgroup("MOUSE_UP");
 	CreateNewsgroup("MOUSE_MOVE");
+
 	CreateNewsgroup("CONSOLE_INGAME");
 }
 
@@ -121,9 +128,9 @@ void SGTMessageSystem::Update()
 {
 	for (std::list<SGTNewsgroup>::iterator ni = mNewsgroups.begin(); ni != mNewsgroups.end(); ni++)
 	{
-		std::vector<SGTMsg> TempMessages = (*ni).mCurrentMessages;	//Damit, falls Listener dieser Message diese Message senden, es nicht zum rekursiven Chaos kommt.
+		std::vector<SGTMsg> tempMessages = (*ni).mCurrentMessages;	//Damit, falls Listener dieser Message diese Message senden, es nicht zum rekursiven Chaos kommt.
 		(*ni).mCurrentMessages.clear();
-		for (std::vector<SGTMsg>::iterator MsgIter = TempMessages.begin(); MsgIter != TempMessages.end(); MsgIter++)
+		for (std::vector<SGTMsg>::iterator MsgIter = tempMessages.begin(); MsgIter != tempMessages.end(); MsgIter++)
 		{
 			for (std::list<SGTMessageListener*>::iterator li = (*ni).mListeners.begin(); li != (*ni).mListeners.end(); li++)
 			{

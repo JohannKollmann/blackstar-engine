@@ -10,29 +10,42 @@
 
 bool SGTEditor::OnUpdate(float time, float time_total)
 {
-	if (SGTMainLoop::Instance().GetRunPhysics())
-		OgrePhysX::World::getSingleton().startSimulate(time);
-
-	if (SGTMainLoop::Instance().GetRunPhysics())
-		OgrePhysX::World::getSingleton().fetchSimulate();
-	OgrePhysX::World::getSingleton().syncRenderables();
-
 	SGTMsg msg;
-	msg.mNewsgroup = "UPDATE_PER_FRAME";
+	msg.mNewsgroup = "START_PHYSICS";
 	msg.mData.AddFloat("TIME", time);
 	msg.mData.AddFloat("TIME_TOTAL", time_total);
-	SGTMessageSystem::Instance().SendMessage(msg);
+	SGTMessageSystem::Instance().SendInstantMessage(msg);
 
+	if (SGTMainLoop::Instance().GetRunPhysics())
+		OgrePhysX::World::getSingleton().startSimulate(time);		//non-blocking
+
+	//Input
 	SGTMain::Instance().GetInputManager()->Update();
-
-	SGTMessageSystem::Instance().Update();
-
 	//Sound
 	SGTMain::Instance().GetSoundManager()->update();
 
+	//Game stuff
+	msg.mNewsgroup = "UPDATE_PER_FRAME";
+	SGTMessageSystem::Instance().SendInstantMessage(msg);
+
+	//Process all messages
+	SGTMessageSystem::Instance().Update();
+
+	if (SGTMainLoop::Instance().GetRunPhysics())
+	{
+		OgrePhysX::World::getSingleton().fetchSimulate();	//blocking
+		OgrePhysX::World::getSingleton().syncRenderables();
+		msg.mNewsgroup = "END_PHYSICS";
+		SGTMessageSystem::Instance().SendInstantMessage(msg);
+	}
+
 	SGTSceneManager::Instance().UpdateGameObjects();
 
+	msg.mNewsgroup = "START_RENDERING";
+	SGTMessageSystem::Instance().SendInstantMessage(msg);
 	bool render = Ogre::Root::getSingleton().renderOneFrame();
+	msg.mNewsgroup = "END_RENDERING";
+	SGTMessageSystem::Instance().SendInstantMessage(msg);
 
 	return render;
 }

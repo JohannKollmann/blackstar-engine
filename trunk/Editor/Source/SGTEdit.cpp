@@ -734,6 +734,18 @@ SGTGameObject* SGTEdit::OnInsertObject(SGTGameObject *parent, bool align, bool c
 	return 0;
 }
 
+void SGTEdit::OnSetFocus(bool focus)
+{
+	if (!mPlaying)
+	{
+		SGTMain::Instance().GetInputManager()->SetEnabled(focus);
+	}
+	else if (!focus)
+	{
+		PauseGame();
+	}
+}
+
 void SGTEdit::OnInsertObjectAsChild()
 {
 	if (mSelectedObjects.size() > 0) OnInsertObject(mSelectedObjects.end()._Mynode()->_Prev->_Myval.mObject);

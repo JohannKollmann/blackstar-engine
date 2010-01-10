@@ -45,6 +45,8 @@ SGTInput::SGTInput(size_t windowHnd, int width, int height, bool freeCursor)
 	mKeyboard->setEventCallback(this);
 	mKeyboard->setBuffered(true);
 
+	mEnabled = true;
+
 	SGTMessageSystem::Instance().CreateNewsgroup("CONTROL_DOWN");
 	SGTMessageSystem::Instance().CreateNewsgroup("CONTROL_UP");
 
@@ -174,10 +176,18 @@ bool SGTInput::mouseReleased (const OIS::MouseEvent &,OIS::MouseButtonID id)
 	return true;
 };
 
+void SGTInput::SetEnabled(bool enable)
+{
+	mEnabled = enable;
+}
+
 void SGTInput::Update()
 {
-	mMouse->capture();
-	mKeyboard->capture();
+	if (mEnabled)
+	{
+		mMouse->capture();
+		mKeyboard->capture();
+	}
 };
 
 //key mapped functions

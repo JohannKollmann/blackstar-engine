@@ -1,7 +1,6 @@
 
 #include "OgrePhysX.h"
 #include "OgreOggSound.h"
-#include "NxControllerManager.h"
 
 #include "SGTMain.h"
 #include "SGTGameState.h"
@@ -143,8 +142,6 @@ void SGTMain::initScene()
 
 	//Collision Callback
 	mPhysXScene->setTriggerReport(new SGTTriggerCallback());
-
-	mCharacterControllerManager = NxCreateControllerManager(&OgrePhysX::World::getSingleton().getSDK()->getFoundationSDK().getAllocator());
 
 	//Init Ogre Resources
 	for (std::vector<KeyVal>::iterator i = mSettings["Resources"].begin(); i != mSettings["Resources"].end(); i++)

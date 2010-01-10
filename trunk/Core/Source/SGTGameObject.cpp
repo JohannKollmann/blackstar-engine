@@ -37,6 +37,7 @@ SGTGameObject::~SGTGameObject()
 void SGTGameObject::SendMessage(Ogre::SharedPtr<SGTObjectMsg> msg)
 {
 	mCurrentMessages.push_back(msg);
+	if (mCurrentMessages.size() == 1) SGTSceneManager::Instance().AddToMessageQueue(this);
 }
 
 void SGTGameObject::SendInstantMessage(Ogre::String receiver_family, Ogre::SharedPtr<SGTObjectMsg> msg)

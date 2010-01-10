@@ -29,6 +29,7 @@ private:
 	OIS::InputManager *mInputmanager;
 	OIS::Mouse*    mMouse;
 	OIS::Keyboard* mKeyboard;
+	bool mEnabled;
 
 	std::map<Ogre::String, std::vector<std::pair<OIS::KeyCode, OIS::MouseButtonID>>> m_mControls;
 	std::map<OIS::KeyCode, std::vector<Ogre::String>> m_mKeyControls;
@@ -38,6 +39,8 @@ public:
 	~SGTInput(void);
 
 	bool isKeyDown(OIS::KeyCode kc);
+
+	void SetEnabled(bool enable);
 
 	OIS::MouseState getMouseState();
 	EMouseButtons getMouseButton();

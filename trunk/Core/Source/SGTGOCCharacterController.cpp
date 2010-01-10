@@ -6,6 +6,7 @@
 #include "SGTMessageSystem.h"
 #include "SGTMain.h"
 #include "SGTGameObject.h"
+#include "OgrePhysX.h"
 
 void SGTCharacterControllerInput::BroadcastMovementState()
 {
@@ -28,13 +29,15 @@ SGTGOCCharacterController::SGTGOCCharacterController(Ogre::Vector3 dimensions)
 
 SGTGOCCharacterController::~SGTGOCCharacterController(void)
 {
-	SGTMain::Instance().GetNxCharacterManager()->releaseController(*mCharacterController);
-	SGTMessageSystem::Instance().QuitNewsgroup(this, "UPDATE_PER_FRAME");
+	OgrePhysX::World::getSingleton().getControllerManager()->releaseController(*mCharacterController);
+	SGTMessageSystem::Instance().QuitNewsgroup(this, "START_PHYSICS");
+	SGTMessageSystem::Instance().QuitNewsgroup(this, "END_PHYSICS");
 }
 
 void SGTGOCCharacterController::Create(Ogre::Vector3 dimensions)
 {
-	SGTMessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
+	SGTMessageSystem::Instance().JoinNewsgroup(this, "START_PHYSICS");
+	SGTMessageSystem::Instance().JoinNewsgroup(this, "END_PHYSICS");
 
 	if (dimensions.x == 0 || dimensions.y == 0 || dimensions.z == 0) dimensions = Ogre::Vector3(1,1,1);
 
@@ -43,20 +46,16 @@ void SGTGOCCharacterController::Create(Ogre::Vector3 dimensions)
 	mMovementSpeed = 10.0f;
 	mDirection = Ogre::Vector3(0,0,0);
 	mDimensions = dimensions;
-	NxCapsuleControllerDesc desc;
-	desc.position.x		= 0;
-	desc.position.y		= 0;
-	desc.position.z		= 0;
-	desc.radius			= dimensions.x;
-	desc.height			= dimensions.y;
+	NxBoxControllerDesc desc;
+	desc.extents.set(dimensions.x * 0.5 - 0.2f, dimensions.y * 0.5 - 0.2f, dimensions.z * 0.5 - 0.2f);
 	desc.upDirection	= NX_Y;
 	//		desc.slopeLimit		= cosf(NxMath::degToRad(45.0f));
 	desc.slopeLimit		= 0;
 	desc.skinWidth		= 0.2f;
-	mStepOffset			= desc.radius * 0.5;
+	mStepOffset			= dimensions.z * 0.5;
 	desc.stepOffset		= mStepOffset;
 	bool test = desc.isValid();
-	mCharacterController = SGTMain::Instance().GetNxCharacterManager()->createController(SGTMain::Instance().GetPhysXScene()->getNxScene(), desc);
+	mCharacterController = OgrePhysX::World::getSingleton().getControllerManager()->createController(SGTMain::Instance().GetPhysXScene()->getNxScene(), desc);
 }
 
 void SGTGOCCharacterController::UpdatePosition(Ogre::Vector3 position)
@@ -72,7 +71,7 @@ void SGTGOCCharacterController::UpdateScale(Ogre::Vector3 scale)
 
 void SGTGOCCharacterController::ReceiveMessage(SGTMsg &msg)
 {
-	if (msg.mNewsgroup == "UPDATE_PER_FRAME" && !mFreezed)
+	if (msg.mNewsgroup == "START_PHYSICS" && !mFreezed)
 	{
 		float time = msg.mData.GetFloat("TIME");
 		float jumpDelta = 0.0f;
@@ -82,10 +81,6 @@ void SGTGOCCharacterController::ReceiveMessage(SGTMsg &msg)
 		NxU32 collisionFlags;
 		float minDist = 0.000001f;
 		mCharacterController->move(NxVec3(dir.x, dir.y, dir.z), 1<<SGTCollisionGroups::DEFAULT | 1<<SGTCollisionGroups::LEVELMESH, minDist, collisionFlags);
-		SGTObjectMsg *position_response = new SGTObjectMsg;
-		NxExtendedVec3 nxPos = mCharacterController->getDebugPosition();
-		mOwnerGO->UpdateTransform(Ogre::Vector3(nxPos.x, nxPos.y-1, nxPos.z), mOwnerGO->GetGlobalOrientation());
-
 		if(collisionFlags &  NxControllerFlag::NXCC_COLLISION_DOWN && mJump.mJumping && mJump.GetHeight(0) <= 0.0f)
 		{
 			mCharacterController->setStepOffset(mStepOffset);
@@ -98,7 +93,11 @@ void SGTGOCCharacterController::ReceiveMessage(SGTMsg &msg)
 		collision_response->mName = "CharacterCollisionReport";
 		collision_response->mData.AddFloat("collisionFlags", collisionFlags);
 		mOwnerGO->SendMessage(Ogre::SharedPtr<SGTObjectMsg>(collision_response));
-
+	}
+	if (msg.mNewsgroup == "END_PHYSICS" && !mFreezed)
+	{
+		NxExtendedVec3 nxPos = mCharacterController->getFilteredPosition();
+		mOwnerGO->UpdateTransform(Ogre::Vector3(nxPos.x, nxPos.y, nxPos.z), mOwnerGO->GetGlobalOrientation());
 	}
 }
 

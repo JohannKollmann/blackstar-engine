@@ -377,6 +377,7 @@ void wxEditSGTGameObject::OnApply()
 				wxEdit::Instance().GetOgrePane()->GetEdit()->SelectObject(mGameObject);
 			}
 			wxEdit::Instance().GetWorldExplorer()->GetMaterialTree()->Update();
+			wxEdit::Instance().GetWorldExplorer()->GetSceneTree()->Update();
 			wxEdit::Instance().GetOgrePane()->SetFocus();
 		}
 		else

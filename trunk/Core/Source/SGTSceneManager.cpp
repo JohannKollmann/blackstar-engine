@@ -59,10 +59,11 @@ void SGTSceneManager::RegisterPlayer(SGTGameObject *player)
 
 void SGTSceneManager::UpdateGameObjects()
 {
-	for (std::map<int, SGTGameObject*>::iterator i = mGameObjects.begin(); i != mGameObjects.end(); i++)
+	for (std::vector<SGTGameObject*>::iterator i = mObjectMessageQueue.begin(); i != mObjectMessageQueue.end(); i++)
 	{
-		i->second->ProcessMessages();
+		(*i)->ProcessMessages();
 	}
+	mObjectMessageQueue.clear();
 }
 
 void SGTSceneManager::RegisterEditorInterface(Ogre::String family, Ogre::String type, EDTCreatorFn RegisterFn, GOCDefaultParametersFn DefaulParametersFn)
@@ -341,6 +342,11 @@ SGTGameObject* SGTSceneManager::GetObjectByInternID(int id)
 	std::map<int, SGTGameObject*>::iterator i = mGameObjects.find(id);
 	if (i != mGameObjects.end()) return i->second;
 	return 0;
+}
+
+void SGTSceneManager::AddToMessageQueue(SGTGameObject *object)
+{
+	mObjectMessageQueue.push_back(object);
 }
 
 std::vector<SGTScriptParam>

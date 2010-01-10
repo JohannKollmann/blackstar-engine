@@ -66,6 +66,8 @@ public:
 	void OnConnectWaypoints();
 	void OnSaveBones();
 
+	void OnSetFocus(bool focus);
+
 	void OnSelectObject(float MouseX, float MouseY);
 	void OnBrush();
 	void OnSelectMaterial(float MouseX, float MouseY);

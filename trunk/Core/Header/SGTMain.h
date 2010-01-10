@@ -48,7 +48,6 @@ protected:
 	SGTCameraController* mCameraController;
 
 	OgrePhysX::Scene		*mPhysXScene;
-	NxControllerManager		*mCharacterControllerManager;
 	SGTInput *mInputSystem;
 
 	OgreOggSound::OgreOggSoundManager *mSoundManager;
@@ -96,7 +95,6 @@ public:
 	Ogre::Camera* GetCamera() { return mCamera; };
 	OgreOggSound::OgreOggSoundManager* GetSoundManager() { return mSoundManager; };
 	SGTInput* GetInputManager() { return mInputSystem; };
-	NxControllerManager* GetNxCharacterManager() { return mCharacterControllerManager; };
 
 	SGTCameraController* GetCameraController() { return mCameraController; };
 

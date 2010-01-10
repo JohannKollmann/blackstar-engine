@@ -30,6 +30,7 @@ private:
 
 	SGTLevelMesh *mLevelMesh;
 
+	std::vector<SGTGameObject*> mObjectMessageQueue;
 	std::map<int, SGTGameObject*> mGameObjects;
 
 	std::map<Ogre::String, EDTCreatorFn> mEditorInterfaces;
@@ -45,6 +46,7 @@ public:
 
 	int RegisterObject(SGTGameObject *object);
 	void UnregisterObject(int id);
+	void AddToMessageQueue(SGTGameObject *object);
 
 	std::map<Ogre::String, std::map<Ogre::String, SGTDataMap*> > mGOCDefaultParameters; //For Editors
 

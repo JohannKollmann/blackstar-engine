@@ -65,6 +65,9 @@ enum
 		*/
 		void OnKeyDown(wxKeyEvent& key);
 		void OnKeyUp(wxKeyEvent& key);
+
+		void OnSetFocus(wxFocusEvent& event);
+		void OnKillFocus(wxFocusEvent& event);
 		
 
 	protected:

@@ -25,6 +25,9 @@ BEGIN_EVENT_TABLE(wxOgre, wxControl)
 	EVT_ERASE_BACKGROUND( wxOgre::OnEraseBackground )
 	EVT_TIMER( ID_RENDERTIMER, wxOgre::OnRenderTimer )
 
+	EVT_SET_FOCUS(wxOgre::OnSetFocus)
+	EVT_KILL_FOCUS(wxOgre::OnKillFocus)
+
 	EVT_MOUSE_EVENTS(wxOgre::OnMouseEvent)
 
 	EVT_MENU(wxOgre_insertObject, wxOgre::OnInsertObject)
@@ -200,6 +203,21 @@ void wxOgre::OnRenderTimer(wxTimerEvent& event)
 	}*/
 	update();
 	//else Ogre::LogManager::getSingleton().logMessage(wxEdit::Instance().FindFocus()->GetName().c_str());
+}
+
+void wxOgre::OnSetFocus(wxFocusEvent& event)
+{
+	if (mInitialized)
+	{
+		mEdit->OnSetFocus(true);
+	}
+}
+void wxOgre::OnKillFocus(wxFocusEvent& event)
+{
+	if (mInitialized)
+	{
+		mEdit->OnSetFocus(false);
+	}
 }
 
 void wxOgre::update()

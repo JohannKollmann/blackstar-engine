@@ -1,8 +1,6 @@
 [script-edit]
--die engine kriegt noch inputs, wenn man im editorfenster ist
--script remove über icon löscht die datei nicht.
--scrollen im dokument setzt den stern im reiter
--(wenn man alles rückgängig macht bleibt der stern auch...)
+-script remove über icon löscht die datei nicht   -  [Caph] es gibt doch gar kein lösch icon?
+- wenn man alles rückgängig macht bleibt der geändert-stern
 
 [Editor]
 - möglicherweise Crash bei Materialauswahl

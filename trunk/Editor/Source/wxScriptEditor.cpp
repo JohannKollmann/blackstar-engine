@@ -92,7 +92,12 @@ void wxScriptEditor::OnKeyPressed(wxKeyEvent& key)
 void wxScriptEditor::OnModified(wxStyledTextEvent &event)
 {
 	if (mOverrideChange) mOverrideChange = false;
-	else wxEdit::Instance().GetMainNotebook()->SetModified(this, true);
+	else if (
+		(event.GetModificationType() & wxSTC_MOD_INSERTTEXT) == wxSTC_MOD_INSERTTEXT
+		|| (event.GetModificationType() & wxSTC_MOD_DELETETEXT) == wxSTC_MOD_DELETETEXT)
+	{
+		wxEdit::Instance().GetMainNotebook()->SetModified(this, true);
+	}
 }
 
 void wxScriptEditor::OnCharAdded(wxStyledTextEvent &event)
