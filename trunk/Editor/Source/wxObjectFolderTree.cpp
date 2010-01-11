@@ -42,6 +42,7 @@ void wxObjectFolderTree::OnShowMenuCallback(wxMenu *menu, VdtcTreeItemBase *item
 
 void wxObjectFolderTree::OnSelectItemCallback()
 {
+	ClearObjectPreview();
 	if (mCurrentItem->IsRoot()) return;
 	mCurrentPath = Ogre::String(GetRelativePath(mCurrentItem->GetId()).GetPath().c_str()) + "/";
 	if (mCurrentItem->IsFile())
@@ -89,8 +90,9 @@ void wxObjectFolderTree::CreateObjectPreview(Ogre::String file)
 		(*i).mSectionData->AddOgreVec3("Scale", scale);
 		SGTGOCEditorInterface *component = SGTSceneManager::Instance().CreateComponent((*i).mSectionName, (*i).mSectionData.getPointer());
 		if (!component) continue;
-		SGTGOComponent *remove = dynamic_cast<SGTGOComponent*>(component);
-		if (remove) delete remove;
+		SGTGOComponent *test1 = dynamic_cast<SGTGOComponent*>(component);
+		SGTGOCNodeRenderable *test2 = dynamic_cast<SGTGOCNodeRenderable*>(component);
+		if (test1 && !test2) delete test1;
 		else component->AttachToGO(mPreviewObject);
 	}
 	ls->CloseFile();

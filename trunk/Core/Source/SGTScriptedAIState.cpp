@@ -89,7 +89,7 @@ bool SGTDayCycle::OnUpdate(float time)
 	if (timeGetTime() - mLastUpdateCall > 0.1f)
 	{
 		mLastUpdateCall = timeGetTime();
-		std::vector<SGTScriptParam> returns = mScript.CallFunction("OnUpdate", mScriptParams);
+		std::vector<SGTScriptParam> returns = mScript.CallFunction("onUpdate", mScriptParams);
 
 		if (returns.size() == 0) return false;
 		if ((*returns.begin()).getType() != SGTScriptParam::PARM_TYPE_BOOL) return false;

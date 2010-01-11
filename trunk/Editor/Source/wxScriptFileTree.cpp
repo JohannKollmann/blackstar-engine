@@ -75,6 +75,8 @@ void wxScriptFileTree::OnToolbarEvent(int toolID, Ogre::String toolname)
 		msg.mNewsgroup = "REPARSE_SCRIPTS";
 		SGTMessageSystem::Instance().SendInstantMessage(msg);
 		SGTScriptSystem::GetInstance().Clear();
+		msg.mNewsgroup = "REPARSE_SCRIPTS_POST";
+		SGTMessageSystem::Instance().SendInstantMessage(msg);
 		//Call init script
 		SGTScript script = SGTScriptSystem::GetInstance().CreateInstance("InitEngine.lua");
 	}

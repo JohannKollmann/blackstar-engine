@@ -620,7 +620,7 @@ void SGTEdit::CreatePreviewObject()
 		std::vector<Ogre::String> components = preview->GetComponentsStr();
 		for (std::vector<Ogre::String>::iterator i = components.begin(); i != components.end(); i++)
 		{
-			if ((*i) != "View" && (*i) != "MeshDebugRenderable")
+			if ((*i) != "View" && (*i) != "MeshDebugRenderable" && (*i) != "Skeleton")
 			{
 				preview->RemoveComponent((*i));
 			}

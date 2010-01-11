@@ -90,9 +90,8 @@ void SGTGOCAI::SelectState()
 void SGTGOCAI::Update(float time)
 {
 	if (mOwnerGO == 0) return;
-	if (mActionQueue.size() > 0 || mActiveState)
+	if (mActiveState)
 	{
-		if (!mActiveState) SelectState();
 		bool finished = mActiveState->OnUpdate(time);
 		if (finished)
 		{
@@ -101,6 +100,10 @@ void SGTGOCAI::Update(float time)
 			mActiveState = 0;
 			SelectState();
 		}
+	}
+	else if (mActionQueue.size() > 0)
+	{
+		SelectState();
 	}
 	else if (mIdleQueue.size() > 0)
 	{

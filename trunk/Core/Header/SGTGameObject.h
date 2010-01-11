@@ -56,6 +56,7 @@ public:
 	void SetName(Ogre::String name) { mName = name; }
 
 	int GetID() { return mID; }
+	Ogre::String GetIDStr() { return Ogre::StringConverter::toString(mID); }
 
 	SGTGameObject* GetParent() { return mParent; }
 

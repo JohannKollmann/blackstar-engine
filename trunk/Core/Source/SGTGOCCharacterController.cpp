@@ -43,15 +43,15 @@ void SGTGOCCharacterController::Create(Ogre::Vector3 dimensions)
 
 	mFreezed = false;
 
-	mMovementSpeed = 10.0f;
+	mMovementSpeed = 5.0f;
 	mDirection = Ogre::Vector3(0,0,0);
 	mDimensions = dimensions;
 	NxBoxControllerDesc desc;
-	desc.extents.set(dimensions.x * 0.5 - 0.2f, dimensions.y * 0.5 - 0.2f, dimensions.z * 0.5 - 0.2f);
+	desc.skinWidth		= 0.1f;
+	desc.extents.set(dimensions.x * 0.5 - desc.skinWidth, dimensions.y * 0.5 - desc.skinWidth, dimensions.z * 0.5 - desc.skinWidth);
 	desc.upDirection	= NX_Y;
 	//		desc.slopeLimit		= cosf(NxMath::degToRad(45.0f));
 	desc.slopeLimit		= 0;
-	desc.skinWidth		= 0.2f;
 	mStepOffset			= dimensions.z * 0.5;
 	desc.stepOffset		= mStepOffset;
 	bool test = desc.isValid();
@@ -60,7 +60,7 @@ void SGTGOCCharacterController::Create(Ogre::Vector3 dimensions)
 
 void SGTGOCCharacterController::UpdatePosition(Ogre::Vector3 position)
 {
-	if (!mOwnerGO->GetTranformingComponents()) mCharacterController->setPosition(NxExtendedVec3(position.x, position.y, position.z));
+	if (!mOwnerGO->GetTranformingComponents()) mCharacterController->setPosition(NxExtendedVec3(position.x, position.y + mDimensions.y * 0.5, position.z));
 }
 void SGTGOCCharacterController::UpdateOrientation(Ogre::Quaternion orientation)
 {
@@ -97,7 +97,7 @@ void SGTGOCCharacterController::ReceiveMessage(SGTMsg &msg)
 	if (msg.mNewsgroup == "END_PHYSICS" && !mFreezed)
 	{
 		NxExtendedVec3 nxPos = mCharacterController->getFilteredPosition();
-		mOwnerGO->UpdateTransform(Ogre::Vector3(nxPos.x, nxPos.y, nxPos.z), mOwnerGO->GetGlobalOrientation());
+		mOwnerGO->UpdateTransform(Ogre::Vector3(nxPos.x, nxPos.y - mDimensions.y * 0.5, nxPos.z), mOwnerGO->GetGlobalOrientation());
 	}
 }
 
@@ -120,6 +120,10 @@ void SGTGOCCharacterController::ReceiveObjectMessage(Ogre::SharedPtr<SGTObjectMs
 				mJump.StartJump(1.0f);
 			}
 		}
+	}
+	if (msg->mName == "KillCharacter")
+	{
+		mFreezed = true;
 	}
 }
 

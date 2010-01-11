@@ -28,6 +28,7 @@ public:
 		SetTopWindow(mFrame);
 		mFrame->Show();
 		SGTMessageSystem::Instance().CreateNewsgroup("REPARSE_SCRIPTS");
+		SGTMessageSystem::Instance().CreateNewsgroup("REPARSE_SCRIPTS_POST");
 		SGTMain::Instance().Run(mFrame->GetOgrePane()->getRenderWindow(), (size_t)((HWND)mFrame->GetHandle()));
 		mFrame->PostCreate();
 		//Ogre::LogManager::getSingleton().logMessage("Root Num Children: " + Ogre::StringConverter::toString(SGTMain::Instance().GetOgreSceneMgr()->getRootSceneNode()->numChildren()));

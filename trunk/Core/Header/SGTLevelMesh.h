@@ -15,5 +15,5 @@ public:
 	SGTLevelMesh(Ogre::String mesh);
 	~SGTLevelMesh(void);
 
-	Ogre::String GetMeshFileName() { return mEntity->getName(); };
+	Ogre::String GetMeshFileName() { return mEntity->getMesh()->getName(); };
 };

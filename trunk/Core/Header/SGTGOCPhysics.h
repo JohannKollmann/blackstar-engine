@@ -25,7 +25,8 @@ namespace SGTShapes
 enum SGTCollisionGroups
 {
 	DEFAULT,
-	LEVELMESH
+	LEVELMESH,
+	BONE
 };
 
 class SGTDllExport SGTGOPhysXRenderable : public OgrePhysX::PointRenderable

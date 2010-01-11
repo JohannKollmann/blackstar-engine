@@ -17,6 +17,7 @@
 #include "SGTAIManager.h"
 #include "SGTFollowPathway.h"
 #include "SGTLevelMesh.h"
+#include "SGTPathfinder.h"
 
 #include "boost/filesystem/operations.hpp"
 #include "boost/filesystem/path.hpp"
@@ -157,6 +158,9 @@ void SGTSceneManager::Init()
 	SGTLoadSave::Instance().RegisterObject(&SGTGOCAnimatedCharacterBone::Register);
 	SGTLoadSave::Instance().RegisterObject(&SGTGOCCharacterController::Register);
 	SGTLoadSave::Instance().RegisterObject(&SGTGOCPlayerInput::Register);
+
+	SGTLoadSave::Instance().RegisterObject(&SGTGOCAI::Register);
+
 	RegisterEditorInterface("A", "Mesh", (EDTCreatorFn)&SGTMeshRenderable::NewEditorInterfaceInstance, SGTMeshRenderable::GetDefaultParameters);
 	RegisterEditorInterface("A", "PFX", (EDTCreatorFn)&SGTPfxRenderable::NewEditorInterfaceInstance, SGTPfxRenderable::GetDefaultParameters);
 	RegisterEditorInterface("A", "Light", (EDTCreatorFn)&SGTLocalLightRenderable::NewEditorInterfaceInstance, SGTLocalLightRenderable::GetDefaultParameters);
@@ -183,6 +187,7 @@ void SGTSceneManager::Init()
 	SGTScriptSystem::GetInstance().ShareCFunction("Npc_AddState", &SGTSceneManager::Lua_Npc_AddState);
 	SGTScriptSystem::GetInstance().ShareCFunction("Npc_AddTA", &SGTSceneManager::Lua_Npc_AddTA);
 	SGTScriptSystem::GetInstance().ShareCFunction("Npc_GotoWP", &SGTSceneManager::Lua_Npc_GotoWP);
+	SGTScriptSystem::GetInstance().ShareCFunction("Npc_GetDistToWP", &SGTSceneManager::Lua_Npc_GetDistToWP);
 
 	SGTScriptSystem::GetInstance().ShareCFunction("InsertMesh", &SGTSceneManager::Lua_InsertMesh);
 	SGTScriptSystem::GetInstance().ShareCFunction("SetObjectPosition", &SGTSceneManager::Lua_SetObjectPosition);
@@ -272,12 +277,10 @@ void SGTSceneManager::LoadLevel(Ogre::String levelfile, bool load_dynamic)
 	SGTDataMap *levelparams = (SGTDataMap*)ls->LoadObject();
 	CreateFromDataMap(levelparams);
 
-	//Todo
-	ls->LoadAtom("std::list<SGTSaveable*>", &mGameObjects);
-	if (load_dynamic)
-	{
-		ls->LoadAtom("std::list<SGTSaveable*>", &mGameObjects);
-	}
+	std::list<SGTSaveable*> objects;
+	ls->LoadAtom("std::list<SGTSaveable*>", &objects);
+	//Objects call SceneManager::RegisterObject
+
 	ls->CloseFile();
 	delete ls;
 }
@@ -285,22 +288,18 @@ void SGTSceneManager::LoadLevel(Ogre::String levelfile, bool load_dynamic)
 void SGTSceneManager::SaveLevel(Ogre::String levelfile)
 {
 	ShowEditorMeshes(false);
-	//Todo
-	/*SGTSaveSystem *ss=SGTLoadSave::Instance().CreateSaveFile(levelfile, levelfile + ".xml");
+	SGTSaveSystem *ss=SGTLoadSave::Instance().CreateSaveFile(levelfile, levelfile + ".xml");
 	SGTDataMap map;
 	GetParameters(&map);
 	ss->SaveObject(&map, "LevelParams");
-	std::list<SGTGameObject*> staticobjects;
-	std::list<SGTGameObject*> dynamicobjects;
-	for (std::list<SGTGameObject*>::iterator i = mGameObjects.begin(); i != mGameObjects.end(); i++)
+	std::list<SGTSaveable*> objects;
+	for (std::map<int, SGTGameObject*>::iterator i = mGameObjects.begin(); i != mGameObjects.end(); i++)
 	{
-		if ((*i)->IsStatic()) staticobjects.push_back(*i);
-		else dynamicobjects.push_back(*i);
+		objects.push_back(i->second);
 	}
-	ss->SaveAtom("std::list<SGTSaveable*>", &staticobjects, "Static Objects");
-	ss->SaveAtom("std::list<SGTSaveable*>", &dynamicobjects, "Dynamic Objects");
+	ss->SaveAtom("std::list<SGTSaveable*>", &objects, "Objects");
 	ss->CloseFiles();
-	delete ss;*/
+	delete ss;
 }
 
 void SGTSceneManager::CreateFromDataMap(SGTDataMap *parameters)
@@ -470,6 +469,25 @@ std::vector<SGTScriptParam> SGTSceneManager::Lua_Npc_GotoWP(SGTScript& caller, s
 	std::string wp = vParams[1].getString();
 	SGTGOCAI *ai = SGTAIManager::Instance().GetAIByID(id);
 	if (ai) ai->AddState(new SGTFollowPathway(ai, wp));
+	return out;
+}
+std::vector<SGTScriptParam> SGTSceneManager::Lua_Npc_GetDistToWP(SGTScript& caller, std::vector<SGTScriptParam> vParams)
+{
+	std::vector<SGTScriptParam> out;
+	if (vParams.size() < 2) return out;
+	if (!vParams[0].hasInt()) return out;
+	if (vParams[1].getType() != SGTScriptParam::PARM_TYPE_STRING) return out;
+	int id = vParams[0].getInt();
+	std::string wp = vParams[1].getString();
+	SGTGOCWaypoint *pWp = SGTPathfinder::Instance().GetWPByName(wp);
+	SGTGOCAI *ai = SGTAIManager::Instance().GetAIByID(id);
+	float returner = 0;
+	if (pWp && ai)
+	{
+		if (pWp->GetOwner() && ai->GetOwner())
+			returner = pWp->GetOwner()->GetGlobalPosition().distance(ai->GetOwner()->GetGlobalPosition());
+	}
+	out.push_back(returner);
 	return out;
 }
 

@@ -15,7 +15,7 @@ private:
 	void smoothPath();
 
 public:
-	SGTFollowPathway(SGTGOCAI *ai, Ogre::String target, float radius = 3.0f);
+	SGTFollowPathway(SGTGOCAI *ai, Ogre::String target, float radius = 1.0f);
 	~SGTFollowPathway();
 
 	void OnEnter();

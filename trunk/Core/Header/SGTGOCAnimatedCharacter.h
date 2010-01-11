@@ -113,7 +113,7 @@ public:
 
 	void Kill();
 
-	goc_id_family& GetFamilyID() const { static std::string name = "Skeleton"; return name; }
+	goc_id_family& GetFamilyID() const { static std::string name = "View"; return name; }
 	SGTGOComponent::goc_id_type& GetComponentID() const { static std::string name = "Skeleton"; return name; }
 
 	void ReceiveMessage(SGTMsg &msg);

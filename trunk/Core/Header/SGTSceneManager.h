@@ -111,6 +111,7 @@ public:
 	Erwartet den Ziel-WP
 	*/
 	static std::vector<SGTScriptParam> Lua_Npc_GotoWP(SGTScript& caller, std::vector<SGTScriptParam> vParams);
+	static std::vector<SGTScriptParam> Lua_Npc_GetDistToWP(SGTScript& caller, std::vector<SGTScriptParam> vParams);
 
 	static std::vector<SGTScriptParam> Lua_InsertMesh(SGTScript& caller, std::vector<SGTScriptParam> vParams);
 	static std::vector<SGTScriptParam> Lua_SetObjectPosition(SGTScript& caller, std::vector<SGTScriptParam> vParams);

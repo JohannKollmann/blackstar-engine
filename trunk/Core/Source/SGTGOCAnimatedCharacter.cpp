@@ -230,7 +230,7 @@ bool SGTGOCAnimatedCharacterBone::GetTestAnimation()
 void SGTGOCAnimatedCharacterBone::CreateJointAxis()
 {
 	float scale_factor = ((mMeshNode->_getDerivedScale().x + mMeshNode->_getDerivedScale().y + mMeshNode->_getDerivedScale().z) / 3);
-	mJointAxis = SGTMain::Instance().GetOgreSceneMgr()->createManualObject("AxisLine_" + mOwnerGO->GetName());
+	mJointAxis = SGTMain::Instance().GetOgreSceneMgr()->createManualObject("AxisLine_" + mOwnerGO->GetIDStr());
 	mJointAxis->begin("WPLine", Ogre::RenderOperation::OT_TRIANGLE_LIST);
 	float width = 0.05;
 	float height = mBoneConfig.mBoneLength*scale_factor;
@@ -261,7 +261,7 @@ void SGTGOCAnimatedCharacterBone::CreateJointAxis()
 
 	mJointAxis->end();
 	mJointAxis->setCastShadows(false);
-	mJointAxisNode = mNode->createChildSceneNode("AxisLine_" + mOwnerGO->GetName());
+	mJointAxisNode = mNode->createChildSceneNode("AxisLine_" + mOwnerGO->GetIDStr());
 	mJointAxisNode->setInheritOrientation(false);
 	Ogre::Quaternion parentOrientation = mOwnerGO->GetParent()->GetGlobalOrientation();
 	mJointAxisNode->setOrientation(parentOrientation * mBoneConfig.mJointOrientation);
@@ -383,7 +383,8 @@ void SGTGOCAnimatedCharacter::Create(Ogre::String meshname, Ogre::Vector3 scale)
 		meshname = "DummyMesh.mesh";
 	}
 	mEntity = SGTMain::Instance().GetOgreSceneMgr()->createEntity(SGTSceneManager::Instance().RequestIDStr(), meshname);
-	mRagdoll = SGTMain::Instance().GetPhysXScene()->createRagdoll(mEntity, mNode);
+	mNode->attachObject(mEntity);
+	mRagdoll = SGTMain::Instance().GetPhysXScene()->createRagdoll(mEntity, mNode, SGTCollisionGroups::BONE);
 
 	ResetMovementAnis();
 	if (Ogre::ResourceGroupManager::getSingleton().resourceExists("General", mEntity->getMesh()->getName() + ".anis"))
@@ -395,13 +396,23 @@ void SGTGOCAnimatedCharacter::Create(Ogre::String meshname, Ogre::Vector3 scale)
 
 void SGTGOCAnimatedCharacter::SetAnimationState(Ogre::String statename)
 {
-	mAnimationStateStr = statename;
-	mAnimationState = mEntity->getAnimationState(statename);
+	if (mAnimationState) mAnimationState->setEnabled(false);
+	mAnimationStateStr = "";
+	mAnimationState = 0;
+	if (mEntity->getAllAnimationStates()->hasAnimationState(statename))
+	{
+		mAnimationStateStr = statename;
+		mAnimationState = mEntity->getAnimationState(statename);
+	}
+	if (mAnimationState) mAnimationState->setEnabled(true);
 }
 
 void SGTGOCAnimatedCharacter::Kill()
 {
 	mRagdoll->setControlToActors();
+	SGTObjectMsg *msg = new SGTObjectMsg();
+	msg->mName = "KillCharacter";
+	if (mOwnerGO) mOwnerGO->SendMessage(Ogre::SharedPtr<SGTObjectMsg>(msg));
 }
 
 void SGTGOCAnimatedCharacter::SerialiseBoneObjects(Ogre::String filename)
@@ -522,6 +533,7 @@ void SGTGOCAnimatedCharacter::ReceiveObjectMessage(Ogre::SharedPtr<SGTObjectMsg>
 
 void SGTGOCAnimatedCharacter::SetOwner(SGTGameObject *go)
 {
+	mOwnerGO = go;
 	mEntity->setUserObject(go);
 	UpdatePosition(go->GetGlobalPosition());
 	UpdateOrientation(go->GetGlobalOrientation());
@@ -583,8 +595,8 @@ void SGTGOCAnimatedCharacter::Load(SGTLoadSystem& mgr)
 	mgr.LoadAtom("Ogre::String", &meshname);
 	mgr.LoadAtom("Ogre::Vector3", &scale);
 	mgr.LoadAtom("Ogre::String", &animstate);
-	mgr.LoadAtom("bool", &shadowcaster);
 	mgr.LoadAtom("bool", &ragdoll);
+	mgr.LoadAtom("bool", &shadowcaster);
 	Create(meshname, scale);
 	if (animstate != "") SetAnimationState(animstate);
 	mEntity->setCastShadows(shadowcaster);

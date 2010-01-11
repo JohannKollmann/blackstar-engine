@@ -153,7 +153,7 @@ void SGTMain::initScene()
 	mSceneMgr = mRoot->createSceneManager(Ogre::ST_GENERIC, "Esgaroth");
 	mCamera = mSceneMgr->createCamera("MainCamera");
 	mCamera->lookAt(Ogre::Vector3(0,0,0));
-	mCamera->setNearClipDistance(1);
+	mCamera->setNearClipDistance(0.5f);
 	mCamera->setFarClipDistance(99999*6);
 
 	mViewport = mWindow->addViewport(mCamera);
@@ -236,7 +236,7 @@ void SGTMain::initScene()
 	mSpotShadowCameraSetup = Ogre::ShadowCameraSetupPtr(spotSetup);
 
 	Ogre::PSSMShadowCameraSetup* pssmSetup = new Ogre::PSSMShadowCameraSetup();
-	pssmSetup->calculateSplitPoints(3, mCamera->getNearClipDistance(), 300, 0.95);
+	pssmSetup->calculateSplitPoints(3, 1, 300, 0.95);
 	pssmSetup->setSplitPadding(1);
 	pssmSetup->setOptimalAdjustFactor(0, 5);
 	pssmSetup->setOptimalAdjustFactor(1, 1);

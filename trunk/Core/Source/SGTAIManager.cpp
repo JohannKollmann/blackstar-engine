@@ -5,12 +5,12 @@
 SGTAIManager::SGTAIManager(void)
 {
 	mNextID = 0;
-	SGTMessageSystem::Instance().JoinNewsgroup(this, "REPARSE_SCRIPTS");
+	SGTMessageSystem::Instance().JoinNewsgroup(this, "REPARSE_SCRIPTS_POST");
 }
 
 SGTAIManager::~SGTAIManager(void)
 {
-	SGTMessageSystem::Instance().QuitNewsgroup(this, "REPARSE_SCRIPTS");
+	SGTMessageSystem::Instance().QuitNewsgroup(this, "REPARSE_SCRIPTS_POST");
 }
 
 unsigned int SGTAIManager::RegisterAIObject(SGTGOCAI* object)
@@ -59,7 +59,7 @@ void SGTAIManager::Update(float time)
 
 void SGTAIManager::ReceiveMessage(SGTMsg &msg)
 {
-	if (msg.mNewsgroup == "REPARSE_SCRIPTS")
+	if (msg.mNewsgroup == "REPARSE_SCRIPTS_POST")
 	{
 		ReloadScripts();
 	}

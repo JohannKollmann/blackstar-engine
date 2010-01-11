@@ -47,7 +47,7 @@ bool SGTFollowPathway::OnUpdate(float time)
 
 	Ogre::Vector3 direction = (*mCurrentTarget)-currPos;
 	direction.y = 0;
-	Ogre::Quaternion quat = Ogre::Vector3::UNIT_Z.getRotationTo(direction);
+	Ogre::Quaternion quat = Ogre::Vector3::UNIT_Z.getRotationTo(direction.normalisedCopy());
 	mAIObject->GetOwner()->SetGlobalOrientation(quat);
 	int movementstate = SGTCharacterMovement::FORWARD;
 	mAIObject->BroadcastMovementState(movementstate);
