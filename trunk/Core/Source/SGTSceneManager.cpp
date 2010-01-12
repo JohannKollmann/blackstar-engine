@@ -34,6 +34,7 @@ SGTSceneManager::SGTSceneManager(void)
 	mDayTime = 0.0f;
 	mMaxDayTime = 86400.0f;
 	mTimeScale = 64.0f;
+	SGTMessageSystem::Instance().CreateNewsgroup("ENABLE_GAME_CLOCK");
 	SGTMessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
 }
 
@@ -656,11 +657,10 @@ void SGTSceneManager::ReceiveMessage(SGTMsg &msg)
 void SGTSceneManager::EnableClock(bool enable)
 {
 	mClockEnabled = enable;
-	/*if (enable)
-	{
-		SGTAIManager::Instance().mMsgPaused = !enable;
-		mWeatherController->mMsgPaused = !enable;
-	}*/
+	SGTMsg msg;
+	msg.mNewsgroup = "ENABLE_GAME_CLOCK";
+	msg.mData.AddBool("enable", enable);
+	SGTMessageSystem::Instance().SendInstantMessage(msg);
 }
 
 void SGTSceneManager::SetTimeScale(float scale)

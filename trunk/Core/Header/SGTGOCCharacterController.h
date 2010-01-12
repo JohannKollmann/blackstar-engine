@@ -85,6 +85,8 @@ public:
 	void UpdateOrientation(Ogre::Quaternion orientation);
 	void UpdateScale(Ogre::Vector3 scale);
 
+	NxController* GetNxController() { return mCharacterController; }
+
 	void ReceiveObjectMessage(Ogre::SharedPtr<SGTObjectMsg> msg);
 	void ReceiveMessage(SGTMsg &msg);
 

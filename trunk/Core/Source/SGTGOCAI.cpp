@@ -10,6 +10,7 @@ SGTGOCAI::SGTGOCAI(void)
 	mOwnerGO = 0;
 	mActiveState = 0;
 	mID = SGTAIManager::Instance().RegisterAIObject(this);
+	SGTMessageSystem::Instance().JoinNewsgroup(this, "ENABLE_GAME_CLOCK");
 }
 
 SGTGOCAI::~SGTGOCAI(void)
@@ -17,6 +18,7 @@ SGTGOCAI::~SGTGOCAI(void)
 	ClearActionQueue();
 	ClearIdleQueue();
 	SGTAIManager::Instance().UnregisterAIObject(this);
+	SGTMessageSystem::Instance().QuitNewsgroup(this, "ENABLE_GAME_CLOCK");
 }
 
 void SGTGOCAI::SetOwner(SGTGameObject *go)
@@ -149,6 +151,18 @@ void SGTGOCAI::ReceiveObjectMessage(Ogre::SharedPtr<SGTObjectMsg> msg)
 	if (msg->mName == "CharacterCollisionReport")
 	{
 		NxU32 collisionFlags = msg->mData.GetFloat("collisionFlags");
+	}
+}
+
+void SGTGOCAI::ReceiveMessage(SGTMsg &msg)
+{
+	if (msg.mNewsgroup == "ENABLE_GAME_CLOCK")
+	{
+		bool enable = msg.mData.GetBool("enable");
+		if (!enable)
+		{
+			BroadcastMovementState(0);
+		}
 	}
 }
 

@@ -4,6 +4,7 @@
 #include "SGTIncludes.h"
 #include <list>
 #include "SGTGOCIntern.h"
+#include "NxPhysics.h"
 
 class SGTDllExport SGTPathfinder
 {
@@ -12,7 +13,7 @@ private:
 
 	bool UpdateEdgeList(WPEdge &e, std::list<WPEdge> *WPEdges);
 	WPEdge GetBestEdge(std::list<WPEdge> *WPEdges);
-	void ExtractPath(std::list<WPEdge> paths, SGTGOCWaypoint *start, SGTGOCWaypoint *target, std::vector<Ogre::Vector3> *returnpath);
+	bool ExtractPath(std::list<WPEdge> paths, SGTGOCWaypoint *start, SGTGOCWaypoint *target, std::vector<Ogre::Vector3> *returnpath);
 
 public:
 	SGTPathfinder(void);
@@ -22,11 +23,11 @@ public:
 	void UnregisterWaypoint(SGTGOCWaypoint *waypoint);
 
 	SGTGOCWaypoint* GetWPByName(Ogre::String name);
-	SGTGOCWaypoint* GetNextWP(Ogre::Vector3 position);
+	SGTGOCWaypoint* GetNextWP(Ogre::Vector3 position, std::vector<SGTGOCWaypoint*> excludeList);
 
-	void FindPath(Ogre::Vector3 position, Ogre::String targetWP, std::vector<Ogre::Vector3> *path);
-	void FindPath(Ogre::String startWP, Ogre::String targetWP, std::vector<Ogre::Vector3> *path);
-	void FindPath(SGTGOCWaypoint *start, SGTGOCWaypoint *target, std::vector<Ogre::Vector3> *path);
+	bool FindPath(Ogre::Vector3 position, Ogre::String targetWP, std::vector<Ogre::Vector3> *path, NxActor *actor = 0);
+	bool FindPath(Ogre::String startWP, Ogre::String targetWP, std::vector<Ogre::Vector3> *path);
+	bool FindPath(SGTGOCWaypoint *start, SGTGOCWaypoint *target, std::vector<Ogre::Vector3> *path);
 
 	//Singleton
 	static SGTPathfinder& Instance();

@@ -28,9 +28,6 @@ bool SGTEditor::OnUpdate(float time, float time_total)
 	msg.mNewsgroup = "UPDATE_PER_FRAME";
 	SGTMessageSystem::Instance().SendInstantMessage(msg);
 
-	//Process all messages
-	SGTMessageSystem::Instance().Update();
-
 	if (SGTMainLoop::Instance().GetRunPhysics())
 	{
 		OgrePhysX::World::getSingleton().fetchSimulate();	//blocking
@@ -38,6 +35,9 @@ bool SGTEditor::OnUpdate(float time, float time_total)
 		msg.mNewsgroup = "END_PHYSICS";
 		SGTMessageSystem::Instance().SendInstantMessage(msg);
 	}
+
+	//Process all messages
+	SGTMessageSystem::Instance().Update();
 
 	SGTSceneManager::Instance().UpdateGameObjects();
 

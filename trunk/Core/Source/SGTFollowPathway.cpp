@@ -4,6 +4,8 @@
 #include "SGTGOCAI.h"
 #include "SGTGOCCharacterController.h"
 #include "SGTGameObject.h"
+#include "SGTGOCCharacterController.h"
+#include "NxController.h"
 
 SGTFollowPathway::SGTFollowPathway(SGTGOCAI *ai, Ogre::String targetWP, float radius)
 {
@@ -20,7 +22,10 @@ SGTFollowPathway::~SGTFollowPathway()
 
 void SGTFollowPathway::OnEnter()
 {
-	SGTPathfinder::Instance().FindPath(mAIObject->GetOwner()->GetGlobalPosition(), mTargetWP, &mPath);
+	SGTGOCCharacterController *character = (SGTGOCCharacterController*)mAIObject->GetOwner()->GetComponent("Physics", "CharacterController");
+	NxActor *actor = 0;
+	if (character) actor = character->GetNxController()->getActor();
+	SGTPathfinder::Instance().FindPath(mAIObject->GetOwner()->GetGlobalPosition(), mTargetWP, &mPath, actor);
 	mCurrentTarget = mPath.begin();
 }
 

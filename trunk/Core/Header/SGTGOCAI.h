@@ -9,7 +9,7 @@
 #include "SGTDataMap.h"
 #include "SGTScriptSystem.h"
 
-class SGTDllExport SGTGOCAI : public SGTGOCEditorInterface, public SGTCharacterControllerInput
+class SGTDllExport SGTGOCAI : public SGTGOCEditorInterface, public SGTCharacterControllerInput, public SGTMessageListener
 {
 private:
 	/*
@@ -59,6 +59,8 @@ public:
 	void Update(float time);
 
 	void ReceiveObjectMessage(Ogre::SharedPtr<SGTObjectMsg> msg);
+
+	void ReceiveMessage(SGTMsg &msg);
 
 	SGTGOComponent::goc_id_type& GetComponentID() const { static std::string name = "AI"; return name; }
 

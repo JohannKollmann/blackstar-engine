@@ -1,6 +1,8 @@
 
 #include "SGTPathfinder.h"
 #include "SGTGameObject.h"
+#include "OgrePhysX.h"
+#include "SGTMain.h"
 
 SGTPathfinder::SGTPathfinder(void)
 {
@@ -30,13 +32,23 @@ SGTGOCWaypoint* SGTPathfinder::GetWPByName(Ogre::String name)
 	return 0;
 }
 
-SGTGOCWaypoint* SGTPathfinder::GetNextWP(Ogre::Vector3 position)
+SGTGOCWaypoint* SGTPathfinder::GetNextWP(Ogre::Vector3 position, std::vector<SGTGOCWaypoint*> excludeList)
 {
 	if (mWaynet.size() == 0) return 0;
 	std::list<SGTGOCWaypoint*>::iterator shortest = mWaynet.begin();
 	float shortest_distance = (*shortest)->GetPosition().squaredDistance(position);
 	for (std::list<SGTGOCWaypoint*>::iterator i = ++mWaynet.begin(); i != mWaynet.end(); i++)
 	{
+		bool exclude = false;
+		for (std::vector<SGTGOCWaypoint*>::iterator ex = excludeList.begin(); ex != excludeList.end(); ex++)
+		{
+			if ((*i) == (*ex))
+			{
+				exclude = true;
+				break;
+			}
+		}
+		if (exclude) continue;
 		float distance = (*i)->GetPosition().squaredDistance(position);
 		if (distance < shortest_distance)
 		{
@@ -47,28 +59,68 @@ SGTGOCWaypoint* SGTPathfinder::GetNextWP(Ogre::Vector3 position)
 	return (*shortest);
 }
 
-void SGTPathfinder::FindPath(Ogre::Vector3 position, Ogre::String targetWP, std::vector<Ogre::Vector3> *path)
+bool SGTPathfinder::FindPath(Ogre::Vector3 position, Ogre::String targetWP, std::vector<Ogre::Vector3> *path, NxActor *actor)
 {
-	SGTGOCWaypoint *start = GetNextWP(position);
 	SGTGOCWaypoint *target = GetWPByName(targetWP);
-	if (start == 0 || target == 0)
+	if (target == 0)
 	{
-		Ogre::LogManager::getSingleton().logMessage("Error: Could not find start or target Waypoint!");
-		return;
+		Ogre::LogManager::getSingleton().logMessage("Error: Could not find target Waypoint: '" + targetWP + "'");
+		return false;
 	}
-	FindPath(start, target, path);
+
+	//Find the next waypoint which is connected to the target waypoint
+	std::vector<SGTGOCWaypoint*> excludeList;
+	int maxSearches = 10;
+	for (int i = 0; i < maxSearches; i++)
+	{
+		SGTGOCWaypoint *start = GetNextWP(position, excludeList);
+		if (!start) return false;
+		excludeList.push_back(start);
+
+		if (actor)
+		{
+			//Test, whether we can reach the waypoint
+			Ogre::Vector3 origin = position + Ogre::Vector3(0, 0.5, 0);
+			Ogre::Vector3 motion = start->GetPosition() - origin;
+			int maxNumResult  = 10;
+			NxSweepQueryHit *sqh_result = new NxSweepQueryHit[maxNumResult];
+			NxU32 numHits = actor->linearSweep(OgrePhysX::Convert::toNx(motion), NX_SF_STATICS|NX_SF_ALL_HITS, 0, maxNumResult, sqh_result, 0);
+			bool obstacleHit = false;
+			for (NxU32 i = 0; i < numHits; i++)
+			{
+				NxSweepQueryHit hit = sqh_result[i];
+				Ogre::Vector3 normal = OgrePhysX::Convert::toOgre(hit.normal);
+				if (normal.angleBetween(Ogre::Vector3(0,1,0)).valueDegrees() > 60)
+				{
+					obstacleHit = true;
+					break;
+				}
+			}
+			delete sqh_result;
+			if (obstacleHit) continue;
+		}
+
+		if (FindPath(start, target, path)) return true;
+	}
+	
+	return false;
 }
 
-void SGTPathfinder::FindPath(Ogre::String startWP, Ogre::String targetWP, std::vector<Ogre::Vector3> *path)
+bool SGTPathfinder::FindPath(Ogre::String startWP, Ogre::String targetWP, std::vector<Ogre::Vector3> *path)
 {
 	SGTGOCWaypoint *start = GetWPByName(startWP);
 	SGTGOCWaypoint *target = GetWPByName(targetWP);
-	if (start == 0 || target == 0)
+	if (start == 0)
 	{
-		Ogre::LogManager::getSingleton().logMessage("Error: Could not find start or target Waypoint!");
-		return;
+		Ogre::LogManager::getSingleton().logMessage("Error: Could not find start Waypoint: '" + startWP + "'");
+		return false;
 	}
-	FindPath(start, target, path);
+	if (target == 0)
+	{
+		Ogre::LogManager::getSingleton().logMessage("Error: Could not find target Waypoint: '" + targetWP + "'");
+		return false;
+	}
+	return FindPath(start, target, path);
 }
 
 
@@ -103,7 +155,7 @@ WPEdge SGTPathfinder::GetBestEdge(std::list<WPEdge> *WPEdges)
 	return result;
 }
 
-void SGTPathfinder::ExtractPath(std::list<WPEdge> paths, SGTGOCWaypoint *start, SGTGOCWaypoint *target, std::vector<Ogre::Vector3> *returnpath)
+bool SGTPathfinder::ExtractPath(std::list<WPEdge> paths, SGTGOCWaypoint *start, SGTGOCWaypoint *target, std::vector<Ogre::Vector3> *returnpath)
 {
 	SGTGOCWaypoint *current = start;
 	while (current != target)
@@ -122,13 +174,14 @@ void SGTPathfinder::ExtractPath(std::list<WPEdge> paths, SGTGOCWaypoint *start, 
 		if (!found)
 		{
 			Ogre::LogManager::getSingleton().logMessage("Error: Could not find path for " + start->GetOwner()->GetName() + " - " + target->GetOwner()->GetName());
-			return;
+			return false;
 		}
 	}
 	returnpath->push_back(target->GetPosition());
+	return true;
 }
 
-void SGTPathfinder::FindPath(SGTGOCWaypoint *start, SGTGOCWaypoint *target, std::vector<Ogre::Vector3> *path)
+bool SGTPathfinder::FindPath(SGTGOCWaypoint *start, SGTGOCWaypoint *target, std::vector<Ogre::Vector3> *path)
 {
 	std::list<WPEdge> eventList;
 	std::list<WPEdge> shortestPaths;
@@ -151,7 +204,7 @@ void SGTPathfinder::FindPath(SGTGOCWaypoint *start, SGTGOCWaypoint *target, std:
 		if (current.mNeighbor == start) break;
 	}
 
-	ExtractPath(shortestPaths, start, target, path);
+	return ExtractPath(shortestPaths, start, target, path);
 }
 
 
