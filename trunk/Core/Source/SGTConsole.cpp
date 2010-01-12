@@ -105,9 +105,21 @@ void SGTConsole::ExecCommand(Ogre::String command)
 		return;
 	std::vector<Ogre::String> inputs;
 	Ogre::String current = "";
+	bool bQuoted=false;
 	for (unsigned int i = 0; i < command.length(); i++)
 	{
-		if (command[i] == ' ')
+		if(command[i]=='\"' && bQuoted)
+		{
+			bQuoted=false;
+			continue;
+		}
+		if(command[i]=='\"' && current.length()==0)
+		{
+			bQuoted=true;
+			continue;
+		}
+		
+		if (command[i] == ' ' && !bQuoted)
 		{
 			if (current.length() > 0)
 			{

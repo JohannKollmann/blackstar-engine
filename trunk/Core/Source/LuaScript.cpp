@@ -14,6 +14,7 @@ public:
 	void RegisterFunction(int iScriptID, std::string strFunction, SGTScript script, std::string strTargetFunction);
 	std::pair<SGTScript, std::string> GetTarget(int iScriptID, std::string strFunction);
 	std::string TargetSet(int iScriptID, int iTargetScriptID, std::string strTargetFunction);
+	bool HasShares(int iScriptID);
 	std::map<std::string, std::pair<SGTScript, std::string>>::const_iterator GetShares(int iScriptID);
 	std::map<std::string, std::pair<SGTScript, std::string>>::const_iterator GetSharesEnd(int iScriptID);
 private:
@@ -331,17 +332,18 @@ SGTLuaScript::ApiCallback(lua_State* pState)
 		//it doesn't
 		//so check every share for identity with the function
 		lua_getinfo(pState, "f", &ar);
-		for(std::map<std::string, std::pair<SGTScript, std::string>>::const_iterator it=CLongCallHandler::GetInstance().GetShares(pInstance.GetID()); it!=CLongCallHandler::GetInstance().GetSharesEnd(pInstance.GetID()); it++)
-		{
-			lua_getglobal(pState, it->first.c_str());
-			if(lua_equal(pState, -1, -2))
+		if(CLongCallHandler::GetInstance().HasShares(pInstance.GetID()))
+			for(std::map<std::string, std::pair<SGTScript, std::string>>::const_iterator it=CLongCallHandler::GetInstance().GetShares(pInstance.GetID()); it!=CLongCallHandler::GetInstance().GetSharesEnd(pInstance.GetID()); it++)
 			{
+				lua_getglobal(pState, it->first.c_str());
+				if(lua_equal(pState, -1, -2))
+				{
+					lua_pop(pState, 1);
+					strFunction=it->first;
+					break;
+				}
 				lua_pop(pState, 1);
-				strFunction=it->first;
-				break;
 			}
-			lua_pop(pState, 1);
-		}
 		lua_pop(pState, 1);
 	}
 
@@ -449,6 +451,14 @@ CLongCallHandler::TargetSet(int iScriptID, int iTargetScriptID, std::string strT
 			return itFunctions->first;
 	}
 	return std::string();
+}
+
+bool
+CLongCallHandler::HasShares(int iScriptID)
+{
+	if(m_mRegisteredFunctions.find(iScriptID)==m_mRegisteredFunctions.end())
+		return false;
+	return true;
 }
 
 std::map<std::string, std::pair<SGTScript, std::string>>::const_iterator

@@ -122,6 +122,7 @@ ResidentManager::SetCallback(SGTScript &caller, std::vector<SGTScriptParam> para
 	else
 	{
 		vRes.push_back(SGTScriptParam(std::string("tried to set non-existing var \"") + params[0].getString() +  std::string("\"")));
+		GetInstance();
 		return vRes;
 	}
 	return std::vector<SGTScriptParam>();

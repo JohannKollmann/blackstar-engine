@@ -74,9 +74,9 @@ public:
 	CLoadManager(void* pData, int iDataSize);
 	void DefineAtomSizes(int aaiIDsDataLen[][2], int nAtoms);//for defined atoms, you can later set datalen to 0
 	void ReadChunkInfo(int* piID, int* piTypeModifier, int* piRecordID, std::vector<int>* pArrayDims, std::vector<int>* pArrayPos, int* piAtomSize);
-	void EnterChunk();
+	bool EnterChunk();
 	bool HasChunks();
-	void ExitChunk();
+	bool ExitChunk();
 	void ReadAtom(void* pData);
 
 	void Bin2Text();//atom sizes have to be initialized

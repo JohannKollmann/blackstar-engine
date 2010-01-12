@@ -72,19 +72,19 @@ void ReadHeaderINT(CHybridInFile *pIn, int* piINT)
 	pIn->read((char*)piINT, sizeof(unsigned int));
 }
 
-void
+bool
 CLoadManager::EnterChunk()
 {
 	if(m_TreeLevels->size())
 		if(GetAtomSize(m_aaiAtomSizes, m_TreeLevels->top().iID))
-			return;//in an atom array there are no chunks
+/**/			return false;//in an atom array there are no chunks
 	char cByte;
 	(*m_pIn)>>cByte;
 	if(cByte!=CHUNK_START)
 	{
 		m_pIn->seekg(-1, std::ios::cur);
 		PutErrorMessage("tried to enter chunk, but is no chunk!");
-		return;
+		return false;
 	}
 	//read the header...
 	CLoadFileLevel level;
@@ -125,9 +125,10 @@ CLoadManager::EnterChunk()
 			level.level_desc=NO_ATOM;
 	}
 	m_TreeLevels->push(level);
+	return true;
 }
 
-void
+bool
 CLoadManager::ExitChunk()
 {
 	char cByte;
@@ -135,8 +136,9 @@ CLoadManager::ExitChunk()
 	if(cByte!=CHUNK_END)
 	{
 		m_pIn->seekg(-1, std::ios::cur);
-		PutErrorMessage("tried to exit chunk, but had not ended yet!");
-		return;
+/**/		PutErrorMessage("tried to exit chunk, but had not ended yet!");
+//fix: recurse all children, skip them and leave the current chunk
+		return false;
 	}
 	switch(m_TreeLevels->top().level_desc)
 	{
@@ -150,7 +152,7 @@ CLoadManager::ExitChunk()
 		if(m_TreeLevels->top().levelPos[0]<m_TreeLevels->top().levelSizes[0])
 		{
 			PutErrorMessage("tried to leave an array unfinished");
-			return;
+			return false;
 		}
 		break;
 	case CHUNK:
@@ -162,7 +164,7 @@ CLoadManager::ExitChunk()
 	else
 	{
 		PutErrorMessage("left a chunk with no beginning!");
-		return;
+		return false;
 	}
 	//test if the layer over the just released object is an array
 	if(m_TreeLevels->size())

@@ -154,37 +154,81 @@ void wxScriptEditor::SaveScript()
 	wxEdit::Instance().GetMainNotebook()->SetModified(this, false);
 }
 
+#define ISWHITE(c)(c==' ' || c=='\t' || c=='\n' || c=='\r')
+
+#define ISSYNTAX(c)(c=='(' || c==')' || c=='.' || c=='+' || c=='-' || c=='/'  || c=='*' || c==';' || c=='~' || c=='='  || c=='>' || c=='<' || c==',' || c=='[' || c==']')
+
+#define ISCOMMAND(s)(s.compare("function")==0 || s.compare("for")==0 || s.compare("while")==0 ||\
+						s.compare("if")==0 || s.compare("then")==0 || s.compare("end")==0 ||\
+						s.compare("true")==0 || s.compare("false")==0 || s.compare("elseif")==0 ||\
+						s.compare("not")==0)
+
 void wxScriptEditor::IntelliSense(int currentPosition)
 {		
-	int lenEntered = 0;
-	for (int i = currentPosition-1; ; i--) {
-		if (!isalnum(toascii(GetCharAt(i)))) break;
-		lenEntered++;
-	}
+	int nCharsEntered = 0;
+	while(!ISWHITE(GetCharAt(currentPosition-nCharsEntered-1)) && !ISSYNTAX(GetCharAt(currentPosition-nCharsEntered-1)))
+		nCharsEntered++;
+
+	int iSkipIndex=currentPosition-nCharsEntered;
+
 	wxString text = GetText();
 
-	std::list<wxString> funcNamesList = GetFuncNames(text);
-	
-	funcNamesList.sort();
+	//split the source into bits, removing unnecessary keywords
+	std::map<wxString, int> mScriptStrings;
+	wxString strCurrString;
+	bool bIsString=false;
+	bool bIsFunction=false;
+	for(unsigned int iIndex=0; iIndex<text.length(); iIndex++)
+	{
+		if(iIndex>=iSkipIndex && iIndex<iSkipIndex+nCharsEntered)
+			continue;
+		if(text[iIndex]=='\"')
+			bIsString=!bIsString;
+		if((ISSYNTAX(text[iIndex]) || ISWHITE(text[iIndex]))&& !bIsString)
+		{
+			bIsString=false;
+			if(strCurrString.length())
+			{
+				if(ISCOMMAND(strCurrString))
+				{
+					strCurrString.clear();
+					continue;
+				}
+				//check if this is a function. search for an opening bracket
+				int iTestChar=iIndex;
+				for(; iTestChar<text.length();iTestChar++)
+				{
+					wxChar c=text[iTestChar];
+					if(!ISWHITE(c))
+						break;
+				}
+				//while(ISWHITE(text[++iTestChar]));
 
-	//transform the list into a string for AutoCompShow.
-	wxString funcNames;
-	for (std::list<wxString>::iterator i =  funcNamesList.begin(); i != funcNamesList.end(); ++i) {
-		funcNames += *i + " ";
+				if(text[iTestChar]=='(')//bracket found. it's a function
+					bIsFunction=true;
+				if(bIsFunction)
+					mScriptStrings[strCurrString]=1;
+				else
+				{
+					if(mScriptStrings.find(strCurrString)==mScriptStrings.end())
+						mScriptStrings[strCurrString]=0;
+				}
+				bIsFunction=false;
+				strCurrString.clear();
+			}
+		}
+		else
+			strCurrString+=text[iIndex];
 	}
 
-	AutoCompSetChooseSingle(0);
-	AutoCompShow(lenEntered, funcNames);
-
-}
-
-std::list<wxString> wxScriptEditor::GetFuncNames(wxString &text) 
-{
-	std::list<wxString> funcNamesList;
-	bool stillSearch = true;
-	int lastStart = 0;
-	while (stillSearch) {
-		int start = text.find("function ", lastStart) + 9; //9 = length of "function "
+	//find functions
+	/*
+	int iOffset=0;
+	wxString strFn
+	while ((iOffset=text.find("function", lastStart))!=-1)
+	{
+		//skip white space
+		while(iOffset+
 		int length = text.find("(", start) - start;
 		if (start < lastStart) {
 			//if all founded.
@@ -194,5 +238,19 @@ std::list<wxString> wxScriptEditor::GetFuncNames(wxString &text)
 			lastStart = start;
 		}
 	}
-	return funcNamesList;
+	funcNamesList.sort();
+
+	//transform the list into a string for AutoCompShow.
+	wxString funcNames;
+	for (std::list<wxString>::iterator i =  funcNamesList.begin(); i != funcNamesList.end(); ++i) {
+		funcNames += *i + " ";
+	}*/
+
+	wxString strTips;
+	for (std::map<wxString, int>::const_iterator it =  mScriptStrings.begin(); it != mScriptStrings.end(); ++it)
+		strTips += (it->first + wxString(it->second==1 ? "(" : "") + wxString(" "));
+
+	AutoCompSetChooseSingle(0);
+	AutoCompShow(nCharsEntered, strTips);
+
 }

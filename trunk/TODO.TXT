@@ -1,3 +1,7 @@
+[Editor]
+Engine bekommt inputs, während man im script-edit ist
+.material-editor: script-editor mit anderem syntax-highlighting für .material-files, reparse-button anpassen
+
 [Engine]
 Physik-Callbacks (OnCollide etc)
 
@@ -8,3 +12,4 @@ Items
 - Automatischer Texturübergang
 - Specular mapping
 - Kombinieren von 2 verschieden skalierten normalmaps (r und g channels adden)
+- Point Lights mit Schatten und volumetric lighting

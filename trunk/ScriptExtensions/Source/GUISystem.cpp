@@ -71,7 +71,7 @@ SGTGUISystem::SGTGUISystem(void)
 void
 SGTGUISystem::ReceiveMessage(SGTMsg &msg)
 {
-	if(msg.mNewsgroup == "KEY_DOWN")
+	if(msg.mNewsgroup == "KEY_DOWN" && m_iFocusWin!=-1)
 	{
 		SWindowInfo wininfo=SGTGUISystem::GetInstance().m_mWindowInfos.find(m_iFocusWin)->second;
 		while(wininfo.iParentHandle!=-1)
@@ -405,7 +405,7 @@ SGTGUISystem::Window::Bake()
 			pSubEnt->setMaterialName(subwininfo.strMaterial);
 	}
 	SGTGUISystem::GetInstance().SetForegroundWindow(m_iHandle);
-	SGTGUISystem::GetInstance().SetFocus(m_iHandle);
+	/*SGTGUISystem::GetInstance().SetFocus(m_iHandle);*/
 }
 
 std::list<int>

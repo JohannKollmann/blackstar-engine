@@ -64,7 +64,10 @@ SGTLoadSystem::ReadAtom(std::string strType, void *pAtom)
 	m_pLM->ReadChunkInfo(&iID, &iTypeModifier, &iRecordID, &arrDims, &arrPos, &iAtomSize);
 
 	if(SGTLoadSave::Instance().GetAtomID(strType)!=iID)
+	{
 		SGTLoadSave::Instance().PostError("atoms do not match!");
+		return;
+	}
 	m_pLM->ReadAtom(pAtom);
 	
 	if(arrDims.size()==0)
@@ -75,7 +78,8 @@ void
 SGTLoadSystem::LoadAtom(std::string strType, void *pAtom)
 {
 	if(SGTLoadSave::Instance().GetAtomHandler(strType)->TellByteSize()==0)
-		m_pLM->EnterChunk();//jump over the dummy object surrounding the atom
+		if(!m_pLM->EnterChunk())
+			return;//jump over the dummy object surrounding the atom
 	SGTAtomHandler* pHandler=SGTLoadSave::Instance().GetAtomHandler(strType);
 	pHandler->Load(*this, pAtom);
 	if(SGTLoadSave::Instance().GetAtomHandler(strType)->TellByteSize()==0)
@@ -86,7 +90,8 @@ SGTSaveable*
 SGTLoadSystem::LoadObject()
 {
 
-	m_pLM->EnterChunk();
+	if(!m_pLM->EnterChunk())
+		return (SGTSaveable*)0;
 	int iID;
 	int iTypeModifier;
 	int iRecordID;
@@ -96,7 +101,10 @@ SGTLoadSystem::LoadObject()
 
 	m_pLM->ReadChunkInfo(&iID, &iTypeModifier, &iRecordID, &arrDims, &arrPos, &iAtomSize);
 	if(arrDims.size()!=0 || arrPos.size()!=0)
+	{
 		SGTLoadSave::Instance().PostError("tried to load an array as flat type!");
+		m_pLM->ExitChunk();
+	}
 	//test if a reference was saved instead of a real object
 	if(iID == SGTLoadSave::Instance().GetAtomID("SGTRecordReference"))
 	{
@@ -138,7 +146,8 @@ SGTLoadSystem::LoadArrayAtom(std::string strType, void* pAtom)
 std::vector<int>
 SGTLoadSystem::LoadAtomArray(std::string strType)
 {
-	m_pLM->EnterChunk();
+	if(!m_pLM->EnterChunk())
+		return std::vector<int>();
 	int iID;
 	int iTypeModifier;
 	int iRecordID;
@@ -148,9 +157,17 @@ SGTLoadSystem::LoadAtomArray(std::string strType)
 
 	m_pLM->ReadChunkInfo(&iID, &iTypeModifier, &iRecordID, &arrDims, &arrPos, &iAtomSize);
 	if(arrDims.size()==0 || arrPos.size()==0)
+	{
 		SGTLoadSave::Instance().PostError("tried to load a flat type as an array!");
+		m_pLM->ExitChunk();
+		return std::vector<int>();
+	}
 	if(iID!=SGTLoadSave::Instance().GetAtomID(strType))
+	{
 		SGTLoadSave::Instance().PostError("tried to load with wrong array type!");
+		m_pLM->ExitChunk();
+		return std::vector<int>();
+	}
 	if(arrDims[0]==0)//if the array is empty
 		m_pLM->ExitChunk();
 	return arrDims;
@@ -178,7 +195,8 @@ SGTLoadSystem::LoadArrayObject()
 std::vector<int>
 SGTLoadSystem::LoadObjectArray(std::string* pstrType)
 {
-	m_pLM->EnterChunk();
+	if(!m_pLM->EnterChunk())
+		return std::vector<int>();
 	int iID;
 	int iTypeModifier;
 	int iRecordID;
@@ -188,7 +206,11 @@ SGTLoadSystem::LoadObjectArray(std::string* pstrType)
 
 	m_pLM->ReadChunkInfo(&iID, &iTypeModifier, &iRecordID, &arrDims, &arrPos, &iAtomSize);
 	if(arrDims.size()==0 || arrPos.size()==0)
+	{
 		SGTLoadSave::Instance().PostError("tried to load a flat type as an array!");
+		m_pLM->ExitChunk();
+		return std::vector<int>();
+	}
 	
 	if(pstrType!=NULL)
 		*pstrType=SGTLoadSave::Instance().GetTypeName(iID);

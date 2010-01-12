@@ -9,7 +9,6 @@ class wxScriptEditor : public wxStyledTextCtrl
 private:
 	wxString mCurrentFile;
 	bool mOverrideChange;
-	std::list<wxString> GetFuncNames(wxString &text);
 
 protected:
 	DECLARE_EVENT_TABLE()
