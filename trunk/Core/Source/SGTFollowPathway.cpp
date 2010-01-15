@@ -6,6 +6,7 @@
 #include "SGTGameObject.h"
 #include "SGTGOCCharacterController.h"
 #include "NxController.h"
+#include "SGTMain.h"
 
 SGTFollowPathway::SGTFollowPathway(SGTGOCAI *ai, Ogre::String targetWP, float radius)
 {
@@ -13,86 +14,126 @@ SGTFollowPathway::SGTFollowPathway(SGTGOCAI *ai, Ogre::String targetWP, float ra
 	mRadius = radius;
 	mTargetWP = targetWP;
 	mCurrentTarget = mPath.begin();
+	mBlendFactor = 0.0f;
+	mTargetBlendYaw = 0.0f;
+
+	//Sweep cache for dynamic obstacle avoiding
+	mSweepCache = SGTMain::Instance().GetPhysXScene()->getNxScene()->createSweepCache(); 
 };
 
 SGTFollowPathway::~SGTFollowPathway()
 {
 	mPath.clear();
+	SGTMain::Instance().GetPhysXScene()->getNxScene()->releaseSweepCache(mSweepCache);
 };
+
+bool SGTFollowPathway::ObstacleCheck(Ogre::Vector3 motion)
+{
+	if (!mSweepActor) return false;
+
+	int maxNumResult  = 1;
+	NxSweepQueryHit *sqh_result = new NxSweepQueryHit[maxNumResult];
+	NxU32 numHits = mSweepActor->linearSweep(OgrePhysX::Convert::toNx(motion), NX_SF_DYNAMICS, 0, maxNumResult, sqh_result, 0, mSweepCache);
+	bool obstacleHit = false;
+	for (NxU32 i = 0; i < numHits; i++)
+	{
+		NxSweepQueryHit hit = sqh_result[i];
+		if (hit.hitShape->getGroup() == DEFAULT || hit.hitShape->getGroup() == CHARACTER)
+		{
+			return true;
+		}
+	}
+	delete sqh_result;
+
+	return false;
+}
 
 void SGTFollowPathway::OnEnter()
 {
 	SGTGOCCharacterController *character = (SGTGOCCharacterController*)mAIObject->GetOwner()->GetComponent("Physics", "CharacterController");
-	NxActor *actor = 0;
-	if (character) actor = character->GetNxController()->getActor();
-	SGTPathfinder::Instance().FindPath(mAIObject->GetOwner()->GetGlobalPosition(), mTargetWP, &mPath, actor);
+	mSweepActor = 0;
+	if (character) mSweepActor = character->GetNxController()->getActor();
+
+	Ogre::Vector3 pos = mAIObject->GetOwner()->GetGlobalPosition();
+	SGTPathfinder::Instance().FindPath(pos, mTargetWP, &mPath, mSweepActor);
 	mCurrentTarget = mPath.begin();
+
+	if (mCurrentTarget != mPath.end())
+	{
+		StartBlend(mAIObject->GetOwner()->GetGlobalOrientation() * Ogre::Vector3::UNIT_Z, (*mCurrentTarget)-pos);
+	}
 }
 
 bool SGTFollowPathway::OnUpdate(float time)
 {
 	if (mCurrentTarget == mPath.end())
 	{
-		Ogre::LogManager::getSingleton().logMessage("Ziel erreicht!");
-		mAIObject->BroadcastMovementState(0);
-		return true;
-	}
-	Ogre::Vector3 currPos = mAIObject->GetOwner()->GetGlobalPosition();
-	float dist = currPos.distance(*mCurrentTarget);
-	if (dist < mRadius)
-	{
-		mCurrentTarget++;
-	}
-	if (mCurrentTarget == mPath.end())
-	{
-		Ogre::LogManager::getSingleton().logMessage("Ziel erreicht!");
 		mAIObject->BroadcastMovementState(0);
 		return true;
 	}
 
+	Ogre::Vector3 currPos = mAIObject->GetOwner()->GetGlobalPosition();
+
+	float dist = currPos.distance(*mCurrentTarget);
+	if (dist < mRadius)
+	{
+		mBlendDirection = (*mCurrentTarget)-currPos;
+		mCurrentTarget++;
+		if (mCurrentTarget == mPath.end())
+		{
+			mAIObject->BroadcastMovementState(0);
+			return true;
+		}
+		Ogre::Vector3 targetBlend = (*mCurrentTarget)-currPos;
+		StartBlend(mBlendDirection, targetBlend);
+
+	}
+
 	Ogre::Vector3 direction = (*mCurrentTarget)-currPos;
-	direction.y = 0;
-	Ogre::Quaternion quat = Ogre::Vector3::UNIT_Z.getRotationTo(direction.normalisedCopy());
+	direction.normalise();
+
+	int movementstate = 0;
+	if (ObstacleCheck(direction * 3.0f))
+	{
+		movementstate = SGTCharacterMovement::RIGHT;
+	}
+	else
+	{
+		movementstate = SGTCharacterMovement::FORWARD;
+	}
+
+	if (mBlendFactor > 0.0f)
+	{
+		Ogre::Quaternion q;
+		float yaw = mTargetBlendYaw * (1-mBlendFactor);
+		direction = Ogre::Quaternion(Ogre::Radian(yaw), Ogre::Vector3::UNIT_Y) * mBlendDirection;//(mBlendDirection * mBlendFactor) + ((q * mBlendDirection) * (1 - mBlendFactor));
+		mBlendFactor -= 2 * time;
+	}
+	else
+	{
+		direction.y = 0;
+		direction.normalise();
+	}
+	Ogre::Quaternion quat = Ogre::Vector3::UNIT_Z.getRotationTo(direction);
 	mAIObject->GetOwner()->SetGlobalOrientation(quat);
-	int movementstate = SGTCharacterMovement::FORWARD;
 	mAIObject->BroadcastMovementState(movementstate);
 	return false;
 }
 
-void SGTFollowPathway::smoothPath()
+void SGTFollowPathway::StartBlend(Ogre::Vector3 oldDir, Ogre::Vector3 newDir)
 {
-	Ogre::Vector3 wp1, wp2, wp3, strecke1, strecke2; //wp2 ist der wp an dem gesmooth wird, wp1 und wp3 wird nur fürs berechnen der strecken zwischen den wps gebraucht
-    std::vector<Ogre::Vector3> newWPList;
-    Ogre::LogManager::getSingleton().logMessage(Ogre::String("Initialised"));
-    newWPList.push_back (mPath[0]);
-    for(unsigned int i = 1; i < mPath.size()-1; ++i)
-    {
-        Ogre::LogManager::getSingleton().logMessage(Ogre::String("neuer Durchgang:" + Ogre::StringConverter::toString(i)));
-        wp1 = mPath[i-1];
-        wp2 = mPath[i];
-        wp3 = mPath[i+1];
-		strecke1 = wp1 - wp2;
-		strecke1 = strecke1.normalise();
-		strecke2 = wp3 - wp2;
-		strecke2 = strecke2.normalise();
-        Ogre::Vector3 point;
-        Ogre::LogManager::getSingleton().logMessage(Ogre::String("Vektoren berechnet"));
-        for (float k = 0.0; k < 1.1; k += 0.2)
-        {
-        
-            point =    ( ( (1-k)*(1-k) ) * strecke1 + (k*k) * strecke2 ) + wp2;
-            newWPList.push_back(point);
-        }
-        Ogre::LogManager::getSingleton().logMessage(Ogre::String("Kurve berechnet"));
-    }
-    Ogre::LogManager::getSingleton().logMessage(Ogre::String("Smoothen beendet"));
-    int end = mPath.size();
-    newWPList.push_back(mPath[end-1]);
-	mPath.clear();
-	for(unsigned int i = 0; i<newWPList.size(); ++i)
+	oldDir.y = 0;
+	oldDir.normalise();
+	newDir.y = 0;
+	newDir.normalise();
+	mBlendFactor = 1.0f;
+	mBlendDirection = oldDir;
+	if ((1.0f + mBlendDirection.dotProduct(newDir)) < 0.0001f)            // Work around 180 degree quaternion rotation quirk                         
 	{
-		mPath.push_back(newWPList[i]);
+		mTargetBlendYaw = Ogre::Math::PI;
 	}
-    Ogre::LogManager::getSingleton().logMessage(Ogre::String("einfügen des letzen wps"));
-    //mPath = newWPList;
+	else
+	{
+		mTargetBlendYaw = mBlendDirection.getRotationTo(newDir).getYaw().valueRadians();
+	}
 }

@@ -186,7 +186,7 @@ void SGTGOCStaticBody::Create(Ogre::String collision_mesh, Ogre::Vector3 scale)
 	}
 	Ogre::Entity *entity = SGTMain::Instance().GetOgreSceneMgr()->createEntity("tempCollisionModell", mCollisionMeshName);
 	mActor = SGTMain::Instance().GetPhysXScene()->createActor(
-		OgrePhysX::RTMeshShape(entity->getMesh()).scale(scale));
+		OgrePhysX::RTMeshShape(entity->getMesh()).scale(scale).group(SGTCollisionGroups::DEFAULT));
 	mActor->userData = mOwnerGO;
 	SGTMain::Instance().GetOgreSceneMgr()->destroyEntity(entity);
 }

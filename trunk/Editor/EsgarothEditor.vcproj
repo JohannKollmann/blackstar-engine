@@ -194,6 +194,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Header\SGTEdit.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\virtualdirtreectrl.cpp"
 				>
 			</File>
@@ -439,10 +443,6 @@
 			</File>
 			<File
 				RelativePath=".\Source\SGTEdit.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Header\SGTEdit.h"
 				>
 			</File>
 			<File

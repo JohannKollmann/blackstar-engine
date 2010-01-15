@@ -25,6 +25,8 @@
 
 #include "SGTMainLoop.h"
 
+#include "SGTGOCPhysics.h"
+
 #define USE_REMOTEDEBUGGER 1
 
 //loader for SGTScriptSystem
@@ -142,6 +144,8 @@ void SGTMain::initScene()
 
 	//Collision Callback
 	mPhysXScene->setTriggerReport(new SGTTriggerCallback());
+
+	mPhysXScene->getNxScene()->setGroupCollisionFlag(SGTCollisionGroups::CHARACTER, SGTCollisionGroups::BONE, false);
 
 	//Init Ogre Resources
 	for (std::vector<KeyVal>::iterator i = mSettings["Resources"].begin(); i != mSettings["Resources"].end(); i++)

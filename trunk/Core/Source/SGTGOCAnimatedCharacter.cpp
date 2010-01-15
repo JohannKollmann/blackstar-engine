@@ -347,6 +347,7 @@ SGTGOCAnimatedCharacter::~SGTGOCAnimatedCharacter(void)
 		i = mBoneObjects.begin();
 	}
 	SGTMain::Instance().GetOgreSceneMgr()->destroySceneNode(mNode);
+	SGTMain::Instance().GetOgreSceneMgr()->destroyEntity(mEntity);
 	if (mRagdoll)
 	{
 		SGTMessageSystem::Instance().QuitNewsgroup(this, "UPDATE_PER_FRAME");
@@ -555,7 +556,7 @@ void SGTGOCAnimatedCharacter::CreateFromDataMap(SGTDataMap *parameters)
 	Ogre::Vector3 scale = Ogre::Vector3(1,1,1);
 	scale = parameters->GetOgreVec3("Scale");
 	Create(meshname, scale);
-	if (mAnimationStateStr != "") SetAnimationState(mAnimationStateStr);
+	if (mAnimationStateStr != "DEBUG") SetAnimationState(mAnimationStateStr);
 	mEntity->setCastShadows(shadowcaster);
 	mRagdoll->resetBones();
 	mEditorMode = true;

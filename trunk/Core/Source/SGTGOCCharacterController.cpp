@@ -8,6 +8,8 @@
 #include "SGTGameObject.h"
 #include "OgrePhysX.h"
 
+#include "SGTGOCPhysics.h"
+
 void SGTCharacterControllerInput::BroadcastMovementState()
 {
 	SGTObjectMsg *objmsg = new SGTObjectMsg();
@@ -43,7 +45,7 @@ void SGTGOCCharacterController::Create(Ogre::Vector3 dimensions)
 
 	mFreezed = false;
 
-	mMovementSpeed = 5.0f;
+	mMovementSpeed = 4.0f;
 	mDirection = Ogre::Vector3(0,0,0);
 	mDimensions = dimensions;
 	NxBoxControllerDesc desc;
@@ -56,6 +58,7 @@ void SGTGOCCharacterController::Create(Ogre::Vector3 dimensions)
 	desc.stepOffset		= mStepOffset;
 	bool test = desc.isValid();
 	mCharacterController = OgrePhysX::World::getSingleton().getControllerManager()->createController(SGTMain::Instance().GetPhysXScene()->getNxScene(), desc);
+	mCharacterController->getActor()->getShapes()[0]->setGroup(SGTCollisionGroups::CHARACTER);
 }
 
 void SGTGOCCharacterController::UpdatePosition(Ogre::Vector3 position)

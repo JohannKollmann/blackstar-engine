@@ -3,6 +3,7 @@
 #include "SGTGameObject.h"
 #include "OgrePhysX.h"
 #include "SGTMain.h"
+#include "SGTGOCPhysics.h"
 
 SGTPathfinder::SGTPathfinder(void)
 {
@@ -89,8 +90,7 @@ bool SGTPathfinder::FindPath(Ogre::Vector3 position, Ogre::String targetWP, std:
 			for (NxU32 i = 0; i < numHits; i++)
 			{
 				NxSweepQueryHit hit = sqh_result[i];
-				Ogre::Vector3 normal = OgrePhysX::Convert::toOgre(hit.normal);
-				if (normal.angleBetween(Ogre::Vector3(0,1,0)).valueDegrees() > 60)
+				if (hit.hitShape->getGroup() == SGTCollisionGroups::DEFAULT)
 				{
 					obstacleHit = true;
 					break;

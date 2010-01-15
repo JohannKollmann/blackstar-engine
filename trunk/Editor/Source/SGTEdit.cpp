@@ -298,7 +298,7 @@ void SGTEdit::OnMouseEvent(wxMouseEvent &ev)
 					menu.Append(wxOgre_saveObjectgroup, "Save Object Group");
 
 					SGTGameObject* obj1 = (*mSelectedObjects.begin()).mObject;
-					if (obj1->GetComponent("Skeleton"))
+					if (obj1->GetComponent("View", "Skeleton"))
 					{
 						menu.Append(wxOgre_saveBones, "Save Bone Config");
 					}
@@ -850,7 +850,7 @@ void SGTEdit::OnConnectWaypoints()
 
 void SGTEdit::OnSaveBones()
 {
-	SGTGOCAnimatedCharacter *ragdoll = (SGTGOCAnimatedCharacter*)(*mSelectedObjects.begin()).mObject->GetComponent("Skeleton");
+	SGTGOCAnimatedCharacter *ragdoll = (SGTGOCAnimatedCharacter*)(*mSelectedObjects.begin()).mObject->GetComponent("View", "Skeleton");
 	ragdoll->SerialiseBoneObjects("Data\\Scripts\\Animation\\" + ragdoll->GetRagdoll()->getEntity()->getMesh()->getName() + ".bones");
 }
 
