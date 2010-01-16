@@ -21,6 +21,18 @@ private:
 	std::map<int, std::map<std::string, std::pair<SGTScript, std::string>>> m_mRegisteredFunctions;
 };
 
+class CLuaShareInstanceHandler
+{
+public:
+	CLuaShareInstanceHandler();
+	static CLuaShareInstanceHandler& GetInstance();
+	void SetScriptInstance(SGTLuaScript* pScript, int iCallerID, SGTScript& instance);
+	void RemoveScriptInstance(SGTLuaScript* pScript, int iCallerID);
+	SGTScript GetScriptInstance(SGTLuaScript* pScript, int iCallerID);
+private:
+	std::map<SGTLuaScript*, std::map<int, SGTScript>> m_mInstances;
+};
+
 SGTLuaScript::SGTLuaScript(std::string strFile)
 {
 	LoadScript(strFile);
@@ -58,7 +70,7 @@ SGTLuaScript::ShareStaticCFunction(std::string strName, SGTStaticScriptFunction 
 }
 
 void
-SGTLuaScript::ShareExternalFunction(std::string strShareName, std::string strInternalName, SGTLuaScript &script)
+SGTLuaScript::ShareExternalFunction(std::string strShareName, std::string strInternalName, SGTScript &script)
 {
 	SExternalShare share={strInternalName, script};
 	m_mExternalFunctions.insert(std::pair<std::string, SExternalShare>(strShareName, share));
@@ -87,6 +99,7 @@ SGTLuaScript::GetArguments(lua_State* pState, int iStartIndex, SGTScript& script
 		}
 		case LUA_TFUNCTION:
 		{
+			std::string strFunctionName;
 			bool bFinished=false;
 			lua_pushnil(pState);  /* first key */
 			while(lua_next(pState, LUA_GLOBALSINDEX) != 0)
@@ -94,7 +107,7 @@ SGTLuaScript::GetArguments(lua_State* pState, int iStartIndex, SGTScript& script
 				//function name is at -2, function at -1
 				if(lua_equal(pState, -1, iParam))
 				{//found the function
-					vParams.push_back(SGTScriptParam(std::string(lua_tostring(pState, -2)), script));
+					vParams.push_back(SGTScriptParam(strFunctionName=std::string(lua_tostring(pState, -2)), script));
 					bFinished=true;
 					break;
 				}
@@ -140,7 +153,7 @@ SGTLuaScript::GetArguments(lua_State* pState, int iStartIndex, SGTScript& script
 
 
 void
-SGTLuaScript::PutArguments(lua_State *pState, std::vector<SGTScriptParam> params, SGTScript& script)
+SGTLuaScript::PutArguments(lua_State *pState, std::vector<SGTScriptParam> params, SGTScript& script,  SGTScript* pShareCallInstanceHack)
 {
 	//push the parameters
 	for(unsigned int iParam=0; iParam<params.size(); iParam++)
@@ -182,9 +195,13 @@ SGTLuaScript::PutArguments(lua_State *pState, std::vector<SGTScriptParam> params
 				lua_pop(pState, 1);
 				lua_register(pState, (std::string("_SGTLuaScriptFunctionCall") + strCounter).c_str(), &SGTLuaScript::ApiCallback);
 				//put it into the map
-				CLongCallHandler::GetInstance().RegisterFunction(script.GetID(), std::string("_SGTLuaScriptFunctionCall") + strCounter, targetscript, strTargetFnName);
+				if(pShareCallInstanceHack)
+					CLongCallHandler::GetInstance().RegisterFunction(pShareCallInstanceHack->GetID(), std::string("_SGTLuaScriptFunctionCall") + strCounter, targetscript, strTargetFnName);
+				else
+					CLongCallHandler::GetInstance().RegisterFunction(script.GetID(), std::string("_SGTLuaScriptFunctionCall") + strCounter, targetscript, strTargetFnName);
 			}
-			lua_getglobal(pState, CLongCallHandler::GetInstance().TargetSet(script.GetID(), targetscript.GetID(), strTargetFnName).c_str());
+			int iScriptID=pShareCallInstanceHack ? pShareCallInstanceHack->GetID() : script.GetID();
+			lua_getglobal(pState, CLongCallHandler::GetInstance().TargetSet(iScriptID, targetscript.GetID(), strTargetFnName).c_str());
 			break;
 		}
 		case SGTScriptParam::PARM_TYPE_NONE:
@@ -255,7 +272,7 @@ ReportErrorWithoutLine(std::string strScriptName, lua_State* pState, std::vector
 }
 
 std::vector<SGTScriptParam>
-SGTLuaScript::CallFunction(SGTScript &caller, std::string strName, std::vector<SGTScriptParam> params)
+SGTLuaScript::CallFunction(SGTScript &caller, std::string strName, std::vector<SGTScriptParam> params, SGTScript* pShareCallInstanceHack)//=SGTScript())
 {
 	lua_pushinteger(m_pState, ((int)this));
 	lua_setglobal(m_pState, "_SGTLuaScript");
@@ -273,8 +290,7 @@ SGTLuaScript::CallFunction(SGTScript &caller, std::string strName, std::vector<S
 
 	lua_getglobal(m_pState, strName.c_str());//push the function
 	
-	PutArguments(m_pState, params, caller);
-
+	PutArguments(m_pState, params, caller, pShareCallInstanceHack);
 	
 	int iStackSize=lua_gettop(m_pState);
 	if(lua_pcall(m_pState, params.size(), LUA_MULTRET,0 )!=0)
@@ -285,7 +301,16 @@ SGTLuaScript::CallFunction(SGTScript &caller, std::string strName, std::vector<S
 		return outParams;
 	}
 	else//get the returned arguments
-		outParams=ReportErrorWithoutLine(m_strScriptName, m_pState, GetArguments(m_pState, iStackSize, caller), std::string("getting results from call to ") + strName);
+	{
+		SGTScript referenceInstance=caller;
+		if(caller.GetScriptName()!=m_strScriptName)//this is a proxy call
+		{
+			referenceInstance=CLuaShareInstanceHandler::GetInstance().GetScriptInstance(this, caller.GetID());
+			if(referenceInstance.GetID()==-1)
+				referenceInstance=caller;
+		}
+		outParams=ReportErrorWithoutLine(m_strScriptName, m_pState, GetArguments(m_pState, iStackSize, referenceInstance), std::string("getting results from call to ") + strName);
+	}
 
 	return outParams;
 }
@@ -324,6 +349,8 @@ SGTLuaScript::ApiCallback(lua_State* pState)
 	lua_pop(pState, 1);//pop the ID
 	SGTScript& pInstance=*((SGTScript*)iInstanceID);
 
+	
+
 	//check if that function is anything that was shared before
 	if(pScript.m_mExternalFunctions.find(strFunction)==pScript.m_mExternalFunctions.end() &&
 		pScript.m_mFunctions.find(strFunction)==pScript.m_mFunctions.end() &&
@@ -347,19 +374,26 @@ SGTLuaScript::ApiCallback(lua_State* pState)
 		lua_pop(pState, 1);
 	}
 
+	SGTScript referenceInstance=pInstance;
+	if(pInstance.GetScriptName()!=pScript.GetScriptName())//this is a proxy call
+	{
+		referenceInstance=CLuaShareInstanceHandler::GetInstance().GetScriptInstance(&pScript, pInstance.GetID());
+		if(referenceInstance.GetID()==-1)
+			referenceInstance=pInstance;
+	}
 	//extract the params
 	std::vector<SGTScriptParam> vResults;
 	if(pScript.m_mExternalFunctions.find(strFunction)==pScript.m_mExternalFunctions.end())
 	{
 		if(CLongCallHandler::GetInstance().GetTarget(pInstance.GetID(), strFunction).second.size())
-			vResults=CLongCallHandler::GetInstance().GetTarget(pInstance.GetID(), strFunction).first.CallFunction(CLongCallHandler::GetInstance().GetTarget(pInstance.GetID(), strFunction).second, ReportError(pScript.GetScriptName(), pState, GetArguments(pState, 1, pInstance)));
+			vResults=CLongCallHandler::GetInstance().GetTarget(pInstance.GetID(), strFunction).first.CallFunction(CLongCallHandler::GetInstance().GetTarget(pInstance.GetID(), strFunction).second, ReportError(pScript.GetScriptName(), pState, GetArguments(pState, 1, referenceInstance)));
 		else if(pScript.m_mFunctions.find(strFunction)!=pScript.m_mFunctions.end())
 		{
 			SCShare share=pScript.m_mFunctions.find(strFunction)->second;
 			if(share.bIsStatic)
-				vResults=share.fns(pInstance, pScript, ReportError(pScript.GetScriptName(), pState, GetArguments(pState, 1, pInstance)));
+				vResults=share.fns(pInstance, pScript, ReportError(pScript.GetScriptName(), pState, GetArguments(pState, 1, referenceInstance)));
 			else
-				vResults=share.fn(pInstance, ReportError(pScript.GetScriptName(), pState, GetArguments(pState, 1, pInstance)));
+				vResults=share.fn(pInstance, ReportError(pScript.GetScriptName(), pState, GetArguments(pState, 1, referenceInstance)));
 		}
 		else
 		{
@@ -369,7 +403,11 @@ SGTLuaScript::ApiCallback(lua_State* pState)
 	else
 	{
 		SExternalShare data=pScript.m_mExternalFunctions.find(strFunction)->second;
-		vResults=data.script.CallFunction(pInstance, data.strInternalName, ReportError(pScript.GetScriptName(), pState, GetArguments(pState, 1, pInstance)));
+		//hack: use CLuaShareInstanceHandler
+		CLuaShareInstanceHandler::GetInstance().SetScriptInstance(data.script.m_pLuaScript, pInstance.GetID(), data.script);
+		vResults=data.script.m_pLuaScript->CallFunction(pInstance, data.strInternalName, ReportError(pScript.GetScriptName(), pState, GetArguments(pState, 1, referenceInstance)), &data.script);
+		//now remove the instance
+		CLuaShareInstanceHandler::GetInstance().RemoveScriptInstance(data.script.m_pLuaScript, pInstance.GetID());
 	}
 
 	PutArguments(pState, ReportError(pScript.GetScriptName(), pState, vResults, std::string("call to ") + strFunction), pInstance);
@@ -471,4 +509,54 @@ std::map<std::string, std::pair<SGTScript, std::string>>::const_iterator
 CLongCallHandler::GetSharesEnd(int iScriptID)
 {
 	return m_mRegisteredFunctions.find(iScriptID)->second.end();
+}
+
+CLuaShareInstanceHandler::CLuaShareInstanceHandler()
+{
+}
+
+CLuaShareInstanceHandler&
+CLuaShareInstanceHandler::GetInstance()
+{
+	static CLuaShareInstanceHandler singleton;
+	return singleton;
+}
+void
+CLuaShareInstanceHandler::SetScriptInstance(SGTLuaScript *pScript, int iCallerID, SGTScript &instance)
+{
+	std::map<SGTLuaScript*, std::map<int, SGTScript>>::iterator it=m_mInstances.find(pScript);
+	if(it!=m_mInstances.end())
+	{
+		it->second.insert(std::pair<int, SGTScript>(iCallerID,instance));
+	}
+	else
+	{
+		std::map<int, SGTScript> m;
+		m[iCallerID]=instance;
+		m_mInstances[pScript]=m;
+	}
+}
+
+void
+CLuaShareInstanceHandler::RemoveScriptInstance(SGTLuaScript *pScript, int iCallerID)
+{
+	std::map<SGTLuaScript*, std::map<int, SGTScript>>::iterator it=m_mInstances.find(pScript);
+	if(it!=m_mInstances.end())
+	{
+		it->second.erase(iCallerID);
+	}
+}
+
+SGTScript
+CLuaShareInstanceHandler::GetScriptInstance(SGTLuaScript *pScript, int iCallerID)
+{
+	std::map<SGTLuaScript*, std::map<int, SGTScript>>::iterator it=m_mInstances.find(pScript);
+	if(it!=m_mInstances.end())
+	{
+		if(it->second.find(iCallerID)!=it->second.end())
+		{
+			return it->second.find(iCallerID)->second;
+		}
+	}
+	return SGTScript();
 }

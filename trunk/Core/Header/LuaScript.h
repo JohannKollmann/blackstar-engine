@@ -27,8 +27,8 @@ public:
 	//bool LoadScript(char* pcBuffer, unsigned int nBytes, std::string strName);
 	void ShareCFunction(std::string strName, SGTScriptFunction fn);
 	void ShareStaticCFunction(std::string strName, SGTStaticScriptFunction fn);
-	void ShareExternalFunction(std::string strShareName, std::string strInternalName, SGTLuaScript& script);
-	std::vector<SGTScriptParam> CallFunction(SGTScript &caller, std::string strName, std::vector<SGTScriptParam> params);
+	void ShareExternalFunction(std::string strShareName, std::string strInternalName, SGTScript& script);
+	std::vector<SGTScriptParam> CallFunction(SGTScript &caller, std::string strName, std::vector<SGTScriptParam> params, SGTScript* pShareCallInstanceHack=0);
 	std::string GetScriptName();
 	bool FunctionExists(std::string strFunction);
 	static void SetLogFn(void (*logFn)(std::string, int, std::string));
@@ -40,7 +40,7 @@ protected:
 	bool IncludeScript(SGTLuaScript& script);
 
 	static std::vector<SGTScriptParam> GetArguments(lua_State* pState, int iStartIndex, SGTScript& script);
-	static void PutArguments(lua_State *pState, std::vector<SGTScriptParam> params, SGTScript& script);
+	static void PutArguments(lua_State *pState, std::vector<SGTScriptParam> params, SGTScript& script,  SGTScript* pShareCallInstanceHack=0);
 
 	lua_State* m_pState;
 	std::string m_strScriptName;
@@ -48,7 +48,7 @@ protected:
 	struct SExternalShare
 	{
 		std::string strInternalName;
-		SGTLuaScript& script;
+		SGTScript& script;
 	};
 
 	struct SCShare

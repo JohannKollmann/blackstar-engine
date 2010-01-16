@@ -15,6 +15,7 @@ public:
 	std::string GetScriptName();
 private:
 	friend class SGTScriptSystem;//to access the following pointer to the lua-script
+	friend class SGTLuaScript;
 	SGTLuaScript* m_pLuaScript;
 	int m_iID;
 };

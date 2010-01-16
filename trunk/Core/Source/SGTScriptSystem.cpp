@@ -40,9 +40,9 @@ SGTScriptSystem::ShareCFunction(std::string strName, SGTScriptFunction fn)
 }
 
 void
-SGTScriptSystem::ShareScriptFunction(std::string strName, SGTLuaScript &script)
+SGTScriptSystem::ShareScriptFunction(std::string strName, SGTScript &script)
 {
-	m_mScriptFunctions.insert(std::pair<std::string, SGTLuaScript*>(strName, &script));
+	m_mScriptFunctions.insert(std::pair<std::string, SGTScript>(strName, script));
 }
 
 std::vector<SGTScriptParam>
@@ -106,7 +106,7 @@ SGTScriptSystem::BindScriptFnCallback(SGTScript &caller, std::vector<SGTScriptPa
 	{
 	case 1:
 		//bind with original name
-		caller.m_pLuaScript->ShareExternalFunction(params[0].getString(), params[0].getString(), *SGTScriptSystem::GetInstance().m_mScriptFunctions.find(params[0].getString())->second);
+		caller.m_pLuaScript->ShareExternalFunction(params[0].getString(), params[0].getString(), SGTScriptSystem::GetInstance().m_mScriptFunctions.find(params[0].getString())->second);
 		break;
 	case 2:
 		//bind with alias
@@ -115,7 +115,7 @@ SGTScriptSystem::BindScriptFnCallback(SGTScript &caller, std::vector<SGTScriptPa
 			vRes.push_back(SGTScriptParam());
 			return vRes;
 		}
-		caller.m_pLuaScript->ShareExternalFunction(params[1].getString(), params[0].getString(), *SGTScriptSystem::GetInstance().m_mScriptFunctions.find(params[0].getString())->second);
+		caller.m_pLuaScript->ShareExternalFunction(params[1].getString(), params[0].getString(), SGTScriptSystem::GetInstance().m_mScriptFunctions.find(params[0].getString())->second);
 		break;
 	default:
 		vRes.push_back(SGTScriptParam());
@@ -132,7 +132,7 @@ SGTScriptSystem::ShareScriptFnCallback(SGTScript &caller, std::vector<SGTScriptP
 		vRes.push_back(SGTScriptParam());
 		return vRes;
 	}
-	SGTScriptSystem::GetInstance().ShareScriptFunction(params[0].getString(), *caller.m_pLuaScript);
+	SGTScriptSystem::GetInstance().ShareScriptFunction(params[0].getString(), caller);
 	return vRes;
 }
 
@@ -238,7 +238,7 @@ SGTScriptSystem::GetFunctionNames()
 {
 	std::vector<std::string> vstrFunctions(m_mScriptFunctions.size());
 	int i=0;
-	for(std::map<std::string, SGTLuaScript*>::const_iterator it=m_mScriptFunctions.begin();it!=m_mScriptFunctions.end(); i++, it++)
+	for(std::map<std::string, SGTScript>::const_iterator it=m_mScriptFunctions.begin();it!=m_mScriptFunctions.end(); i++, it++)
 		vstrFunctions[i]=it->first;
 	return vstrFunctions;
 }
@@ -247,5 +247,5 @@ void
 SGTScriptSystem::RunFunction(std::string strFunction, std::vector<SGTScriptParam> vParams)
 {
 	if(m_mScriptFunctions.find(strFunction)!=m_mScriptFunctions.end())
-		m_mScriptFunctions.find(strFunction)->second->CallFunction(SGTScript(), strFunction, vParams);
+		m_mScriptFunctions.find(strFunction)->second.CallFunction(strFunction, vParams);
 }
