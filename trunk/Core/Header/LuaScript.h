@@ -1,5 +1,4 @@
-#ifndef __SGT_LUA_SCRIPT__
-#define __SGT_LUA_SCRIPT__
+#pragma once
 
 extern "C"
 {
@@ -8,27 +7,31 @@ extern "C"
 	#include "lua\src\lauxlib.h"
 }
 
-#include "SGTScriptParam.h"
+#include "IceScriptParam.h"
 #include <vector>
 #include <map>
 
-class SGTScript;
-class SGTLuaScript;
 
-typedef __declspec(dllexport) std::vector<SGTScriptParam> (*SGTScriptFunction)(SGTScript &caller, std::vector<SGTScriptParam>);
-typedef __declspec(dllexport) std::vector<SGTScriptParam> (*SGTStaticScriptFunction)(SGTScript &caller, SGTLuaScript& script, std::vector<SGTScriptParam>);
+namespace Ice
+{
 
-class __declspec(dllexport) SGTLuaScript
+class Script;
+class LuaScript;
+
+typedef __declspec(dllexport) std::vector<ScriptParam> (*ScriptFunction)(Script &caller, std::vector<ScriptParam>);
+typedef __declspec(dllexport) std::vector<ScriptParam> (*StaticScriptFunction)(Script &caller, LuaScript& script, std::vector<ScriptParam>);
+
+class __declspec(dllexport) LuaScript
 {
 public:
-	SGTLuaScript(std::string strFile);
-	SGTLuaScript(char* pcBuffer, unsigned int nBytes, std::string strName);
+	LuaScript(std::string strFile);
+	LuaScript(char* pcBuffer, unsigned int nBytes, std::string strName);
 	bool LoadScript(std::string strFile);
 	//bool LoadScript(char* pcBuffer, unsigned int nBytes, std::string strName);
-	void ShareCFunction(std::string strName, SGTScriptFunction fn);
-	void ShareStaticCFunction(std::string strName, SGTStaticScriptFunction fn);
-	void ShareExternalFunction(std::string strShareName, std::string strInternalName, SGTScript& script);
-	std::vector<SGTScriptParam> CallFunction(SGTScript &caller, std::string strName, std::vector<SGTScriptParam> params, SGTScript* pShareCallInstanceHack=0);
+	void ShareCFunction(std::string strName, ScriptFunction fn);
+	void ShareStaticCFunction(std::string strName, StaticScriptFunction fn);
+	void ShareExternalFunction(std::string strShareName, std::string strInternalName, Script& script);
+	std::vector<ScriptParam> CallFunction(Script &caller, std::string strName, std::vector<ScriptParam> params, Script* pShareCallInstanceHack=0);
 	std::string GetScriptName();
 	bool FunctionExists(std::string strFunction);
 	static void SetLogFn(void (*logFn)(std::string, int, std::string));
@@ -37,10 +40,10 @@ public:
 	static void SetLoader(std::string (*pfLoader)(lua_State* pState, std::string strFileName));
 protected:
 	static int ApiCallback(lua_State* pState);
-	bool IncludeScript(SGTLuaScript& script);
+	bool IncludeScript(LuaScript& script);
 
-	static std::vector<SGTScriptParam> GetArguments(lua_State* pState, int iStartIndex, SGTScript& script);
-	static void PutArguments(lua_State *pState, std::vector<SGTScriptParam> params, SGTScript& script,  SGTScript* pShareCallInstanceHack=0);
+	static std::vector<ScriptParam> GetArguments(lua_State* pState, int iStartIndex, Script& script);
+	static void PutArguments(lua_State *pState, std::vector<ScriptParam> params, Script& script,  Script* pShareCallInstanceHack=0);
 
 	lua_State* m_pState;
 	std::string m_strScriptName;
@@ -48,15 +51,15 @@ protected:
 	struct SExternalShare
 	{
 		std::string strInternalName;
-		SGTScript& script;
+		Script& script;
 	};
 
 	struct SCShare
 	{
-		SCShare(bool bStatic, void* pFn){bIsStatic=bStatic; fn=(SGTScriptFunction)pFn; fns=(SGTStaticScriptFunction)pFn;}
+		SCShare(bool bStatic, void* pFn){bIsStatic=bStatic; fn=(ScriptFunction)pFn; fns=(StaticScriptFunction)pFn;}
 		bool bIsStatic;
-		SGTScriptFunction fn;
-		SGTStaticScriptFunction fns;
+		ScriptFunction fn;
+		StaticScriptFunction fns;
 	};
 
 	std::map<std::string, SCShare> m_mFunctions;
@@ -66,4 +69,4 @@ protected:
 	static std::string (*m_pfLoader)(lua_State*, std::string);
 };
 
-#endif
+};

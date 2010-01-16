@@ -1,7 +1,7 @@
 
 #include "wxSettingsWindow.h"
-#include "SGTSceneManager.h"
-#include "SGTWeatherController.h"
+#include "IceSceneManager.h"
+#include "IceWeatherController.h"
 #include "wxEdit.h"
 
 enum
@@ -121,5 +121,5 @@ void wxSettingsWindow::OnSetCaelumTimeScale(wxScrollEvent& event)
 {
 	float val = (float)(event.GetInt());
 	float factor = (val / 50.0) * 4096.0;
-	SGTSceneManager::Instance().GetWeatherController()->GetCaelumSystem()->getUniversalClock()->setTimeScale(factor);
+	Ice::SceneManager::Instance().GetWeatherController()->GetCaelumSystem()->getUniversalClock()->setTimeScale(factor);
 }

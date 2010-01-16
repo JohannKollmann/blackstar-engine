@@ -3,7 +3,7 @@
 #define __wxOgreSceneTree_H__
 
 /*
-Zeigt ein SGTGameObject mit allen children geordnet nach Typ (Licht, Geometrie, Partikeleffekt usw.) an.
+Zeigt ein Ice::GameObject mit allen children geordnet nach Typ (Licht, Geometrie, Partikeleffekt usw.) an.
 */
 
 #include <wx/dynarray.h>
@@ -13,18 +13,19 @@ Zeigt ein SGTGameObject mit allen children geordnet nach Typ (Licht, Geometrie, 
 #include "virtualdirtreectrl.h"
 #include "Ogre.h"
 #include "wxEdit.h"
-#include "SGTGameObject.h"
+#include "IceGameObject.h"
 #include "EntityTreeNotebookListener.h"
+#include "EDTIncludes.h"
 
 class OgreTreeItemBase : public wxTreeItemData
 {
 protected:
 	wxString _name;
 	int _type;
-	SGTGameObject *mNode;
+	Ice::GameObject *mNode;
 
 public:
-	OgreTreeItemBase(int type, const wxString &name, SGTGameObject *node)
+	OgreTreeItemBase(int type, const wxString &name, Ice::GameObject *node)
 		: _type(type)
 		, _name(name)
 		, mNode(node)
@@ -46,7 +47,7 @@ public:
 		return _name;
 	};
 
-	SGTGameObject* getNode() { return mNode; };
+	Ice::GameObject* getNode() { return mNode; };
 
 	/** Virtual function to return the icon ID this node should get. Per default it gets the ID of the
 	    default image list. If you assigned more bitmaps (or different bitmaps) to the image list, return
@@ -135,7 +136,7 @@ protected:
 	void OnItemMenu(wxTreeEvent &event);
 	void OnItemActivated(wxTreeEvent &event);
 
-	bool ExpandToObject(OgreTreeItemBase *from, SGTGameObject *object);
+	bool ExpandToObject(OgreTreeItemBase *from, Ice::GameObject *object);
 
 public:
     /** Default constructor of this control. It is similar to the wxTreeCtrl */
@@ -145,12 +146,12 @@ public:
                   const wxString& name = "wxOgreSceneTree");
     virtual ~wxOgreSceneTree();
 
-	SGTGameObject* GetSelectedItem();
+	Ice::GameObject* GetSelectedItem();
 
 	void Update();
-	void NotifyObject(SGTGameObject *object);
+	void NotifyObject(Ice::GameObject *object);
 
-	void ScanFromNode(OgreTreeItemBase *item, SGTGameObject *scanFrom, bool subScan = true);
+	void ScanFromNode(OgreTreeItemBase *item, Ice::GameObject *scanFrom, bool subScan = true);
 
 	void AddItemsToTreeCtrl(OgreTreeItemBase *item, OgreTreeItemBaseArray &items);
 
@@ -158,14 +159,14 @@ public:
 
 	bool _itemHasFolder(OgreTreeItemBase *item, wxString& FolderName, wxTreeItemId *destfolderID);
 
-	bool _itemHasChild(wxTreeItemId itemID, SGTGameObject *item, SGTGameObject* node);
+	bool _itemHasChild(wxTreeItemId itemID, Ice::GameObject *item, Ice::GameObject* node);
 
 	virtual void OnAssignIcons(wxImageList &icons);
-	virtual OgreTreeItemBase *OnCreateTreeItem(int type, SGTGameObject *node);
+	virtual OgreTreeItemBase *OnCreateTreeItem(int type, Ice::GameObject *node);
 
 	void OnSelChanged(wxTreeEvent &event);
 
-	void ExpandToObject(SGTGameObject *object);
+	void ExpandToObject(Ice::GameObject *object);
 
 	void OnEnterTab();
 	void OnLeaveTab();

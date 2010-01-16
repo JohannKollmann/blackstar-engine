@@ -4,6 +4,7 @@
 #include "wx/aui/aui.h"
 #include "wx/wx.h"
 #include "wx/checkbox.h"
+#include "EDTIncludes.h"
 
 class wxMeshMagick : public wxPanel
 {

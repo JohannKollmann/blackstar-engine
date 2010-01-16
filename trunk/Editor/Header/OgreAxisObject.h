@@ -2,10 +2,11 @@
 #ifndef _AXIS_OBJECT_H_
 #define _AXIS_OBJECT_H_
 
-#include "SGTGOComponent.h"
-#include "SGTGOCView.h"
+#include "IceGOComponent.h"
+#include "IceGOCView.h"
+#include "EDTIncludes.h"
 
-class AxisComponent : public SGTGOCNodeRenderable
+class AxisComponent : public Ice::GOCNodeRenderable
 {
 	enum BoxParts
 	{
@@ -30,13 +31,13 @@ public:
 	~AxisComponent();
 	goc_id_type& GetComponentID() const { static std::string name = "AxisObject"; return name; } 
 	goc_id_family& GetFamilyID() const { static std::string name = "AxisObject"; return name; } 
-	void SetOwner(SGTGameObject *go);
+	void SetOwner(Ice::GameObject *go);
 
-	void Save(SGTSaveSystem& mgr) {};
-	void Load(SGTLoadSystem& mgr) {};
+	void Save(LoadSave::SaveSystem& mgr) {};
+	void Load(LoadSave::LoadSystem& mgr) {};
 	virtual std::string& TellName() { static std::string name = "AxisObject"; return name; };
-	static void Register(std::string* pstrName, SGTSaveableInstanceFn* pFn) { *pstrName = "AxisObject"; *pFn = (SGTSaveableInstanceFn)&NewInstance; };
-	static SGTSaveable* NewInstance() { return new AxisComponent; };
+	static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "AxisObject"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };
+	static LoadSave::Saveable* NewInstance() { return new AxisComponent; };
 };
 
 #endif //--_AXIS_OBJECT_H_

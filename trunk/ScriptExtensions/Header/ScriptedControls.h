@@ -1,19 +1,19 @@
-#include "SGTScriptSystem.h"
-#include "SGTInput.h"
+#include "IceScriptSystem.h"
+#include "IceInput.h"
 
-class ScriptedControls : public SGTMessageListener
+class ScriptedControls : public Ice::MessageListener
 {
 public:
 	ScriptedControls();
 	static ScriptedControls& GetInstance();
 
-	void ReceiveMessage(SGTMsg &msg);
+	void ReceiveMessage(Ice::Msg &msg);
 private:
-	std::map<Ogre::String, SGTScriptParam> m_mControlDownCallbacks;
-	std::map<Ogre::String, SGTScriptParam> m_mControlUpCallbacks;
+	std::map<Ogre::String, Ice::ScriptParam> m_mControlDownCallbacks;
+	std::map<Ogre::String, Ice::ScriptParam> m_mControlUpCallbacks;
 	
-	static std::vector<SGTScriptParam> SetControl(SGTScript &caller, std::vector<SGTScriptParam> params);
-	static std::vector<SGTScriptParam> GetControl(SGTScript &caller, std::vector<SGTScriptParam> params);
-	static std::vector<SGTScriptParam> SetControlDownCallback(SGTScript &caller, std::vector<SGTScriptParam> params);
-	static std::vector<SGTScriptParam> SetControlUpCallback(SGTScript &caller, std::vector<SGTScriptParam> params);
+	static std::vector<Ice::ScriptParam> SetControl(Ice::Script &caller, std::vector<Ice::ScriptParam> params);
+	static std::vector<Ice::ScriptParam> GetControl(Ice::Script &caller, std::vector<Ice::ScriptParam> params);
+	static std::vector<Ice::ScriptParam> SetControlDownCallback(Ice::Script &caller, std::vector<Ice::ScriptParam> params);
+	static std::vector<Ice::ScriptParam> SetControlUpCallback(Ice::Script &caller, std::vector<Ice::ScriptParam> params);
 };

@@ -1,6 +1,9 @@
 #include "..\LowLevelLibs\LoadSave_dll.h"
 #include "..\LowLevelLibs\LoadSave_dll_intl.h"
 
+namespace LoadSave
+{
+
 int FileSize(std::ifstream in)
 {
 	in.seekg(0, std::ios::end);
@@ -307,3 +310,6 @@ CLoadManager::Bin2Text()
 		m_pIn->seekg(-1, std::ios_base::cur);
 	}
 }
+
+
+};

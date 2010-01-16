@@ -1,5 +1,8 @@
 #include "LoadSave_dll.h"
 
+namespace LoadSave
+{
+
 void WriteHeaderINT(CHybridOutFile *pOut, unsigned int uiINT)
 {
 	pOut->write((char*)&uiINT, sizeof(unsigned int));
@@ -328,3 +331,5 @@ static void WriteElementClose(std::stack<CSaveFileLevel>* levels, CHybridOutFile
 	}
 	levels->pop();
 }
+
+};

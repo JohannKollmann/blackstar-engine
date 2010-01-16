@@ -1,5 +1,8 @@
 #include "..\LowLevelLibs\CMemFile.h"
 
+namespace LoadSave
+{
+
 void
 CMemFile::OpenForWrite()
 {
@@ -267,3 +270,5 @@ CHybridInFile::seekg(int nBytes, std::ios::seekdir dir)
 	else
 		m_pInFile->seekg(nBytes, dir);
 }
+
+};

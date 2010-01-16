@@ -6,6 +6,7 @@
 #include "wx/checkbox.h"
 #include "wx/radiobox.h"
 #include "wx/slider.h"
+#include "EDTIncludes.h"
 
 class wxSettingsWindow : public wxPanel
 {

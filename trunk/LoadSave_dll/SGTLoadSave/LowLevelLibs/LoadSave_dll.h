@@ -1,5 +1,4 @@
-#ifndef __LOADSAVE_INCL
-#define __LOADSAVE_INCL
+#pragma once
 
 #include <string>
 #include <fstream>
@@ -8,6 +7,9 @@
 #include <sstream>
 
 #include "CMemFile.h"
+
+namespace LoadSave
+{
 
 //define some magic numbers für the start and end of the chunks
 //(they're variable length, if not atoms)
@@ -89,4 +91,4 @@ private:
 	int m_nAtoms;
 };
 
-#endif //__LOADSAVE_INCL
+};

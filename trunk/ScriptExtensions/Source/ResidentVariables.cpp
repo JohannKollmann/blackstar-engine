@@ -1,7 +1,7 @@
 #include "ResidentVariables.h"
 #include <string>
 
-CREATEMAPHANDLER(std::string, "std::string", ResidentVariables::SaveableScriptParam, "ResidentVariables::SaveableScriptParam", StringSGTScriptParamMapHandler);
+CREATEMAPHANDLER(std::string, "std::string", ResidentVariables::SaveableScriptParam, "ResidentVariables::SaveableScriptParam", ScriptParamMapHandler);
 
 ResidentManager&
 ResidentManager::GetInstance()
@@ -12,22 +12,22 @@ ResidentManager::GetInstance()
 
 ResidentManager::ResidentManager()
 {
-	SGTScriptSystem::GetInstance().ShareCFunction("ralloc", AllocCallback);
-	SGTScriptSystem::GetInstance().ShareCFunction("rset", SetCallback);
-	SGTScriptSystem::GetInstance().ShareCFunction("rget", GetCallback);
+	Ice::ScriptSystem::GetInstance().ShareCFunction("ralloc", AllocCallback);
+	Ice::ScriptSystem::GetInstance().ShareCFunction("rset", SetCallback);
+	Ice::ScriptSystem::GetInstance().ShareCFunction("rget", GetCallback);
 
-	SGTLoadSave::Instance().RegisterObject(&ResidentVariables::Register);
-	SGTLoadSave::Instance().RegisterAtom((SGTAtomHandler*)new StringSGTScriptParamMapHandler);
+	LoadSave::LoadSave::Instance().RegisterObject(&ResidentVariables::Register);
+	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new ScriptParamMapHandler);
 }
 
 void
-ResidentManager::BindResisToScript(ResidentVariables resis, SGTScript &script)
+ResidentManager::BindResisToScript(ResidentVariables resis, Ice::Script &script)
 {
 	m_mResis.insert(std::pair<int, ResidentVariables>(script.GetID(), resis));
 }
 
 ResidentVariables&
-ResidentManager::GetResis(SGTScript &script)
+ResidentManager::GetResis(Ice::Script &script)
 {
 	static ResidentVariables r;
 
@@ -43,70 +43,70 @@ ResidentManager::Clear()
 	m_mAllocatedVars.clear();
 }
 
-std::vector<SGTScriptParam>
-ResidentManager::AllocCallback(SGTScript &caller, std::vector<SGTScriptParam> params)
+std::vector<Ice::ScriptParam>
+ResidentManager::AllocCallback(Ice::Script &caller, std::vector<Ice::ScriptParam> params)
 {
-	std::vector<SGTScriptParam> vRes;
-	vRes.push_back(SGTScriptParam());//an error
+	std::vector<Ice::ScriptParam> vRes;
+	vRes.push_back(Ice::ScriptParam());//an error
 
 	if(params.size()!=1 && params.size()!=2)
 	{
-		vRes.push_back(SGTScriptParam(std::string("you gave no name")));
+		vRes.push_back(Ice::ScriptParam(std::string("you gave no name")));
 		return vRes;
 	}
-	if(params[0].getType()!=SGTScriptParam::PARM_TYPE_STRING)
+	if(params[0].getType()!=Ice::ScriptParam::PARM_TYPE_STRING)
 	{
-		vRes.push_back(SGTScriptParam(std::string("you gave no name")));
+		vRes.push_back(Ice::ScriptParam(std::string("you gave no name")));
 		return vRes;
 	}
 	std::string strScript=caller.GetScriptName();
 	if(GetInstance().m_mAllocatedVars.find(strScript)!=GetInstance().m_mAllocatedVars.end())
 	{
-		std::map<std::string, SGTScriptParam>& mTemp=GetInstance().m_mAllocatedVars.find(strScript)->second;
+		std::map<std::string, Ice::ScriptParam>& mTemp=GetInstance().m_mAllocatedVars.find(strScript)->second;
 		if(mTemp.find(params[0].getString())!=mTemp.end())
 		{
-			vRes.push_back(SGTScriptParam(std::string("you tried to alloc \"") + params[0].getString() +  std::string("\" twice")));
+			vRes.push_back(Ice::ScriptParam(std::string("you tried to alloc \"") + params[0].getString() +  std::string("\" twice")));
 			return vRes;
 		}
 		if(params.size()==2)
-			mTemp.insert(std::pair<std::string, SGTScriptParam>(params[0].getString(), params[1]));
+			mTemp.insert(std::pair<std::string, Ice::ScriptParam>(params[0].getString(), params[1]));
 		else
-			mTemp.insert(std::pair<std::string, SGTScriptParam>(params[0].getString(), SGTScriptParam()));
+			mTemp.insert(std::pair<std::string, Ice::ScriptParam>(params[0].getString(), Ice::ScriptParam()));
 	}
 	else
 	{
-		std::map<std::string, SGTScriptParam> mTemp;
+		std::map<std::string, Ice::ScriptParam> mTemp;
 		if(params.size()==2)
-			mTemp.insert(std::pair<std::string, SGTScriptParam>(params[0].getString(), params[1]));
+			mTemp.insert(std::pair<std::string, Ice::ScriptParam>(params[0].getString(), params[1]));
 		else
-			mTemp.insert(std::pair<std::string, SGTScriptParam>(params[0].getString(), SGTScriptParam()));
-		GetInstance().m_mAllocatedVars.insert(std::pair<std::string, std::map<std::string, SGTScriptParam>>(strScript, mTemp));
+			mTemp.insert(std::pair<std::string, Ice::ScriptParam>(params[0].getString(), Ice::ScriptParam()));
+		GetInstance().m_mAllocatedVars.insert(std::pair<std::string, std::map<std::string, Ice::ScriptParam>>(strScript, mTemp));
 	}
-	return std::vector<SGTScriptParam>();
+	return std::vector<Ice::ScriptParam>();
 }
 
-std::vector<SGTScriptParam>
-ResidentManager::SetCallback(SGTScript &caller, std::vector<SGTScriptParam> params)
+std::vector<Ice::ScriptParam>
+ResidentManager::SetCallback(Ice::Script &caller, std::vector<Ice::ScriptParam> params)
 {
-	std::vector<SGTScriptParam> vRes;
-	vRes.push_back(SGTScriptParam());//an error
+	std::vector<Ice::ScriptParam> vRes;
+	vRes.push_back(Ice::ScriptParam());//an error
 	if(params.size()!=2)
 	{
-		vRes.push_back(SGTScriptParam(std::string("invalid number of arguments")));
+		vRes.push_back(Ice::ScriptParam(std::string("invalid number of arguments")));
 		return vRes;
 	}
-	if(params[0].getType()!=SGTScriptParam::PARM_TYPE_STRING)
+	if(params[0].getType()!=Ice::ScriptParam::PARM_TYPE_STRING)
 	{
-		vRes.push_back(SGTScriptParam(std::string("you gave no name")));
+		vRes.push_back(Ice::ScriptParam(std::string("you gave no name")));
 		return vRes;
 	}
 	std::string strScript=caller.GetScriptName();
 	if(GetInstance().m_mAllocatedVars.find(strScript)!=GetInstance().m_mAllocatedVars.end())
 	{
-		std::map<std::string, SGTScriptParam>& mTemp=GetInstance().m_mAllocatedVars.find(strScript)->second;
+		std::map<std::string, Ice::ScriptParam>& mTemp=GetInstance().m_mAllocatedVars.find(strScript)->second;
 		if(mTemp.find(params[0].getString())==mTemp.end())
 		{
-			vRes.push_back(SGTScriptParam(std::string("tried to set non-existing var \"") + params[0].getString() +  std::string("\"")));
+			vRes.push_back(Ice::ScriptParam(std::string("tried to set non-existing var \"") + params[0].getString() +  std::string("\"")));
 			return vRes;
 		}
 		else
@@ -121,57 +121,57 @@ ResidentManager::SetCallback(SGTScript &caller, std::vector<SGTScriptParam> para
 	}
 	else
 	{
-		vRes.push_back(SGTScriptParam(std::string("tried to set non-existing var \"") + params[0].getString() +  std::string("\"")));
+		vRes.push_back(Ice::ScriptParam(std::string("tried to set non-existing var \"") + params[0].getString() +  std::string("\"")));
 		GetInstance();
 		return vRes;
 	}
-	return std::vector<SGTScriptParam>();
+	return std::vector<Ice::ScriptParam>();
 }
-std::vector<SGTScriptParam>
-ResidentManager::GetCallback(SGTScript &caller, std::vector<SGTScriptParam> params)
+std::vector<Ice::ScriptParam>
+ResidentManager::GetCallback(Ice::Script &caller, std::vector<Ice::ScriptParam> params)
 {
-	std::vector<SGTScriptParam> vRes(1, SGTScriptParam());
+	std::vector<Ice::ScriptParam> vRes(1, Ice::ScriptParam());
 	if(params.size()!=1)
 	{
-		vRes.push_back(SGTScriptParam(std::string("invalid number of arguments")));
+		vRes.push_back(Ice::ScriptParam(std::string("invalid number of arguments")));
 		return vRes;
 	}
-	if(params[0].getType()!=SGTScriptParam::PARM_TYPE_STRING)
+	if(params[0].getType()!=Ice::ScriptParam::PARM_TYPE_STRING)
 	{
-		vRes.push_back(SGTScriptParam(std::string("you gave no name")));
+		vRes.push_back(Ice::ScriptParam(std::string("you gave no name")));
 		return vRes;
 	}
-	std::vector<SGTScriptParam> vTemp;
+	std::vector<Ice::ScriptParam> vTemp;
 	if(GetInstance().m_mResis.find(caller.GetID())==GetInstance().m_mResis.end())
 	{//create some temporary script-local-variables
 		GetInstance().BindResisToScript(ResidentVariables(), caller);
 	}
 
-	SGTScriptParam parm=GetInstance().m_mResis.find(caller.GetID())->second.GetVariable(params[0].getString());
-	if(parm.getType()==SGTScriptParam::PARM_TYPE_NONE)
+	Ice::ScriptParam parm=GetInstance().m_mResis.find(caller.GetID())->second.GetVariable(params[0].getString());
+	if(parm.getType()==Ice::ScriptParam::PARM_TYPE_NONE)
 	{
 		if(GetInstance().m_mAllocatedVars.find(caller.GetScriptName())!=GetInstance().m_mAllocatedVars.end())
 		{
-			std::map<std::string, SGTScriptParam>& mTemp=GetInstance().m_mAllocatedVars.find(caller.GetScriptName())->second;
+			std::map<std::string, Ice::ScriptParam>& mTemp=GetInstance().m_mAllocatedVars.find(caller.GetScriptName())->second;
 			if(mTemp.find(params[0].getString())!=mTemp.end())
 			{
 				parm=mTemp.find(params[0].getString())->second;
-				if(parm.getType()==SGTScriptParam::PARM_TYPE_NONE)
+				if(parm.getType()==Ice::ScriptParam::PARM_TYPE_NONE)
 				{
 					//4 ifs. w00t :D
-					vRes.push_back(SGTScriptParam(std::string("variable \"") + params[0].getString() +  std::string("\" not set and no initial value found...")));
+					vRes.push_back(Ice::ScriptParam(std::string("variable \"") + params[0].getString() +  std::string("\" not set and no initial value found...")));
 					return vRes;
 				}
 			}
 			else
 			{
-				vRes.push_back(SGTScriptParam(std::string("variable \"") + params[0].getString() +  std::string("\" not set and no initial value found...")));
+				vRes.push_back(Ice::ScriptParam(std::string("variable \"") + params[0].getString() +  std::string("\" not set and no initial value found...")));
 				return vRes;
 			}
 		}
 		else
 		{
-			vRes.push_back(SGTScriptParam(std::string("script has no resis allocated")));
+			vRes.push_back(Ice::ScriptParam(std::string("script has no resis allocated")));
 			return vRes;
 		}
 	}
@@ -181,13 +181,13 @@ ResidentManager::GetCallback(SGTScript &caller, std::vector<SGTScriptParam> para
 
 
 void
-ResidentVariables::Save(SGTSaveSystem &myManager)
+ResidentVariables::Save(LoadSave::SaveSystem &myManager)
 {
 	myManager.SaveAtom("std::map<std::string, ResidentVariables::SaveableScriptParam>", &m_mVars, "m_mVars");
 }
 
 void
-ResidentVariables::Load(SGTLoadSystem& myManager)
+ResidentVariables::Load(LoadSave::LoadSystem& myManager)
 {
 	myManager.LoadAtom("std::map<std::string, ResidentVariables::SaveableScriptParam>", &m_mVars);
 }
@@ -199,30 +199,30 @@ ResidentVariables::TellName()
 	return strName;
 }
 
-SGTScriptParam
+Ice::ScriptParam
 ResidentVariables::GetVariable(std::string strVar)
 {
 	if(m_mVars.find(strVar)==m_mVars.end())
-		return SGTScriptParam();
-	return SGTScriptParam(m_mVars.find(strVar)->second.ToSGTScriptParam());
+		return Ice::ScriptParam();
+	return Ice::ScriptParam(m_mVars.find(strVar)->second.ToIceScriptParam());
 }
 
-SGTSaveable*
+LoadSave::Saveable*
 ResidentVariables::NewInstance()
 {
 	return new ResidentVariables;
 }
 
 void
-ResidentVariables::Register(std::string* pstrName, SGTSaveableInstanceFn* pFn)
+ResidentVariables::Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn)
 {
 	*pstrName=std::string("ResidentVariables");
 	*pFn=NewInstance;
-	SGTLoadSave::Instance().RegisterObject(&ResidentVariables::SaveableScriptParam::Register);
+	LoadSave::LoadSave::Instance().RegisterObject(&ResidentVariables::SaveableScriptParam::Register);
 }
 
 void
-ResidentVariables::SetVariable(std::string strVar, SGTScriptParam &param)
+ResidentVariables::SetVariable(std::string strVar, Ice::ScriptParam &param)
 {
 	if(m_mVars.find(strVar)==m_mVars.end())
 		m_mVars.insert(std::pair<std::string, ResidentVariables::SaveableScriptParam>(strVar, ResidentVariables::SaveableScriptParam(param)));
@@ -232,34 +232,34 @@ ResidentVariables::SetVariable(std::string strVar, SGTScriptParam &param)
 
 ResidentVariables::SaveableScriptParam::SaveableScriptParam()
 {
-	m_Param=SGTScriptParam();
+	m_Param=Ice::ScriptParam();
 }
 
-ResidentVariables::SaveableScriptParam::SaveableScriptParam(SGTScriptParam &param)
+ResidentVariables::SaveableScriptParam::SaveableScriptParam(Ice::ScriptParam &param)
 {
 	m_Param=param;
 }
 
 void
-ResidentVariables::SaveableScriptParam::set(SGTScriptParam &param)
+ResidentVariables::SaveableScriptParam::set(Ice::ScriptParam &param)
 {
 	m_Param.set(param);
 }
 
-SGTScriptParam
-ResidentVariables::SaveableScriptParam::ToSGTScriptParam()
+Ice::ScriptParam
+ResidentVariables::SaveableScriptParam::ToIceScriptParam()
 {
 	return m_Param;
 }
 
 void
-ResidentVariables::SaveableScriptParam::Register(std::string *pstrName, SGTSaveableInstanceFn *pFn)
+ResidentVariables::SaveableScriptParam::Register(std::string *pstrName, LoadSave::SaveableInstanceFn *pFn)
 {
 	*pstrName=std::string("ResidentVariables::SaveableScriptParam");
 	*pFn=NewInstance;
 }
 
-SGTSaveable*
+LoadSave::Saveable*
 ResidentVariables::SaveableScriptParam::NewInstance()
 {
 	return new ResidentVariables::SaveableScriptParam;
@@ -273,7 +273,7 @@ ResidentVariables::SaveableScriptParam::TellName()
 }
 
 void
-ResidentVariables::SaveableScriptParam::Save(SGTSaveSystem &ss)
+ResidentVariables::SaveableScriptParam::Save(LoadSave::SaveSystem &ss)
 {
 	int iParamType=m_Param.getType();
 	ss.SaveAtom("int", &iParamType, "m_Type");
@@ -284,19 +284,19 @@ ResidentVariables::SaveableScriptParam::Save(SGTSaveSystem &ss)
 	std::string str;
 	switch(iParamType)
 	{
-	case SGTScriptParam::PARM_TYPE_BOOL:
+	case Ice::ScriptParam::PARM_TYPE_BOOL:
 		b=m_Param.getBool();
 		ss.SaveAtom("bool", &b, "m_bData");
 		break;
-	case SGTScriptParam::PARM_TYPE_FLOAT:
+	case Ice::ScriptParam::PARM_TYPE_FLOAT:
 		f=m_Param.getFloat();
 		ss.SaveAtom("double", &f, "m_fData");
 		break;
-	case SGTScriptParam::PARM_TYPE_INT:
+	case Ice::ScriptParam::PARM_TYPE_INT:
 		i=m_Param.getInt();
 		ss.SaveAtom("int", &i, "m_iData");
 		break;
-	case SGTScriptParam::PARM_TYPE_STRING:
+	case Ice::ScriptParam::PARM_TYPE_STRING:
 		str=m_Param.getString();
 		ss.SaveAtom("std::string", &str, "m_strData");
 		break;
@@ -306,7 +306,7 @@ ResidentVariables::SaveableScriptParam::Save(SGTSaveSystem &ss)
 }
 
 void
-ResidentVariables::SaveableScriptParam::Load(SGTLoadSystem &ls)
+ResidentVariables::SaveableScriptParam::Load(LoadSave::LoadSystem &ls)
 {
 	int iType;
 	ls.LoadAtom("int", &iType);
@@ -317,21 +317,21 @@ ResidentVariables::SaveableScriptParam::Load(SGTLoadSystem &ls)
 	std::string str;
 	switch(iType)
 	{
-	case SGTScriptParam::PARM_TYPE_BOOL:
+	case Ice::ScriptParam::PARM_TYPE_BOOL:
 		ls.LoadAtom("bool", &b);
-		m_Param=SGTScriptParam(b);
+		m_Param=Ice::ScriptParam(b);
 		break;
-	case SGTScriptParam::PARM_TYPE_FLOAT:
+	case Ice::ScriptParam::PARM_TYPE_FLOAT:
 		ls.LoadAtom("double", &f);
-		m_Param=SGTScriptParam(f);
+		m_Param=Ice::ScriptParam(f);
 		break;
-	case SGTScriptParam::PARM_TYPE_INT:
+	case Ice::ScriptParam::PARM_TYPE_INT:
 		ls.LoadAtom("int", &i);
-		m_Param=SGTScriptParam(i);
+		m_Param=Ice::ScriptParam(i);
 		break;
-	case SGTScriptParam::PARM_TYPE_STRING:
+	case Ice::ScriptParam::PARM_TYPE_STRING:
 		ls.LoadAtom("std::string", &str);
-		m_Param=SGTScriptParam(str);
+		m_Param=Ice::ScriptParam(str);
 		break;
 	default:
 		break;
@@ -340,9 +340,9 @@ ResidentVariables::SaveableScriptParam::Load(SGTLoadSystem &ls)
 
 
 /*void
-SGTScriptParamHandler::Save(SGTSaveSystem &ss, void *pData, std::string strVarName)
+Ice::ScriptParamHandler::Save(LoadSave::SaveSystem &ss, void *pData, std::string strVarName)
 {
-	SGTScriptParam& param=*(SGTScriptParam*)pData;
+	Ice::ScriptParam& param=*(Ice::ScriptParam*)pData;
 	int iParamType=param.getType();
 	ss.SaveAtom("int", &iParamType, "m_Type");
 	//some dummy vars...
@@ -352,19 +352,19 @@ SGTScriptParamHandler::Save(SGTSaveSystem &ss, void *pData, std::string strVarNa
 	std::string str;
 	switch(iParamType)
 	{
-	case SGTScriptParam::PARM_TYPE_BOOL:
+	case Ice::ScriptParam::PARM_TYPE_BOOL:
 		b=param.getBool();
 		ss.SaveAtom("bool", &b, "m_bData");
 		break;
-	case SGTScriptParam::PARM_TYPE_FLOAT:
+	case Ice::ScriptParam::PARM_TYPE_FLOAT:
 		f=param.getFloat();
 		ss.SaveAtom("double", &f, "m_fData");
 		break;
-	case SGTScriptParam::PARM_TYPE_INT:
+	case Ice::ScriptParam::PARM_TYPE_INT:
 		i=param.getInt();
 		ss.SaveAtom("int", &i, "m_iData");
 		break;
-	case SGTScriptParam::PARM_TYPE_STRING:
+	case Ice::ScriptParam::PARM_TYPE_STRING:
 		str=param.getString();
 		ss.SaveAtom("std::string", &str, "m_strData");
 		break;
@@ -374,9 +374,9 @@ SGTScriptParamHandler::Save(SGTSaveSystem &ss, void *pData, std::string strVarNa
 }
 
 void
-SGTScriptParamHandler::Load(SGTLoadSystem &ls, void *pDest)
+Ice::ScriptParamHandler::Load(LoadSave::LoadSystem &ls, void *pDest)
 {
-	SGTScriptParam* pParam=(SGTScriptParam*)pDest;
+	Ice::ScriptParam* pParam=(Ice::ScriptParam*)pDest;
 	int iType;
 	ls.LoadAtom("int", &iType);
 	//some dummy vars...
@@ -386,21 +386,21 @@ SGTScriptParamHandler::Load(SGTLoadSystem &ls, void *pDest)
 	std::string str;
 	switch(iType)
 	{
-	case SGTScriptParam::PARM_TYPE_BOOL:
+	case Ice::ScriptParam::PARM_TYPE_BOOL:
 		ls.LoadAtom("bool", &b);
-		pParam->set(SGTScriptParam(b));
+		pParam->set(Ice::ScriptParam(b));
 		break;
-	case SGTScriptParam::PARM_TYPE_FLOAT:
+	case Ice::ScriptParam::PARM_TYPE_FLOAT:
 		ls.LoadAtom("double", &f);
-		pParam->set(SGTScriptParam(f));
+		pParam->set(Ice::ScriptParam(f));
 		break;
-	case SGTScriptParam::PARM_TYPE_INT:
+	case Ice::ScriptParam::PARM_TYPE_INT:
 		ls.LoadAtom("int", &i);
-		pParam->set(SGTScriptParam(i));
+		pParam->set(Ice::ScriptParam(i));
 		break;
-	case SGTScriptParam::PARM_TYPE_STRING:
+	case Ice::ScriptParam::PARM_TYPE_STRING:
 		ls.LoadAtom("std::string", &str);
-		pParam->set(SGTScriptParam(str));
+		pParam->set(Ice::ScriptParam(str));
 		break;
 	default:
 		break;
@@ -408,8 +408,8 @@ SGTScriptParamHandler::Load(SGTLoadSystem &ls, void *pDest)
 }
 
 std::string&
-SGTScriptParamHandler::TellName()
+Ice::ScriptParamHandler::TellName()
 {
-	static std::string strName=std::string("SGTScriptParam");
+	static std::string strName=std::string("Ice::ScriptParam");
 	return strName;
 }*/

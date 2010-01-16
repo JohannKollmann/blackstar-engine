@@ -5,7 +5,8 @@
 
 #include "wxEdit.h"
 #include "wx/wx.h"
-#include "SGTMain.h"
+#include "IceMain.h"
+#include "EDTIncludes.h"
 
 enum
 {
@@ -65,7 +66,7 @@ public:
 
 private:
 	wxEdit *mEdit;
-	SGTMain *mRoot;
+	Ice::Main *mRoot;
 };
 
 #endif

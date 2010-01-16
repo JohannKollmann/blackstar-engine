@@ -1,4 +1,8 @@
- typedef unsigned long long  uint64; // etwaig __int64 == long long
+
+namespace LoadSave
+{
+
+typedef unsigned long long  uint64; // etwaig __int64 == long long
  typedef unsigned char       uchar;
  
  uint64 fnFNV( void* pBuffer, size_t nByteLen )
@@ -15,3 +19,5 @@
  
    return nHashVal;
  }
+
+};

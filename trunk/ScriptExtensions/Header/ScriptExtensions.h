@@ -1,9 +1,9 @@
 
 #include "Ogre.h"
 #include "OgrePlugin.h"
-#include "SGTMessageListener.h"
+#include "IceMessageListener.h"
 
-class __declspec(dllexport) ScriptExtensions : public Ogre::Plugin, public SGTMessageListener
+class __declspec(dllexport) ScriptExtensions : public Ogre::Plugin, public Ice::MessageListener
 {
 public:
 	static ScriptExtensions& GetInstance();
@@ -15,8 +15,8 @@ public:
 	void initialise();
 	void shutdown();
 	void uninstall();
-	//SGTMessageListener overloads
-	void ReceiveMessage(SGTMsg &msg);
+	//Ice::MessageListener overloads
+	void ReceiveMessage(Ice::Msg &msg);
 private:
 	static const Ogre::String m_cstrName;
 };

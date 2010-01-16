@@ -1,7 +1,7 @@
 
 #include "wxObjectFolderTree.h"
-#include "SGTScenemanager.h"
-#include "SGTGOCAnimatedCharacter.h"
+#include "IceScenemanager.h"
+#include "IceGOCAnimatedCharacter.h"
 
 enum
 {
@@ -56,7 +56,7 @@ void wxObjectFolderTree::OnSelectItemCallback()
 		if (extension == "ocs" && wxEdit::Instance().GetWorldExplorer()->GetSelection() == 1)
 		{
 			CreateObjectPreview(Path + File);
-			((wxEditSGTGameObject*)(wxEdit::Instance().GetpropertyWindow()->SetPage("EditGameObject")))->SetResource(Path + File);
+			((wxEditIceGameObject*)(wxEdit::Instance().GetpropertyWindow()->SetPage("EditGameObject")))->SetResource(Path + File);
 		}
 	}
 }
@@ -65,49 +65,49 @@ void wxObjectFolderTree::ClearObjectPreview()
 {
 	if (mPreviewObject)
 	{
-		SGTMain::Instance().SetSceneMgr(false);
+		Ice::Main::Instance().SetSceneMgr(false);
 		delete mPreviewObject;
-		SGTMain::Instance().SetSceneMgr(true);
+		Ice::Main::Instance().SetSceneMgr(true);
 		mPreviewObject = 0;
 	}
 	wxEdit::Instance().GetPreviewWindow()->SetPreviewNode(0);
 	wxEdit::Instance().GetPreviewWindow()->ClearDisplay();
-	SGTSceneManager::Instance().DestroyPreviewRender("EditorPreview");
+	Ice::SceneManager::Instance().DestroyPreviewRender("EditorPreview");
 }
 
 void wxObjectFolderTree::CreateObjectPreview(Ogre::String file)
 {
 	ClearObjectPreview();
-	SGTMain::Instance().SetSceneMgr(false);
-	mPreviewObject = new SGTGameObject(0);
-	SGTLoadSystem *ls=SGTLoadSave::Instance().LoadFile(file);
-	std::list<ComponentSection> sections;
+	Ice::Main::Instance().SetSceneMgr(false);
+	mPreviewObject = new Ice::GameObject(0);
+	LoadSave::LoadSystem *ls=LoadSave::LoadSave::Instance().LoadFile(file);
+	std::list<Ice::ComponentSection> sections;
 	ls->LoadAtom("std::list<ComponentSection>", (void*)(&sections));
 	Ogre::Vector3 scale(1,1,1);
-	for (std::list<ComponentSection>::iterator i = sections.begin(); i != sections.end(); i++)
+	for (std::list<Ice::ComponentSection>::iterator i = sections.begin(); i != sections.end(); i++)
 	{
 		if ((*i).mSectionName == "GameObject") continue;
 		(*i).mSectionData->AddOgreVec3("Scale", scale);
-		SGTGOCEditorInterface *component = SGTSceneManager::Instance().CreateComponent((*i).mSectionName, (*i).mSectionData.getPointer());
+		Ice::GOCEditorInterface *component = Ice::SceneManager::Instance().CreateComponent((*i).mSectionName, (*i).mSectionData.getPointer());
 		if (!component) continue;
-		SGTGOComponent *test1 = dynamic_cast<SGTGOComponent*>(component);
-		SGTGOCNodeRenderable *test2 = dynamic_cast<SGTGOCNodeRenderable*>(component);
+		Ice::GOComponent *test1 = dynamic_cast<Ice::GOComponent*>(component);
+		Ice::GOCNodeRenderable *test2 = dynamic_cast<Ice::GOCNodeRenderable*>(component);
 		if (test1 && !test2) delete test1;
 		else component->AttachToGO(mPreviewObject);
 	}
 	ls->CloseFile();
-	SGTGOCNodeRenderable *renderable = (SGTGOCNodeRenderable*)mPreviewObject->GetComponent("View");
+	Ice::GOCNodeRenderable *renderable = (Ice::GOCNodeRenderable*)mPreviewObject->GetComponent("View");
 	if (!renderable)
 	{
 		delete mPreviewObject;
 		mPreviewObject = 0;
-		SGTMain::Instance().SetSceneMgr(true);
+		Ice::Main::Instance().SetSceneMgr(true);
 		return;
 	}
-	SGTMain::Instance().SetSceneMgr(true);
+	Ice::Main::Instance().SetSceneMgr(true);
 	float width = 256;//wxEdit::Instance().GetAuiManager().GetPane("preview").floating_size.GetWidth();
 	float height = 256;//wxEdit::Instance().GetAuiManager().GetPane("preview").floating_size.GetHeight();
-	SGTSceneManager::Instance().CreatePreviewRender(renderable->GetNode(), "EditorPreview", width, height);
+	Ice::SceneManager::Instance().CreatePreviewRender(renderable->GetNode(), "EditorPreview", width, height);
 	Ogre::TexturePtr texture = Ogre::TextureManager::getSingleton().getByName("EditorPreview_Tex");
 	wxEdit::Instance().GetPreviewWindow()->SetPreviewNode(renderable->GetNode());
 	wxEdit::Instance().GetPreviewWindow()->SetTexture(texture);
@@ -126,7 +126,7 @@ void wxObjectFolderTree::OnMenuCallback(int id)
 		if (file.find(".ocs") == Ogre::String::npos) file = file + ".ocs";
 		Ogre::String fullPath = wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->mRootPath + "\\" + relPath + file;
 
-		wxEditSGTGameObject *page = ((wxEditSGTGameObject*)(wxEdit::Instance().GetpropertyWindow()->SetPage("EditGameObject")));
+		wxEditIceGameObject *page = ((wxEditIceGameObject*)(wxEdit::Instance().GetpropertyWindow()->SetPage("EditGameObject")));
 		page->NewResource(fullPath);
 		page->OnApply();
 		page->SetResource(fullPath);
@@ -147,7 +147,7 @@ void wxObjectFolderTree::OnToolbarEvent(int toolID, Ogre::String toolname)
 		if (file.find(".ocs") == Ogre::String::npos) file = file + ".ocs";
 		Ogre::String fullPath = wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->mRootPath + "\\" + insertpath + file;
 
-		wxEditSGTGameObject *page = ((wxEditSGTGameObject*)(wxEdit::Instance().GetpropertyWindow()->SetPage("EditGameObject")));
+		wxEditIceGameObject *page = ((wxEditIceGameObject*)(wxEdit::Instance().GetpropertyWindow()->SetPage("EditGameObject")));
 		page->NewResource(fullPath);
 		page->OnApply();
 		page->SetResource(fullPath);
@@ -163,7 +163,7 @@ void wxObjectFolderTree::OnEnterTab()
 	{
 		if (GetSelectedResource().find(".ocs") != Ogre::String::npos)
 		{
-			((wxEditSGTGameObject*)(wxEdit::Instance().GetpropertyWindow()->GetCurrentPage()))->SetResource(GetSelectedResource());
+			((wxEditIceGameObject*)(wxEdit::Instance().GetpropertyWindow()->GetCurrentPage()))->SetResource(GetSelectedResource());
 		}
 	}
 
@@ -178,6 +178,6 @@ void wxObjectFolderTree::OnLeaveTab()
 {
 	wxEdit::Instance().GetExplorerToolbar()->SetGroupStatus("ResourceMgr", false);
 
-	SGTSceneManager::Instance().DestroyPreviewRender("EditorPreview");
+	Ice::SceneManager::Instance().DestroyPreviewRender("EditorPreview");
 	ClearObjectPreview();
 }

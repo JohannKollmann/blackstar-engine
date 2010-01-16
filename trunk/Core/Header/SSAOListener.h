@@ -2,10 +2,13 @@
 #pragma once
 
 #include "Ogre.h"
-#include "SGTIncludes.h"
-#include "SGTMain.h"
+#include "IceIncludes.h"
+#include "IceMain.h"
 
-class SGTDllExport SSAOListener: public Ogre::CompositorInstance::Listener
+namespace Ice
+{
+
+class DllExport SSAOListener: public Ogre::CompositorInstance::Listener
 {
 public:
 	SSAOListener() {}
@@ -17,7 +20,7 @@ public:
             return;
 
         // this is the camera you're using
-		Ogre::Camera *cam = SGTMain::Instance().GetCamera();
+		Ogre::Camera *cam = Main::Instance().GetCamera();
 
         // calculate the far-top-right corner in view-space
         Ogre::Vector3 farCorner = cam->getViewMatrix(true) * cam->getWorldSpaceCorners()[4];
@@ -44,4 +47,6 @@ public:
         if (params->_findNamedConstantDefinition("far"))
             params->setNamedConstant("far", cam->getFarClipDistance());
     }
+};
+
 };

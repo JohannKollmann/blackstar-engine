@@ -2,6 +2,9 @@
 
 #include "Ogre.h"
 
+namespace Ice
+{
+
 	class HDRListener: public Ogre::CompositorInstance::Listener
 	{
 	protected:
@@ -20,3 +23,4 @@
 		virtual void notifyMaterialSetup(Ogre::uint32 pass_id, Ogre::MaterialPtr &mat);
 		virtual void notifyMaterialRender(Ogre::uint32 pass_id, Ogre::MaterialPtr &mat);
 	};
+};

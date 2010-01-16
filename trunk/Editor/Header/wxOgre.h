@@ -4,7 +4,7 @@
 #include "Ogre.h"
 #include "wx/wx.h"
 #include "EDTIncludes.h"
-#include "SGTEdit.h"
+#include "Edit.h"
 
 	/**
 	@brief WX widget for and Ogre rendering window
@@ -49,7 +49,7 @@ enum
 
 		void initOgre();
 
-		SGTEdit* GetEdit() { return mEdit; }
+		Edit* GetEdit() { return mEdit; }
 
 		/** Renders a single Ogre frame */
 		void update();
@@ -111,7 +111,7 @@ enum
 		Ogre::RenderWindow* mRenderWindow;
 		Ogre::Camera *mCamera;
 
-		SGTEdit *mEdit;
+		Edit *mEdit;
 
 		bool mInitialized;
 

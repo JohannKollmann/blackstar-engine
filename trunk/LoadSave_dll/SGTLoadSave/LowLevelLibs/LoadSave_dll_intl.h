@@ -1,3 +1,7 @@
+
+namespace LoadSave
+{
+
 enum ESaveFileLevel
 {
 	ATOM,//the object is an atom.. just wait for the close
@@ -39,3 +43,5 @@ static int GetAtomSize(int** paiAtomSizes, int iID)//if 0 it was no atom
 	}
 	return 0;
 }
+
+};

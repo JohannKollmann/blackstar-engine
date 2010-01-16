@@ -4,15 +4,15 @@
 
 #include "EDTIncludes.h"
 #include "wxFileTree.h"
-#include "wxEditSGTGameObject.h"
-#include "SGTGameObject.h"
+#include "wxEditIceGameObject.h"
+#include "IceGameObject.h"
 #include "EntityTreeNotebookListener.h"
 #include "wxEdit.h"
 
 class wxObjectFolderTree : public wxFileTree, public EntityTreeNotebookListener
 {
 private:
-	SGTGameObject *mPreviewObject;
+	Ice::GameObject *mPreviewObject;
 	void CreateObjectPreview(Ogre::String file);
 	void ClearObjectPreview();
 

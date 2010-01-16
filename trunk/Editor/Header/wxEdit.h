@@ -7,7 +7,7 @@
 #include "wxOgreSceneTree.h"
 #include "wxMaterialTree.h"
 #include "EDTIncludes.h"
-#include "wxEditSGTGameObject.h"
+#include "wxEditIceGameObject.h"
 #include "wxMainMenu.h"
 #include "wxPropertyGridWindow.h"
 #include "wxEntityTreeNotebook.h"
@@ -16,10 +16,11 @@
 #include "wxMeshMagick.h"
 #include "wxComponentBar.h"
 #include "wxMainNotebook.h"
-#include "wxSGTToolbar.h"
+#include "wxEditorToolbar.h"
 #include "wxMediaTree.h"
 #include "wxTextureDisplay.h"
 #include "wxLogDisplay.h"
+#include "EDTIncludes.h"
 
 class wxEdit : public wxFrame
 {
@@ -38,8 +39,8 @@ private:
 	wxProgressBar *mProgressBar;
 	wxMeshMagick *mMeshMagick;
 	wxComponentBar *mComponentBar;
-	wxSGTToolbar *mMainToolbar;
-	wxSGTToolbar *mExplorerToolbar;
+	wxEditorToolbar *mMainToolbar;
+	wxEditorToolbar *mExplorerToolbar;
 	wxTextureDisplay *mPreviewWindow;
 	wxLogDisplay *mLogDisplay;
 
@@ -64,8 +65,8 @@ public:
 	wxTextureDisplay* GetPreviewWindow() { return mPreviewWindow; };
 	wxProgressBar* GetProgressBar() { return mProgressBar; };
 	wxComponentBar* GetComponentBar() { return mComponentBar; };
-	wxSGTToolbar* GetMainToolbar() { return mMainToolbar; };
-	wxSGTToolbar* GetExplorerToolbar() { return mExplorerToolbar; };
+	wxEditorToolbar* GetMainToolbar() { return mMainToolbar; };
+	wxEditorToolbar* GetExplorerToolbar() { return mExplorerToolbar; };
 
 	wxPoint GetStartPosition();
 

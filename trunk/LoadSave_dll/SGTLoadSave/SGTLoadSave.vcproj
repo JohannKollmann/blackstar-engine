@@ -188,48 +188,48 @@
 			</File>
 		</Filter>
 		<Filter
-			Name="SGTLibs"
+			Name="Libs"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\SGTLibs\SGTAtomHandler.h"
+				RelativePath=".\SGTLibs\AtomHandler.h"
 				>
 			</File>
 			<File
-				RelativePath=".\SGTLibs\SGTLoadSave.h"
+				RelativePath=".\SGTLibs\LoadSave.h"
 				>
 			</File>
 			<File
-				RelativePath=".\SGTLibs\SGTLoadSystem.h"
+				RelativePath=".\SGTLibs\LoadSystem.h"
 				>
 			</File>
 			<File
-				RelativePath=".\SGTLibs\SGTRecordReference.h"
+				RelativePath=".\SGTLibs\RecordReference.h"
 				>
 			</File>
 			<File
-				RelativePath=".\SGTLibs\SGTSaveable.h"
+				RelativePath=".\SGTLibs\Saveable.h"
 				>
 			</File>
 			<File
-				RelativePath=".\SGTLibs\SGTSaveSystem.h"
+				RelativePath=".\SGTLibs\SaveSystem.h"
 				>
 			</File>
 		</Filter>
 		<Filter
-			Name="SGTSrc"
+			Name="InterfaceSrc"
 			>
 			<File
-				RelativePath=".\SGTSrc\SGTLoadSave.cpp"
+				RelativePath=".\InterfaceSrc\LoadSave.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\SGTSrc\SGTLoadSystem.cpp"
+				RelativePath=".\InterfaceSrc\LoadSystem.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\SGTSrc\SGTSaveSystem.cpp"
+				RelativePath=".\InterfaceSrc\SaveSystem.cpp"
 				>
 			</File>
 		</Filter>

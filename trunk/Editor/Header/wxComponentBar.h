@@ -5,7 +5,8 @@
 #include "wx/wx.h"
 #include <map>
 #include "Ogre.h"
-#include "SGTDataMap.h"
+#include "IceDataMap.h"
+#include "EDTIncludes.h"
 
 class wxComponentBar : public wxPanel
 {
@@ -19,7 +20,7 @@ protected:
 	{
 		Ogre::String mFamily;
 		Ogre::String mName;
-		SGTDataMap *mParameters;
+		Ice::DataMap *mParameters;
 		wxCheckBox *mCheckBox;
 	};
 
@@ -33,6 +34,6 @@ public:
 
 	void OnCheckBoxClicked(wxCommandEvent& event);
 	void ResetCheckBoxes();
-	void SetSections(std::list<ComponentSection> sections);
+	void SetSections(std::list<Ice::ComponentSection> sections);
 	void SetSectionStatus(Ogre::String name, bool checked);
 };

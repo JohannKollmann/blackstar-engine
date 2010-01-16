@@ -4,6 +4,7 @@
 #include "wx/aui/aui.h"
 #include "wx/wx.h"
 #include "Ogre.h"
+#include "EDTIncludes.h"
 
 class wxTextureDisplay : public wxControl
 {

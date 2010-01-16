@@ -1,11 +1,11 @@
 
-#include "SGTMain.h"
-#include "SGTGamestate.h"
+#include "IceMain.h"
+#include "IceGamestate.h"
 #include "wxEdit.h"
-#include "SGTSceneManager.h"
+#include "IceSceneManager.h"
 
 //Editor Modus
-class Edit : public wxApp
+class Main : public wxApp
 {
 public:
 	wxEdit* mFrame;
@@ -23,26 +23,26 @@ public:
 		ogre->setRenderSystem(*r_it);*/
 
 		Ogre::LogManager::getSingleton().logMessage("new wxEdit");
-		SGTMain::Instance().ExternInit();
+		Ice::Main::Instance().ExternInit();
 		mFrame = &wxEdit::Instance();
 		SetTopWindow(mFrame);
 		mFrame->Show();
-		SGTMessageSystem::Instance().CreateNewsgroup("REPARSE_SCRIPTS");
-		SGTMessageSystem::Instance().CreateNewsgroup("REPARSE_SCRIPTS_POST");
-		SGTMain::Instance().Run(mFrame->GetOgrePane()->getRenderWindow(), (size_t)((HWND)mFrame->GetHandle()));
+		Ice::MessageSystem::Instance().CreateNewsgroup("REPARSE_SCRIPTS");
+		Ice::MessageSystem::Instance().CreateNewsgroup("REPARSE_SCRIPTS_POST");
+		Ice::Main::Instance().Run(mFrame->GetOgrePane()->getRenderWindow(), (size_t)((HWND)mFrame->GetHandle()));
 		mFrame->PostCreate();
-		//Ogre::LogManager::getSingleton().logMessage("Root Num Children: " + Ogre::StringConverter::toString(SGTMain::Instance().GetOgreSceneMgr()->getRootSceneNode()->numChildren()));
+		//Ogre::LogManager::getSingleton().logMessage("Root Num Children: " + Ogre::StringConverter::toString(Ice::Main::Instance().GetOgreSceneMgr()->getRootSceneNode()->numChildren()));
 		return true;                    
 	}
 
 	int OnExit()
 	{
 		std::cout << "OnExit" << std::endl;
-		//SGTMain::Instance().Shutdown();
+		//Ice::Main::Instance().Shutdown();
 		return 0;
 	}
 };
-IMPLEMENT_APP_NO_MAIN(Edit);
+IMPLEMENT_APP_NO_MAIN(Main);
 
 int main(int argc, char *argv[])
 {

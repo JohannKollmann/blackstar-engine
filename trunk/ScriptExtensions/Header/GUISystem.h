@@ -1,28 +1,28 @@
-#ifndef __SGTGUISystem_H__
-#define __SGTGUISystem_H__
+#ifndef __GUISystem_H__
+#define __GUISystem_H__
 
 #include "Ogre.h"
-#include "SGTMessageListener.h"
-#include "SGTFontTextures.h"
+#include "IceMessageListener.h"
+#include "FontTextures.h"
 #include <map>
 #include <vector>
 #include <list>
-#include "SGTScriptSystem.h"
+#include "IceScriptSystem.h"
 
 
 
-class SGTGUISystem : public SGTMessageListener
+class GUISystem : public Ice::MessageListener
 {
 public:
-	SGTGUISystem(void);
-	static SGTGUISystem& GetInstance(); 
+	GUISystem(void);
+	static GUISystem& GetInstance(); 
 
-	void ReceiveMessage(SGTMsg &msg);
+	void ReceiveMessage(Ice::Msg &msg);
 
 	class SubWindow;
 	class Window;
-	friend class SGTGUISystem::SubWindow;
-	friend class SGTGUISystem::Window;
+	friend class GUISystem::SubWindow;
+	friend class GUISystem::Window;
 
 	class Window
 	{
@@ -48,8 +48,8 @@ public:
 	private:
 		int m_iHandle;
 	};
-	SGTGUISystem::Window MakeWindow(float x, float y, float w, float h, float fUScale=1.0f, float fVScale=1.0f);
-	SGTGUISystem::SubWindow CreateSubWindow(int iParentHandle, float x, float y, float w, float h, float fUScale=1.0f, float fVScale=1.0f);
+	GUISystem::Window MakeWindow(float x, float y, float w, float h, float fUScale=1.0f, float fVScale=1.0f);
+	GUISystem::SubWindow CreateSubWindow(int iParentHandle, float x, float y, float w, float h, float fUScale=1.0f, float fVScale=1.0f);
 	void SetFocus(int iHandle);
 	void SetForegroundWindow(int iHandle);
 	void SetVisible(int iHandle, bool bVisible);
@@ -61,46 +61,46 @@ public:
 private:
 	//scripting stuff
 
-	static std::vector<SGTScriptParam> Lua_CreateWindow(SGTScript& caller, std::vector<SGTScriptParam> vParams);
-	static std::vector<SGTScriptParam> Lua_CreateSubWindow(SGTScript& caller, std::vector<SGTScriptParam> vParams);
-	static std::vector<SGTScriptParam> Lua_BakeWindow(SGTScript& caller, std::vector<SGTScriptParam> vParams);
-	static std::vector<SGTScriptParam> Lua_DeleteWindow(SGTScript& caller, std::vector<SGTScriptParam> vParams);
+	static std::vector<Ice::ScriptParam> Lua_CreateWindow(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
+	static std::vector<Ice::ScriptParam> Lua_CreateSubWindow(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
+	static std::vector<Ice::ScriptParam> Lua_BakeWindow(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
+	static std::vector<Ice::ScriptParam> Lua_DeleteWindow(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
 
-	static std::vector<SGTScriptParam> Lua_SetMaterial(SGTScript& caller, std::vector<SGTScriptParam> vParams);
-	static std::vector<SGTScriptParam> Lua_SetWindowVisible(SGTScript& caller, std::vector<SGTScriptParam> vParams);
-	static std::vector<SGTScriptParam> Lua_SetForegroundWindow(SGTScript& caller, std::vector<SGTScriptParam> vParams);
-	static std::vector<SGTScriptParam> Lua_SetFocus(SGTScript& caller, std::vector<SGTScriptParam> vParams);
-	static std::vector<SGTScriptParam> Lua_MoveWindow(SGTScript& caller, std::vector<SGTScriptParam> vParams);
-	static std::vector<SGTScriptParam> Lua_GetWindowPos(SGTScript& caller, std::vector<SGTScriptParam> vParams);
-	static std::vector<SGTScriptParam> Lua_SetCursorPos(SGTScript& caller, std::vector<SGTScriptParam> vParams);
+	static std::vector<Ice::ScriptParam> Lua_SetMaterial(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
+	static std::vector<Ice::ScriptParam> Lua_SetWindowVisible(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
+	static std::vector<Ice::ScriptParam> Lua_SetForegroundWindow(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
+	static std::vector<Ice::ScriptParam> Lua_SetFocus(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
+	static std::vector<Ice::ScriptParam> Lua_MoveWindow(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
+	static std::vector<Ice::ScriptParam> Lua_GetWindowPos(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
+	static std::vector<Ice::ScriptParam> Lua_SetCursorPos(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
 
-	static std::vector<SGTScriptParam> Lua_GetScreenCoords(SGTScript& caller, std::vector<SGTScriptParam> vParams);
+	static std::vector<Ice::ScriptParam> Lua_GetScreenCoords(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
 
-	static std::vector<SGTScriptParam> Lua_GetCursor(SGTScript& caller, std::vector<SGTScriptParam> vParams);
-	static std::vector<SGTScriptParam> Lua_SetCursor(SGTScript& caller, std::vector<SGTScriptParam> vParams);
+	static std::vector<Ice::ScriptParam> Lua_GetCursor(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
+	static std::vector<Ice::ScriptParam> Lua_SetCursor(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
 
 	//font system
-	static std::vector<SGTScriptParam> Lua_CreateFontMaterial(SGTScript& caller, std::vector<SGTScriptParam> vParams);
-	static std::vector<SGTScriptParam> Lua_CreateFontTexture(SGTScript& caller, std::vector<SGTScriptParam> vParams);
-	static std::vector<SGTScriptParam> Lua_ChangeFontMaterial(SGTScript& caller, std::vector<SGTScriptParam> vParams);
-	static std::vector<SGTScriptParam> Lua_DeleteTexture(SGTScript& caller, std::vector<SGTScriptParam> vParams);
-	static std::vector<SGTScriptParam> Lua_DeleteMaterial(SGTScript& caller, std::vector<SGTScriptParam> vParams);
+	static std::vector<Ice::ScriptParam> Lua_CreateFontMaterial(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
+	static std::vector<Ice::ScriptParam> Lua_CreateFontTexture(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
+	static std::vector<Ice::ScriptParam> Lua_ChangeFontMaterial(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
+	static std::vector<Ice::ScriptParam> Lua_DeleteTexture(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
+	static std::vector<Ice::ScriptParam> Lua_DeleteMaterial(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
 
 	//window callbacks
 	//mouse events
-	static std::vector<SGTScriptParam> Lua_SetOnClickCallback(SGTScript& caller, std::vector<SGTScriptParam> vParams);
-	static std::vector<SGTScriptParam> Lua_SetMouseDownCallback(SGTScript& caller, std::vector<SGTScriptParam> vParams);
-	static std::vector<SGTScriptParam> Lua_SetMouseUpCallback(SGTScript& caller, std::vector<SGTScriptParam> vParams);
-	static std::vector<SGTScriptParam> Lua_SetMouseMoveCallback(SGTScript& caller, std::vector<SGTScriptParam> vParams);
-	static std::vector<SGTScriptParam> Lua_SetMouseHoverInCallback(SGTScript& caller, std::vector<SGTScriptParam> vParams);
-	static std::vector<SGTScriptParam> Lua_SetMouseHoverOutCallback(SGTScript& caller, std::vector<SGTScriptParam> vParams);
+	static std::vector<Ice::ScriptParam> Lua_SetOnClickCallback(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
+	static std::vector<Ice::ScriptParam> Lua_SetMouseDownCallback(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
+	static std::vector<Ice::ScriptParam> Lua_SetMouseUpCallback(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
+	static std::vector<Ice::ScriptParam> Lua_SetMouseMoveCallback(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
+	static std::vector<Ice::ScriptParam> Lua_SetMouseHoverInCallback(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
+	static std::vector<Ice::ScriptParam> Lua_SetMouseHoverOutCallback(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
 	//keyboard events
-	static std::vector<SGTScriptParam> Lua_SetOnCharCallback(SGTScript& caller, std::vector<SGTScriptParam> vParams);
-	static std::vector<SGTScriptParam> Lua_SetKeyDownCallback(SGTScript& caller, std::vector<SGTScriptParam> vParams);
-	static std::vector<SGTScriptParam> Lua_SetKeyUpCallback(SGTScript& caller, std::vector<SGTScriptParam> vParams);
+	static std::vector<Ice::ScriptParam> Lua_SetOnCharCallback(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
+	static std::vector<Ice::ScriptParam> Lua_SetKeyDownCallback(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
+	static std::vector<Ice::ScriptParam> Lua_SetKeyUpCallback(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
 	//input states
-	static std::vector<SGTScriptParam> Lua_GetKeyDown(SGTScript& caller, std::vector<SGTScriptParam> vParams);
-	static std::vector<SGTScriptParam> Lua_GetMouseButtons(SGTScript& caller, std::vector<SGTScriptParam> vParams);
+	static std::vector<Ice::ScriptParam> Lua_GetKeyDown(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
+	static std::vector<Ice::ScriptParam> Lua_GetMouseButtons(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
 
 	int FindParentWindow(int iSubWindowHandle);
 	float m_fXPos, m_fYPos;
@@ -117,7 +117,7 @@ private:
 		bool bVisible;
 		int iParentHandle;
 		std::vector<int> vSubWindows;
-		SGTScriptParam parOnClick, parMouseDown, parMouseUp, parMouseMove, parMouseHoverIn, parMouseHoverOut,
+		Ice::ScriptParam parOnClick, parMouseDown, parMouseUp, parMouseMove, parMouseHoverIn, parMouseHoverOut,
 			parOnChar, parKeyDown, parKeyUp;
 		bool bWasBaked;
 
@@ -133,7 +133,7 @@ private:
 	int m_iFocusWin;
 
 	//scripting..
-	std::map<std::string, SGTFontTextures> m_mFontTextures;
+	std::map<std::string, FontTextures> m_mFontTextures;
 };
 
 #endif

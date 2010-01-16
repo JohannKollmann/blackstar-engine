@@ -3,6 +3,9 @@
 #include "..\LowLevelLibs\save_helpers.h"
 #include <memory.h>
 
+namespace LoadSave
+{
+
 void (*g_pErrFn)(std::string)=NULL;
 void (*g_pLogFn)(std::string)=NULL;
 
@@ -179,3 +182,5 @@ CSaveManager::~CSaveManager()
 		delete m_aaiAtomSizes[i];
 	delete m_aaiAtomSizes;
 }
+
+};

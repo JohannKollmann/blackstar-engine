@@ -7,6 +7,7 @@
 #include "wxMaterialTree.h"
 #include "wxScriptFileTree.h"
 #include "wxMediaTree.h"
+#include "EDTIncludes.h"
 
 class wxEntityTreeNotebook : public wxAuiNotebook
 {

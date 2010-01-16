@@ -2,6 +2,9 @@
 #include <fstream>
 #include <string>
 
+namespace LoadSave
+{
+
 enum EMemFileDir
 {
 	POS_BEGIN,
@@ -68,4 +71,6 @@ private:
 	bool m_bValid;
 	std::ifstream* m_pInFile;
 	CMemFile* m_pInMem;
+};
+
 };

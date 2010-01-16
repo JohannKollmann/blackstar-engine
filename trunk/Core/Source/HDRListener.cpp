@@ -1,5 +1,8 @@
 #include "HDRListener.h"
 
+namespace Ice
+{
+
 	HDRListener::HDRListener()
 	{
 	}
@@ -110,3 +113,5 @@
 	void HDRListener::notifyMaterialRender(Ogre::uint32 pass_id, Ogre::MaterialPtr &mat)
 	{
 	}
+
+};

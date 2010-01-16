@@ -4,6 +4,7 @@
 #include "wxfiletree.h"
 #include "wx/dnd.h"
 #include "EntityTreeNotebookListener.h"
+#include "EDTIncludes.h"
 
 class wxMediaTree : public wxFileTree, public EntityTreeNotebookListener
 {

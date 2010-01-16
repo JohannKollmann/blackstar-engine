@@ -4,6 +4,7 @@
 #include "wx/wx.h"
 #include "wxOgre.h"
 #include "wxScriptEditor.h"
+#include "EDTIncludes.h"
 
 struct ScriptEditorCaptionBind
 {

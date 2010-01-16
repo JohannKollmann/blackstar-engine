@@ -3,6 +3,7 @@
 #include "wx/wx.h"
 #include "wx/listctrl.h"
 #include "Ogre.h"
+#include "EDTIncludes.h"
 
 class wxLogDisplay : public wxListCtrl, public Ogre::LogListener
 {

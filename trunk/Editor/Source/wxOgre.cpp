@@ -1,7 +1,7 @@
 #include "../Header/wxOgre.h"
-#include "SGTMainLoop.h"
-#include "SGTWeatherController.h"
-#include "SGTSceneManager.h"
+#include "IceMainLoop.h"
+#include "IceWeatherController.h"
+#include "IceSceneManager.h"
 
 #ifdef __WXGTK__
 #include <gdk/gdk.h>
@@ -105,7 +105,7 @@ void wxOgre::createOgreRenderWindow()
 #endif
 	params["externalWindowHandle"] = handle;
 
-	for (std::vector<SGTMain::KeyVal>::iterator i = SGTMain::Instance().mSettings["Graphics"].begin(); i != SGTMain::Instance().mSettings["Graphics"].end(); i++)
+	for (std::vector<Ice::Main::KeyVal>::iterator i = Ice::Main::Instance().mSettings["Graphics"].begin(); i != Ice::Main::Instance().mSettings["Graphics"].end(); i++)
 	{
 		if (i->Key == "AA")
 		{
@@ -138,7 +138,7 @@ wxOgre::~wxOgre()
 {
 	if (mInitialized)
 	{
-		//SGTMain::Instance().Shutdown();
+		//Ice::Main::Instance().Shutdown();
 		//exit(0);		//HACK! FUCK YOU WX WIDGETS ICH WEISS WO DEIN HAUS WOHNT!!!11einseinself
 	}
 }
@@ -146,7 +146,7 @@ wxOgre::~wxOgre()
 void wxOgre::initEdit()
 {
 	Ogre::LogManager::getSingleton().logMessage("init Edit");
-	/*std::vector<Ogre::String> entityTypes = SGTSceneManager::Instance().GetAvailableEntityTypes();
+	/*std::vector<Ogre::String> entityTypes = Ice::SceneManager::Instance().GetAvailableEntityTypes();
 	for (std::vector<Ogre::String>::iterator i = entityTypes.begin(); i != entityTypes.end(); i++)
 	{
 		extensions.Add("*." + wxString((*i).c_str()));
@@ -158,7 +158,7 @@ void wxOgre::initEdit()
 	extensions.Add("*.ocs");
 	wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->SetExtensions(extensions);
 	wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->SetRootPath("Data/Editor/Objects");*/
-	mEdit = new SGTEdit();
+	mEdit = new Edit();
 };
 
 void wxOgre::OnSize(wxSizeEvent& event)
@@ -169,14 +169,14 @@ void wxOgre::OnSize(wxSizeEvent& event)
 		int width;
 		int height;
 		GetSize(&width, &height);
-		SGTMain::Instance().GetWindow()->resize( width, height );
+		Ice::Main::Instance().GetWindow()->resize( width, height );
 		// Letting Ogre know the window has been resized;
-		SGTMain::Instance().GetWindow()->windowMovedOrResized();
+		Ice::Main::Instance().GetWindow()->windowMovedOrResized();
 		// Set the aspect ratio for the new size;
-		if (SGTMain::Instance().GetCamera())
-			SGTMain::Instance().GetCamera()->setAspectRatio(Ogre::Real(width) / Ogre::Real(height));
+		if (Ice::Main::Instance().GetCamera())
+			Ice::Main::Instance().GetCamera()->setAspectRatio(Ogre::Real(width) / Ogre::Real(height));
 
-		if (SGTSceneManager::Instance().GetWeatherController()) SGTSceneManager::Instance().GetWeatherController()->UpdateViewport();
+		if (Ice::SceneManager::Instance().GetWeatherController()) Ice::SceneManager::Instance().GetWeatherController()->UpdateViewport();
 		update();
 	}
 }
@@ -190,7 +190,7 @@ void wxOgre::OnEraseBackground( wxEraseEvent& )
 }
 void wxOgre::OnRenderTimer(wxTimerEvent& event)
 {
-	//SGTMain::Instance().GetOgreSceneMgr()->getRootSceneNode();
+	//Ice::Main::Instance().GetOgreSceneMgr()->getRootSceneNode();
 	/*if (mEdit->mPerformingObjMov || mEdit->mPerformingObjRot)	//Hack...
 	{
 		//Ogre::LogManager::getSingleton().logMessage("Hack: SetFocus to Ogre!");
@@ -224,7 +224,7 @@ void wxOgre::update()
 {
 	if (mInitialized)
 	{
-		SGTMainLoop::Instance().doLoop();
+		Ice::MainLoop::Instance().doLoop();
 	}
 }
 

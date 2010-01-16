@@ -6,7 +6,7 @@
 #include "TransformTool.h"
 #include "OgreEnvironment.h"
 #include "OgreScriptCompiler.h"
-#include "SGTSceneManager.h"
+#include "IceSceneManager.h"
 
 wxMediaTree::wxMediaTree(wxWindow* parent, wxWindowID id, const wxPoint& pos,
              const wxSize& size, long style,
@@ -123,16 +123,16 @@ void wxMediaTree::OnSelectItemCallback()
 {
 	if (mCurrentItem->IsFile())
 	{
-		SGTSceneManager::Instance().DestroyPreviewRender("EditorPreview");
+		Ice::SceneManager::Instance().DestroyPreviewRender("EditorPreview");
 		wxEdit::Instance().GetPreviewWindow()->ClearDisplay();
 		if (IsMesh(mCurrentItem->GetName()))
 		{
-			Ogre::SceneNode *node = SGTMain::Instance().GetPreviewSceneMgr()->getRootSceneNode()->createChildSceneNode("EditorPreview");
-			Ogre::Entity *entity = SGTMain::Instance().GetPreviewSceneMgr()->createEntity("EditorPreview_Mesh", mCurrentItem->GetName().c_str());
+			Ogre::SceneNode *node = Ice::Main::Instance().GetPreviewSceneMgr()->getRootSceneNode()->createChildSceneNode("EditorPreview");
+			Ogre::Entity *entity = Ice::Main::Instance().GetPreviewSceneMgr()->createEntity("EditorPreview_Mesh", mCurrentItem->GetName().c_str());
 			node->attachObject(entity);
 			float width = 256;//wxEdit::Instance().GetAuiManager().GetPane("preview").floating_size.GetWidth();
 			float height = 256;//wxEdit::Instance().GetAuiManager().GetPane("preview").floating_size.GetHeight();
-			SGTSceneManager::Instance().CreatePreviewRender(node, "EditorPreview", width, height);
+			Ice::SceneManager::Instance().CreatePreviewRender(node, "EditorPreview", width, height);
 			Ogre::TexturePtr texture = Ogre::TextureManager::getSingleton().getByName("EditorPreview_Tex");
 			wxEdit::Instance().GetPreviewWindow()->SetTexture(texture);
 			wxEdit::Instance().GetPreviewWindow()->SetPreviewNode(node);
@@ -144,9 +144,9 @@ void wxMediaTree::OnSelectItemCallback()
 		}
 		else if (IsAudio(mCurrentItem->GetName()))
 		{
-			int id = SGTSceneManager::Instance().RequestID();
-			Ogre::SceneNode *node = SGTMain::Instance().GetPreviewSceneMgr()->getRootSceneNode()->createChildSceneNode("EditorPreview");
-			OgreOggSound::OgreOggISound *sound = SGTMain::Instance().GetSoundManager()->createSound(Ogre::StringConverter::toString(id), mCurrentItem->GetName().c_str(), true, false);
+			int id = Ice::SceneManager::Instance().RequestID();
+			Ogre::SceneNode *node = Ice::Main::Instance().GetPreviewSceneMgr()->getRootSceneNode()->createChildSceneNode("EditorPreview");
+			OgreOggSound::OgreOggISound *sound = Ice::Main::Instance().GetSoundManager()->createSound(Ogre::StringConverter::toString(id), mCurrentItem->GetName().c_str(), true, false);
 			if (sound) sound->play();
 			node->attachObject(sound);
 			wxEdit::Instance().GetPreviewWindow()->SetPreviewNode(node);
@@ -403,7 +403,7 @@ void wxMediaTree::OnLeaveTab()
 {
 	wxEdit::Instance().GetExplorerToolbar()->SetGroupStatus("MediaTree", false);
 
-	SGTSceneManager::Instance().DestroyPreviewRender("EditorPreview");
+	Ice::SceneManager::Instance().DestroyPreviewRender("EditorPreview");
 	wxEdit::Instance().GetPreviewWindow()->ClearDisplay();
 }
 

@@ -61,7 +61,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="OgreMain_d.lib EsgarothEngine_Debug.lib SGTLoadSave_d.lib OgreOggSound_d.lib"
+				AdditionalDependencies="OgreMain_d.lib IceEngine_Debug.lib SGTLoadSave_d.lib OgreOggSound_d.lib"
 				OutputFile="$(OutDir)\$(ProjectName)_d.dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="..\..\Dependencies\boost\lib\;..\..\Dependencies\Ogre3D\lib;..\..\lib\;..\..\Dependencies\Ogre3D\Dependencies\lib\Debug;..\..\Dependencies\Ogre3D\Dependencies\lib\Release;..\..\Dependencies\OgreOggSound\lib\"
@@ -138,7 +138,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="OgreMain.lib EsgarothEngine.lib EsgarothEngine.lib SGTLoadSave.lib OgreOggSound.lib"
+				AdditionalDependencies="OgreMain.lib IceEngine.lib SGTLoadSave.lib OgreOggSound.lib"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\..\Dependencies\boost\lib\;..\..\Dependencies\Ogre3D\lib;..\..\lib\;..\..\Dependencies\Ogre3D\Dependencies\lib\Debug;..\..\Dependencies\Ogre3D\Dependencies\lib\Release;..\..\Dependencies\OgreOggSound\lib\"
 				GenerateDebugInformation="true"
@@ -198,11 +198,11 @@
 			Name="ScriptableInstances"
 			>
 			<File
-				RelativePath=".\Source\SGTScriptableInstances.cpp"
+				RelativePath=".\Source\ScriptableInstances.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Header\SGTScriptableInstances.h"
+				RelativePath=".\Header\ScriptableInstances.h"
 				>
 			</File>
 		</Filter>
@@ -210,19 +210,19 @@
 			Name="GUI"
 			>
 			<File
+				RelativePath=".\Source\FontTextures.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Header\FontTextures.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\GUISystem.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\Header\GUISystem.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\SGTFontTextures.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Header\SGTFontTextures.h"
 				>
 			</File>
 		</Filter>
@@ -242,7 +242,11 @@
 			Name="Music"
 			>
 			<File
-				RelativePath=".\Source\SGTMusicSystem.cpp"
+				RelativePath=".\Source\MusicSystem.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Header\MusicSystem.h"
 				>
 			</File>
 		</Filter>

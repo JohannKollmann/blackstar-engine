@@ -2,8 +2,8 @@
 #include "../Header/wxEdit.h"
 #include "wx/artprov.h"
 #include "wxMaterialEditor.h"
-#include "SGTMainLoop.h"
-#include "SGTSceneManager.h"
+#include "IceMainLoop.h"
+#include "IceSceneManager.h"
 
 
 BEGIN_EVENT_TABLE(wxEdit, wxFrame)
@@ -22,8 +22,8 @@ wxEdit::wxEdit(wxWindow* parent) : wxFrame(parent, -1, _("Blackstar Edit"),
 		this->SetStatusBar(mProgressBar);
 
 		wxInitAllImageHandlers();
-		mMainToolbar = new wxSGTToolbar(this);
-		mExplorerToolbar = new wxSGTToolbar(this);
+		mMainToolbar = new wxEditorToolbar(this);
+		mExplorerToolbar = new wxEditorToolbar(this);
 
 	m_mgr.AddPane(mMainToolbar, wxAuiPaneInfo().
                   Name(wxT("maintoolbar")).Caption(wxT("")).
@@ -46,8 +46,8 @@ wxEdit::wxEdit(wxWindow* parent) : wxFrame(parent, -1, _("Blackstar Edit"),
 		SetMenuBar(mMenuBar);
 
 		mPropertyWindow = new wxPropertyGridWindow(this, -1, wxDefaultPosition, wxSize(200,250));
-		mPropertyWindow->AddPage(new wxEditSGTGameObject(), "EditGameObject");
-		mPropertyWindow->AddPage(new wxEditSGTSceneParams(), "EditSceneParams");
+		mPropertyWindow->AddPage(new wxEditIceGameObject(), "EditGameObject");
+		mPropertyWindow->AddPage(new wxEditIceSceneParams(), "EditSceneParams");
 
 		mPropertyWindow->AddPage(new wxMaterialEditor(), "material");
 
@@ -133,15 +133,15 @@ void wxEdit::PostCreate()
 					Layer(1).
 					Show(false).
 					CloseButton(false));
-	GetOgrePane()->setCamera(SGTMain::Instance().GetCamera());
+	GetOgrePane()->setCamera(Ice::Main::Instance().GetCamera());
 	GetOgrePane()->initEdit();
 	GetWorldExplorer()->GetSceneTree()->Update();
 	GetWorldExplorer()->GetMaterialTree()->Update();
 	GetOgrePane()->SetFocus();
 	m_mgr.Update();
 	wxEdit::Instance().GetExplorerToolbar()->SetGroupStatus("ResourceMgr", false);	//Hack
-	SGTMainLoop::Instance().doLoop();
-	SGTSceneManager::Instance().EnableClock(false);
+	Ice::MainLoop::Instance().doLoop();
+	Ice::SceneManager::Instance().EnableClock(false);
 }
 
 wxPoint wxEdit::GetStartPosition()
@@ -165,7 +165,7 @@ wxEdit::~wxEdit()
 
 	// deinitialize the frame manager
 	//m_mgr.UnInit();
-	SGTMain::Instance().Shutdown();
+	Ice::Main::Instance().Shutdown();
 	exit(0);	//HACK! FUCK YOU WX WIDGETS ICH WEISS WO DEIN HAUS WOHNT!!!11einseinself
 
 };

@@ -1,14 +1,15 @@
 
 
-#ifndef __EDTIncludes_H__
-#define __EDTIncludes_H__
+#pragma once
+
+#include "IceIncludes.h"
 
 //#define BOOST_ALL_DYN_LINK
 
-class SGTEdit;
+class Edit;
 class wxOgre;
 class wxEdit;
-class wxEditSGTGameObject;
+class wxEditIceGameObject;
 class wxObjectFolderTree;
 class wxMainMenu;
 class wxOgreSceneTree;
@@ -20,8 +21,6 @@ class wxProgressBar;
 class wxMeshMagick;
 class wxMainNotebook;
 class wxFileTree;
-class wxSGTToolbar;
+class wxEditorToolbar;
 class EntityTreeNotebookListener;
 class wxMediaTree;
-
-#endif

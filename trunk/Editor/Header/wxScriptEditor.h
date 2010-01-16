@@ -3,6 +3,7 @@
 
 #include "wx/stc/stc.h"
 #include <list>
+#include "EDTIncludes.h"
 
 class wxScriptEditor : public wxStyledTextCtrl
 {

@@ -4,7 +4,7 @@
 #include "windows.h"
 #include "OgreScriptCompiler.h"
 #include "MaterialReload.h"
-#include "SGTUtils.h"
+#include "IceUtils.h"
 
 wxMaterialEditor::wxMaterialEditor(void)
 {
@@ -16,7 +16,7 @@ wxMaterialEditor::~wxMaterialEditor(void)
 
 Ogre::String wxMaterialEditor::FindResource(Ogre::MaterialPtr material)
 {
-	return SGTUtils::FindResourcePath("Data", material->getOrigin());
+	return Ice::Utils::FindResourcePath("Data", material->getOrigin());
 }
 
 Ogre::String wxMaterialEditor::Scan_Line_For_Material(Ogre::String line)
@@ -108,7 +108,7 @@ void wxMaterialEditor::OnApply()
 	f2.close();
 
 	//Das Material darf nirgendwo genutzt werden beim Reload, deswegen muss es temprär durch BaseWhiteNoLightning ersetzt werden.
-	Ogre::SceneManager::MovableObjectIterator ents = SGTMain::Instance().GetOgreSceneMgr()->getMovableObjectIterator("Entity");
+	Ogre::SceneManager::MovableObjectIterator ents = Ice::Main::Instance().GetOgreSceneMgr()->getMovableObjectIterator("Entity");
 	while (ents.hasMoreElements())
 	{
 		Ogre::Entity *ent = (Ogre::Entity*)(ents.getNext());
@@ -119,7 +119,7 @@ void wxMaterialEditor::OnApply()
 		}
 	}
 
-	Ogre::SceneManager::MovableObjectIterator decals = SGTMain::Instance().GetOgreSceneMgr()->getMovableObjectIterator("BillboardSet");
+	Ogre::SceneManager::MovableObjectIterator decals = Ice::Main::Instance().GetOgreSceneMgr()->getMovableObjectIterator("BillboardSet");
 	while (decals.hasMoreElements())
 	{
 		Ogre::BillboardSet *decal = (Ogre::BillboardSet*)(decals.getNext());
@@ -130,7 +130,7 @@ void wxMaterialEditor::OnApply()
 	Ogre::MaterialPtr tempmaterial = mCurrentMaterial->clone("EditMaterial_Temp");
 	tempmaterial->copyDetailsTo(mCurrentMaterial);*/
 	ReloadMaterial(mCurrentMaterial->getName(), "General", mCurrentMaterial->getOrigin(), true);
-	ents = SGTMain::Instance().GetOgreSceneMgr()->getMovableObjectIterator("Entity");
+	ents = Ice::Main::Instance().GetOgreSceneMgr()->getMovableObjectIterator("Entity");
 	while (ents.hasMoreElements())
 	{
 		Ogre::Entity *ent = (Ogre::Entity*)(ents.getNext());
@@ -141,7 +141,7 @@ void wxMaterialEditor::OnApply()
 		}
 	}
 
-	decals = SGTMain::Instance().GetOgreSceneMgr()->getMovableObjectIterator("BillboardSet");
+	decals = Ice::Main::Instance().GetOgreSceneMgr()->getMovableObjectIterator("BillboardSet");
 	while (decals.hasMoreElements())
 	{
 		Ogre::BillboardSet *decal = (Ogre::BillboardSet*)(decals.getNext());

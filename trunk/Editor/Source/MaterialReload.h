@@ -3,6 +3,7 @@
 
 #include "Ogre.h"
 #include <string>
+#include "EDTIncludes.h"
 
 using namespace Ogre;
 

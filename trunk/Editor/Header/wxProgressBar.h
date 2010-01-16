@@ -3,6 +3,7 @@
 
 #include "wx/aui/aui.h"
 #include "wx/wx.h"
+#include "EDTIncludes.h"
 
 class wxProgressBar : public wxStatusBar
 {

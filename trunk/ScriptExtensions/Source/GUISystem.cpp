@@ -1,12 +1,12 @@
 #include "GUISystem.h"
-#include "SGTInput.h"
-#include "SGTMain.h"
-#include "SGTMessageSystem.h"
-#include "SGTUtils.h"
-#include "SGTSceneManager.h"
+#include "IceInput.h"
+#include "IceMain.h"
+#include "IceMessageSystem.h"
+#include "IceUtils.h"
+#include "IceSceneManager.h"
 
 
-SGTGUISystem::SGTGUISystem(void)
+GUISystem::GUISystem(void)
 {
 
 	m_iCursorHandle=-1;
@@ -14,11 +14,11 @@ SGTGUISystem::SGTGUISystem(void)
 	m_fMaxZ=0.0001f;
 	m_fZStep=m_fMaxZ/1000.0f;
 
-	SGTMessageSystem::Instance().JoinNewsgroup(this, "MOUSE_MOVE");
-	SGTMessageSystem::Instance().JoinNewsgroup(this, "MOUSE_DOWN");
-	SGTMessageSystem::Instance().JoinNewsgroup(this, "MOUSE_UP");
-	SGTMessageSystem::Instance().JoinNewsgroup(this, "KEY_DOWN");
-	Ogre::SceneNode* pNode=SGTMain::Instance().GetOgreSceneMgr()->getRootSceneNode()->createChildSceneNode("SGTGuiSystemNode");
+	Ice::MessageSystem::Instance().JoinNewsgroup(this, "MOUSE_MOVE");
+	Ice::MessageSystem::Instance().JoinNewsgroup(this, "MOUSE_DOWN");
+	Ice::MessageSystem::Instance().JoinNewsgroup(this, "MOUSE_UP");
+	Ice::MessageSystem::Instance().JoinNewsgroup(this, "KEY_DOWN");
+	Ogre::SceneNode* pNode=Ice::Main::Instance().GetOgreSceneMgr()->getRootSceneNode()->createChildSceneNode("GUISystemNode");
 	pNode->setPosition(0, 0, 0);
 	m_fXPos=m_fYPos=0.5f;
 
@@ -28,71 +28,71 @@ SGTGUISystem::SGTGUISystem(void)
 	m_iCursorHandle=w.GetHandle();
 
 	
-	SGTScriptSystem::GetInstance().ShareCFunction("gui_create_window", Lua_CreateWindow);
-	SGTScriptSystem::GetInstance().ShareCFunction("gui_create_subwindow", Lua_CreateSubWindow);
-	SGTScriptSystem::GetInstance().ShareCFunction("gui_bake_window", Lua_BakeWindow);
-	SGTScriptSystem::GetInstance().ShareCFunction("gui_delete_window", Lua_DeleteWindow);
+	Ice::ScriptSystem::GetInstance().ShareCFunction("gui_create_window", Lua_CreateWindow);
+	Ice::ScriptSystem::GetInstance().ShareCFunction("gui_create_subwindow", Lua_CreateSubWindow);
+	Ice::ScriptSystem::GetInstance().ShareCFunction("gui_bake_window", Lua_BakeWindow);
+	Ice::ScriptSystem::GetInstance().ShareCFunction("gui_delete_window", Lua_DeleteWindow);
 
-	SGTScriptSystem::GetInstance().ShareCFunction("gui_set_window_material", Lua_SetMaterial);
-	SGTScriptSystem::GetInstance().ShareCFunction("gui_set_visible", Lua_SetWindowVisible);
-	SGTScriptSystem::GetInstance().ShareCFunction("gui_set_foreground_window", Lua_SetForegroundWindow);
-	SGTScriptSystem::GetInstance().ShareCFunction("gui_set_focus", Lua_SetFocus);
-	SGTScriptSystem::GetInstance().ShareCFunction("gui_move_window", Lua_MoveWindow);
-	SGTScriptSystem::GetInstance().ShareCFunction("gui_get_window_pos", Lua_GetWindowPos);
-	SGTScriptSystem::GetInstance().ShareCFunction("gui_set_cursor_pos", Lua_SetCursorPos);
+	Ice::ScriptSystem::GetInstance().ShareCFunction("gui_set_window_material", Lua_SetMaterial);
+	Ice::ScriptSystem::GetInstance().ShareCFunction("gui_set_visible", Lua_SetWindowVisible);
+	Ice::ScriptSystem::GetInstance().ShareCFunction("gui_set_foreground_window", Lua_SetForegroundWindow);
+	Ice::ScriptSystem::GetInstance().ShareCFunction("gui_set_focus", Lua_SetFocus);
+	Ice::ScriptSystem::GetInstance().ShareCFunction("gui_move_window", Lua_MoveWindow);
+	Ice::ScriptSystem::GetInstance().ShareCFunction("gui_get_window_pos", Lua_GetWindowPos);
+	Ice::ScriptSystem::GetInstance().ShareCFunction("gui_set_cursor_pos", Lua_SetCursorPos);
 	
 
-	SGTScriptSystem::GetInstance().ShareCFunction("gui_get_screen_coords", Lua_GetScreenCoords);
+	Ice::ScriptSystem::GetInstance().ShareCFunction("gui_get_screen_coords", Lua_GetScreenCoords);
 	
-	SGTScriptSystem::GetInstance().ShareCFunction("gui_get_cursor", Lua_GetCursor);
-	SGTScriptSystem::GetInstance().ShareCFunction("gui_set_cursor", Lua_SetCursor);
+	Ice::ScriptSystem::GetInstance().ShareCFunction("gui_get_cursor", Lua_GetCursor);
+	Ice::ScriptSystem::GetInstance().ShareCFunction("gui_set_cursor", Lua_SetCursor);
 
-	SGTScriptSystem::GetInstance().ShareCFunction("gui_change_font_material", Lua_ChangeFontMaterial);
-	SGTScriptSystem::GetInstance().ShareCFunction("gui_create_font_material", Lua_CreateFontMaterial);
-	SGTScriptSystem::GetInstance().ShareCFunction("gui_create_font_texture", Lua_CreateFontTexture);
-	SGTScriptSystem::GetInstance().ShareCFunction("gui_delete_texture", Lua_DeleteTexture);
+	Ice::ScriptSystem::GetInstance().ShareCFunction("gui_change_font_material", Lua_ChangeFontMaterial);
+	Ice::ScriptSystem::GetInstance().ShareCFunction("gui_create_font_material", Lua_CreateFontMaterial);
+	Ice::ScriptSystem::GetInstance().ShareCFunction("gui_create_font_texture", Lua_CreateFontTexture);
+	Ice::ScriptSystem::GetInstance().ShareCFunction("gui_delete_texture", Lua_DeleteTexture);
 
 	//mouse events
-	SGTScriptSystem::GetInstance().ShareCFunction("gui_set_on_click_callback", Lua_SetOnClickCallback);
-	SGTScriptSystem::GetInstance().ShareCFunction("gui_set_mouse_down_callback", Lua_SetMouseDownCallback);
-	SGTScriptSystem::GetInstance().ShareCFunction("gui_set_mouse_up_callback", Lua_SetMouseUpCallback);
-	SGTScriptSystem::GetInstance().ShareCFunction("gui_set_mouse_move_callback", Lua_SetMouseMoveCallback);
-	SGTScriptSystem::GetInstance().ShareCFunction("gui_set_mouse_hover_in_callback", Lua_SetMouseHoverInCallback);
-	SGTScriptSystem::GetInstance().ShareCFunction("gui_set_mouse_hover_out_callback", Lua_SetMouseHoverOutCallback);
+	Ice::ScriptSystem::GetInstance().ShareCFunction("gui_set_on_click_callback", Lua_SetOnClickCallback);
+	Ice::ScriptSystem::GetInstance().ShareCFunction("gui_set_mouse_down_callback", Lua_SetMouseDownCallback);
+	Ice::ScriptSystem::GetInstance().ShareCFunction("gui_set_mouse_up_callback", Lua_SetMouseUpCallback);
+	Ice::ScriptSystem::GetInstance().ShareCFunction("gui_set_mouse_move_callback", Lua_SetMouseMoveCallback);
+	Ice::ScriptSystem::GetInstance().ShareCFunction("gui_set_mouse_hover_in_callback", Lua_SetMouseHoverInCallback);
+	Ice::ScriptSystem::GetInstance().ShareCFunction("gui_set_mouse_hover_out_callback", Lua_SetMouseHoverOutCallback);
 	//keyboard events
-	SGTScriptSystem::GetInstance().ShareCFunction("gui_set_on_char_callback", Lua_SetOnCharCallback);
-	SGTScriptSystem::GetInstance().ShareCFunction("gui_set_key_down_callback", Lua_SetKeyDownCallback);
-	SGTScriptSystem::GetInstance().ShareCFunction("gui_set_key_up_callback", Lua_SetKeyUpCallback);
+	Ice::ScriptSystem::GetInstance().ShareCFunction("gui_set_on_char_callback", Lua_SetOnCharCallback);
+	Ice::ScriptSystem::GetInstance().ShareCFunction("gui_set_key_down_callback", Lua_SetKeyDownCallback);
+	Ice::ScriptSystem::GetInstance().ShareCFunction("gui_set_key_up_callback", Lua_SetKeyUpCallback);
 	//input states
-	SGTScriptSystem::GetInstance().ShareCFunction("input_get_key_down", Lua_GetKeyDown);
-	SGTScriptSystem::GetInstance().ShareCFunction("input_get_mouse_buttons", Lua_GetMouseButtons);
+	Ice::ScriptSystem::GetInstance().ShareCFunction("input_get_key_down", Lua_GetKeyDown);
+	Ice::ScriptSystem::GetInstance().ShareCFunction("input_get_mouse_buttons", Lua_GetMouseButtons);
 }
 
 void
-SGTGUISystem::ReceiveMessage(SGTMsg &msg)
+GUISystem::ReceiveMessage(Ice::Msg &msg)
 {
 	if(msg.mNewsgroup == "KEY_DOWN" && m_iFocusWin!=-1)
 	{
-		SWindowInfo wininfo=SGTGUISystem::GetInstance().m_mWindowInfos.find(m_iFocusWin)->second;
+		SWindowInfo wininfo=GUISystem::GetInstance().m_mWindowInfos.find(m_iFocusWin)->second;
 		while(wininfo.iParentHandle!=-1)
-			wininfo=SGTGUISystem::GetInstance().m_mWindowInfos.find(wininfo.iParentHandle)->second;
-		if(m_mWindowInfos.find(m_iFocusWin)->second.bVisible && wininfo.bVisible && m_mWindowInfos.find(m_iFocusWin)->second.parKeyDown.getType()==SGTScriptParam::PARM_TYPE_FUNCTION)
+			wininfo=GUISystem::GetInstance().m_mWindowInfos.find(wininfo.iParentHandle)->second;
+		if(m_mWindowInfos.find(m_iFocusWin)->second.bVisible && wininfo.bVisible && m_mWindowInfos.find(m_iFocusWin)->second.parKeyDown.getType()==Ice::ScriptParam::PARM_TYPE_FUNCTION)
 		{
-			std::vector<SGTScriptParam> vResults;
-			vResults.push_back(SGTScriptParam(m_iFocusWin));
-			vResults.push_back(SGTScriptParam(msg.mData.GetInt("KEY_ID_OIS")));
-			SGTScriptSystem::RunCallbackFunction(m_mWindowInfos.find(m_iFocusWin)->second.parKeyDown, vResults);
+			std::vector<Ice::ScriptParam> vResults;
+			vResults.push_back(Ice::ScriptParam(m_iFocusWin));
+			vResults.push_back(Ice::ScriptParam(msg.mData.GetInt("KEY_ID_OIS")));
+			Ice::ScriptSystem::RunCallbackFunction(m_mWindowInfos.find(m_iFocusWin)->second.parKeyDown, vResults);
 		}
 	}
 	/*std::map<int, SWindowInfo>::const_iterator it=m_mWindowInfos.begin();
 	for(; it!=m_mWindowInfos.end(); it++)
 		if(it->second.iParentHandle==-1)
-			SGTMain::Instance().GetOgreSceneMgr()->getEntity(it->second.strName)->setVisible(m_bMenuActive);*/
+			Ice::Main::Instance().GetOgreSceneMgr()->getEntity(it->second.strName)->setVisible(m_bMenuActive);*/
 
 	if (msg.mNewsgroup == "MOUSE_MOVE")
 	{
-		m_fXPos+=(float)msg.mData.GetInt("ROT_X_REL")/(float)SGTMain::Instance().GetViewport()->getActualWidth();
-		m_fYPos+=(float)msg.mData.GetInt("ROT_Y_REL")/(float)SGTMain::Instance().GetViewport()->getActualHeight();
+		m_fXPos+=(float)msg.mData.GetInt("ROT_X_REL")/(float)Ice::Main::Instance().GetViewport()->getActualWidth();
+		m_fYPos+=(float)msg.mData.GetInt("ROT_Y_REL")/(float)Ice::Main::Instance().GetViewport()->getActualHeight();
 		//MessageBox(0, "", "", 0);
 		if(m_fXPos>1.0)
 			m_fXPos=1.0;
@@ -102,16 +102,16 @@ SGTGUISystem::ReceiveMessage(SGTMsg &msg)
 			m_fYPos=1.0;
 		if(m_fYPos<0.0)
 			m_fYPos=0.0;
-		//SGTMain::Instance().GetOgreSceneMgr()->getSceneNode("mySceneNode")->setPosition(m_fXPos, m_fYPos, 0);
-		//SGTMain::Instance().GetOgreSceneMgr()->getEntity("bleh")->getSubEntity(0)->setCustomParameter(0, Ogre::Vector4(m_fXPos, m_fYPos, 0, 0));
+		//Ice::Main::Instance().GetOgreSceneMgr()->getSceneNode("mySceneNode")->setPosition(m_fXPos, m_fYPos, 0);
+		//Ice::Main::Instance().GetOgreSceneMgr()->getEntity("bleh")->getSubEntity(0)->setCustomParameter(0, Ogre::Vector4(m_fXPos, m_fYPos, 0, 0));
 		Window(m_iCursorHandle).Move(m_fXPos, m_fYPos);
 		//call mousemove on the cursor
-		if(m_mWindowInfos.find(m_iCursorHandle)->second.parMouseMove.getType()==SGTScriptParam::PARM_TYPE_FUNCTION)
+		if(m_mWindowInfos.find(m_iCursorHandle)->second.parMouseMove.getType()==Ice::ScriptParam::PARM_TYPE_FUNCTION)
 		{
-			std::vector<SGTScriptParam> parms(1, SGTScriptParam(m_iCursorHandle));
-			parms.push_back(SGTScriptParam(m_fXPos));
-			parms.push_back(SGTScriptParam(m_fYPos));
-			SGTScriptSystem::RunCallbackFunction(m_mWindowInfos.find(m_iCursorHandle)->second.parMouseMove, parms);
+			std::vector<Ice::ScriptParam> parms(1, Ice::ScriptParam(m_iCursorHandle));
+			parms.push_back(Ice::ScriptParam(m_fXPos));
+			parms.push_back(Ice::ScriptParam(m_fYPos));
+			Ice::ScriptSystem::RunCallbackFunction(m_mWindowInfos.find(m_iCursorHandle)->second.parMouseMove, parms);
 		}
 
 		std::list<int>::iterator itZ=m_lZOrder.begin();
@@ -147,37 +147,37 @@ SGTGUISystem::ReceiveMessage(SGTMsg &msg)
 				}
 			iCurrHover=it->first;
 			//call the mousemove event
-			if(it->second.parMouseMove.getType()==SGTScriptParam::PARM_TYPE_FUNCTION)
+			if(it->second.parMouseMove.getType()==Ice::ScriptParam::PARM_TYPE_FUNCTION)
 			{
-				std::vector<SGTScriptParam> parms(1, SGTScriptParam(it->first));
-				parms.push_back(SGTScriptParam(m_fXPos));
-				parms.push_back(SGTScriptParam(m_fYPos));
-				SGTScriptSystem::RunCallbackFunction(it->second.parMouseMove, parms);
+				std::vector<Ice::ScriptParam> parms(1, Ice::ScriptParam(it->first));
+				parms.push_back(Ice::ScriptParam(m_fXPos));
+				parms.push_back(Ice::ScriptParam(m_fYPos));
+				Ice::ScriptSystem::RunCallbackFunction(it->second.parMouseMove, parms);
 			}
 
 			if(iCurrHover!=m_iHoverWin)
 			{
 				if(iCurrHover!=-1)
-					if(it->second.parMouseHoverIn.getType()==SGTScriptParam::PARM_TYPE_FUNCTION)
+					if(it->second.parMouseHoverIn.getType()==Ice::ScriptParam::PARM_TYPE_FUNCTION)
 					{
-						std::vector<SGTScriptParam> parms(1, SGTScriptParam(it->first));
-						SGTScriptSystem::RunCallbackFunction(it->second.parMouseHoverIn, parms);
+						std::vector<Ice::ScriptParam> parms(1, Ice::ScriptParam(it->first));
+						Ice::ScriptSystem::RunCallbackFunction(it->second.parMouseHoverIn, parms);
 					}
 				if(m_iHoverWin!=-1)
-					if(m_mWindowInfos.find(m_iHoverWin)->second.parMouseHoverOut.getType()==SGTScriptParam::PARM_TYPE_FUNCTION)
+					if(m_mWindowInfos.find(m_iHoverWin)->second.parMouseHoverOut.getType()==Ice::ScriptParam::PARM_TYPE_FUNCTION)
 					{
-						std::vector<SGTScriptParam> parms(1, m_iHoverWin);
-						SGTScriptSystem::RunCallbackFunction(m_mWindowInfos.find(m_iHoverWin)->second.parMouseHoverOut, parms);
+						std::vector<Ice::ScriptParam> parms(1, m_iHoverWin);
+						Ice::ScriptSystem::RunCallbackFunction(m_mWindowInfos.find(m_iHoverWin)->second.parMouseHoverOut, parms);
 					}
 			}
 		}
 		else
 		{
 			if(m_mWindowInfos.find(m_iHoverWin)!=m_mWindowInfos.end() && iCurrHover!=m_iHoverWin)
-				if(m_mWindowInfos.find(m_iHoverWin)->second.parMouseHoverOut.getType()==SGTScriptParam::PARM_TYPE_FUNCTION)
+				if(m_mWindowInfos.find(m_iHoverWin)->second.parMouseHoverOut.getType()==Ice::ScriptParam::PARM_TYPE_FUNCTION)
 				{
-					std::vector<SGTScriptParam> parms(1, m_iHoverWin);
-					SGTScriptSystem::RunCallbackFunction(m_mWindowInfos.find(m_iHoverWin)->second.parMouseHoverOut, parms);
+					std::vector<Ice::ScriptParam> parms(1, m_iHoverWin);
+					Ice::ScriptSystem::RunCallbackFunction(m_mWindowInfos.find(m_iHoverWin)->second.parMouseHoverOut, parms);
 				}
 		}
 		m_iHoverWin=iCurrHover;
@@ -218,51 +218,51 @@ SGTGUISystem::ReceiveMessage(SGTMsg &msg)
 						iSubWin=-1;
 					}
 
-				/*if(it->second.parMouseHoverOut.getType()==SGTScriptParam::PARM_TYPE_FUNCTION)
+				/*if(it->second.parMouseHoverOut.getType()==Ice::ScriptParam::PARM_TYPE_FUNCTION)
 				{
-					std::vector<SGTScriptParam> parms(1, m_iHoverWin);
-					SGTScriptSystem::RunCallbackFunction(it->second.parMouseHoverOut, parms);
+					std::vector<Ice::ScriptParam> parms(1, m_iHoverWin);
+					Ice::ScriptSystem::RunCallbackFunction(it->second.parMouseHoverOut, parms);
 				}*/
 
-				std::vector<SGTScriptParam> parms(1, SGTScriptParam(it->first));
-				parms.push_back(SGTScriptParam(m_fXPos));
-				parms.push_back(SGTScriptParam(m_fYPos));
-				if(it->second.parMouseDown.getType()==SGTScriptParam::PARM_TYPE_FUNCTION && msg.mNewsgroup=="MOUSE_DOWN")
-					SGTScriptSystem::RunCallbackFunction(it->second.parMouseDown, parms);
-				if(it->second.parMouseUp.getType()==SGTScriptParam::PARM_TYPE_FUNCTION && msg.mNewsgroup=="MOUSE_UP")
-					SGTScriptSystem::RunCallbackFunction(it->second.parMouseUp, parms);
+				std::vector<Ice::ScriptParam> parms(1, Ice::ScriptParam(it->first));
+				parms.push_back(Ice::ScriptParam(m_fXPos));
+				parms.push_back(Ice::ScriptParam(m_fYPos));
+				if(it->second.parMouseDown.getType()==Ice::ScriptParam::PARM_TYPE_FUNCTION && msg.mNewsgroup=="MOUSE_DOWN")
+					Ice::ScriptSystem::RunCallbackFunction(it->second.parMouseDown, parms);
+				if(it->second.parMouseUp.getType()==Ice::ScriptParam::PARM_TYPE_FUNCTION && msg.mNewsgroup=="MOUSE_UP")
+					Ice::ScriptSystem::RunCallbackFunction(it->second.parMouseUp, parms);
 
 			}
 			//send it to the cursor itself, too
 			it=m_mWindowInfos.find(m_iCursorHandle);
-			std::vector<SGTScriptParam> parms(1, m_iCursorHandle);
-			parms.push_back(SGTScriptParam(m_fXPos));
-			parms.push_back(SGTScriptParam(m_fYPos));
+			std::vector<Ice::ScriptParam> parms(1, m_iCursorHandle);
+			parms.push_back(Ice::ScriptParam(m_fXPos));
+			parms.push_back(Ice::ScriptParam(m_fYPos));
 			if(it!=m_mWindowInfos.end())
 			{
-				if(it->second.parMouseDown.getType()==SGTScriptParam::PARM_TYPE_FUNCTION && msg.mNewsgroup=="MOUSE_DOWN")
-					SGTScriptSystem::RunCallbackFunction(it->second.parMouseDown, parms);
-				if(it->second.parMouseUp.getType()==SGTScriptParam::PARM_TYPE_FUNCTION && msg.mNewsgroup=="MOUSE_UP")
-					SGTScriptSystem::RunCallbackFunction(it->second.parMouseUp, parms);
+				if(it->second.parMouseDown.getType()==Ice::ScriptParam::PARM_TYPE_FUNCTION && msg.mNewsgroup=="MOUSE_DOWN")
+					Ice::ScriptSystem::RunCallbackFunction(it->second.parMouseDown, parms);
+				if(it->second.parMouseUp.getType()==Ice::ScriptParam::PARM_TYPE_FUNCTION && msg.mNewsgroup=="MOUSE_UP")
+					Ice::ScriptSystem::RunCallbackFunction(it->second.parMouseUp, parms);
 			}
 		}	
 }
 
-SGTGUISystem&
-SGTGUISystem::GetInstance()
+GUISystem&
+GUISystem::GetInstance()
 {
-	static SGTGUISystem singleton;
+	static GUISystem singleton;
 	return singleton;
 }
 
-SGTGUISystem::Window
-SGTGUISystem::MakeWindow(float x, float y, float w, float h, float fUScale, float fVScale)
+GUISystem::Window
+GUISystem::MakeWindow(float x, float y, float w, float h, float fUScale, float fVScale)
 {
-	int iHandle=SGTSceneManager::Instance().RequestID();
+	int iHandle=Ice::SceneManager::Instance().RequestID();
 	Window win(iHandle);
 	SWindowInfo wininfo;
 	wininfo.iParentHandle=-1;
-	wininfo.strName=Ogre::String("GUI-System-Window ") + SGTSceneManager::Instance().RequestIDStr();
+	wininfo.strName=Ogre::String("GUI-System-Window ") + Ice::SceneManager::Instance().RequestIDStr();
 	wininfo.x=x;
 	wininfo.y=y;
 	wininfo.w=w;
@@ -277,9 +277,9 @@ SGTGUISystem::MakeWindow(float x, float y, float w, float h, float fUScale, floa
 
 
 void
-SGTGUISystem::Window::Bake()
+GUISystem::Window::Bake()
 {
-	SGTGUISystem::SWindowInfo wininfo=GetInstance().m_mWindowInfos.find(m_iHandle)->second;
+	GUISystem::SWindowInfo wininfo=GetInstance().m_mWindowInfos.find(m_iHandle)->second;
 	float x=wininfo.x, y=wininfo.y, w=wininfo.w, h=wininfo.h, u=wininfo.fUScale, v=wininfo.fVScale;
 	Ogre::MeshPtr meshptr = Ogre::MeshManager::getSingleton().createManual(wininfo.strName, "General");
 	meshptr.get()->createSubMesh("windowface");
@@ -328,19 +328,19 @@ SGTGUISystem::Window::Bake()
 	int iSubWin=0;
 	for(iSubWin=0; iSubWin<nSubWindows; iSubWin++)
 	{
-		SGTGUISystem::SWindowInfo subwininfo=SGTGUISystem::GetInstance().m_mWindowInfos.find(vSubWindows[iSubWin])->second;
+		GUISystem::SWindowInfo subwininfo=GUISystem::GetInstance().m_mWindowInfos.find(vSubWindows[iSubWin])->second;
 		//get z level of this sub-window
 		int iLevel=0;
-		SGTGUISystem::SWindowInfo tempinfo=subwininfo;
+		GUISystem::SWindowInfo tempinfo=subwininfo;
 		while(tempinfo.iParentHandle!=-1)
 		{
-			tempinfo=SGTGUISystem::GetInstance().m_mWindowInfos.find(tempinfo.iParentHandle)->second;
+			tempinfo=GUISystem::GetInstance().m_mWindowInfos.find(tempinfo.iParentHandle)->second;
 			iLevel++;
 		}
 		if(iLevel>wininfo.iDepth)
 			wininfo.iDepth=iLevel;
 		//while(tempinfo
-		float z=-SGTGUISystem::GetInstance().m_fZStep*(float)iLevel;
+		float z=-GUISystem::GetInstance().m_fZStep*(float)iLevel;
 		float afSubWinVerts[]={
 		subwininfo.x,subwininfo.y,z,0.0,0.0,
 		subwininfo.x+subwininfo.w,subwininfo.y,z,subwininfo.fUScale,0.0,
@@ -367,7 +367,7 @@ SGTGUISystem::Window::Bake()
 
 	for(iSubWin=0; iSubWin<nSubWindows; iSubWin++)
 	{
-		SWindowInfo subwininfo=SGTGUISystem::GetInstance().m_mWindowInfos.find(vSubWindows[iSubWin])->second;
+		SWindowInfo subwininfo=GUISystem::GetInstance().m_mWindowInfos.find(vSubWindows[iSubWin])->second;
 		unsigned short aiSubWinIndices[]={
 			4*(iSubWin+1), 4*(iSubWin+1)+1, 4*(iSubWin+1)+2,
 			4*(iSubWin+1)+1, 4*(iSubWin+1)+3, 4*(iSubWin+1)+2,
@@ -386,32 +386,32 @@ SGTGUISystem::Window::Bake()
 	meshptr.get()->_setBounds(Ogre::AxisAlignedBox(-fInf,-fInf,-fInf,fInf,fInf,fInf));
 	meshptr.get()->_setBoundingSphereRadius(fInf);		
 	meshptr.get()->load();
-	Ogre::Entity *ent = SGTMain::Instance().GetOgreSceneMgr()->createEntity(wininfo.strName, wininfo.strName);
+	Ogre::Entity *ent = Ice::Main::Instance().GetOgreSceneMgr()->createEntity(wininfo.strName, wininfo.strName);
 	ent->setCastShadows(false);
 	ent->setRenderQueueGroup(Ogre::RENDER_QUEUE_OVERLAY);
-	SGTMain::Instance().GetOgreSceneMgr()->getSceneNode("SGTGuiSystemNode")->attachObject(ent);
+	Ice::Main::Instance().GetOgreSceneMgr()->getSceneNode("GUISystemNode")->attachObject(ent);
 
 	GetInstance().m_mWindowInfos.find(m_iHandle)->second.bWasBaked=true;
 
-	SGTMain::Instance().GetOgreSceneMgr()->getEntity(wininfo.strName)->getSubEntity(0)->setCustomParameter(0, Ogre::Vector4(x, y, 0, 0));
+	Ice::Main::Instance().GetOgreSceneMgr()->getEntity(wininfo.strName)->getSubEntity(0)->setCustomParameter(0, Ogre::Vector4(x, y, 0, 0));
 	if(wininfo.strMaterial.size())
-		SGTMain::Instance().GetOgreSceneMgr()->getEntity(wininfo.strName)->getSubEntity(0)->setMaterialName(wininfo.strMaterial);
+		Ice::Main::Instance().GetOgreSceneMgr()->getEntity(wininfo.strName)->getSubEntity(0)->setMaterialName(wininfo.strMaterial);
 	for(iSubWin=0; iSubWin<nSubWindows; iSubWin++)
 	{
 		SWindowInfo subwininfo=GetInstance().m_mWindowInfos.find(vSubWindows[iSubWin])->second;
-		Ogre::SubEntity* pSubEnt=SGTMain::Instance().GetOgreSceneMgr()->getEntity(wininfo.strName)->getSubEntity(subwininfo.strName);
+		Ogre::SubEntity* pSubEnt=Ice::Main::Instance().GetOgreSceneMgr()->getEntity(wininfo.strName)->getSubEntity(subwininfo.strName);
 		pSubEnt->setCustomParameter(0, Ogre::Vector4(x, y, 0, 0));
 		if(wininfo.strMaterial.size())
 			pSubEnt->setMaterialName(subwininfo.strMaterial);
 	}
-	SGTGUISystem::GetInstance().SetForegroundWindow(m_iHandle);
-	/*SGTGUISystem::GetInstance().SetFocus(m_iHandle);*/
+	GUISystem::GetInstance().SetForegroundWindow(m_iHandle);
+	/*GUISystem::GetInstance().SetFocus(m_iHandle);*/
 }
 
 std::list<int>
-SGTGUISystem::Window::FindSubWindows(int iHandle)
+GUISystem::Window::FindSubWindows(int iHandle)
 {
-	std::vector<int> vSubWins=SGTGUISystem::GetInstance().m_mWindowInfos.find(iHandle)->second.vSubWindows;
+	std::vector<int> vSubWins=GUISystem::GetInstance().m_mWindowInfos.find(iHandle)->second.vSubWindows;
 	std::list<int> lSubWins;
 	unsigned int iSubWin=0;
 	for(; iSubWin<vSubWins.size(); iSubWin++)
@@ -427,7 +427,7 @@ SGTGUISystem::Window::FindSubWindows(int iHandle)
 }
 
 std::vector<int>
-SGTGUISystem::Window::GetSubWindows()
+GUISystem::Window::GetSubWindows()
 {
 	std::vector<int> vRes;
 	std::list<int> lSubWins=FindSubWindows(m_iHandle);
@@ -438,33 +438,33 @@ SGTGUISystem::Window::GetSubWindows()
 
 
 void
-SGTGUISystem::Window::SetMaterial(Ogre::String strMat)
+GUISystem::Window::SetMaterial(Ogre::String strMat)
 {
 	std::map<int, SWindowInfo>::iterator it=GetInstance().m_mWindowInfos.find(m_iHandle);
 	it->second.strMaterial=strMat;
 	if(it->second.bWasBaked)
-		SGTMain::Instance().GetOgreSceneMgr()->getEntity(it->second.strName)->getSubEntity("windowface")->setMaterialName(strMat);
+		Ice::Main::Instance().GetOgreSceneMgr()->getEntity(it->second.strName)->getSubEntity("windowface")->setMaterialName(strMat);
 }
 
 void
-SGTGUISystem::SubWindow::SetMaterial(Ogre::String strMat)
+GUISystem::SubWindow::SetMaterial(Ogre::String strMat)
 {
 	GetInstance().m_mWindowInfos.find(m_iHandle)->second.strMaterial=strMat;
-	SGTGUISystem::SWindowInfo wininfo=GetInstance().m_mWindowInfos.find(m_iHandle)->second;
+	GUISystem::SWindowInfo wininfo=GetInstance().m_mWindowInfos.find(m_iHandle)->second;
 	Ogre::String strSubMeshName=wininfo.strName;
 	while(wininfo.iParentHandle!=-1)
-		wininfo=SGTGUISystem::GetInstance().m_mWindowInfos.find(wininfo.iParentHandle)->second;
+		wininfo=GUISystem::GetInstance().m_mWindowInfos.find(wininfo.iParentHandle)->second;
 	//Ogre::Mesh* pMesh=Ogre::MeshManager::getSingleton().getByName(wininfo.strName);
 	///pMesh->getSubMesh(strSubMeshName)->setMaterialName(strMat);
 	if(wininfo.bWasBaked)
-		SGTMain::Instance().GetOgreSceneMgr()->getEntity(wininfo.strName)->getSubEntity(strSubMeshName)->setMaterialName(strMat);//getMesh()->getSubMesh(strSubMeshName)->setMaterialName(strMat);
+		Ice::Main::Instance().GetOgreSceneMgr()->getEntity(wininfo.strName)->getSubEntity(strSubMeshName)->setMaterialName(strMat);//getMesh()->getSubMesh(strSubMeshName)->setMaterialName(strMat);
 }
 
 
-SGTGUISystem::SubWindow
-SGTGUISystem::CreateSubWindow(int iParentHandle, float x, float y, float w, float h, float fUScale, float fVScale)
+GUISystem::SubWindow
+GUISystem::CreateSubWindow(int iParentHandle, float x, float y, float w, float h, float fUScale, float fVScale)
 {
-	int iHandle=SGTSceneManager::Instance().RequestID();
+	int iHandle=Ice::SceneManager::Instance().RequestID();
 	m_mWindowInfos.find(iParentHandle)->second.vSubWindows.push_back(iHandle);
 	SWindowInfo parenthandle=m_mWindowInfos.find(iParentHandle)->second;
 	SWindowInfo wininfo;
@@ -475,22 +475,22 @@ SGTGUISystem::CreateSubWindow(int iParentHandle, float x, float y, float w, floa
 	wininfo.fUScale=fUScale;
 	wininfo.fVScale=fVScale;
 	wininfo.iParentHandle=iParentHandle;
-	wininfo.strName=Ogre::String("GUI-System-Subwindow ") + SGTSceneManager::Instance().RequestIDStr();
+	wininfo.strName=Ogre::String("GUI-System-Subwindow ") + Ice::SceneManager::Instance().RequestIDStr();
 	m_mWindowInfos.insert(std::make_pair<int, SWindowInfo>(iHandle, wininfo));
 	return SubWindow(iHandle);
 }
 
-SGTGUISystem::Window::Window(int iHandle){m_iHandle=iHandle;}
-SGTGUISystem::Window::Window(){m_iHandle=-1;}
-SGTGUISystem::SubWindow::SubWindow(int iHandle){m_iHandle=iHandle;}
+GUISystem::Window::Window(int iHandle){m_iHandle=iHandle;}
+GUISystem::Window::Window(){m_iHandle=-1;}
+GUISystem::SubWindow::SubWindow(int iHandle){m_iHandle=iHandle;}
 
 void
-SGTGUISystem::Window::Move(float x, float y)
+GUISystem::Window::Move(float x, float y)
 {
 	GetInstance().m_mWindowInfos.find(m_iHandle)->second.x=x;
 	GetInstance().m_mWindowInfos.find(m_iHandle)->second.y=y;
 	SWindowInfo wi=GetInstance().m_mWindowInfos.find(m_iHandle)->second;
-	Ogre::Entity* pEnt=SGTMain::Instance().GetOgreSceneMgr()->getEntity(wi.strName);
+	Ogre::Entity* pEnt=Ice::Main::Instance().GetOgreSceneMgr()->getEntity(wi.strName);
 	for(unsigned int iSubEnt=0; iSubEnt<pEnt->getNumSubEntities(); iSubEnt++)
 	{
 		Ogre::Vector4 vCustom=pEnt->getSubEntity(iSubEnt)->getCustomParameter(0);
@@ -501,26 +501,26 @@ SGTGUISystem::Window::Move(float x, float y)
 }
 
 int
-SGTGUISystem::Window::GetHandle()
+GUISystem::Window::GetHandle()
 {
 	return m_iHandle;
 }
 
 int
-SGTGUISystem::SubWindow::GetHandle()
+GUISystem::SubWindow::GetHandle()
 {
 	return m_iHandle;
 }
 
 void
-SGTGUISystem::SetForegroundWindow(int iHandle)
+GUISystem::SetForegroundWindow(int iHandle)
 {
 	//get window for subwindow
 	SWindowInfo wininfo=m_mWindowInfos.find(iHandle)->second;
 	while(wininfo.iParentHandle!=-1)
 	{
 		iHandle=wininfo.iParentHandle;
-		wininfo=SGTGUISystem::GetInstance().m_mWindowInfos.find(wininfo.iParentHandle)->second;
+		wininfo=GUISystem::GetInstance().m_mWindowInfos.find(wininfo.iParentHandle)->second;
 	}
 
 	if(m_iCursorHandle!=FindParentWindow(iHandle) && m_lZOrder.size())
@@ -537,7 +537,7 @@ SGTGUISystem::SetForegroundWindow(int iHandle)
 	{
 		wininfo=m_mWindowInfos.find(*it)->second;
 		iCurrDepth+=wininfo.iDepth;
-		Ogre::Entity* pEnt=SGTMain::Instance().GetOgreSceneMgr()->getEntity(wininfo.strName);
+		Ogre::Entity* pEnt=Ice::Main::Instance().GetOgreSceneMgr()->getEntity(wininfo.strName);
 		for(unsigned int iSubEnt=0; iSubEnt<pEnt->getNumSubEntities(); iSubEnt++)
 		{
 			Ogre::Vector4 vCustom=pEnt->getSubEntity(iSubEnt)->getCustomParameter(0);
@@ -548,15 +548,15 @@ SGTGUISystem::SetForegroundWindow(int iHandle)
 }
 
 void
-SGTGUISystem::SetFocus(int iHandle)
+GUISystem::SetFocus(int iHandle)
 {
 	m_iFocusWin=iHandle;
 }
 
 int
-SGTGUISystem::FindParentWindow(int iSubWindowHandle)
+GUISystem::FindParentWindow(int iSubWindowHandle)
 {
-	SGTGUISystem::SWindowInfo subwininfo=m_mWindowInfos.find(iSubWindowHandle)->second;
+	GUISystem::SWindowInfo subwininfo=m_mWindowInfos.find(iSubWindowHandle)->second;
 	int iHandle=iSubWindowHandle;
 	while(subwininfo.iParentHandle!=-1)
 	{
@@ -568,30 +568,30 @@ SGTGUISystem::FindParentWindow(int iSubWindowHandle)
 
 
 void
-SGTGUISystem::SetVisible(int iHandle, bool bVisible)
+GUISystem::SetVisible(int iHandle, bool bVisible)
 {
 	SWindowInfo subwininfo=m_mWindowInfos.find(iHandle)->second;
 	m_mWindowInfos.find(iHandle)->second.bVisible=bVisible;
 	if(subwininfo.iParentHandle==-1)
 	{//hide a window, thats quite easy
-		SGTMain::Instance().GetOgreSceneMgr()->getEntity(subwininfo.strName)->setVisible(bVisible);
+		Ice::Main::Instance().GetOgreSceneMgr()->getEntity(subwininfo.strName)->setVisible(bVisible);
 		return;
 	}
 	//hiding subwindows requires more work
 	SWindowInfo wininfo=m_mWindowInfos.find(FindParentWindow(iHandle))->second;
-	Ogre::Vector4 vCustom=SGTMain::Instance().GetOgreSceneMgr()->getEntity(wininfo.strName)->getSubEntity(subwininfo.strName)->getCustomParameter(0);
+	Ogre::Vector4 vCustom=Ice::Main::Instance().GetOgreSceneMgr()->getEntity(wininfo.strName)->getSubEntity(subwininfo.strName)->getCustomParameter(0);
 	vCustom.x=bVisible ? wininfo.x : 10;
-	SGTMain::Instance().GetOgreSceneMgr()->getEntity(wininfo.strName)->getSubEntity(subwininfo.strName)->setCustomParameter(0, vCustom);
+	Ice::Main::Instance().GetOgreSceneMgr()->getEntity(wininfo.strName)->getSubEntity(subwininfo.strName)->setCustomParameter(0, vCustom);
 }
 
 bool
-SGTGUISystem::GetVisible(int iHandle)
+GUISystem::GetVisible(int iHandle)
 {
 	return m_mWindowInfos.find(iHandle)->second.bVisible;
 }
 
 void
-SGTGUISystem::SetCursor(int iHandle)
+GUISystem::SetCursor(int iHandle)
 {
 	if(m_mWindowInfos.find(iHandle)->second.iParentHandle!=-1)
 		return;
@@ -602,9 +602,9 @@ SGTGUISystem::SetCursor(int iHandle)
 }
 
 void
-SGTGUISystem::DeleteWindow(int iHandle)
+GUISystem::DeleteWindow(int iHandle)
 {
-	std::map<int, SGTGUISystem::SWindowInfo>::iterator it;
+	std::map<int, GUISystem::SWindowInfo>::iterator it;
 	if((it=m_mWindowInfos.find(iHandle))!=m_mWindowInfos.end())
 	{//if valid handle..
 		if(it->second.bWasBaked)
@@ -612,10 +612,10 @@ SGTGUISystem::DeleteWindow(int iHandle)
 			m_lZOrder.remove(iHandle);
 			SetForegroundWindow(m_lZOrder.front());
 			if(m_iFocusWin==iHandle)
-				SGTGUISystem::GetInstance().SetFocus(m_lZOrder.front());
+				GUISystem::GetInstance().SetFocus(m_lZOrder.front());
 			if(m_iHoverWin==iHandle)
 				m_iHoverWin=-1;
-			SGTMain::Instance().GetOgreSceneMgr()->getSceneNode("SGTGuiSystemNode")->detachObject(SGTMain::Instance().GetOgreSceneMgr()->getEntity(it->second.strName));
+			Ice::Main::Instance().GetOgreSceneMgr()->getSceneNode("GUISystemNode")->detachObject(Ice::Main::Instance().GetOgreSceneMgr()->getEntity(it->second.strName));
 			Ogre::MeshManager::getSingleton().remove(it->second.strName);
 		}
 		//delete subwindows
@@ -623,7 +623,7 @@ SGTGUISystem::DeleteWindow(int iHandle)
 		for(std::list<int>::const_iterator itl=lSubWindows.begin(); itl!=lSubWindows.end(); itl++)
 		{
 			if(m_iFocusWin==*itl)
-				SGTGUISystem::GetInstance().SetFocus(m_lZOrder.front());
+				GUISystem::GetInstance().SetFocus(m_lZOrder.front());
 			if(m_iHoverWin==*itl)
 				m_iHoverWin=-1;
 			m_mWindowInfos.erase(m_mWindowInfos.find(*itl));
@@ -633,7 +633,7 @@ SGTGUISystem::DeleteWindow(int iHandle)
 }
 
 void
-SGTGUISystem::Clear()
+GUISystem::Clear()
 {
 	for(std::map<int, SWindowInfo>::iterator it=m_mWindowInfos.begin(); it!=m_mWindowInfos.end(); it++)
 	{
@@ -641,7 +641,7 @@ SGTGUISystem::Clear()
 		SWindowInfo wininfo=m_mWindowInfos.find(iHandle)->second;
 		if(wininfo.bWasBaked)
 		{
-			SGTMain::Instance().GetOgreSceneMgr()->getSceneNode("SGTGuiSystemNode")->detachObject(wininfo.strName);
+			Ice::Main::Instance().GetOgreSceneMgr()->getSceneNode("GUISystemNode")->detachObject(wininfo.strName);
 			Ogre::MeshManager::getSingleton().unload(wininfo.strName);
 			Ogre::MeshManager::getSingleton().remove(wininfo.strName);
 			m_mWindowInfos.find(iHandle)->second.bWasBaked=false;
@@ -677,50 +677,50 @@ SGTGUISystem::Clear()
 	m_iCursorHandle=w.GetHandle();
 }
 
-std::vector<SGTScriptParam>
-SGTGUISystem::Lua_CreateFontTexture(SGTScript& caller, std::vector<SGTScriptParam> vParams)
+std::vector<Ice::ScriptParam>
+GUISystem::Lua_CreateFontTexture(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams)
 {//arguments: spacing file, text, maxwidth, maxheight
 //outputs: texture name, actual width, actual height
-	std::map<std::string, SGTFontTextures>::iterator it=GetInstance().m_mFontTextures.find(vParams[0].getString());
+	std::map<std::string, FontTextures>::iterator it=GetInstance().m_mFontTextures.find(vParams[0].getString());
 	if(it==GetInstance().m_mFontTextures.end())
 	{//we don't have this spacing in memory, load it
-		GetInstance().m_mFontTextures.insert(std::pair<std::string, SGTFontTextures>(vParams[0].getString(), SGTFontTextures(vParams[0].getString())));
+		GetInstance().m_mFontTextures.insert(std::pair<std::string, FontTextures>(vParams[0].getString(), FontTextures(vParams[0].getString())));
 		it=GetInstance().m_mFontTextures.find(vParams[0].getString());
 	}
 	//use that font textures object to crate the texture
 	int iActualWidth, iActualHeight;
-	std::vector<SGTScriptParam> vRes;
+	std::vector<Ice::ScriptParam> vRes;
 	Ogre::TexturePtr pTex=it->second.CreateTextTexture(vParams[1].getString(), (int)vParams[2].getFloat(), (int)vParams[3].getFloat(), iActualWidth, iActualHeight);
 	GetInstance().m_lTextures.push_back(pTex->getName());
-	vRes.push_back(SGTScriptParam(pTex->getName()));
-	vRes.push_back(SGTScriptParam(iActualWidth));
-	vRes.push_back(SGTScriptParam(iActualHeight));
+	vRes.push_back(Ice::ScriptParam(pTex->getName()));
+	vRes.push_back(Ice::ScriptParam(iActualWidth));
+	vRes.push_back(Ice::ScriptParam(iActualHeight));
 	return vRes;
 }
 
-std::vector<SGTScriptParam>
-SGTGUISystem::Lua_CreateFontMaterial(SGTScript& caller, std::vector<SGTScriptParam> vParams)
+std::vector<Ice::ScriptParam>
+GUISystem::Lua_CreateFontMaterial(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams)
 {//arguments: spacing file, texture name, base material name, pass name, target texture name, maxwidth, maxheight
 //outputs: material name
-	std::map<std::string, SGTFontTextures>::iterator it=GetInstance().m_mFontTextures.find(vParams[0].getString());
+	std::map<std::string, FontTextures>::iterator it=GetInstance().m_mFontTextures.find(vParams[0].getString());
 	if(it==GetInstance().m_mFontTextures.end())
 	{//we don't have this spacing in memory, load it
-		GetInstance().m_mFontTextures.insert(std::pair<std::string, SGTFontTextures>(vParams[0].getString(), SGTFontTextures(vParams[0].getString())));
+		GetInstance().m_mFontTextures.insert(std::pair<std::string, FontTextures>(vParams[0].getString(), FontTextures(vParams[0].getString())));
 		it=GetInstance().m_mFontTextures.find(vParams[0].getString());
 	}
 	Ogre::MaterialPtr pMat=it->second.CreateTextMaterial(Ogre::TextureManager::getSingleton().getByName(vParams[1].getString()), vParams[2].getString(), vParams[3].getString(), vParams[4].getString(), (int)vParams[5].getFloat(), (int)vParams[6].getFloat());
 	GetInstance().m_lMaterials.push_back(pMat->getName());
-	return std::vector<SGTScriptParam>(1, SGTScriptParam(pMat->getName()));
+	return std::vector<Ice::ScriptParam>(1, Ice::ScriptParam(pMat->getName()));
 }
 
-std::vector<SGTScriptParam>
-SGTGUISystem::Lua_ChangeFontMaterial(SGTScript& caller, std::vector<SGTScriptParam> vParams)
+std::vector<Ice::ScriptParam>
+GUISystem::Lua_ChangeFontMaterial(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams)
 {//arguments: spacing file, material name, texture name, pass name, target texture name, maxwidth, maxheight
 //outputs: none
-	std::map<std::string, SGTFontTextures>::iterator it=GetInstance().m_mFontTextures.find(vParams[0].getString());
+	std::map<std::string, FontTextures>::iterator it=GetInstance().m_mFontTextures.find(vParams[0].getString());
 	if(it==GetInstance().m_mFontTextures.end())
 	{//we don't have this spacing in memory, load it
-		GetInstance().m_mFontTextures.insert(std::pair<std::string, SGTFontTextures>(vParams[0].getString(), SGTFontTextures(vParams[0].getString())));
+		GetInstance().m_mFontTextures.insert(std::pair<std::string, FontTextures>(vParams[0].getString(), FontTextures(vParams[0].getString())));
 		it=GetInstance().m_mFontTextures.find(vParams[0].getString());
 	}
 	it->second.ChangeTextMaterial(
@@ -731,66 +731,66 @@ SGTGUISystem::Lua_ChangeFontMaterial(SGTScript& caller, std::vector<SGTScriptPar
 		(int)vParams[5].getFloat(),
 		(int)vParams[6].getFloat());
 
-	return std::vector<SGTScriptParam>();
+	return std::vector<Ice::ScriptParam>();
 }
 
-std::vector<SGTScriptParam>
-SGTGUISystem::Lua_DeleteTexture(SGTScript& caller, std::vector<SGTScriptParam> vParams)
+std::vector<Ice::ScriptParam>
+GUISystem::Lua_DeleteTexture(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams)
 {//arguments: texture name
 	Ogre::TextureManager::getSingleton().remove(vParams[0].getString());
-	return std::vector<SGTScriptParam>();
+	return std::vector<Ice::ScriptParam>();
 }
 
-std::vector<SGTScriptParam>
-SGTGUISystem::Lua_DeleteMaterial(SGTScript& caller, std::vector<SGTScriptParam> vParams)
+std::vector<Ice::ScriptParam>
+GUISystem::Lua_DeleteMaterial(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams)
 {//arguments: texture name
 	Ogre::ResourcePtr p;
 	if(!(p=Ogre::MaterialManager::getSingleton().getByName(vParams[0].getString())).isNull())
 		Ogre::MaterialManager::getSingleton().remove(p);
-	return std::vector<SGTScriptParam>();
+	return std::vector<Ice::ScriptParam>();
 }
 
-std::vector<SGTScriptParam>
-SGTGUISystem::Lua_CreateWindow(SGTScript &caller, std::vector<SGTScriptParam> vParams)
+std::vector<Ice::ScriptParam>
+GUISystem::Lua_CreateWindow(Ice::Script &caller, std::vector<Ice::ScriptParam> vParams)
 {//input: x,y,w,h
 //return: window-id
-	std::vector<SGTScriptParam> ret;
+	std::vector<Ice::ScriptParam> ret;
 	if(vParams.size()!=4)
 		return ret;
-	if(vParams[0].getType()!=SGTScriptParam::PARM_TYPE_FLOAT ||
-		vParams[1].getType()!=SGTScriptParam::PARM_TYPE_FLOAT ||
-		vParams[2].getType()!=SGTScriptParam::PARM_TYPE_FLOAT ||
-		vParams[3].getType()!=SGTScriptParam::PARM_TYPE_FLOAT)
+	if(vParams[0].getType()!=Ice::ScriptParam::PARM_TYPE_FLOAT ||
+		vParams[1].getType()!=Ice::ScriptParam::PARM_TYPE_FLOAT ||
+		vParams[2].getType()!=Ice::ScriptParam::PARM_TYPE_FLOAT ||
+		vParams[3].getType()!=Ice::ScriptParam::PARM_TYPE_FLOAT)
 		return ret;
-	ret.push_back(SGTGUISystem::GetInstance().MakeWindow(vParams[0].getFloat(), vParams[1].getFloat(), vParams[2].getFloat(), vParams[3].getFloat()).GetHandle());
+	ret.push_back(GUISystem::GetInstance().MakeWindow(vParams[0].getFloat(), vParams[1].getFloat(), vParams[2].getFloat(), vParams[3].getFloat()).GetHandle());
 	return ret;
 }
 
-std::vector<SGTScriptParam>
-SGTGUISystem::Lua_CreateSubWindow(SGTScript &caller, std::vector<SGTScriptParam> vParams)
+std::vector<Ice::ScriptParam>
+GUISystem::Lua_CreateSubWindow(Ice::Script &caller, std::vector<Ice::ScriptParam> vParams)
 {//input: x,y,w,h,parent
 //return: window-id
-	std::vector<SGTScriptParam> ret;
+	std::vector<Ice::ScriptParam> ret;
 	for(int iParm=0; iParm<5; iParm++)
-		ret.push_back(SGTScriptParam(0.0));
-	std::string strError=SGTUtils::TestParameters(vParams, ret, true);
+		ret.push_back(Ice::ScriptParam(0.0));
+	std::string strError=Ice::Utils::TestParameters(vParams, ret, true);
 	ret.clear();
-	ret.push_back(SGTScriptParam());
+	ret.push_back(Ice::ScriptParam());
 	if(strError.size())
 	{
-		ret.push_back(SGTScriptParam(strError));
+		ret.push_back(Ice::ScriptParam(strError));
 		return ret;
 	}
 	if(vParams.size()!=5 && vParams.size()!=7)
 	{
-		ret.push_back(SGTScriptParam(std::string("function expects 5 or 7 parameters")));
+		ret.push_back(Ice::ScriptParam(std::string("function expects 5 or 7 parameters")));
 		return ret;
 	}
 	if(vParams.size()==7)
-		if(vParams[5].getType()!=SGTScriptParam::PARM_TYPE_FLOAT ||
-			vParams[6].getType()!=SGTScriptParam::PARM_TYPE_FLOAT)
+		if(vParams[5].getType()!=Ice::ScriptParam::PARM_TYPE_FLOAT ||
+			vParams[6].getType()!=Ice::ScriptParam::PARM_TYPE_FLOAT)
 		{
-			ret.push_back(SGTScriptParam(std::string("parameters 5 and 6 have to be floats")));
+			ret.push_back(Ice::ScriptParam(std::string("parameters 5 and 6 have to be floats")));
 			return ret;
 		}
 	
@@ -802,44 +802,44 @@ SGTGUISystem::Lua_CreateSubWindow(SGTScript &caller, std::vector<SGTScriptParam>
 	return ret;
 }
 
-std::vector<SGTScriptParam>
-SGTGUISystem::Lua_BakeWindow(SGTScript &caller, std::vector<SGTScriptParam> vParams)
+std::vector<Ice::ScriptParam>
+GUISystem::Lua_BakeWindow(Ice::Script &caller, std::vector<Ice::ScriptParam> vParams)
 {
-	std::vector<SGTScriptParam> ret;
+	std::vector<Ice::ScriptParam> ret;
 	if(vParams.size()!=1)
 		return ret;
-	if(vParams[0].getType()!=SGTScriptParam::PARM_TYPE_FLOAT)
+	if(vParams[0].getType()!=Ice::ScriptParam::PARM_TYPE_FLOAT)
 		return ret;
 	Window((int)vParams[0].getFloat()).Bake();
 	return ret;
 }
 
-std::vector<SGTScriptParam>
-SGTGUISystem::Lua_DeleteWindow(SGTScript &caller, std::vector<SGTScriptParam> vParams)
+std::vector<Ice::ScriptParam>
+GUISystem::Lua_DeleteWindow(Ice::Script &caller, std::vector<Ice::ScriptParam> vParams)
 {
-	std::vector<SGTScriptParam> errout;
-	errout.push_back(SGTScriptParam());
-	std::string strErrString=SGTUtils::TestParameters(vParams, std::vector<SGTScriptParam>(1, SGTScriptParam(0.1)), false);
+	std::vector<Ice::ScriptParam> errout;
+	errout.push_back(Ice::ScriptParam());
+	std::string strErrString=Ice::Utils::TestParameters(vParams, std::vector<Ice::ScriptParam>(1, Ice::ScriptParam(0.1)), false);
 	if(strErrString.length())
 	{
 		errout.push_back(strErrString);
 		return errout;
 	}
 	GetInstance().DeleteWindow((int)vParams[0].getFloat());
-	return std::vector<SGTScriptParam>();
+	return std::vector<Ice::ScriptParam>();
 }
 
 
 
-std::vector<SGTScriptParam>
-SGTGUISystem::Lua_SetMaterial(SGTScript& caller, std::vector<SGTScriptParam> vParams)
+std::vector<Ice::ScriptParam>
+GUISystem::Lua_SetMaterial(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams)
 {
-	std::vector<SGTScriptParam> ret;
+	std::vector<Ice::ScriptParam> ret;
 	if(vParams.size()!=2)
 		return ret;
-	if(vParams[0].getType()!=SGTScriptParam::PARM_TYPE_FLOAT || vParams[1].getType()!=SGTScriptParam::PARM_TYPE_STRING)
+	if(vParams[0].getType()!=Ice::ScriptParam::PARM_TYPE_FLOAT || vParams[1].getType()!=Ice::ScriptParam::PARM_TYPE_STRING)
 		return ret;
-	SWindowInfo wininfo=SGTGUISystem::GetInstance().m_mWindowInfos.find((int)vParams[0].getFloat())->second;
+	SWindowInfo wininfo=GUISystem::GetInstance().m_mWindowInfos.find((int)vParams[0].getFloat())->second;
 	if(wininfo.iParentHandle==-1)//is top-level-window
 		Window((int)vParams[0].getFloat()).SetMaterial(vParams[1].getString());
 	else
@@ -848,24 +848,24 @@ SGTGUISystem::Lua_SetMaterial(SGTScript& caller, std::vector<SGTScriptParam> vPa
 	return ret;
 }
 
-std::vector<SGTScriptParam>
-SGTGUISystem::Lua_SetWindowVisible(SGTScript &caller, std::vector<SGTScriptParam> vParams)
+std::vector<Ice::ScriptParam>
+GUISystem::Lua_SetWindowVisible(Ice::Script &caller, std::vector<Ice::ScriptParam> vParams)
 {//inputs: window-id,bool
-	std::vector<SGTScriptParam> ret;
+	std::vector<Ice::ScriptParam> ret;
 	if(vParams.size()!=2)
 		return ret;
-	if(vParams[0].getType()!=SGTScriptParam::PARM_TYPE_FLOAT ||
-		vParams[1].getType()!=SGTScriptParam::PARM_TYPE_BOOL)
+	if(vParams[0].getType()!=Ice::ScriptParam::PARM_TYPE_FLOAT ||
+		vParams[1].getType()!=Ice::ScriptParam::PARM_TYPE_BOOL)
 		return ret;
-	SGTGUISystem::GetInstance().SetVisible((int)vParams[0].getFloat(), vParams[1].getBool());
+	GUISystem::GetInstance().SetVisible((int)vParams[0].getFloat(), vParams[1].getBool());
 	return ret;
 }
-std::vector<SGTScriptParam>
-SGTGUISystem::Lua_SetForegroundWindow(SGTScript& caller, std::vector<SGTScriptParam> vParams)
+std::vector<Ice::ScriptParam>
+GUISystem::Lua_SetForegroundWindow(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams)
 {
-	std::vector<SGTScriptParam> errout;
-	errout.push_back(SGTScriptParam());
-	std::string strErrString=SGTUtils::TestParameters(vParams, std::vector<SGTScriptParam>(1, SGTScriptParam(0.1)), false);
+	std::vector<Ice::ScriptParam> errout;
+	errout.push_back(Ice::ScriptParam());
+	std::string strErrString=Ice::Utils::TestParameters(vParams, std::vector<Ice::ScriptParam>(1, Ice::ScriptParam(0.1)), false);
 	if(strErrString.length())
 	{
 		errout.push_back(strErrString);
@@ -873,19 +873,19 @@ SGTGUISystem::Lua_SetForegroundWindow(SGTScript& caller, std::vector<SGTScriptPa
 	}
 	if(GetInstance().m_mWindowInfos.find((int)vParams[0].getFloat())==GetInstance().m_mWindowInfos.end())
 	{
-		errout.push_back(SGTScriptParam(std::string("could not find a window with given ID")));
+		errout.push_back(Ice::ScriptParam(std::string("could not find a window with given ID")));
 		return errout;
 	}
 	GetInstance().SetForegroundWindow((int)vParams[0].getFloat());
-	return std::vector<SGTScriptParam>();
+	return std::vector<Ice::ScriptParam>();
 }
 
-std::vector<SGTScriptParam>
-SGTGUISystem::Lua_SetFocus(SGTScript& caller, std::vector<SGTScriptParam> vParams)
+std::vector<Ice::ScriptParam>
+GUISystem::Lua_SetFocus(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams)
 {
-	std::vector<SGTScriptParam> errout;
-	errout.push_back(SGTScriptParam());
-	std::string strErrString=SGTUtils::TestParameters(vParams, std::vector<SGTScriptParam>(1, SGTScriptParam(0.1)), false);
+	std::vector<Ice::ScriptParam> errout;
+	errout.push_back(Ice::ScriptParam());
+	std::string strErrString=Ice::Utils::TestParameters(vParams, std::vector<Ice::ScriptParam>(1, Ice::ScriptParam(0.1)), false);
 	if(strErrString.length())
 	{
 		errout.push_back(strErrString);
@@ -893,23 +893,23 @@ SGTGUISystem::Lua_SetFocus(SGTScript& caller, std::vector<SGTScriptParam> vParam
 	}
 	if(GetInstance().m_mWindowInfos.find((int)vParams[0].getFloat())==GetInstance().m_mWindowInfos.end())
 	{
-		errout.push_back(SGTScriptParam(std::string("could not find a window with given ID")));
+		errout.push_back(Ice::ScriptParam(std::string("could not find a window with given ID")));
 		return errout;
 	}
 	GetInstance().SetFocus((int)vParams[0].getFloat());
-	return std::vector<SGTScriptParam>();
+	return std::vector<Ice::ScriptParam>();
 }
 
-std::vector<SGTScriptParam>
-SGTGUISystem::Lua_MoveWindow(SGTScript& caller, std::vector<SGTScriptParam> vParams)
+std::vector<Ice::ScriptParam>
+GUISystem::Lua_MoveWindow(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams)
 {
-	std::vector<SGTScriptParam> errout;
-	errout.push_back(SGTScriptParam());
-	std::vector<SGTScriptParam> vRef=std::vector<SGTScriptParam>(1, SGTScriptParam(0.1));
-	vRef.push_back(SGTScriptParam(0.1));
-	vRef.push_back(SGTScriptParam(0.1));
+	std::vector<Ice::ScriptParam> errout;
+	errout.push_back(Ice::ScriptParam());
+	std::vector<Ice::ScriptParam> vRef=std::vector<Ice::ScriptParam>(1, Ice::ScriptParam(0.1));
+	vRef.push_back(Ice::ScriptParam(0.1));
+	vRef.push_back(Ice::ScriptParam(0.1));
 
-	std::string strErrString=SGTUtils::TestParameters(vParams, vRef, false);
+	std::string strErrString=Ice::Utils::TestParameters(vParams, vRef, false);
 	if(strErrString.length())
 	{
 		errout.push_back(strErrString);
@@ -919,21 +919,21 @@ SGTGUISystem::Lua_MoveWindow(SGTScript& caller, std::vector<SGTScriptParam> vPar
 	std::map<int, SWindowInfo>::const_iterator it=GetInstance().m_mWindowInfos.find((int)vParams[0].getFloat());
 	if(it==GetInstance().m_mWindowInfos.end())
 	{
-		errout.push_back(SGTScriptParam(std::string("could not find a window with given ID")));
+		errout.push_back(Ice::ScriptParam(std::string("could not find a window with given ID")));
 		return errout;
 	}
 	Window(GetInstance().FindParentWindow(it->first)).Move(vParams[1].getFloat(), vParams[2].getFloat());
-	return std::vector<SGTScriptParam>();
+	return std::vector<Ice::ScriptParam>();
 }
 
-std::vector<SGTScriptParam>
-SGTGUISystem::Lua_GetWindowPos(SGTScript& caller, std::vector<SGTScriptParam> vParams)
+std::vector<Ice::ScriptParam>
+GUISystem::Lua_GetWindowPos(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams)
 {
-	std::vector<SGTScriptParam> errout;
-	errout.push_back(SGTScriptParam());
-	std::vector<SGTScriptParam> vRef=std::vector<SGTScriptParam>(1, SGTScriptParam(0.1));
+	std::vector<Ice::ScriptParam> errout;
+	errout.push_back(Ice::ScriptParam());
+	std::vector<Ice::ScriptParam> vRef=std::vector<Ice::ScriptParam>(1, Ice::ScriptParam(0.1));
 
-	std::string strErrString=SGTUtils::TestParameters(vParams, vRef, false);
+	std::string strErrString=Ice::Utils::TestParameters(vParams, vRef, false);
 	if(strErrString.length())
 	{
 		errout.push_back(strErrString);
@@ -942,27 +942,27 @@ SGTGUISystem::Lua_GetWindowPos(SGTScript& caller, std::vector<SGTScriptParam> vP
 	std::map<int, SWindowInfo>::const_iterator it=GetInstance().m_mWindowInfos.find((int)vParams[0].getFloat());
 	if(it==GetInstance().m_mWindowInfos.end())
 	{
-		errout.push_back(SGTScriptParam(std::string("could not find a window with given ID")));
+		errout.push_back(Ice::ScriptParam(std::string("could not find a window with given ID")));
 		return errout;
 	}
-	SGTGUISystem::SWindowInfo wininfo=it->second;
+	GUISystem::SWindowInfo wininfo=it->second;
 	while(wininfo.iParentHandle!=-1)
-		wininfo=SGTGUISystem::GetInstance().m_mWindowInfos.find(wininfo.iParentHandle)->second;
+		wininfo=GUISystem::GetInstance().m_mWindowInfos.find(wininfo.iParentHandle)->second;
 
 	errout.clear();
-	errout.push_back(SGTScriptParam(wininfo.x));
-	errout.push_back(SGTScriptParam(wininfo.y));
+	errout.push_back(Ice::ScriptParam(wininfo.x));
+	errout.push_back(Ice::ScriptParam(wininfo.y));
 	return errout;
 }
 
-std::vector<SGTScriptParam>
-SGTGUISystem::Lua_SetCursorPos(SGTScript& caller, std::vector<SGTScriptParam> vParams)
+std::vector<Ice::ScriptParam>
+GUISystem::Lua_SetCursorPos(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams)
 {
-	std::vector<SGTScriptParam> errout;
-	errout.push_back(SGTScriptParam());
-	std::vector<SGTScriptParam> vRef=std::vector<SGTScriptParam>(1, SGTScriptParam(0.1));
-	vRef.push_back(SGTScriptParam(0.1));
-	std::string strErrString=SGTUtils::TestParameters(vParams, vRef, false);
+	std::vector<Ice::ScriptParam> errout;
+	errout.push_back(Ice::ScriptParam());
+	std::vector<Ice::ScriptParam> vRef=std::vector<Ice::ScriptParam>(1, Ice::ScriptParam(0.1));
+	vRef.push_back(Ice::ScriptParam(0.1));
+	std::string strErrString=Ice::Utils::TestParameters(vParams, vRef, false);
 	if(strErrString.length())
 	{
 		errout.push_back(strErrString);
@@ -970,14 +970,14 @@ SGTGUISystem::Lua_SetCursorPos(SGTScript& caller, std::vector<SGTScriptParam> vP
 	}
 	GetInstance().m_fXPos=vParams[0].getFloat();
 	GetInstance().m_fYPos=vParams[1].getFloat();
-	return std::vector<SGTScriptParam>();
+	return std::vector<Ice::ScriptParam>();
 }
-std::vector<SGTScriptParam>
-SGTGUISystem::Lua_GetScreenCoords(SGTScript& caller, std::vector<SGTScriptParam> vParams)
+std::vector<Ice::ScriptParam>
+GUISystem::Lua_GetScreenCoords(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams)
 {
-	std::vector<SGTScriptParam> errout;
-	errout.push_back(SGTScriptParam());
-	std::string strErrString=SGTUtils::TestParameters(vParams, std::vector<SGTScriptParam>(1, SGTScriptParam(0.1)), false);
+	std::vector<Ice::ScriptParam> errout;
+	errout.push_back(Ice::ScriptParam());
+	std::string strErrString=Ice::Utils::TestParameters(vParams, std::vector<Ice::ScriptParam>(1, Ice::ScriptParam(0.1)), false);
 	if(strErrString.length())
 	{
 		errout.push_back(strErrString);
@@ -985,29 +985,29 @@ SGTGUISystem::Lua_GetScreenCoords(SGTScript& caller, std::vector<SGTScriptParam>
 	}
 	if(GetInstance().m_mWindowInfos.find((int)vParams[0].getFloat())==GetInstance().m_mWindowInfos.end())
 	{
-		errout.push_back(SGTScriptParam(std::string("could not find a window with given ID")));
+		errout.push_back(Ice::ScriptParam(std::string("could not find a window with given ID")));
 		return errout;
 	}
 	SWindowInfo wi=GetInstance().m_mWindowInfos.find((int)vParams[0].getFloat())->second;
 	errout.clear();
-	errout.push_back(SGTScriptParam(wi.x));
-	errout.push_back(SGTScriptParam(wi.y));
-	errout.push_back(SGTScriptParam(wi.w));
-	errout.push_back(SGTScriptParam(wi.h));
+	errout.push_back(Ice::ScriptParam(wi.x));
+	errout.push_back(Ice::ScriptParam(wi.y));
+	errout.push_back(Ice::ScriptParam(wi.w));
+	errout.push_back(Ice::ScriptParam(wi.h));
 	return errout;
 }
 
-std::vector<SGTScriptParam>
-SGTGUISystem::Lua_GetCursor(SGTScript& caller, std::vector<SGTScriptParam> vParams)
+std::vector<Ice::ScriptParam>
+GUISystem::Lua_GetCursor(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams)
 {
-	return std::vector<SGTScriptParam>(1, SGTScriptParam(GetInstance().m_iCursorHandle));
+	return std::vector<Ice::ScriptParam>(1, Ice::ScriptParam(GetInstance().m_iCursorHandle));
 }
 
-std::vector<SGTScriptParam> SGTGUISystem::Lua_SetCursor(SGTScript& caller, std::vector<SGTScriptParam> vParams)
+std::vector<Ice::ScriptParam> GUISystem::Lua_SetCursor(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams)
 {
-	std::vector<SGTScriptParam> errout;
-	errout.push_back(SGTScriptParam());
-	std::string strErrString=SGTUtils::TestParameters(vParams, std::vector<SGTScriptParam>(1, SGTScriptParam(0.1)), false);
+	std::vector<Ice::ScriptParam> errout;
+	errout.push_back(Ice::ScriptParam());
+	std::string strErrString=Ice::Utils::TestParameters(vParams, std::vector<Ice::ScriptParam>(1, Ice::ScriptParam(0.1)), false);
 	if(strErrString.length())
 	{
 		errout.push_back(strErrString);
@@ -1015,11 +1015,11 @@ std::vector<SGTScriptParam> SGTGUISystem::Lua_SetCursor(SGTScript& caller, std::
 	}
 	if(GetInstance().m_mWindowInfos.find((int)vParams[0].getFloat())==GetInstance().m_mWindowInfos.end())
 	{
-		errout.push_back(SGTScriptParam(std::string("could not find a window with given ID")));
+		errout.push_back(Ice::ScriptParam(std::string("could not find a window with given ID")));
 		return errout;
 	}
 	GetInstance().SetCursor((int)vParams[0].getFloat());
-	return std::vector<SGTScriptParam>();
+	return std::vector<Ice::ScriptParam>();
 }
 
 
@@ -1027,57 +1027,57 @@ std::vector<SGTScriptParam> SGTGUISystem::Lua_SetCursor(SGTScript& caller, std::
 //a little macro for the callback-setters. it will test the parameters and generate meaningful error texts
 //then set the given field in the window infos
 #define LUA_CALLBACK_SETTER_MACRO(params, wininfofield, script)\
-	std::vector<SGTScriptParam> errout(1, SGTScriptParam());\
-	std::vector<SGTScriptParam> vRef(1, SGTScriptParam(0.1));\
-	vRef.push_back(SGTScriptParam("", script));\
-	std::string strErrString=SGTUtils::TestParameters(vParams, vRef, false);\
+	std::vector<Ice::ScriptParam> errout(1, Ice::ScriptParam());\
+	std::vector<Ice::ScriptParam> vRef(1, Ice::ScriptParam(0.1));\
+	vRef.push_back(Ice::ScriptParam("", script));\
+	std::string strErrString=Ice::Utils::TestParameters(vParams, vRef, false);\
 	if(strErrString.length())\
 		{errout.push_back(strErrString);return errout;}\
 	if(GetInstance().m_mWindowInfos.find((int)params[0].getFloat())==GetInstance().m_mWindowInfos.end())\
-		{errout.push_back(SGTScriptParam(std::string("could not find a window with given ID"))); return errout;}\
+		{errout.push_back(Ice::ScriptParam(std::string("could not find a window with given ID"))); return errout;}\
 	GetInstance().m_mWindowInfos.find((int)params[0].getFloat())->second.wininfofield=params[1];\
-	return std::vector<SGTScriptParam>();
+	return std::vector<Ice::ScriptParam>();
 
 //mouse events
-std::vector<SGTScriptParam> SGTGUISystem::Lua_SetOnClickCallback(SGTScript& caller, std::vector<SGTScriptParam> vParams){LUA_CALLBACK_SETTER_MACRO(vParams, parOnClick, caller);}
-std::vector<SGTScriptParam> SGTGUISystem::Lua_SetMouseDownCallback(SGTScript& caller, std::vector<SGTScriptParam> vParams){LUA_CALLBACK_SETTER_MACRO(vParams, parMouseDown, caller);}
-std::vector<SGTScriptParam> SGTGUISystem::Lua_SetMouseUpCallback(SGTScript& caller, std::vector<SGTScriptParam> vParams){LUA_CALLBACK_SETTER_MACRO(vParams, parMouseUp, caller);}
-std::vector<SGTScriptParam> SGTGUISystem::Lua_SetMouseMoveCallback(SGTScript& caller, std::vector<SGTScriptParam> vParams){LUA_CALLBACK_SETTER_MACRO(vParams, parMouseMove, caller);}
-std::vector<SGTScriptParam> SGTGUISystem::Lua_SetMouseHoverInCallback(SGTScript& caller, std::vector<SGTScriptParam> vParams){LUA_CALLBACK_SETTER_MACRO(vParams, parMouseHoverIn, caller);}
-std::vector<SGTScriptParam> SGTGUISystem::Lua_SetMouseHoverOutCallback(SGTScript& caller, std::vector<SGTScriptParam> vParams){LUA_CALLBACK_SETTER_MACRO(vParams, parMouseHoverOut, caller);}
+std::vector<Ice::ScriptParam> GUISystem::Lua_SetOnClickCallback(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams){LUA_CALLBACK_SETTER_MACRO(vParams, parOnClick, caller);}
+std::vector<Ice::ScriptParam> GUISystem::Lua_SetMouseDownCallback(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams){LUA_CALLBACK_SETTER_MACRO(vParams, parMouseDown, caller);}
+std::vector<Ice::ScriptParam> GUISystem::Lua_SetMouseUpCallback(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams){LUA_CALLBACK_SETTER_MACRO(vParams, parMouseUp, caller);}
+std::vector<Ice::ScriptParam> GUISystem::Lua_SetMouseMoveCallback(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams){LUA_CALLBACK_SETTER_MACRO(vParams, parMouseMove, caller);}
+std::vector<Ice::ScriptParam> GUISystem::Lua_SetMouseHoverInCallback(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams){LUA_CALLBACK_SETTER_MACRO(vParams, parMouseHoverIn, caller);}
+std::vector<Ice::ScriptParam> GUISystem::Lua_SetMouseHoverOutCallback(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams){LUA_CALLBACK_SETTER_MACRO(vParams, parMouseHoverOut, caller);}
 //keyboard events
-std::vector<SGTScriptParam> SGTGUISystem::Lua_SetOnCharCallback(SGTScript& caller, std::vector<SGTScriptParam> vParams){LUA_CALLBACK_SETTER_MACRO(vParams, parOnChar, caller);}
-std::vector<SGTScriptParam> SGTGUISystem::Lua_SetKeyDownCallback(SGTScript& caller, std::vector<SGTScriptParam> vParams){LUA_CALLBACK_SETTER_MACRO(vParams, parKeyDown, caller);}
-std::vector<SGTScriptParam> SGTGUISystem::Lua_SetKeyUpCallback(SGTScript& caller, std::vector<SGTScriptParam> vParams){LUA_CALLBACK_SETTER_MACRO(vParams, parKeyUp, caller);}
+std::vector<Ice::ScriptParam> GUISystem::Lua_SetOnCharCallback(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams){LUA_CALLBACK_SETTER_MACRO(vParams, parOnChar, caller);}
+std::vector<Ice::ScriptParam> GUISystem::Lua_SetKeyDownCallback(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams){LUA_CALLBACK_SETTER_MACRO(vParams, parKeyDown, caller);}
+std::vector<Ice::ScriptParam> GUISystem::Lua_SetKeyUpCallback(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams){LUA_CALLBACK_SETTER_MACRO(vParams, parKeyUp, caller);}
 
-std::vector<SGTScriptParam>
-SGTGUISystem::Lua_GetKeyDown(SGTScript& caller, std::vector<SGTScriptParam> vParams)
+std::vector<Ice::ScriptParam>
+GUISystem::Lua_GetKeyDown(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams)
 {
-	std::vector<SGTScriptParam> errout;
-	errout.push_back(SGTScriptParam());
-	std::string strErrString=SGTUtils::TestParameters(vParams, std::vector<SGTScriptParam>(1, SGTScriptParam(0.1)), false);
+	std::vector<Ice::ScriptParam> errout;
+	errout.push_back(Ice::ScriptParam());
+	std::string strErrString=Ice::Utils::TestParameters(vParams, std::vector<Ice::ScriptParam>(1, Ice::ScriptParam(0.1)), false);
 	if(strErrString.length())
 	{
 		errout.push_back(strErrString);
 		return errout;
 	}
-	return std::vector<SGTScriptParam>(1, SGTScriptParam(SGTMain::Instance().GetInputManager()->isKeyDown((OIS::KeyCode)(int)vParams[0].getFloat())));
+	return std::vector<Ice::ScriptParam>(1, Ice::ScriptParam(Ice::Main::Instance().GetInputManager()->isKeyDown((OIS::KeyCode)(int)vParams[0].getFloat())));
 }
 
-std::vector<SGTScriptParam>
-SGTGUISystem::Lua_GetMouseButtons(SGTScript& caller, std::vector<SGTScriptParam> vParams)
+std::vector<Ice::ScriptParam>
+GUISystem::Lua_GetMouseButtons(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams)
 {
-	std::vector<SGTScriptParam> errout;
-	errout.push_back(SGTScriptParam());
-	std::string strErrString=SGTUtils::TestParameters(vParams, std::vector<SGTScriptParam>(1, SGTScriptParam(0.1)), false);
+	std::vector<Ice::ScriptParam> errout;
+	errout.push_back(Ice::ScriptParam());
+	std::string strErrString=Ice::Utils::TestParameters(vParams, std::vector<Ice::ScriptParam>(1, Ice::ScriptParam(0.1)), false);
 	if(strErrString.length())
 	{
 		errout.push_back(strErrString);
 		return errout;
 	}
 	errout.clear();
-	EMouseButtons buttons=SGTMain::Instance().GetInputManager()->getMouseButton();
-	errout.push_back(SGTScriptParam((bool)(buttons==MOUSE_LEFT || buttons==MOUSE_BOTH)));
-	errout.push_back(SGTScriptParam((bool)(buttons==MOUSE_RIGHT || buttons==MOUSE_BOTH)));
+	Ice::EMouseButtons buttons=Ice::Main::Instance().GetInputManager()->getMouseButton();
+	errout.push_back(Ice::ScriptParam((bool)(buttons==Ice::MOUSE_LEFT || buttons==Ice::MOUSE_BOTH)));
+	errout.push_back(Ice::ScriptParam((bool)(buttons==Ice::MOUSE_RIGHT || buttons==Ice::MOUSE_BOTH)));
 	return errout;
 }

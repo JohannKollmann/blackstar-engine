@@ -1,11 +1,11 @@
 
 #include "../Header/wxMainMenu.h"
-#include "SGTMainLoop.h"
-#include "SGTCameraController.h"
-#include "SGTDotSceneLoader.h"
-#include "SGTScriptSystem.h"
-#include "SGTAIManager.h"
-#include "SGTSceneManager.h"
+#include "IceMainLoop.h"
+#include "IceCameraController.h"
+#include "DotSceneLoader.h"
+#include "IceScriptSystem.h"
+#include "IceAIManager.h"
+#include "IceSceneManager.h"
 
 
 // Required for WX
@@ -113,7 +113,7 @@ void wxMainMenu::OnLoadWorld(wxCommandEvent& WXUNUSED(event))
 		mEdit->GetOgrePane()->GetEdit()->OnLoadWorld(dialog.GetPath().c_str());
 	}
 	wxEdit::Instance().GetProgressBar()->Reset();
-	SGTSceneManager::Instance().ShowEditorMeshes(IsChecked(wxMainMenu_EditorMeshes));
+	Ice::SceneManager::Instance().ShowEditorMeshes(IsChecked(wxMainMenu_EditorMeshes));
 };
 
 void wxMainMenu::OnSaveWorld(wxCommandEvent& WXUNUSED(event))
@@ -141,7 +141,7 @@ void wxMainMenu::OnSaveWorld(wxCommandEvent& WXUNUSED(event))
 		mEdit->GetOgrePane()->GetEdit()->OnSaveWorld(dialog.GetPath().c_str());
 	}
 	wxEdit::Instance().GetProgressBar()->Reset();
-	SGTSceneManager::Instance().ShowEditorMeshes(IsChecked(wxMainMenu_EditorMeshes));
+	Ice::SceneManager::Instance().ShowEditorMeshes(IsChecked(wxMainMenu_EditorMeshes));
 };
 
 void wxMainMenu::OnLoadMesh(wxCommandEvent& WXUNUSED(event))
@@ -165,11 +165,11 @@ void wxMainMenu::OnLoadMesh(wxCommandEvent& WXUNUSED(event))
 		wxEdit::Instance().GetProgressBar()->SetStatusMessage("Importing world...");
 		wxEdit::Instance().GetProgressBar()->SetProgress(0.1);
 		Ogre::String extension = sFile.substr(sFile.find("."), sFile.size());
-		if (extension == ".mesh") SGTSceneManager::Instance().LoadLevelMesh(sFile);
-		else SGTDotSceneLoader::Instance().ImportScene(sFile);
+		if (extension == ".mesh") Ice::SceneManager::Instance().LoadLevelMesh(sFile);
+		else DotSceneLoader::Instance().ImportScene(sFile);
 
 		wxEdit::Instance().GetpropertyWindow()->SetPage("None");
-		SGTMain::Instance().GetCamera()->setPosition(Ogre::Vector3(0,0,0));
+		Ice::Main::Instance().GetCamera()->setPosition(Ogre::Vector3(0,0,0));
 		wxEdit::Instance().GetProgressBar()->SetStatusMessage("Updating material tree...");
 		wxEdit::Instance().GetProgressBar()->SetProgress(0.8);
 		wxEdit::Instance().GetWorldExplorer()->GetMaterialTree()->Update();
@@ -208,8 +208,8 @@ void wxMainMenu::OnMeshEditor(wxCommandEvent& WXUNUSED(event))
 
 void wxMainMenu::OnReloadScripts(wxCommandEvent& WXUNUSED(event))
 {
-	SGTScriptSystem::GetInstance().Clear();
-	SGTAIManager::Instance().ReloadScripts();
+	Ice::ScriptSystem::GetInstance().Clear();
+	Ice::AIManager::Instance().ReloadScripts();
 }
 
 void wxMainMenu::OnEnableBrushMode(wxCommandEvent& WXUNUSED(event))
@@ -240,13 +240,13 @@ void wxMainMenu::OnEnableMaterialMode(wxCommandEvent& WXUNUSED(event))
 
 void wxMainMenu::OnEnablePhysics(wxCommandEvent& WXUNUSED(event))
 {
-	SGTMainLoop::Instance().SetPhysics(IsChecked(wxMainMenu_Physics));
+	Ice::MainLoop::Instance().SetPhysics(IsChecked(wxMainMenu_Physics));
 	wxEdit::Instance().GetProgressBar()->Reset();
 }
 
 void wxMainMenu::OnEnableEditorMeshes(wxCommandEvent& WXUNUSED(event))
 {
-	SGTSceneManager::Instance().ShowEditorMeshes(IsChecked(wxMainMenu_EditorMeshes));
+	Ice::SceneManager::Instance().ShowEditorMeshes(IsChecked(wxMainMenu_EditorMeshes));
 }
 
 void wxMainMenu::OnSettings(wxCommandEvent& WXUNUSED(event))

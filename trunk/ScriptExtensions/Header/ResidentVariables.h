@@ -1,8 +1,8 @@
 #ifndef __RESIS_INCL__
 #define __RESIS_INCL__
 
-#include "SGTLoadSave.h"
-#include "SGTScriptSystem.h"
+#include "LoadSave.h"
+#include "IceScriptSystem.h"
 #include "LoadSaveMapHandler.h"
 
 class ResidentVariables;
@@ -13,44 +13,44 @@ class ResidentManager
 public:
 	ResidentManager();
 	static ResidentManager& GetInstance();
-	void BindResisToScript(ResidentVariables resis, SGTScript& script);
-	ResidentVariables& GetResis(SGTScript& script);
+	void BindResisToScript(ResidentVariables resis, Ice::Script& script);
+	ResidentVariables& GetResis(Ice::Script& script);
 	void Clear();
 private:
 	std::map<int, ResidentVariables> m_mResis;
-	std::map<std::string, std::map<std::string, SGTScriptParam>> m_mAllocatedVars;
+	std::map<std::string, std::map<std::string, Ice::ScriptParam>> m_mAllocatedVars;
 
-	static std::vector<SGTScriptParam> AllocCallback(SGTScript &caller, std::vector<SGTScriptParam> params);
-	static std::vector<SGTScriptParam> SetCallback(SGTScript &caller, std::vector<SGTScriptParam> params);
-	static std::vector<SGTScriptParam> GetCallback(SGTScript &caller, std::vector<SGTScriptParam> params);
+	static std::vector<Ice::ScriptParam> AllocCallback(Ice::Script &caller, std::vector<Ice::ScriptParam> params);
+	static std::vector<Ice::ScriptParam> SetCallback(Ice::Script &caller, std::vector<Ice::ScriptParam> params);
+	static std::vector<Ice::ScriptParam> GetCallback(Ice::Script &caller, std::vector<Ice::ScriptParam> params);
 };
 
-class ResidentVariables : SGTSaveable
+class ResidentVariables : LoadSave::Saveable
 {
 public:
-	void Save(SGTSaveSystem& myManager);
-	void Load(SGTLoadSystem& myManager);
-	static SGTSaveable* NewInstance();
-	static void Register(std::string* pstrName, SGTSaveableInstanceFn* pFn);
+	void Save(LoadSave::SaveSystem& myManager);
+	void Load(LoadSave::LoadSystem& myManager);
+	static LoadSave::Saveable* NewInstance();
+	static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn);
 	std::string& TellName();
 
-	SGTScriptParam GetVariable(std::string strVar);
-	void SetVariable(std::string strVar, SGTScriptParam& param);
+	Ice::ScriptParam GetVariable(std::string strVar);
+	void SetVariable(std::string strVar, Ice::ScriptParam& param);
 	
-	class SaveableScriptParam : public SGTSaveable
+	class SaveableScriptParam : public LoadSave::Saveable
 	{
 	public:
-		void Save(SGTSaveSystem& myManager);
-		void Load(SGTLoadSystem& myManager);
-		static SGTSaveable* NewInstance();
-		static void Register(std::string* pstrName, SGTSaveableInstanceFn* pFn);
+		void Save(LoadSave::SaveSystem& myManager);
+		void Load(LoadSave::LoadSystem& myManager);
+		static LoadSave::Saveable* NewInstance();
+		static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn);
 		std::string& TellName();
-		SGTScriptParam ToSGTScriptParam();
-		SaveableScriptParam(SGTScriptParam& param);
+		Ice::ScriptParam ToIceScriptParam();
+		SaveableScriptParam(Ice::ScriptParam& param);
 		SaveableScriptParam();
-		void set(SGTScriptParam& param);
+		void set(Ice::ScriptParam& param);
 	private:
-		SGTScriptParam m_Param;
+		Ice::ScriptParam m_Param;
 	};
 private:
 	

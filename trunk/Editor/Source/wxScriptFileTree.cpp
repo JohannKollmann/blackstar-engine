@@ -1,11 +1,11 @@
 
 #include "wxScriptFileTree.h"
-#include "SGTScriptSystem.h"
-#include "SGTIncludes.h"
+#include "IceScriptSystem.h"
+#include "IceIncludes.h"
 #include "wxEdit.h"
 #include "boost/filesystem/operations.hpp"
 #include "boost/filesystem/path.hpp"
-#include "SGTAIManager.h"
+#include "IceAIManager.h"
 
 enum
 {
@@ -62,8 +62,8 @@ void wxScriptFileTree::OnMenuCallback(int id)
 	{
 		Ogre::String scriptFile = Ogre::String(GetRelativePath(mCurrentItem->GetId()).GetFullPath());
 		Ogre::LogManager::getSingleton().logMessage("Scriptfile: " + scriptFile);
-		SGTScript script = SGTScriptSystem::GetInstance().CreateInstance(scriptFile);
-//		SGTScriptSystem::GetInstance().KillScript(scriptFile);
+		Ice::Script script = Ice::ScriptSystem::GetInstance().CreateInstance(scriptFile);
+//		Ice::ScriptSystem::GetInstance().KillScript(scriptFile);
 	}
 }
 
@@ -71,14 +71,14 @@ void wxScriptFileTree::OnToolbarEvent(int toolID, Ogre::String toolname)
 {
 	if (toolname == "ReloadScripts")
 	{
-		SGTMsg msg;
+		Ice::Msg msg;
 		msg.mNewsgroup = "REPARSE_SCRIPTS";
-		SGTMessageSystem::Instance().SendInstantMessage(msg);
-		SGTScriptSystem::GetInstance().Clear();
+		Ice::MessageSystem::Instance().SendInstantMessage(msg);
+		Ice::ScriptSystem::GetInstance().Clear();
 		msg.mNewsgroup = "REPARSE_SCRIPTS_POST";
-		SGTMessageSystem::Instance().SendInstantMessage(msg);
+		Ice::MessageSystem::Instance().SendInstantMessage(msg);
 		//Call init script
-		SGTScript script = SGTScriptSystem::GetInstance().CreateInstance("InitEngine.lua");
+		Ice::Script script = Ice::ScriptSystem::GetInstance().CreateInstance("InitEngine.lua");
 	}
 	if (toolname == "NewScript" || toolname == "NewNpcScript" || toolname == "NewStateScript")
 	{

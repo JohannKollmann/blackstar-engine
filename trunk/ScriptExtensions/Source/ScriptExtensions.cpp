@@ -1,25 +1,25 @@
 
 #include "ScriptExtensions.h"
-#include "SGTMain.h"
+#include "IceMain.h"
 
-#include "SGTMusicSystem.h"
+#include "MusicSystem.h"
 #include "ScriptedControls.h"
 #include "ResidentVariables.h"
 #include "GUISystem.h"
-#include "SGTScriptableInstances.h"
+#include "ScriptableInstances.h"
 
-#include "SGTMessageSystem.h"
+#include "IceMessageSystem.h"
 
 const Ogre::String ScriptExtensions::m_cstrName=Ogre::String("ScriptExtensions");
 
 extern "C" void __declspec(dllexport) dllStartPlugin(void) throw()
 {
-	SGTMain::Instance().InstallPlugin(&ScriptExtensions::GetInstance());
+	Ice::Main::Instance().InstallPlugin(&ScriptExtensions::GetInstance());
 }
 
 extern "C" void __declspec(dllexport) dllStopPlugin(void)
 {
-	SGTMain::Instance().UninstallPlugin(&ScriptExtensions::GetInstance());
+	Ice::Main::Instance().UninstallPlugin(&ScriptExtensions::GetInstance());
 }
 
 ScriptExtensions&
@@ -49,14 +49,14 @@ ScriptExtensions::initialise()
 	Ogre::LogManager::getSingleton().logMessage("ScriptExtensions: initializing resident variables");
 	ResidentManager::GetInstance();
 	Ogre::LogManager::getSingleton().logMessage("ScriptExtensions: initializing scriptable instances");
-	SGTScriptableInstances::GetInstance();
+	ScriptableInstances::GetInstance();
 	Ogre::LogManager::getSingleton().logMessage("ScriptExtensions: initializing GUI");
-	SGTGUISystem::GetInstance();
+	GUISystem::GetInstance();
 	Ogre::LogManager::getSingleton().logMessage("ScriptExtensions: initializing scripted controls");
 	ScriptedControls::GetInstance();
 	Ogre::LogManager::getSingleton().logMessage("ScriptExtensions: initializing music system");
-	SGTMusicSystem::GetInstance();
-	SGTMessageSystem::Instance().JoinNewsgroup(this, "REPARSE_SCRIPTS");
+	MusicSystem::GetInstance();
+	Ice::MessageSystem::Instance().JoinNewsgroup(this, "REPARSE_SCRIPTS");
 }
 
 
@@ -64,7 +64,7 @@ void
 ScriptExtensions::shutdown()
 {
 	Ogre::LogManager::getSingleton().logMessage("Script Extensions shut down");
-	SGTMessageSystem::Instance().QuitNewsgroup(this, "REPARSE_SCRIPTS");
+	Ice::MessageSystem::Instance().QuitNewsgroup(this, "REPARSE_SCRIPTS");
 }
 
 
@@ -75,13 +75,13 @@ ScriptExtensions::uninstall()
 }
 
 void
-ScriptExtensions::ReceiveMessage(SGTMsg &msg)
+ScriptExtensions::ReceiveMessage(Ice::Msg &msg)
 {
 	if(msg.mNewsgroup == "REPARSE_SCRIPTS")
 	{
-		SGTGUISystem::GetInstance().Clear();
-		SGTMusicSystem::GetInstance().Clear();
+		GUISystem::GetInstance().Clear();
+		MusicSystem::GetInstance().Clear();
 		ResidentManager::GetInstance().Clear();
-		SGTScriptableInstances::GetInstance().Clear();
+		ScriptableInstances::GetInstance().Clear();
 	}
 }

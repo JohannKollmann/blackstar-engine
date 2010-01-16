@@ -9,9 +9,9 @@
 
 #include "wxMaterialEditor.h"
 
-#include "SGTGOCView.h"
+#include "IceGOCView.h"
 
-#include "SGTSceneManager.h"
+#include "IceSceneManager.h"
 
 
 BEGIN_EVENT_TABLE(wxMaterialTree, wxTreeCtrl)
@@ -92,20 +92,20 @@ void wxMaterialTree::Update()
 
 		std::vector<Ogre::String> added;
 
-		if (SGTSceneManager::Instance().HasLevelMesh())
+		if (Ice::SceneManager::Instance().HasLevelMesh())
 		{
-			Ogre::Entity *ent = SGTMain::Instance().GetOgreSceneMgr()->getEntity("LevelMesh-entity");	
+			Ogre::Entity *ent = Ice::Main::Instance().GetOgreSceneMgr()->getEntity("LevelMesh-entity");	
 			AddEntity(ent);
 		}
 
 		std::vector<Ogre::String> other_materials_added;
 
-		for (std::map<int, SGTGameObject*>::iterator i = SGTSceneManager::Instance().GetGameObjects().begin(); i != SGTSceneManager::Instance().GetGameObjects().end(); i++)
+		for (std::map<int, Ice::GameObject*>::iterator i = Ice::SceneManager::Instance().GetGameObjects().begin(); i != Ice::SceneManager::Instance().GetGameObjects().end(); i++)
 		{
-			SGTGOCViewContainer *visuals = (SGTGOCViewContainer*)i->second->GetComponent("View", "ViewContainer");
+			Ice::GOCViewContainer *visuals = (Ice::GOCViewContainer*)i->second->GetComponent("View", "ViewContainer");
 			if (visuals != 0)
 			{
-				SGTMeshRenderable *gocmesh = (SGTMeshRenderable*)visuals->GetItem("MeshRenderable");
+				Ice::MeshRenderable *gocmesh = (Ice::MeshRenderable*)visuals->GetItem("MeshRenderable");
 				if (gocmesh != 0)
 				{
 					AddEntity((Ogre::Entity*)gocmesh->GetEditorVisual());
@@ -113,14 +113,14 @@ void wxMaterialTree::Update()
 			}
 		}
 
-		/*for (std::map<Ogre::String, std::list<SGTGameObject*> >::iterator i = SGTSceneManager::Instance().mEntities.begin(); i != SGTSceneManager::Instance().mEntities.end(); i++)
+		/*for (std::map<Ogre::String, std::list<Ice::GameObject*> >::iterator i = Ice::SceneManager::Instance().mEntities.begin(); i != Ice::SceneManager::Instance().mEntities.end(); i++)
 		{
 			if ((*i).first == "Billboard")
 			{
-				for (std::list<SGTGameObject*>::iterator x = (*i).second.begin(); x != (*i).second.end(); x++)
+				for (std::list<Ice::GameObject*>::iterator x = (*i).second.begin(); x != (*i).second.end(); x++)
 				{
 
-					SGTBillboard *billboard = (SGTBillboard*)(*x);
+					Ice::Billboard *billboard = (Ice::Billboard*)(*x);
 
 					bool stop = false;
 					for (std::vector<Ogre::String>::iterator m = other_materials_added.begin(); m != other_materials_added.end(); m++)
@@ -142,7 +142,7 @@ void wxMaterialTree::Update()
 
 			if ((*i).first == "Body" || (*i).first == "StaticBody" || (*i).first == "StaticMesh")
 			{
-				for (std::list<SGTGameObject*>::iterator x = (*i).second.begin(); x != (*i).second.end(); x++)
+				for (std::list<Ice::GameObject*>::iterator x = (*i).second.begin(); x != (*i).second.end(); x++)
 				{
 					bool stop = false;
 					for (std::vector<Ogre::String>::iterator m = added.begin(); m != added.end(); m++)

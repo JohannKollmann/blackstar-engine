@@ -1,43 +1,42 @@
-#ifndef __SOUND_SYSTEM__
-#define __SOUND_SYSTEM__
+#pragma once
 
-#include "SGTScriptSystem.h"
+#include "IceScriptSystem.h"
 #include "OgreOggSound.h"
-#include "SGTMessageListener.h"
+#include "IceMessageListener.h"
 
-class SGTMusicSystem : public SGTMessageListener
+class MusicSystem : public Ice::MessageListener
 {
 public:
-	SGTMusicSystem();
-	static SGTMusicSystem& GetInstance();
+	MusicSystem();
+	static MusicSystem& GetInstance();
 
 	void SetMood(std::string strMood, bool bActive);
 	bool GetMood(std::string strMood);
 	void PostEvent(std::string strEvent);
 
-	void ReceiveMessage(SGTMsg &msg);
+	void ReceiveMessage(Ice::Msg &msg);
 
 	void Clear();
 private:
-	static std::vector<SGTScriptParam> Lua_CreateSound(SGTScript& caller, std::vector<SGTScriptParam> vParams);
-	static std::vector<SGTScriptParam> Lua_PlaySound(SGTScript& caller, std::vector<SGTScriptParam> vParams);
-	static std::vector<SGTScriptParam> Lua_SetVolume(SGTScript& caller, std::vector<SGTScriptParam> vParams);
-	static std::vector<SGTScriptParam> Lua_PlayAt(SGTScript& caller, std::vector<SGTScriptParam> vParams);
-	static std::vector<SGTScriptParam> Lua_StopAt(SGTScript& caller, std::vector<SGTScriptParam> vParams);
-	static std::vector<SGTScriptParam> Lua_FadeIn(SGTScript& caller, std::vector<SGTScriptParam> vParams);
-	static std::vector<SGTScriptParam> Lua_FadeOut(SGTScript& caller, std::vector<SGTScriptParam> vParams);
-	static std::vector<SGTScriptParam> Lua_SetBPM(SGTScript& caller, std::vector<SGTScriptParam> vParams);
-	static std::vector<SGTScriptParam> Lua_SetLooping(SGTScript& caller, std::vector<SGTScriptParam> vParams);
-	static std::vector<SGTScriptParam> Lua_GetLooping(SGTScript& caller, std::vector<SGTScriptParam> vParams);
-	static std::vector<SGTScriptParam> Lua_GetCursor(SGTScript& caller, std::vector<SGTScriptParam> vParams);
-	static std::vector<SGTScriptParam> Lua_SetEventCallback(SGTScript& caller, std::vector<SGTScriptParam> vParams);
-	static std::vector<SGTScriptParam> Lua_SetTimer(SGTScript& caller, std::vector<SGTScriptParam> vParams);
-	static std::vector<SGTScriptParam> Lua_DeleteTimer(SGTScript& caller, std::vector<SGTScriptParam> vParams);
-	static std::vector<SGTScriptParam> Lua_GetBeatCounter(SGTScript& caller, std::vector<SGTScriptParam> vParams);
-	static std::vector<SGTScriptParam> Lua_GetMood(SGTScript& caller, std::vector<SGTScriptParam> vParams);
+	static std::vector<Ice::ScriptParam> Lua_CreateSound(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
+	static std::vector<Ice::ScriptParam> Lua_PlaySound(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
+	static std::vector<Ice::ScriptParam> Lua_SetVolume(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
+	static std::vector<Ice::ScriptParam> Lua_PlayAt(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
+	static std::vector<Ice::ScriptParam> Lua_StopAt(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
+	static std::vector<Ice::ScriptParam> Lua_FadeIn(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
+	static std::vector<Ice::ScriptParam> Lua_FadeOut(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
+	static std::vector<Ice::ScriptParam> Lua_SetBPM(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
+	static std::vector<Ice::ScriptParam> Lua_SetLooping(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
+	static std::vector<Ice::ScriptParam> Lua_GetLooping(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
+	static std::vector<Ice::ScriptParam> Lua_GetCursor(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
+	static std::vector<Ice::ScriptParam> Lua_SetEventCallback(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
+	static std::vector<Ice::ScriptParam> Lua_SetTimer(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
+	static std::vector<Ice::ScriptParam> Lua_DeleteTimer(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
+	static std::vector<Ice::ScriptParam> Lua_GetBeatCounter(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
+	static std::vector<Ice::ScriptParam> Lua_GetMood(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
 	//for tests
-	static std::vector<SGTScriptParam> Lua_SetMood(SGTScript& caller, std::vector<SGTScriptParam> vParams);
-	static std::vector<SGTScriptParam> Lua_PostEvent(SGTScript& caller, std::vector<SGTScriptParam> vParams);
+	static std::vector<Ice::ScriptParam> Lua_SetMood(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
+	static std::vector<Ice::ScriptParam> Lua_PostEvent(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
 
 
 	struct SScheduledTask
@@ -54,7 +53,7 @@ private:
 		std::string strSound;
 		float fFadeTime;
 		bool bIsLoop;
-		SGTScriptParam callback;
+		Ice::ScriptParam callback;
 	};
 
 	static void InsertEvent(SScheduledTask st);
@@ -69,7 +68,7 @@ private:
 		float fLoopTime;
 	};
 	std::map<std::string, SSoundProperty> m_mProperties;
-	SGTScriptParam m_EventCallback;
+	Ice::ScriptParam m_EventCallback;
 };
 
 #endif

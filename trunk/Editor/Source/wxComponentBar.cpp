@@ -1,7 +1,7 @@
 
 #include "wxComponentBar.h"
-#include "SGTSceneManager.h"
-#include "wxEditSGTGameObject.h"
+#include "IceSceneManager.h"
+#include "wxEditIceGameObject.h"
 
 IMPLEMENT_CLASS(wxComponentBar, wxPanel)
 
@@ -16,13 +16,13 @@ wxComponentBar::wxComponentBar(wxWindow* parent, wxWindowID id, const wxPoint& p
 	wxBoxSizer* cont_sizer = new wxBoxSizer(wxVERTICAL);
 	SetMaxSize(wxSize(GetSize().GetWidth(), 200));
 	int idcounter = 1;
-	for (std::map<Ogre::String, std::map<Ogre::String, SGTDataMap*> >::iterator i = SGTSceneManager::Instance().mGOCDefaultParameters.begin(); i != SGTSceneManager::Instance().mGOCDefaultParameters.end(); i++)
+	for (std::map<Ogre::String, std::map<Ogre::String, Ice::DataMap*> >::iterator i = Ice::SceneManager::Instance().mGOCDefaultParameters.begin(); i != Ice::SceneManager::Instance().mGOCDefaultParameters.end(); i++)
 	{
 		wxStaticBox *box = new wxStaticBox(this, wxID_ANY, _T(""));
 		wxSizer *s = new wxStaticBoxSizer(box, wxHORIZONTAL);
 		//wxBoxSizer* s = new wxBoxSizer(wxHORIZONTAL);
 		s->SetSizeHints(this);
-		for (std::map<Ogre::String, SGTDataMap*>::iterator x = (*i).second.begin(); x != (*i).second.end(); x++)
+		for (std::map<Ogre::String, Ice::DataMap*>::iterator x = (*i).second.begin(); x != (*i).second.end(); x++)
 		{
 			ComponentParameters cp;
 			cp.mCheckBox = new wxCheckBox(this, wxID_HIGHEST + idcounter, wxT((*x).first.c_str()));
@@ -54,11 +54,11 @@ void wxComponentBar::OnCheckBoxClicked(wxCommandEvent& event)
 		{
 			if ((*i).second.mCheckBox->IsChecked())
 			{
-				((wxEditSGTGameObject*)(wxEdit::Instance().GetpropertyWindow()->GetCurrentPage()))->AddGOCSection((*i).second.mName, *(*i).second.mParameters);
+				((wxEditIceGameObject*)(wxEdit::Instance().GetpropertyWindow()->GetCurrentPage()))->AddGOCSection((*i).second.mName, *(*i).second.mParameters);
 			}
 			else
 			{
-				((wxEditSGTGameObject*)(wxEdit::Instance().GetpropertyWindow()->GetCurrentPage()))->RemoveGOCSection((*i).second.mName);
+				((wxEditIceGameObject*)(wxEdit::Instance().GetpropertyWindow()->GetCurrentPage()))->RemoveGOCSection((*i).second.mName);
 			}
 			NotifyGroupCheck((*i).second.mCheckBox->IsChecked(), (*i).second.mName, (*i).second.mFamily);
 		}
@@ -86,10 +86,10 @@ void wxComponentBar::NotifyGroupCheck(bool checked, Ogre::String checked_name, O
 	}
 }
 
-void wxComponentBar::SetSections(std::list<ComponentSection> sections)
+void wxComponentBar::SetSections(std::list<Ice::ComponentSection> sections)
 {
 	ResetCheckBoxes();
-	for (std::list<ComponentSection>::iterator i = sections.begin(); i != sections.end(); i++)
+	for (std::list<Ice::ComponentSection>::iterator i = sections.begin(); i != sections.end(); i++)
 	{
 		for (std::map<int, ComponentParameters>::iterator x = mCallbackMap.begin(); x != mCallbackMap.end(); x++)
 		{
