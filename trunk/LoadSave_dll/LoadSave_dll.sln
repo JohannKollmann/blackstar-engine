@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual C++ Express 2008
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SGTLoadSave", "SGTLoadSave\SGTLoadSave.vcproj", "{2981707E-A12F-4B7E-95FF-B1813492A077}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SGTLoadSave", "LoadSave\LoadSave.vcproj", "{2981707E-A12F-4B7E-95FF-B1813492A077}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SGTLoadSaveDemo", "SGTLoadSaveDemo\SGTLoadSaveDemo.vcproj", "{9B750BED-6C83-475D-9B03-950AEDE16D3D}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SGTLoadSaveDemo", "LoadSaveDemo\LoadSaveDemo.vcproj", "{9B750BED-6C83-475D-9B03-950AEDE16D3D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
