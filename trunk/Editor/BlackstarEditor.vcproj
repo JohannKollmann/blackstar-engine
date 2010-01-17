@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9,00"
-	Name="Blackstar Editor"
+	Name="BlackstarEditor"
 	ProjectGUID="{99006E22-5259-4818-896B-B66CE367A9F2}"
 	RootNamespace="nxTutorial606"
 	Keyword="Win32Proj"

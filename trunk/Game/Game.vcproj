@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9,00"
-	Name="Esgaoroth_Game"
+	Name="BlackstarGame"
 	ProjectGUID="{A657A530-555D-48FA-9DBF-AFA2E12F0EAA}"
 	RootNamespace="nxTutorial606"
 	Keyword="Win32Proj"
@@ -63,10 +63,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Rpcrt4.lib OgreMain_d.lib PhysXLoader.lib NxCooking.lib NxCharacter.lib nxOgre_d.lib CEGUIBase_d.lib OgreGUIRenderer_d.lib ws2_32.lib OgreOggSound_d.lib comctl32.lib caelum_d.lib EsgarothEngine_debug.lib SGTLoadSave_d.lib"
+				AdditionalDependencies="Rpcrt4.lib OgreMain_d.lib PhysXLoader.lib PhysXCooking.lib NxCharacter.lib OgrePhysX_d.lib ws2_32.lib OgreOggSound_d.lib comctl32.lib caelum_d.lib IceEngine_debug.lib LoadSave_dbg.lib"
 				OutputFile="$(OutDir)/Game_d.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="..\..\Dependencies\boost\lib\;..\..\Dependencies\Ogre3D\lib;..\..\Dependencies\NxOgre\lib;..\..\Dependencies\Ogre3D\Dependencies\lib\Debug;..\..\Dependencies\Hydrax\lib;..\..\Dependencies\OgreOggSound\lib\;..\..\Dependencies\PhysX\SDKs\lib\win32;..\..\Dependencies\Caelum\lib\debug;..\..\Ogre3D\Dependencies\lib\Debug\;..\..\lib\"
+				AdditionalLibraryDirectories="..\..\Dependencies\boost\lib\;..\..\Dependencies\Ogre3D\lib;..\..\Dependencies\OgrePhysX\lib;..\..\Dependencies\Ogre3D\Dependencies\lib\Debug;..\..\Dependencies\Hydrax\lib;..\..\Dependencies\OgreOggSound\lib\;..\..\Dependencies\PhysX\SDKs\lib\win32;..\..\Dependencies\Caelum\lib\debug;..\..\Ogre3D\Dependencies\lib\Debug\;..\..\lib\"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(TargetDir)$(TargetName).pdb"
 				SubSystem="1"
@@ -95,7 +95,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy &quot;$(TargetPath)&quot; &quot;$(SolutionDir)\..\..\bin\&quot;"
+				CommandLine="copy $(OutDir)\$(TargetFileName) ..\..\bin\"
 			/>
 		</Configuration>
 		<Configuration
@@ -145,10 +145,10 @@
 			<Tool
 				Name="VCLinkerTool"
 				RegisterOutput="false"
-				AdditionalDependencies="OgreMain.lib PhysXLoader.lib NxCooking.lib NxCharacter.lib nxOgre.lib CEGUIBase.lib OgreGUIRenderer.lib ws2_32.lib winmm.lib rpcrt4.lib odbc32.lib comctl32.lib caelum.lib EsgarothEngine.lib"
+				AdditionalDependencies="OgreMain.lib PhysXLoader.lib PhysXCooking.lib NxCharacter.lib OgrePhysX.lib ws2_32.lib winmm.lib rpcrt4.lib odbc32.lib comctl32.lib caelum.lib IceEngine.lib"
 				OutputFile="$(OutDir)/Game.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="..\..\Dependencies\boost\lib\;..\..\Dependencies\Ogre3D\lib;..\..\Dependencies\NxOgre\lib;..\..\Dependencies\Ogre3D\Dependencies\lib\Release;..\..\Dependencies\Hydrax\lib;..\..\Dependencies\OgreOggSound\lib\;..\..\Dependencies\PhysX\SDKs\lib\win32;..\..\Dependencies\Caelum\lib\release;..\..\Ogre3D\Dependencies\lib\Release\;..\..\lib\"
+				AdditionalLibraryDirectories="..\..\Dependencies\boost\lib\;..\..\Dependencies\Ogre3D\lib;..\..\Dependencies\OgrePhysX\lib;..\..\Dependencies\Ogre3D\Dependencies\lib\Release;..\..\Dependencies\Hydrax\lib;..\..\Dependencies\OgreOggSound\lib\;..\..\Dependencies\PhysX\SDKs\lib\win32;..\..\Dependencies\Caelum\lib\release;..\..\Ogre3D\Dependencies\lib\Release\;..\..\lib\"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -178,7 +178,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy &quot;$(TargetPath)&quot; &quot;$(SolutionDir)\..\..\bin\&quot;"
+				CommandLine="copy $(OutDir)\$(TargetFileName) ..\..\bin\"
 			/>
 		</Configuration>
 	</Configurations>

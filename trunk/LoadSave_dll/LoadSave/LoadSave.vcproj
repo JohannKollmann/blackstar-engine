@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9,00"
-	Name="SGTLoadSave"
+	Name="LoadSave"
 	ProjectGUID="{2981707E-A12F-4B7E-95FF-B1813492A077}"
 	RootNamespace="SGTLoadSave"
 	Keyword="Win32Proj"

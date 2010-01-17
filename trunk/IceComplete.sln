@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual C++ Express 2008
+# Visual Studio 2008
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Ice Engine", "Core\IceEngine.vcproj", "{C20C5958-3E38-47C9-A028-83D7C2A939B5}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2981707E-A12F-4B7E-95FF-B1813492A077} = {2981707E-A12F-4B7E-95FF-B1813492A077}
@@ -12,18 +12,13 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Blackstar Editor", "Editor\
 		{C20C5958-3E38-47C9-A028-83D7C2A939B5} = {C20C5958-3E38-47C9-A028-83D7C2A939B5}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Esgaoroth_Game", "Game\Game.vcproj", "{A657A530-555D-48FA-9DBF-AFA2E12F0EAA}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Blackstar_Game", "Game\Game.vcproj", "{A657A530-555D-48FA-9DBF-AFA2E12F0EAA}"
 	ProjectSection(ProjectDependencies) = postProject
 		{3F60D252-8466-4BEF-BA22-F2309DFD1853} = {3F60D252-8466-4BEF-BA22-F2309DFD1853}
 		{C20C5958-3E38-47C9-A028-83D7C2A939B5} = {C20C5958-3E38-47C9-A028-83D7C2A939B5}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SGTLoadSave", "LoadSave_dll\LoadSave\LoadSave.vcproj", "{2981707E-A12F-4B7E-95FF-B1813492A077}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestPlugin", "Testplugin\TestPlugin.vcproj", "{D7F831DE-FD05-4EEB-B62E-9AEBFE610942}"
-	ProjectSection(ProjectDependencies) = postProject
-		{C20C5958-3E38-47C9-A028-83D7C2A939B5} = {C20C5958-3E38-47C9-A028-83D7C2A939B5}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ScriptExtensions", "ScriptExtensions\ScriptExtensions.vcproj", "{3F60D252-8466-4BEF-BA22-F2309DFD1853}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -52,10 +47,6 @@ Global
 		{2981707E-A12F-4B7E-95FF-B1813492A077}.Debug|Win32.Build.0 = Debug|Win32
 		{2981707E-A12F-4B7E-95FF-B1813492A077}.Release|Win32.ActiveCfg = Release|Win32
 		{2981707E-A12F-4B7E-95FF-B1813492A077}.Release|Win32.Build.0 = Release|Win32
-		{D7F831DE-FD05-4EEB-B62E-9AEBFE610942}.Debug|Win32.ActiveCfg = Debug|Win32
-		{D7F831DE-FD05-4EEB-B62E-9AEBFE610942}.Debug|Win32.Build.0 = Debug|Win32
-		{D7F831DE-FD05-4EEB-B62E-9AEBFE610942}.Release|Win32.ActiveCfg = Release|Win32
-		{D7F831DE-FD05-4EEB-B62E-9AEBFE610942}.Release|Win32.Build.0 = Release|Win32
 		{3F60D252-8466-4BEF-BA22-F2309DFD1853}.Debug|Win32.ActiveCfg = Debug|Win32
 		{3F60D252-8466-4BEF-BA22-F2309DFD1853}.Debug|Win32.Build.0 = Debug|Win32
 		{3F60D252-8466-4BEF-BA22-F2309DFD1853}.Release|Win32.ActiveCfg = Release|Win32
