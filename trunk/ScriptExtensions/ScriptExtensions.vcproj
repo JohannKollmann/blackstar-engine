@@ -61,7 +61,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="OgreMain_d.lib IceEngine_Debug.lib SGTLoadSave_d.lib OgreOggSound_d.lib"
+				AdditionalDependencies="OgreMain_d.lib IceEngine_Debug.lib LoadSave_d.lib OgreOggSound_d.lib"
 				OutputFile="$(OutDir)\$(ProjectName)_d.dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="..\..\Dependencies\boost\lib\;..\..\Dependencies\Ogre3D\lib;..\..\lib\;..\..\Dependencies\Ogre3D\Dependencies\lib\Debug;..\..\Dependencies\Ogre3D\Dependencies\lib\Release;..\..\Dependencies\OgreOggSound\lib\"
@@ -138,7 +138,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="OgreMain.lib IceEngine.lib SGTLoadSave.lib OgreOggSound.lib"
+				AdditionalDependencies="OgreMain.lib IceEngine.lib LoadSave.lib OgreOggSound.lib"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\..\Dependencies\boost\lib\;..\..\Dependencies\Ogre3D\lib;..\..\lib\;..\..\Dependencies\Ogre3D\Dependencies\lib\Debug;..\..\Dependencies\Ogre3D\Dependencies\lib\Release;..\..\Dependencies\OgreOggSound\lib\"
 				GenerateDebugInformation="true"

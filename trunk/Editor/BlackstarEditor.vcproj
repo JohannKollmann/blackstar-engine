@@ -64,7 +64,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Rpcrt4.lib OgreMain_d.lib PhysXLoader.lib PhysXCooking.lib NxCharacter.lib OgrePhysX_d.lib CEGUIBase_d.lib OgreGUIRenderer_d.lib ws2_32.lib OgreOggSound_d.lib comctl32.lib wxbase28d_xml.lib wxmsw28d_xrc.lib wxmsw28d_adv.lib wxmsw28d_core.lib wxbase28d.lib wxmsw28d_aui.lib wxtiffd.lib wxjpegd.lib wxpngd.lib wxzlibd.lib wxregexd.lib wxexpatd.lib wxcode_msw28d_propgrid.lib caelum_d.lib IceEngine_debug.lib SGTLoadSave_d.lib meshmagick_d.lib wxmsw28d_stc.lib"
+				AdditionalDependencies="Rpcrt4.lib OgreMain_d.lib PhysXLoader.lib PhysXCooking.lib NxCharacter.lib OgrePhysX_d.lib CEGUIBase_d.lib OgreGUIRenderer_d.lib ws2_32.lib OgreOggSound_d.lib comctl32.lib wxbase28d_xml.lib wxmsw28d_xrc.lib wxmsw28d_adv.lib wxmsw28d_core.lib wxbase28d.lib wxmsw28d_aui.lib wxtiffd.lib wxjpegd.lib wxpngd.lib wxzlibd.lib wxregexd.lib wxexpatd.lib wxcode_msw28d_propgrid.lib caelum_d.lib IceEngine_debug.lib LoadSave_d.lib meshmagick_d.lib wxmsw28d_stc.lib"
 				OutputFile="$(OutDir)/BlackstarEditor_debug.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="..\..\Dependencies\MeshMagick\lib;..\..\Dependencies\boost\lib\;..\..\Dependencies\OgreOggSound\lib\;..\..\Dependencies\Ogre3D\lib;..\..\Dependencies\OgrePhysX\lib;..\..\Dependencies\Ogre3D\Dependencies\lib\Debug;..\..\Dependencies\PhysX\SDKs\lib\win32;..\..\Dependencies\wxWidgets\lib\vc_dll\;..\..\Dependencies\wxWidgets\wxthings\lib\;..\..\Dependencies\Caelum\lib\debug;..\..\Ogre3D\Dependencies\lib\Release\;..\..\lib\;..\..\Dependencies\Hydrax\lib"
@@ -146,7 +146,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				RegisterOutput="false"
-				AdditionalDependencies="meshmagick.lib OgreMain.lib PhysXLoader.lib PhysXCooking.lib NxCharacter.lib OgrePhysX.lib ws2_32.lib OgreOggSound.lib wxbase28_xml.lib wxmsw28_xrc.lib wxmsw28_adv.lib wxmsw28_core.lib wxbase28.lib wxmsw28_aui.lib wxtiff.lib wxjpeg.lib wxpng.lib wxzlib.lib wxregex.lib wxexpat.lib winmm.lib rpcrt4.lib wsock32.lib odbc32.lib comctl32.lib wxcode_msw28_propgrid.lib caelum.lib IceEngine.lib SGTLoadSave.lib wxmsw28_stc.lib"
+				AdditionalDependencies="meshmagick.lib OgreMain.lib PhysXLoader.lib PhysXCooking.lib NxCharacter.lib OgrePhysX.lib ws2_32.lib OgreOggSound.lib wxbase28_xml.lib wxmsw28_xrc.lib wxmsw28_adv.lib wxmsw28_core.lib wxbase28.lib wxmsw28_aui.lib wxtiff.lib wxjpeg.lib wxpng.lib wxzlib.lib wxregex.lib wxexpat.lib winmm.lib rpcrt4.lib wsock32.lib odbc32.lib comctl32.lib wxcode_msw28_propgrid.lib caelum.lib IceEngine.lib LoadSave.lib wxmsw28_stc.lib"
 				OutputFile="$(OutDir)/BlackstarEditor.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="..\..\Dependencies\boost\lib\;..\..\Dependencies\MeshMagick\lib;..\..\Dependencies\OgreOggSound\lib;..\..\Dependencies\Ogre3D\lib;..\..\Dependencies\OgrePhysX\lib;..\..\Dependencies\Ogre3D\Dependencies\lib\Release;..\..\Dependencies\PhysX\SDKs\lib\win32;..\..\Dependencies\wxWidgets\lib\vc_dll\;..\..\Dependencies\wxWidgets\wxthings\lib\;..\..\Dependencies\Caelum\lib\release;..\..\Ogre3D\Dependencies\lib\Release\;..\..\lib\;..\..\Dependencies\Hydrax\lib"
