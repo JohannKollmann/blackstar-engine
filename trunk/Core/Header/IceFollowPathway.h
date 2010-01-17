@@ -18,6 +18,9 @@ private:
 	float mTargetBlendYaw;
 	float mBlendFactor;
 
+	bool mAvoidingObstacle;
+	Ogre::Vector3 mAvoidObstacleVector;
+
 	void StartBlend(Ogre::Vector3 oldDir, Ogre::Vector3 newDir);
 
 	NxActor *mSweepActor;

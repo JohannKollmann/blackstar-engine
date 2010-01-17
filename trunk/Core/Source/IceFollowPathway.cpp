@@ -19,6 +19,7 @@ FollowPathway::FollowPathway(GOCAI *ai, Ogre::String targetWP, float radius)
 	mCurrentTarget = mPath.begin();
 	mBlendFactor = 0.0f;
 	mTargetBlendYaw = 0.0f;
+	mAvoidingObstacle = false;
 
 	//Sweep cache for dynamic obstacle avoiding
 	mSweepCache = Main::Instance().GetPhysXScene()->getNxScene()->createSweepCache(); 
@@ -34,9 +35,9 @@ bool FollowPathway::ObstacleCheck(Ogre::Vector3 motion)
 {
 	if (!mSweepActor) return false;
 
-	int maxNumResult  = 1;
+	int maxNumResult  = 10;
 	NxSweepQueryHit *sqh_result = new NxSweepQueryHit[maxNumResult];
-	NxU32 numHits = mSweepActor->linearSweep(OgrePhysX::Convert::toNx(motion), NX_SF_DYNAMICS, 0, maxNumResult, sqh_result, 0, mSweepCache);
+	NxU32 numHits = mSweepActor->linearSweep(OgrePhysX::Convert::toNx(motion), NX_SF_DYNAMICS|NX_SF_ALL_HITS, 0, maxNumResult, sqh_result, 0, mSweepCache);
 	bool obstacleHit = false;
 	for (NxU32 i = 0; i < numHits; i++)
 	{
@@ -77,6 +78,8 @@ bool FollowPathway::OnUpdate(float time)
 
 	Ogre::Vector3 currPos = mAIObject->GetOwner()->GetGlobalPosition();
 
+	Ogre::Vector3 direction = (*mCurrentTarget)-currPos;
+	direction.normalise();
 	float dist = currPos.distance(*mCurrentTarget);
 	if (dist < mRadius)
 	{
@@ -89,20 +92,28 @@ bool FollowPathway::OnUpdate(float time)
 		}
 		Ogre::Vector3 targetBlend = (*mCurrentTarget)-currPos;
 		StartBlend(mBlendDirection, targetBlend);
-
 	}
 
-	Ogre::Vector3 direction = (*mCurrentTarget)-currPos;
-	direction.normalise();
-
-	int movementstate = 0;
-	if (ObstacleCheck(direction * 3.0f))
+	if (mAvoidingObstacle)
 	{
-		movementstate = CharacterMovement::RIGHT;
+		if (ObstacleCheck(direction * 3.0f)) direction = mAvoidObstacleVector;
+		else
+		{
+			mAvoidingObstacle = false;
+			StartBlend(mAvoidObstacleVector, direction);
+		}
 	}
 	else
 	{
-		movementstate = CharacterMovement::FORWARD;
+	}
+
+	int movementstate = CharacterMovement::FORWARD;
+	if (ObstacleCheck(direction * 3.0f))
+	{
+		mAvoidingObstacle = true;
+		Ogre::Quaternion q = Ogre::Quaternion(Ogre::Radian(Ogre::Degree(90)), Ogre::Vector3::UNIT_Y);
+		mAvoidObstacleVector = q * direction;
+		StartBlend(direction, mAvoidObstacleVector);
 	}
 
 	if (mBlendFactor > 0.0f)

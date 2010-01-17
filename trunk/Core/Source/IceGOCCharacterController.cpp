@@ -48,7 +48,7 @@ void GOCCharacterController::Create(Ogre::Vector3 dimensions)
 
 	mFreezed = false;
 
-	mMovementSpeed = 4.0f;
+	mMovementSpeed = 2.0f;
 	mDirection = Ogre::Vector3(0,0,0);
 	mDimensions = dimensions;
 	NxBoxControllerDesc desc;
