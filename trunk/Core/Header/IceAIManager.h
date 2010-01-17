@@ -16,7 +16,6 @@ class DllExport AIManager : public MessageListener
 {
 private:
 	std::map<int, GOCAI*> mAIObjects;
-	unsigned int mNextID;
 
 public:
 	AIManager(void);

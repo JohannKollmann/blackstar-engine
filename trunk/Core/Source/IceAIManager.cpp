@@ -7,7 +7,6 @@ namespace Ice
 
 AIManager::AIManager(void)
 {
-	mNextID = 0;
 	MessageSystem::Instance().JoinNewsgroup(this, "REPARSE_SCRIPTS_POST");
 }
 
