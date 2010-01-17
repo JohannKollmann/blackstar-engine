@@ -38,7 +38,6 @@ private:
 
 	//Lua stuff
 	std::map<std::string, ScriptParam> mProperties;
-	unsigned int mID;
 
 public:
 	GOCAI(void);
@@ -57,7 +56,7 @@ public:
 	void SetProperty(std::string key, ScriptParam prop);
 	ScriptParam GetProperty(std::string key);
 
-	unsigned int GetID() { return mID; }
+	int GetID();
 
 	void Update(float time);
 

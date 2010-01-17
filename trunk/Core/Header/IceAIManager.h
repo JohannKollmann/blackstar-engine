@@ -22,10 +22,10 @@ public:
 	AIManager(void);
 	~AIManager(void);
 
-	unsigned int RegisterAIObject(GOCAI* object);
-	void UnregisterAIObject(GOCAI* object);
+	void RegisterAIObject(GOCAI* object, int id);
+	void UnregisterAIObject(int id);
 
-	GOCAI* GetAIByID(unsigned int ID);
+	GOCAI* GetAIByID(int ID);
 
 	void ReloadScripts();
 

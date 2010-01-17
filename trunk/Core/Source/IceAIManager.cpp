@@ -16,18 +16,17 @@ AIManager::~AIManager(void)
 	MessageSystem::Instance().QuitNewsgroup(this, "REPARSE_SCRIPTS_POST");
 }
 
-unsigned int AIManager::RegisterAIObject(GOCAI* object)
+void AIManager::RegisterAIObject(GOCAI* object, int id)
 {
-	mAIObjects.insert(std::make_pair<int, GOCAI*>(mNextID, object));
-	return mNextID++;
+	mAIObjects.insert(std::make_pair<int, GOCAI*>(id, object));
 }
-void AIManager::UnregisterAIObject(GOCAI* object)
+void AIManager::UnregisterAIObject(int id)
 {
-	std::map<int, GOCAI*>::iterator i = mAIObjects.find(object->GetID());
+	std::map<int, GOCAI*>::iterator i = mAIObjects.find(id);
 	if (i != mAIObjects.end()) mAIObjects.erase(i);
 }
 
-GOCAI* AIManager::GetAIByID(unsigned int id)
+GOCAI* AIManager::GetAIByID(int id)
 {
 	std::map<int, GOCAI*>::iterator i = mAIObjects.find(id);
 	if (i != mAIObjects.end()) return i->second;

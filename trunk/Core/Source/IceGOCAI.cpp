@@ -12,7 +12,6 @@ GOCAI::GOCAI(void)
 	mCharacterMovementState = 0;
 	mOwnerGO = 0;
 	mActiveState = 0;
-	mID = AIManager::Instance().RegisterAIObject(this);
 	MessageSystem::Instance().JoinNewsgroup(this, "ENABLE_GAME_CLOCK");
 }
 
@@ -20,15 +19,31 @@ GOCAI::~GOCAI(void)
 {
 	ClearActionQueue();
 	ClearIdleQueue();
-	AIManager::Instance().UnregisterAIObject(this);
+	if (mOwnerGO) AIManager::Instance().UnregisterAIObject(mOwnerGO->GetID());
 	MessageSystem::Instance().QuitNewsgroup(this, "ENABLE_GAME_CLOCK");
+}
+
+int GOCAI::GetID()
+{
+	if (mOwnerGO) return mOwnerGO->GetID();
+	throw Ogre::Exception(Ogre::Exception::ERR_INVALID_STATE, "Called GetID, but AI isn't attached to a game object!", "int GOCAI::GetID()");
 }
 
 void GOCAI::SetOwner(GameObject *go)
 {
+	if (mOwnerGO) AIManager::Instance().UnregisterAIObject(mOwnerGO->GetID());
 	mOwnerGO = go;
-	UpdatePosition(go->GetGlobalPosition());
-	UpdateOrientation(go->GetGlobalOrientation());
+
+	if (mOwnerGO)
+	{
+		UpdatePosition(mOwnerGO->GetGlobalPosition());
+		UpdateOrientation(mOwnerGO->GetGlobalOrientation());
+
+		AIManager::Instance().RegisterAIObject(this, mOwnerGO->GetID());
+		std::vector<ScriptParam> params;
+		params.push_back(ScriptParam(mOwnerGO->GetID()));
+		mScript = ScriptSystem::GetInstance().CreateInstance(mScriptFileName, params);
+	}
 }
 
 void GOCAI::AddState(AIState *state)
@@ -173,17 +188,18 @@ void GOCAI::ReloadScript()
 {
 	ClearActionQueue();
 	ClearIdleQueue();
-	std::vector<ScriptParam> params;
-	params.push_back(ScriptParam((int)GetID()));
-	mScript = ScriptSystem::GetInstance().CreateInstance(mScriptFileName, params);
+
+	if (mOwnerGO)
+	{
+		std::vector<ScriptParam> params;
+		params.push_back(ScriptParam(mOwnerGO->GetID()));
+		mScript = ScriptSystem::GetInstance().CreateInstance(mScriptFileName, params);
+	}
 }
 
 void GOCAI::Create(Ogre::String scriptFile)
 {
 	mScriptFileName = scriptFile;
-	std::vector<ScriptParam> params;
-	params.push_back(ScriptParam((int)GetID()));
-	mScript = ScriptSystem::GetInstance().CreateInstance(mScriptFileName, params);
 }
 
 void GOCAI::CreateFromDataMap(DataMap *parameters)
