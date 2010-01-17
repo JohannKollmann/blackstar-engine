@@ -1,5 +1,5 @@
 #include <iostream>
-#include "..\SGTLoadSave\ExternalHeaders\sgtloadsave.h"
+#include "..\LoadSave\ExternalHeaders\loadsave.h"
 #include "standard_atoms.h"
 
 void PrintText(std::string str)
@@ -7,15 +7,15 @@ void PrintText(std::string str)
 	std::cout<<str;
 }
 
-class TestVector : SGTSaveable
+class TestVector : LoadSave::Saveable
 {
 public:
 	TestVector(){m_strName="TestVector";}
-	void Save(SGTSaveSystem& ss);
-	void Load(SGTLoadSystem& ls);
-	static SGTSaveable* NewInstance() {return new TestVector;}
+	void Save(LoadSave::SaveSystem& ss);
+	void Load(LoadSave::LoadSystem& ls);
+	static LoadSave::Saveable* NewInstance() {return new TestVector;}
 	std::string& TellName(){return m_strName;}
-	static void Register(std::string* pstrName, SGTSaveableInstanceFn* pFn){std::string str="TestVector"; *pstrName=str; *pFn=(SGTSaveableInstanceFn)&NewInstance;}
+	static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn){std::string str="TestVector"; *pstrName=str; *pFn=(LoadSave::SaveableInstanceFn)&NewInstance;}
 
 	std::vector<float> vVector;
 private:
@@ -23,26 +23,26 @@ private:
 };
 
 void
-TestVector::Load(SGTLoadSystem &ls)
+TestVector::Load(LoadSave::LoadSystem &ls)
 {
 	ls.LoadAtom("std::vector<float>", &vVector);
 }
 
-void TestVector::Save(SGTSaveSystem& ss)
+void TestVector::Save(LoadSave::SaveSystem& ss)
 {
 	ss.SaveAtom("std::vector<float>", &vVector, "vVector");
 }
 
-class TestClass : SGTSaveable
+class TestClass : LoadSave::Saveable
 {
 public:
 	TestClass(){m_strName="TestClass";}
 	void Init(){i1337=1337;i23=23;m_strHello="hello, world!";for(int i=0; i<50; i++){m_avVectors[i/5][i%5].vVector.push_back((float)i);m_avVectors[i/5][i%5].vVector.push_back((float)i+0.1f/0.3f);m_avVectors[i/5][i%5].vVector.push_back((float)i+0.2f/0.3f);}}
-	void Save(SGTSaveSystem& ss);
-	void Load(SGTLoadSystem& ls);
-	static SGTSaveable* NewInstance() {return new TestClass;}
+	void Save(LoadSave::SaveSystem& ss);
+	void Load(LoadSave::LoadSystem& ls);
+	static LoadSave::Saveable* NewInstance() {return new TestClass;}
 	std::string& TellName(){return m_strName;}
-	static void Register(std::string* pstrName, SGTSaveableInstanceFn* pFn){std::string str="TestClass"; *pstrName=str; *pFn=(SGTSaveableInstanceFn)&NewInstance;}
+	static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn){std::string str="TestClass"; *pstrName=str; *pFn=(LoadSave::SaveableInstanceFn)&NewInstance;}
 private:
 	std::string m_strName;
 	int i1337;
@@ -52,7 +52,7 @@ private:
 };
 
 
-void TestClass::Save(SGTSaveSystem& ss)
+void TestClass::Save(LoadSave::SaveSystem& ss)
 {
 	ss.SaveAtom("std::string", &m_strHello, "m_strHello");
 	ss.SaveAtom("int", &i1337, "i1337");
@@ -63,11 +63,11 @@ void TestClass::Save(SGTSaveSystem& ss)
 
 	ss.OpenObjectArray("TestVector", dims, "avVectors");
 	for(int i=0; i<50; i++)
-		ss.AddObject((SGTSaveable*)&(m_avVectors[i/5][i%5]));
+		ss.AddObject((LoadSave::Saveable*)&(m_avVectors[i/5][i%5]));
 }
 
 void
-TestClass::Load(SGTLoadSystem& ls)
+TestClass::Load(LoadSave::LoadSystem& ls)
 {
 	ls.LoadAtom("std::string", &m_strHello);
 	ls.LoadAtom("int", &i1337);
@@ -82,19 +82,19 @@ TestClass::Load(SGTLoadSystem& ls)
 void main()
 {
 	RegisterStandardAtoms();
-	SGTLoadSave::Instance().RegisterObject(&TestClass::Register);
-	SGTLoadSave::Instance().RegisterObject(&TestVector::Register);
+	LoadSave::LoadSave::Instance().RegisterObject(&TestClass::Register);
+	LoadSave::LoadSave::Instance().RegisterObject(&TestVector::Register);
 
-	SGTSaveSystem *ss=SGTLoadSave::Instance().CreateSaveFile("bin_test.bin", "xml_test.xml");
+	LoadSave::SaveSystem *ss=LoadSave::LoadSave::Instance().CreateSaveFile("bin_test.bin", "xml_test.xml");
 	TestClass tc;
 	tc.Init();
-	ss->SaveObject((SGTSaveable*)&tc, "tc");
-	ss->SaveObject((SGTSaveable*)&tc, "tc_ref");
+	ss->SaveObject((LoadSave::Saveable*)&tc, "tc");
+	ss->SaveObject((LoadSave::Saveable*)&tc, "tc_ref");
 	ss->CloseFiles();
 	delete ss;
 
 	TestClass tc2, *tc3;
-	SGTLoadSystem *ls=SGTLoadSave::Instance().LoadFile("bin_test.bin");
+	LoadSave::LoadSystem *ls=LoadSave::LoadSave::Instance().LoadFile("bin_test.bin");
 
 	tc2=*((TestClass*)ls->LoadObject());
 	tc3=(TestClass*)ls->LoadObject();
@@ -103,13 +103,13 @@ void main()
 
 	void* pData;
 	int iDataSize;
-	ss=SGTLoadSave::Instance().CreateSaveFile(pData, iDataSize, "");
-	ss->SaveObject((SGTSaveable*)&tc, "tc");
-	ss->SaveObject((SGTSaveable*)&tc, "tc_ref");
+	ss=LoadSave::LoadSave::Instance().CreateSaveFile(pData, iDataSize, "");
+	ss->SaveObject((LoadSave::Saveable*)&tc, "tc");
+	ss->SaveObject((LoadSave::Saveable*)&tc, "tc_ref");
 	ss->CloseFiles();
 	delete ss;
 
-	ls=SGTLoadSave::Instance().LoadFile(pData, iDataSize);
+	ls=LoadSave::LoadSave::Instance().LoadFile(pData, iDataSize);
 
 	tc2=*((TestClass*)ls->LoadObject());
 	tc3=(TestClass*)ls->LoadObject();

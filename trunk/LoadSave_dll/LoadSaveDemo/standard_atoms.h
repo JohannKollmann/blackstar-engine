@@ -1,6 +1,6 @@
 #ifndef __STANDARD_ATOMS_INCL
 #define __STANDARD_ATOMS_INCL
-#include "..\SGTLoadSave\ExternalHeaders\sgtloadsave.h"
+#include "..\LoadSave\ExternalHeaders\loadsave.h"
 
 #include <list>
 #include <sstream>
@@ -14,43 +14,43 @@ std::string Int2Str(int i)
 	return str;
 }
 
-class IntHandler : SGTAtomHandler
+class IntHandler : LoadSave::AtomHandler
 {
 public:
 	IntHandler(){m_strName="int";}
 	std::string& TellName(){return m_strName;}
 	int TellByteSize(){return sizeof(int);}
-	void Save(SGTSaveSystem& ss, void* pData, std::string strVarName){ss.WriteAtom(TellName(), pData, strVarName, Int2Str(*((int*)pData)));}
-	void Load(SGTLoadSystem& ls, void* pDest){ls.ReadAtom(m_strName, pDest);}
+	void Save(LoadSave::SaveSystem& ss, void* pData, std::string strVarName){ss.WriteAtom(TellName(), pData, strVarName, Int2Str(*((int*)pData)));}
+	void Load(LoadSave::LoadSystem& ls, void* pDest){ls.ReadAtom(m_strName, pDest);}
 private:
 	std::string m_strName;
 };
 
-class CharHandler : SGTAtomHandler
+class CharHandler : LoadSave::AtomHandler
 {
 public:
 	CharHandler(){m_strName="char";}
 	std::string& TellName(){return m_strName;}
 	int TellByteSize(){return sizeof(char);}
-	void Save(SGTSaveSystem& ss, void* pData, std::string strVarName){std::string s; s+=*((char*)pData);ss.WriteAtom(TellName(), pData, strVarName, s);}
-	void Load(SGTLoadSystem& ls, void* pDest){ls.ReadAtom(m_strName, pDest);}
+	void Save(LoadSave::SaveSystem& ss, void* pData, std::string strVarName){std::string s; s+=*((char*)pData);ss.WriteAtom(TellName(), pData, strVarName, s);}
+	void Load(LoadSave::LoadSystem& ls, void* pDest){ls.ReadAtom(m_strName, pDest);}
 private:
 	std::string m_strName;
 };
 
-class StringHandler : SGTAtomHandler
+class StringHandler : LoadSave::AtomHandler
 {
 public:
 	StringHandler(){m_strName="std::string";}
 	std::string& TellName(){return m_strName;}
-	void Save(SGTSaveSystem& ss, void* pData, std::string strVarName){std::string* pStr=(std::string*)pData; ss.WriteAtomString("char", TellName(), (void*)pStr->c_str(), strVarName, *pStr);}
-	void Load(SGTLoadSystem& ls, void* pDest);
+	void Save(LoadSave::SaveSystem& ss, void* pData, std::string strVarName){std::string* pStr=(std::string*)pData; ss.WriteAtomString("char", TellName(), (void*)pStr->c_str(), strVarName, *pStr);}
+	void Load(LoadSave::LoadSystem& ls, void* pDest);
 private:
 	std::string m_strName;
 };
 
 void
-StringHandler::Load(SGTLoadSystem &ls, void *pDest)
+StringHandler::Load(LoadSave::LoadSystem &ls, void *pDest)
 {
 	std::vector<int> vSize=ls.LoadAtomArray("char");
 	std::string* pStr=(std::string*)pDest;
@@ -62,13 +62,13 @@ StringHandler::Load(SGTLoadSystem &ls, void *pDest)
 		pStr->push_back(ch);
 	}
 }
-class FloatHandler : SGTAtomHandler
+class FloatHandler : LoadSave::AtomHandler
 {
 public:
 	FloatHandler(){m_strName="float";}
 	std::string& TellName(){return m_strName;}
 	int TellByteSize(){return sizeof(float);}
-	void Save(SGTSaveSystem& ss, void* pData, std::string strVarName)
+	void Save(LoadSave::SaveSystem& ss, void* pData, std::string strVarName)
 	{
 		std::stringstream stream;
 		stream<<*((float*)pData);
@@ -76,7 +76,7 @@ public:
 		stream>>str;
 		ss.WriteAtom(TellName(), pData, strVarName, str);
 	}
-	void Load(SGTLoadSystem& ls, void* pDest)
+	void Load(LoadSave::LoadSystem& ls, void* pDest)
 	{
 		ls.ReadAtom(m_strName, pDest);
 	}
@@ -84,13 +84,13 @@ private:
 	std::string m_strName;
 };
 
-class DoubleHandler : SGTAtomHandler
+class DoubleHandler : LoadSave::AtomHandler
 {
 public:
 	DoubleHandler(){m_strName="double";}
 	std::string& TellName(){return m_strName;}
 	int TellByteSize(){return sizeof(double);}
-	void Save(SGTSaveSystem& ss, void* pData, std::string strVarName)
+	void Save(LoadSave::SaveSystem& ss, void* pData, std::string strVarName)
 	{
 		std::stringstream stream;
 		stream<<*((double*)pData);
@@ -98,7 +98,7 @@ public:
 		stream>>str;
 		ss.WriteAtom(TellName(), pData, strVarName, str);
 	}
-	void Load(SGTLoadSystem& ls, void* pDest)
+	void Load(LoadSave::LoadSystem& ls, void* pDest)
 	{
 		ls.ReadAtom(m_strName, pDest);
 	}
@@ -107,14 +107,14 @@ private:
 };
 
 
-class LongHandler : SGTAtomHandler
+class LongHandler : LoadSave::AtomHandler
 {
 public:
 	LongHandler(){m_strName="long";}
 	std::string& TellName(){return m_strName;}
 	int TellByteSize(){return sizeof(long);}
-	void Save(SGTSaveSystem& ss, void* pData, std::string strVarName){ss.WriteAtom(TellName(), pData, strVarName, Int2Str(*((int*)pData)));}
-	void Load(SGTLoadSystem& ls, void* pDest){ls.ReadAtom(m_strName, pDest);}
+	void Save(LoadSave::SaveSystem& ss, void* pData, std::string strVarName){ss.WriteAtom(TellName(), pData, strVarName, Int2Str(*((int*)pData)));}
+	void Load(LoadSave::LoadSystem& ls, void* pDest){ls.ReadAtom(m_strName, pDest);}
 private:
 	std::string m_strName;
 };
@@ -125,31 +125,31 @@ private:
 //who would use macros to define CLASSES? wtf? :D
 
 #define CREATEVECTORHANDLER(template_type, strTemplateTypeName, strHandlerName) \
-class strHandlerName : SGTAtomHandler\
+class strHandlerName : LoadSave::AtomHandler\
 {\
 public:\
 	strHandlerName (){m_strName= std::string("std::vector<") + strTemplateTypeName + std::string(">");}\
 	std::string& TellName(){return m_strName;}\
-	void Save(SGTSaveSystem& ss, void* pData, std::string strVarName);\
-	void Load(SGTLoadSystem& ls, void* pDest);\
+	void Save(LoadSave::SaveSystem& ss, void* pData, std::string strVarName);\
+	void Load(LoadSave::LoadSystem& ls, void* pDest);\
 private:\
 	std::string m_strName;\
 };\
 \
 void \
-strHandlerName ::Save(SGTSaveSystem& ss, void* pData, std::string strVarName)\
+strHandlerName ::Save(LoadSave::SaveSystem& ss, void* pData, std::string strVarName)\
 {\
 	/*test what category the data is*/\
 	std::vector<int> dims;\
 	std::vector< template_type >* pVector=(std::vector< template_type >*)pData;\
 	dims.push_back(pVector->size());\
 \
-	if(SGTLoadSave::Instance().GetObjectID( strTemplateTypeName )!=0)\
+	if(LoadSave::LoadSave::Instance().GetObjectID( strTemplateTypeName )!=0)\
 	{/*it is an object*/\
 		/*open an object-array*/\
 		ss.OpenObjectArray( strTemplateTypeName , dims, "_array");\
 		for(unsigned int i=0; i<pVector->size(); i++)\
-			ss.AddObject((SGTSaveable*)&((*pVector)[i]));\
+			ss.AddObject((LoadSave::Saveable*)&((*pVector)[i]));\
 	}\
 	else\
 	{/*it must be an atom*/\
@@ -161,11 +161,11 @@ strHandlerName ::Save(SGTSaveSystem& ss, void* pData, std::string strVarName)\
 } \
 \
 void \
-strHandlerName ::Load(SGTLoadSystem& ls, void* pDest)\
+strHandlerName ::Load(LoadSave::LoadSystem& ls, void* pDest)\
 {\
 	std::vector<int> dims;\
 	std::vector< template_type >* pVector=(std::vector< template_type >*)pDest;\
-	if(SGTLoadSave::Instance().GetObjectID( strTemplateTypeName )!=0)\
+	if(LoadSave::LoadSave::Instance().GetObjectID( strTemplateTypeName )!=0)\
 	{/*it is an object*/\
 		std::string str;\
 		dims=ls.LoadObjectArray(&str);\
@@ -178,7 +178,7 @@ strHandlerName ::Load(SGTLoadSystem& ls, void* pDest)\
 	}\
 	for(int i=0; i<dims[0]; i++)\
 	{\
-		if(SGTLoadSave::Instance().GetObjectID( strTemplateTypeName )!=0)\
+		if(LoadSave::LoadSave::Instance().GetObjectID( strTemplateTypeName )!=0)\
 		{/*it is an object*/\
 			pVector->push_back(*((template_type*)ls.LoadArrayObject()));\
 		}\
@@ -192,19 +192,19 @@ strHandlerName ::Load(SGTLoadSystem& ls, void* pDest)\
 }
 
 #define CREATELISTHANDLER(template_type, strTemplateTypeName, strHandlerName) \
-class strHandlerName : SGTAtomHandler\
+class strHandlerName : LoadSave::AtomHandler\
 {\
 public:\
 	strHandlerName (){m_strName= std::string("std::list<") + strTemplateTypeName + std::string(">");}\
 	std::string& TellName(){return m_strName;}\
-	void Save(SGTSaveSystem& ss, void* pData, std::string strVarName);\
-	void Load(SGTLoadSystem& ls, void* pDest);\
+	void Save(LoadSave::SaveSystem& ss, void* pData, std::string strVarName);\
+	void Load(LoadSave::LoadSystem& ls, void* pDest);\
 private:\
 	std::string m_strName;\
 };\
 \
 void \
-strHandlerName ::Save(SGTSaveSystem& ss, void* pData, std::string strVarName)\
+strHandlerName ::Save(LoadSave::SaveSystem& ss, void* pData, std::string strVarName)\
 {\
 	/*test what category the data is*/\
 	std::vector<int> dims;\
@@ -213,26 +213,26 @@ strHandlerName ::Save(SGTSaveSystem& ss, void* pData, std::string strVarName)\
 \
 	std::list< template_type >::const_iterator it=pList->begin();\
 \
-	if(SGTLoadSave::Instance().GetObjectID( strTemplateTypeName )!=0) \
+	if(LoadSave::LoadSave::Instance().GetObjectID( strTemplateTypeName )!=0) \
 		ss.OpenObjectArray( strTemplateTypeName , dims, "_list");\
 	else \
 		ss.OpenAtomArray( strTemplateTypeName , dims, "_list");\
 \
 	do\
 	{\
-		if(SGTLoadSave::Instance().GetObjectID( strTemplateTypeName )!=0) \
-			ss.AddObject((SGTSaveable*)&(*it));\
+		if(LoadSave::LoadSave::Instance().GetObjectID( strTemplateTypeName )!=0) \
+			ss.AddObject((LoadSave::Saveable*)&(*it));\
 		else \
 			ss.AddAtom( strTemplateTypeName , (void*)&(*it));\
 	}while(++it!=pList->end());\
 }\
 \
 void \
-strHandlerName ::Load(SGTLoadSystem& ls, void* pDest)\
+strHandlerName ::Load(LoadSave::LoadSystem& ls, void* pDest)\
 {\
 	std::vector<int> dims;\
 	std::list< template_type >* pList=(std::list< template_type >*)pDest;\
-	if(SGTLoadSave::Instance().GetObjectID( strTemplateTypeName )!=0)\
+	if(LoadSave::LoadSave::Instance().GetObjectID( strTemplateTypeName )!=0)\
 	{/*it is an object*/\
 		std::string str;\
 		dims=ls.LoadObjectArray(&str);\
@@ -245,7 +245,7 @@ strHandlerName ::Load(SGTLoadSystem& ls, void* pDest)\
 	}\
 	for(int i=0; i<dims[0]; i++)\
 	{\
-		if(SGTLoadSave::Instance().GetObjectID( strTemplateTypeName )!=0)\
+		if(LoadSave::LoadSave::Instance().GetObjectID( strTemplateTypeName )!=0)\
 		{/*it is an object*/\
 			pList->insert(pList->end(), *((template_type*)ls.LoadArrayObject()));\
 		}\
@@ -259,19 +259,19 @@ strHandlerName ::Load(SGTLoadSystem& ls, void* pDest)\
 }
 
 #define CREATEMAPHANDLER(key_type, strKeyTypeName, value_type, strValueTypeName, strHandlerName) \
-class strHandlerName : SGTAtomHandler\
+class strHandlerName : LoadSave::AtomHandler\
 {\
 public:\
 	strHandlerName (){m_strName= std::string("std::map<") + strKeyTypeName + std::string(", ") + strValueTypeName + std::string(">");}\
 	std::string& TellName(){return m_strName;}\
-	void Save(SGTSaveSystem& ss, void* pData, std::string strVarName);\
-	void Load(SGTLoadSystem& ls, void* pDest);\
+	void Save(LoadSave::SaveSystem& ss, void* pData, std::string strVarName);\
+	void Load(LoadSave::LoadSystem& ls, void* pDest);\
 private:\
 	std::string m_strName;\
 };\
 \
 void \
-strHandlerName ::Save(SGTSaveSystem& ss, void* pData, std::string strVarName)\
+strHandlerName ::Save(LoadSave::SaveSystem& ss, void* pData, std::string strVarName)\
 {\
 	/*test what category the data is*/\
 	std::vector<int> dims;\
@@ -280,14 +280,14 @@ strHandlerName ::Save(SGTSaveSystem& ss, void* pData, std::string strVarName)\
 \
 	std::map< key_type, value_type >::const_iterator it=pMap->begin();\
 \
-	if(SGTLoadSave::Instance().GetObjectID( strKeyTypeName )!=0) \
+	if(LoadSave::LoadSave::Instance().GetObjectID( strKeyTypeName )!=0) \
 		ss.OpenObjectArray( strKeyTypeName , dims, "_key");\
 	else \
 		ss.OpenAtomArray( strKeyTypeName , dims, "_key");\
 	do\
 	{\
-		if(SGTLoadSave::Instance().GetObjectID( strKeyTypeName )!=0) \
-			ss.AddObject((SGTSaveable*)&(it->first));\
+		if(LoadSave::LoadSave::Instance().GetObjectID( strKeyTypeName )!=0) \
+			ss.AddObject((LoadSave::Saveable*)&(it->first));\
 		else \
 			ss.AddAtom( strKeyTypeName , (void*)&(it->first));\
 \
@@ -295,26 +295,26 @@ strHandlerName ::Save(SGTSaveSystem& ss, void* pData, std::string strVarName)\
 \
 	it=pMap->begin();\
 \
-	if(SGTLoadSave::Instance().GetObjectID( strValueTypeName )!=0) \
+	if(LoadSave::LoadSave::Instance().GetObjectID( strValueTypeName )!=0) \
 		ss.OpenObjectArray( strValueTypeName , dims, "_value");\
 	else \
 		ss.OpenAtomArray( strValueTypeName , dims, "_value");\
 	do\
 	{\
-		if(SGTLoadSave::Instance().GetObjectID( strValueTypeName )!=0) \
-			ss.AddObject((SGTSaveable*)&(it->second));\
+		if(LoadSave::LoadSave::Instance().GetObjectID( strValueTypeName )!=0) \
+			ss.AddObject((LoadSave::Saveable*)&(it->second));\
 		else \
 			ss.AddAtom( strValueTypeName , (void*)&(it->second));\
 	}while(++it!=pMap->end());\
 } \
 void \
-strHandlerName ::Load(SGTLoadSystem& ls, void* pData)\
+strHandlerName ::Load(LoadSave::LoadSystem& ls, void* pData)\
 {\
 	std::vector<int> dims;\
 	std::map< key_type, value_type >* pMap=(std::map< key_type, value_type >*)pData;\
 \
 	std::list<key_type> keylist;\
-	if(SGTLoadSave::Instance().GetObjectID( strKeyTypeName )!=0)\
+	if(LoadSave::LoadSave::Instance().GetObjectID( strKeyTypeName )!=0)\
 	{/*it is an object*/\
 		std::string str;\
 		dims=ls.LoadObjectArray(&str);\
@@ -327,7 +327,7 @@ strHandlerName ::Load(SGTLoadSystem& ls, void* pData)\
 	}\
 	for(int i=0; i<dims[0]; i++)\
 	{\
-		if(SGTLoadSave::Instance().GetObjectID( strKeyTypeName )!=0)\
+		if(LoadSave::LoadSave::Instance().GetObjectID( strKeyTypeName )!=0)\
 		{/*it is an object*/\
 			keylist.insert(keylist.end(), *((key_type*)ls.LoadArrayObject()));\
 		}\
@@ -339,7 +339,7 @@ strHandlerName ::Load(SGTLoadSystem& ls, void* pData)\
 		}\
 	}\
 \
-	if(SGTLoadSave::Instance().GetObjectID( strValueTypeName )!=0)\
+	if(LoadSave::LoadSave::Instance().GetObjectID( strValueTypeName )!=0)\
 	{/*it is an object*/\
 		std::string str;\
 		dims=ls.LoadObjectArray(&str);\
@@ -353,7 +353,7 @@ strHandlerName ::Load(SGTLoadSystem& ls, void* pData)\
 	std::list<key_type>::const_iterator it=keylist.begin();\
 	for(; it!=keylist.end(); it++)\
 	{\
-		if(SGTLoadSave::Instance().GetObjectID( strValueTypeName )!=0)\
+		if(LoadSave::LoadSave::Instance().GetObjectID( strValueTypeName )!=0)\
 		{/*it is an object*/\
 		pMap->insert(std::pair<key_type, value_type>(*it, *((value_type*)ls.LoadArrayObject())));\
 		}\
@@ -375,15 +375,15 @@ CREATELISTHANDLER(float, "float", FloatListHandler);
 void
 RegisterStandardAtoms()
 {
-	SGTLoadSave::Instance().RegisterAtom((SGTAtomHandler*)new IntHandler());
-	SGTLoadSave::Instance().RegisterAtom((SGTAtomHandler*)new LongHandler());
-	SGTLoadSave::Instance().RegisterAtom((SGTAtomHandler*)new CharHandler());
-	SGTLoadSave::Instance().RegisterAtom((SGTAtomHandler*)new StringHandler());
-	SGTLoadSave::Instance().RegisterAtom((SGTAtomHandler*)new FloatHandler());
-	SGTLoadSave::Instance().RegisterAtom((SGTAtomHandler*)new DoubleHandler());
-	SGTLoadSave::Instance().RegisterAtom((SGTAtomHandler*)new FloatVectorHandler());
-	SGTLoadSave::Instance().RegisterAtom((SGTAtomHandler*)new StringIntMapHandler());
-	SGTLoadSave::Instance().RegisterAtom((SGTAtomHandler*)new FloatListHandler());
+	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new IntHandler());
+	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new LongHandler());
+	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new CharHandler());
+	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new StringHandler());
+	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new FloatHandler());
+	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new DoubleHandler());
+	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new FloatVectorHandler());
+	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new StringIntMapHandler());
+	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new FloatListHandler());
 }
 
 #endif
