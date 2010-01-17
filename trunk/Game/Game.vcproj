@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9,00"
 	Name="Esgaoroth_Game"
-	ProjectGUID="{99006E22-5259-4818-896B-B66CE367A9F2}"
+	ProjectGUID="{A657A530-555D-48FA-9DBF-AFA2E12F0EAA}"
 	RootNamespace="nxTutorial606"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="131072"

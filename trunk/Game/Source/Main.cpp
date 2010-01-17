@@ -1,16 +1,16 @@
 
 
-#include "SGTMain.h"
-#include "SGTMainLoop.h"
+#include "IceMain.h"
+#include "IceMainLoop.h"
 #define BOOST_ALL_DYN_LINK
 
 //Yes, it is really basic
 
 int main (int argc, char *argv[])
 {
-	SGTMain::Instance().Run();
-	SGTMainLoop::Instance().startLoop();
-	SGTMain::Instance().Shutdown();
+	Ice::Main::Instance().Run();
+	Ice::MainLoop::Instance().startLoop();
+	Ice::Main::Instance().Shutdown();
 };
 
 int WINAPI WinMain(HINSTANCE hInstance,
@@ -18,7 +18,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
                      LPSTR lpCmdLine,
                      int nCmdShow )
 {
-	SGTMain::Instance().Run();
-	SGTMainLoop::Instance().startLoop();
-	SGTMain::Instance().Shutdown();
+	Ice::Main::Instance().Run();
+	Ice::MainLoop::Instance().startLoop();
+	Ice::Main::Instance().Shutdown();
 }
