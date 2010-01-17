@@ -120,7 +120,16 @@ public:
 	static std::vector<ScriptParam> Lua_SetObjectOrientation(Script& caller, std::vector<ScriptParam> vParams);
 	static std::vector<ScriptParam> Lua_SetObjectScale(Script& caller, std::vector<ScriptParam> vParams);
 
+	/*
+	Liefert die ID des aktuell fokussierten Objekts zurück.
+	Liefert -1, falls kein Objekt fokussiert ist.
+	*/
 	static std::vector<ScriptParam> Lua_GetFocusObject(Script& caller, std::vector<ScriptParam> params);
+
+	/*
+	Liefert true, wenn Objekt ein Npc ist, sonst false.
+	*/
+	static std::vector<ScriptParam> Lua_Object_IsNpc(Script& caller, std::vector<ScriptParam> params);
 
 	//Editor
 	void CreateFromDataMap(DataMap *parameters);

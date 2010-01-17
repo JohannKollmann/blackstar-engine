@@ -200,6 +200,8 @@ void SceneManager::Init()
 
 	ScriptSystem::GetInstance().ShareCFunction("GetFocusObject", &SceneManager::Lua_GetFocusObject);
 
+	ScriptSystem::GetInstance().ShareCFunction("IsNpc", &SceneManager::Lua_Object_IsNpc);
+
 }
 
 void SceneManager::ClearGameObjects()
@@ -746,7 +748,7 @@ std::vector<ScriptParam> SceneManager::Lua_GetFocusObject(Script& caller, std::v
 {
 	OgrePhysX::Scene::QueryHit hit;
 	float maxDist = 5;
-	std::string s = "";
+	int id = -1;
 	Ogre::Vector3 origin = Main::Instance().GetCamera()->getDerivedPosition();
 	Ogre::Vector3 dir = Main::Instance().GetCamera()->getDerivedDirection().normalisedCopy();
 	if (Main::Instance().GetPhysXScene()->raycastClosestShape(hit, Ogre::Ray(origin, dir), NX_ALL_SHAPES, -1, maxDist))
@@ -754,15 +756,33 @@ std::vector<ScriptParam> SceneManager::Lua_GetFocusObject(Script& caller, std::v
 		GameObject *object = (GameObject*)hit.hitActor->userData;
 		if (object)
 		{
-			if (1)			//Todo: if (object->GetComponent("Item"))
-			{
-				s = object->GetName().c_str();
-				//...
-			}
+			id = object->GetID();
 		}
 	}
 	std::vector<ScriptParam> returner;
-	returner.push_back(ScriptParam(s));
+	returner.push_back(ScriptParam(id));
+	return returner;
+}
+
+std::vector<ScriptParam> SceneManager::Lua_Object_IsNpc(Script& caller, std::vector<ScriptParam> params)
+{
+	bool npc = false;
+	std::vector<ScriptParam> ref;
+	int dummy = 0;
+	ref.push_back(dummy);
+	std::string error = Utils::TestParameters(params, ref, false);
+	if (error == "")
+	{
+		int id = params[0].getInt();
+		GameObject *object = SceneManager::Instance().GetObjectByInternID(id);
+		if (object)
+		{
+			if (object->GetComponent("CharacterInput", "AI")) npc = true;
+		}
+	}
+	else throw Ogre::Exception(Ogre::Exception::ERR_INVALIDPARAMS, error, "SceneManager::SceneManager::Lua_Object_IsNpc");
+	std::vector<ScriptParam> returner;
+	returner.push_back(ScriptParam(npc));
 	return returner;
 }
 
