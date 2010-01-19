@@ -1071,7 +1071,7 @@ void Edit::AlignObjectWithMesh(Ice::GameObject *object)
 {
 	Ogre::Ray mouseRay = Ice::Main::Instance().GetCamera()->getCameraToViewportRay(mMousePosition.x, mMousePosition.y);
 	OgrePhysX::Scene::QueryHit report;
-	if (Ice::Main::Instance().GetPhysXScene()->raycastClosestShape(report, mouseRay))
+  	if (Ice::Main::Instance().GetPhysXScene()->raycastClosestShape(report, mouseRay))
 	{
 		Ogre::Vector3 position = report.point;
 		Ogre::Vector3 normal = report.normal;

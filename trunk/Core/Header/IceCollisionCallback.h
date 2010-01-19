@@ -12,8 +12,8 @@ public:
 	TriggerCallback(void) {}
 	~TriggerCallback(void) {}
 
-	void onEnter(OgrePhysX::Actor *trigger, OgrePhysX::Actor *other);
-	void onLeave(OgrePhysX::Actor *trigger, OgrePhysX::Actor *other);
+	void onEnter(NxActor &trigger, NxActor &other);
+	void onLeave(NxActor &trigger, NxActor &other);
 };
 
 };

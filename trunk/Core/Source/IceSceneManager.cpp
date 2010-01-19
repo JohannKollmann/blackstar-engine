@@ -753,10 +753,13 @@ std::vector<ScriptParam> SceneManager::Lua_GetFocusObject(Script& caller, std::v
 	Ogre::Vector3 dir = Main::Instance().GetCamera()->getDerivedDirection().normalisedCopy();
 	if (Main::Instance().GetPhysXScene()->raycastClosestShape(hit, Ogre::Ray(origin, dir), NX_ALL_SHAPES, -1, maxDist))
 	{
-		GameObject *object = (GameObject*)hit.hitActor->userData;
-		if (object)
+		if (hit.hitActor->userData)
 		{
-			id = object->GetID();
+			GameObject *object = (GameObject*)hit.hitActor->userData;
+			if (object)
+			{
+				id = object->GetID();
+			}
 		}
 	}
 	std::vector<ScriptParam> returner;

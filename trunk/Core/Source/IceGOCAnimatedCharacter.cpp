@@ -540,6 +540,7 @@ void GOCAnimatedCharacter::SetOwner(GameObject *go)
 	mEntity->setUserObject(go);
 	UpdatePosition(go->GetGlobalPosition());
 	UpdateOrientation(go->GetGlobalOrientation());
+	mRagdoll->setActorUserData(mOwnerGO);
 	mRagdoll->sync();
 	if (mSetControlToActorsTemp)
 	{

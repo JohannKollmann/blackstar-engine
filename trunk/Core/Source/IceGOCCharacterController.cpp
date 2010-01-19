@@ -136,6 +136,7 @@ void GOCCharacterController::ReceiveObjectMessage(Ogre::SharedPtr<ObjectMsg> msg
 void GOCCharacterController::SetOwner(GameObject *go)
 {
 	mOwnerGO = go;
+	mCharacterController->getActor()->userData = mOwnerGO;
 	UpdatePosition(mOwnerGO->GetGlobalPosition());
 }
 

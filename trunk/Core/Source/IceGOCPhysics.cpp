@@ -71,7 +71,6 @@ void GOCRigidBody::Create(Ogre::String collision_mesh, float density, int shapet
 			mRenderable,
 			OgrePhysX::BoxShape(entity, scale).density(mDensity).group(CollisionGroups::DEFAULT));
 	}
-	mActor->userData = mOwnerGO;
 	Main::Instance().GetOgreSceneMgr()->destroyEntity(entity);
 }
 
@@ -111,6 +110,7 @@ void GOCRigidBody::SetOwner(GameObject *go)
 {
 	mOwnerGO = go;
 	Create(mCollisionMeshName, mDensity, mShapeType, mOwnerGO->GetGlobalScale());
+	mActor->getNxActor()->userData = mOwnerGO;
 	mActor->setGlobalOrientation(mOwnerGO->GetGlobalOrientation());
 	mActor->setGlobalPosition(mOwnerGO->GetGlobalPosition());
 }
@@ -190,7 +190,6 @@ void GOCStaticBody::Create(Ogre::String collision_mesh, Ogre::Vector3 scale)
 	Ogre::Entity *entity = Main::Instance().GetOgreSceneMgr()->createEntity("tempCollisionModell", mCollisionMeshName);
 	mActor = Main::Instance().GetPhysXScene()->createActor(
 		OgrePhysX::RTMeshShape(entity->getMesh()).scale(scale).group(CollisionGroups::DEFAULT));
-	mActor->userData = mOwnerGO;
 	Main::Instance().GetOgreSceneMgr()->destroyEntity(entity);
 }
 
@@ -215,6 +214,7 @@ void GOCStaticBody::SetOwner(GameObject *go)
 	mOwnerGO = go;
 	if (mActor) Main::Instance().GetPhysXScene()->destroyActor(mActor);
 	Create(mCollisionMeshName, mOwnerGO->GetGlobalScale());
+	mActor->getNxActor()->userData = mOwnerGO;
 	mActor->setGlobalOrientation(mOwnerGO->GetGlobalOrientation());
 	mActor->setGlobalPosition(mOwnerGO->GetGlobalPosition());
 }
@@ -288,7 +288,6 @@ void GOCTrigger::Create(Ogre::Vector3 scale)
 		mActor = Main::Instance().GetPhysXScene()->createActor(
 			OgrePhysX::SphereShape(mSphereRadius * scale.length()).setTrigger());
 	}
-	mActor->userData = mOwnerGO;
 }
 
 void GOCTrigger::onEnter(GameObject *object)
@@ -333,6 +332,7 @@ void GOCTrigger::SetOwner(GameObject *go)
 	mOwnerGO = go;
 	if (mActor) Main::Instance().GetPhysXScene()->destroyActor(mActor);
 	Create(mOwnerGO->GetGlobalScale());
+	mActor->getNxActor()->userData = mOwnerGO;
 	mActor->setGlobalOrientation(mOwnerGO->GetGlobalOrientation());
 	mActor->setGlobalPosition(mOwnerGO->GetGlobalPosition());
 }

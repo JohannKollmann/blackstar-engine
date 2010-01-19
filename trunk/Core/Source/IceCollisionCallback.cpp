@@ -7,28 +7,28 @@
 namespace Ice
 {
 
-void TriggerCallback::onEnter(OgrePhysX::Actor *trigger, OgrePhysX::Actor *other)
+void TriggerCallback::onEnter(NxActor &trigger, NxActor &other)
 {
-	if (trigger->userData && other->userData)
+	if (trigger.userData && other.userData)
 	{
-		GameObject *triggerObject = (GameObject*)trigger->userData;
+		GameObject *triggerObject = (GameObject*)trigger.userData;
 		GOCTrigger *trigger = (GOCTrigger*)triggerObject->GetComponent("Trigger");
 		if (trigger)
 		{
-			GameObject *otherObject = (GameObject*)other;
+			GameObject *otherObject = (GameObject*)other.userData;
 			trigger->onEnter(otherObject);
 		}
 	}
 }
-void TriggerCallback::onLeave(OgrePhysX::Actor *trigger, OgrePhysX::Actor *other)
+void TriggerCallback::onLeave(NxActor &trigger, NxActor &other)
 {
-	if (trigger->userData && other->userData)
+	if (trigger.userData && other.userData)
 	{
-		GameObject *triggerObject = (GameObject*)trigger->userData;
+		GameObject *triggerObject = (GameObject*)trigger.userData;
 		GOCTrigger *trigger = (GOCTrigger*)triggerObject->GetComponent("Trigger");
 		if (trigger)
 		{
-			GameObject *otherObject = (GameObject*)other;
+			GameObject *otherObject = (GameObject*)other.userData;
 			trigger->onLeave(otherObject);
 		}
 	}
