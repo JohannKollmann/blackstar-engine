@@ -125,11 +125,15 @@ public:
 	Liefert -1, falls kein Objekt fokussiert ist.
 	*/
 	static std::vector<ScriptParam> Lua_GetFocusObject(Script& caller, std::vector<ScriptParam> params);
+	static std::vector<ScriptParam> Lua_NPCOpenDialog(Script& caller, std::vector<ScriptParam> params);
+	static std::vector<ScriptParam> Lua_SetObjectVisible(Script& caller, std::vector<ScriptParam> params);
+	static std::vector<ScriptParam> Lua_GetObjectName(Script& caller, std::vector<ScriptParam> params);
+	
 
 	/*
 	Liefert true, wenn Objekt ein Npc ist, sonst false.
 	*/
-	static std::vector<ScriptParam> Lua_Object_IsNpc(Script& caller, std::vector<ScriptParam> params);
+	static std::vector<ScriptParam> Lua_ObjectIsNpc(Script& caller, std::vector<ScriptParam> params);
 
 	//Editor
 	void CreateFromDataMap(DataMap *parameters);

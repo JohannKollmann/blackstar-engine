@@ -63,7 +63,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Rpcrt4.lib OgreMain_d.lib PhysXLoader.lib PhysXCooking.lib NxCharacter.lib OgrePhysX_d.lib ws2_32.lib OgreOggSound_d.lib comctl32.lib caelum_d.lib IceEngine_debug.lib LoadSave_dbg.lib"
+				AdditionalDependencies="Rpcrt4.lib OgreMain_d.lib PhysXLoader.lib PhysXCooking.lib NxCharacter.lib OgrePhysX_d.lib ws2_32.lib OgreOggSound_d.lib comctl32.lib caelum_d.lib IceEngine_debug.lib LoadSave_d.lib"
 				OutputFile="$(OutDir)/Game_d.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="..\..\Dependencies\boost\lib\;..\..\Dependencies\Ogre3D\lib;..\..\Dependencies\OgrePhysX\lib;..\..\Dependencies\Ogre3D\Dependencies\lib\Debug;..\..\Dependencies\Hydrax\lib;..\..\Dependencies\OgreOggSound\lib\;..\..\Dependencies\PhysX\SDKs\lib\win32;..\..\Dependencies\Caelum\lib\debug;..\..\Ogre3D\Dependencies\lib\Debug\;..\..\lib\"
@@ -145,7 +145,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				RegisterOutput="false"
-				AdditionalDependencies="OgreMain.lib PhysXLoader.lib PhysXCooking.lib NxCharacter.lib OgrePhysX.lib ws2_32.lib winmm.lib rpcrt4.lib odbc32.lib comctl32.lib caelum.lib IceEngine.lib"
+				AdditionalDependencies="OgreMain.lib PhysXLoader.lib PhysXCooking.lib NxCharacter.lib OgrePhysX.lib ws2_32.lib winmm.lib rpcrt4.lib odbc32.lib comctl32.lib caelum.lib IceEngine.lib LoadSave.lib"
 				OutputFile="$(OutDir)/Game.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="..\..\Dependencies\boost\lib\;..\..\Dependencies\Ogre3D\lib;..\..\Dependencies\OgrePhysX\lib;..\..\Dependencies\Ogre3D\Dependencies\lib\Release;..\..\Dependencies\Hydrax\lib;..\..\Dependencies\OgreOggSound\lib\;..\..\Dependencies\PhysX\SDKs\lib\win32;..\..\Dependencies\Caelum\lib\release;..\..\Ogre3D\Dependencies\lib\Release\;..\..\lib\"

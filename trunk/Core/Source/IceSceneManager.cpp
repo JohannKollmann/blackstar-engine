@@ -199,8 +199,11 @@ void SceneManager::Init()
 	ScriptSystem::GetInstance().ShareCFunction("SetObjectScale", &SceneManager::Lua_SetObjectScale);
 
 	ScriptSystem::GetInstance().ShareCFunction("GetFocusObject", &SceneManager::Lua_GetFocusObject);
+	ScriptSystem::GetInstance().ShareCFunction("NPCOpenDialog", &SceneManager::Lua_NPCOpenDialog);
+	ScriptSystem::GetInstance().ShareCFunction("GetObjectName", &SceneManager::Lua_GetObjectName);
+	ScriptSystem::GetInstance().ShareCFunction("SetObjectVisible", &SceneManager::Lua_SetObjectVisible);
 
-	ScriptSystem::GetInstance().ShareCFunction("IsNpc", &SceneManager::Lua_Object_IsNpc);
+	ScriptSystem::GetInstance().ShareCFunction("IsNpc", &SceneManager::Lua_ObjectIsNpc);
 
 }
 
@@ -767,27 +770,92 @@ std::vector<ScriptParam> SceneManager::Lua_GetFocusObject(Script& caller, std::v
 	return returner;
 }
 
-std::vector<ScriptParam> SceneManager::Lua_Object_IsNpc(Script& caller, std::vector<ScriptParam> params)
+std::vector<ScriptParam> SceneManager::Lua_ObjectIsNpc(Script& caller, std::vector<ScriptParam> params)
 {
-	bool npc = false;
-	std::vector<ScriptParam> ref;
-	int dummy = 0;
-	ref.push_back(dummy);
-	std::string error = Utils::TestParameters(params, ref, false);
-	if (error == "")
+	std::vector<Ice::ScriptParam> errout(1, Ice::ScriptParam());
+	std::vector<Ice::ScriptParam> vRef=std::vector<Ice::ScriptParam>(1, Ice::ScriptParam(0.0));
+	std::string strErrString=Ice::Utils::TestParameters(params, vRef);
+	if(strErrString.length())
 	{
-		int id = params[0].getInt();
-		GameObject *object = SceneManager::Instance().GetObjectByInternID(id);
-		if (object)
+		errout.push_back(strErrString);
+		return errout;
+	}
+	bool npc = false;
+	
+	int id = (int)params[0].getFloat();
+	GameObject *object = SceneManager::Instance().GetObjectByInternID(id);
+	if (object)
+	{
+		if (object->GetComponent("CharacterInput", "AI")) npc = true;
+	}
+	return std::vector<ScriptParam>(1,ScriptParam(npc));
+}
+
+std::vector<ScriptParam> SceneManager::Lua_NPCOpenDialog(Script& caller, std::vector<ScriptParam> params)
+{
+	std::vector<Ice::ScriptParam> errout(1, Ice::ScriptParam());
+	std::vector<Ice::ScriptParam> vRef=std::vector<Ice::ScriptParam>(1, Ice::ScriptParam(0.0));
+	std::string strErrString=Ice::Utils::TestParameters(params, vRef);
+	if(strErrString.length())
+	{
+		errout.push_back(strErrString);
+		return errout;
+	}
+	
+	int id = (int)params[0].getFloat();
+	GameObject *object = SceneManager::Instance().GetObjectByInternID(id);
+	if (object)
+	{
+		GOComponent* pAI;
+		if (pAI=object->GetComponent("CharacterInput", "AI"))
 		{
-			if (object->GetComponent("CharacterInput", "AI")) npc = true;
+			((GOCAI*)pAI)->mScript.CallFunction("StartDialog", std::vector<ScriptParam>());
 		}
 	}
-	else throw Ogre::Exception(Ogre::Exception::ERR_INVALIDPARAMS, error, "SceneManager::SceneManager::Lua_Object_IsNpc");
-	std::vector<ScriptParam> returner;
-	returner.push_back(ScriptParam(npc));
-	return returner;
+	return std::vector<ScriptParam>();
 }
+
+std::vector<ScriptParam> SceneManager::Lua_SetObjectVisible(Script& caller, std::vector<ScriptParam> params)
+{
+	std::vector<Ice::ScriptParam> errout(1, Ice::ScriptParam());
+	std::vector<Ice::ScriptParam> vRef=std::vector<Ice::ScriptParam>(1, Ice::ScriptParam(0.0));
+	vRef.push_back(ScriptParam(false));
+	std::string strErrString=Ice::Utils::TestParameters(params, vRef);
+	if(strErrString.length())
+	{
+		errout.push_back(strErrString);
+		return errout;
+	}
+	
+	int id = (int)params[0].getFloat();
+	GameObject *object = SceneManager::Instance().GetObjectByInternID(id);
+	if (object)
+	{
+		GOCNodeRenderable *view;
+		if(view= (GOCNodeRenderable*)object->GetComponent("View"))
+			view->GetNode()->setVisible(params[1].getBool());
+	}
+	return std::vector<ScriptParam>();
+}
+
+std::vector<ScriptParam> SceneManager::Lua_GetObjectName(Script& caller, std::vector<ScriptParam> params)
+{
+	std::vector<Ice::ScriptParam> errout(1, Ice::ScriptParam());
+	std::vector<Ice::ScriptParam> vRef=std::vector<Ice::ScriptParam>(1, Ice::ScriptParam(0.0));
+	std::string strErrString=Ice::Utils::TestParameters(params, vRef);
+	if(strErrString.length())
+	{
+		errout.push_back(strErrString);
+		return errout;
+	}
+	
+	int id = (int)params[0].getFloat();
+	GameObject *object = SceneManager::Instance().GetObjectByInternID(id);
+	if (object)
+		return std::vector<ScriptParam>(1, ScriptParam(object->GetName()));
+	return std::vector<ScriptParam>();
+}
+
 
 SceneManager& SceneManager::Instance()
 {

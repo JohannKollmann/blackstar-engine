@@ -169,7 +169,7 @@ void wxScriptEditor::IntelliSense(int currentPosition)
 	while(!ISWHITE(GetCharAt(currentPosition-nCharsEntered-1)) && !ISSYNTAX(GetCharAt(currentPosition-nCharsEntered-1)))
 		nCharsEntered++;
 
-	int iSkipIndex=currentPosition-nCharsEntered;
+	unsigned int iSkipIndex=currentPosition-nCharsEntered;
 
 	wxString text = GetText();
 
@@ -195,7 +195,7 @@ void wxScriptEditor::IntelliSense(int currentPosition)
 					continue;
 				}
 				//check if this is a function. search for an opening bracket
-				int iTestChar=iIndex;
+				unsigned int iTestChar=iIndex;
 				for(; iTestChar<text.length();iTestChar++)
 				{
 					wxChar c=text[iTestChar];

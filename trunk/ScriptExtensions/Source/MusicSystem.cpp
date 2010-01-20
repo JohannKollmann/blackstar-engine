@@ -40,7 +40,7 @@ MusicSystem::ReceiveMessage(Ice::Msg &msg)
 	{
 		float time = msg.mData.GetFloat("TIME_TOTAL");
 		m_fCurrTime=time;
-		if(!m_lTasks.empty())
+		if(m_lTasks.size())
 			for(std::list<SScheduledTask>::iterator it=m_lTasks.begin(); it->fTime<=m_fCurrTime; )
 			{
 				OgreOggSound::OgreOggISound* pSound=OgreOggSound::OgreOggSoundManager::getSingleton().getSound(it->strSound);
@@ -103,6 +103,8 @@ MusicSystem::ReceiveMessage(Ice::Msg &msg)
 				}
 				}
 				m_lTasks.pop_front();
+				if(m_lTasks.empty())
+					break;
 				it=m_lTasks.begin();
 			}
 	}

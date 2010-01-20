@@ -33,7 +33,6 @@ private:
 	*/
 	AIState *mActiveState;
 
-	Script mScript;
 	Ogre::String mScriptFileName;
 
 	//Lua stuff
@@ -81,6 +80,8 @@ public:
 	static LoadSave::Saveable* NewInstance() { return new GOCAI; };
 	void Save(LoadSave::SaveSystem& mgr);
 	void Load(LoadSave::LoadSystem& mgr);
+
+	Script mScript;
 };
 
 };
