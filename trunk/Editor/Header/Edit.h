@@ -12,6 +12,7 @@
 #include "OgreAxisObject.h"
 #include "EntityMaterialInspector.h"
 #include "IceGOCPlayerInput.h"
+#include "IceGOCCameraController.h"
 
 struct EditorSelection
 {

@@ -136,6 +136,8 @@ bool Input::mouseMoved(const OIS::MouseEvent &e)
 	msg.mData.AddInt("ROT_X_REL", e.state.X.rel);
 	msg.mData.AddInt("ROT_Y_ABS", e.state.Y.abs);
 	msg.mData.AddInt("ROT_Y_REL", e.state.Y.rel);
+	msg.mData.AddInt("ROT_Z_ABS", e.state.Z.abs);
+	msg.mData.AddInt("ROT_Z_REL", e.state.Z.rel);
 	MessageSystem::Instance().SendMessage(msg);
 	return true;
 };

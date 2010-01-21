@@ -11,6 +11,7 @@
 #include "IceGOCPhysics.h"
 #include "IceGOCView.h"
 #include "IceGOCPlayerInput.h"
+#include "IceGOCCameraController.h"
 #include "IceGOCAnimatedCharacter.h"
 #include "IceGOCIntern.h"
 #include "IceGOCAI.h"
