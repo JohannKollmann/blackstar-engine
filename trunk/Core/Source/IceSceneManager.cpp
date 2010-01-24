@@ -163,6 +163,7 @@ void SceneManager::Init()
 	LoadSave::LoadSave::Instance().RegisterObject(&GOCAnimatedCharacterBone::Register);
 	LoadSave::LoadSave::Instance().RegisterObject(&GOCCharacterController::Register);
 	LoadSave::LoadSave::Instance().RegisterObject(&GOCPlayerInput::Register);
+	LoadSave::LoadSave::Instance().RegisterObject(&GOCCameraController::Register);
 
 	LoadSave::LoadSave::Instance().RegisterObject(&GOCAI::Register);
 
