@@ -19,9 +19,9 @@ private:
 	float mTightness;
 	Ogre::Quaternion mCharacterOrientation;
 
-	float mfCameraAngle,
-		  mfLastCharacterAngle,
-		  mfCharacterAngle,
+	float //mfCameraAngle,
+		  //mfLastCharacterAngle,
+		  mfRefCharacterAngle,
 		  mfZoom;
 
 public:
