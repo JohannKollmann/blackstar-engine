@@ -9,39 +9,39 @@
 namespace Ice
 {
 
-class ScriptedAIState : public AIState
-{
-protected:
-	Script mScript;
-	ScriptedAIState() {}
-	float mLastUpdateCall;
-	virtual bool OnSimulate(float time) { return false; }
+	class ScriptedAIState : public AIState
+	{
+	protected:
+		Script mScript;
+		ScriptedAIState() {}
+		float mLastUpdateCall;
+		virtual bool OnSimulate(float time) { return false; }
 
-public:
-	ScriptedAIState(GOCAI* ai, Ogre::String scriptFileName);
-	~ScriptedAIState();
+	public:
+		ScriptedAIState(GOCAI* ai, Ogre::String scriptFileName);
+		~ScriptedAIState();
 
-	virtual void OnEnter();
-	virtual bool OnUpdate(float time);
-};
+		virtual void OnEnter();
+		virtual bool Update(float time);
+	};
 
-class DayCycle : public ScriptedAIState
-{
-protected:
-	std::vector<ScriptParam> mScriptParams;
-	int mStartTimeH;
-	int mStartTimeM;
-	int mEndTimeH;		//Stunden
-	int mEndTimeM;		//Minuten
-	bool mTimeAbs;		//Absolute oder relative Angabe?
+	class DayCycle : public ScriptedAIState
+	{
+	protected:
+		std::vector<ScriptParam> mScriptParams;
+		int mStartTimeH;
+		int mStartTimeM;
+		int mEndTimeH;		//Stunden
+		int mEndTimeM;		//Minuten
+		bool mTimeAbs;		//Absolute oder relative Angabe?
 
 
-public:
-	DayCycle(GOCAI* ai, Ogre::String scriptFileName, std::vector<ScriptParam> params, int endtimeH, int endtimeM, bool time_abs);
-	~DayCycle();
+	public:
+		DayCycle(GOCAI* ai, Ogre::String scriptFileName, std::vector<ScriptParam> params, int endtimeH, int endtimeM, bool time_abs);
+		~DayCycle();
 
-	void OnEnter();
-	bool OnUpdate(float time);
-};
+		void OnEnter();
+		bool Update(float time);
+	};
 
-};
+}

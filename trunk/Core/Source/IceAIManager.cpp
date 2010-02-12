@@ -25,10 +25,27 @@ void AIManager::UnregisterAIObject(int id)
 	if (i != mAIObjects.end()) mAIObjects.erase(i);
 }
 
+void AIManager::RegisterScriptAIBind(GOCAI* object, int scriptID)
+{
+	mScriptAIBinds.insert(std::make_pair<int, GOCAI*>(scriptID, object));
+}
+void AIManager::UnregisterScriptAIBind(int scriptID)
+{
+	std::map<int, GOCAI*>::iterator i = mScriptAIBinds.find(scriptID);
+	if (i != mScriptAIBinds.end()) mScriptAIBinds.erase(i);
+}
+
 GOCAI* AIManager::GetAIByID(int id)
 {
 	std::map<int, GOCAI*>::iterator i = mAIObjects.find(id);
 	if (i != mAIObjects.end()) return i->second;
+	return 0;
+}
+
+GOCAI* AIManager::GetAIByScriptID(int scriptID)
+{
+	std::map<int, GOCAI*>::iterator i = mScriptAIBinds.find(scriptID);
+	if (i != mScriptAIBinds.end()) return i->second;
 	return 0;
 }
 

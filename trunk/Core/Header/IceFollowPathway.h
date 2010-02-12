@@ -4,38 +4,37 @@
 #include "Ogre.h"
 #include "IceAIState.h"
 #include "NxPhysics.h"
+#include "IceDirectionBlender.h"
 
 namespace Ice
 {
 
-class FollowPathway : public AIState
-{
-private:
-	std::vector<Ogre::Vector3> mPath;
-	std::vector<Ogre::Vector3>::iterator mCurrentTarget;
+	class FollowPathway : public AIState
+	{
+	private:
+		std::vector<Ogre::Vector3> mPath;
+		std::vector<Ogre::Vector3>::iterator mCurrentTarget;
 
-	Ogre::Vector3 mBlendDirection;
-	float mTargetBlendYaw;
-	float mBlendFactor;
+		DirectionYawBlender mDirectionBlender;
 
-	bool mAvoidingObstacle;
-	Ogre::Vector3 mAvoidObstacleVector;
+		bool mAvoidingObstacle;
+		Ogre::Vector3 mAvoidObstacleVector;
 
-	void StartBlend(Ogre::Vector3 oldDir, Ogre::Vector3 newDir);
+		NxActor *mSweepActor;
+		NxSweepCache *mSweepCache;
+		Ogre::String mTargetWP;
+		float mRadius;
 
-	NxActor *mSweepActor;
-	NxSweepCache *mSweepCache;
-	Ogre::String mTargetWP;
-	float mRadius;
+		bool ObstacleCheck(Ogre::Vector3 motion);
 
-	bool ObstacleCheck(Ogre::Vector3 motion);
+	public:
+		FollowPathway(GOCAI *ai, Ogre::String target, float radius = 1.0f);
+		~FollowPathway();
 
-public:
-	FollowPathway(GOCAI *ai, Ogre::String target, float radius = 1.0f);
-	~FollowPathway();
+		void OnEnter();
+		void Leave();
+		void Pause();
+		bool Update(float time);
+	};
 
-	void OnEnter();
-	bool OnUpdate(float time);
-};
-
-};
+}

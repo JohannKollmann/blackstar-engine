@@ -14,9 +14,8 @@ class DllExport Pathfinder
 private:
 	std::list<GOCWaypoint*> mWaynet;
 
-	bool UpdateEdgeList(WPEdge &e, std::list<WPEdge> *WPEdges);
-	WPEdge GetBestEdge(std::list<WPEdge> *WPEdges);
-	bool ExtractPath(std::list<WPEdge> paths, GOCWaypoint *start, GOCWaypoint *target, std::vector<Ogre::Vector3> *returnpath);
+	bool UpdateEdgeList(WPEdge &e, std::vector<WPEdge> *WPEdges);
+	bool ExtractPath(std::vector<WPEdge> paths, GOCWaypoint *start, GOCWaypoint *target, std::vector<Ogre::Vector3> *returnpath);
 
 public:
 	Pathfinder(void);

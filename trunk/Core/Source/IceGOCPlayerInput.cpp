@@ -5,6 +5,7 @@
 #include "IceGameObject.h"
 #include "IceMain.h"
 #include "IceCameraController.h"
+#include "IceSceneManager.h"
 
 namespace Ice
 {
@@ -37,6 +38,14 @@ void GOCPlayerInput::AttachToGO(GameObject *go)
 void GOCPlayerInput::SetActive(bool active)
 {
 	mActive = active;
+	if (mActive && mOwnerGO)
+		SceneManager::Instance().RegisterPlayer(mOwnerGO);
+	else SceneManager::Instance().RegisterPlayer(0);
+}
+
+void GOCPlayerInput::Pause(bool pause)
+{
+	mActive = !pause;
 }
 
 void GOCPlayerInput::ReceiveMessage(Msg &msg)

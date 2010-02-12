@@ -16,12 +16,23 @@ struct LineNeighborBind
 	LineNeighborBind(Ogre::ManualObject* line, GOCWaypoint* waypoint) { mLine = line; mNeighbor = waypoint; }
 };
 
-struct WPEdge
+class WPEdge
 {
+public:
 	GOCWaypoint *mWP;
 	GOCWaypoint *mNeighbor;
 	float mCost;
-	float mCostOffset;		//Fuer Heuristik
+	float mCostOffset;		//for Heuristik
+	
+	bool operator < (const WPEdge &rhs) const
+	{
+		return ((mCost + mCostOffset) < (rhs.mCost + mCostOffset));
+	}
+	bool operator > (const WPEdge &rhs) const
+	{
+		return ((mCost + mCostOffset) > (rhs.mCost + mCostOffset));
+	}
+
 };
 
 class DllExport GOCWaypoint : public GOComponent
@@ -46,7 +57,7 @@ public:
 	void AddLine(Ogre::ManualObject* line, GOCWaypoint *waypoint);
 	void RemoveLine(Ogre::ManualObject* line);
 
-	void GetNeighbors(std::list<WPEdge> *edges, Ogre::Vector3 targetPos);
+	void GetNeighbors(std::vector<WPEdge> *edges, Ogre::Vector3 targetPos);
 	bool HasLine(GOCWaypoint *waypoint);
 
 	void ShowEditorVisual(bool show);

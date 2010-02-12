@@ -19,6 +19,8 @@ namespace Utils
 
 	DllExport std::string GetTypeName(ScriptParam param);
 	DllExport std::string TestParameters(std::vector<ScriptParam> testparams, std::vector<ScriptParam> refparams, bool bAllowMore=false);
+
+	DllExport void LogParameterErrors(Script& caller, Ogre::String msg, int line = -1);
 };
 
 };

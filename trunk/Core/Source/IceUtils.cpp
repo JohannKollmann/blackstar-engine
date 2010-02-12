@@ -2,6 +2,7 @@
 #include "IceUtils.h"
 #include "boost/filesystem/operations.hpp"
 #include "boost/filesystem/path.hpp"
+#include "IceScript.h"
 
 namespace Ice
 {
@@ -72,6 +73,13 @@ std::string Utils::TestParameters(std::vector<ScriptParam> testparams, std::vect
 		}
 	}
 	return strOut;
+}
+
+void Utils::LogParameterErrors(Script& caller, Ogre::String msg, int line)
+{
+	Ogre::String log = "[Script] Error in \"" + caller.GetScriptName() + "\": " + msg;
+	if (line >= 0) log = log + " (line " + Ogre::StringConverter::toString(line) + ")";
+	Ogre::LogManager::getSingleton().logMessage(log);
 }
 
 };

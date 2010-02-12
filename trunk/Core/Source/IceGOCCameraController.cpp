@@ -57,6 +57,7 @@ void GOCCameraController::AttachCamera(Ogre::Camera *camera)
 }
 void GOCCameraController::DetachCamera()
 {
+	if (!mCamera) return;
 	mCameraNode->detachObject(mCamera);
 	MessageSystem::Instance().QuitNewsgroup(this, "MOUSE_MOVE");
 	MessageSystem::Instance().QuitNewsgroup(this, "UPDATE_PER_FRAME");

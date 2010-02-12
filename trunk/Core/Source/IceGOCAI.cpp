@@ -11,7 +11,6 @@ GOCAI::GOCAI(void)
 {
 	mCharacterMovementState = 0;
 	mOwnerGO = 0;
-	mActiveState = 0;
 	MessageSystem::Instance().JoinNewsgroup(this, "ENABLE_GAME_CLOCK");
 }
 
@@ -19,7 +18,11 @@ GOCAI::~GOCAI(void)
 {
 	ClearActionQueue();
 	ClearIdleQueue();
-	if (mOwnerGO) AIManager::Instance().UnregisterAIObject(mOwnerGO->GetID());
+	if (mOwnerGO)
+	{
+		AIManager::Instance().UnregisterAIObject(mOwnerGO->GetID());
+		AIManager::Instance().UnregisterScriptAIBind(mScript.GetID());
+	}
 	MessageSystem::Instance().QuitNewsgroup(this, "ENABLE_GAME_CLOCK");
 }
 
@@ -43,96 +46,76 @@ void GOCAI::SetOwner(GameObject *go)
 		std::vector<ScriptParam> params;
 		params.push_back(ScriptParam(mOwnerGO->GetID()));
 		mScript = ScriptSystem::GetInstance().CreateInstance(mScriptFileName, params);
+		AIManager::Instance().RegisterScriptAIBind(this, mScript.GetID());
 	}
 }
 
 void GOCAI::AddState(AIState *state)
 {
+	AIState *old = 0;
+	if (mActionQueue.size() > 0) old = mActionQueue[0];
 	mActionQueue.push_back(state);
-	/*if (!mActiveState) 
+	std::push_heap(mActionQueue.begin(), mActionQueue.end(), AIState::PointerCompare_Less());
+	if (old != mActionQueue[0])
 	{
-		mActiveState = state;
-		return;
+		if (old) old->Pause();
+		mActionQueue[0]->Enter();
 	}
-	if (state->GetPriority() > mActiveState->GetPriority())
-	{
-		mActionQueue.push_front(mActiveState);
-		mActiveState = state;
-		return;
-	}*/
 }
 
-void GOCAI::AddScriptedState(DayCycle *state)
+void GOCAI::AddDayCycleState(DayCycle *state)
 {
 	mIdleQueue.push_back(state);
-	if (mIdleQueue.size() == 1) (*mIdleQueue.begin())->OnEnter();
+	if (mIdleQueue.size() == 1) (*mIdleQueue.begin())->Enter();
 }
 
 void GOCAI::ClearActionQueue()
 {
-	for (std::list<AIState*>::iterator i = mActionQueue.begin(); i != mActionQueue.end(); i++)
+	for (std::vector<AIState*>::iterator i = mActionQueue.begin(); i != mActionQueue.end(); i++)
 	{
 		delete (*i);
 	}
 	mActionQueue.clear();
-	delete mActiveState;
-	mActiveState = 0;
+}
+
+void GOCAI::LeaveActiveActionState()
+{
+	if (mActionQueue.size() == 0) return;
+	std::pop_heap(mActionQueue.begin(), mActionQueue.end(), AIState::PointerCompare_Less());
+	AIState *tmp = mActionQueue.back();
+	mActionQueue.pop_back();
+	tmp->Leave();
+	delete tmp;
+
+	if (mActionQueue.size() > 0) mActionQueue[0]->Enter();
 }
 
 void GOCAI::ClearIdleQueue()
 {
-	for (std::list<DayCycle*>::iterator i = mIdleQueue.begin(); i != mIdleQueue.end(); i++)
+	for (std::vector<DayCycle*>::iterator i = mIdleQueue.begin(); i != mIdleQueue.end(); i++)
 	{
 		delete (*i);
 	}
 	mIdleQueue.clear();
 }
 
-void GOCAI::SelectState()
-{
-	if (mActionQueue.size() > 0)
-	{
-		std::list<AIState*>::iterator highest = mActionQueue.begin();
-		for (std::list<AIState*>::iterator i = mActionQueue.begin(); i != mActionQueue.end(); i++)
-		{
-			if ((*i)->GetPriority() > (*highest)->GetPriority())
-			{
-				highest = i;
-			}
-		}
-		mActiveState = (*highest);
-		mActionQueue.erase(highest);
-		mActiveState->OnEnter();
-	}
-	else mActiveState = 0;
-}
-
 void GOCAI::Update(float time)
 {
 	if (mOwnerGO == 0) return;
-	if (mActiveState)
+	if (mActionQueue.size() > 0)
 	{
-		bool finished = mActiveState->OnUpdate(time);
+		bool finished = mActionQueue[0]->Update(time);
 		if (finished)
-		{
-			mActiveState->OnLeave();
-			delete mActiveState;
-			mActiveState = 0;
-			SelectState();
-		}
-	}
-	else if (mActionQueue.size() > 0)
-	{
-		SelectState();
+			LeaveActiveActionState();
 	}
 	else if (mIdleQueue.size() > 0)
 	{
 		DayCycle *state = *mIdleQueue.begin();
-		if (state->OnUpdate(0))
+		if (state->Update(0))
 		{
-			mIdleQueue.pop_front();
+			mIdleQueue.erase(mIdleQueue.begin());
 			mIdleQueue.push_back(state);
-			(*mIdleQueue.begin())->OnEnter();
+			(*mIdleQueue.begin())->Enter();
 		}
 	}	
 }
@@ -193,7 +176,9 @@ void GOCAI::ReloadScript()
 	{
 		std::vector<ScriptParam> params;
 		params.push_back(ScriptParam(mOwnerGO->GetID()));
+		AIManager::Instance().UnregisterScriptAIBind(mScript.GetID());
 		mScript = ScriptSystem::GetInstance().CreateInstance(mScriptFileName, params);
+		AIManager::Instance().RegisterScriptAIBind(this, mScript.GetID());
 	}
 }
 

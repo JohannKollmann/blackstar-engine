@@ -164,7 +164,7 @@ Ogre::Quaternion GOCWaypoint::GetOrientation()
 	return GetOwner()->GetGlobalOrientation();
 }
 
-void GOCWaypoint::GetNeighbors(std::list<WPEdge> *edges, Ogre::Vector3 targetPos)
+void GOCWaypoint::GetNeighbors(std::vector<WPEdge> *edges, Ogre::Vector3 targetPos)
 {
 	for (std::list<GOCWaypoint*>::iterator i = mConnectedWaypoints.begin(); i != mConnectedWaypoints.end(); i++)
 	{

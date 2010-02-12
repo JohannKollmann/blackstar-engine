@@ -15,6 +15,10 @@ namespace Ice
 class DllExport AIManager : public MessageListener
 {
 private:
+	//maps script ID <=> ai object
+	std::map<int, GOCAI*> mScriptAIBinds;
+
+	//maps object ID <=> ai object
 	std::map<int, GOCAI*> mAIObjects;
 
 public:
@@ -23,8 +27,11 @@ public:
 
 	void RegisterAIObject(GOCAI* object, int id);
 	void UnregisterAIObject(int id);
+	void RegisterScriptAIBind(GOCAI* object, int scriptID);
+	void UnregisterScriptAIBind(int scriptID);
 
 	GOCAI* GetAIByID(int ID);
+	GOCAI* GetAIByScriptID(int scriptID);
 
 	void ReloadScripts();
 

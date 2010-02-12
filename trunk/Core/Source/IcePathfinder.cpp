@@ -128,9 +128,9 @@ bool Pathfinder::FindPath(Ogre::String startWP, Ogre::String targetWP, std::vect
 
 
 //Methoden für A*
-bool Pathfinder::UpdateEdgeList(WPEdge &e, std::list<WPEdge> *WPEdges)
+bool Pathfinder::UpdateEdgeList(WPEdge &e, std::vector<WPEdge> *WPEdges)
 {
-	for (std::list<WPEdge>::iterator i = WPEdges->begin(); i != WPEdges->end(); i++)
+	for (std::vector<WPEdge>::iterator i = WPEdges->begin(); i != WPEdges->end(); i++)
 	{
 		if ((*i).mNeighbor == e.mNeighbor)
 		{
@@ -145,26 +145,13 @@ bool Pathfinder::UpdateEdgeList(WPEdge &e, std::list<WPEdge> *WPEdges)
 	return false;
 }
 
-WPEdge Pathfinder::GetBestEdge(std::list<WPEdge> *WPEdges)
-{
-	if (WPEdges->size() == 0) return WPEdge();
-	std::list<WPEdge>::iterator best = WPEdges->begin();
-	for (std::list<WPEdge>::iterator i = ++(WPEdges->begin()); i != WPEdges->end(); i++)
-	{
-		if ((*i).mCost+(*i).mCostOffset < (*best).mCost+(*best).mCostOffset) best = i;
-	}
-	WPEdge result = (*best);
-	WPEdges->erase(best);
-	return result;
-}
-
-bool Pathfinder::ExtractPath(std::list<WPEdge> paths, GOCWaypoint *start, GOCWaypoint *target, std::vector<Ogre::Vector3> *returnpath)
+bool Pathfinder::ExtractPath(std::vector<WPEdge> paths, GOCWaypoint *start, GOCWaypoint *target, std::vector<Ogre::Vector3> *returnpath)
 {
 	GOCWaypoint *current = start;
 	while (current != target)
 	{
 		bool found = false;
-		for (std::list<WPEdge>::iterator i = paths.begin(); i != paths.end(); i++)
+		for (std::vector<WPEdge>::iterator i = paths.begin(); i != paths.end(); i++)
 		{
 			if ((*i).mNeighbor == current)
 			{
@@ -186,22 +173,27 @@ bool Pathfinder::ExtractPath(std::list<WPEdge> paths, GOCWaypoint *start, GOCWay
 
 bool Pathfinder::FindPath(GOCWaypoint *start, GOCWaypoint *target, std::vector<Ogre::Vector3> *path)
 {
-	std::list<WPEdge> eventList;
-	std::list<WPEdge> shortestPaths;
-	//eventList.push_back(target);
+	std::vector<WPEdge> eventList;
+	std::vector<WPEdge> shortestPaths;
 	target->GetNeighbors(&eventList, start->GetPosition());		//Wir suchen vom Ziel aus nach dem Startknoten
-	while (eventList.size() > 0)
+	std::make_heap(eventList.begin(), eventList.end(), std::greater<WPEdge>());
+	while (!eventList.empty())
 	{
-		WPEdge current = GetBestEdge(&eventList);
-		std::list<WPEdge> neighbors;
+		std::pop_heap(eventList.begin(), eventList.end(), std::greater<WPEdge>());
+		WPEdge current = eventList.back();
+		eventList.pop_back();
+		std::vector<WPEdge> neighbors;
 		current.mNeighbor->GetNeighbors(&neighbors, start->GetPosition());
-		for (std::list<WPEdge>::iterator i = neighbors.begin(); i != neighbors.end(); i++)
+		for (std::vector<WPEdge>::iterator i = neighbors.begin(); i != neighbors.end(); i++)
 		{
 			(*i).mCost += current.mCost;
-			if (!(UpdateEdgeList((*i), &eventList) || UpdateEdgeList((*i), &shortestPaths)))
+			if (!(UpdateEdgeList((*i), &eventList)))// || UpdateEdgeList((*i), &shortestPaths)))
 			{
 				eventList.push_back((*i));
+				std::push_heap(eventList.begin(), eventList.end(), std::greater<WPEdge>());
 			}
+			else
+				std::make_heap(eventList.begin(), eventList.end(), std::greater<WPEdge>());
 		}
 		shortestPaths.push_back(current);
 		if (current.mNeighbor == start) break;

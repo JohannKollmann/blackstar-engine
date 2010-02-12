@@ -12,26 +12,19 @@
 namespace Ice
 {
 
-class DllExport GOCAI : public GOCEditorInterface, public CharacterControllerInput, public MessageListener
+	class DllExport GOCAI : public GOCEditorInterface, public CharacterControllerInput, public MessageListener, public Ogre::UserDefinedObject
 {
 private:
 	/*
-	Die Idle-Routine des AI Objekts (Tagesablauf).
+	Die Idle-Routine des AI Objekts (Tagesablauf), wird immer gelooped.
 	*/
-	std::list<DayCycle*> mIdleQueue;
+	std::vector<DayCycle*> mIdleQueue;
 
 	/*
-	Die aktive Queue nach dem FIFO Prinzip mit Priorisierung, ueberlagert immer Idle-Routine.
-	Die einzige Möglichkeit, tatsaechlich etwas zu tun. Die gescripteten Idle Routinen (Tagesablaeufe)
-	befuellen die ActionQueue.
+	Priority Queue von Events, ueberlagert immer Idle-Routine.
 	*/
-	std::list<AIState*> mActionQueue;
+	std::vector<AIState*> mActionQueue;
 
-	
-	/*
-	Der aktuelle AIState aus der ActionQueue.
-	*/
-	AIState *mActiveState;
 
 	Ogre::String mScriptFileName;
 
@@ -43,10 +36,11 @@ public:
 	~GOCAI(void);
 
 	void AddState(AIState *state);
-	void AddScriptedState(DayCycle *state);
+	void AddDayCycleState(DayCycle *state);
 	void ClearActionQueue();
 	void ClearIdleQueue();
 	void SelectState();
+	void LeaveActiveActionState();
 
 	void ReloadScript();
 
@@ -64,6 +58,8 @@ public:
 	void ReceiveMessage(Msg &msg);
 
 	GOComponent::goc_id_type& GetComponentID() const { static std::string name = "AI"; return name; }
+
+	Ogre::String getTypeName() { return "AI"; }
 
 	void CreateFromDataMap(DataMap *parameters);
 	void GetParameters(DataMap *parameters);
