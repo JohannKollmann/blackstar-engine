@@ -13,8 +13,8 @@ namespace Ice
 	//---------------------------------------------------------------------------
 	void HDRListener::notifyViewportSize(int width, int height)
 	{
-		mVpWidth = 1280;//width;
-		mVpHeight = 1024;//height;
+		mVpWidth = width;
+		mVpHeight = height;
 	}
 	//---------------------------------------------------------------------------
 	void HDRListener::notifyCompositor(Ogre::CompositorInstance* instance)
