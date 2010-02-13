@@ -1,8 +1,0 @@
-[script-edit]
--script remove über icon löscht die datei nicht   -  [Caph] es gibt doch gar kein lösch icon?
-- wenn man alles rückgängig macht bleibt der geändert-stern
-- Klammern hervorheben
-- Intellisense fertig machen
-
-[Editor]
-- möglicherweise Crash bei Materialauswahl
