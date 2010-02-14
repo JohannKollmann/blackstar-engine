@@ -165,8 +165,8 @@ LoadSave::PostLogEntry(std::string strLogEntry)
 void
 LoadSave::PostError(std::string strError)
 {
-	PostLogEntry(strError);
-	exit(-1);
+	PostLogEntry(std::string("[Error] LoadSave: ") + strError);
+	//exit(-1);
 }
 
 };

@@ -54,6 +54,7 @@ void GOCCameraController::AttachCamera(Ogre::Camera *camera)
 
 	MessageSystem::Instance().JoinNewsgroup(this, "MOUSE_MOVE");
 	MessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
+	MessageSystem::Instance().JoinNewsgroup(this, "KEY_DOWN");
 }
 void GOCCameraController::DetachCamera()
 {
@@ -61,6 +62,7 @@ void GOCCameraController::DetachCamera()
 	mCameraNode->detachObject(mCamera);
 	MessageSystem::Instance().QuitNewsgroup(this, "MOUSE_MOVE");
 	MessageSystem::Instance().QuitNewsgroup(this, "UPDATE_PER_FRAME");
+	MessageSystem::Instance().QuitNewsgroup(this, "KEY_DOWN");
 	mCamera = 0;
 }	
 
@@ -69,9 +71,24 @@ void GOCCameraController::ReceiveMessage(Msg &msg)
 	static double sfAbsRefPitch=0.0;
 	static double sfAbsCamPitch=0.0;
 	static double sfAbsCamYaw=0.0;
+	static double sfActualZoom=0.0;
+	
+	if (msg.mNewsgroup == "KEY_DOWN")
+	{
+		OIS::KeyCode kc = (OIS::KeyCode)msg.mData.GetInt("KEY_ID_OIS");
+		if (kc == OIS::KC_PGDOWN)
+			mfZoom += (mfZoom+0.1)*0.2;
+		if (kc == OIS::KC_PGUP)
+			mfZoom -= (mfZoom+0.1)*0.2;
+		if(mfZoom>1.5)
+			mfZoom=1.5;
+		if(mfZoom<0.0)
+			mfZoom=0.0;
+	}
 	if (msg.mNewsgroup == "MOUSE_MOVE")
 	{
 		mfZoom -= (mfZoom+0.1)*(msg.mData.GetInt("ROT_Z_REL")*0.001);
+
 		if(mfZoom>1.5)
 			mfZoom=1.5;
 		if(mfZoom<0.0)
@@ -85,11 +102,12 @@ void GOCCameraController::ReceiveMessage(Msg &msg)
 			sfAbsRefPitch=-Ogre::Math::PI*0.4;
 		if(mfZoom>0.0)
 		{
-			mCameraNode->setPosition(Ogre::Vector3(0,0.0f,-6)*mfZoom);
+			mCameraNode->setPosition(Ogre::Vector3(0,0.0f,-6)*sfActualZoom);
 			mCameraNode->setAutoTracking(true, mTargetNode);
 		}
 		else
 		{
+			sfActualZoom=0.0;
 			mCameraNode->setPosition(0,0,0);
 			mCameraNode->setAutoTracking(false);
 			sfAbsCamPitch=sfAbsRefPitch;
@@ -112,6 +130,9 @@ void GOCCameraController::ReceiveMessage(Msg &msg)
 			double fRelAngle=(((mfRefCharacterAngle-sfAbsCamYaw)/(2.0*Ogre::Math::PI)-Ogre::Math::Floor((mfRefCharacterAngle-sfAbsCamYaw)/(2.0*Ogre::Math::PI)+0.5)+0.5)*2.0-1)*Ogre::Math::PI;
 			double fRelYaw=fRelAngle*time*cfSpeed;
 			sfAbsCamYaw+=fRelYaw;
+
+			sfActualZoom-=(sfActualZoom-mfZoom)*time*cfSpeed*0.3;
+			mCameraNode->setPosition(Ogre::Vector3(0,0.0f,-6)*sfActualZoom);
 		}
 	}
 	Ogre::Matrix3 mat3;

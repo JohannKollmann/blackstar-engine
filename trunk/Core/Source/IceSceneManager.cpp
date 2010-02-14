@@ -145,8 +145,8 @@ namespace Ice
 		Main::Instance().GetOgreSceneMgr()->createStaticGeometry("StaticGeometry");
 
 		RegisterStandardAtoms();
+		LoadSave::LoadSave::Instance().SetLogFunction(LogMessage);
 
-		DataMap params;
 		LoadSave::LoadSave::Instance().RegisterObject(&DataMap::Register);
 		LoadSave::LoadSave::Instance().RegisterObject(&GenericProperty::Register);
 		LoadSave::LoadSave::Instance().RegisterObject(&ComponentSection::Register);
@@ -378,6 +378,12 @@ namespace Ice
 		return out;
 	}
 
+	void
+	SceneManager::LogMessage(std::string strError)
+	{
+		Ogre::LogManager::getSingleton().logMessage(strError);
+	}
+
 	std::vector<ScriptParam>
 	SceneManager::Lua_LogMessage(Script& caller, std::vector<ScriptParam> vParams)
 	{
@@ -396,7 +402,7 @@ namespace Ice
 			else if(vParams[iArg].getType()==ScriptParam::PARM_TYPE_INT)
 				msg = msg + Ogre::StringConverter::toString(vParams[iArg].getInt());
 		}
-		Ogre::LogManager::getSingleton().logMessage(msg);
+		LogMessage(msg);
 		return std::vector<ScriptParam>();
 	}
 
