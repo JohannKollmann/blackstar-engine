@@ -48,7 +48,7 @@ void GOCCharacterController::Create(Ogre::Vector3 dimensions)
 
 	mFreezed = false;
 
-	mMovementSpeed = 3.0f;
+	mMovementSpeed = 2.0f;
 	mDirection = Ogre::Vector3(0,0,0);
 	mDimensions = dimensions;
 	NxBoxControllerDesc desc;
@@ -162,24 +162,29 @@ void GOCCharacterController::CreateFromDataMap(DataMap *parameters)
 		mDimensions = parameters->GetOgreVec3("Dimensions");
 	} catch (Ogre::Exception) { mDimensions = Ogre::Vector3(1,1,1); }
 	Create(mDimensions);
+	mMovementSpeed = parameters->GetFloat("MaxSpeed");
 }
 void GOCCharacterController::GetParameters(DataMap *parameters)
 {
 	parameters->AddOgreVec3("Dimensions", mDimensions);
+	parameters->AddFloat("MaxSpeed", mMovementSpeed);
 }
 void GOCCharacterController::GetDefaultParameters(DataMap *parameters)
 {
 	parameters->AddOgreVec3("Dimensions", Ogre::Vector3(0.5, 1.8, 0.5));
+	parameters->AddFloat("MaxSpeed", 2.0f);
 }
 
 void GOCCharacterController::Save(LoadSave::SaveSystem& mgr)
 {
 	mgr.SaveAtom("Ogre::Vector3", &mDimensions, "Dimensions");
+	mgr.SaveAtom("float", &mMovementSpeed, "MaxSpeed");
 }
 void GOCCharacterController::Load(LoadSave::LoadSystem& mgr)
 {
 	mgr.LoadAtom("Ogre::Vector3", &mDimensions);
 	Create(mDimensions);
+	mgr.LoadAtom("float", &mMovementSpeed);		//Load Save: Todo!
 }
 
 void GOCCharacterController::AttachToGO(GameObject *go)
