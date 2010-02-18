@@ -29,7 +29,7 @@ GOCRigidBody::GOCRigidBody(Ogre::String collision_mesh, float density, int shape
 
 GOCRigidBody::~GOCRigidBody(void)
 {
-	Main::Instance().GetPhysXScene()->destroyActor(mActor);
+	Main::Instance().GetPhysXScene()->destroyRenderedActor(mActor);
 	//This also destroys the renderable!
 }
 
@@ -53,7 +53,7 @@ void GOCRigidBody::Create(Ogre::String collision_mesh, float density, int shapet
 			mRenderable,
 			OgrePhysX::SphereShape(sphereShapeRadius * ((scale.x + scale.y + scale.z) / 3)).density(mDensity).group(CollisionGroups::DEFAULT));
 	}
-	if (mShapeType == Shapes::SHAPE_CAPSULE)
+	else if (mShapeType == Shapes::SHAPE_CAPSULE)
 	{
 		Ogre::Vector3 cubeShapeSize = entity->getBoundingBox().getSize();
 		cubeShapeSize = cubeShapeSize * scale;
@@ -66,7 +66,6 @@ void GOCRigidBody::Create(Ogre::String collision_mesh, float density, int shapet
 	}
 	else		//Default: Box
 	{
-		Ogre::Vector3 cubeShapeSize = entity->getBoundingBox().getSize();
 		mActor = Main::Instance().GetPhysXScene()->createRenderedActor(
 			mRenderable,
 			OgrePhysX::BoxShape(entity, scale).density(mDensity).group(CollisionGroups::DEFAULT));
@@ -99,7 +98,7 @@ void GOCRigidBody::UpdateOrientation(Ogre::Quaternion orientation)
 }
 void GOCRigidBody::UpdateScale(Ogre::Vector3 scale)
 {
-	if (mActor) Main::Instance().GetPhysXScene()->destroyActor(mActor);
+	if (mActor) Main::Instance().GetPhysXScene()->destroyRenderedActor(mActor);
 	mRenderable = 0;
 	Create(mCollisionMeshName, mDensity, mShapeType, scale);
 	mActor->setGlobalOrientation(mOwnerGO->GetGlobalOrientation());
@@ -109,7 +108,7 @@ void GOCRigidBody::UpdateScale(Ogre::Vector3 scale)
 void GOCRigidBody::SetOwner(GameObject *go)
 {
 	mOwnerGO = go;
-	Create(mCollisionMeshName, mDensity, mShapeType, mOwnerGO->GetGlobalScale());
+	UpdateScale(mOwnerGO->GetGlobalScale());
 	mActor->getNxActor()->userData = mOwnerGO;
 	mActor->setGlobalOrientation(mOwnerGO->GetGlobalOrientation());
 	mActor->setGlobalPosition(mOwnerGO->GetGlobalPosition());
