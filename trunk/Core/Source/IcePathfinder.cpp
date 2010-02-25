@@ -4,6 +4,7 @@
 #include "OgrePhysX.h"
 #include "IceMain.h"
 #include "IceGOCPhysics.h"
+#include "IceNavigationMesh.h"
 
 namespace Ice
 {

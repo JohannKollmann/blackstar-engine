@@ -2,6 +2,7 @@
 #pragma once
 
 #include "IceIncludes.h"
+#include "Ice3D.h"
 #include "IceGOComponent.h"
 
 namespace Ice
@@ -41,6 +42,7 @@ private:
 	std::list<GOCWaypoint*> mConnectedWaypoints;
 	//Visualisation
 	std::list<LineNeighborBind> mLines;
+
 
 	Ogre::ManualObject* CreateEditorLine(GOCWaypoint *waypoint);
 

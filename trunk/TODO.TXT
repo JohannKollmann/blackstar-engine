@@ -1,4 +1,5 @@
 [Editor]
+- Filter (nur bodies anzeigen, nur objekte mit namen anzeigen usw.) für SceneTree implementieren
 - Engine bekommt inputs, während man im script-edit ist
 - möglicherweise Crash bei Materialauswahl
 - material-editor: script-editor mit anderem syntax-highlighting für .material-files, reparse-button anpassen

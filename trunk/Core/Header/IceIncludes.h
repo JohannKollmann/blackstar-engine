@@ -46,4 +46,7 @@ namespace Ice
 	class ScriptedAIState;
 	class DayCycle;
 	class AIManager;
+	class AStarEdge;
+	class AStarNode;
+	class TriangleNode;
 };

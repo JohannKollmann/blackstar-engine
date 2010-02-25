@@ -11,6 +11,7 @@
 #include "IceGOCAnimatedCharacter.h"
 #include "OgrePhysX.h"
 #include "NxScene.h"
+#include "NavMeshEditorNode.h"
 
 
 Edit::Edit()
@@ -30,6 +31,8 @@ Edit::Edit()
 
 	mMaterialMode = false;
 	mBrushMode = false;
+
+	mAlignObjectWithMesh = false;
 
 	mXAxisLock = AxisLock::LOCKED;
 	mYAxisLock = AxisLock::LOCKED;
@@ -460,6 +463,13 @@ void Edit::OnMouseMove(Ogre::Radian RotX,Ogre::Radian RotY)
 					(*i).mObject->Translate(movaxis * RotY.valueRadians() * mObjectMovSpeed , mZAxisLock == AxisLock::UNLOCKED);
 				}
 			}
+			if (mAlignObjectWithMesh)
+			{
+				for (std::list<EditorSelection>::iterator i = mSelectedObjects.begin(); i != mSelectedObjects.end(); i++)
+				{
+					AlignObjectWithMesh(i->mObject);
+				}
+			}
 			((wxEditIceGameObject*)(wxEdit::Instance().GetpropertyWindow()->GetCurrentPage()))->SetObject(((wxEditIceGameObject*)(wxEdit::Instance().GetpropertyWindow()->GetCurrentPage()))->GetGameObject());
 			wxEdit::Instance().GetpropertyWindow()->Refresh();
 		}
@@ -546,6 +556,7 @@ void Edit::OnKeyDown(wxKeyEvent& key)
 	if (key.GetKeyCode() == 52) mXAxisLock = AxisLock::UNLOCKED_SKIPCHILDREN;
 	if (key.GetKeyCode() == 53) mYAxisLock = AxisLock::UNLOCKED_SKIPCHILDREN;
 	if (key.GetKeyCode() == 54) mZAxisLock = AxisLock::UNLOCKED_SKIPCHILDREN;
+	if (key.GetKeyCode() == 55) mAlignObjectWithMesh = true;
 	wxEdit::Instance().GetMainToolbar()->CheckTool("XAxisLock", mXAxisLock != AxisLock::LOCKED);
 	wxEdit::Instance().GetMainToolbar()->CheckTool("YAxisLock", mYAxisLock != AxisLock::LOCKED);
 	wxEdit::Instance().GetMainToolbar()->CheckTool("ZAxisLock", mZAxisLock != AxisLock::LOCKED);
@@ -590,6 +601,7 @@ void Edit::OnKeyUp(wxKeyEvent& key)
 	if (key.GetKeyCode() == 52) mXAxisLock = AxisLock::LOCKED;
 	if (key.GetKeyCode() == 53) mYAxisLock = AxisLock::LOCKED;
 	if (key.GetKeyCode() == 54) mZAxisLock = AxisLock::LOCKED;
+	if (key.GetKeyCode() == 55) mAlignObjectWithMesh = false;
 	wxEdit::Instance().GetMainToolbar()->CheckTool("XAxisLock", mXAxisLock != AxisLock::LOCKED);
 	wxEdit::Instance().GetMainToolbar()->CheckTool("YAxisLock", mYAxisLock != AxisLock::LOCKED);
 	wxEdit::Instance().GetMainToolbar()->CheckTool("ZAxisLock", mZAxisLock != AxisLock::LOCKED);
@@ -666,18 +678,57 @@ Ice::GameObject* Edit::OnInsertWaypoint(bool align, bool create_only)
 	return waypoint;
 }
 
+Ice::GameObject* Edit::InsertWayTriangle(bool align, bool create_only)
+{
+	Ice::GameObject *oNode1 = new Ice::GameObject();
+	Ice::GameObject *oNode2 = new Ice::GameObject();
+	Ice::GameObject *oNode3 = new Ice::GameObject();
+
+	NavMeshEditorNode *n1 = new NavMeshEditorNode();
+	oNode1->AddComponent(n1);
+	NavMeshEditorNode *n2 = new NavMeshEditorNode();
+	oNode2->AddComponent(n2);
+	NavMeshEditorNode *n3 = new NavMeshEditorNode(oNode3, NavMeshEditorNode::NODE, 0, n1, n2);
+
+	if (align)
+		AlignObjectWithMesh(oNode1);
+	else
+		oNode1->SetGlobalPosition(Ice::Main::Instance().GetCamera()->getDerivedPosition() + (Ice::Main::Instance().GetCamera()->getDerivedOrientation() * Ogre::Vector3(0,0,-5))); 
+	oNode2->SetGlobalPosition(oNode1->GetGlobalPosition() + Ogre::Vector3(1,0,2));
+	oNode3->SetGlobalPosition(oNode1->GetGlobalPosition() + Ogre::Vector3(2,0,0));
+
+	if (!create_only)
+	{
+		wxEdit::Instance().GetWorldExplorer()->GetSceneTree()->NotifyObject(oNode1);
+		wxEdit::Instance().GetWorldExplorer()->GetSceneTree()->NotifyObject(oNode2);
+		wxEdit::Instance().GetWorldExplorer()->GetSceneTree()->NotifyObject(oNode3);
+		SelectObject(oNode1);
+
+		wxEdit::Instance().GetWorldExplorer()->GetMaterialTree()->Update();
+
+		wxEdit::Instance().GetOgrePane()->SetFocus();
+	}
+
+	return oNode1;
+}
+
 Ice::GameObject* Edit::OnInsertObject(Ice::GameObject *parent, bool align, bool create_only)
 {
-	if (wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->GetSelectedResource().find("Waypoint.static") != Ogre::String::npos)
+	Ice::GameObject *object = 0;
+	Ogre::String sResource = wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->GetSelectedResource().c_str();
+	if (sResource.find("Waypoint.static") != Ogre::String::npos)
 	{
 		return OnInsertWaypoint(align, create_only);
 	}
-	else if (wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->GetSelectedResource().find(".") != Ogre::String::npos)
+	else if (sResource.find("WayTriangle.static") != Ogre::String::npos)
+	{
+		return InsertWayTriangle(align, create_only);
+	}
+	else if (sResource.find(".") != Ogre::String::npos)
 	{
 		//Ogre::LogManager::getSingleton().logMessage("OnInsertObject");
-		LoadSave::LoadSystem *ls=LoadSave::LoadSave::Instance().LoadFile(wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->GetSelectedResource());
-		Ice::GameObject *object;
-		if (wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->GetSelectedResource().find(".ot") != Ogre::String::npos)
+		LoadSave::LoadSystem *ls=LoadSave::LoadSave::Instance().LoadFile(sResource);
+		if (sResource.find(".ot") != Ogre::String::npos)
 		{
 			object = (Ice::GameObject*)ls->LoadObject();
 
@@ -686,7 +737,6 @@ Ice::GameObject* Edit::OnInsertObject(Ice::GameObject *parent, bool align, bool 
 		else
 		{
 			object = new Ice::GameObject(parent);
-			if (!align) object->SetGlobalPosition(Ice::Main::Instance().GetCamera()->getDerivedPosition() + (Ice::Main::Instance().GetCamera()->getDerivedOrientation() * Ogre::Vector3(0,0,-5))); 
 
 			std::list<Ice::ComponentSection> sections;
 			Ogre::Vector3 offset;
@@ -712,26 +762,24 @@ Ice::GameObject* Edit::OnInsertObject(Ice::GameObject *parent, bool align, bool 
 
 		}
 
-		if (align) AlignObjectWithMesh(object);
-		else object->SetGlobalPosition(Ice::Main::Instance().GetCamera()->getDerivedPosition() + (Ice::Main::Instance().GetCamera()->getDerivedOrientation() * Ogre::Vector3(0,0,-5))); 
-
 		ls->CloseFile();
 		delete ls;
+	}
 
-		if (!create_only)
-		{
-			wxEdit::Instance().GetWorldExplorer()->GetSceneTree()->NotifyObject(object);
-			SelectObject(object);
+	if (align) AlignObjectWithMesh(object);
+	else object->SetGlobalPosition(Ice::Main::Instance().GetCamera()->getDerivedPosition() + (Ice::Main::Instance().GetCamera()->getDerivedOrientation() * Ogre::Vector3(0,0,-5))); 
 
-			wxEdit::Instance().GetWorldExplorer()->GetMaterialTree()->Update();
+	if (!create_only)
+	{
+		wxEdit::Instance().GetWorldExplorer()->GetSceneTree()->NotifyObject(object);
+		SelectObject(object);
 
-			wxEdit::Instance().GetOgrePane()->SetFocus();
-		}
+		wxEdit::Instance().GetWorldExplorer()->GetMaterialTree()->Update();
 
 		wxEdit::Instance().GetOgrePane()->SetFocus();
-		return object;
 	}
-	return 0;
+
+	return object;
 }
 
 void Edit::OnSetFocus(bool focus)
@@ -1067,7 +1115,7 @@ void Edit::DeselectAllObjects()
 	mSelectedObjects.clear();
 }
 
-void Edit::AlignObjectWithMesh(Ice::GameObject *object)
+void Edit::AlignObjectWithMesh(Ice::GameObject *object, bool rotate)
 {
 	Ogre::Ray mouseRay = Ice::Main::Instance().GetCamera()->getCameraToViewportRay(mMousePosition.x, mMousePosition.y);
 	OgrePhysX::Scene::QueryHit report;
@@ -1075,14 +1123,18 @@ void Edit::AlignObjectWithMesh(Ice::GameObject *object)
 	{
 		Ogre::Vector3 position = report.point;
 		Ogre::Vector3 normal = report.normal;
-		object->Rotate(Ogre::Vector3::UNIT_X, Ogre::Radian(Ogre::Degree(normal.z * 90)));
-		object->Rotate(Ogre::Vector3::UNIT_Z, Ogre::Radian(Ogre::Degree(-normal.x * 90)));
-		if (normal.y < 0)
+		if (rotate)
 		{
-			object->Rotate(Ogre::Vector3::UNIT_X, Ogre::Radian(Ogre::Degree(-normal.y * 180)));
+			object->Rotate(Ogre::Vector3::UNIT_X, Ogre::Radian(Ogre::Degree(normal.z * 90)));
+			object->Rotate(Ogre::Vector3::UNIT_Z, Ogre::Radian(Ogre::Degree(-normal.x * 90)));
+			if (normal.y < 0)
+			{
+				object->Rotate(Ogre::Vector3::UNIT_X, Ogre::Radian(Ogre::Degree(-normal.y * 180)));
+			}
 		}
 		Ogre::Vector3 offset = Ogre::Vector3(0,0,0);
 		Ice::GOCNodeRenderable *visuals = (Ice::GOCNodeRenderable*)object->GetComponent("View");
+		if (visuals == 0) visuals = (Ice::GOCNodeRenderable*)object->GetComponent("MeshDebugRenderable");
 		if (visuals != 0)
 		{
 			if (visuals->GetNode()->getAttachedObject(0))

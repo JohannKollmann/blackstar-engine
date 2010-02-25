@@ -112,13 +112,13 @@ private:
 public:
 	MeshDebugRenderable() {}
 	MeshDebugRenderable(Ogre::String meshname);
-	~MeshDebugRenderable();
-	goc_id_type& GetComponentID() const { static std::string name = "MeshDebugRenderable"; return name; } 
+	virtual ~MeshDebugRenderable();
+	virtual goc_id_type& GetComponentID() const { static std::string name = "Default"; return name; } 
 	goc_id_family& GetFamilyID() const { static std::string name = "MeshDebugRenderable"; return name; } 
 	void SetOwner(GameObject *go);
 
-	void Save(LoadSave::SaveSystem& mgr) {};
-	void Load(LoadSave::LoadSystem& mgr) {};
+	virtual void Save(LoadSave::SaveSystem& mgr) {};
+	virtual void Load(LoadSave::LoadSystem& mgr) {};
 	virtual std::string& TellName() { static std::string name = "MeshDebugRenderable"; return name; };
 	static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "MeshDebugRenderable"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };
 	static LoadSave::Saveable* NewInstance() { return new MeshDebugRenderable; };

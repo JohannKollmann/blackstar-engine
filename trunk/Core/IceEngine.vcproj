@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="9.00"
 	Name="IceEngine"
 	ProjectGUID="{C20C5958-3E38-47C9-A028-83D7C2A939B5}"
 	RootNamespace="nxTutorial606"
@@ -332,6 +332,10 @@
 			Name="Common"
 			>
 			<File
+				RelativePath=".\Header\Ice3D.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\IceCameraController.cpp"
 				>
 			</File>
@@ -459,6 +463,14 @@
 			</File>
 			<File
 				RelativePath=".\Header\IceFollowPathway.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\IceNavigationMesh.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Header\IceNavigationMesh.h"
 				>
 			</File>
 			<File
@@ -593,15 +605,15 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\Dependencies\Boost\thread\once.hpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\Dependencies\Boost\thread\win32\once.hpp"
 					>
 				</File>
 				<File
 					RelativePath="..\..\Dependencies\Boost\thread\pthread\once.hpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\Dependencies\Boost\thread\once.hpp"
 					>
 				</File>
 				<File
@@ -613,15 +625,15 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\Dependencies\Boost\thread\recursive_mutex.hpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\Dependencies\Boost\thread\pthread\recursive_mutex.hpp"
 					>
 				</File>
 				<File
 					RelativePath="..\..\Dependencies\Boost\thread\win32\recursive_mutex.hpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\Dependencies\Boost\thread\recursive_mutex.hpp"
 					>
 				</File>
 				<File
@@ -641,15 +653,15 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\Dependencies\Boost\thread\thread.hpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\Dependencies\Boost\thread\win32\thread.hpp"
 					>
 				</File>
 				<File
 					RelativePath="..\..\Dependencies\Boost\thread\pthread\thread.hpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\Dependencies\Boost\thread\thread.hpp"
 					>
 				</File>
 				<File

@@ -8,13 +8,14 @@
 #include <string>
 #include "IceIncludes.h"
 #include "IceGOComponent.h"
+#include "Ice3D.h"
 
 namespace Ice
 {
 
 typedef std::string go_id_type;
 
-class DllExport GameObject : public LoadSave::Saveable, public Ogre::UserDefinedObject
+class DllExport GameObject : public LoadSave::Saveable, public Ogre::UserDefinedObject, public Transformable3D
 {
 private:
 	//Unique ID
@@ -80,8 +81,10 @@ public:
 	Ogre::Vector3 GetGlobalPosition() { return mPosition; }
 	Ogre::Quaternion GetGlobalOrientation() { return mOrientation; }	
 	Ogre::Vector3 GetGlobalScale() { return mScale; }
-	void SetGlobalPosition(Ogre::Vector3 pos, bool updateChildren = true);
-	void SetGlobalOrientation(Ogre::Quaternion quat, bool updateChildren = true);
+	void SetGlobalPosition(Ogre::Vector3 pos) { SetGlobalPosition(pos, true); }
+	void SetGlobalPosition(Ogre::Vector3 pos, bool updateChildren);
+	void SetGlobalOrientation(Ogre::Quaternion quat) { SetGlobalOrientation(quat, true); }
+	void SetGlobalOrientation(Ogre::Quaternion quat, bool updateChildren);
 	void SetGlobalScale(Ogre::Vector3 scale);
 	void Translate(Ogre::Vector3 vec, bool updateChildren = true) { if (!mFreezePosition) SetGlobalPosition(mPosition + vec, updateChildren); }
 	void Rotate(Ogre::Vector3 axis, Ogre::Radian angle, bool updateChildren = true) { if (!mFreezeOrientation) { Ogre::Quaternion q; q.FromAngleAxis(angle, axis); SetGlobalOrientation(mOrientation * q, updateChildren); } }

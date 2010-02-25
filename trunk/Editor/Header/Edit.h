@@ -1,7 +1,6 @@
 
 
-#ifndef __Edit_H__
-#define __Edit_H__
+#pragma once
 
 #include <list>
 #include "wxEdit.h"
@@ -14,6 +13,11 @@
 #include "IceGOCPlayerInput.h"
 #include "IceGOCCameraController.h"
 
+class IEditorSelection
+{
+	virtual void SetGlobalPosition(Ogre::Vector3 pos) = 0;
+	virtual void SetGlobalOrientation(Ogre::Quaternion quat) = 0;
+};
 struct EditorSelection
 {
 	Ice::GameObject *mObject;
@@ -59,6 +63,7 @@ public:
 
 	Ice::GameObject* OnInsertObject(Ice::GameObject *parent = 0, bool align = false, bool create_only = false);
 	Ice::GameObject* OnInsertWaypoint(bool align = false, bool create_only = false);
+	Ice::GameObject* InsertWayTriangle(bool align = false, bool create_only = false);
 	void OnInsertObjectAsChild();
 	void OnDeleteObject();
 	void OnCreateObjectGroup();
@@ -141,6 +146,8 @@ private:
 	float mObjectRotSpeed;
 	float mObjectScaleSpeed;
 
+	bool mAlignObjectWithMesh;
+
 	float mMovSpeed;
 	float mRotSpeed;
 
@@ -156,11 +163,9 @@ private:
 	void SelectChildren(Ice::GameObject *object);
 	void DeselectChildren(Ice::GameObject *object);
 
-	void AlignObjectWithMesh(Ice::GameObject *object);
+	void AlignObjectWithMesh(Ice::GameObject *object, bool rotate = false);
 
 	void AttachAxisObject(Ice::GameObject *object);
 	void DetachAxisObject(Ice::GameObject *object);
 
 };
-
-#endif
