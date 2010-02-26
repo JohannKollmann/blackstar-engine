@@ -82,6 +82,8 @@ public:
 	void ClearPreviewObject();
 	void CreatePreviewObject();
 
+	void OnCreateWayTriangle();
+
 	void DeselectMaterial();
 	void SelectObject(Ice::GameObject *object);
 	void DeselectObject(Ice::GameObject *object);

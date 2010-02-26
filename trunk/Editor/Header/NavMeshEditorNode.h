@@ -38,10 +38,13 @@
 
 		void _notifyNeighbour(TriangleBind bind);
 		void _notifyEdgeDestruction(NavMeshEditorNodePtr edge);
-		void _notifyNeighbourDestruction(NavMeshEditorNodePtr neighbour, bool destroyEdges);
+		void _notifyTriangleDestruction(NavMeshEditorNodePtr neighbour, NavMeshEditorNodePtr other);
+		void _destroyThirdEdge(NavMeshEditorNodePtr neighbour, NavMeshEditorNodePtr other);
 		void _destroyEdge(NeighbourBind bind);
 		NeighbourBind* _getExistingNeighbourBind(NavMeshEditorNodePtr n);
 		void _connect(NeighbourBind &bind, TriangleNodePtr triangle);
+		void _ensureEdges();
+		NeighbourBind* _getBorderEdge(NavMeshEditorNodePtr n);
 
 	public:
 		NavMeshEditorNode();
@@ -58,6 +61,8 @@
 
 		void LockEdgePosition(bool locked);
 		void UpdatePosition(Ogre::Vector3 position);
+
+		std::vector<TriangleBind>& GetTriangles();
 
 		Type GetType() { return mType; }
 	};

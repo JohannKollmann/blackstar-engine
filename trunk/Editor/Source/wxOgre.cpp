@@ -38,6 +38,7 @@ BEGIN_EVENT_TABLE(wxOgre, wxControl)
 	EVT_MENU(wxOgre_createChain, wxOgre::OnCreateChain)
 	EVT_MENU(wxOgre_connectWaypoints, wxOgre::OnConnectWaypoints)
 	EVT_MENU(wxOgre_saveBones, wxOgre::OnSaveBones)
+	EVT_MENU(wxOgre_createWayTriangle, wxOgre::OnCreateWayTriangle)
 
 END_EVENT_TABLE()
 
@@ -282,3 +283,8 @@ void wxOgre::OnSaveBones(wxCommandEvent& WXUNUSED(event))
 {
 	mEdit->OnSaveBones();
 };
+
+void wxOgre::OnCreateWayTriangle(wxCommandEvent& WXUNUSED(event))
+{
+	mEdit->OnCreateWayTriangle();
+}

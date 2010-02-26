@@ -31,6 +31,11 @@
 		}
 	}
 
+	std::vector<NavMeshEditorNode::TriangleBind>& NavMeshEditorNode::GetTriangles()
+	{
+		return mTriangles;
+	}
+
 	void NavMeshEditorNode::AddTriangle(TriangleNodePtr triangle, NavMeshEditorNodePtr node1, NavMeshEditorNodePtr node2)
 	{
 		TriangleBind bind;
@@ -54,14 +59,22 @@
 
 		mTriangles.push_back(bind);
 
-		//Create Edges
-
 	}
 
 	void NavMeshEditorNode::_connect(NeighbourBind &bind, TriangleNodePtr triangle)
 	{
 		NeighbourBind *pExists = _getExistingNeighbourBind(bind.neighbour);
-		if (pExists) bind = *pExists;
+		if (pExists)
+		{
+			if (pExists->edge)
+			{
+				pExists->neighbour->_notifyEdgeDestruction(pExists->edge);
+				delete pExists->edge->GetOwner();
+				pExists->edge = 0;
+			}
+			bind.edge = pExists->edge;
+			bind.line = pExists->line;
+		}
 		else
 		{
 			bind.edge = new NavMeshEditorNode(new Ice::GameObject(mOwnerGO->GetParent()), EDGE, triangle, this, bind.neighbour);
@@ -69,23 +82,70 @@
 		}
 	}
 
+	NavMeshEditorNode::NeighbourBind* NavMeshEditorNode::_getBorderEdge(NavMeshEditorNodePtr n)
+	{
+		int num = 0;
+		for (std::vector<TriangleBind>::iterator i = mTriangles.begin(); i != mTriangles.end(); i++)
+		{
+			if (i->n1.neighbour == n || i->n2.neighbour == n) num++;
+		}
+		return ((num == 1) ? n->_getExistingNeighbourBind(this) : 0);
+	}
+
+	void NavMeshEditorNode::_ensureEdges()
+	{
+		for (std::vector<TriangleBind>::iterator i = mTriangles.begin(); i != mTriangles.end(); i++)
+		{
+			NeighbourBind *border = _getBorderEdge(i->n1.neighbour);
+			if (!i->n1.edge && border)
+			{
+				if (border->edge) i->n1.edge = border->edge;
+				else i->n1.edge = new NavMeshEditorNode(new Ice::GameObject(mOwnerGO->GetParent()), EDGE, i->tri, this, i->n1.neighbour);
+			}
+			border = _getBorderEdge(i->n2.neighbour);
+			if (!i->n2.edge && border)
+			{
+				if (border->edge) i->n2.edge = border->edge;
+				else i->n2.edge = new NavMeshEditorNode(new Ice::GameObject(mOwnerGO->GetParent()), EDGE, i->tri, this, i->n2.neighbour);
+			}
+		}
+		UpdatePosition(mOwnerGO->GetGlobalPosition());
+	}
+
 	NavMeshEditorNode::~NavMeshEditorNode(void)
 	{
 		if (mType == NODE)
 		{
+			std::vector<NavMeshEditorNodePtr> uniqueNeighbours;
 			std::vector<TriangleBind>::iterator i = mTriangles.begin();
 			while (i != mTriangles.end())
 			{
-				i->n1.neighbour->_notifyNeighbourDestruction(this, true);
-				if (i->n1.neighbour->mTriangles.size() == 0)
-					delete i->n1.neighbour->GetOwner();
-				i->n2.neighbour->_notifyNeighbourDestruction(this, false);
-				if (i->n2.neighbour->mTriangles.size() == 0)
-					delete i->n2.neighbour->GetOwner();
+				i->n1.neighbour->_destroyThirdEdge(this, i->n2.neighbour);
+				i->n1.neighbour->_notifyTriangleDestruction(this, i->n2.neighbour);
+				i->n2.neighbour->_notifyTriangleDestruction(this, i->n1.neighbour);
+				_destroyEdge(i->n1);
 				_destroyEdge(i->n2);
 
+				bool stop = false;
+				for (std::vector<NavMeshEditorNodePtr>::iterator x = uniqueNeighbours.begin(); x != uniqueNeighbours.end(); x++)
+					if ((*x) == i->n1.neighbour) stop = true;
+				if (!stop) uniqueNeighbours.push_back(i->n1.neighbour);
+				stop = false;
+				for (std::vector<NavMeshEditorNodePtr>::iterator x = uniqueNeighbours.begin(); x != uniqueNeighbours.end(); x++)
+					if ((*x) == i->n2.neighbour) stop = true;
+				if (!stop) uniqueNeighbours.push_back(i->n2.neighbour);
 				mTriangles.erase(i);
 				i = mTriangles.begin();
+			}
+
+			for (std::vector<NavMeshEditorNodePtr>::iterator i = uniqueNeighbours.begin(); i != uniqueNeighbours.end(); i++)
+			{
+				if ((*i)->mTriangles.size() == 0)
+				{
+					(*i)->mType = EDGE; //Hack
+					delete (*i)->GetOwner();
+				}
+				else (*i)->_ensureEdges();
 			}
 		}
 	}
@@ -112,11 +172,7 @@
 		{
 			if (i->n1.line == bind.line || i->n2.line == bind.line) num++;
 		}
-		if (num > 1)
-		{
-			//bind.n1.edge = new NavMeshEditorNode(new Ice::GameObject(mOwnerGO->GetParent()), EDGE, triangle, this, node1);
-		}
-		else
+		if (num < 2)
 		{
 			bind.line->getParentSceneNode()->detachObject(bind.line);
 			Ice::Main::Instance().GetOgreSceneMgr()->destroyManualObject(bind.line);
@@ -128,22 +184,24 @@
 		}
 	}
 
-	void NavMeshEditorNode::_notifyNeighbourDestruction(NavMeshEditorNodePtr neighbour, bool destroyEdges)
+	void NavMeshEditorNode::_notifyTriangleDestruction(NavMeshEditorNodePtr neighbour, NavMeshEditorNodePtr other)
 	{
 		std::vector<TriangleBind>::iterator i = mTriangles.begin();
 		for (; i != mTriangles.end(); i++)
 		{
-			if (i->n1.neighbour == neighbour || i->n2.neighbour == neighbour)
-			{
-				if (destroyEdges)
-				{
-					_destroyEdge(i->n1);
-					_destroyEdge(i->n2);
-				}
-				break;
-			}
+			if (i->n1.neighbour == neighbour && i->n2.neighbour == other) break;
+			if (i->n2.neighbour == neighbour && i->n1.neighbour == other) break;
 		}
 		mTriangles.erase(i);
+	}
+
+	void NavMeshEditorNode::_destroyThirdEdge(NavMeshEditorNodePtr neighbour, NavMeshEditorNodePtr other)
+	{
+		for (std::vector<TriangleBind>::iterator i = mTriangles.begin(); i != mTriangles.end(); i++)
+		{
+			if (i->n1.neighbour == neighbour && i->n2.neighbour == other) _destroyEdge(i->n2);
+			if (i->n2.neighbour == neighbour && i->n1.neighbour == other) _destroyEdge(i->n1);
+		}
 	}
 
 	void NavMeshEditorNode::LockEdgePosition(bool lock)
@@ -180,7 +238,7 @@
 				AddTriangle(triangle, node1, node2);
 			}
 		}
-		else
+		if (mType == NODE)
 		{
 			Ogre::Vector3 myPos = GetOwner()->GetGlobalPosition();
 			for (std::vector<TriangleBind>::iterator i = mTriangles.begin(); i != mTriangles.end(); i++)

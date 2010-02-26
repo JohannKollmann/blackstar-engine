@@ -209,6 +209,36 @@ void Edit::FreeAndShowMouse()
 	mShowMouse = true;
 }
 
+void Edit::OnCreateWayTriangle()
+{
+	if (mSelectedObjects.size() == 2)
+	{
+		Ice::GameObject* obj1 = (*mSelectedObjects.begin()).mObject;
+		Ice::GameObject* obj2 = mSelectedObjects.begin()._Mynode()->_Next->_Myval.mObject;
+		if (obj1->GetComponent("MeshDebugRenderable", "NavMeshNode") && obj2->GetComponent("MeshDebugRenderable", "NavMeshNode"))
+		{
+			NavMeshEditorNode *n1 = (NavMeshEditorNode*)obj1->GetComponent("MeshDebugRenderable", "NavMeshNode");
+			NavMeshEditorNode *n2 = (NavMeshEditorNode*)obj2->GetComponent("MeshDebugRenderable", "NavMeshNode");
+			if (n1->GetType() == NavMeshEditorNode::NODE && n2->GetType() == NavMeshEditorNode::EDGE)
+			{
+				NavMeshEditorNode *n3 = n2->GetTriangles()[0].n1.neighbour;
+				NavMeshEditorNode *n4 = n2->GetTriangles()[0].n2.neighbour;
+				DeselectAllObjects();
+				n1->AddTriangle(0, n3, n4);
+				n1->UpdatePosition(n1->GetOwner()->GetGlobalPosition());
+			}
+			if (n2->GetType() == NavMeshEditorNode::NODE && n1->GetType() == NavMeshEditorNode::EDGE)
+			{
+				NavMeshEditorNode *n3 = n1->GetTriangles()[0].n1.neighbour;
+				NavMeshEditorNode *n4 = n1->GetTriangles()[0].n2.neighbour;
+				DeselectAllObjects();
+				n2->AddTriangle(0, n3, n4);
+				n2->UpdatePosition(n2->GetOwner()->GetGlobalPosition());
+			}
+		}
+	}
+}
+
 void Edit::OnMouseEvent(wxMouseEvent &ev)
 {
 	mLeftDown = ev.LeftIsDown();
@@ -268,6 +298,13 @@ void Edit::OnMouseEvent(wxMouseEvent &ev)
 					Ice::GameObject* obj1 = (*mSelectedObjects.begin()).mObject;
 					Ice::GameObject* obj2 = mSelectedObjects.begin()._Mynode()->_Next->_Myval.mObject;
 					if (obj1->GetComponent("Waypoint") && obj2->GetComponent("Waypoint")) menu.Append(wxOgre_connectWaypoints, "Connect Waypoints");
+
+					if (obj1->GetComponent("MeshDebugRenderable", "NavMeshNode") && obj2->GetComponent("MeshDebugRenderable", "NavMeshNode"))
+					{
+						NavMeshEditorNode *n1 = (NavMeshEditorNode*)obj1->GetComponent("MeshDebugRenderable", "NavMeshNode");
+						NavMeshEditorNode *n2 = (NavMeshEditorNode*)obj2->GetComponent("MeshDebugRenderable", "NavMeshNode");
+						if (n1->GetType() != n2->GetType()) menu.Append(wxOgre_createWayTriangle, "Create Triangle");
+					}
 					/*if ((obj1->GetType() == "Body" || obj1->GetType() == "StaticBody") && (obj2->GetType() == "Body" || obj2->GetType() == "StaticBody")
 						&& mEdit->GetWorldExplorer()->GetResourceTree()->GetSelectedResource().find("Joint") != Ogre::String::npos)
 					{
