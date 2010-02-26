@@ -839,8 +839,10 @@ void Edit::OnInsertObjectAsChild()
 void Edit::OnDeleteObject()
 {
 	bool skip = false;
+	bool one = false;
 	if (mSelectedObjects.size() == 1)
 	{
+		one = true;
 		Ice::GameObject *object = (*mSelectedObjects.begin()).mObject;
 		if (object->GetNumChildren() > 0)
 		{
@@ -867,6 +869,8 @@ void Edit::OnDeleteObject()
 	{
 		for (std::list<EditorSelection>::iterator i = mSelectedObjects.begin(); i != mSelectedObjects.end(); i++)
 		{
+			if (NavMeshEditorNode::IsEdge(i->mObject)) return;
+			if (i->mObject->GetComponent("MeshDebugRenderable", "NavMeshNode") && !one) return;	//Hack - only possible to remove one triangle node
 			delete (*i).mObject;
 			(*i).mObject = 0;
 		}

@@ -288,3 +288,10 @@
 		lineNode->attachObject(line);
 		return line;
 	}
+
+	bool NavMeshEditorNode::IsEdge(Ice::GameObject *obj)
+	{
+		NavMeshEditorNode *node = (NavMeshEditorNode*)obj->GetComponent("MeshDebugRenderable", "NavMeshNode");
+		if (node) return (node->GetType() == EDGE);
+		return false;
+	}

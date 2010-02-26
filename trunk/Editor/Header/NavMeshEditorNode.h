@@ -65,4 +65,6 @@
 		std::vector<TriangleBind>& GetTriangles();
 
 		Type GetType() { return mType; }
+
+		static bool IsEdge(Ice::GameObject *obj);
 	};
