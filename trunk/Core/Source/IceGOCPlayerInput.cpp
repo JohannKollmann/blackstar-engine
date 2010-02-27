@@ -96,7 +96,7 @@ void GOCPlayerInput::ReceiveMessage(Msg &msg)
 		}
 	}
 	BroadcastMovementState();
-	mCharacterMovementState = mCharacterMovementState & ~CharacterMovement::JUMP;	//Jumping is always a one-time event
+	//mCharacterMovementState = mCharacterMovementState & ~CharacterMovement::JUMP;	//Jumping is always a one-time event
 
 	if (msg.mNewsgroup == "MOUSE_MOVE")
 	{
@@ -113,6 +113,8 @@ void GOCPlayerInput::ReceiveObjectMessage(Ogre::SharedPtr<ObjectMsg> msg)
 {
 	if (msg->mName == "CharacterJumpEnded")
 	{
+		mCharacterMovementState = mCharacterMovementState & ~CharacterMovement::JUMP;
+		BroadcastMovementState();
 	}
 	if (msg->mName == "CharacterCollisionReport")
 	{

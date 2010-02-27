@@ -922,6 +922,11 @@ namespace Ice
 			GOCAI* pAI = 0;
 			if (pAI=(GOCAI*)object->GetComponent("CharacterInput", "AI"))
 			{
+				if (SceneManager::Instance().mPlayer)
+				{
+					SceneManager::Instance().mPlayer->GetComponentT<GOCPlayerInput>("CharacterInput")->BroadcastMovementState(0);
+				}
+
 				pAI->AddState(new Dialog(pAI));
 			}
 		}

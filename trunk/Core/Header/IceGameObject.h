@@ -69,6 +69,33 @@ public:
 	void ProcessMessages();
 
 	void AddComponent(GOComponent* component);
+
+	template<class T>
+	T* GetComponentT(const GOComponent::goc_id_family& familyID)
+	{
+		for (std::list<GOComponent*>::iterator i = mComponents.begin(); i != mComponents.end(); i++)
+		{
+			if ((*i)->GetFamilyID() == familyID)
+			{
+				return (T*)(*i);
+			}
+		}
+	return 0;
+	}
+	template<class T>
+	T* GetComponentT(const GOComponent::goc_id_family& familyID, GOComponent::goc_id_type typeID)
+	{
+		for (std::list<GOComponent*>::iterator i = mComponents.begin(); i != mComponents.end(); i++)
+		{
+			if ((*i)->GetFamilyID() == familyID)
+			{
+				if ((*i)->GetComponentID() == typeID) return (T*)(*i);
+				else return 0;
+			}
+		}
+		return 0;
+	}
+
 	GOComponent* GetComponent(const GOComponent::goc_id_family& familyID);
 	GOComponent* GetComponent(const GOComponent::goc_id_family& familyID, GOComponent::goc_id_type typeID);
 	std::vector<Ogre::String> GetComponentsStr();

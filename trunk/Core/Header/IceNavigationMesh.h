@@ -4,10 +4,52 @@
 #include "IceIncludes.h"
 #include "Ice3D.h"
 #include "IcePathfinder.h"
+#include "NxCooking.h"
 
 namespace Ice
 {
 
+	class NavigationMesh : public LoadSave::Saveable
+	{
+	public:
+		struct Triangle
+		{
+			int a;
+			int b;
+			int c;
+		};
+	private:
+		std::vector<Triangle> mIndexBuffer;
+		std::vector<Ice::Point3D*> mVertexBuffer;
+		bool mPhysXNeedsUpdate;
+
+	public:
+		NavigationMesh() {}
+		~NavigationMesh() {}
+
+		/*
+		Adds the vertices to the vertex buffer if needed and adds the triangle to the indexbuffer
+		*/
+		void AddTriangle(Ogre::SharedPtr<Ice::Point3D*> vertex1, Ogre::SharedPtr<Ice::Point3D*> vertex2, Ogre::SharedPtr<Ice::Point3D*> vertex3);
+
+		/*
+		Removes the vertex from the mesh and all Triangles using it
+		*/
+		void RemoveVertex(Ogre::SharedPtr<Ice::Point3D*> vertex);
+
+		NxTriangleMesh* GetPhysXMesh();
+
+		//Load / Save
+		std::string& TellName()
+		{
+			static std::string name = "NavigationMesh"; return name;
+		};
+		void Save(LoadSave::SaveSystem& mgr);
+		void Load(LoadSave::LoadSystem& mgr);
+		static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "NavigationMesh"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; }
+		static LoadSave::Saveable* NewInstance() { return new NavigationMesh; }
+
+	};
 	class TriangleNode : public AStarNode
 	{
 	public:

@@ -93,7 +93,7 @@ void GOCCharacterController::ReceiveMessage(Msg &msg)
 			mJump.StopJump();
 			ObjectMsg *jump_response = new ObjectMsg;
 			jump_response->mName = "CharacterJumpEnded";
-			mOwnerGO->SendMessage(Ogre::SharedPtr<ObjectMsg>(jump_response));
+			mOwnerGO->SendInstantMessage("", Ogre::SharedPtr<ObjectMsg>(jump_response));
 		}
 		ObjectMsg *collision_response = new ObjectMsg;
 		collision_response->mName = "CharacterCollisionReport";

@@ -41,7 +41,8 @@
 		TriangleBind bind;
 		bind.n1.neighbour = node1;
 		bind.n2.neighbour = node2;
-		bind.tri = triangle;
+		bind.tri = 0;//new Ice::TriangleNode();
+		//bind.tri = 0;//->SetTriangle(mOwnerGO, node1->GetOwner(), node2->GetOwner());
 
 		_connect(bind.n1, bind.tri);
 		_connect(bind.n2, bind.tri);

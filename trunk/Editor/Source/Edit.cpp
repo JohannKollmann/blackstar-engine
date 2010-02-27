@@ -564,7 +564,7 @@ void Edit::OnKeyDown(wxKeyEvent& key)
 	if (key.GetKeyCode() == wxKeyCode::WXK_SHIFT) mMultiSelect = true;
 	if (key.GetKeyCode() == wxKeyCode::WXK_SPACE)
 	{
-		if (!mBrushMode)
+		if (!mBrushMode && !mPlaying)
 		{
 			ClearPreviewObject();
 			CreatePreviewObject();

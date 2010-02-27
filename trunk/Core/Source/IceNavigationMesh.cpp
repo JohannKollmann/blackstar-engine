@@ -4,6 +4,25 @@
 namespace Ice
 {
 
+	void NavigationMesh::AddTriangle(Ogre::SharedPtr<Ice::Point3D*> vertex1, Ogre::SharedPtr<Ice::Point3D*> vertex2, Ogre::SharedPtr<Ice::Point3D*> vertex3)
+	{
+	}
+	void NavigationMesh::RemoveVertex(Ogre::SharedPtr<Ice::Point3D*> vertex)
+	{
+	}
+
+	NxTriangleMesh* NavigationMesh::GetPhysXMesh()
+	{
+		return 0;
+	}
+
+	void NavigationMesh::Save(LoadSave::SaveSystem& mgr)
+	{
+	}
+	void NavigationMesh::Load(LoadSave::LoadSystem& mgr)
+	{
+	}
+
 	TriangleNode::TriangleNode()
 	{
 	}
