@@ -1160,7 +1160,20 @@ void Edit::AlignObjectWithMesh(Ice::GameObject *object, bool rotate)
 {
 	Ogre::Ray mouseRay = Ice::Main::Instance().GetCamera()->getCameraToViewportRay(mMousePosition.x, mMousePosition.y);
 	OgrePhysX::Scene::QueryHit report;
-  	if (Ice::Main::Instance().GetPhysXScene()->raycastClosestShape(report, mouseRay))
+	std::vector<OgrePhysX::Scene::QueryHit> lReport;
+	bool found = false;
+	float shortest = 999999;
+	Ice::Main::Instance().GetPhysXScene()->raycastAllShapes(lReport, mouseRay);
+	for (std::vector<OgrePhysX::Scene::QueryHit>::iterator i = lReport.begin(); i != lReport.end(); i++)
+	{
+		if ((*i).hitActor->userData != object && i->distance < shortest)
+		{
+			report = *i;
+			found = true;
+			shortest = i->distance;
+		}
+	}
+  	if (found)
 	{
 		Ogre::Vector3 position = report.point;
 		Ogre::Vector3 normal = report.normal;
