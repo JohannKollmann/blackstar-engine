@@ -17,7 +17,7 @@ void SetErrorFunction(void (*pErrFn)(std::string))
 void PutErrorMessage(std::string strErrMsg)
 {
 #if _DEBUG
-	__debugbreak();
+	//__debugbreak();
 #endif
 	if(g_pErrFn!=NULL)
 		g_pErrFn(strErrMsg);

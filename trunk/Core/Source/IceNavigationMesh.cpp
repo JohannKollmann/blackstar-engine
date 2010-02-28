@@ -1,26 +1,171 @@
 
 #include "IceNavigationMesh.h"
+#include "OgrePhysX.h"
+#include "NXU_Streaming.h"
+#include "NXU_Streaming.cpp"
+#include "NXU_File.cpp"
+#include "IceGameObject.h"
+#include "IceAIManager.h"
 
 namespace Ice
 {
 
-	void NavigationMesh::AddTriangle(Ogre::SharedPtr<Ice::Point3D*> vertex1, Ogre::SharedPtr<Ice::Point3D*> vertex2, Ogre::SharedPtr<Ice::Point3D*> vertex3)
+	NavigationMesh::NavigationMesh()
 	{
+		mPhysXNeedsUpdate = true;
+		mPhysXMesh = 0;
 	}
-	void NavigationMesh::RemoveVertex(Ogre::SharedPtr<Ice::Point3D*> vertex)
+	NavigationMesh::~NavigationMesh()
 	{
+		Clear();
+	}
+
+	void NavigationMesh::Clear()
+	{
+		for (std::vector<Ice::Point3D*>::iterator i = mVertexBuffer.begin(); i != mVertexBuffer.end(); i++)
+		{
+			delete (*i);
+		}
+		mVertexBuffer.clear();
+		mIndexBuffer.clear();
+		mPhysXNeedsUpdate = true;
+	}
+
+	void NavigationMesh::AddTriangle(Ice::Point3D* vertex1, Ice::Point3D* vertex2, Ice::Point3D* vertex3)
+	{
+		int index1 = -1;
+		int index2 = -1;
+		int index3 = -1;
+		int n = 0;
+		for (std::vector<Ice::Point3D*>::iterator i = mVertexBuffer.begin(); i != mVertexBuffer.end(); i++)
+		{
+			if ((*i) == vertex1) index1 = n;
+			if ((*i) == vertex2) index2 = n;
+			if ((*i) == vertex3) index3 = n;
+			n++;
+		}
+		if (index1 == -1)
+		{
+			mVertexBuffer.push_back(vertex1);
+			index1 = n++;
+		}
+		if (index2 == -1)
+		{
+			mVertexBuffer.push_back(vertex2);
+			index2 = n++;
+		}
+		if (index3 == -1)
+		{
+			mVertexBuffer.push_back(vertex3);
+			index3 = n++;
+		}
+
+		mIndexBuffer.push_back(index1);
+		mIndexBuffer.push_back(index2);
+		mIndexBuffer.push_back(index3);
+
+		mPhysXNeedsUpdate = true;
+	}
+	void NavigationMesh::RemoveVertex(Ice::Point3D* vertex)
+	{
+		int index = 0;
+		std::vector<Ice::Point3D*>::iterator i = mVertexBuffer.begin();
+		for (; i != mVertexBuffer.end(); i++)
+		{
+			if ((*i) == vertex) break;
+			index++;
+		}
+		mVertexBuffer.erase(i);
+
+		std::vector<int>::iterator x = mIndexBuffer.begin();
+		for (int i = 0; i < ((int)mIndexBuffer.size()-2); i+=3)
+		{
+			if (mIndexBuffer[i] == index || mIndexBuffer[i+1] == index || mIndexBuffer[i+2] == index)
+			{
+				std::vector<int>::iterator to = x;
+				to++; to++; to++;
+				mIndexBuffer.erase(x, to);
+				int test = mIndexBuffer.size();
+				x = mIndexBuffer.begin();
+				i = 0;
+				continue;
+			}
+			x++; x++; x++;
+		}
+		for (int i = 0; i < (int)mIndexBuffer.size(); i++)
+		{
+			if (mIndexBuffer[i] > index) mIndexBuffer[i] = mIndexBuffer[i]-1;
+		}
+
+		mPhysXNeedsUpdate = true;
+	}
+
+	void NavigationMesh::bakePhysXMesh()
+	{
+		NxArray<NxVec3> vertices(mVertexBuffer.size());
+		NxArray<NxU32> indices(mIndexBuffer.size());
+		int i = 0;
+		for (std::vector<Ice::Point3D*>::iterator x = mVertexBuffer.begin(); x != mVertexBuffer.end(); x++)
+			vertices[i++] = OgrePhysX::Convert::toNx((*x)->GetGlobalPosition());
+		i = 0;
+		for (std::vector<int>::iterator x = mIndexBuffer.begin(); x != mIndexBuffer.end(); x++)
+			indices[i++] = (*x);
+
+		NxTriangleMeshDesc meshDesc;
+		meshDesc.numVertices                = vertices.size();
+		meshDesc.numTriangles               = indices.size();
+		meshDesc.materialIndexStride		= sizeof(NxMaterialIndex);
+		meshDesc.pointStrideBytes           = sizeof(NxVec3);
+		meshDesc.triangleStrideBytes        = 3 * sizeof(NxU32);
+		meshDesc.points = &vertices[0].x;
+		meshDesc.triangles = &indices[0];
+		meshDesc.materialIndices = 0;
+		meshDesc.flags = 0;
+
+		NXU::MemoryWriteBuffer stream;
+		OgrePhysX::World::getSingleton().getCookingInterface()->NxCookTriangleMesh(meshDesc, stream);
+		mPhysXMesh = OgrePhysX::World::getSingleton().getSDK()->createTriangleMesh(NXU::MemoryReadBuffer(stream.data));
 	}
 
 	NxTriangleMesh* NavigationMesh::GetPhysXMesh()
 	{
+		if (mPhysXNeedsUpdate)
+		{
+			bakePhysXMesh();
+			mPhysXNeedsUpdate = false;
+		}
 		return 0;
 	}
 
 	void NavigationMesh::Save(LoadSave::SaveSystem& mgr)
 	{
+		std::vector<Ogre::Vector3> rawVertices;
+		for (std::vector<Ice::Point3D*>::iterator x = mVertexBuffer.begin(); x != mVertexBuffer.end(); x++)
+			rawVertices.push_back((*x)->GetGlobalPosition());
+
+		mgr.SaveAtom("std::vector<Ogre::Vector3>", &rawVertices, "Vertices");
+		mgr.SaveAtom("std::vector<int>", &mIndexBuffer, "Indices");
 	}
 	void NavigationMesh::Load(LoadSave::LoadSystem& mgr)
 	{
+		std::vector<Ogre::Vector3> rawVertices;
+		mgr.LoadAtom("std::vector<Ogre::Vector3>", &rawVertices);
+		if (!AIManager::Instance().GetWayMeshLoadingMode())
+		{
+			for (std::vector<Ogre::Vector3>::iterator x = rawVertices.begin(); x != rawVertices.end(); x++)
+				mVertexBuffer.push_back(new Ice::SimplePoint3D((*x)));
+		}
+		else
+		{
+			for (std::vector<Ogre::Vector3>::iterator x = rawVertices.begin(); x != rawVertices.end(); x++)
+			{
+				Ice::GameObject *go = new Ice::GameObject(-1);
+				go->SetGlobalPosition(*x);
+				mVertexBuffer.push_back(go);
+			}
+		}
+
+		mgr.LoadAtom("std::vector<int>", &mIndexBuffer);
 	}
 
 	TriangleNode::TriangleNode()

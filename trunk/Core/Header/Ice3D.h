@@ -11,19 +11,25 @@ namespace Ice
 	public:
 		virtual void SetGlobalPosition(Ogre::Vector3 position) = 0;
 		virtual Ogre::Vector3 GetGlobalPosition() = 0;
+
+		virtual ~Point3D() {}
 	};
 
-	class SimplePoint3D
+	class SimplePoint3D : public Point3D
 	{
 	private:
 		Ogre::Vector3 mPosition;
 	public:
+		SimplePoint3D(Ogre::Vector3 position) : mPosition(position) {}
+		~SimplePoint3D() {}
 		void SetGlobalPosition(Ogre::Vector3 position) { mPosition = position; }
 		Ogre::Vector3 GetGlobalPosition() { return mPosition; }
 	};
 	
 	class Transformable3D : public Point3D
 	{
+	public:
+		virtual ~Transformable3D() {}
 		virtual void SetGlobalOrientation(Ogre::Quaternion q) = 0;
 		virtual Ogre::Quaternion GetGlobalOrientation() = 0;
 		virtual void SetGlobalScale(Ogre::Vector3 position) = 0;

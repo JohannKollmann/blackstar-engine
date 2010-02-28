@@ -26,6 +26,27 @@ GameObject::GameObject(GameObject *parent)
 	mTransformingChildren = false;
 	mUpdatingFromParent = false;
 }
+GameObject::GameObject(int id, GameObject *parent)
+{
+	mSelectable = true;
+	mParent = parent;
+	if (id != -1) mID = id;
+	else mID = SceneManager::Instance().RequestID();
+	mName = "GameObject";
+	if (mParent)
+	{
+		mParent->RegisterChild(this);
+	}
+	mScale = Ogre::Vector3(1,1,1);
+	mPosition = Ogre::Vector3(0,0,0);
+	mOrientation = Ogre::Quaternion();
+	UpdateLocalTransform();
+	mFreezePosition = false;
+	mFreezeOrientation = false;
+	mTransformingComponents = false;
+	mTransformingChildren = false;
+	mUpdatingFromParent = false;
+}
 
 GameObject::~GameObject()
 {

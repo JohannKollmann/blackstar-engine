@@ -42,6 +42,11 @@ namespace Ice
 		mTimeScale = 64.0f;
 		MessageSystem::Instance().CreateNewsgroup("ENABLE_GAME_CLOCK");
 		MessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
+
+		Ice::MessageSystem::Instance().CreateNewsgroup("LOADLEVEL_BEGIN");
+		Ice::MessageSystem::Instance().CreateNewsgroup("LOADLEVEL_END");
+		Ice::MessageSystem::Instance().CreateNewsgroup("SAVELEVEL_BEGIN");
+		Ice::MessageSystem::Instance().CreateNewsgroup("SAVELEVEL_END");
 	}
 
 	SceneManager::~SceneManager(void)
@@ -169,6 +174,8 @@ namespace Ice
 
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCAI::Register);
 
+		LoadSave::LoadSave::Instance().RegisterObject(&NavigationMesh::Register);
+
 		RegisterEditorInterface("A", "Mesh", (EDTCreatorFn)&MeshRenderable::NewEditorInterfaceInstance, MeshRenderable::GetDefaultParameters);
 		RegisterEditorInterface("A", "PFX", (EDTCreatorFn)&PfxRenderable::NewEditorInterfaceInstance, PfxRenderable::GetDefaultParameters);
 		RegisterEditorInterface("A", "Light", (EDTCreatorFn)&LocalLightRenderable::NewEditorInterfaceInstance, LocalLightRenderable::GetDefaultParameters);
@@ -285,6 +292,10 @@ namespace Ice
 
 	void SceneManager::LoadLevel(Ogre::String levelfile, bool load_dynamic)
 	{
+		Msg msg;
+		msg.mNewsgroup = "LOADLEVEL_BEGIN";
+		MessageSystem::Instance().SendInstantMessage(msg);
+
 		ClearGameObjects();
 		mNextID = 0;
 
@@ -297,12 +308,23 @@ namespace Ice
 		ls->LoadAtom("std::list<Saveable*>", &objects);
 		//Objects call SceneManager::RegisterObject
 
+		delete AIManager::Instance().mNavigationMesh;
+		AIManager::Instance().mNavigationMesh = (NavigationMesh*)ls->LoadObject();
+		if (!AIManager::Instance().mNavigationMesh) AIManager::Instance().mNavigationMesh = new NavigationMesh();
+
 		ls->CloseFile();
 		delete ls;
+
+		msg.mNewsgroup = "LOADLEVEL_END";
+		MessageSystem::Instance().SendInstantMessage(msg);
 	}
 
 	void SceneManager::SaveLevel(Ogre::String levelfile)
 	{
+		Msg msg;
+		msg.mNewsgroup = "SAVELEVEL_BEGIN";
+		MessageSystem::Instance().SendInstantMessage(msg);
+
 		ShowEditorMeshes(false);
 		LoadSave::SaveSystem *ss=LoadSave::LoadSave::Instance().CreateSaveFile(levelfile, levelfile + ".xml");
 		DataMap map;
@@ -314,8 +336,12 @@ namespace Ice
 			objects.push_back(i->second);
 		}
 		ss->SaveAtom("std::list<Saveable*>", &objects, "Objects");
+		ss->SaveObject(AIManager::Instance().GetNavigationMesh(), "WayMesh");
 		ss->CloseFiles();
 		delete ss;
+
+		msg.mNewsgroup = "SAVELEVEL_END";
+		MessageSystem::Instance().SendInstantMessage(msg);
 	}
 
 	void SceneManager::CreateFromDataMap(DataMap *parameters)
@@ -919,13 +945,11 @@ namespace Ice
 		GameObject *object = SceneManager::Instance().GetObjectByInternID(id);
 		if (object)
 		{
-			GOCAI* pAI = 0;
-			if (pAI=(GOCAI*)object->GetComponent("CharacterInput", "AI"))
+			GOCAI* pAI = object->GetComponent<GOCAI>();
+			if (pAI)
 			{
 				if (SceneManager::Instance().mPlayer)
-				{
-					SceneManager::Instance().mPlayer->GetComponentT<GOCPlayerInput>("CharacterInput")->BroadcastMovementState(0);
-				}
+					SceneManager::Instance().mPlayer->GetComponent<GOCPlayerInput>()->BroadcastMovementState(0);
 
 				pAI->AddState(new Dialog(pAI));
 			}

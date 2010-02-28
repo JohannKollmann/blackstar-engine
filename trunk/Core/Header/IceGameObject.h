@@ -54,6 +54,7 @@ private:
 
 public:
 	GameObject(GameObject *parent = 0);
+	GameObject(int id, GameObject *parent = 0);
 	~GameObject();
 
 	Ogre::String GetName() { return mName; }
@@ -71,31 +72,15 @@ public:
 	void AddComponent(GOComponent* component);
 
 	template<class T>
-	T* GetComponentT(const GOComponent::goc_id_family& familyID)
+	T* GetComponent()
 	{
 		for (std::list<GOComponent*>::iterator i = mComponents.begin(); i != mComponents.end(); i++)
 		{
-			if ((*i)->GetFamilyID() == familyID)
-			{
-				return (T*)(*i);
-			}
-		}
-	return 0;
-	}
-	template<class T>
-	T* GetComponentT(const GOComponent::goc_id_family& familyID, GOComponent::goc_id_type typeID)
-	{
-		for (std::list<GOComponent*>::iterator i = mComponents.begin(); i != mComponents.end(); i++)
-		{
-			if ((*i)->GetFamilyID() == familyID)
-			{
-				if ((*i)->GetComponentID() == typeID) return (T*)(*i);
-				else return 0;
-			}
+			T *rtti = dynamic_cast<T*>((*i));
+			if (rtti) return rtti;
 		}
 		return 0;
 	}
-
 	GOComponent* GetComponent(const GOComponent::goc_id_family& familyID);
 	GOComponent* GetComponent(const GOComponent::goc_id_family& familyID, GOComponent::goc_id_type typeID);
 	std::vector<Ogre::String> GetComponentsStr();

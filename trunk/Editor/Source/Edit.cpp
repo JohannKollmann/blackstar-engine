@@ -12,6 +12,7 @@
 #include "OgrePhysX.h"
 #include "NxScene.h"
 #include "NavMeshEditorNode.h"
+#include "IceAIManager.h"
 
 
 Edit::Edit()
@@ -94,6 +95,8 @@ Edit::Edit()
 	wxEdit::Instance().GetMainToolbar()->RegisterTool("PlayGame", "Game", "Data/Editor/Intern/Icon_Play.png", Edit::OnToolbarEvent, "Play!");
 	wxEdit::Instance().GetMainToolbar()->RegisterTool("StopGame", "Game", "Data/Editor/Intern/Icon_Stop.png", Edit::OnToolbarEvent, "Reset everything to the state before you started playing.");
 	wxEdit::Instance().GetMainToolbar()->SetGroupStatus("Game", false);
+
+	Ice::AIManager::Instance().SetWayMeshLoadingMode(true);
 };
 
 void Edit::OnToolbarEvent(int toolID, Ogre::String toolname)
@@ -215,16 +218,16 @@ void Edit::OnCreateWayTriangle()
 	{
 		Ice::GameObject* obj1 = (*mSelectedObjects.begin()).mObject;
 		Ice::GameObject* obj2 = mSelectedObjects.begin()._Mynode()->_Next->_Myval.mObject;
-		if (obj1->GetComponent("MeshDebugRenderable", "NavMeshNode") && obj2->GetComponent("MeshDebugRenderable", "NavMeshNode"))
+		if (obj1->GetComponent<NavMeshEditorNode>() && obj2->GetComponent<NavMeshEditorNode>())
 		{
-			NavMeshEditorNode *n1 = (NavMeshEditorNode*)obj1->GetComponent("MeshDebugRenderable", "NavMeshNode");
-			NavMeshEditorNode *n2 = (NavMeshEditorNode*)obj2->GetComponent("MeshDebugRenderable", "NavMeshNode");
+			NavMeshEditorNode *n1 = obj1->GetComponent<NavMeshEditorNode>();
+			NavMeshEditorNode *n2 = obj2->GetComponent<NavMeshEditorNode>();
 			if (n1->GetType() == NavMeshEditorNode::NODE && n2->GetType() == NavMeshEditorNode::EDGE)
 			{
 				NavMeshEditorNode *n3 = n2->GetTriangles()[0].n1.neighbour;
 				NavMeshEditorNode *n4 = n2->GetTriangles()[0].n2.neighbour;
 				DeselectAllObjects();
-				n1->AddTriangle(0, n3, n4);
+				n1->AddTriangle(n3, n4);
 				n1->UpdatePosition(n1->GetOwner()->GetGlobalPosition());
 			}
 			if (n2->GetType() == NavMeshEditorNode::NODE && n1->GetType() == NavMeshEditorNode::EDGE)
@@ -232,7 +235,7 @@ void Edit::OnCreateWayTriangle()
 				NavMeshEditorNode *n3 = n1->GetTriangles()[0].n1.neighbour;
 				NavMeshEditorNode *n4 = n1->GetTriangles()[0].n2.neighbour;
 				DeselectAllObjects();
-				n2->AddTriangle(0, n3, n4);
+				n2->AddTriangle(n3, n4);
 				n2->UpdatePosition(n2->GetOwner()->GetGlobalPosition());
 			}
 		}
@@ -299,10 +302,10 @@ void Edit::OnMouseEvent(wxMouseEvent &ev)
 					Ice::GameObject* obj2 = mSelectedObjects.begin()._Mynode()->_Next->_Myval.mObject;
 					if (obj1->GetComponent("Waypoint") && obj2->GetComponent("Waypoint")) menu.Append(wxOgre_connectWaypoints, "Connect Waypoints");
 
-					if (obj1->GetComponent("MeshDebugRenderable", "NavMeshNode") && obj2->GetComponent("MeshDebugRenderable", "NavMeshNode"))
+					if (obj1->GetComponent<NavMeshEditorNode>() && obj2->GetComponent<NavMeshEditorNode>())
 					{
-						NavMeshEditorNode *n1 = (NavMeshEditorNode*)obj1->GetComponent("MeshDebugRenderable", "NavMeshNode");
-						NavMeshEditorNode *n2 = (NavMeshEditorNode*)obj2->GetComponent("MeshDebugRenderable", "NavMeshNode");
+						NavMeshEditorNode *n1 = obj1->GetComponent<NavMeshEditorNode>();
+						NavMeshEditorNode *n2 = obj2->GetComponent<NavMeshEditorNode>();
 						if (n1->GetType() != n2->GetType()) menu.Append(wxOgre_createWayTriangle, "Create Triangle");
 					}
 					/*if ((obj1->GetType() == "Body" || obj1->GetType() == "StaticBody") && (obj2->GetType() == "Body" || obj2->GetType() == "StaticBody")
@@ -680,11 +683,14 @@ void Edit::CreatePreviewObject()
 
 void Edit::OnLoadWorld(Ogre::String fileName)
 {
+	DeselectAllObjects();
 	wxEdit::Instance().GetpropertyWindow()->SetPage("None");
 	Ice::SceneManager::Instance().LoadLevel(fileName);
 	wxEdit::Instance().GetWorldExplorer()->GetSceneTree()->Update();
 	wxEdit::Instance().GetWorldExplorer()->GetMaterialTree()->Update();
 	wxEdit::Instance().GetOgrePane()->SetFocus();
+
+	NavMeshEditorNode::FromMesh(Ice::AIManager::Instance().GetNavigationMesh());
 };
 
 void Edit::OnSaveWorld(Ogre::String fileName)
@@ -717,15 +723,15 @@ Ice::GameObject* Edit::OnInsertWaypoint(bool align, bool create_only)
 
 Ice::GameObject* Edit::InsertWayTriangle(bool align, bool create_only)
 {
-	Ice::GameObject *oNode1 = new Ice::GameObject();
-	Ice::GameObject *oNode2 = new Ice::GameObject();
-	Ice::GameObject *oNode3 = new Ice::GameObject();
+	Ice::GameObject *oNode1 = new Ice::GameObject(-1);
+	Ice::GameObject *oNode2 = new Ice::GameObject(-1);
+	Ice::GameObject *oNode3 = new Ice::GameObject(-1);
 
 	NavMeshEditorNode *n1 = new NavMeshEditorNode();
 	oNode1->AddComponent(n1);
 	NavMeshEditorNode *n2 = new NavMeshEditorNode();
 	oNode2->AddComponent(n2);
-	NavMeshEditorNode *n3 = new NavMeshEditorNode(oNode3, NavMeshEditorNode::NODE, 0, n1, n2);
+	NavMeshEditorNode *n3 = new NavMeshEditorNode(oNode3, NavMeshEditorNode::NODE, n1, n2);
 
 	if (align)
 		AlignObjectWithMesh(oNode1);
@@ -736,9 +742,6 @@ Ice::GameObject* Edit::InsertWayTriangle(bool align, bool create_only)
 
 	if (!create_only)
 	{
-		wxEdit::Instance().GetWorldExplorer()->GetSceneTree()->NotifyObject(oNode1);
-		wxEdit::Instance().GetWorldExplorer()->GetSceneTree()->NotifyObject(oNode2);
-		wxEdit::Instance().GetWorldExplorer()->GetSceneTree()->NotifyObject(oNode3);
 		SelectObject(oNode1);
 
 		wxEdit::Instance().GetWorldExplorer()->GetMaterialTree()->Update();
@@ -870,7 +873,7 @@ void Edit::OnDeleteObject()
 		for (std::list<EditorSelection>::iterator i = mSelectedObjects.begin(); i != mSelectedObjects.end(); i++)
 		{
 			if (NavMeshEditorNode::IsEdge(i->mObject)) return;
-			if (i->mObject->GetComponent("MeshDebugRenderable", "NavMeshNode") && !one) return;	//Hack - only possible to remove one triangle node
+			if (i->mObject->GetComponent<NavMeshEditorNode>() && !one) return;	//Hack - only possible to remove one triangle node
 			delete (*i).mObject;
 			(*i).mObject = 0;
 		}

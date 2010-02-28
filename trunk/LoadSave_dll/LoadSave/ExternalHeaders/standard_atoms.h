@@ -125,22 +125,31 @@ class OgreVec3Handler : LoadSave::AtomHandler
 public:
 	OgreVec3Handler(){m_strName="Ogre::Vector3";}
 	std::string& TellName(){return m_strName;}
+	//int TellByteSize(){return 16;}
 	void Save(LoadSave::SaveSystem& ss, void* pData, std::string strVarName)
 	{
 		Ogre::Vector3* temp = (Ogre::Vector3*)(pData);
-		float* pRealData = new float[4];
+		/*float* pRealData = new float[4];
 		pRealData[0] = temp->x;
 		pRealData[1] = temp->y;
 		pRealData[2] = temp->z;
-		pRealData[3] = 0;
+		pRealData[3] = 0;*/
+		float pRData[4];
+		pRData[0] = temp->x;
+		pRData[1] = temp->y;
+		pRData[2] = temp->z;
+		pRData[3] = 0;
 		for (int i = 0; i < 3; i++)
 		{
-			if (pRealData[i] == 0) pRealData[i] = -0.0f;
+			if (pRData[i] == 0) pRData[i] = -0.0f;
 		}
+		/*char cData[13];
+		memcpy(&cData, &pRData, 12);
+		cData[12] = 0;*/
 		Ogre::String ostr=Ogre::StringConverter::toString(*temp);
 		std::string str=std::string(ostr.c_str());
-		ss.WriteAtomString("float", TellName(), pRealData, strVarName, str);
-		delete pRealData;
+		ss.WriteAtomString("float", TellName(), &pRData, strVarName, str);
+		//delete pRealData;
 	}
 	void Load(LoadSave::LoadSystem& ls, void* pDest)
 	{
@@ -539,6 +548,10 @@ CREATELISTHANDLER(ComponentSection, "ComponentSection", ComponentSectionListHand
 
 CREATEVECTORHANDLER(GenericProperty, "GenericProperty", GenericPropertyHandler)
 
+CREATEVECTORHANDLER(int, "int", IntVectorHandler)
+
+CREATEVECTORHANDLER(Ogre::Vector3, "Ogre::Vector3", OgreVec3VectorHandler)
+
 void
 RegisterStandardAtoms()
 {
@@ -558,6 +571,8 @@ RegisterStandardAtoms()
 	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new OgreVec3Handler());
 	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new OgreQuaternionHandler());
 	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new OgreStringHandler());
+	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new IntVectorHandler());
+	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new OgreVec3VectorHandler());
 	//Lua
 	//ResidentVariables
 	//LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new StringScriptParamMapHandler);

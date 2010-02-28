@@ -9,33 +9,32 @@
 namespace Ice
 {
 
-	class NavigationMesh : public LoadSave::Saveable
+	class DllExport NavigationMesh : public LoadSave::Saveable
 	{
-	public:
-		struct Triangle
-		{
-			int a;
-			int b;
-			int c;
-		};
 	private:
-		std::vector<Triangle> mIndexBuffer;
-		std::vector<Ice::Point3D*> mVertexBuffer;
 		bool mPhysXNeedsUpdate;
+		NxTriangleMesh *mPhysXMesh;
+
+		void bakePhysXMesh();
 
 	public:
-		NavigationMesh() {}
-		~NavigationMesh() {}
+		NavigationMesh();
+		~NavigationMesh();
+
+		void Clear();
 
 		/*
 		Adds the vertices to the vertex buffer if needed and adds the triangle to the indexbuffer
 		*/
-		void AddTriangle(Ogre::SharedPtr<Ice::Point3D*> vertex1, Ogre::SharedPtr<Ice::Point3D*> vertex2, Ogre::SharedPtr<Ice::Point3D*> vertex3);
+		void AddTriangle(Ice::Point3D* vertex1, Ice::Point3D* vertex2, Ice::Point3D* vertex3);
 
 		/*
 		Removes the vertex from the mesh and all Triangles using it
 		*/
-		void RemoveVertex(Ogre::SharedPtr<Ice::Point3D*> vertex);
+		void RemoveVertex(Ice::Point3D* vertex);
+
+		std::vector<int> mIndexBuffer;
+		std::vector<Ice::Point3D*> mVertexBuffer;
 
 		NxTriangleMesh* GetPhysXMesh();
 
