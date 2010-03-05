@@ -5,6 +5,7 @@
 #include "IceAIState.h"
 #include "NxPhysics.h"
 #include "IceDirectionBlender.h"
+#include "IceNavigationMesh.h"
 
 namespace Ice
 {
@@ -12,8 +13,7 @@ namespace Ice
 	class FollowPathway : public AIState
 	{
 	private:
-		std::vector<Ogre::Vector3> mPath;
-		std::vector<Ogre::Vector3>::iterator mCurrentTarget;
+		std::vector<AStarNode3D*> mPath;
 
 		DirectionYawBlender mDirectionBlender;
 
@@ -28,7 +28,7 @@ namespace Ice
 		bool ObstacleCheck(Ogre::Vector3 motion);
 
 	public:
-		FollowPathway(GOCAI *ai, Ogre::String target, float radius = 1.0f);
+		FollowPathway(GOCAI *ai, Ogre::String target, float radius = 0.5f);
 		~FollowPathway();
 
 		void OnEnter();

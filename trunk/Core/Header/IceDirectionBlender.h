@@ -29,7 +29,8 @@ namespace Ice
 			newDir.normalise();
 			mOldDirection = oldDir;
 			mInterpolationStatus = 0.0f;
-			mInterpolationTimeStep = 1 / total_time;
+			if (total_time < 0.1f) mInterpolationStatus = 1;
+			else mInterpolationTimeStep = 1 / total_time;
 			if ((1.0f + mOldDirection.dotProduct(newDir)) < 0.0001f)            //Workaround for 180 degree rotation                         
 			{
 				mTargetRotation = Ogre::Math::PI;
@@ -47,6 +48,7 @@ namespace Ice
 		{
 			if (HasNext())
 				mInterpolationStatus += mInterpolationTimeStep * time;
+			if (mInterpolationStatus > 1) mInterpolationStatus = 1;
 			float rot = mTargetRotation * mInterpolationStatus;
 			return Ogre::Quaternion(Ogre::Radian(rot), Ogre::Vector3::UNIT_Y) * mOldDirection;
 		}

@@ -1,12 +1,13 @@
 
 #include "IceFollowPathway.h"
-#include "IcePathfinder.h"
+#include "IceNavigationMesh.h"
 #include "IceGOCAI.h"
 #include "IceGOCCharacterController.h"
 #include "IceGameObject.h"
 #include "IceGOCCharacterController.h"
 #include "NxController.h"
 #include "IceMain.h"
+#include "IceAIManager.h"
 
 namespace Ice
 {
@@ -16,7 +17,6 @@ namespace Ice
 		mAIObject = ai;
 		mRadius = radius;
 		mTargetWP = targetWP;
-		mCurrentTarget = mPath.begin();
 		mAvoidingObstacle = false;
 
 		//Sweep cache for dynamic obstacle avoiding
@@ -66,18 +66,17 @@ namespace Ice
 		if (character) mSweepActor = character->GetNxController()->getActor();
 
 		Ogre::Vector3 pos = mAIObject->GetOwner()->GetGlobalPosition();
-		Pathfinder::Instance().FindPath(pos, mTargetWP, &mPath, mSweepActor);
-		mCurrentTarget = mPath.begin();
+		AIManager::Instance().FindPath(pos, mTargetWP, mPath);
 
-		if (mCurrentTarget != mPath.end())
+		if (!mPath.empty())
 		{
-			mDirectionBlender.StartBlend(mAIObject->GetOwner()->GetGlobalOrientation() * Ogre::Vector3::UNIT_Z, (*mCurrentTarget)-pos);
+			mDirectionBlender.StartBlend(mAIObject->GetOwner()->GetGlobalOrientation() * Ogre::Vector3::UNIT_Z, mPath[0]->GetGlobalPosition()-pos);
 		}
 	}
 
 	bool FollowPathway::Update(float time)
 	{
-		if (mCurrentTarget == mPath.end())
+		if (mPath.empty())
 		{
 			mAIObject->BroadcastMovementState(0);
 			return true;
@@ -85,23 +84,26 @@ namespace Ice
 
 		Ogre::Vector3 currPos = mAIObject->GetOwner()->GetGlobalPosition();
 
-		Ogre::Vector3 direction = (*mCurrentTarget)-currPos;
-		direction.normalise();
-		float dist = currPos.distance(*mCurrentTarget);
+		Ogre::Vector3 myDirection = mAIObject->GetOwner()->GetGlobalOrientation() * Ogre::Vector3::UNIT_Z;
+
+		float dist = currPos.distance(mPath[0]->GetGlobalPosition());
 		if (dist < mRadius)
 		{
-			Ogre::Vector3 oldDir = (*mCurrentTarget)-currPos;
-			mCurrentTarget++;
-			if (mCurrentTarget == mPath.end())
+			Ogre::Vector3 oldDir = mPath[0]->GetGlobalPosition()-currPos;
+			mPath.erase(mPath.begin());
+			if (mPath.empty())
 			{
 				mAIObject->BroadcastMovementState(0);
 				return true;
 			}
-			Ogre::Vector3 targetDir = (*mCurrentTarget)-currPos;
-			mDirectionBlender.StartBlend(oldDir, targetDir);
+			Ogre::Vector3 targetDir = mPath[0]->GetGlobalPosition()-currPos;
+			mDirectionBlender.StartBlend(myDirection, targetDir, 0.2f);
 		}
 
-		if (mAvoidingObstacle)
+		Ogre::Vector3 direction = mPath[0]->GetGlobalPosition()-currPos;
+		direction.normalise();
+
+		/*if (mAvoidingObstacle)
 		{
 			if (ObstacleCheck(direction * 3.0f)) direction = mAvoidObstacleVector;
 			else
@@ -112,10 +114,10 @@ namespace Ice
 		}
 		else
 		{
-		}
+		}*/
 
 		int movementstate = CharacterMovement::FORWARD;
-		if (ObstacleCheck(direction * 3.0f))
+		/*if (ObstacleCheck(direction * 3.0f))
 		{
 			mAvoidingObstacle = true;
 			Ogre::Quaternion q = Ogre::Quaternion(Ogre::Radian(Ogre::Degree(90)), Ogre::Vector3::UNIT_Y);
@@ -127,7 +129,7 @@ namespace Ice
 		{
 			direction = mDirectionBlender.Next(time);
 		}
-		else
+		else*/
 		{
 			direction.y = 0;
 			direction.normalise();

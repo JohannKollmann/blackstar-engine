@@ -55,9 +55,8 @@ void GOCCharacterController::Create(Ogre::Vector3 dimensions)
 	desc.skinWidth		= 0.1f;
 	desc.extents.set(dimensions.x * 0.5 - desc.skinWidth, dimensions.y * 0.5 - desc.skinWidth, dimensions.z * 0.5 - desc.skinWidth);
 	desc.upDirection	= NX_Y;
-	//		desc.slopeLimit		= cosf(NxMath::degToRad(45.0f));
-	desc.slopeLimit		= 0;
-	mStepOffset			= dimensions.z * 0.5;
+	desc.slopeLimit		= cosf(NxMath::degToRad(45.0f));
+	mStepOffset			= 0.5;
 	desc.stepOffset		= mStepOffset;
 	bool test = desc.isValid();
 	mCharacterController = OgrePhysX::World::getSingleton().getControllerManager()->createController(Main::Instance().GetPhysXScene()->getNxScene(), desc);
@@ -85,8 +84,8 @@ void GOCCharacterController::ReceiveMessage(Msg &msg)
 		Ogre::Vector3 dir_rotated = mOwnerGO->GetGlobalOrientation() * (mDirection + Ogre::Vector3(0, jumpDelta, 0));
 		Ogre::Vector3 dir = (dir_rotated + Ogre::Vector3(0.0f, -9.81f, 0.0f)) * time;
 		NxU32 collisionFlags;
-		float minDist = 0.000001f;
-		mCharacterController->move(NxVec3(dir.x, dir.y, dir.z), 1<<CollisionGroups::DEFAULT | 1<<CollisionGroups::LEVELMESH, minDist, collisionFlags);
+		float minDist = 0.05f;
+		mCharacterController->move(NxVec3(dir.x, dir.y, dir.z), 1<<CollisionGroups::DEFAULT | 1<<CollisionGroups::LEVELMESH, minDist, collisionFlags, 0.5f);
 		if(collisionFlags &  NxControllerFlag::NXCC_COLLISION_DOWN && mJump.mJumping && mJump.GetHeight(0) <= 0.0f)
 		{
 			mCharacterController->setStepOffset(mStepOffset);

@@ -2,20 +2,20 @@
 #include "IceGOCIntern.h"
 #include "IceMain.h"
 #include "IceGameObject.h"
-#include "IcePathfinder.h"
+#include "IceAIManager.h"
 
 namespace Ice
 {
 
 	GOCWaypoint::GOCWaypoint(void)
 	{
-		Pathfinder::Instance().RegisterWaypoint(this);
+		AIManager::Instance().RegisterWaypoint(this);
 		mRenderEditorVisuals = false;
 	}
 
 	GOCWaypoint::~GOCWaypoint(void)
 	{
-		Pathfinder::Instance().UnregisterWaypoint(this);
+		AIManager::Instance().UnregisterWaypoint(this);
 		/*while (mConnectedWaypoints.size() > 0)
 		{
 			(*mConnectedWaypoints.begin())->DisconnectWaypoint(this);

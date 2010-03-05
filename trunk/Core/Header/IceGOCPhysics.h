@@ -30,7 +30,8 @@ enum CollisionGroups
 	DEFAULT,
 	LEVELMESH,
 	BONE,
-	CHARACTER
+	CHARACTER,
+	AI
 };
 
 class DllExport GOPhysXRenderable : public OgrePhysX::PointRenderable

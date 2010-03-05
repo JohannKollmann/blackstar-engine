@@ -3,8 +3,9 @@
 
 #include "IceIncludes.h"
 #include "Ice3D.h"
-#include "IcePathfinder.h"
+#include "IceAStar.h"
 #include "NxCooking.h"
+#include "OgrePhysX.h"
 
 namespace Ice
 {
@@ -12,16 +13,82 @@ namespace Ice
 	class DllExport NavigationMesh : public LoadSave::Saveable
 	{
 	private:
-		bool mPhysXNeedsUpdate;
-		NxTriangleMesh *mPhysXMesh;
 
+		class PathNodeTree
+		{
+		protected:
+			Ogre::AxisAlignedBox mBox;
+			PathNodeTree(Ogre::AxisAlignedBox box) : mBox(box) {}
+
+			static const float BOXSIZE_MIN;
+
+		public:
+			virtual ~PathNodeTree() {}
+
+			static PathNodeTree* New(Ogre::AxisAlignedBox box);
+
+			bool HasPoint(Ogre::Vector3 position);
+			bool ContainsBox(Ogre::AxisAlignedBox &box);
+
+			virtual void AddPathNode(AStarNode3D *node) = 0;
+			virtual void GetPathNodes(Ogre::AxisAlignedBox box, std::vector<AStarNode3D*> &oResult) = 0;
+			virtual AStarNode3D* GetNearestPathNode(Ogre::Vector3 position) = 0;
+		};
+		class PathNodeTreeNode : public PathNodeTree
+		{
+		private:
+			PathNodeTree *mChildren[8];
+			bool mEmpty;
+
+		public:
+			PathNodeTreeNode(Ogre::AxisAlignedBox box);
+			~PathNodeTreeNode();
+			void AddPathNode(AStarNode3D *node);
+			void GetPathNodes(Ogre::AxisAlignedBox box, std::vector<AStarNode3D*> &oResult);
+			AStarNode3D* GetNearestPathNode(Ogre::Vector3 position);
+		};
+		class PathNodeTreeLeaf : public PathNodeTree
+		{
+		private:
+			std::vector<AStarNode3D*> mPathNodes;
+		public:
+			PathNodeTreeLeaf(Ogre::AxisAlignedBox box);
+			~PathNodeTreeLeaf();
+			void AddPathNode(AStarNode3D *node);
+			void GetPathNodes(Ogre::AxisAlignedBox box, std::vector<AStarNode3D*> &oResult);
+			AStarNode3D* GetNearestPathNode(Ogre::Vector3 position);
+		};
+
+		bool mNeedsUpdate;
+		OgrePhysX::Actor *mPhysXActor;
+		NxTriangleMeshShape *mPhysXMeshShape;
+		PathNodeTree *mPathNodeTree;
+
+		float mMaxWaynodeDist;
+		float mMinBorder;
+
+		void rasterNodes();
 		void bakePhysXMesh();
 
+		class NxUserIntReport : public NxUserEntityReport<NxU32>
+		{
+			bool onEvent  (NxU32  nbEntities, NxU32 *entities)
+			{
+				return true;
+			}
+		};
+
 	public:
+
+		std::vector<int> mIndexBuffer;
+		std::vector<Ice::Point3D*> mVertexBuffer;
+
 		NavigationMesh();
 		~NavigationMesh();
 
 		void Clear();
+
+		void ShortestPath(Ogre::Vector3 from, Ogre::Vector3 to, std::vector<AStarNode3D*> &oPath);
 
 		/*
 		Adds the vertices to the vertex buffer if needed and adds the triangle to the indexbuffer
@@ -32,11 +99,6 @@ namespace Ice
 		Removes the vertex from the mesh and all Triangles using it
 		*/
 		void RemoveVertex(Ice::Point3D* vertex);
-
-		std::vector<int> mIndexBuffer;
-		std::vector<Ice::Point3D*> mVertexBuffer;
-
-		NxTriangleMesh* GetPhysXMesh();
 
 		//Load / Save
 		std::string& TellName()
@@ -49,47 +111,4 @@ namespace Ice
 		static LoadSave::Saveable* NewInstance() { return new NavigationMesh; }
 
 	};
-	class TriangleNode : public AStarNode
-	{
-	public:
-		enum TriEdges
-		{
-			A = 0,
-			B = 1,
-			C = 2,
-		};
-		class TriangleEdge
-		{
-		public:
-			TriangleEdge() : neighbor(0) {}
-			TriEdges neighborEdge;
-			TriangleNode *neighbor;
-		};
-
-	private:
-		void _notifyNeighbor(TriangleNode* n, TriEdges edgeLocation, TriEdges other_edgeLocation);
-		void _notifyNeighborDestruction(TriEdges edgeLocation);
-
-	protected:
-		Ogre::SharedPtr<Ice::Point3D> mPoint1;
-		Ogre::SharedPtr<Ice::Point3D> mPoint2;
-		Ogre::SharedPtr<Ice::Point3D> mPoint3;
-		TriangleEdge mEdges[3];
-		Ogre::Vector3 mCenter;
-
-	public:
-		TriangleNode();
-		~TriangleNode();
-
-		Ogre::Vector3 GetCenter();
-		void ComputeCenter();
-
-		void ConnectNode(TriangleNode* n, TriEdges edgeLocation, TriEdges other_edgeLocation);
-		void DisconnectNode(TriEdges edgeLocation);
-
-		void SetTriangle(Ogre::SharedPtr<Ice::Point3D> point1, Ogre::SharedPtr<Ice::Point3D> point2, Ogre::SharedPtr<Ice::Point3D> point3);
-
-		void GetEdgesAStar(std::vector<AStarEdge> &edges, Ogre::Vector3 targetPos);
-	};
-
 }

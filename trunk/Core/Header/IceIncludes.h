@@ -48,5 +48,4 @@ namespace Ice
 	class AIManager;
 	class AStarEdge;
 	class AStarNode;
-	class TriangleNode;
 };

@@ -16,7 +16,11 @@ namespace Ice
 class DllExport AIManager : public MessageListener
 {
 	friend class SceneManager;
+
 private:
+
+	std::vector<GOCWaypoint*> mWaypoints;
+
 	//maps script ID <=> ai object
 	std::map<int, GOCAI*> mScriptAIBinds;
 
@@ -29,6 +33,11 @@ private:
 public:
 	AIManager(void);
 	~AIManager(void);
+
+	void RegisterWaypoint(GOCWaypoint *waypoint);
+	void UnregisterWaypoint(GOCWaypoint *waypoint);
+	GOCWaypoint* GetWPByName(Ogre::String name);
+	void FindPath(Ogre::Vector3 origin, Ogre::String targetWP, std::vector<AStarNode3D*> &oPath);
 
 	void RegisterAIObject(GOCAI* object, int id);
 	void UnregisterAIObject(int id);

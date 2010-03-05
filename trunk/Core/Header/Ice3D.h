@@ -17,11 +17,12 @@ namespace Ice
 
 	class SimplePoint3D : public Point3D
 	{
-	private:
+	protected:
 		Ogre::Vector3 mPosition;
 	public:
+		SimplePoint3D() {}
 		SimplePoint3D(Ogre::Vector3 position) : mPosition(position) {}
-		~SimplePoint3D() {}
+		virtual ~SimplePoint3D() {}
 		void SetGlobalPosition(Ogre::Vector3 position) { mPosition = position; }
 		Ogre::Vector3 GetGlobalPosition() { return mPosition; }
 	};

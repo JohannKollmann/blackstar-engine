@@ -19,7 +19,6 @@
 #include "IceFollowPathway.h"
 #include "IceDialog.h"
 #include "IceLevelMesh.h"
-#include "IcePathfinder.h"
 
 #include "boost/filesystem/operations.hpp"
 #include "boost/filesystem/path.hpp"
@@ -607,7 +606,7 @@ namespace Ice
 		if (vParams[1].getType() != ScriptParam::PARM_TYPE_STRING) return out;
 		int id = vParams[0].getInt();
 		std::string wp = vParams[1].getString();
-		GOCWaypoint *pWp = Pathfinder::Instance().GetWPByName(wp);
+		GOCWaypoint *pWp = AIManager::Instance().GetWPByName(wp);
 		GOCAI *ai = AIManager::Instance().GetAIByID(id);
 		float returner = 0;
 		if (pWp && ai)
