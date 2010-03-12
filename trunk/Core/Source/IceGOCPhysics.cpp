@@ -29,8 +29,15 @@ GOCRigidBody::GOCRigidBody(Ogre::String collision_mesh, float density, int shape
 
 GOCRigidBody::~GOCRigidBody(void)
 {
-	Main::Instance().GetPhysXScene()->destroyRenderedActor(mActor);
-	//This also destroys the renderable!
+	if (mActor)
+	{
+		Msg msg;
+		msg.mNewsgroup = "ACOTR_ONWAKE";
+		msg.rawData = mActor->getNxActor();
+		MessageSystem::Instance().SendInstantMessage(msg);
+		Main::Instance().GetPhysXScene()->destroyRenderedActor(mActor);
+		//This also destroys the renderable!
+	}
 }
 
 void GOCRigidBody::Create(Ogre::String collision_mesh, float density, int shapetype, Ogre::Vector3 scale)

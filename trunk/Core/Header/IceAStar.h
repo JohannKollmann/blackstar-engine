@@ -9,34 +9,34 @@
 
 namespace Ice
 {
-	class DllExport AStarNode
-	{
-	public:
-		virtual ~AStarNode() {}
-		AStarNode() { closed = false; }
-		virtual void GetEdgesAStar(std::vector<AStarEdge> &edges, Ogre::Vector3 targetPos) = 0;
 
-		bool closed; //for algorithm
-	};
-
-	class DllExport AStarNode3D : public AStarNode, public SimplePoint3D
+	class DllExport AStarNode3D : public SimplePoint3D
 	{
 	protected:
 		std::vector<AStarNode3D*> mNeighbours;
+		std::vector<void*> mBlockers;
 
 	public:
 		AStarNode3D() {}
-		AStarNode3D(Ogre::Vector3 position) : SimplePoint3D(position) {}
+		AStarNode3D(Ogre::Vector3 position) : SimplePoint3D(position) { closed = false; }
 		virtual ~AStarNode3D() {}
 		void GetEdgesAStar(std::vector<AStarEdge> &edges, Ogre::Vector3 targetPos);
 		void AddNeighbour(AStarNode3D *neighbour, bool undirected = true);
+
+		bool closed; //for algorithm
+
+		Ogre::AxisAlignedBox volume;
+		
+		bool IsBlocked() { return mBlockers.size() > 0; }
+		void AddBlocker(void *blocker);
+		void RemoveBlocker(void *blocker);
 	};
 
 	class DllExport AStarEdge
 	{
 	public:
-		AStarNode *mFrom;
-		AStarNode *mNeighbor;
+		AStarNode3D *mFrom;
+		AStarNode3D *mNeighbor;
 		float mCost;
 		float mCostOffset;		//for Heuristic
 		

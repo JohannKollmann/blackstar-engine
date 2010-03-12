@@ -107,7 +107,7 @@ public:
 	};
 
 	/** Default destructor */
-	~VdtcTreeItemBase()
+	virtual ~VdtcTreeItemBase()
 	{
 		// NOTE: do not delete the tree item
 		// because the tree item deletes this item data

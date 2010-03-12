@@ -78,6 +78,8 @@ public:
 
 	void OnActivate(wxActivateEvent &event); 
 
+	void OnClose(wxCloseEvent &event);
+
 	//Singleton
 	static wxEdit& Instance();
 };

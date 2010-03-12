@@ -46,6 +46,9 @@ namespace Ice
 		Ice::MessageSystem::Instance().CreateNewsgroup("LOADLEVEL_END");
 		Ice::MessageSystem::Instance().CreateNewsgroup("SAVELEVEL_BEGIN");
 		Ice::MessageSystem::Instance().CreateNewsgroup("SAVELEVEL_END");
+
+		Ice::MessageSystem::Instance().CreateNewsgroup("ACOTR_ONSLEEP");
+		Ice::MessageSystem::Instance().CreateNewsgroup("ACOTR_ONWAKE");
 	}
 
 	SceneManager::~SceneManager(void)

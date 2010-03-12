@@ -29,9 +29,9 @@ namespace Ice
 		Main::Instance().GetPhysXScene()->getNxScene()->releaseSweepCache(mSweepCache);
 	};
 
-	bool FollowPathway::ObstacleCheck(Ogre::Vector3 motion)
+	NxActor* FollowPathway::ObstacleCheck(Ogre::Vector3 motion)
 	{
-		if (!mSweepActor) return false;
+		if (!mSweepActor) return 0;
 
 		int maxNumResult  = 10;
 		NxSweepQueryHit *sqh_result = new NxSweepQueryHit[maxNumResult];
@@ -42,12 +42,12 @@ namespace Ice
 			NxSweepQueryHit hit = sqh_result[i];
 			if (hit.hitShape->getGroup() == DEFAULT || hit.hitShape->getGroup() == CHARACTER)
 			{
-				return true;
+				return &hit.hitShape->getActor();
 			}
 		}
 		delete sqh_result;
 
-		return false;
+		return 0;
 	}
 	
 	void FollowPathway::Leave()
@@ -65,7 +65,13 @@ namespace Ice
 		mSweepActor = 0;
 		if (character) mSweepActor = character->GetNxController()->getActor();
 
+		computePath();
+	}
+
+	void FollowPathway::computePath()
+	{
 		Ogre::Vector3 pos = mAIObject->GetOwner()->GetGlobalPosition();
+		mPath.clear();
 		AIManager::Instance().FindPath(pos, mTargetWP, mPath);
 
 		if (!mPath.empty())
@@ -74,8 +80,22 @@ namespace Ice
 		}
 	}
 
+	void FollowPathway::checkPath()
+	{
+		unsigned int max = mPath.size() < 5 ? mPath.size() : 5;
+		for (unsigned int i = 0; i < max; i++)
+		{
+			if (mPath[i]->IsBlocked())
+			{
+				computePath();
+				return;
+			}
+		}
+	}
+
 	bool FollowPathway::Update(float time)
 	{
+		checkPath();
 		if (mPath.empty())
 		{
 			mAIObject->BroadcastMovementState(0);
@@ -86,7 +106,12 @@ namespace Ice
 
 		Ogre::Vector3 myDirection = mAIObject->GetOwner()->GetGlobalOrientation() * Ogre::Vector3::UNIT_Z;
 
-		float dist = currPos.distance(mPath[0]->GetGlobalPosition());
+		Ogre::Vector3 currPosXZ = currPos;
+		currPosXZ.y = 0;
+		Ogre::Vector3 targetPosXZ = mPath[0]->GetGlobalPosition();
+		targetPosXZ.y = 0;
+		float dist = currPosXZ.distance(targetPosXZ);
+		//Ogre::LogManager::getSingleton().logMessage(Ogre::StringConverter::toString(dist));
 		if (dist < mRadius)
 		{
 			Ogre::Vector3 oldDir = mPath[0]->GetGlobalPosition()-currPos;
@@ -100,8 +125,18 @@ namespace Ice
 			mDirectionBlender.StartBlend(myDirection, targetDir, 0.2f);
 		}
 
-		Ogre::Vector3 direction = mPath[0]->GetGlobalPosition()-currPos;
-		direction.normalise();
+		Ogre::Vector3 direction;// = mPath[0]->GetGlobalPosition()-currPos;
+		//direction.normalise();
+		if (mDirectionBlender.HasNext())
+		{
+			direction = mDirectionBlender.Next(time);
+		}
+		else
+		{
+			direction = mPath[0]->GetGlobalPosition()-currPos;
+			direction.y = 0;
+			direction.normalise();
+		}
 
 		/*if (mAvoidingObstacle)
 		{
@@ -117,23 +152,24 @@ namespace Ice
 		}*/
 
 		int movementstate = CharacterMovement::FORWARD;
+
+		if (!mDirectionBlender.HasNext())
+		{
+			if (NxActor *obstacle = ObstacleCheck(direction * 2.0f))
+			{
+				if (!obstacle->isSleeping())
+				{
+				}
+			}
+		}
 		/*if (ObstacleCheck(direction * 3.0f))
 		{
 			mAvoidingObstacle = true;
 			Ogre::Quaternion q = Ogre::Quaternion(Ogre::Radian(Ogre::Degree(90)), Ogre::Vector3::UNIT_Y);
 			mAvoidObstacleVector = q * direction;
 			mDirectionBlender.StartBlend(direction, mAvoidObstacleVector);
-		}
+		}*/
 
-		if (mDirectionBlender.HasNext())
-		{
-			direction = mDirectionBlender.Next(time);
-		}
-		else*/
-		{
-			direction.y = 0;
-			direction.normalise();
-		}
 		Ogre::Quaternion quat = Ogre::Vector3::UNIT_Z.getRotationTo(direction);
 		mAIObject->GetOwner()->SetGlobalOrientation(quat);
 		mAIObject->BroadcastMovementState(movementstate);

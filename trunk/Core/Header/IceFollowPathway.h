@@ -25,7 +25,10 @@ namespace Ice
 		Ogre::String mTargetWP;
 		float mRadius;
 
-		bool ObstacleCheck(Ogre::Vector3 motion);
+		NxActor* ObstacleCheck(Ogre::Vector3 motion);
+
+		void computePath();
+		void checkPath();
 
 	public:
 		FollowPathway(GOCAI *ai, Ogre::String target, float radius = 0.5f);

@@ -9,6 +9,7 @@ namespace Ice
 GameObject::GameObject(GameObject *parent)
 {
 	mSelectable = true;
+	mRegistered = true;
 	mParent = parent;
 	mID = SceneManager::Instance().RegisterObject(this);
 	mName = "GameObject";
@@ -29,6 +30,7 @@ GameObject::GameObject(GameObject *parent)
 GameObject::GameObject(int id, GameObject *parent)
 {
 	mSelectable = true;
+	mRegistered = false;
 	mParent = parent;
 	if (id != -1) mID = id;
 	else mID = SceneManager::Instance().RequestID();
@@ -52,7 +54,7 @@ GameObject::~GameObject()
 {
 	ClearChildren();
 	ClearGOCs();
-	SceneManager::Instance().UnregisterObject(mID);
+	if (mRegistered) SceneManager::Instance().UnregisterObject(mID);
 	if (mParent)
 	{
 		mParent->UnregisterChild(this);

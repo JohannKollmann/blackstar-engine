@@ -8,6 +8,7 @@
 
 BEGIN_EVENT_TABLE(wxEdit, wxFrame)
     EVT_ACTIVATE(wxEdit::OnActivate)
+	EVT_CLOSE(wxEdit::OnClose)
 END_EVENT_TABLE() 
 
 
@@ -161,11 +162,12 @@ wxEdit& wxEdit::Instance()
 wxEdit::~wxEdit()
 {
 	std::cout << "~wxEdit" << std::endl;
+	//m_mgr.UnInit();
+	Ice::Main::Instance().Shutdown();
 	//PopEventHandler();
 
 	// deinitialize the frame manager
 	//m_mgr.UnInit();
-	Ice::Main::Instance().Shutdown();
 	exit(0);	//HACK! FUCK YOU WX WIDGETS ICH WEISS WO DEIN HAUS WOHNT!!!11einseinself
 
 };
@@ -183,4 +185,11 @@ void wxEdit::UpdateOgre()
 void wxEdit::OnActivate(wxActivateEvent &event)
 {
 	GetOgrePane()->initOgre();
+}
+
+void wxEdit::OnClose(wxCloseEvent &event)
+{
+	//delete mMainNotebook;
+	//Ice::Main::Instance().Shutdown();
+	Destroy();
 }

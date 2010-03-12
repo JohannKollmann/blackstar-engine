@@ -13,6 +13,7 @@ namespace Ice
 	{
 		for (std::vector<AStarNode3D*>::iterator i = mNeighbours.begin(); i != mNeighbours.end(); i++)
 		{
+			if ((*i)->IsBlocked()) continue;
 			AStarEdge edge;
 			edge.mCost = mPosition.distance((*i)->mPosition);
 			edge.mFrom = this;
@@ -25,6 +26,29 @@ namespace Ice
 	{
 		mNeighbours.push_back(neighbour);
 		if (undirected) neighbour->mNeighbours.push_back(this);
+	}
+
+	void AStarNode3D::AddBlocker(void *blocker)
+	{
+		for (std::vector<void*>::iterator i = mBlockers.begin(); i != mBlockers.end(); i++)
+		{
+			if ((*i) == blocker) return;
+		}
+		mBlockers.push_back(blocker);
+	}
+	void AStarNode3D::RemoveBlocker(void *blocker)
+	{
+		std::vector<void*>::iterator i = mBlockers.begin();
+		bool found = false;
+		for (; i != mBlockers.end(); i++)
+		{
+			if ((*i) == blocker)
+			{
+				found = true;
+				break;
+			}
+		}
+		if (found) mBlockers.erase(i);
 	}
 
 	/*GOCWaypoint* Pathfinder::GetNextWP(Ogre::Vector3 position, std::vector<GOCWaypoint*> excludeList)

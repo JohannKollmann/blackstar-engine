@@ -9,20 +9,21 @@
 namespace Ice
 {
 
-class DllExport Msg
-{
-public:
+	class DllExport Msg
+	{
+	public:
 
-	Msg()		
-	{						//Default: Broadcast
-		mReceiver = NULL;
-		mNewsgroup = "COMMON";
-	}
-	virtual ~Msg() { };
+		Msg()		
+		{						//Default: Broadcast
+			mReceiver = NULL;
+			mNewsgroup = "COMMON";
+		}
+		virtual ~Msg() { };
 
-	MessageListener *mReceiver;
-	Ogre::String mNewsgroup;
-	DataMap mData;
-};
+		MessageListener *mReceiver;
+		Ogre::String mNewsgroup;
+		DataMap mData;
+		void *rawData;
+	};
 
 };

@@ -44,7 +44,7 @@ enum
 		itself to */
 		wxOgre(wxWindow* parent, wxWindowID id,
            const wxPoint& pos = wxDefaultPosition,
-           const wxSize& size = wxDefaultSize, long style = 0,
+           const wxSize& size = wxSize(960, 600), long style = 0,
            const wxString& name = wxPanelNameStr); 
 		~wxOgre();
 

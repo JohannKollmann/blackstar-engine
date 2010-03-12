@@ -79,7 +79,7 @@ void wxObjectFolderTree::CreateObjectPreview(Ogre::String file)
 {
 	ClearObjectPreview();
 	Ice::Main::Instance().SetSceneMgr(false);
-	mPreviewObject = new Ice::GameObject(0);
+	mPreviewObject = new Ice::GameObject(-1);
 	LoadSave::LoadSystem *ls=LoadSave::LoadSave::Instance().LoadFile(file);
 	std::list<Ice::ComponentSection> sections;
 	ls->LoadAtom("std::list<ComponentSection>", (void*)(&sections));

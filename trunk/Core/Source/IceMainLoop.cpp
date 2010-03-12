@@ -68,6 +68,7 @@ bool MainLoop::doLoop()
 void MainLoop::quitLoop()
 {
 	mRunning = false;
+	mCurrentState = 0;
 };
 
 void MainLoop::pauseLoop()

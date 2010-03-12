@@ -6,11 +6,12 @@
 #include "IceAStar.h"
 #include "NxCooking.h"
 #include "OgrePhysX.h"
+#include "IceMessageSystem.h"
 
 namespace Ice
 {
 
-	class DllExport NavigationMesh : public LoadSave::Saveable
+	class DllExport NavigationMesh : public LoadSave::Saveable, public MessageListener
 	{
 	private:
 
@@ -18,7 +19,8 @@ namespace Ice
 		{
 		protected:
 			Ogre::AxisAlignedBox mBox;
-			PathNodeTree(Ogre::AxisAlignedBox box) : mBox(box) {}
+			Ogre::AxisAlignedBox mBorderBox;
+			PathNodeTree(Ogre::AxisAlignedBox box);
 
 			static const float BOXSIZE_MIN;
 
@@ -27,12 +29,16 @@ namespace Ice
 
 			static PathNodeTree* New(Ogre::AxisAlignedBox box);
 
-			bool HasPoint(Ogre::Vector3 position);
-			bool ContainsBox(Ogre::AxisAlignedBox &box);
+			bool HasPoint(const Ogre::Vector3 &position);
+			bool ContainsBox(const Ogre::AxisAlignedBox &box);
+			Ogre::AxisAlignedBox& GetBox() { return mBox; }
+			Ogre::AxisAlignedBox& GetBorderBox() { return mBox; }
 
 			virtual void AddPathNode(AStarNode3D *node) = 0;
 			virtual void GetPathNodes(Ogre::AxisAlignedBox box, std::vector<AStarNode3D*> &oResult) = 0;
-			virtual AStarNode3D* GetNearestPathNode(Ogre::Vector3 position) = 0;
+
+			virtual void InjectObstacle(void *identifier, const Ogre::AxisAlignedBox &box) = 0;
+			virtual void RemoveObstacle(void *identifier, const Ogre::AxisAlignedBox &box) = 0;
 		};
 		class PathNodeTreeNode : public PathNodeTree
 		{
@@ -45,7 +51,9 @@ namespace Ice
 			~PathNodeTreeNode();
 			void AddPathNode(AStarNode3D *node);
 			void GetPathNodes(Ogre::AxisAlignedBox box, std::vector<AStarNode3D*> &oResult);
-			AStarNode3D* GetNearestPathNode(Ogre::Vector3 position);
+
+			void InjectObstacle(void *identifier, const Ogre::AxisAlignedBox &box);
+			void RemoveObstacle(void *identifier, const Ogre::AxisAlignedBox &box);
 		};
 		class PathNodeTreeLeaf : public PathNodeTree
 		{
@@ -57,6 +65,9 @@ namespace Ice
 			void AddPathNode(AStarNode3D *node);
 			void GetPathNodes(Ogre::AxisAlignedBox box, std::vector<AStarNode3D*> &oResult);
 			AStarNode3D* GetNearestPathNode(Ogre::Vector3 position);
+
+			void InjectObstacle(void *identifier, const Ogre::AxisAlignedBox &box);
+			void RemoveObstacle(void *identifier, const Ogre::AxisAlignedBox &box);
 		};
 
 		bool mNeedsUpdate;
@@ -68,6 +79,12 @@ namespace Ice
 		float mMinBorder;
 
 		void rasterNodes();
+		bool quadTest(Ogre::Vector3 center, float size, float rayDist);
+		AStarNode3D* quadTestCreate(Ogre::Vector3 center, float size, float rayDist);
+		void rasterNodeRow(std::vector<AStarNode3D*> &result, Ogre::Vector3 rayOrigin, float subTest, float rayDist);
+		bool checkNodeConnection(AStarNode3D *n1, AStarNode3D *n2);
+		void addMatchingNeighbours(std::vector<AStarNode3D*> base, std::vector<AStarNode3D*> add);
+		AStarNode3D* rasterNode(Ogre::Vector3 rayOrigin, float subTest, float rayDist);
 		void bakePhysXMesh();
 
 		class NxUserIntReport : public NxUserEntityReport<NxU32>
@@ -88,8 +105,16 @@ namespace Ice
 
 		void Clear();
 
+		/*
+		Retrieves the shortest path (if existing) between from and to
+		*/
 		void ShortestPath(Ogre::Vector3 from, Ogre::Vector3 to, std::vector<AStarNode3D*> &oPath);
 
+		/*
+		Tests whether the whole box is within by the navmesh.
+		*/
+		bool TestPathVolume(Ogre::AxisAlignedBox box);
+		
 		/*
 		Adds the vertices to the vertex buffer if needed and adds the triangle to the indexbuffer
 		*/
@@ -99,6 +124,8 @@ namespace Ice
 		Removes the vertex from the mesh and all Triangles using it
 		*/
 		void RemoveVertex(Ice::Point3D* vertex);
+
+		void ReceiveMessage(Msg &msg);
 
 		//Load / Save
 		std::string& TellName()

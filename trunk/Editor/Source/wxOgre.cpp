@@ -121,6 +121,8 @@ void wxOgre::createOgreRenderWindow()
 	int width;
 	int height;
 	GetSize(&width, &height);
+	width -= width%4;
+	height -= height%4;
 	// Create the render window
 	Ogre::LogManager::getSingleton().logMessage("createOgreRenderWindow 3");
 	mRenderWindow = Ogre::Root::getSingleton().createRenderWindow("OgreRenderWindow", width, height, false, &params);
@@ -139,6 +141,7 @@ wxOgre::~wxOgre()
 {
 	if (mInitialized)
 	{
+		delete mEdit;
 		//Ice::Main::Instance().Shutdown();
 		//exit(0);		//HACK! FUCK YOU WX WIDGETS ICH WEISS WO DEIN HAUS WOHNT!!!11einseinself
 	}

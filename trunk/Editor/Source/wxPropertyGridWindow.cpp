@@ -54,7 +54,7 @@ wxPropertyGridWindow::wxPropertyGridWindow(wxWindow* parent, wxWindowID id, cons
 
 	mCurrentPage = 0;
 
-	SetDropTarget(this);
+	//SetDropTarget(this);
 }
 
 void wxPropertyGridWindow::AddPage(wxPropertyGridListener* page, wxString name)

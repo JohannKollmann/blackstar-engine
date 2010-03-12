@@ -40,6 +40,7 @@ private:
 	GameObject *mGO;
 public:
 	GOPhysXRenderable(GameObject *mGO) : mGO(mGO) {};
+	virtual ~GOPhysXRenderable() {}
 	void setTransform(Ogre::Vector3 position, Ogre::Quaternion rotation);
 	void setGO(GameObject *go);
 };

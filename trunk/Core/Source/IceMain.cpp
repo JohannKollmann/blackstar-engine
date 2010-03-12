@@ -141,7 +141,14 @@ void Main::initScene()
 #if USE_REMOTEDEBUGGER
 	OgrePhysX::World::getSingleton().getSDK()->getFoundationSDK().getRemoteDebugger()->connect("localhost", 5425);
 #endif
-	mPhysXScene = OgrePhysX::World::getSingleton().addScene("Main");
+
+	//Create Scene
+	NxSceneDesc desc;
+	desc.gravity = NxVec3(0, -9.81, 0);
+	desc.simType = NX_SIMULATION_SW;
+	desc.userNotify = new PhysXUserCallback();
+	mPhysXScene = OgrePhysX::World::getSingleton().addScene("Main", desc);
+
 	//Ground
 	mPhysXScene->createActor(OgrePhysX::PlaneShape(Ogre::Vector3(0, 1, 0), -500));
 
@@ -166,7 +173,7 @@ void Main::initScene()
 	mCamera = mSceneMgr->createCamera("MainCamera");
 	mCamera->lookAt(Ogre::Vector3(0,0,0));
 	mCamera->setNearClipDistance(0.5f);
-	mCamera->setFarClipDistance(99999*6);
+	mCamera->setFarClipDistance(10000);
 
 	mViewport = mWindow->addViewport(mCamera);
 	mViewport->setBackgroundColour(Ogre::ColourValue::Black);
@@ -347,7 +354,21 @@ void Main::setupRenderSystem()
 		if (i->Key == "NVPerfHUD") perfhud = i->Val;
 	}
 
+#if _DEBUG
+	mRoot->loadPlugin("RenderSystem_Direct3D9_d");
+	mRoot->loadPlugin("RenderSystem_GL_d");
+#else
+	mRoot->loadPlugin("RenderSystem_Direct3D9");
+	mRoot->loadPlugin("RenderSystem_GL");
+#endif
+
 	LoadOgrePlugins();
+	for (Ogre::Root::PluginInstanceList::const_iterator i = mRoot->getInstalledPlugins().begin(); i != mRoot->getInstalledPlugins().end(); i++)
+	{
+		if ((*i)->getName() == "AviSaver")
+		{
+		}
+	}
 
 	Ogre::RenderSystemList *pRenderSystemList; 
 	pRenderSystemList = mRoot->getAvailableRenderers(); 
@@ -370,6 +391,8 @@ void Main::setupRenderSystem()
 	mRoot->setRenderSystem(mRenderSystem);
 
 	mRenderSystem->setConfigOption("Full Screen", fullscreen);
+
+	//mRenderSystem->setConfigOption("Capture frames to AVI file (capture.avi)", "Yes");
 
 	mRenderSystem->setConfigOption("VSync", vsync);
 	mRenderSystem->setConfigOption("Anti aliasing", "Level " + aa);
@@ -464,6 +487,7 @@ void Main::Shutdown()
 		OgrePhysX::World::getSingleton().shutdown();
 		delete mRoot;
 		mRoot = 0;
+		MainLoop::Instance().quitLoop();
 	}
 }
 

@@ -20,6 +20,7 @@ wxMainNotebook::wxMainNotebook(wxWindow* parent, wxWindowID id, const wxPoint& p
 
 wxMainNotebook::~wxMainNotebook(void)
 {
+	//delete mOgreWindow;
 }
 
 void wxMainNotebook::OnToolbarEvent(int toolID, Ogre::String toolname)
