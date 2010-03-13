@@ -159,6 +159,7 @@ namespace Ice
 		mNeedsUpdate = true;
 		mPhysXActor = 0;
 		mPhysXMeshShape = 0;
+		mPathNodeTree = 0;
 		mMinBorder = 0.3f;
 		mMaxWaynodeDist = 1.5f;
 
@@ -378,9 +379,9 @@ namespace Ice
 		while (AStarNode3D *node = rasterNode(rayOrigin, subTest, rayDist))
 		{
 			mPathNodeTree->AddPathNode(node);
-			/*GameObject *go = new GameObject();
+			GameObject *go = new GameObject();
 			go->AddComponent(new MeshDebugRenderable("sphere.25cm.mesh"));
-			go->SetGlobalPosition(node->GetGlobalPosition());*/
+			go->SetGlobalPosition(node->GetGlobalPosition());
 			result.push_back(node);
 			rayOrigin.y = node->GetGlobalPosition().y - 1;
 		}
@@ -549,6 +550,8 @@ namespace Ice
 	}
 	void NavigationMesh::Load(LoadSave::LoadSystem& mgr)
 	{
+		Clear();
+
 		std::vector<Ogre::Vector3> rawVertices;
 		mgr.LoadAtom("std::vector<Ogre::Vector3>", &rawVertices);
 		if (!AIManager::Instance().GetWayMeshLoadingMode())
@@ -568,7 +571,6 @@ namespace Ice
 
 		mgr.LoadAtom("std::vector<int>", &mIndexBuffer);
 
-		Clear();
 		bakePhysXMesh();
 		rasterNodes();
 		//bakeWaynet();
