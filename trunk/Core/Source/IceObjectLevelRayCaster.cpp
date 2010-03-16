@@ -24,9 +24,9 @@ GameObject* ObjectLevelRayCaster::GetFirstHit(bool include_all)
 		//Ogre::LogManager::getSingleton().logMessage("GetFirstHit: " + (*mResultsIterator).movable->getParentNode()->getName() + " "  + (*mResultsIterator).movable->getMovableType());
 		if ((*mResultsIterator).movable->getMovableType() == "Entity")
 		{
-			GameObject *object = (GameObject*)((*mResultsIterator).movable->getUserObject());//SceneManager::Instance().FindObjectByInternName((*mResultsIterator).movable->getParentNode()->getName());//(Object3D*)((*mResultsIterator).movable->getUserObject());
-			if (object)
+			if (!(*mResultsIterator).movable->getUserAny().isEmpty())
 			{
+				GameObject *object = Ogre::any_cast<GameObject*>((*mResultsIterator).movable->getUserAny());
 				if (include_all || object->IsSelectable()) return object;
 			}
 			else return GetNextHit(include_all);
@@ -45,9 +45,9 @@ GameObject* ObjectLevelRayCaster::GetNextHit(bool include_all)
 		//Ogre::LogManager::getSingleton().logMessage("GetNextHit: " + (*mResultsIterator).movable->getParentNode()->getName() + " " + (*mResultsIterator).movable->getMovableType());
 		if ((*mResultsIterator).movable->getMovableType() == "Entity")
 		{
-			GameObject *object = (GameObject*)((*mResultsIterator).movable->getUserObject());//SceneManager::Instance().FindEntityByInternName((*mResultsIterator).movable->getParentNode()->getName());//(Object3D*)((*mResultsIterator).movable->getUserObject());
-			if (object)
+			if (!(*mResultsIterator).movable->getUserAny().isEmpty())
 			{
+				GameObject *object =  Ogre::any_cast<GameObject*>((*mResultsIterator).movable->getUserAny());
 				if (include_all || object->IsSelectable()) return object;
 			}
 			else return GetNextHit(include_all);

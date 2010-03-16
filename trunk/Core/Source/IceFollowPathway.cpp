@@ -40,7 +40,7 @@ namespace Ice
 		for (NxU32 i = 0; i < numHits; i++)
 		{
 			NxSweepQueryHit hit = sqh_result[i];
-			if (hit.hitShape->getGroup() == DEFAULT || hit.hitShape->getGroup() == CHARACTER)
+			if ((hit.hitShape->getGroup() == DEFAULT || hit.hitShape->getGroup() == CHARACTER) && !hit.hitShape->getActor().isSleeping())
 			{
 				return &hit.hitShape->getActor();
 			}
@@ -155,11 +155,29 @@ namespace Ice
 
 		if (!mDirectionBlender.HasNext())
 		{
-			if (NxActor *obstacle = ObstacleCheck(direction * 2.0f))
+			if (NxActor *obstacle = ObstacleCheck(direction * 4.0f))
 			{
-				if (!obstacle->isSleeping())
+				GameObject *go = (GameObject*)obstacle->userData;
+				if (go->GetGlobalPosition().distance(currPos) < 2)
 				{
 				}
+				else
+				{
+					if (GOCCharacterController *character = go->GetComponent<GOCCharacterController>())
+					{
+					}
+					else
+					{
+					}
+				}
+				/*
+				Bei < 4 Metern Entfernung:
+					- Versuchen auf die AStarNode rechts der aktuellen ZielNode auszuweichen, AStar von dort neu anwenden
+					- Wenn das nicht geht geradeaus weiterlaufen, Speed drosseln
+				Bei < 2 Metern Entfernung:
+					- Wenn Hindernis Npc ist: Speed stark drosseln und soweit rechts steuern, wie möglich.
+					- kein Npc: AStar, vorher blocker temporär setzen
+				*/
 			}
 		}
 		/*if (ObstacleCheck(direction * 3.0f))

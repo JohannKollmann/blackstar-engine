@@ -14,7 +14,7 @@ GOCAnimatedCharacterBone::GOCAnimatedCharacterBone(void)
 	mOffsetNode = mNode->createChildSceneNode(Ogre::Vector3(0,0,0), Ogre::Quaternion());
 	mEntity = Main::Instance().GetOgreSceneMgr()->createEntity(Ogre::StringConverter::toString(SceneManager::Instance().RequestID()), "capsule.mesh");
 	mEntity->setCastShadows(false);
-	mEntity->setUserObject(mOwnerGO);
+	mEntity->setUserAny(Ogre::Any(mOwnerGO));
 	mOffsetNode->attachObject(mEntity);
 	mDebugAnimation = true;
 	mMeshNode = 0;
@@ -234,7 +234,7 @@ void GOCAnimatedCharacterBone::CreateJointAxis()
 	float scale_factor = ((mMeshNode->_getDerivedScale().x + mMeshNode->_getDerivedScale().y + mMeshNode->_getDerivedScale().z) / 3);
 	mJointAxis = Main::Instance().GetOgreSceneMgr()->createManualObject("AxisLine_" + mOwnerGO->GetIDStr());
 	mJointAxis->begin("WPLine", Ogre::RenderOperation::OT_TRIANGLE_LIST);
-	float width = 0.05;
+	float width = 0.05f;
 	float height = mBoneConfig.mBoneLength*scale_factor;
 	mJointAxis->position(Ogre::Vector3(0, 0, 0)); //0
 	mJointAxis->colour(1,0,0);
@@ -333,7 +333,7 @@ void GOCAnimatedCharacterBone::SetBone(Ogre::SceneNode *meshnode, GOCAnimatedCha
 void GOCAnimatedCharacterBone::SetOwner(GameObject *go)
 {
 	mOwnerGO = go;
-	mEntity->setUserObject(mOwnerGO);
+	mEntity->setUserAny(Ogre::Any(mOwnerGO));
 }
 
 
@@ -537,7 +537,7 @@ void GOCAnimatedCharacter::ReceiveObjectMessage(Ogre::SharedPtr<ObjectMsg> msg)
 void GOCAnimatedCharacter::SetOwner(GameObject *go)
 {
 	mOwnerGO = go;
-	mEntity->setUserObject(go);
+	mEntity->setUserAny(Ogre::Any(mOwnerGO));
 	UpdatePosition(go->GetGlobalPosition());
 	UpdateOrientation(go->GetGlobalOrientation());
 	mRagdoll->setActorUserData(mOwnerGO);

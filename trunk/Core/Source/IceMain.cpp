@@ -144,7 +144,7 @@ void Main::initScene()
 
 	//Create Scene
 	NxSceneDesc desc;
-	desc.gravity = NxVec3(0, -9.81, 0);
+	desc.gravity = NxVec3(0, -9.81f, 0);
 	desc.simType = NX_SIMULATION_SW;
 	desc.userNotify = new PhysXUserCallback();
 	mPhysXScene = OgrePhysX::World::getSingleton().addScene("Main", desc);
@@ -194,7 +194,7 @@ void Main::initScene()
 	ambientlight->setDiffuseColour(Ogre::ColourValue(1,1,1));
 	ambientlight->setSpecularColour(Ogre::ColourValue(1,1,1));
 
-	mSceneMgr->setAmbientLight(Ogre::ColourValue(0.3,0.3,0.3));
+	mSceneMgr->setAmbientLight(Ogre::ColourValue(0.3f,0.3f,0.3f));
 	//mSceneMgr->setFog(Ogre::FOG_LINEAR, Ogre::ColourValue::Blue, 0.015);
 
 	mCameraController = new CameraController();
@@ -255,11 +255,11 @@ void Main::initScene()
 	mSpotShadowCameraSetup = Ogre::ShadowCameraSetupPtr(spotSetup);
 
 	Ogre::PSSMShadowCameraSetup* pssmSetup = new Ogre::PSSMShadowCameraSetup();
-	pssmSetup->calculateSplitPoints(3, 1, 300, 0.95);
+	pssmSetup->calculateSplitPoints(3, 1, 300, 0.95f);
 	pssmSetup->setSplitPadding(1);
 	pssmSetup->setOptimalAdjustFactor(0, 5);
 	pssmSetup->setOptimalAdjustFactor(1, 1);
-	pssmSetup->setOptimalAdjustFactor(2, 0.4);//2, 0.5);
+	pssmSetup->setOptimalAdjustFactor(2, 0.4f);//2, 0.5);
 	mDirectionalShadowCameraSetup = Ogre::ShadowCameraSetupPtr(pssmSetup);
 	mSceneMgr->setShadowCameraSetup(mDirectionalShadowCameraSetup);
 	const Ogre::PSSMShadowCameraSetup::SplitPointList& splitPointList = pssmSetup->getSplitPoints();
@@ -363,21 +363,17 @@ void Main::setupRenderSystem()
 #endif
 
 	LoadOgrePlugins();
-	for (Ogre::Root::PluginInstanceList::const_iterator i = mRoot->getInstalledPlugins().begin(); i != mRoot->getInstalledPlugins().end(); i++)
+	/*for (Ogre::Root::PluginInstanceList::const_iterator i = mRoot->getInstalledPlugins().begin(); i != mRoot->getInstalledPlugins().end(); i++)
 	{
 		if ((*i)->getName() == "AviSaver")
 		{
 		}
-	}
+	}*/
 
-	Ogre::RenderSystemList *pRenderSystemList; 
-	pRenderSystemList = mRoot->getAvailableRenderers(); 
-	Ogre::RenderSystemList::iterator pRenderSystem; 
-	pRenderSystem = pRenderSystemList->begin(); 
+	auto pRenderSystem = mRoot->getAvailableRenderers().begin(); 
 	Ogre::RenderSystem *pSelectedRenderSystem; 
 	pSelectedRenderSystem = *pRenderSystem; 
-		
-	while (pRenderSystem != pRenderSystemList->end())
+	while (pRenderSystem != mRoot->getAvailableRenderers().end())
 	{
 		if ((*pRenderSystem)->getName() == renderer)
 		{
@@ -395,7 +391,7 @@ void Main::setupRenderSystem()
 	//mRenderSystem->setConfigOption("Capture frames to AVI file (capture.avi)", "Yes");
 
 	mRenderSystem->setConfigOption("VSync", vsync);
-	mRenderSystem->setConfigOption("Anti aliasing", "Level " + aa);
+	mRenderSystem->setConfigOption("FSAA", "Level " + aa);
 
 	if (renderer == "Direct3D9 Rendering Subsystem")
 	{
@@ -537,7 +533,7 @@ void Main::UninstallPlugin(Ogre::Plugin* plugin)
 void Main::LoadPlugin(const Ogre::String& pluginName)
 {
 	// Load plugin library
-    Ogre::DynLib* lib = Ogre::DynLibManager::getSingleton().load( pluginName + ".dll");
+    Ogre::DynLib* lib = Ogre::DynLibManager::getSingleton().load(pluginName);
 	// Store for later unload
 	mPluginLibs.push_back(lib);
 

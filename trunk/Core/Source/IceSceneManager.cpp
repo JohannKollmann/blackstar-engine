@@ -758,7 +758,7 @@ namespace Ice
 			GameObject* player = new GameObject();
 			player->AddComponent(new GOCPlayerInput());
 			player->AddComponent(new GOCCameraController(Main::Instance().GetCamera()));
-			player->AddComponent(new GOCCharacterController(Ogre::Vector3(0.5,1.8,0.5)));
+			player->AddComponent(new GOCCharacterController(Ogre::Vector3(0.5f,1.8f,0.5f)));
 			GOCAnimatedCharacter *animated = new GOCAnimatedCharacter(model);
 			player->AddComponent(animated);
 			player->SetGlobalPosition(Ogre::Vector3(0,10,0));

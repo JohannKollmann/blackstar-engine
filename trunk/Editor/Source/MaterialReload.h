@@ -123,9 +123,9 @@ void UnloadMaterials(const std::string& filename)
 				///
 				if (StringUtil::startsWith(line, "material"))
 				{
-					std::vector<Ogre::String> vec = StringUtil::split(line," \t:");
+					Ogre::StringVector vec = Ogre::StringUtil::split(line," \t:");
 					bool skipFirst = true;
-					for (std::vector<Ogre::String>::iterator it = vec.begin(); it < vec.end(); ++it)
+					for (Ogre::StringVector::iterator it = vec.begin(); it != vec.end(); ++it)
 					{
 						if (skipFirst)
 						{
@@ -176,9 +176,9 @@ void UnloadVertexPrograms(const std::string& filename)
 				///
 				if (StringUtil::startsWith(line, "vertex_program") && !StringUtil::startsWith(line, "vertex_program_ref"))
 				{
-					std::vector<Ogre::String> vec = StringUtil::split(line," \t");
+					Ogre::StringVector vec = StringUtil::split(line," \t");
 					bool skipFirst = true;
-					for (std::vector<Ogre::String>::iterator it = vec.begin(); it < vec.end(); ++it)
+					for (Ogre::StringVector::iterator it = vec.begin(); it < vec.end(); ++it)
 					{
 						if (skipFirst)
 						{
@@ -229,9 +229,9 @@ void UnloadFragmentPrograms(const std::string& filename)
 				///
 				if (StringUtil::startsWith(line, "fragment_program") && !StringUtil::startsWith(line, "fragment_program_ref"))
 				{
-					std::vector<Ogre::String> vec = StringUtil::split(line," \t");
+					Ogre::StringVector vec = StringUtil::split(line," \t");
 					bool skipFirst = true;
-					for (std::vector<Ogre::String>::iterator it = vec.begin(); it < vec.end(); ++it)
+					for (Ogre::StringVector::iterator it = vec.begin(); it < vec.end(); ++it)
 					{
 						if (skipFirst)
 						{
@@ -327,9 +327,9 @@ void ReloadMaterial(const std::string& materialName, const std::string& groupNam
 					///
 					if (StringUtil::startsWith(line, "material"))
 					{
-						std::vector<Ogre::String> vec = StringUtil::split(line," \t:");
+						Ogre::StringVector vec = StringUtil::split(line," \t:");
 						bool skipFirst = true;
-						for (std::vector<Ogre::String>::iterator it = vec.begin(); it < vec.end(); ++it)
+						for (Ogre::StringVector::iterator it = vec.begin(); it < vec.end(); ++it)
 						{
 							if (skipFirst)
 							{
@@ -350,9 +350,9 @@ void ReloadMaterial(const std::string& materialName, const std::string& groupNam
 					///
 					if (StringUtil::startsWith(line, "vertex_program") && !StringUtil::startsWith(line, "vertex_program_ref"))
 					{
-						std::vector<Ogre::String> vec = StringUtil::split(line," \t");
+						Ogre::StringVector vec = StringUtil::split(line," \t");
 						bool skipFirst = true;
-						for (std::vector<Ogre::String>::iterator it = vec.begin(); it < vec.end(); ++it)
+						for (Ogre::StringVector::iterator it = vec.begin(); it < vec.end(); ++it)
 						{
 							if (skipFirst)
 							{
@@ -373,9 +373,9 @@ void ReloadMaterial(const std::string& materialName, const std::string& groupNam
 					///
 					if (StringUtil::startsWith(line, "fragment_program") && !StringUtil::startsWith(line, "fragment_program_ref"))
 					{
-						std::vector<Ogre::String> vec = StringUtil::split(line," \t");
+						Ogre::StringVector vec = StringUtil::split(line," \t");
 						bool skipFirst = true;
-						for (std::vector<Ogre::String>::iterator it = vec.begin(); it < vec.end(); ++it)
+						for (Ogre::StringVector::iterator it = vec.begin(); it < vec.end(); ++it)
 						{
 							if (skipFirst)
 							{

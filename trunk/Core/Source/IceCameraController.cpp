@@ -78,7 +78,7 @@ void CameraController::ReceiveMessage(Msg &msg)
 			rnode->attachObject(jaiqua);
 			rnode->scale(0.1,0.1,0.1);*/
 			GameObject *object = new GameObject();
-			GOCAnimatedCharacter *ragdoll = new GOCAnimatedCharacter("robot.mesh", Ogre::Vector3(0.1,0.1,0.1));
+			GOCAnimatedCharacter *ragdoll = new GOCAnimatedCharacter("robot.mesh", Ogre::Vector3(0.1f,0.1f,0.1f));
 			//ragdoll->SetAnimationState("Walk");
 			object->AddComponent(ragdoll);
 			object->SetGlobalPosition(mCamera->getDerivedPosition());

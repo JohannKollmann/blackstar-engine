@@ -1,15 +1,29 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IceEngine", "Core\IceEngine.vcxproj", "{C20C5958-3E38-47C9-A028-83D7C2A939B5}"
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Ice Engine", "Core\IceEngine.vcproj", "{C20C5958-3E38-47C9-A028-83D7C2A939B5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2981707E-A12F-4B7E-95FF-B1813492A077} = {2981707E-A12F-4B7E-95FF-B1813492A077}
+	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BlackstarEditor", "Editor\BlackstarEditor.vcxproj", "{99006E22-5259-4818-896B-B66CE367A9F2}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Blackstar Editor", "Editor\BlackstarEditor.vcproj", "{99006E22-5259-4818-896B-B66CE367A9F2}"
+	ProjectSection(ProjectDependencies) = postProject
+		{3F60D252-8466-4BEF-BA22-F2309DFD1853} = {3F60D252-8466-4BEF-BA22-F2309DFD1853}
+		{C20C5958-3E38-47C9-A028-83D7C2A939B5} = {C20C5958-3E38-47C9-A028-83D7C2A939B5}
+	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BlackstarGame", "Game\Game.vcxproj", "{A657A530-555D-48FA-9DBF-AFA2E12F0EAA}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Blackstar_Game", "Game\Game.vcproj", "{A657A530-555D-48FA-9DBF-AFA2E12F0EAA}"
+	ProjectSection(ProjectDependencies) = postProject
+		{3F60D252-8466-4BEF-BA22-F2309DFD1853} = {3F60D252-8466-4BEF-BA22-F2309DFD1853}
+		{C20C5958-3E38-47C9-A028-83D7C2A939B5} = {C20C5958-3E38-47C9-A028-83D7C2A939B5}
+	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LoadSave", "LoadSave_dll\LoadSave\LoadSave.vcxproj", "{2981707E-A12F-4B7E-95FF-B1813492A077}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SGTLoadSave", "LoadSave_dll\LoadSave\LoadSave.vcproj", "{2981707E-A12F-4B7E-95FF-B1813492A077}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ScriptExtensions", "ScriptExtensions\ScriptExtensions.vcxproj", "{3F60D252-8466-4BEF-BA22-F2309DFD1853}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ScriptExtensions", "ScriptExtensions\ScriptExtensions.vcproj", "{3F60D252-8466-4BEF-BA22-F2309DFD1853}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C20C5958-3E38-47C9-A028-83D7C2A939B5} = {C20C5958-3E38-47C9-A028-83D7C2A939B5}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

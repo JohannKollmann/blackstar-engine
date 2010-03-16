@@ -151,7 +151,7 @@ void GOCAI::ReceiveObjectMessage(Ogre::SharedPtr<ObjectMsg> msg)
 	}
 	if (msg->mName == "CharacterCollisionReport")
 	{
-		NxU32 collisionFlags = msg->mData.GetFloat("collisionFlags");
+		NxU32 collisionFlags = msg->mData.GetInt("collisionFlags");
 	}
 }
 

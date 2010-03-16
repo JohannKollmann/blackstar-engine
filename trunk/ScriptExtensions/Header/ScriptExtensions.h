@@ -1,4 +1,6 @@
 
+#pragma once
+
 #include "Ogre.h"
 #include "OgrePlugin.h"
 #include "IceMessageListener.h"

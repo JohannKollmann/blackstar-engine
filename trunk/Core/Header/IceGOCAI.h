@@ -12,7 +12,7 @@
 namespace Ice
 {
 
-	class DllExport GOCAI : public GOCEditorInterface, public CharacterControllerInput, public MessageListener, public Ogre::UserDefinedObject
+	class DllExport GOCAI : public GOCEditorInterface, public CharacterControllerInput, public MessageListener
 {
 private:
 	/*

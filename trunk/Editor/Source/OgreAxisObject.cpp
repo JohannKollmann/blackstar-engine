@@ -87,17 +87,17 @@ Ogre::ManualObject* AxisComponent::createAxis(const Ogre::String &name, Ogre::Ve
 
 	mAxisObject	= Ice::Main::Instance().GetOgreSceneMgr()->createManualObject(name); 
 
-	Ogre::Real Xlen=scale.x/2 + 0.4;
-	Ogre::Real Ylen=scale.y/2 + 0.4;
-	Ogre::Real Zlen=scale.z/2 + 0.4;
-	Ogre::Real Xscl=0.095;
-	Ogre::Real Yscl=0.095;
-	Ogre::Real Zscl=0.095;
+	Ogre::Real Xlen=scale.x/2 + 0.4f;
+	Ogre::Real Ylen=scale.y/2 + 0.4f;
+	Ogre::Real Zlen=scale.z/2 + 0.4f;
+	Ogre::Real Xscl=0.095f;
+	Ogre::Real Yscl=0.095f;
+	Ogre::Real Zscl=0.095f;
 	Ogre::Real Xloc=Xlen/2+Xscl/2;
 	Ogre::Real Yloc=Ylen/2+Yscl/2;
 	Ogre::Real Zloc=Zlen/2+Zscl/2;
-	Ogre::Real fade=.8;
-	Ogre::Real solid=.8;
+	Ogre::Real fade=0.8f;
+	Ogre::Real solid=0.8f;
 	
 	addBox(mAxisObject, Vector3(Xlen, Xscl, Xscl), Vector3(Xloc,0,0), ColourValue(0, 0, solid, solid), (BOX_ALL & ~BOX_RIGHT)); 
 	addBox(mAxisObject, Vector3(Xlen, Xscl, Xscl), Vector3(-Xloc,0,0), ColourValue(0, 0, fade, fade), (BOX_ALL & ~BOX_LEFT)); 

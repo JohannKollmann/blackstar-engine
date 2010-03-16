@@ -16,12 +16,14 @@
 namespace Ice
 {
 
-	const float NavigationMesh::PathNodeTree::BOXSIZE_MIN = 10;
+	const float NavigationMesh::NODE_DIST = 1.5f;
+	const float NavigationMesh::NODE_EXTENT = 0.8f;
+	const float NavigationMesh::NODE_BORDER = 0.3f;
 
-	NavigationMesh::PathNodeTree::PathNodeTree(Ogre::AxisAlignedBox box) : mBox(box)
+	const float NavigationMesh::PathNodeTree::BOXSIZE_MIN = 10.0f;
+
+	NavigationMesh::PathNodeTree::PathNodeTree(Ogre::AxisAlignedBox box) : mBox(box), mBorderBox(box.getMinimum() + Ogre::Vector3(-NODE_EXTENT,-NODE_EXTENT,-NODE_EXTENT), box.getMaximum() + Ogre::Vector3(NODE_EXTENT,NODE_EXTENT,NODE_EXTENT))
 	{
-		mBorderBox = mBox;
-		mBorderBox.scale(Ogre::Vector3(1.2f, 1.2f, 1.2f));
 	}
 
 	NavigationMesh::PathNodeTree* NavigationMesh::PathNodeTree::New(Ogre::AxisAlignedBox box)
@@ -85,16 +87,17 @@ namespace Ice
 			//if (mChildren[i]->ContainsBox(node->volume))
 			{
 				mChildren[i]->AddPathNode(node);
-				break;
+				return;
 			}
 		}
+		Ogre::LogManager::getSingleton().logMessage("nah");
 	}
-	void NavigationMesh::PathNodeTreeNode::GetPathNodes(Ogre::AxisAlignedBox box, std::vector<AStarNode3D*> &oResult)
+	void NavigationMesh::PathNodeTreeNode::GetPathNodes(const Ogre::AxisAlignedBox &box, std::vector<AStarNode3D*> &oResult)
 	{
 		if (mEmpty) return;
 		for (int i = 0; i < 8; i++)
 		{
-			if (mChildren[i]->ContainsBox(box))
+			if (mChildren[i]->GetBorderBox().intersects(box))
 				mChildren[i]->GetPathNodes(box, oResult);
 		}
 	}
@@ -103,7 +106,6 @@ namespace Ice
 		if (mEmpty) return;
 		for (int i = 0; i < 8; i++)
 		{
-			//if (mChildren[i]->ContainsBox(box))
 			if (mChildren[i]->GetBorderBox().intersects(box))
 				mChildren[i]->InjectObstacle(identifier, box);
 		}
@@ -130,7 +132,7 @@ namespace Ice
 	{
 		mPathNodes.push_back(node);
 	}
-	void NavigationMesh::PathNodeTreeLeaf::GetPathNodes(Ogre::AxisAlignedBox box, std::vector<AStarNode3D*> &oResult)
+	void NavigationMesh::PathNodeTreeLeaf::GetPathNodes(const Ogre::AxisAlignedBox &box, std::vector<AStarNode3D*> &oResult)
 	{
 		for (std::vector<AStarNode3D*>::iterator i = mPathNodes.begin(); i != mPathNodes.end(); i++)
 		{
@@ -157,48 +159,69 @@ namespace Ice
 	NavigationMesh::NavigationMesh()
 	{
 		mNeedsUpdate = true;
+		mDestroyingNavMesh = false;
 		mPhysXActor = 0;
 		mPhysXMeshShape = 0;
 		mPathNodeTree = 0;
-		mMinBorder = 0.3f;
-		mMaxWaynodeDist = 1.5f;
 
 		MessageSystem::Instance().JoinNewsgroup(this, "ACOTR_ONSLEEP");
 		MessageSystem::Instance().JoinNewsgroup(this, "ACOTR_ONWAKE");
 	}
 	NavigationMesh::~NavigationMesh()
 	{
-		if (mPhysXActor) Main::Instance().GetPhysXScene()->destroyActor(mPhysXActor);
-		Clear();
+		Reset();
 
 		MessageSystem::Instance().QuitNewsgroup(this, "ACOTR_ONSLEEP");
 		MessageSystem::Instance().QuitNewsgroup(this, "ACOTR_ONWAKE");
 	}
 
-	void NavigationMesh::Clear()
+	void NavigationMesh::Reset()
 	{
-		if (mPathNodeTree)
-		{
-			delete mPathNodeTree;
-			mPathNodeTree = 0;
-		}
+		Clear();
+		mDestroyingNavMesh = true;
 		for (std::vector<Ice::Point3D*>::iterator i = mVertexBuffer.begin(); i != mVertexBuffer.end(); i++)
 		{
 			delete (*i);
 		}
 		mVertexBuffer.clear();
 		mIndexBuffer.clear();
+		mDestroyingNavMesh = false;
+	}
+
+	void NavigationMesh::Clear()
+	{
+		if (mPhysXActor)
+		{
+			Main::Instance().GetPhysXScene()->destroyActor(mPhysXActor);
+			mPhysXActor = 0;
+		}
+		if (mPathNodeTree)
+		{
+			delete mPathNodeTree;
+			mPathNodeTree = 0;
+		}
 		mNeedsUpdate = true;
 	}
 
-	void NavigationMesh::ShortestPath(Ogre::Vector3 from, Ogre::Vector3 to, std::vector<AStarNode3D*> &oPath)
+	void NavigationMesh::Update()
 	{
 		if (mNeedsUpdate)
 		{
 			Clear();
 			bakePhysXMesh();
 			rasterNodes();
+			mNeedsUpdate = false;
 		}
+	}
+
+	void NavigationMesh::ShortestPath(Ogre::Vector3 from, Ogre::Vector3 to, std::vector<AStarNode3D*> &oPath)
+	{
+		Update();
+		if (!mPathNodeTree)
+		{
+			return;
+		}
+
 		Ogre::Vector3 minOffset(-2, -2, -2);
 		Ogre::Vector3 maxOffset(2, 2, 2);
 		Ogre::AxisAlignedBox boxFrom(from + minOffset, from + maxOffset);
@@ -214,12 +237,12 @@ namespace Ice
 		}
 		AStarNode3D *fromNode = fromNodes[0];
 		AStarNode3D *toNode = toNodes[0];
-		for (int i = 1; i < fromNodes.size(); i++)
+		for (unsigned int i = 1; i < fromNodes.size(); i++)
 		{
 			if (fromNodes[i]->GetGlobalPosition().distance(from) < fromNode->GetGlobalPosition().distance(from))
 				fromNode = fromNodes[i];
 		}
-		for (int i = 1; i < toNodes.size(); i++)
+		for (unsigned int i = 1; i < toNodes.size(); i++)
 		{
 			if (toNodes[i]->GetGlobalPosition().distance(to) < toNode->GetGlobalPosition().distance(to))
 				toNode = toNodes[i];
@@ -264,6 +287,8 @@ namespace Ice
 	}
 	void NavigationMesh::RemoveVertex(Ice::Point3D* vertex)
 	{
+		if (mDestroyingNavMesh) return;
+
 		int index = 0;
 		std::vector<Ice::Point3D*>::iterator i = mVertexBuffer.begin();
 		for (; i != mVertexBuffer.end(); i++)
@@ -298,13 +323,15 @@ namespace Ice
 
 	void NavigationMesh::bakePhysXMesh()
 	{
+		if (mIndexBuffer.size() < 3) return;
+
 		NxArray<NxVec3> vertices(mVertexBuffer.size());
 		NxArray<NxU32> indices(mIndexBuffer.size() * 2);
 		int i = 0;
 		for (std::vector<Ice::Point3D*>::iterator x = mVertexBuffer.begin(); x != mVertexBuffer.end(); x++)
 			vertices[i++] = OgrePhysX::Convert::toNx((*x)->GetGlobalPosition());
 		i = 0;
-		for (unsigned int x = 0; x < mIndexBuffer.size()-2; x += 3)
+		for (int x = 0; x < ((int)mIndexBuffer.size())-2; x += 3)
 		{
 			indices[i++] = mIndexBuffer[x];
 			indices[i++] = mIndexBuffer[x+1];
@@ -350,26 +377,25 @@ namespace Ice
 		if (!Ice::Main::Instance().GetPhysXScene()->raycastClosestShape(query, Ogre::Ray(center, Ogre::Vector3(0,-1,0)), NX_STATIC_SHAPES, 1<<CollisionGroups::AI, rayDist)) return 0;
 		if (!quadTest(center, size, rayDist)) return 0;
 		AStarNode3D *node = new AStarNode3D(query.point);
-		float nodeExtent = 0.8f;
 		float height = 1.8f;
-		node->volume = Ogre::AxisAlignedBox(node->GetGlobalPosition() + Ogre::Vector3(-nodeExtent, -height, -nodeExtent), 
-			node->GetGlobalPosition() + Ogre::Vector3(nodeExtent, height, nodeExtent));
+		node->volume = Ogre::AxisAlignedBox(node->GetGlobalPosition() + Ogre::Vector3(-NODE_EXTENT, -height, -NODE_EXTENT), 
+			node->GetGlobalPosition() + Ogre::Vector3(NODE_EXTENT, height, NODE_EXTENT));
 		return node;
 	}
 
 	AStarNode3D* NavigationMesh::rasterNode(Ogre::Vector3 rayOrigin, float subTest, float rayDist)
 	{
 		AStarNode3D *node = 0;
-		if (node = quadTestCreate(rayOrigin, mMinBorder, rayDist))
+		if (node = quadTestCreate(rayOrigin, NODE_BORDER, rayDist))
 			return node;
 
-		if (node = quadTestCreate(rayOrigin + Ogre::Vector3(subTest, 0, subTest), mMinBorder, rayDist))
+		if (node = quadTestCreate(rayOrigin + Ogre::Vector3(subTest, 0, subTest), NODE_BORDER, rayDist))
 			return node;
-		if (node = quadTestCreate(rayOrigin + Ogre::Vector3(subTest, 0, -subTest), mMinBorder, rayDist))
+		if (node = quadTestCreate(rayOrigin + Ogre::Vector3(subTest, 0, -subTest), NODE_BORDER, rayDist))
 			return node;
-		if (node = quadTestCreate(rayOrigin + Ogre::Vector3(-subTest, 0, subTest), mMinBorder, rayDist))
+		if (node = quadTestCreate(rayOrigin + Ogre::Vector3(-subTest, 0, subTest), NODE_BORDER, rayDist))
 			return node;
-		if (node = quadTestCreate(rayOrigin + Ogre::Vector3(-subTest, 0, -subTest), mMinBorder, rayDist))
+		if (node = quadTestCreate(rayOrigin + Ogre::Vector3(-subTest, 0, -subTest), NODE_BORDER, rayDist))
 			return node;
 		return 0;
 	}
@@ -379,9 +405,9 @@ namespace Ice
 		while (AStarNode3D *node = rasterNode(rayOrigin, subTest, rayDist))
 		{
 			mPathNodeTree->AddPathNode(node);
-			GameObject *go = new GameObject();
+			/*GameObject *go = new GameObject();
 			go->AddComponent(new MeshDebugRenderable("sphere.25cm.mesh"));
-			go->SetGlobalPosition(node->GetGlobalPosition());
+			go->SetGlobalPosition(node->GetGlobalPosition());*/
 			result.push_back(node);
 			rayOrigin.y = node->GetGlobalPosition().y - 1;
 		}
@@ -413,7 +439,7 @@ namespace Ice
 	{
 		Ogre::Vector3 mid = ((n1->GetGlobalPosition() - n2->GetGlobalPosition()) * 0.5f) + n2->GetGlobalPosition();
 		mid.y += 0.5f;
-		bool test = quadTest(mid, mMinBorder, 2.0f);
+		bool test = quadTest(mid, NODE_BORDER, 2.0f);
 		if (!test)
 			return false;
 		return test;
@@ -421,6 +447,8 @@ namespace Ice
 
 	void NavigationMesh::rasterNodes()
 	{
+		if (!mPhysXMeshShape) return;
+
 		if (mPathNodeTree)
 		{
 			delete mPathNodeTree;
@@ -440,13 +468,7 @@ namespace Ice
 		Ogre::AxisAlignedBox oBox = OgrePhysX::Convert::toOgre(aabb);
 		mPathNodeTree = PathNodeTree::New(oBox);
 
-		int xNumSamples = (int)Ogre::Math::Ceil(((maxZ - minZ) / mMaxWaynodeDist));
-		/*int xNumSamplesByte = xNumSamples * 4;
-		AStarNode3D **lastRow = new AStarNode3D*[xNumSamples];
-		memset(lastRow, 0, xNumSamplesByte);
-		AStarNode3D **currRow = new AStarNode3D*[xNumSamples];
-		memset(currRow, 0, xNumSamplesByte);
-		//for (int i = 0; i < xNumSamples; i++) lastRow[i] = 0;*/
+		int xNumSamples = (int)Ogre::Math::Ceil(((maxZ - minZ) / NODE_DIST));
 		int rowIndex = 0;
 
 		std::vector< std::vector<AStarNode3D*> > lastRow;
@@ -454,9 +476,9 @@ namespace Ice
 		for (int i = 0; i < xNumSamples; i++) lastRow.push_back(std::vector<AStarNode3D*>());
 		for (int i = 0; i < xNumSamples; i++) currRow.push_back(std::vector<AStarNode3D*>());
 
-		float subTest = mMaxWaynodeDist / 4;
+		float subTest = NODE_DIST / 4;
 
-			for (float x = minX; x < maxX; x+=mMaxWaynodeDist)
+			for (float x = minX; x < maxX; x+=NODE_DIST)
 			{
 				for (int i = 0; i < xNumSamples; i++)
 				{
@@ -467,51 +489,21 @@ namespace Ice
 				rowIndex = 0;
 
 				Ogre::Vector3 origin = Ogre::Vector3(x, maxY, 0);
-				for (float z = minZ; z < maxZ; z+=mMaxWaynodeDist)
+				for (float z = minZ; z < maxZ; z+=NODE_DIST)
 				{
 					origin.z = z;
 					rasterNodeRow(currRow[rowIndex], origin, subTest, castDist);
 						//Add neighbours
 						if (rowIndex > 0)
 						{
-							addMatchingNeighbours(currRow[rowIndex], currRow[rowIndex-1]);//node->AddNeighbour(currRow[rowIndex-1]);
-							addMatchingNeighbours(currRow[rowIndex], lastRow[rowIndex-1]);//node->AddNeighbour(lastRow[rowIndex-1]);
+							addMatchingNeighbours(currRow[rowIndex], currRow[rowIndex-1]);
+							addMatchingNeighbours(currRow[rowIndex], lastRow[rowIndex-1]);
 						}
-						addMatchingNeighbours(currRow[rowIndex], lastRow[rowIndex]);//node->AddNeighbour(lastRow[rowIndex]);
+						addMatchingNeighbours(currRow[rowIndex], lastRow[rowIndex]);
 						if (rowIndex < xNumSamples-1)
 						{
-							addMatchingNeighbours(currRow[rowIndex], lastRow[rowIndex+1]);//node->AddNeighbour(lastRow[rowIndex+1]);
+							addMatchingNeighbours(currRow[rowIndex], lastRow[rowIndex+1]);
 						}
-						//currRow[rowIndex] = node;
-						//mPathNodeTree->AddPathNode(node);
-					/*OgrePhysX::Scene::QueryHit query;
-					if (Ice::Main::Instance().GetPhysXScene()->raycastClosestShape(query, Ogre::Ray(origin, Ogre::Vector3(0,-1,0)), NX_STATIC_SHAPES, 1<<CollisionGroups::AI, castDist))
-					{
-						OgrePhysX::Scene::QueryHit dummyQuery;
-						if (Ice::Main::Instance().GetPhysXScene()->raycastClosestShape(dummyQuery, Ogre::Ray(origin + Ogre::Vector3(mMinBorder, 0, 0), Ogre::Vector3(0,-1,0)), NX_STATIC_SHAPES, 1<<CollisionGroups::AI, castDist)
-						&& Ice::Main::Instance().GetPhysXScene()->raycastClosestShape(dummyQuery, Ogre::Ray(origin + Ogre::Vector3(-mMinBorder, 0, 0), Ogre::Vector3(0,-1,0)), NX_STATIC_SHAPES, 1<<CollisionGroups::AI, castDist)
-						&& Ice::Main::Instance().GetPhysXScene()->raycastClosestShape(dummyQuery, Ogre::Ray(origin + Ogre::Vector3(0, 0, mMinBorder), Ogre::Vector3(0,-1,0)), NX_STATIC_SHAPES, 1<<CollisionGroups::AI, castDist)
-						&& Ice::Main::Instance().GetPhysXScene()->raycastClosestShape(dummyQuery, Ogre::Ray(origin + Ogre::Vector3(0, 0, -mMinBorder), Ogre::Vector3(0,-1,0)), NX_STATIC_SHAPES, 1<<CollisionGroups::AI, castDist))
-						{
-							GameObject *go = new GameObject();
-							go->AddComponent(new MeshDebugRenderable("sphere.25cm.mesh"));
-							go->SetGlobalPosition(query.point);
-							AStarNode3D *node = new AStarNode3D(query.point);
-							//Add neighbours
-							if (rowIndex > 0)
-							{
-								if (currRow[rowIndex-1]) node->AddNeighbour(currRow[rowIndex-1]);
-								if (lastRow[rowIndex-1]) node->AddNeighbour(lastRow[rowIndex-1]);
-							}
-							if (lastRow[rowIndex]) node->AddNeighbour(lastRow[rowIndex]);
-							if (rowIndex < xNumSamples-1)
-							{
-								if (lastRow[rowIndex+1]) node->AddNeighbour(lastRow[rowIndex+1]);
-							}
-							currRow[rowIndex] = node;
-							mPathNodeTree->AddPathNode(node);
-						}
-					}*/
 					rowIndex++;
 				}
 			}
@@ -550,7 +542,7 @@ namespace Ice
 	}
 	void NavigationMesh::Load(LoadSave::LoadSystem& mgr)
 	{
-		Clear();
+		Reset();
 
 		std::vector<Ogre::Vector3> rawVertices;
 		mgr.LoadAtom("std::vector<Ogre::Vector3>", &rawVertices);
@@ -571,10 +563,7 @@ namespace Ice
 
 		mgr.LoadAtom("std::vector<int>", &mIndexBuffer);
 
-		bakePhysXMesh();
-		rasterNodes();
-		//bakeWaynet();
-		mNeedsUpdate = false;
+		Update();
 	}
 
 }

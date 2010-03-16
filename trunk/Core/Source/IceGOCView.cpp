@@ -68,7 +68,7 @@ void GOCViewContainer::AddItem(GOCViewComponent *item)
 	mItems.push_back(item);
 	if (mOwnerGO)
 	{
-		item->GetEditorVisual()->setUserObject(mOwnerGO);
+		item->GetEditorVisual()->setUserAny(Ogre::Any(mOwnerGO));
 	}
 }
 
@@ -92,7 +92,7 @@ void GOCViewContainer::SetOwner(GameObject *go)
 	mNode->setScale(mOwnerGO->GetGlobalScale());
 	for (std::list<GOCViewComponent*>::iterator i = mItems.begin(); i != mItems.end(); i++)
 	{
-		(*i)->GetEditorVisual()->setUserObject(mOwnerGO);
+		(*i)->GetEditorVisual()->setUserAny(Ogre::Any(mOwnerGO));
 	}
 }
 
@@ -218,7 +218,7 @@ MeshDebugRenderable::~MeshDebugRenderable()
 void MeshDebugRenderable::SetOwner(GameObject *go)
 {
 	mOwnerGO = go;
-	mEntity->setUserObject(mOwnerGO);
+	mEntity->setUserAny(Ogre::Any(mOwnerGO));
 }
 
 

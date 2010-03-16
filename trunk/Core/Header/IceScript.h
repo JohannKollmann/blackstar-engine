@@ -1,7 +1,6 @@
 #pragma once
 
 #include "LuaScript.h"
-#include <OgreUserDefinedObject.h>
 
 namespace Ice
 {

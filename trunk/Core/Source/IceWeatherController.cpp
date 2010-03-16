@@ -44,12 +44,12 @@ WeatherController::WeatherController(void)
 
     mCaelumSystem->setManageSceneFog(false);
     //mCaelumSystem->setSceneFogDensityMultiplier(0.0015);
-	mCaelumSystem->setMinimumAmbientLight(Ogre::ColourValue(0.1, 0.1,0.1));
+	mCaelumSystem->setMinimumAmbientLight(Ogre::ColourValue(0.1f, 0.1f,0.1f));
     mCaelumSystem->setManageAmbientLight (true); 
 
 	mCaelumSystem->getUniversalClock ()->setGregorianDateTime (2007, 4, 9, 9, 30, 0);
 
-	mCaelumSystem->getSun ()->setDiffuseMultiplier (Ogre::ColourValue (1.5, 1.5, 1.3));
+	mCaelumSystem->getSun ()->setDiffuseMultiplier (Ogre::ColourValue (1.5f, 1.5f, 1.3f));
 	mCaelumSystem->getSun ()->setSpecularMultiplier (Ogre::ColourValue (1, 1, 1));
 
 	mCaelumSystem->setEnsureSingleShadowSource(true);

@@ -1,0 +1,216 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="View">
+      <UniqueIdentifier>{df7ea032-6a51-4aeb-96b5-2845ab1d6ab0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="View\TinyXML">
+      <UniqueIdentifier>{5b3f7196-1904-4d0a-908f-83bf4ce33049}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Main">
+      <UniqueIdentifier>{70c9bc4e-a46c-4524-a78b-d46eed1b2e61}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Editor">
+      <UniqueIdentifier>{e0f41c3e-ff15-4ee4-a40f-c77beed03d9b}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Header\EntityTreeNotebookListener.h">
+      <Filter>View</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\virtualdirtreectrl.h">
+      <Filter>View</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\wxComponentBar.h">
+      <Filter>View</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\wxEdit.h">
+      <Filter>View</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\wxEditIceGameObject.h">
+      <Filter>View</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\wxEditorToolbar.h">
+      <Filter>View</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\wxEntityTreeNotebook.h">
+      <Filter>View</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\wxFileTree.h">
+      <Filter>View</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\wxLogDisplay.h">
+      <Filter>View</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\wxMainMenu.h">
+      <Filter>View</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\wxMainNotebook.h">
+      <Filter>View</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\wxMaterialEditor.h">
+      <Filter>View</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\wxMaterialTree.h">
+      <Filter>View</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\wxMediaTree.h">
+      <Filter>View</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\wxMeshMagick.h">
+      <Filter>View</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\wxObjectFolderTree.h">
+      <Filter>View</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\wxOgre.h">
+      <Filter>View</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\wxOgreSceneTree.h">
+      <Filter>View</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\wxProgressBar.h">
+      <Filter>View</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\wxPropertyGridListener.h">
+      <Filter>View</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\wxPropertyGridWindow.h">
+      <Filter>View</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\wxScriptEditor.h">
+      <Filter>View</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\wxScriptFileTree.h">
+      <Filter>View</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\wxSettingsWindow.h">
+      <Filter>View</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\wxTextureDisplay.h">
+      <Filter>View</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\DotSceneLoader.h">
+      <Filter>View\TinyXML</Filter>
+    </ClInclude>
+    <ClInclude Include="TinyXML\tinyxml.h">
+      <Filter>View\TinyXML</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\EDTIncludes.h">
+      <Filter>Main</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\Edit.h">
+      <Filter>Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\EntityMaterialInspector.h">
+      <Filter>Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\MaterialReload.h">
+      <Filter>Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\NavMeshEditorNode.h">
+      <Filter>Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\OgreAxisObject.h">
+      <Filter>Editor</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\virtualdirtreectrl.cpp">
+      <Filter>View</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\wxComponentBar.cpp">
+      <Filter>View</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\wxEdit.cpp">
+      <Filter>View</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\wxEditIceGameObject.cpp">
+      <Filter>View</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\wxEditorToolbar.cpp">
+      <Filter>View</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\wxEntityTreeNotebook.cpp">
+      <Filter>View</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\wxFileTree.cpp">
+      <Filter>View</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\wxLogDisplay.cpp">
+      <Filter>View</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\wxMainMenu.cpp">
+      <Filter>View</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\wxMainNotebook.cpp">
+      <Filter>View</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\wxMaterialEditor.cpp">
+      <Filter>View</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\wxMaterialTree.cpp">
+      <Filter>View</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\wxMediaTree.cpp">
+      <Filter>View</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\wxMeshMagick.cpp">
+      <Filter>View</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\wxObjectFolderTree.cpp">
+      <Filter>View</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\wxOgre.cpp">
+      <Filter>View</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\wxOgreSceneTree.cpp">
+      <Filter>View</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\wxProgressBar.cpp">
+      <Filter>View</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\wxPropertyGridWindow.cpp">
+      <Filter>View</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\wxScriptEditor.cpp">
+      <Filter>View</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\wxScriptFileTree.cpp">
+      <Filter>View</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\wxSettingsWindow.cpp">
+      <Filter>View</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\wxTextureDisplay.cpp">
+      <Filter>View</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DotSceneLoader.cpp">
+      <Filter>View\TinyXML</Filter>
+    </ClCompile>
+    <ClCompile Include="TinyXML\tinyxml.cpp">
+      <Filter>View\TinyXML</Filter>
+    </ClCompile>
+    <ClCompile Include="TinyXML\tinyxmlerror.cpp">
+      <Filter>View\TinyXML</Filter>
+    </ClCompile>
+    <ClCompile Include="TinyXML\tinyxmlparser.cpp">
+      <Filter>View\TinyXML</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Main.cpp">
+      <Filter>Main</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Edit.cpp">
+      <Filter>Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\EntityMaterialInspector.cpp">
+      <Filter>Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\NavMeshEditorNode.cpp">
+      <Filter>Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\OgreAxisObject.cpp">
+      <Filter>Editor</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

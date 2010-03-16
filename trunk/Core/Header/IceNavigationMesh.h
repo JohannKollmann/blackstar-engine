@@ -14,6 +14,11 @@ namespace Ice
 	class DllExport NavigationMesh : public LoadSave::Saveable, public MessageListener
 	{
 	private:
+		static const float NODE_DIST;
+		static const float NODE_EXTENT;
+		static const float NODE_BORDER;
+
+	private:
 
 		class PathNodeTree
 		{
@@ -23,6 +28,7 @@ namespace Ice
 			PathNodeTree(Ogre::AxisAlignedBox box);
 
 			static const float BOXSIZE_MIN;
+			static const float BOX_BORDER;
 
 		public:
 			virtual ~PathNodeTree() {}
@@ -32,10 +38,10 @@ namespace Ice
 			bool HasPoint(const Ogre::Vector3 &position);
 			bool ContainsBox(const Ogre::AxisAlignedBox &box);
 			Ogre::AxisAlignedBox& GetBox() { return mBox; }
-			Ogre::AxisAlignedBox& GetBorderBox() { return mBox; }
+			Ogre::AxisAlignedBox& GetBorderBox() { return mBorderBox; }
 
 			virtual void AddPathNode(AStarNode3D *node) = 0;
-			virtual void GetPathNodes(Ogre::AxisAlignedBox box, std::vector<AStarNode3D*> &oResult) = 0;
+			virtual void GetPathNodes(const Ogre::AxisAlignedBox &box, std::vector<AStarNode3D*> &oResult) = 0;
 
 			virtual void InjectObstacle(void *identifier, const Ogre::AxisAlignedBox &box) = 0;
 			virtual void RemoveObstacle(void *identifier, const Ogre::AxisAlignedBox &box) = 0;
@@ -50,7 +56,7 @@ namespace Ice
 			PathNodeTreeNode(Ogre::AxisAlignedBox box);
 			~PathNodeTreeNode();
 			void AddPathNode(AStarNode3D *node);
-			void GetPathNodes(Ogre::AxisAlignedBox box, std::vector<AStarNode3D*> &oResult);
+			void GetPathNodes(const Ogre::AxisAlignedBox &box, std::vector<AStarNode3D*> &oResult);
 
 			void InjectObstacle(void *identifier, const Ogre::AxisAlignedBox &box);
 			void RemoveObstacle(void *identifier, const Ogre::AxisAlignedBox &box);
@@ -63,7 +69,7 @@ namespace Ice
 			PathNodeTreeLeaf(Ogre::AxisAlignedBox box);
 			~PathNodeTreeLeaf();
 			void AddPathNode(AStarNode3D *node);
-			void GetPathNodes(Ogre::AxisAlignedBox box, std::vector<AStarNode3D*> &oResult);
+			void GetPathNodes(const Ogre::AxisAlignedBox &box, std::vector<AStarNode3D*> &oResult);
 			AStarNode3D* GetNearestPathNode(Ogre::Vector3 position);
 
 			void InjectObstacle(void *identifier, const Ogre::AxisAlignedBox &box);
@@ -71,12 +77,10 @@ namespace Ice
 		};
 
 		bool mNeedsUpdate;
+		bool mDestroyingNavMesh;
 		OgrePhysX::Actor *mPhysXActor;
 		NxTriangleMeshShape *mPhysXMeshShape;
 		PathNodeTree *mPathNodeTree;
-
-		float mMaxWaynodeDist;
-		float mMinBorder;
 
 		void rasterNodes();
 		bool quadTest(Ogre::Vector3 center, float size, float rayDist);
@@ -104,6 +108,8 @@ namespace Ice
 		~NavigationMesh();
 
 		void Clear();
+		void Reset();
+		void Update();
 
 		/*
 		Retrieves the shortest path (if existing) between from and to

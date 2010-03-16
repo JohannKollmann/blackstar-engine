@@ -15,7 +15,7 @@ namespace Ice
 
 	typedef std::string go_id_type;
 
-	class DllExport GameObject : public LoadSave::Saveable, public Ogre::UserDefinedObject, public Transformable3D
+	class DllExport GameObject : public LoadSave::Saveable, public Transformable3D
 	{
 	private:
 		//Unique ID

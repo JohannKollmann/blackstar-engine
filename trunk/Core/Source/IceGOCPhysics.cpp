@@ -66,10 +66,10 @@ void GOCRigidBody::Create(Ogre::String collision_mesh, float density, int shapet
 		cubeShapeSize = cubeShapeSize * scale;
 		float capsule_radius = cubeShapeSize.x > cubeShapeSize.z ? cubeShapeSize.x : cubeShapeSize.z;
 		float offset = 0.0f;
-		if (cubeShapeSize.y - capsule_radius > 0.0f) offset = (cubeShapeSize.y / capsule_radius) * 0.1;
+		if (cubeShapeSize.y - capsule_radius > 0.0f) offset = (cubeShapeSize.y / capsule_radius) * 0.1f;
 		mActor = Main::Instance().GetPhysXScene()->createRenderedActor(
 			mRenderable,
-			OgrePhysX::CapsuleShape(capsule_radius * 0.5, cubeShapeSize.y * 0.5 + offset).density(mDensity).group(CollisionGroups::DEFAULT));
+			OgrePhysX::CapsuleShape(capsule_radius * 0.5f, cubeShapeSize.y * 0.5f + offset).density(mDensity).group(CollisionGroups::DEFAULT));
 	}
 	else		//Default: Box
 	{

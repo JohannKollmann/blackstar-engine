@@ -56,7 +56,7 @@ void GOCCharacterController::Create(Ogre::Vector3 dimensions)
 	desc.extents.set(dimensions.x * 0.5 - desc.skinWidth, dimensions.y * 0.5 - desc.skinWidth, dimensions.z * 0.5 - desc.skinWidth);
 	desc.upDirection	= NX_Y;
 	desc.slopeLimit		= cosf(NxMath::degToRad(45.0f));
-	mStepOffset			= 0.5;
+	mStepOffset			= 0.8;
 	desc.stepOffset		= mStepOffset;
 	bool test = desc.isValid();
 	mCharacterController = OgrePhysX::World::getSingleton().getControllerManager()->createController(Main::Instance().GetPhysXScene()->getNxScene(), desc);
@@ -96,7 +96,7 @@ void GOCCharacterController::ReceiveMessage(Msg &msg)
 		}
 		ObjectMsg *collision_response = new ObjectMsg;
 		collision_response->mName = "CharacterCollisionReport";
-		collision_response->mData.AddFloat("collisionFlags", collisionFlags);
+		collision_response->mData.AddInt("collisionFlags", collisionFlags);
 		mOwnerGO->SendMessage(Ogre::SharedPtr<ObjectMsg>(collision_response));
 	}
 	if (msg.mNewsgroup == "END_PHYSICS" && !mFreezed)
