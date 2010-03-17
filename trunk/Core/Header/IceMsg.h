@@ -15,7 +15,7 @@ namespace Ice
 
 		Msg()		
 		{						//Default: Broadcast
-			mReceiver = NULL;
+			mReceiver = nullptr;
 			mNewsgroup = "COMMON";
 		}
 		virtual ~Msg() { };

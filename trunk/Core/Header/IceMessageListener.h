@@ -7,16 +7,16 @@
 namespace Ice
 {
 
-class DllExport MessageListener
-{
-public:
-	MessageListener();
+	class DllExport MessageListener
+	{
+	public:
+		MessageListener();
 
-	virtual ~MessageListener();
+		virtual ~MessageListener();
 
-	virtual void ReceiveMessage(Msg &msg) = 0;
+		virtual void ReceiveMessage(Msg &msg) = 0;
 
-	virtual float GetListenerPriority() { return 1.0f; };
-};
+		virtual float GetListenerPriority() { return 1.0f; };
+	};
 
 };

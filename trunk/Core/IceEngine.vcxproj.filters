@@ -299,9 +299,6 @@
     <ClInclude Include="Header\IceSceneManager.h">
       <Filter>Content</Filter>
     </ClInclude>
-    <ClInclude Include="Header\Ice3D.h">
-      <Filter>Common</Filter>
-    </ClInclude>
     <ClInclude Include="Header\IceCameraController.h">
       <Filter>Common</Filter>
     </ClInclude>
@@ -544,6 +541,9 @@
     </ClInclude>
     <ClInclude Include="..\..\Dependencies\lua\src\lzio.h">
       <Filter>ScriptSystem\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\Ice3D.h">
+      <Filter>AI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

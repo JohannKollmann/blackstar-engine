@@ -5,164 +5,180 @@
 namespace Ice
 {
 
-MessageSystem::MessageSystem()
-{
-	CreateNewsgroup("COMMON");
-
-	CreateNewsgroup("UPDATE_PER_FRAME");
-	CreateNewsgroup("START_PHYSICS");
-	CreateNewsgroup("END_PHYSICS");
-	CreateNewsgroup("START_RENDERING");
-	CreateNewsgroup("END_RENDERING");
-
-	CreateNewsgroup("KEY_UP");
-	CreateNewsgroup("KEY_DOWN");
-	CreateNewsgroup("MOUSE_DOWN");
-	CreateNewsgroup("MOUSE_UP");
-	CreateNewsgroup("MOUSE_MOVE");
-
-	CreateNewsgroup("CONSOLE_INGAME");
-}
-
-MessageSystem::~MessageSystem()
-{
-	mNewsgroups.clear();
-}
-
-
-void MessageSystem::SendMessage(Msg &msg)
-{
-	for (std::list<Newsgroup>::iterator ni = mNewsgroups.begin(); ni != mNewsgroups.end(); ni++)
+	MessageSystem::MessageSystem()
 	{
-		if ((*ni).mName == msg.mNewsgroup)
-		{
-			(*ni).mCurrentMessages.push_back(msg);
-		}
+		CreateNewsgroup("COMMON");
+
+		CreateNewsgroup("UPDATE_PER_FRAME");
+		CreateNewsgroup("START_PHYSICS");
+		CreateNewsgroup("END_PHYSICS");
+		CreateNewsgroup("START_RENDERING");
+		CreateNewsgroup("END_RENDERING");
+
+		CreateNewsgroup("KEY_UP");
+		CreateNewsgroup("KEY_DOWN");
+		CreateNewsgroup("MOUSE_DOWN");
+		CreateNewsgroup("MOUSE_UP");
+		CreateNewsgroup("MOUSE_MOVE");
+
+		CreateNewsgroup("CONSOLE_INGAME");
 	}
-};
 
-void MessageSystem::CreateNewsgroup(Ogre::String groupname, float priority)
-{
-	for (std::list<Newsgroup>::iterator ni = mNewsgroups.begin(); ni != mNewsgroups.end(); ni++)
+	MessageSystem::~MessageSystem()
 	{
-		if ((*ni).mName == groupname)
+		mNewsgroups.clear();
+	}
+
+
+	void MessageSystem::SendMessage(Msg &msg)
+	{
+		for (std::list<Newsgroup>::iterator ni = mNewsgroups.begin(); ni != mNewsgroups.end(); ni++)
 		{
-			Ogre::LogManager::getSingleton().logMessage("Error while creating Newsgroup '" + groupname + "'. Group already exists!");
+			if ((*ni).mName == msg.mNewsgroup)
+			{
+				(*ni).mCurrentMessages.push_back(msg);
+			}
+		}
+	};
+
+	void MessageSystem::CreateNewsgroup(Ogre::String groupname, float priority)
+	{
+		for (std::list<Newsgroup>::iterator ni = mNewsgroups.begin(); ni != mNewsgroups.end(); ni++)
+		{
+			if ((*ni).mName == groupname)
+			{
+				Ogre::LogManager::getSingleton().logMessage("Error while creating Newsgroup '" + groupname + "'. Group already exists!");
+				return;
+			}
+		}
+
+		Newsgroup newsgroup;
+		newsgroup.mName = groupname;
+		newsgroup.mPriority = priority;
+		std::list<Newsgroup>::iterator i = mNewsgroups.begin();
+		for (unsigned int x = 0; x < mNewsgroups.size(); x++)
+		{
+			if ((*i).mPriority < priority) break;
+			i++;
+		}
+		mNewsgroups.insert(i, newsgroup);
+
+		Ogre::LogManager::getSingleton().logMessage("MessageSystem::CreateNewsgroup: Created Newsgroup '" + groupname + "'.");
+	};
+
+	void MessageSystem::JoinNewsgroup(MessageListener *listener, Ogre::String groupname)
+	{
+		std::list<Newsgroup>::iterator ni = mNewsgroups.begin();
+		bool found = false;
+		for (; ni != mNewsgroups.end(); ni++)
+		{
+			if ((*ni).mName == groupname)
+			{
+				found = true;
+				break;
+			}
+		}
+		if (!found)
+		{
+			Ogre::LogManager::getSingleton().logMessage("Warning: MessageSystem::JoinNewsgroup: Newsgroup '" + groupname + "' doesn't exist!");
 			return;
 		}
-	}
 
-	Newsgroup newsgroup;
-	newsgroup.mName = groupname;
-	newsgroup.mPriority = priority;
-	std::list<Newsgroup>::iterator i = mNewsgroups.begin();
-	for (unsigned int x = 0; x < mNewsgroups.size(); x++)
-	{
-		if ((*i).mPriority < priority) break;
-		i++;
-	}
-	mNewsgroups.insert(i, newsgroup);
-
-	Ogre::LogManager::getSingleton().logMessage("MessageSystem::CreateNewsgroup: Created Newsgroup '" + groupname + "'.");
-};
-
-void MessageSystem::JoinNewsgroup(MessageListener *listener, Ogre::String groupname)
-{
-	std::list<Newsgroup>::iterator ni = mNewsgroups.begin();
-	bool found = false;
-	for (; ni != mNewsgroups.end(); ni++)
-	{
-		if ((*ni).mName == groupname)
+		std::list<MessageListener*>::iterator li = (*ni).mListeners.begin();
+		for (; li != (*ni).mListeners.end(); li++)
 		{
-			found = true;
-			break;
-		}
-	}
-	if (!found)
-	{
-		Ogre::LogManager::getSingleton().logMessage("Warning: MessageSystem::JoinNewsgroup: Newsgroup '" + groupname + "' doesn't exist!");
-		return;
-	}
-
-	std::list<MessageListener*>::iterator li = (*ni).mListeners.begin();
-	for (; li != (*ni).mListeners.end(); li++)
-	{
-		if ((*li)->GetListenerPriority() < listener->GetListenerPriority())
-		{
-			break;
-		}
-	}
-
-	(*ni).mListeners.insert(li, listener);
-	//Ogre::LogManager::getSingleton().logMessage("MessageSystem::JoinNewsgroup: Added listener to Newsgroup '" + groupname + "'.");
-};
-
-void MessageSystem::QuitNewsgroup(MessageListener *listener, Ogre::String groupname)
-{
-	std::list<Newsgroup>::iterator ni = mNewsgroups.begin();
-	bool found = false;
-	for (; ni != mNewsgroups.end(); ni++)
-	{
-		if ((*ni).mName == groupname)
-		{
-			found = true;
-			break;
-		}
-	}
-	if (!found)
-	{
-		Ogre::LogManager::getSingleton().logMessage("Warning: MessageSystem::QuitNewsgroup: Newsgroup '" + groupname + "' doesn't exist!");
-		return;
-	}
-
-	//(*i).second->remove(listener);
-	for (std::list<MessageListener*>::iterator x = (*ni).mListeners.begin(); x != (*ni).mListeners.end(); x++)
-	{
-		if ((*x) == listener)
-		{
-			(*ni).mListeners.erase(x);
-			break;
-		}
-	}
-	//Ogre::LogManager::getSingleton().logMessage("MessageSystem::QuitNewsgroup: Quitted listener to Newsgroup '" + groupname + "'.");
-};
-
-void MessageSystem::Update()
-{
-	for (std::list<Newsgroup>::iterator ni = mNewsgroups.begin(); ni != mNewsgroups.end(); ni++)
-	{
-		std::vector<Msg> tempMessages = (*ni).mCurrentMessages;	//Damit, falls Listener dieser Message diese Message senden, es nicht zum rekursiven Chaos kommt.
-		(*ni).mCurrentMessages.clear();
-		for (std::vector<Msg>::iterator MsgIter = tempMessages.begin(); MsgIter != tempMessages.end(); MsgIter++)
-		{
-			for (std::list<MessageListener*>::iterator li = (*ni).mListeners.begin(); li != (*ni).mListeners.end(); li++)
+			if ((*li)->GetListenerPriority() < listener->GetListenerPriority())
 			{
-				//Ogre::LogManager::getSingleton().logMessage((*MsgIter).mNewsgroup);
-				(*li)->ReceiveMessage((*MsgIter));
+				(*ni).mListeners.insert(li, listener);
+				return;
+			}
+		}
+
+		(*ni).mListeners.push_back(listener);
+		//Ogre::LogManager::getSingleton().logMessage("MessageSystem::JoinNewsgroup: Added listener to Newsgroup '" + groupname + "'.");
+	};
+
+	void MessageSystem::QuitNewsgroup(MessageListener *listener, Ogre::String groupname)
+	{
+		/*std::list<Newsgroup>::iterator ni = mNewsgroups.begin();
+		bool found = false;
+		for (; ni != mNewsgroups.end(); ni++)
+		{
+			if ((*ni).mName == groupname)
+			{
+				found = true;
+				break;
+			}
+		}
+		if (!found)
+		{
+			Ogre::LogManager::getSingleton().logMessage("Warning: MessageSystem::QuitNewsgroup: Newsgroup '" + groupname + "' doesn't exist!");
+			return;
+		}
+
+		//(*i).second->remove(listener);
+		for (std::list<MessageListener*>::iterator x = (*ni).mListeners.begin(); x != (*ni).mListeners.end(); x++)
+		{
+			if ((*x) == listener)
+			{
+				(*ni).mListeners.erase(x);
+				break;
+			}
+		}*/
+		//Ogre::LogManager::getSingleton().logMessage("MessageSystem::QuitNewsgroup: Quitted listener to Newsgroup '" + groupname + "'.");
+	};
+
+	void MessageSystem::QuitAllNewsgroups(MessageListener *listener)
+	{
+		for (std::list<Newsgroup>::iterator ni = mNewsgroups.begin(); ni != mNewsgroups.end(); ++ni)
+		{
+			for (std::list<MessageListener*>::iterator li = (*ni).mListeners.begin(); li != (*ni).mListeners.end(); ++li)
+			{
+				if ((*li) == listener)
+				{
+					(*ni).mListeners.erase(li);
+					break;
+				}
 			}
 		}
 	}
-};
 
-void MessageSystem::SendInstantMessage(Msg &msg)
-{
-	for (std::list<Newsgroup>::iterator ni = mNewsgroups.begin(); ni != mNewsgroups.end(); ni++)
+	void MessageSystem::Update()
 	{
-		if ((*ni).mName == msg.mNewsgroup)
+		for (std::list<Newsgroup>::iterator ni = mNewsgroups.begin(); ni != mNewsgroups.end(); ni++)
 		{
-			for (std::list<MessageListener*>::iterator li = (*ni).mListeners.begin(); li != (*ni).mListeners.end(); li++)
+			std::vector<Msg> tempMessages = (*ni).mCurrentMessages;	//Damit, falls Listener dieser Message diese Message senden, es nicht zum rekursiven Chaos kommt.
+			(*ni).mCurrentMessages.clear();
+			for (std::vector<Msg>::iterator MsgIter = tempMessages.begin(); MsgIter != tempMessages.end(); MsgIter++)
 			{
-				(*li)->ReceiveMessage(msg);
+				for (std::list<MessageListener*>::iterator li = (*ni).mListeners.begin(); li != (*ni).mListeners.end(); li++)
+				{
+					//Ogre::LogManager::getSingleton().logMessage((*MsgIter).mNewsgroup);
+					(*li)->ReceiveMessage((*MsgIter));
+				}
+			}
+		}
+	};
+
+	void MessageSystem::SendInstantMessage(Msg &msg)
+	{
+		for (std::list<Newsgroup>::iterator ni = mNewsgroups.begin(); ni != mNewsgroups.end(); ni++)
+		{
+			if ((*ni).mName == msg.mNewsgroup)
+			{
+				for (std::list<MessageListener*>::iterator li = (*ni).mListeners.begin(); li != (*ni).mListeners.end(); li++)
+				{
+					(*li)->ReceiveMessage(msg);
+				}
 			}
 		}
 	}
-}
 
 
-MessageSystem& MessageSystem::Instance()
-{
-	static MessageSystem TheOneAndOnly;
-	return TheOneAndOnly;
-};
+	MessageSystem& MessageSystem::Instance()
+	{
+		static MessageSystem TheOneAndOnly;
+		return TheOneAndOnly;
+	};
 
 };

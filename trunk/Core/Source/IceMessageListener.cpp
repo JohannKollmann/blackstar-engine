@@ -6,13 +6,13 @@
 namespace Ice
 {
 
-MessageListener::MessageListener()
-{
-	MessageSystem::Instance().JoinNewsgroup(this, "COMMON");
-};
-MessageListener::~MessageListener()
-{
-	MessageSystem::Instance().QuitNewsgroup(this, "COMMON");
-};
+	MessageListener::MessageListener()
+	{
+	};
+	MessageListener::~MessageListener()
+	{
+		MessageSystem::Instance().QuitAllNewsgroups(this);
+		//MessageSystem::Instance().QuitNewsgroup(this, "COMMON");
+	};
 
 };

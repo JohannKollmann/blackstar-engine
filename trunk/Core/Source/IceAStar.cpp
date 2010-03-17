@@ -15,10 +15,10 @@ namespace Ice
 		{
 			if ((*i)->IsBlocked()) continue;
 			AStarEdge edge;
-			edge.mCost = mPosition.distance((*i)->mPosition);
+			edge.mCost = mPosition.squaredDistance((*i)->mPosition);
 			edge.mFrom = this;
 			edge.mNeighbor = (*i);
-			edge.mCostOffset = (*i)->mPosition.distance(targetPos);
+			edge.mCostOffset = (*i)->mPosition.squaredDistance(targetPos);
 			edges.push_back(edge);
 		}
 	}
@@ -50,97 +50,6 @@ namespace Ice
 		}
 		if (found) mBlockers.erase(i);
 	}
-
-	/*GOCWaypoint* Pathfinder::GetNextWP(Ogre::Vector3 position, std::vector<GOCWaypoint*> excludeList)
-	{
-		if (mWaynet.size() == 0) return 0;
-		std::list<GOCWaypoint*>::iterator shortest = mWaynet.begin();
-		float shortest_distance = (*shortest)->GetPosition().squaredDistance(position);
-		for (std::list<GOCWaypoint*>::iterator i = ++mWaynet.begin(); i != mWaynet.end(); i++)
-		{
-			bool exclude = false;
-			for (std::vector<GOCWaypoint*>::iterator ex = excludeList.begin(); ex != excludeList.end(); ex++)
-			{
-				if ((*i) == (*ex))
-				{
-					exclude = true;
-					break;
-				}
-			}
-			if (exclude) continue;
-			float distance = (*i)->GetPosition().squaredDistance(position);
-			if (distance < shortest_distance)
-			{
-				shortest_distance = distance;
-				shortest = i;
-			}
-		}
-		return (*shortest);
-	}
-
-	bool Pathfinder::FindPath(Ogre::Vector3 position, Ogre::String targetWP, std::vector<Ogre::Vector3> *path, NxActor *actor)
-	{
-		GOCWaypoint *target = GetWPByName(targetWP);
-		if (target == 0)
-		{
-			Ogre::LogManager::getSingleton().logMessage("Error: Could not find target Waypoint: '" + targetWP + "'");
-			return false;
-		}
-
-		//Find the next waypoint which is connected to the target waypoint
-		std::vector<GOCWaypoint*> excludeList;
-		int maxSearches = 10;
-		for (int i = 0; i < maxSearches; i++)
-		{
-			GOCWaypoint *start = GetNextWP(position, excludeList);
-			if (!start) return false;
-			excludeList.push_back(start);
-
-			if (actor)
-			{
-				//Test, whether we can reach the waypoint
-				Ogre::Vector3 origin = position + Ogre::Vector3(0, 0.5, 0);
-				Ogre::Vector3 motion = start->GetPosition() - origin;
-				int maxNumResult  = 10;
-				NxSweepQueryHit *sqh_result = new NxSweepQueryHit[maxNumResult];
-				NxU32 numHits = actor->linearSweep(OgrePhysX::Convert::toNx(motion), NX_SF_STATICS|NX_SF_ALL_HITS, 0, maxNumResult, sqh_result, 0);
-				bool obstacleHit = false;
-				for (NxU32 i = 0; i < numHits; i++)
-				{
-					NxSweepQueryHit hit = sqh_result[i];
-					if (hit.hitShape->getGroup() == CollisionGroups::DEFAULT)
-					{
-						obstacleHit = true;
-						break;
-					}
-				}
-				delete sqh_result;
-				if (obstacleHit) continue;
-			}
-
-			if (FindPath(start, target, path)) return true;
-		}
-		
-		return false;
-	}
-
-	bool Pathfinder::FindPath(Ogre::String startWP, Ogre::String targetWP, std::vector<Ogre::Vector3> *path)
-	{
-		GOCWaypoint *start = GetWPByName(startWP);
-		GOCWaypoint *target = GetWPByName(targetWP);
-		if (start == 0)
-		{
-			Ogre::LogManager::getSingleton().logMessage("Error: Could not find start Waypoint: '" + startWP + "'");
-			return false;
-		}
-		if (target == 0)
-		{
-			Ogre::LogManager::getSingleton().logMessage("Error: Could not find target Waypoint: '" + targetWP + "'");
-			return false;
-		}
-		return FindPath(start, target, path);
-	}*/
-
 
 	//Methoden für A*
 	bool AStar::UpdateEdgeList(AStarEdge &e, std::vector<AStarEdge> &edges)

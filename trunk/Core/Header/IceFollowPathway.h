@@ -15,6 +15,8 @@ namespace Ice
 	private:
 		std::vector<AStarNode3D*> mPath;
 
+		AStarNode3D mTempObstacleAvoidNode;
+
 		DirectionYawBlender mDirectionBlender;
 
 		bool mAvoidingObstacle;
@@ -28,7 +30,8 @@ namespace Ice
 		NxActor* ObstacleCheck(Ogre::Vector3 motion);
 
 		void computePath();
-		void checkPath();
+		void verifyPath();
+		void optimizePath();
 
 	public:
 		FollowPathway(GOCAI *ai, Ogre::String target, float radius = 0.5f);

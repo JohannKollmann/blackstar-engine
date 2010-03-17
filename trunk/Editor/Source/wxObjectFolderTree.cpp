@@ -2,6 +2,7 @@
 #include "wxObjectFolderTree.h"
 #include "IceScenemanager.h"
 #include "IceGOCAnimatedCharacter.h"
+#include "IceMainLoop.h"
 
 enum
 {
@@ -92,7 +93,17 @@ void wxObjectFolderTree::CreateObjectPreview(Ogre::String file)
 		if (!component) continue;
 		Ice::GOComponent *test1 = dynamic_cast<Ice::GOComponent*>(component);
 		Ice::GOCNodeRenderable *test2 = dynamic_cast<Ice::GOCNodeRenderable*>(component);
-		if (test1 && !test2) delete test1;
+		Ice::GOCPhysics *test3 = dynamic_cast<Ice::GOCPhysics*>(component);
+		if (test1 && !test2)
+		{
+			if (test3)
+			{
+				OgrePhysX::World::getSingleton().startSimulate(0);
+				OgrePhysX::World::getSingleton().fetchSimulate();	//blocking
+				OgrePhysX::World::getSingleton().syncRenderables();
+			}
+			delete test1;
+		}
 		else component->AttachToGO(mPreviewObject);
 	}
 	ls->CloseFile();

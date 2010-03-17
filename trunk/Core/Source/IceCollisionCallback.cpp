@@ -43,7 +43,7 @@ namespace Ice
 			Msg msg;
 			msg.mNewsgroup = "ACOTR_ONSLEEP";
 			msg.rawData = actors[i];
-			MessageSystem::Instance().SendMessage(msg);
+			MessageSystem::Instance().SendInstantMessage(msg);
 		}
 	}
 
@@ -54,7 +54,7 @@ namespace Ice
 			Msg msg;
 			msg.mNewsgroup = "ACOTR_ONWAKE";
 			msg.rawData = actors[i];
-			MessageSystem::Instance().SendMessage(msg);
+			MessageSystem::Instance().SendInstantMessage(msg);
 		}
 	}
 

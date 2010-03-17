@@ -41,7 +41,7 @@ namespace Ice
 			Ogre::AxisAlignedBox& GetBorderBox() { return mBorderBox; }
 
 			virtual void AddPathNode(AStarNode3D *node) = 0;
-			virtual void GetPathNodes(const Ogre::AxisAlignedBox &box, std::vector<AStarNode3D*> &oResult) = 0;
+			virtual void GetPathNodes(const Ogre::AxisAlignedBox &box, std::vector<AStarNode3D*> &oResult, bool getBlocked = false) = 0;
 
 			virtual void InjectObstacle(void *identifier, const Ogre::AxisAlignedBox &box) = 0;
 			virtual void RemoveObstacle(void *identifier, const Ogre::AxisAlignedBox &box) = 0;
@@ -56,7 +56,7 @@ namespace Ice
 			PathNodeTreeNode(Ogre::AxisAlignedBox box);
 			~PathNodeTreeNode();
 			void AddPathNode(AStarNode3D *node);
-			void GetPathNodes(const Ogre::AxisAlignedBox &box, std::vector<AStarNode3D*> &oResult);
+			void GetPathNodes(const Ogre::AxisAlignedBox &box, std::vector<AStarNode3D*> &oResult, bool getBlocked = false);
 
 			void InjectObstacle(void *identifier, const Ogre::AxisAlignedBox &box);
 			void RemoveObstacle(void *identifier, const Ogre::AxisAlignedBox &box);
@@ -69,7 +69,7 @@ namespace Ice
 			PathNodeTreeLeaf(Ogre::AxisAlignedBox box);
 			~PathNodeTreeLeaf();
 			void AddPathNode(AStarNode3D *node);
-			void GetPathNodes(const Ogre::AxisAlignedBox &box, std::vector<AStarNode3D*> &oResult);
+			void GetPathNodes(const Ogre::AxisAlignedBox &box, std::vector<AStarNode3D*> &oResult, bool getBlocked = false);
 			AStarNode3D* GetNearestPathNode(Ogre::Vector3 position);
 
 			void InjectObstacle(void *identifier, const Ogre::AxisAlignedBox &box);
@@ -81,6 +81,13 @@ namespace Ice
 		OgrePhysX::Actor *mPhysXActor;
 		NxTriangleMeshShape *mPhysXMeshShape;
 		PathNodeTree *mPathNodeTree;
+
+		struct MinMax
+		{
+			float min;
+			float max;
+		};
+		MinMax getMinMax(const std::vector<float> &vals);
 
 		void rasterNodes();
 		bool quadTest(Ogre::Vector3 center, float size, float rayDist);
@@ -117,9 +124,11 @@ namespace Ice
 		void ShortestPath(Ogre::Vector3 from, Ogre::Vector3 to, std::vector<AStarNode3D*> &oPath);
 
 		/*
-		Tests whether the whole box is within by the navmesh.
+		Tests whether the whole box is within the navmesh.
 		*/
-		bool TestPathVolume(Ogre::AxisAlignedBox box);
+		bool TestPathVolume(const Ogre::AxisAlignedBox &box);
+
+		bool TestLinearPath(Ogre::Vector3 from, Ogre::Vector3 to, float pathBorder = NODE_BORDER);
 		
 		/*
 		Adds the vertices to the vertex buffer if needed and adds the triangle to the indexbuffer

@@ -80,7 +80,7 @@ namespace Ice
 		}
 	}
 
-	void FollowPathway::checkPath()
+	void FollowPathway::verifyPath()
 	{
 		unsigned int max = mPath.size() < 5 ? mPath.size() : 5;
 		for (unsigned int i = 0; i < max; i++)
@@ -93,9 +93,29 @@ namespace Ice
 		}
 	}
 
+	void FollowPathway::optimizePath()
+	{
+		Ogre::Vector3 currPos = mAIObject->GetOwner()->GetGlobalPosition();
+
+		unsigned int max = mPath.size() < 5 ? mPath.size() : 5;
+		auto endErase = mPath.begin();
+		bool erase = false;
+		for (unsigned int i = 1; i < max; i++)
+		{
+			if (!AIManager::Instance().GetNavigationMesh()->TestLinearPath(currPos, mPath[i]->GetGlobalPosition()))
+				break;
+			else
+			{
+				if (erase) endErase++;
+				else erase = true;
+			}
+		}
+		if (erase) mPath.erase(mPath.begin(), endErase);
+	}
+
 	bool FollowPathway::Update(float time)
 	{
-		checkPath();
+		verifyPath();
 		if (mPath.empty())
 		{
 			mAIObject->BroadcastMovementState(0);
@@ -121,6 +141,7 @@ namespace Ice
 				mAIObject->BroadcastMovementState(0);
 				return true;
 			}
+			optimizePath();
 			Ogre::Vector3 targetDir = mPath[0]->GetGlobalPosition()-currPos;
 			mDirectionBlender.StartBlend(myDirection, targetDir, 0.2f);
 		}
@@ -152,16 +173,23 @@ namespace Ice
 		}*/
 
 		int movementstate = CharacterMovement::FORWARD;
+		mAIObject->GetOwner()->GetComponent<GOCCharacterController>()->SetSpeedFactor(1);
 
-		if (!mDirectionBlender.HasNext())
+		if (NxActor *obstacle = ObstacleCheck(direction * 4.0f))
 		{
-			if (NxActor *obstacle = ObstacleCheck(direction * 4.0f))
-			{
-				GameObject *go = (GameObject*)obstacle->userData;
-				if (go->GetGlobalPosition().distance(currPos) < 2)
-				{
-				}
-				else
+			GameObject *go = (GameObject*)obstacle->userData;
+			float dist = go->GetGlobalPosition().distance(currPos);
+
+			mAIObject->GetOwner()->GetComponent<GOCCharacterController>()->SetSpeedFactor(dist < 3 ? dist / 3 : 1);
+				/*
+				Bei < 4 Metern Entfernung:
+					- Versuchen nach rechts auszuweichen, AStar von dort neu anwenden
+					- Wenn das nicht geht geradeaus weiterlaufen, Speed drosseln
+				Bei < 2 Metern Entfernung:
+					- Wenn Hindernis Npc ist: Speed stark drosseln und soweit rechts steuern, wie möglich.
+					- kein Npc: AStar, vorher blocker temporär setzen
+				*/
+				/*if (go->GetGlobalPosition().distance(currPos) < 2)
 				{
 					if (GOCCharacterController *character = go->GetComponent<GOCCharacterController>())
 					{
@@ -170,23 +198,24 @@ namespace Ice
 					{
 					}
 				}
-				/*
-				Bei < 4 Metern Entfernung:
-					- Versuchen auf die AStarNode rechts der aktuellen ZielNode auszuweichen, AStar von dort neu anwenden
-					- Wenn das nicht geht geradeaus weiterlaufen, Speed drosseln
-				Bei < 2 Metern Entfernung:
-					- Wenn Hindernis Npc ist: Speed stark drosseln und soweit rechts steuern, wie möglich.
-					- kein Npc: AStar, vorher blocker temporär setzen
-				*/
+				else*/
+			Ogre::Quaternion q = Ogre::Vector3::UNIT_X.getRotationTo(Ogre::Vector3::UNIT_Z);
+			Ogre::Vector3 ortDir = q * myDirection;
+			Ogre::Vector3 target = currPos + (myDirection * dist) + (ortDir * Ogre::Vector3(1.5f, 0, 1.5f));
+			Ogre::Vector3 avoidDir = (target - currPos).normalisedCopy();
+			Ogre::Vector3 velocity = OgrePhysX::Convert::toOgre(obstacle->getLinearVelocity());
+			if (velocity.normalisedCopy().dotProduct(myDirection) < 0 || velocity.length() < 0.5f)
+			{
+				if (AIManager::Instance().GetNavigationMesh()->TestLinearPath(currPos, target))
+				{
+					mTempObstacleAvoidNode.SetGlobalPosition(target);
+					mPath.erase(mPath.begin());
+					mPath.insert(mPath.begin(), &mTempObstacleAvoidNode);
+					Ogre::Vector3 targetDir = mPath[0]->GetGlobalPosition()-currPos;
+					mDirectionBlender.StartBlend(direction, targetDir, 0.2f);
+				}
 			}
-		}
-		/*if (ObstacleCheck(direction * 3.0f))
-		{
-			mAvoidingObstacle = true;
-			Ogre::Quaternion q = Ogre::Quaternion(Ogre::Radian(Ogre::Degree(90)), Ogre::Vector3::UNIT_Y);
-			mAvoidObstacleVector = q * direction;
-			mDirectionBlender.StartBlend(direction, mAvoidObstacleVector);
-		}*/
+		}	
 
 		Ogre::Quaternion quat = Ogre::Vector3::UNIT_Z.getRotationTo(direction);
 		mAIObject->GetOwner()->SetGlobalOrientation(quat);

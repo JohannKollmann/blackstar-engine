@@ -14,6 +14,7 @@ namespace Ice
 class GOCEditorInterface
 {
 public:
+	virtual ~GOCEditorInterface() {}
 	virtual void CreateFromDataMap(DataMap *parameters) = 0;
 	virtual void GetParameters(DataMap *parameters) = 0;
 	virtual Ogre::String GetLabel() = 0;

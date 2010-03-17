@@ -387,6 +387,8 @@ void GOCAnimatedCharacter::Create(Ogre::String meshname, Ogre::Vector3 scale)
 	}
 	mEntity = Main::Instance().GetOgreSceneMgr()->createEntity(SceneManager::Instance().RequestIDStr(), meshname);
 	mNode->attachObject(mEntity);
+	if (!mEntity->hasSkeleton()) return;
+
 	mRagdoll = Main::Instance().GetPhysXScene()->createRagdoll(mEntity, mNode, CollisionGroups::BONE);
 
 	ResetMovementAnis();
@@ -540,6 +542,8 @@ void GOCAnimatedCharacter::SetOwner(GameObject *go)
 	mEntity->setUserAny(Ogre::Any(mOwnerGO));
 	UpdatePosition(go->GetGlobalPosition());
 	UpdateOrientation(go->GetGlobalOrientation());
+	if (!mRagdoll) return;
+
 	mRagdoll->setActorUserData(mOwnerGO);
 	mRagdoll->sync();
 	if (mSetControlToActorsTemp)
@@ -559,8 +563,9 @@ void GOCAnimatedCharacter::CreateFromDataMap(DataMap *parameters)
 	Ogre::Vector3 scale = Ogre::Vector3(1,1,1);
 	scale = parameters->GetOgreVec3("Scale");
 	Create(meshname, scale);
-	if (mAnimationStateStr != "DEBUG") SetAnimationState(mAnimationStateStr);
 	mEntity->setCastShadows(shadowcaster);
+	if (!mRagdoll) return;
+	if (mAnimationStateStr != "DEBUG") SetAnimationState(mAnimationStateStr);
 	mRagdoll->resetBones();
 	mEditorMode = true;
 }
@@ -602,8 +607,9 @@ void GOCAnimatedCharacter::Load(LoadSave::LoadSystem& mgr)
 	mgr.LoadAtom("bool", &ragdoll);
 	mgr.LoadAtom("bool", &shadowcaster);
 	Create(meshname, scale);
-	if (animstate != "") SetAnimationState(animstate);
 	mEntity->setCastShadows(shadowcaster);
+	if (!mRagdoll) return;
+	if (animstate != "") SetAnimationState(animstate);
 	if (ragdoll) mRagdoll->setControlToActors();
 }
 

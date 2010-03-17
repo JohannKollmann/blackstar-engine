@@ -92,13 +92,13 @@ namespace Ice
 		}
 		Ogre::LogManager::getSingleton().logMessage("nah");
 	}
-	void NavigationMesh::PathNodeTreeNode::GetPathNodes(const Ogre::AxisAlignedBox &box, std::vector<AStarNode3D*> &oResult)
+	void NavigationMesh::PathNodeTreeNode::GetPathNodes(const Ogre::AxisAlignedBox &box, std::vector<AStarNode3D*> &oResult, bool getBlocked)
 	{
 		if (mEmpty) return;
 		for (int i = 0; i < 8; i++)
 		{
 			if (mChildren[i]->GetBorderBox().intersects(box))
-				mChildren[i]->GetPathNodes(box, oResult);
+				mChildren[i]->GetPathNodes(box, oResult, getBlocked);
 		}
 	}
 	void NavigationMesh::PathNodeTreeNode::InjectObstacle(void *identifier, const Ogre::AxisAlignedBox &box)
@@ -132,11 +132,11 @@ namespace Ice
 	{
 		mPathNodes.push_back(node);
 	}
-	void NavigationMesh::PathNodeTreeLeaf::GetPathNodes(const Ogre::AxisAlignedBox &box, std::vector<AStarNode3D*> &oResult)
+	void NavigationMesh::PathNodeTreeLeaf::GetPathNodes(const Ogre::AxisAlignedBox &box, std::vector<AStarNode3D*> &oResult, bool getBlocked)
 	{
 		for (std::vector<AStarNode3D*>::iterator i = mPathNodes.begin(); i != mPathNodes.end(); i++)
 		{
-			if (box.intersects((*i)->GetGlobalPosition()) && !(*i)->IsBlocked()) oResult.push_back(*i);
+			if ((*i)->volume.intersects(box) && (getBlocked || !(*i)->IsBlocked())) oResult.push_back(*i);
 		}
 	}
 	void NavigationMesh::PathNodeTreeLeaf::InjectObstacle(void *identifier, const Ogre::AxisAlignedBox &box)
@@ -170,9 +170,6 @@ namespace Ice
 	NavigationMesh::~NavigationMesh()
 	{
 		Reset();
-
-		MessageSystem::Instance().QuitNewsgroup(this, "ACOTR_ONSLEEP");
-		MessageSystem::Instance().QuitNewsgroup(this, "ACOTR_ONWAKE");
 	}
 
 	void NavigationMesh::Reset()
@@ -239,7 +236,7 @@ namespace Ice
 		AStarNode3D *toNode = toNodes[0];
 		for (unsigned int i = 1; i < fromNodes.size(); i++)
 		{
-			if (fromNodes[i]->GetGlobalPosition().distance(from) < fromNode->GetGlobalPosition().distance(from))
+			if (fromNodes[i]->GetGlobalPosition().distance(to) < fromNode->GetGlobalPosition().distance(to))
 				fromNode = fromNodes[i];
 		}
 		for (unsigned int i = 1; i < toNodes.size(); i++)
@@ -430,9 +427,60 @@ namespace Ice
 		}
 	}
 
-	bool NavigationMesh::TestPathVolume(Ogre::AxisAlignedBox box)
+	bool NavigationMesh::TestPathVolume(const Ogre::AxisAlignedBox &box)
 	{
+		std::vector<AStarNode3D*> nodes;
+		mPathNodeTree->GetPathNodes(box, nodes, true);
+		for (auto i = nodes.begin(); i != nodes.end(); i++)
+		{
+			if ((*i)->IsBlocked()) return false;
+		}
+		for (float x = box.getMinimum().x; x < box.getMaximum().x; x += 1.5f)
+		{
+			for (float z = box.getMinimum().z; z < box.getMaximum().z; z += 1.5f)
+			{
+				Ogre::AxisAlignedBox subBox(x, box.getMinimum().y, z, x+1.5f, box.getMaximum().y, z+1.5f);
+				if (!mPhysXMeshShape->checkOverlapAABB(OgrePhysX::Convert::toNx(subBox)))
+					return false;
+			}
+		}
 		return true;
+	}
+
+	NavigationMesh::MinMax NavigationMesh::getMinMax(const std::vector<float> &vals)
+	{
+		MinMax r;
+		r.min = 99999;
+		r.max = -99999;
+		for (auto i = vals.begin(); i != vals.end(); i++)
+		{
+			if (*i < r.min) r.min = *i;
+			if (*i >= r.max) r.max = *i;
+		}	
+		return r;
+
+	}
+
+	bool NavigationMesh::TestLinearPath(Ogre::Vector3 from, Ogre::Vector3 to, float pathBorder)
+	{
+		Ogre::Vector3 dir = (to - from).normalisedCopy();
+		Ogre::Quaternion q = Ogre::Vector3::UNIT_X.getRotationTo(Ogre::Vector3::UNIT_Z);
+		Ogre::Vector3 widthVec = q * dir;
+		widthVec *= pathBorder;
+		Ogre::Vector3 p1 = from + widthVec;
+		Ogre::Vector3 p2 = from - widthVec;
+		Ogre::Vector3 p3 = to + widthVec;
+		Ogre::Vector3 p4 = to -  widthVec;
+		std::vector<float> xParams;xParams.push_back(p1.x);xParams.push_back(p2.x);xParams.push_back(p3.x);xParams.push_back(p4.x);
+		std::vector<float> yParams;yParams.push_back(p1.y);yParams.push_back(p2.y);yParams.push_back(p3.y);yParams.push_back(p4.y);
+		std::vector<float> zParams;zParams.push_back(p1.z);zParams.push_back(p2.z);zParams.push_back(p3.z);zParams.push_back(p4.z);
+		MinMax mmX = getMinMax(xParams);
+		MinMax mmY = getMinMax(yParams);
+		MinMax mmZ = getMinMax(zParams);
+		Ogre::Vector3 min(mmX.min, mmY.min-1, mmZ.min);
+		Ogre::Vector3 max(mmX.max, mmY.max+1, mmZ.max);
+		Ogre::AxisAlignedBox box(min, max);
+		return TestPathVolume(box);
 	}
 
 	bool NavigationMesh::checkNodeConnection(AStarNode3D *n1, AStarNode3D *n2)
@@ -511,10 +559,12 @@ namespace Ice
 
 	void NavigationMesh::ReceiveMessage(Msg &msg)
 	{
+		if (!mPathNodeTree) return;
 		if (msg.mNewsgroup == "ACOTR_ONSLEEP")
 		{
 			NxActor *a = (NxActor*)msg.rawData;
-			if (a->getGroup() != Ice::CollisionGroups::DEFAULT) return;
+			if (!a) return;
+			//if (a->getGroup() != Ice::CollisionGroups::DEFAULT) return;
 			NxBounds3 nxBounds;
 			a->getShapes()[0]->getWorldBounds(nxBounds);
 			Ogre::AxisAlignedBox box = OgrePhysX::Convert::toOgre(nxBounds);
@@ -523,7 +573,8 @@ namespace Ice
 		if (msg.mNewsgroup == "ACOTR_ONWAKE")
 		{
 			NxActor *a = (NxActor*)msg.rawData;
-			if (a->getGroup() != Ice::CollisionGroups::DEFAULT) return;
+			if (!a) return;
+			//if (a->getGroup() != Ice::CollisionGroups::DEFAULT) return;
 			NxBounds3 nxBounds;
 			a->getShapes()[0]->getWorldBounds(nxBounds);
 			Ogre::AxisAlignedBox box = OgrePhysX::Convert::toOgre(nxBounds);

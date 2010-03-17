@@ -8,108 +8,111 @@
 namespace Ice
 {
 
-enum CharacterMovement
-{
-	FORWARD = 1,
-	BACKWARD = 2,
-	LEFT = 4,
-	RIGHT = 8,
-	JUMP = 16,
-	RUN = 32,
-	CROUCH = 64,
-};
-
-class CharacterJump
-{
-private:
-	float mV0;
-	float mJumpTime;
-public:
-	CharacterJump() : mV0(0), mJumping(false), mJumpTime(0) {}
-	~CharacterJump() {}
-
-	bool mJumping;
-
-	void StopJump () { mJumping = false; }
-	void StartJump(float v0)
+	enum DllExport CharacterMovement
 	{
-		if (mJumping) return;
-		mJumpTime = 0.0f;
-		mV0 = v0;
-		mJumping = true;
-	}
-	float GetHeight(float elapsedTime)
+		FORWARD = 1,
+		BACKWARD = 2,
+		LEFT = 4,
+		RIGHT = 8,
+		JUMP = 16,
+		RUN = 32,
+		CROUCH = 64,
+	};
+
+	class DllExport CharacterJump
 	{
-		if(!mJumping)	return 0.0f;
-		mJumpTime += elapsedTime;
-		float h = (-15*mJumpTime*mJumpTime) + mV0*mJumpTime + 15;
-		if (h <= 0) return 0.0f;
-		return h;
-	}
-};
+	private:
+		float mV0;
+		float mJumpTime;
+	public:
+		CharacterJump() : mV0(0), mJumping(false), mJumpTime(0) {}
+		~CharacterJump() {}
 
-class CharacterControllerInput : public GOComponent
-{
-protected:
-	int mCharacterMovementState;
+		bool mJumping;
 
-	CharacterControllerInput(void) {};
-	virtual ~CharacterControllerInput(void) {};
+		void StopJump () { mJumping = false; }
+		void StartJump(float v0)
+		{
+			if (mJumping) return;
+			mJumpTime = 0.0f;
+			mV0 = v0;
+			mJumping = true;
+		}
+		float GetHeight(float elapsedTime)
+		{
+			if(!mJumping)	return 0.0f;
+			mJumpTime += elapsedTime;
+			float h = (-15*mJumpTime*mJumpTime) + mV0*mJumpTime + 15;
+			if (h <= 0) return 0.0f;
+			return h;
+		}
+	};
 
-	void BroadcastMovementState();
+	class DllExport CharacterControllerInput : public GOComponent
+	{
+	protected:
+		int mCharacterMovementState;
 
-public:
-	goc_id_family& GetFamilyID() const { static std::string name = "CharacterInput"; return name; }
-	void BroadcastMovementState(int state);
-	int GetMovementState() { return mCharacterMovementState; }
-};
+		CharacterControllerInput(void) {};
+		virtual ~CharacterControllerInput(void) {};
 
-class DllExport GOCCharacterController : public GOCPhysics, public MessageListener, public GOCEditorInterface
-{
-private:
-	NxController *mCharacterController;
-	void Create(Ogre::Vector3 dimensions);
-	CharacterJump mJump;
-	Ogre::Vector3 mDirection;
-	Ogre::Vector3 mDimensions;
-	float mStepOffset;
-	bool mFreezed;
+		void BroadcastMovementState();
 
-	float mMovementSpeed;
+	public:
+		goc_id_family& GetFamilyID() const { static std::string name = "CharacterInput"; return name; }
+		void BroadcastMovementState(int state);
+		int GetMovementState() { return mCharacterMovementState; }
+	};
 
-public:
-	GOCCharacterController() { mCharacterController = 0; }
-	GOCCharacterController(Ogre::Vector3 dimensions);
-	~GOCCharacterController(void);
+	class DllExport GOCCharacterController : public GOCPhysics, public MessageListener, public GOCEditorInterface
+	{
+	private:
+		NxController *mCharacterController;
+		void Create(Ogre::Vector3 dimensions);
+		CharacterJump mJump;
+		Ogre::Vector3 mDirection;
+		Ogre::Vector3 mDimensions;
+		float mStepOffset;
+		bool mFreezed;
 
-	GOComponent::goc_id_type& GetComponentID() const { static std::string name = "CharacterController"; return name; }
+		float mMovementSpeed;
+		float mSpeedFactor;
 
-	void UpdatePosition(Ogre::Vector3 position);
-	void UpdateOrientation(Ogre::Quaternion orientation);
-	void UpdateScale(Ogre::Vector3 scale);
+	public:
+		GOCCharacterController() : mCharacterController(0) {}
+		GOCCharacterController(Ogre::Vector3 dimensions);
+		~GOCCharacterController(void);
 
-	NxController* GetNxController() { return mCharacterController; }
+		GOComponent::goc_id_type& GetComponentID() const { static std::string name = "CharacterController"; return name; }
 
-	void ReceiveObjectMessage(Ogre::SharedPtr<ObjectMsg> msg);
-	void ReceiveMessage(Msg &msg);
+		void UpdatePosition(Ogre::Vector3 position);
+		void UpdateOrientation(Ogre::Quaternion orientation);
+		void UpdateScale(Ogre::Vector3 scale);
 
-	void Freeze(bool freeze);
+		void SetSpeedFactor(float factor);
 
-	void SetOwner(GameObject *go);
+		NxController* GetNxController() { return mCharacterController; }
 
-	void CreateFromDataMap(DataMap *parameters);
-	void GetParameters(DataMap *parameters);
-	static void GetDefaultParameters(DataMap *parameters);
-	static GOCEditorInterface* NewEditorInterfaceInstance() { return new GOCCharacterController(); }
-	void AttachToGO(GameObject *go); 
-	Ogre::String GetLabel() { return "Character"; }
+		void ReceiveObjectMessage(Ogre::SharedPtr<ObjectMsg> msg);
+		void ReceiveMessage(Msg &msg);
 
-	void Save(LoadSave::SaveSystem& mgr);
-	void Load(LoadSave::LoadSystem& mgr);
-	std::string& TellName() { static std::string name = "CharacterController"; return name; };
-	static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "CharacterController"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };
-	static LoadSave::Saveable* NewInstance() { return new GOCCharacterController; };
-};
+		void Freeze(bool freeze);
+
+		void SetOwner(GameObject *go);
+
+		void CreateFromDataMap(DataMap *parameters);
+		void GetParameters(DataMap *parameters);
+		static void GetDefaultParameters(DataMap *parameters);
+		static GOCEditorInterface* NewEditorInterfaceInstance() { return new GOCCharacterController(); }
+		void AttachToGO(GameObject *go); 
+		Ogre::String GetLabel() { return "Character"; }
+
+		void Save(LoadSave::SaveSystem& mgr);
+		void Load(LoadSave::LoadSystem& mgr);
+		std::string& TellName() { static std::string name = "CharacterController"; return name; };
+		static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "CharacterController"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };
+		static LoadSave::Saveable* NewInstance() { return new GOCCharacterController; };
+	};
 
 
 };
