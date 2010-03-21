@@ -173,7 +173,7 @@ void Main::initScene()
 	mCamera = mSceneMgr->createCamera("MainCamera");
 	mCamera->lookAt(Ogre::Vector3(0,0,0));
 	mCamera->setNearClipDistance(0.5f);
-	mCamera->setFarClipDistance(10000);
+	mCamera->setFarClipDistance(99999*6);
 
 	mViewport = mWindow->addViewport(mCamera);
 	mViewport->setBackgroundColour(Ogre::ColourValue::Black);

@@ -189,7 +189,7 @@ namespace Ice
 		RegisterEditorInterface("B_x", "Static Body", (EDTCreatorFn)&GOCStaticBody::NewEditorInterfaceInstance, GOCStaticBody::GetDefaultParameters);
 		RegisterEditorInterface("B_x", "Character", (EDTCreatorFn)&GOCCharacterController::NewEditorInterfaceInstance, GOCCharacterController::GetDefaultParameters);
 
-		RegisterEditorInterface("C_x", "Scripted AI", (EDTCreatorFn)&GOCAI::NewEditorInterfaceInstance, GOCAI::GetDefaultParameters);
+		RegisterEditorInterface("C_x", "Script", (EDTCreatorFn)&GOCAI::NewEditorInterfaceInstance, GOCAI::GetDefaultParameters);
 		RegisterEditorInterface("C_x", "Player Control", (EDTCreatorFn)&GOCPlayerInput::NewEditorInterfaceInstance, GOCPlayerInput::GetDefaultParameters);
 
 		RegisterEditorInterface("D", "Camera", (EDTCreatorFn)&GOCCameraController::NewEditorInterfaceInstance, GOCCameraController::GetDefaultParameters);

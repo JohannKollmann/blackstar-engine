@@ -181,7 +181,7 @@ void wxOgre::OnSize(wxSizeEvent& event)
 			Ice::Main::Instance().GetCamera()->setAspectRatio(Ogre::Real(width) / Ogre::Real(height));
 
 		if (Ice::SceneManager::Instance().GetWeatherController()) Ice::SceneManager::Instance().GetWeatherController()->UpdateViewport();
-		update();
+		//update();
 	}
 }
 void wxOgre::OnPaint(wxPaintEvent& event)
@@ -190,7 +190,7 @@ void wxOgre::OnPaint(wxPaintEvent& event)
 }
 void wxOgre::OnEraseBackground( wxEraseEvent& )
 {
-	update();
+	//update();
 }
 void wxOgre::OnRenderTimer(wxTimerEvent& event)
 {

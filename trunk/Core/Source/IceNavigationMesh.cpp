@@ -18,7 +18,7 @@ namespace Ice
 
 	const float NavigationMesh::NODE_DIST = 1.5f;
 	const float NavigationMesh::NODE_EXTENT = 0.8f;
-	const float NavigationMesh::NODE_BORDER = 0.3f;
+	const float NavigationMesh::NODE_BORDER = 0.4f;
 
 	const float NavigationMesh::PathNodeTree::BOXSIZE_MIN = 10.0f;
 
@@ -435,11 +435,11 @@ namespace Ice
 		{
 			if ((*i)->IsBlocked()) return false;
 		}
-		for (float x = box.getMinimum().x; x < box.getMaximum().x; x += 1.5f)
+		for (float x = box.getMinimum().x; x < box.getMaximum().x; x += 1.0f)
 		{
-			for (float z = box.getMinimum().z; z < box.getMaximum().z; z += 1.5f)
+			for (float z = box.getMinimum().z; z < box.getMaximum().z; z += 1.0f)
 			{
-				Ogre::AxisAlignedBox subBox(x, box.getMinimum().y, z, x+1.5f, box.getMaximum().y, z+1.5f);
+				Ogre::AxisAlignedBox subBox(x, box.getMinimum().y, z, x+1.5f, box.getMaximum().y, z+1.0f);
 				if (!mPhysXMeshShape->checkOverlapAABB(OgrePhysX::Convert::toNx(subBox)))
 					return false;
 			}

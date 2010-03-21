@@ -66,7 +66,7 @@ public:
 	static void GetDefaultParameters(DataMap *parameters);
 	static GOCEditorInterface* NewEditorInterfaceInstance() { return new GOCAI(); }
 	void AttachToGO(GameObject *go);
-	Ogre::String GetLabel() { return "Scripted AI"; }
+	Ogre::String GetLabel() { return "Script"; }
 
 	bool IsStatic() { return false; }
 

@@ -92,6 +92,7 @@ void wxMainNotebook::AddScriptTab(wxString caption, wxString fullPath)
 	bind.mScriptEditor = editor;
 	mScriptTabs.push_back(bind);
 	SetSelection(mScriptTabs.size());
+	Ogre::LogManager::getSingleton().logMessage("AddScriptTab");
 }
 
 void wxMainNotebook::SetModified(wxScriptEditor *tab, bool modified)
