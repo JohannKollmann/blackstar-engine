@@ -33,22 +33,17 @@ namespace Ice
 		LevelMesh *mLevelMesh;
 
 		std::vector<GameObject*> mObjectMessageQueue;
-		std::map<int, GameObject*> mGameObjects;
+		std::map<int, ManagedGameObject*> mGameObjects;
 
 		std::map<Ogre::String, EDTCreatorFn> mEditorInterfaces;
 
 	public:
-
 
 		GameObject *mPlayer;
 
 		void RegisterPlayer(GameObject *player);
 		GameObject* GetPlayer() { return mPlayer; }
 
-		std::map<int, GameObject*>& GetGameObjects();
-
-		int RegisterObject(GameObject *object);
-		void UnregisterObject(int id);
 		void AddToMessageQueue(GameObject *object);
 
 		std::map<Ogre::String, std::map<Ogre::String, DataMap*> > mGOCDefaultParameters; //For Editors
@@ -64,8 +59,16 @@ namespace Ice
 		unsigned int RequestID();
 		Ogre::String RequestIDStr();
 
-		GameObject* GetObjectByInternID(int id);
+		ManagedGameObject* GetObjectByInternID(int id);
 		void ClearGameObjects();
+
+		void NotifyGODelete(ManagedGameObject *object);
+		int RegisterObject(ManagedGameObject *object);
+
+		std::map<int, ManagedGameObject*>& GetGameObjects();
+
+		void RemoveGameObject(ManagedGameObject *object);
+		ManagedGameObject* CreateGameObject();
 
 		WeatherController* GetWeatherController();
 

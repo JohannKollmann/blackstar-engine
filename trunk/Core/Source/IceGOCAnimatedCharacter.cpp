@@ -232,7 +232,7 @@ bool GOCAnimatedCharacterBone::GetTestAnimation()
 void GOCAnimatedCharacterBone::CreateJointAxis()
 {
 	float scale_factor = ((mMeshNode->_getDerivedScale().x + mMeshNode->_getDerivedScale().y + mMeshNode->_getDerivedScale().z) / 3);
-	mJointAxis = Main::Instance().GetOgreSceneMgr()->createManualObject("AxisLine_" + mOwnerGO->GetIDStr());
+	mJointAxis = Main::Instance().GetOgreSceneMgr()->createManualObject("AxisLine_" + SceneManager::Instance().RequestIDStr());
 	mJointAxis->begin("WPLine", Ogre::RenderOperation::OT_TRIANGLE_LIST);
 	float width = 0.05f;
 	float height = mBoneConfig.mBoneLength*scale_factor;
@@ -263,7 +263,7 @@ void GOCAnimatedCharacterBone::CreateJointAxis()
 
 	mJointAxis->end();
 	mJointAxis->setCastShadows(false);
-	mJointAxisNode = mNode->createChildSceneNode("AxisLine_" + mOwnerGO->GetIDStr());
+	mJointAxisNode = mNode->createChildSceneNode("AxisLine_" + SceneManager::Instance().RequestIDStr());
 	mJointAxisNode->setInheritOrientation(false);
 	Ogre::Quaternion parentOrientation = mOwnerGO->GetParent()->GetGlobalOrientation();
 	mJointAxisNode->setOrientation(parentOrientation * mBoneConfig.mJointOrientation);

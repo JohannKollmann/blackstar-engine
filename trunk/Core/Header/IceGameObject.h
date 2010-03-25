@@ -13,26 +13,24 @@
 namespace Ice
 {
 
-	typedef std::string go_id_type;
-
 	class DllExport GameObject : public LoadSave::Saveable, public Transformable3D
 	{
-	private:
-		//Unique ID
+	protected:
 		int mID;
 
 		//Name
 		Ogre::String mName;
 
+		bool mLoadSaveByParent;
+
 		bool mSelectable;
 		bool mFreezePosition;
 		bool mFreezeOrientation;
 
-		bool mRegistered;
-
-		bool mTransformingComponents;
 		bool mTransformingChildren;
 		bool mUpdatingFromParent;
+
+		bool mIgnoreParent;
 
 		//Global and local transform
 		Ogre::Vector3 mPosition;
@@ -42,22 +40,21 @@ namespace Ice
 		Ogre::Vector3 mScale;
 
 		//Components
-		std::list<GOComponent*> mComponents;
+		std::vector<GOComponent*> mComponents;
 
 		//Messaging
 		std::vector<Ogre::SharedPtr<ObjectMsg> > mCurrentMessages;
 
 		//Parent and children
 		GameObject* mParent;
-		std::list<GameObject*> mChildren;
+		std::vector<GameObject*> mChildren;
 
 		void UpdateChildren(bool move = true);
 		void UpdateLocalTransform();
 
 	public:
-		GameObject(GameObject *parent = 0);
-		GameObject(int id, GameObject *parent = 0);
-		~GameObject();
+		GameObject();
+		virtual ~GameObject();
 
 		Ogre::String GetName() { return mName; }
 		void SetName(Ogre::String name) { mName = name; }
@@ -76,7 +73,7 @@ namespace Ice
 		template<class T>
 		T* GetComponent()
 		{
-			for (std::list<GOComponent*>::iterator i = mComponents.begin(); i != mComponents.end(); i++)
+			for (std::vector<GOComponent*>::iterator i = mComponents.begin(); i != mComponents.end(); i++)
 			{
 				T *rtti = dynamic_cast<T*>((*i));
 				if (rtti) return rtti;
@@ -86,11 +83,14 @@ namespace Ice
 		GOComponent* GetComponent(const GOComponent::goc_id_family& familyID);
 		GOComponent* GetComponent(const GOComponent::goc_id_family& familyID, GOComponent::goc_id_type typeID);
 		std::vector<Ogre::String> GetComponentsStr();
-		std::list<GOComponent*>::iterator GetComponentIterator() { return mComponents.begin(); }
-		std::list<GOComponent*>::iterator GetComponentIteratorEnd() { return mComponents.end(); }
+		std::vector<GOComponent*>::iterator GetComponentIterator() { return mComponents.begin(); }
+		std::vector<GOComponent*>::iterator GetComponentIteratorEnd() { return mComponents.end(); }
 		void RemoveComponent(const GOComponent::goc_id_family& familyID);
 		void ClearGOCs();
 		void ClearChildren();
+
+		void SetLoadSaveByParent(bool loadsave) { mLoadSaveByParent = loadsave; }
+		void SetIgnoreParent(bool ignore) { mIgnoreParent = ignore; }
 
 		Ogre::Vector3 GetGlobalPosition() { return mPosition; }
 		Ogre::Quaternion GetGlobalOrientation() { return mOrientation; }	
@@ -103,7 +103,6 @@ namespace Ice
 		void Translate(Ogre::Vector3 vec, bool updateChildren = true) { if (!mFreezePosition) SetGlobalPosition(mPosition + vec, updateChildren); }
 		void Rotate(Ogre::Vector3 axis, Ogre::Radian angle, bool updateChildren = true) { if (!mFreezeOrientation) { Ogre::Quaternion q; q.FromAngleAxis(angle, axis); SetGlobalOrientation(mOrientation * q, updateChildren); } }
 		void Rescale(Ogre::Vector3 scaleoffset) { SetGlobalScale(mScale + scaleoffset); }
-		bool GetTranformingComponents() { return mTransformingComponents; }
 		bool GetTranformingChildren() { return mTransformingChildren; }
 		bool GetUpdatingFromParent() { return mUpdatingFromParent; }
 
@@ -121,18 +120,13 @@ namespace Ice
 		void SetParent(GameObject *parent);
 		void RegisterChild(GameObject *child);
 		void UnregisterChild(GameObject *child);
-		std::list<GameObject*> DetachChildren();
+		std::vector<GameObject*> DetachChildren();
 
 		unsigned int GetNumChildren()
 		{
 			return mChildren.size();
 		}
 		GameObject* GetChild(unsigned short index);
-
-		/*
-		Same as SetGlobalPosition and SetGlobalOrientation, but it doesn't update the components.
-		*/
-		void UpdateTransform(Ogre::Vector3 pos, Ogre::Quaternion quat);
 
 		void OnParentChanged();
 
@@ -144,7 +138,21 @@ namespace Ice
 		void Save(LoadSave::SaveSystem& mgr);
 		void Load(LoadSave::LoadSystem& mgr);
 		static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "GameObject"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; }
-		static LoadSave::Saveable* NewInstance() { return new GameObject; }
+		static LoadSave::Saveable* NewInstance() { return new GameObject(); }
+	};
+
+	class ManagedGameObject : public GameObject
+	{
+	public:
+		ManagedGameObject();
+		~ManagedGameObject();
+
+		static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "ManagedGameObject"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; }
+		std::string& TellName()
+		{
+			static std::string name = "ManagedGameObject"; return name;
+		};
+		static LoadSave::Saveable* NewInstance() { return new ManagedGameObject(); }
 	};
 
 };

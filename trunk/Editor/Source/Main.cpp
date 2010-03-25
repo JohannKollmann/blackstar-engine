@@ -3,6 +3,7 @@
 #include "IceGamestate.h"
 #include "wxEdit.h"
 #include "IceSceneManager.h"
+#include "Edit.h"
 
 //Editor Modus
 class Main : public wxApp

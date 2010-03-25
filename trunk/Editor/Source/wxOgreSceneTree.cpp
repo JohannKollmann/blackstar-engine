@@ -5,6 +5,7 @@
 #include "../Misc/root.xpm"
 #include "IceCameraController.h"
 #include "IceSceneManager.h"
+#include "Edit.h"
 
 BEGIN_EVENT_TABLE(wxOgreSceneTree, wxTreeCtrl)
 	EVT_TREE_ITEM_EXPANDING(-1, wxOgreSceneTree::OnExpanding)
@@ -68,7 +69,7 @@ void wxOgreSceneTree::Update()
 		wxTreeItemId id = AddRoot(start->GetCaption(), start->GetIconId(), start->GetSelectedIconId(), start);
 
 		// scan directory, either the smart way or not at all
-		for (std::map<int, Ice::GameObject*>::iterator i = Ice::SceneManager::Instance().GetGameObjects().begin(); i != Ice::SceneManager::Instance().GetGameObjects().end(); i++)
+		for (std::map<int, Ice::ManagedGameObject*>::iterator i = Ice::SceneManager::Instance().GetGameObjects().begin(); i != Ice::SceneManager::Instance().GetGameObjects().end(); i++)
 		{
 			if (!i->second->GetParent())
 			{
@@ -300,7 +301,7 @@ void wxOgreSceneTree::OnItemActivated(wxTreeEvent &event)
 		OgreTreeItemBase *t = (OgreTreeItemBase *)GetItemData(id);
 		if (t->IsFile())
 		{
-			wxEdit::Instance().GetOgrePane()->GetEdit()->SelectObject(t->getNode());
+			wxEdit::Instance().GetOgrePane()->SelectObject(t->getNode());
 			Ice::Main::Instance().GetCamera()->setPosition(t->getNode()->GetGlobalPosition() - Ogre::Vector3(0,0,5));
 			Ice::Main::Instance().GetCamera()->lookAt(t->getNode()->GetGlobalPosition());
 			wxEdit::Instance().GetOgrePane()->update();

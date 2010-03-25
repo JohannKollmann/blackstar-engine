@@ -5,6 +5,7 @@
 #include "wxOgre.h"
 #include "wxScriptEditor.h"
 #include "EDTIncludes.h"
+#include "wx/treectrl.h"
 
 struct ScriptEditorCaptionBind
 {
@@ -17,7 +18,7 @@ class wxMainNotebook : public wxAuiNotebook
 	DECLARE_CLASS(wxMainNotebook)
 
 private:
-	wxOgre *mOgreWindow;
+	Edit *mOgreWindow;
 	std::list<ScriptEditorCaptionBind> mScriptTabs;
 
 protected:
@@ -31,7 +32,7 @@ public:
                   const wxSize& size = wxDefaultSize, long style = wxTR_HAS_BUTTONS | wxTR_FULL_ROW_HIGHLIGHT);
 	~wxMainNotebook(void);
 
-	wxOgre* GetOgreWindow() { return mOgreWindow; };
+	Edit* GetOgreWindow() { return mOgreWindow; };
 
 	static void OnToolbarEvent(int toolID, Ogre::String toolname);
 

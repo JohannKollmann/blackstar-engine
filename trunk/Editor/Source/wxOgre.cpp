@@ -1,7 +1,8 @@
-#include "../Header/wxOgre.h"
+#include "wxOgre.h"
 #include "IceMainLoop.h"
 #include "IceWeatherController.h"
 #include "IceSceneManager.h"
+#include "IceMain.h"
 
 #ifdef __WXGTK__
 #include <gdk/gdk.h>
@@ -17,28 +18,12 @@ IMPLEMENT_CLASS(wxOgre, wxControl)
 
 // Required for WX
 BEGIN_EVENT_TABLE(wxOgre, wxControl)
-    EVT_KEY_DOWN(wxOgre::OnKeyDown)
-    EVT_KEY_UP(wxOgre::OnKeyUp)
-
 	EVT_SIZE(wxOgre::OnSize)
 	// EVT_PAINT(wxOgre::OnPaint) // Produces flickers and runs too fast!
 	EVT_ERASE_BACKGROUND( wxOgre::OnEraseBackground )
 	EVT_TIMER( ID_RENDERTIMER, wxOgre::OnRenderTimer )
 
-	EVT_SET_FOCUS(wxOgre::OnSetFocus)
-	EVT_KILL_FOCUS(wxOgre::OnKillFocus)
 
-	EVT_MOUSE_EVENTS(wxOgre::OnMouseEvent)
-
-	EVT_MENU(wxOgre_insertObject, wxOgre::OnInsertObject)
-	EVT_MENU(wxOgre_insertObjectAsChild, wxOgre::OnInsertObjectAsChild)
-	EVT_MENU(wxOgre_deleteObject, wxOgre::OnDeleteObject)
-	EVT_MENU(wxOgre_createObjectgroup, wxOgre::OnCreateObjectGroup)
-	EVT_MENU(wxOgre_saveObjectgroup, wxOgre::OnSaveObjectGroup)
-	EVT_MENU(wxOgre_createChain, wxOgre::OnCreateChain)
-	EVT_MENU(wxOgre_connectWaypoints, wxOgre::OnConnectWaypoints)
-	EVT_MENU(wxOgre_saveBones, wxOgre::OnSaveBones)
-	EVT_MENU(wxOgre_createWayTriangle, wxOgre::OnCreateWayTriangle)
 
 END_EVENT_TABLE()
 
@@ -49,8 +34,7 @@ wxOgre::wxOgre(wxWindow* parent, wxWindowID id,
     mRenderWindow(0),
     mRoot(0),
 	mCamera(0),
-	mInitialized(false),
-	mEdit(0)
+	mInitialized(false)
 {
 	//Ogre::LogManager::getSingleton().logMessage("new wxOgre");
 }
@@ -139,31 +123,7 @@ void wxOgre::toggleTimerRendering()
 
 wxOgre::~wxOgre()
 {
-	if (mInitialized)
-	{
-		delete mEdit;
-		//Ice::Main::Instance().Shutdown();
-		//exit(0);		//HACK! FUCK YOU WX WIDGETS ICH WEISS WO DEIN HAUS WOHNT!!!11einseinself
-	}
 }
-
-void wxOgre::initEdit()
-{
-	Ogre::LogManager::getSingleton().logMessage("init Edit");
-	/*std::vector<Ogre::String> entityTypes = Ice::SceneManager::Instance().GetAvailableEntityTypes();
-	for (std::vector<Ogre::String>::iterator i = entityTypes.begin(); i != entityTypes.end(); i++)
-	{
-		extensions.Add("*." + wxString((*i).c_str()));
-		Ogre::LogManager::getSingleton().logMessage("Adding extension " + (*i));
-	}*/
-	/*
-	wxArrayString extensions;
-	extensions.Add("*.ot");
-	extensions.Add("*.ocs");
-	wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->SetExtensions(extensions);
-	wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->SetRootPath("Data/Editor/Objects");*/
-	mEdit = new Edit();
-};
 
 void wxOgre::OnSize(wxSizeEvent& event)
 {
@@ -209,85 +169,10 @@ void wxOgre::OnRenderTimer(wxTimerEvent& event)
 	//else Ogre::LogManager::getSingleton().logMessage(wxEdit::Instance().FindFocus()->GetName().c_str());
 }
 
-void wxOgre::OnSetFocus(wxFocusEvent& event)
-{
-	if (mInitialized)
-	{
-		mEdit->OnSetFocus(true);
-	}
-}
-void wxOgre::OnKillFocus(wxFocusEvent& event)
-{
-	if (mInitialized)
-	{
-		mEdit->OnSetFocus(false);
-	}
-}
-
 void wxOgre::update()
 {
 	if (mInitialized)
 	{
 		Ice::MainLoop::Instance().doLoop();
 	}
-}
-
-void wxOgre::OnKeyDown(wxKeyEvent& key)
-{
-	if (mEdit != NULL) mEdit->OnKeyDown(key);
-};
-
-void wxOgre::OnKeyUp(wxKeyEvent& key)
-{
-	if (mEdit != NULL) mEdit->OnKeyUp(key);
-};
-
-void wxOgre::OnMouseEvent(wxMouseEvent& ev)
-{
-	if (mEdit != NULL) mEdit->OnMouseEvent(ev);
-};
-
-void wxOgre::OnInsertObject(wxCommandEvent& WXUNUSED(event))
-{
-	mEdit->OnInsertObject();
-};
-
-void wxOgre::OnInsertObjectAsChild(wxCommandEvent& WXUNUSED(event))
-{
-	mEdit->OnInsertObjectAsChild();
-};
-
-void wxOgre::OnDeleteObject(wxCommandEvent& WXUNUSED(event))
-{
-	mEdit->OnDeleteObject();
-};
-
-void wxOgre::OnCreateObjectGroup(wxCommandEvent& WXUNUSED(event))
-{
-	mEdit->OnCreateObjectGroup();
-};
-
-void wxOgre::OnSaveObjectGroup(wxCommandEvent& WXUNUSED(event))
-{
-	mEdit->OnSaveObjectGroup();
-};
-
-void wxOgre::OnCreateChain(wxCommandEvent& WXUNUSED(event))
-{
-	mEdit->OnCreateChain();
-};
-
-void wxOgre::OnConnectWaypoints(wxCommandEvent& WXUNUSED(event))
-{
-	mEdit->OnConnectWaypoints();
-};
-
-void wxOgre::OnSaveBones(wxCommandEvent& WXUNUSED(event))
-{
-	mEdit->OnSaveBones();
-};
-
-void wxOgre::OnCreateWayTriangle(wxCommandEvent& WXUNUSED(event))
-{
-	mEdit->OnCreateWayTriangle();
 }

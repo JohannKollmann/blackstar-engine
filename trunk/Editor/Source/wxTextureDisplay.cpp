@@ -2,6 +2,7 @@
 #include "wxTextureDisplay.h"
 #include "wxMainMenu.h"
 #include "wxEdit.h"
+#include "OgreOggSound.h"
 
 IMPLEMENT_CLASS(wxTextureDisplay, wxControl)
 

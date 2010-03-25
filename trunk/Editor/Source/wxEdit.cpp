@@ -1,9 +1,10 @@
 
-#include "../Header/wxEdit.h"
+#include "wxEdit.h"
 #include "wx/artprov.h"
 #include "wxMaterialEditor.h"
 #include "IceMainLoop.h"
 #include "IceSceneManager.h"
+#include "Edit.h"
 
 
 BEGIN_EVENT_TABLE(wxEdit, wxFrame)
@@ -135,7 +136,7 @@ void wxEdit::PostCreate()
 					Show(false).
 					CloseButton(false));
 	GetOgrePane()->setCamera(Ice::Main::Instance().GetCamera());
-	GetOgrePane()->initEdit();
+	GetOgrePane()->PostInit();
 	GetWorldExplorer()->GetSceneTree()->Update();
 	GetWorldExplorer()->GetMaterialTree()->Update();
 	GetOgrePane()->SetFocus();
@@ -172,7 +173,7 @@ wxEdit::~wxEdit()
 
 };
 
-wxOgre* wxEdit::GetOgrePane()
+Edit* wxEdit::GetOgrePane()
 {
 	return mMainNotebook->GetOgreWindow();
 }

@@ -173,7 +173,7 @@ void Main::initScene()
 	mCamera = mSceneMgr->createCamera("MainCamera");
 	mCamera->lookAt(Ogre::Vector3(0,0,0));
 	mCamera->setNearClipDistance(0.5f);
-	mCamera->setFarClipDistance(99999*6);
+	mCamera->setFarClipDistance(50000);
 
 	mViewport = mWindow->addViewport(mCamera);
 	mViewport->setBackgroundColour(Ogre::ColourValue::Black);
@@ -194,7 +194,7 @@ void Main::initScene()
 	ambientlight->setDiffuseColour(Ogre::ColourValue(1,1,1));
 	ambientlight->setSpecularColour(Ogre::ColourValue(1,1,1));
 
-	mSceneMgr->setAmbientLight(Ogre::ColourValue(0.3f,0.3f,0.3f));
+	mSceneMgr->setAmbientLight(Ogre::ColourValue(0.1f,0.1f,0.1f));
 	//mSceneMgr->setFog(Ogre::FOG_LINEAR, Ogre::ColourValue::Blue, 0.015);
 
 	mCameraController = new CameraController();
@@ -237,9 +237,9 @@ void Main::initScene()
 	mSceneMgr->setShadowTextureCountPerLightType(Ogre::Light::LT_DIRECTIONAL, 3);
 	mSceneMgr->setShadowTextureCountPerLightType(Ogre::Light::LT_SPOTLIGHT, 1);
 	mSceneMgr->setShadowTextureCount(3);
-	mSceneMgr->setShadowTextureConfig(0, 1024, 1024, Ogre::PF_FLOAT32_R);
-	mSceneMgr->setShadowTextureConfig(1, 1024, 1024, Ogre::PF_FLOAT32_R);
-	mSceneMgr->setShadowTextureConfig(2, 1024, 1024, Ogre::PF_FLOAT32_R);
+	mSceneMgr->setShadowTextureConfig(0, 2048, 2048, Ogre::PF_FLOAT32_R);
+	mSceneMgr->setShadowTextureConfig(1, 2048, 2048, Ogre::PF_FLOAT32_R);
+	mSceneMgr->setShadowTextureConfig(2, 2048, 2048, Ogre::PF_FLOAT32_R);
 	/*mSceneMgr->setShadowTextureConfig(3, 1024, 1024, Ogre::PF_FLOAT32_R);
 	mSceneMgr->setShadowTextureConfig(4, 1024, 1024, Ogre::PF_FLOAT32_R);
 	mSceneMgr->setShadowTextureConfig(5, 1024, 1024, Ogre::PF_FLOAT32_R);

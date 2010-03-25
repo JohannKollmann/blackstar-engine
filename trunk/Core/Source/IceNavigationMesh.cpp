@@ -606,7 +606,7 @@ namespace Ice
 		{
 			for (std::vector<Ogre::Vector3>::iterator x = rawVertices.begin(); x != rawVertices.end(); x++)
 			{
-				Ice::GameObject *go = new Ice::GameObject(-1);
+				Ice::GameObject *go = new Ice::GameObject();
 				go->SetGlobalPosition(*x);
 				mVertexBuffer.push_back(go);
 			}

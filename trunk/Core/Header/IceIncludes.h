@@ -40,10 +40,12 @@ namespace Ice
 	class CompositorLoader;
 	class ScriptedCollisionCallback;
 	class GameObject;
+	class ManagedGameObject;
 	class GOComponent;
 	class ComponentSection;
 	struct ObjectMsg;
 	class GOCViewListener;
+	class GOCRigidBody;
 	class GOCAI;
 	class ScriptedAIState;
 	class DayCycle;

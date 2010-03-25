@@ -18,22 +18,36 @@ namespace Ice
 
 	class DllExport GOComponent : public LoadSave::Saveable
 	{
+		friend class GameObject;
+	private:
+		void _updatePosition(const Ogre::Vector3 &position);
+		void _updateOrientation(const Ogre::Quaternion &quat);
+		void _updateScale(const Ogre::Vector3 &scale);
+		bool mTranformingOwner;
+
 	protected:
 		GameObject *mOwnerGO;
-		bool mRenderEditorVisuals;
 
 	public:
 		typedef std::string goc_id_type;
 		typedef std::string goc_id_family;
 
-		GOComponent() : mOwnerGO(0) { mRenderEditorVisuals = true; }
+		GOComponent() : mOwnerGO(nullptr), mTranformingOwner(false) {}
 		virtual ~GOComponent() {}
+
+		void SetOwnerPosition(const Ogre::Vector3 &position);
+		void SetOwnerOrientation(const Ogre::Quaternion &orientation);
 
 		virtual goc_id_type& GetComponentID() const = 0;
 		virtual goc_id_family& GetFamilyID() const = 0;
 
+		std::string& TellName() { return GetComponentID(); };
+
 		virtual void SetOwner(GameObject *go);
 		GameObject* GetOwner() const { return mOwnerGO; }
+
+		virtual void OnAddChild(GameObject *child) {}
+		virtual void OnRemoveChild(GameObject *child) {}
 
 		//Called by GO Owner
 		virtual void UpdatePosition(Ogre::Vector3 position) {}
@@ -47,7 +61,7 @@ namespace Ice
 
 		//Editor stuff
 		virtual void Freeze(bool freeze) {};
-		virtual void ShowEditorVisual(bool show) { mRenderEditorVisuals = show; };
+		virtual void ShowEditorVisual(bool show) {};
 	};
 
 };

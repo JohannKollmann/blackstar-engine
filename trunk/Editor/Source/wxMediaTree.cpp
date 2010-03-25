@@ -7,6 +7,7 @@
 #include "OgreEnvironment.h"
 #include "OgreScriptCompiler.h"
 #include "IceSceneManager.h"
+#include "OgreOggSound.h"
 
 wxMediaTree::wxMediaTree(wxWindow* parent, wxWindowID id, const wxPoint& pos,
              const wxSize& size, long style,
@@ -394,7 +395,7 @@ void wxMediaTree::OnEnterTab()
 {
 	wxEdit::Instance().GetExplorerToolbar()->SetGroupStatus("MediaTree", true);
 
-	if (wxEdit::Instance().GetOgrePane()->GetEdit())
+	if (wxEdit::Instance().GetOgrePane())
 	{
 		if (mCurrentItem) OnSelectItemCallback();
 	}

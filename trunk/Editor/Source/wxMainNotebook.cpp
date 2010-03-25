@@ -1,5 +1,6 @@
 
 #include "wxMainNotebook.h"
+#include "Edit.h"
 
 BEGIN_EVENT_TABLE(wxMainNotebook, wxAuiNotebook)
 	EVT_AUINOTEBOOK_PAGE_CHANGED(wxID_ANY, wxMainNotebook::OnNotebookChanged)
@@ -13,7 +14,7 @@ wxMainNotebook::wxMainNotebook(wxWindow* parent, wxWindowID id, const wxPoint& p
 				  : wxAuiNotebook(parent, id, pos, size, style)
 {
 
-	mOgreWindow = new wxOgre(this, -1);
+	mOgreWindow = new Edit(this);
 	AddPage(mOgreWindow, "Scene", false);
 	wxEdit::Instance().GetMainToolbar()->RegisterTool("SaveScript", "ScriptEditor", "Data/Editor/Intern/Icon_Save_Klein.png", &wxMainNotebook::OnToolbarEvent);
 }

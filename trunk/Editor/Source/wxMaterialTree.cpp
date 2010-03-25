@@ -11,6 +11,8 @@
 
 #include "IceGOCView.h"
 
+#include "Edit.h"
+
 #include "IceSceneManager.h"
 
 
@@ -100,7 +102,7 @@ void wxMaterialTree::Update()
 
 		std::vector<Ogre::String> other_materials_added;
 
-		for (std::map<int, Ice::GameObject*>::iterator i = Ice::SceneManager::Instance().GetGameObjects().begin(); i != Ice::SceneManager::Instance().GetGameObjects().end(); i++)
+		for (std::map<int, Ice::ManagedGameObject*>::iterator i = Ice::SceneManager::Instance().GetGameObjects().begin(); i != Ice::SceneManager::Instance().GetGameObjects().end(); i++)
 		{
 			Ice::GOCViewContainer *visuals = (Ice::GOCViewContainer*)i->second->GetComponent("View", "ViewContainer");
 			if (visuals != 0)
@@ -345,7 +347,7 @@ void wxMaterialTree::ShowMenu(OgreMaterialTreeItemBase *item, const wxPoint& pt)
 
 	if (item->IsFile())
 	{
-		wxEdit::Instance().GetOgrePane()->GetEdit()->DeselectMaterial();
+		wxEdit::Instance().GetOgrePane()->DeselectMaterial();
 		Ogre::Root::getSingleton().renderOneFrame();
 
 		mSelectedMaterial = item->GetMaterial();

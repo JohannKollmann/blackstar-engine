@@ -111,6 +111,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\IceGOCMover.cpp" />
     <ClCompile Include="Source\IceMessageListener.cpp" />
     <ClCompile Include="Source\IceMessageSystem.cpp" />
     <ClCompile Include="Source\IceGameObject.cpp" />
@@ -119,7 +120,7 @@
     <ClCompile Include="Source\IceGOCCameraController.cpp" />
     <ClCompile Include="Source\IceGOCCharacterController.cpp" />
     <ClCompile Include="Source\IceGOCGameplay.cpp" />
-    <ClCompile Include="Source\IceGOCIntern.cpp" />
+    <ClCompile Include="Source\IceGOCWaypoint.cpp" />
     <ClCompile Include="Source\IceGOComponent.cpp" />
     <ClCompile Include="Source\IceGOCPhysics.cpp" />
     <ClCompile Include="Source\IceGOCPlayerInput.cpp" />
@@ -189,6 +190,7 @@
     <ClCompile Include="..\..\Dependencies\lua\src\print.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Header\IceGOCMover.h" />
     <ClInclude Include="Header\IceMessageListener.h" />
     <ClInclude Include="Header\IceMessageSystem.h" />
     <ClInclude Include="Header\IceMsg.h" />
@@ -199,7 +201,7 @@
     <ClInclude Include="Header\IceGOCCharacterController.h" />
     <ClInclude Include="Header\IceGOCEditorInterface.h" />
     <ClInclude Include="Header\IceGOCGameplay.h" />
-    <ClInclude Include="Header\IceGOCIntern.h" />
+    <ClInclude Include="Header\IceGOCWaypoint.h" />
     <ClInclude Include="Header\IceGOComponent.h" />
     <ClInclude Include="Header\IceGOCPhysics.h" />
     <ClInclude Include="Header\IceGOCPlayerInput.h" />
@@ -290,6 +292,7 @@
     <ClInclude Include="..\..\Dependencies\lua\src\lzio.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="ClassDiagram1.cd" />
     <None Include="Header\Messaging.txt" />
   </ItemGroup>
   <ItemGroup>

@@ -5,6 +5,7 @@
 #include "OgreScriptCompiler.h"
 #include "MaterialReload.h"
 #include "IceUtils.h"
+#include "Edit.h"
 
 wxMaterialEditor::wxMaterialEditor(void)
 {

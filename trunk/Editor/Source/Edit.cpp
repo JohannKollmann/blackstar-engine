@@ -7,15 +7,51 @@
 #include "IceWeatherController.h"
 #include "IceMainLoop.h"
 #include "IceGOCEditorInterface.h"
-#include "IceGOCIntern.h"
+#include "IceGOCWaypoint.h"
 #include "IceGOCAnimatedCharacter.h"
 #include "OgrePhysX.h"
 #include "NxScene.h"
 #include "NavMeshEditorNode.h"
 #include "IceAIManager.h"
+#include "IceGOCMover.h"
 
+IMPLEMENT_CLASS(Edit, wxOgre)
 
-Edit::Edit()
+enum
+{
+	EVT_InsertObject,
+	EVT_InsertObjectAsChild,
+	EVT_DeleteObject,
+	EVT_CreateObjectgroup,
+	EVT_SaveObjectgroup,
+	EVT_SaveBones,
+	EVT_CreateWayTriangle,
+	EVT_InsertAnimKey,
+	EVT_TriggerMover
+};
+
+BEGIN_EVENT_TABLE(Edit, wxOgre)
+	EVT_KEY_DOWN(Edit::OnKeyDown)
+	EVT_KEY_UP(Edit::OnKeyUp)
+
+	EVT_SET_FOCUS(Edit::OnSetFocus)
+	EVT_KILL_FOCUS(Edit::OnKillFocus)
+
+	EVT_MOUSE_EVENTS(Edit::OnMouseEvent)
+
+	EVT_MENU(EVT_InsertObject, Edit::OnInsertObject)
+	EVT_MENU(EVT_InsertObjectAsChild, Edit::OnInsertObjectAsChild)
+	EVT_MENU(EVT_DeleteObject, Edit::OnDeleteObject)
+	EVT_MENU(EVT_CreateObjectgroup, Edit::OnCreateObjectGroup)
+	EVT_MENU(EVT_SaveObjectgroup, Edit::OnSaveObjectGroup)
+	EVT_MENU(EVT_SaveBones, Edit::OnSaveBones)
+	EVT_MENU(EVT_CreateWayTriangle, Edit::OnCreateWayTriangle)
+	EVT_MENU(EVT_InsertAnimKey, Edit::OnInsertAnimKey)
+	EVT_MENU(EVT_TriggerMover, Edit::OnTriggerMover)
+
+	END_EVENT_TABLE()
+
+Edit::Edit(wxWindow* parent) : wxOgre(parent, -1)
 {
 	mEdit = &wxEdit::Instance();
 
@@ -51,27 +87,16 @@ Edit::Edit()
 
 	mMovSpeed = 10.0f;
 	mRotSpeed = 0.2f;
-	SetCameraMoveSpeed(mMovSpeed);
-	SetCameraRotationSpeed(mRotSpeed);
 
 	mCurrentMaterialSelection.mSubEntity = NULL;
 	mCurrentMaterialSelection.mBillboardSet = NULL;
 	mCurrentMaterialSelection.mOriginalMaterialName = "";
 
-	//OIS Maus Input ist im embedded Mode unzuverlässig. Wir übernehmen.
-	Ice::Main::Instance().GetCameraController()->mMove = true;
-	Ice::Main::Instance().GetCameraController()->mYRot = false;
-	Ice::Main::Instance().GetCameraController()->mXRot = false;
+	mMoverReset.mover = nullptr;
+};
 
-	mPivotNode = Ice::Main::Instance().GetOgreSceneMgr()->getRootSceneNode()->createChildSceneNode();
-	mPivotOffsetNode = mPivotNode->createChildSceneNode();
-
-	Ice::MessageSystem::Instance().JoinNewsgroup(this, "MOUSE_MOVE");
-	Ice::MessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
-
-	//wxEdit::Instance().GetMainToolbar()->RegisterTool("SaveWorld", "General", "Data/Editor/Intern/Engine_Icon08.png", Edit::OnToolbarEvent);
-	//wxEdit::Instance().GetMainToolbar()->SetGroupStatus("General", true);
-
+void Edit::PostInit()
+{
 	wxEdit::Instance().GetMainToolbar()->RegisterTool("Physics", "WorldSettings", "Data/Editor/Intern/Editor_gewicht_04.png", Edit::OnToolbarEvent, "Enables/Disables Physics simulation", true, true);
 	wxEdit::Instance().GetMainToolbar()->RegisterTool("TimeCycle", "WorldSettings", "Data/Editor/Intern/editor_clock.png", Edit::OnToolbarEvent, "Enables/Disables game clock", true);
 	wxEdit::Instance().GetMainToolbar()->SetGroupStatus("WorldSettings", true);
@@ -97,11 +122,25 @@ Edit::Edit()
 	wxEdit::Instance().GetMainToolbar()->SetGroupStatus("Game", false);
 
 	Ice::AIManager::Instance().SetWayMeshLoadingMode(true);
-};
+
+	SetCameraMoveSpeed(mMovSpeed);
+	SetCameraRotationSpeed(mRotSpeed);
+
+	//OIS Maus Input ist im embedded Mode unzuverlässig. Wir übernehmen.
+	Ice::Main::Instance().GetCameraController()->mMove = true;
+	Ice::Main::Instance().GetCameraController()->mYRot = false;
+	Ice::Main::Instance().GetCameraController()->mXRot = false;
+
+	mPivotNode = Ice::Main::Instance().GetOgreSceneMgr()->getRootSceneNode()->createChildSceneNode();
+	mPivotOffsetNode = mPivotNode->createChildSceneNode();
+
+	Ice::MessageSystem::Instance().JoinNewsgroup(this, "MOUSE_MOVE");
+	Ice::MessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
+}
 
 void Edit::OnToolbarEvent(int toolID, Ogre::String toolname)
 {
-	Edit *edit = wxEdit::Instance().GetOgrePane()->GetEdit();
+	Edit *edit = wxEdit::Instance().GetOgrePane();
 	bool checked = wxEdit::Instance().GetMainToolbar()->GetToolState(toolID);
 	if (toolname == "XAxisLock")
 	{
@@ -212,7 +251,7 @@ void Edit::FreeAndShowMouse()
 	mShowMouse = true;
 }
 
-void Edit::OnCreateWayTriangle()
+void Edit::OnCreateWayTriangle( wxCommandEvent& WXUNUSED(event) )
 {
 	if (mSelectedObjects.size() == 2)
 	{
@@ -288,66 +327,42 @@ void Edit::OnMouseEvent(wxMouseEvent &ev)
 				if (mEdit->GetWorldExplorer()->GetResourceTree()->GetSelectedResource() != "None"
 					&& mEdit->GetWorldExplorer()->GetResourceTree()->GetSelectedResource().find("Joint") == Ogre::String::npos)
 				{
-					menu.Append(wxOgre_insertObject, "Insert " + mEdit->GetWorldExplorer()->GetResourceTree()->GetSelectedResource());
+					menu.Append(EVT_InsertObject, "Insert " + mEdit->GetWorldExplorer()->GetResourceTree()->GetSelectedResource());
 					if (mSelectedObjects.size() > 0)
 					{
-						menu.Append(wxOgre_insertObjectAsChild, "Insert " + mEdit->GetWorldExplorer()->GetResourceTree()->GetSelectedResource() + " as Child of " +  mSelectedObjects.end()._Mynode()->_Prev->_Myval.mObject->GetName());
+						menu.Append(EVT_InsertObjectAsChild, "Insert " + mEdit->GetWorldExplorer()->GetResourceTree()->GetSelectedResource() + " as Child of " +  mSelectedObjects.end()._Mynode()->_Prev->_Myval.mObject->GetName());
 					}
 				}
 
-				if (mSelectedObjects.size() > 1) menu.Append(wxOgre_createObjectgroup, "Merge");
+				if (mSelectedObjects.size() > 1) menu.Append(EVT_CreateObjectgroup, "Merge");
 				if (mSelectedObjects.size() == 2)
 				{
 					Ice::GameObject* obj1 = (*mSelectedObjects.begin()).mObject;
 					Ice::GameObject* obj2 = mSelectedObjects.begin()._Mynode()->_Next->_Myval.mObject;
-					if (obj1->GetComponent("Waypoint") && obj2->GetComponent("Waypoint")) menu.Append(wxOgre_connectWaypoints, "Connect Waypoints");
 
 					if (obj1->GetComponent<NavMeshEditorNode>() && obj2->GetComponent<NavMeshEditorNode>())
 					{
 						NavMeshEditorNode *n1 = obj1->GetComponent<NavMeshEditorNode>();
 						NavMeshEditorNode *n2 = obj2->GetComponent<NavMeshEditorNode>();
-						if (n1->GetType() != n2->GetType()) menu.Append(wxOgre_createWayTriangle, "Create Triangle");
+						if (n1->GetType() != n2->GetType()) menu.Append(EVT_CreateWayTriangle, "Create Triangle");
 					}
-					/*if ((obj1->GetType() == "Body" || obj1->GetType() == "StaticBody") && (obj2->GetType() == "Body" || obj2->GetType() == "StaticBody")
-						&& mEdit->GetWorldExplorer()->GetResourceTree()->GetSelectedResource().find("Joint") != Ogre::String::npos)
-					{
-						menu.Append(wxOgre_insertObjectAsChild, "Insert " + mEdit->GetWorldExplorer()->GetResourceTree()->GetSelectedResource() + " as Child of " +  obj2->GetName());
-						mTempJointBodyB = (Ice::AbstractBody*)obj1;
-					}
-					if (obj1->GetType() == "Body" && obj2->GetType() == "Body")
-					{
-						for (unsigned short i = 0; i < obj1->GetNumChildren(); i++)
-						{
-							bool chainoptionappended = false;
-							Ice::GameObject *child = obj1->GetChild(i);
-							if (child->GetType().find("Joint") != Ogre::String::npos)
-							{
-								for (unsigned short x = 0; x < obj2->GetNumChildren(); x++)
-								{
-									if (obj2->GetChild(x) == child)
-									{
-										menu.Append(wxOgre_createChain, "Create Chain...");
-										chainoptionappended = true;
-										break;
-									}
-								}
-							}
-							if (chainoptionappended) break;
-						}
-					}*/
 				}
 				if (mSelectedObjects.size() == 1)
 				{
-					menu.Append(wxOgre_saveObjectgroup, "Save Object Group");
+					menu.Append(EVT_SaveObjectgroup, "Save Object Group");
 
 					Ice::GameObject* obj1 = (*mSelectedObjects.begin()).mObject;
 					if (obj1->GetComponent("View", "Skeleton"))
 					{
-						menu.Append(wxOgre_saveBones, "Save Bone Config");
+						menu.Append(EVT_SaveBones, "Save Bone Config");
 					}
+					if (obj1->GetComponent<Ice::AnimKey>())
+						if (obj1->GetComponent<Ice::AnimKey>()->IsLastKey()) menu.Append(EVT_InsertAnimKey, "New Anim Key");
+					if (obj1->GetComponent<Ice::GOCMover>())
+						menu.Append(EVT_TriggerMover, "Test Mover");
 				}
 
-				if (mSelectedObjects.size() >= 1) menu.Append(wxOgre_deleteObject, "Delete");
+				if (mSelectedObjects.size() >= 1) menu.Append(EVT_DeleteObject, "Delete");
 			}
 
 			mEdit->GetOgrePane()->PopupMenu(&menu, clientpt);
@@ -666,7 +681,7 @@ void Edit::ClearPreviewObject()
 }
 void Edit::CreatePreviewObject()
 {
-	Ice::GameObject *preview = OnInsertObject(0, true, true);
+	Ice::GameObject *preview = InsertObject(0, true, true);
 	if (preview)
 	{
 		std::vector<Ogre::String> components = preview->GetComponentsStr();
@@ -698,20 +713,15 @@ void Edit::OnSaveWorld(Ogre::String fileName)
 	Ice::SceneManager::Instance().SaveLevel(fileName);
 };
 
-Ice::GameObject* Edit::OnInsertWaypoint(bool align, bool create_only)
+Ice::GameObject* Edit::InsertWaypoint(bool align, bool create_only)
 {
-	Ice::GameObject *waypoint = new Ice::GameObject();
+	Ice::GameObject *waypoint = Ice::SceneManager::Instance().CreateGameObject();
 	waypoint->AddComponent(new Ice::GOCWaypoint());
 	waypoint->AddComponent(new Ice::MeshDebugRenderable("Editor_Waypoint.mesh"));
 	waypoint->ShowEditorVisuals(true);
 	waypoint->SetGlobalOrientation(Ogre::Quaternion(Ice::Main::Instance().GetCamera()->getDerivedOrientation().getYaw(), Ogre::Vector3(0,1,0)));
 	if (align) AlignObjectWithMesh(waypoint);
 	else waypoint->SetGlobalPosition(Ice::Main::Instance().GetCamera()->getDerivedPosition() + (Ice::Main::Instance().GetCamera()->getDerivedOrientation() * Ogre::Vector3(0,0,-5)));
-	if (mSelectedObjects.size() == 1)
-	{
-		Ice::GOCWaypoint *wp2 = (Ice::GOCWaypoint*)(*mSelectedObjects.begin()).mObject->GetComponent("Waypoint");
-		if (wp2) ((Ice::GOCWaypoint*)waypoint->GetComponent("Waypoint"))->ConnectWaypoint(wp2);
-	}
 	if (!create_only)
 	{
 		SelectObject(waypoint);
@@ -723,9 +733,9 @@ Ice::GameObject* Edit::OnInsertWaypoint(bool align, bool create_only)
 
 Ice::GameObject* Edit::InsertWayTriangle(bool align, bool create_only)
 {
-	Ice::GameObject *oNode1 = new Ice::GameObject(-1);
-	Ice::GameObject *oNode2 = new Ice::GameObject(-1);
-	Ice::GameObject *oNode3 = new Ice::GameObject(-1);
+	Ice::GameObject *oNode1 = new Ice::GameObject();
+	Ice::GameObject *oNode2 = new Ice::GameObject();
+	Ice::GameObject *oNode3 = new Ice::GameObject();
 
 	NavMeshEditorNode *n1 = new NavMeshEditorNode();
 	oNode1->AddComponent(n1);
@@ -752,13 +762,13 @@ Ice::GameObject* Edit::InsertWayTriangle(bool align, bool create_only)
 	return oNode1;
 }
 
-Ice::GameObject* Edit::OnInsertObject(Ice::GameObject *parent, bool align, bool create_only)
+Ice::GameObject* Edit::InsertObject(Ice::GameObject *parent, bool align, bool create_only)
 {
 	Ice::GameObject *object = 0;
 	Ogre::String sResource = wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->GetSelectedResource().c_str();
 	if (sResource.find("Waypoint.static") != Ogre::String::npos)
 	{
-		return OnInsertWaypoint(align, create_only);
+		return InsertWaypoint(align, create_only);
 	}
 	else if (sResource.find("WayTriangle.static") != Ogre::String::npos)
 	{
@@ -766,7 +776,6 @@ Ice::GameObject* Edit::OnInsertObject(Ice::GameObject *parent, bool align, bool 
 	}
 	else if (sResource.find(".") != Ogre::String::npos)
 	{
-		//Ogre::LogManager::getSingleton().logMessage("OnInsertObject");
 		LoadSave::LoadSystem *ls=LoadSave::LoadSave::Instance().LoadFile(sResource);
 		if (sResource.find(".ot") != Ogre::String::npos)
 		{
@@ -776,7 +785,8 @@ Ice::GameObject* Edit::OnInsertObject(Ice::GameObject *parent, bool align, bool 
 		}
 		else
 		{
-			object = new Ice::GameObject(parent);
+			object = Ice::SceneManager::Instance().CreateGameObject();
+			object->SetParent(parent);
 
 			std::list<Ice::ComponentSection> sections;
 			Ogre::Vector3 offset;
@@ -807,7 +817,7 @@ Ice::GameObject* Edit::OnInsertObject(Ice::GameObject *parent, bool align, bool 
 	}
 
 	if (align) AlignObjectWithMesh(object);
-	else object->SetGlobalPosition(Ice::Main::Instance().GetCamera()->getDerivedPosition() + (Ice::Main::Instance().GetCamera()->getDerivedOrientation() * Ogre::Vector3(0,0,-5))); 
+	else object->SetGlobalPosition(GetInsertPosition()); 
 
 	if (!create_only)
 	{
@@ -822,24 +832,29 @@ Ice::GameObject* Edit::OnInsertObject(Ice::GameObject *parent, bool align, bool 
 	return object;
 }
 
-void Edit::OnSetFocus(bool focus)
+void Edit::OnInsertObject( wxCommandEvent& WXUNUSED(event) )
 {
-	if (!mPlaying)
-	{
-		Ice::Main::Instance().GetInputManager()->SetEnabled(focus);
-	}
-	else if (!focus)
-	{
+	InsertObject();
+}
+
+void Edit::OnKillFocus( wxFocusEvent& event )
+{
+	if (mPlaying)
 		PauseGame();
-	}
+	Ice::Main::Instance().GetInputManager()->SetEnabled(false);
 }
 
-void Edit::OnInsertObjectAsChild()
+void Edit::OnSetFocus( wxFocusEvent& event )
 {
-	if (mSelectedObjects.size() > 0) OnInsertObject(mSelectedObjects.end()._Mynode()->_Prev->_Myval.mObject);
+	Ice::Main::Instance().GetInputManager()->SetEnabled(true);
 }
 
-void Edit::OnDeleteObject()
+void Edit::OnInsertObjectAsChild( wxCommandEvent& WXUNUSED(event) )
+{
+	if (mSelectedObjects.size() > 0) InsertObject(mSelectedObjects.end()._Mynode()->_Prev->_Myval.mObject);
+}
+
+void Edit::OnDeleteObject( wxCommandEvent& WXUNUSED(event) )
 {
 	bool skip = false;
 	bool one = false;
@@ -884,9 +899,9 @@ void Edit::OnDeleteObject()
 	wxEdit::Instance().GetWorldExplorer()->GetMaterialTree()->Update();
 }
 
-void Edit::OnCreateObjectGroup()
+void Edit::OnCreateObjectGroup( wxCommandEvent& WXUNUSED(event) )
 {
-	Ice::GameObject *parent = new Ice::GameObject();
+	Ice::GameObject *parent = Ice::SceneManager::Instance().CreateGameObject();
 	parent->SetGlobalPosition(Ice::Main::Instance().GetCamera()->getDerivedPosition() + (Ice::Main::Instance().GetCamera()->getDerivedOrientation() * Ogre::Vector3(0,0,-5)));
 	for (std::list<EditorSelection>::iterator i = mSelectedObjects.begin(); i != mSelectedObjects.end(); i++)
 	{
@@ -897,19 +912,19 @@ void Edit::OnCreateObjectGroup()
 	wxEdit::Instance().GetWorldExplorer()->GetSceneTree()->Update();
 }
 
-void Edit::OnSaveObjectGroup()
+void Edit::OnSaveObjectGroup( wxCommandEvent& WXUNUSED(event) )
 {
 	if (mSelectedObjects.size() == 1)
 	{
 		wxFileDialog dialog
-		(
+			(
 			&wxEdit::Instance(),
-            "Save Object Tree",
-            wxEmptyString,
-            wxEmptyString,
-            "Object Trees (*.ot)|*.ot",
+			"Save Object Tree",
+			wxEmptyString,
+			wxEmptyString,
+			"Object Trees (*.ot)|*.ot",
 			wxFD_SAVE|wxFD_OVERWRITE_PROMPT
-        );
+			);
 
 		dialog.CentreOnParent();
 		dialog.SetPath("Data/Editor/Objects/");
@@ -932,29 +947,10 @@ void Edit::OnSaveObjectGroup()
 	wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->SetRootPath("Data/Editor/Objects");
 }
 
-void Edit::OnConnectWaypoints()
-{
-	Ice::GOCWaypoint* wp1 = (Ice::GOCWaypoint*)(*mSelectedObjects.begin()).mObject->GetComponent("Waypoint");
-	Ice::GOCWaypoint* wp2 = (Ice::GOCWaypoint*)mSelectedObjects.begin()._Mynode()->_Next->_Myval.mObject->GetComponent("Waypoint");
-	if (!wp1->HasConnectedWaypoint(wp2)) wp1->ConnectWaypoint(wp2);
-	else wp1->DisconnectWaypoint(wp2);
-}
-
-void Edit::OnSaveBones()
+void Edit::OnSaveBones( wxCommandEvent& WXUNUSED(event) )
 {
 	Ice::GOCAnimatedCharacter *ragdoll = (Ice::GOCAnimatedCharacter*)(*mSelectedObjects.begin()).mObject->GetComponent("View", "Skeleton");
 	ragdoll->SerialiseBoneObjects("Data\\Scripts\\Animation\\" + ragdoll->GetRagdoll()->getEntity()->getMesh()->getName() + ".bones");
-}
-
-void Edit::OnCreateChain()
-{
-	wxTextEntryDialog dialog(wxEdit::Instance().GetOgrePane(),
-		_T("Enter chain length:"),
-		_T("Chain length"),
-		_T(""),
-		wxOK | wxCANCEL);
-
-	Ogre::String sChainLength = "";
 }
 
 void Edit::OnSelectMaterial(float MouseX, float MouseY)
@@ -1037,7 +1033,7 @@ void Edit::OnSelectObject(float MouseX, float MouseY)
 
 void Edit::OnBrush()
 {
-	OnInsertObject(0, true);
+	InsertObject(0, true);
 }
 
 void Edit::SelectObject(Ice::GameObject *object)
@@ -1236,6 +1232,17 @@ void Edit::ReceiveMessage(Ice::Msg &msg)
 	}
 	if (msg.mNewsgroup == "UPDATE_PER_FRAME")
 	{
+		if (mMoverReset.mover)
+		{
+			if (!mMoverReset.mover->GetComponent<Ice::GOCMover>()->IsMoving())
+			{
+				mMoverReset.mover->GetComponent<Ice::GOCMover>()->SetKeyIgnoreParent(true);
+				mMoverReset.mover->SetGlobalPosition(mMoverReset.resetPos);
+				mMoverReset.mover->SetGlobalOrientation(mMoverReset.resetQuat);
+				mMoverReset.mover->GetComponent<Ice::GOCMover>()->SetKeyIgnoreParent(false);
+				mMoverReset.mover = nullptr;
+			}
+		}
 		//Die Preview node, wenn vorhanden, rotieren
 		if (wxEdit::Instance().GetAuiManager().GetPane("preview").IsShown())
 		{
@@ -1250,3 +1257,36 @@ void Edit::ReceiveMessage(Ice::Msg &msg)
 		}*/
 	}
 };
+
+void Edit::OnInsertAnimKey( wxCommandEvent& WXUNUSED(event) /*= wxCommandEvent()*/ )
+{
+	if (mSelectedObjects.size() != 1) return;
+
+	Ice::AnimKey *lastKey = mSelectedObjects.front().mObject->GetComponent<Ice::AnimKey>();
+	if (!lastKey) return;
+	if (!lastKey->IsLastKey()) return;
+
+	Ice::GameObject *animKey = lastKey->CreateSuccessor();
+	animKey->SetGlobalPosition(GetInsertPosition());
+
+	SelectObject(animKey);
+}
+
+void Edit::OnTriggerMover( wxCommandEvent& WXUNUSED(event) /*= wxCommandEvent()*/ )
+{
+	if (mSelectedObjects.size() != 1) return;
+
+	Ice::GOCMover *mover = mSelectedObjects.front().mObject->GetComponent<Ice::GOCMover>();
+	if (!mover) return;
+
+	mMoverReset.mover = mover->GetOwner();
+	mMoverReset.resetPos = mover->GetOwner()->GetGlobalPosition();
+	mMoverReset.resetQuat = mover->GetOwner()->GetGlobalOrientation();
+
+	mover->Trigger();
+}
+
+Ogre::Vector3 Edit::GetInsertPosition()
+{
+	return Ice::Main::Instance().GetCamera()->getDerivedPosition() + (Ice::Main::Instance().GetCamera()->getDerivedOrientation() * Ogre::Vector3(0,0,-5));
+}

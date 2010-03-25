@@ -45,7 +45,7 @@ public:
 class DllExport GOCViewContainer : public GOCNodeRenderable
 {
 private:
-	std::list<GOCViewComponent*> mItems;
+	std::vector<GOCViewComponent*> mItems;
 
 public:
 	GOCViewContainer(void);
@@ -57,8 +57,8 @@ public:
 	GOCViewComponent* GetItem(Ogre::String type);
 	void RemoveItem(Ogre::String type);
 	void SetOwner(GameObject *go);
-	std::list<GOCViewComponent*>::iterator GetItemIterator() { return mItems.begin(); }
-	std::list<GOCViewComponent*>::iterator GetItemIteratorEnd() { return mItems.end(); }
+	std::vector<GOCViewComponent*>::iterator GetItemIterator() { return mItems.begin(); }
+	std::vector<GOCViewComponent*>::iterator GetItemIteratorEnd() { return mItems.end(); }
 
 	void UpdateScale(Ogre::Vector3 scale);
 

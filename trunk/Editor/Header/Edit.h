@@ -12,6 +12,7 @@
 #include "EntityMaterialInspector.h"
 #include "IceGOCPlayerInput.h"
 #include "IceGOCCameraController.h"
+#include "wxOgre.h"
 
 class IEditorSelection
 {
@@ -30,9 +31,12 @@ struct MaterialSelection
 	Ogre::String mOriginalMaterialName;
 };
 
-class Edit : public Ice::MessageListener
+class Edit : public wxOgre, public Ice::MessageListener
 {
-	friend class wxOgre;
+	DECLARE_CLASS(Edit)
+
+protected:
+	DECLARE_EVENT_TABLE()
 
 public:
 
@@ -48,31 +52,46 @@ public:
 		UNLOCKED,
 		UNLOCKED_SKIPCHILDREN
 	};
+
+	struct MoverReset
+	{
+		Ice::GameObject *mover;
+		Ogre::Vector3 resetPos;
+		Ogre::Quaternion resetQuat;
+	};
+
+	void PostInit();
+
 	void OnMouseEvent(wxMouseEvent& ev);
+
+	void OnKeyDown(wxKeyEvent& key);
+	void OnKeyUp(wxKeyEvent& key);
+
+	void OnSetFocus(wxFocusEvent& event);
+	void OnKillFocus(wxFocusEvent& event);
+
+	void OnInsertObject(wxCommandEvent& WXUNUSED(event) = wxCommandEvent());
+	void OnInsertObjectAsChild(wxCommandEvent& WXUNUSED(event) = wxCommandEvent());
+	void OnDeleteObject(wxCommandEvent& WXUNUSED(event) = wxCommandEvent());
+	void OnCreateObjectGroup(wxCommandEvent& WXUNUSED(event) = wxCommandEvent());
+	void OnSaveObjectGroup(wxCommandEvent& WXUNUSED(event) = wxCommandEvent());
+	void OnSaveBones(wxCommandEvent& WXUNUSED(event) = wxCommandEvent());
+	void OnCreateWayTriangle(wxCommandEvent& WXUNUSED(event) = wxCommandEvent());
+	void OnInsertAnimKey(wxCommandEvent& WXUNUSED(event) = wxCommandEvent());
+	void OnTriggerMover(wxCommandEvent& WXUNUSED(event) = wxCommandEvent());
+
 
 	/*
 	Wird von OIS (aus main) aufgerufen und hat einige Vorteile gegenbüber dem wxWidgets Mouse Event System.
 	*/
 	void OnMouseMove(Ogre::Radian RotX,Ogre::Radian RotY);
 
-	void OnKeyDown(wxKeyEvent& key);
-	void OnKeyUp(wxKeyEvent& key);
-
 	void OnLoadWorld(Ogre::String fileName);
 	void OnSaveWorld(Ogre::String fileName);
 
-	Ice::GameObject* OnInsertObject(Ice::GameObject *parent = 0, bool align = false, bool create_only = false);
-	Ice::GameObject* OnInsertWaypoint(bool align = false, bool create_only = false);
+	Ice::GameObject* InsertObject(Ice::GameObject *parent = 0, bool align = false, bool create_only = false);
+	Ice::GameObject* InsertWaypoint(bool align = false, bool create_only = false);
 	Ice::GameObject* InsertWayTriangle(bool align = false, bool create_only = false);
-	void OnInsertObjectAsChild();
-	void OnDeleteObject();
-	void OnCreateObjectGroup();
-	void OnSaveObjectGroup();
-	void OnCreateChain();
-	void OnConnectWaypoints();
-	void OnSaveBones();
-
-	void OnSetFocus(bool focus);
 
 	void OnSelectObject(float MouseX, float MouseY);
 	void OnBrush();
@@ -103,7 +122,7 @@ public:
 	AxisLock mYAxisLock;
 	AxisLock mZAxisLock;
 
-	Edit();
+	Edit(wxWindow* parent);
 	~Edit() { };
 
 
@@ -123,6 +142,8 @@ private:
 
 	Ogre::SceneNode *mPivotNode;
 	Ogre::SceneNode *mPivotOffsetNode;
+
+	MoverReset mMoverReset;
 
 	//Winapi Hack!
 	Ogre::Vector2 mWinMousePosition;
@@ -169,5 +190,7 @@ private:
 
 	void AttachAxisObject(Ice::GameObject *object);
 	void DetachAxisObject(Ice::GameObject *object);
+
+	Ogre::Vector3 GetInsertPosition();
 
 };

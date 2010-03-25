@@ -50,7 +50,7 @@ GOCViewContainer::GOCViewContainer(void)
 
 GOCViewContainer::~GOCViewContainer(void)
 {
-	std::list<GOCViewComponent*>::iterator i = mItems.begin();
+	std::vector<GOCViewComponent*>::iterator i = mItems.begin();
 	mNode->detachAllObjects();
 	while (i != mItems.end())
 	{
@@ -74,7 +74,7 @@ void GOCViewContainer::AddItem(GOCViewComponent *item)
 
 void GOCViewContainer::RemoveItem(Ogre::String type)
 {
-	for (std::list<GOCViewComponent*>::iterator i = mItems.begin(); i != mItems.end(); i++)
+	for (std::vector<GOCViewComponent*>::iterator i = mItems.begin(); i != mItems.end(); i++)
 	{
 		if ((*i)->GetTypeName() == type)
 		{
@@ -90,7 +90,7 @@ void GOCViewContainer::SetOwner(GameObject *go)
 {
 	mOwnerGO = go;
 	mNode->setScale(mOwnerGO->GetGlobalScale());
-	for (std::list<GOCViewComponent*>::iterator i = mItems.begin(); i != mItems.end(); i++)
+	for (std::vector<GOCViewComponent*>::iterator i = mItems.begin(); i != mItems.end(); i++)
 	{
 		(*i)->GetEditorVisual()->setUserAny(Ogre::Any(mOwnerGO));
 	}
@@ -98,7 +98,7 @@ void GOCViewContainer::SetOwner(GameObject *go)
 
 GOCViewComponent* GOCViewContainer::GetItem(Ogre::String type)
 {
-	for (std::list<GOCViewComponent*>::iterator i = mItems.begin(); i != mItems.end(); i++)
+	for (std::vector<GOCViewComponent*>::iterator i = mItems.begin(); i != mItems.end(); i++)
 	{
 		if (Ogre::String((*i)->GetTypeName().c_str()) == type)
 		{
@@ -111,7 +111,7 @@ GOCViewComponent* GOCViewContainer::GetItem(Ogre::String type)
 
 void GOCViewContainer::ShowEditorVisual(bool show)
 {
-	for (std::list<GOCViewComponent*>::iterator i = mItems.begin(); i != mItems.end(); i++)
+	for (std::vector<GOCViewComponent*>::iterator i = mItems.begin(); i != mItems.end(); i++)
 	{
 		(*i)->ShowEditorVisual(show);
 	}
@@ -119,13 +119,18 @@ void GOCViewContainer::ShowEditorVisual(bool show)
 
 void GOCViewContainer::Save(LoadSave::SaveSystem& mgr)
 {
-	mgr.SaveAtom("std::list<Saveable*>", (void*)(&mItems), "mItems");
+	mgr.SaveAtom("std::vector<Saveable*>", (void*)(&mItems), "mItems");
 }
 
 void GOCViewContainer::Load(LoadSave::LoadSystem& mgr)
 {
-	mgr.LoadAtom("std::list<Saveable*>", (void*)(&mItems));
-	for (std::list<GOCViewComponent*>::iterator i = mItems.begin(); i != mItems.end(); i++)
+		std::list<GOCViewComponent*> managed;
+		mgr.LoadAtom("std::list<Saveable*>", (void*)(&managed));
+		for (auto i = managed.begin(); i != managed.end(); i++)
+			mItems.push_back(*i);
+
+	//mgr.LoadAtom("std::vector<Saveable*>", (void*)(&mItems));
+	for (std::vector<GOCViewComponent*>::iterator i = mItems.begin(); i != mItems.end(); i++)
 	{
 		(*i)->AttachToNode(mNode);
 	}

@@ -1,6 +1,7 @@
 
 #include "DotSceneLoader.h"
 #include "IceGameObject.h"
+#include "IceSceneManager.h"
 #include "IceGOCView.h"
 #include "IceGOCPhysics.h"
 
@@ -128,7 +129,7 @@ void DotSceneLoader::LoadNode(TiXmlElement* objectElement)
     }
 	if (meshname != "")
 	{
-		Ice::GameObject *object = new Ice::GameObject();
+		Ice::GameObject *object = Ice::SceneManager::Instance().CreateGameObject();
 		Ice::GOCViewContainer *visuals = new Ice::GOCViewContainer();
 		visuals->AddItem(new Ice::MeshRenderable(meshname, true));
 		object->AddComponent(new Ice::GOCStaticBody(meshname));

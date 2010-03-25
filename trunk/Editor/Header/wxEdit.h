@@ -57,7 +57,7 @@ public:
 
 	wxMainNotebook* GetMainNotebook() { return mMainNotebook; };
 	wxMainMenu* GetMainMenu() { return mMenuBar; };
-	wxOgre* GetOgrePane();
+	Edit* GetOgrePane();
 	wxEntityTreeNotebook* GetWorldExplorer() { return mWorldExplorer; };
 	wxPropertyGridWindow* GetpropertyWindow() { return mPropertyWindow; };
 	wxSettingsWindow* GetSettingsWindow() { return mSettingsWindow; };

@@ -3,6 +3,7 @@
 #include "IceSceneManager.h"
 #include "IceWeatherController.h"
 #include "wxEdit.h"
+#include "Edit.h"
 
 enum
 {
@@ -93,28 +94,28 @@ void wxSettingsWindow::OnSetCameraMovementSpeed(wxScrollEvent& event)
 {
 	float val = (float)(event.GetInt());
 	float factor = (val / 100.0) * 100.0f;
-	wxEdit::Instance().GetOgrePane()->GetEdit()->SetCameraMoveSpeed(factor);
+	wxEdit::Instance().GetOgrePane()->SetCameraMoveSpeed(factor);
 }
 
 void wxSettingsWindow::OnSetCameraRotationSpeed(wxScrollEvent& event)
 {
 	float val = (float)(event.GetInt());
 	float factor = (val / 100.0) * 1.0;
-	wxEdit::Instance().GetOgrePane()->GetEdit()->SetCameraRotationSpeed(factor);
+	wxEdit::Instance().GetOgrePane()->SetCameraRotationSpeed(factor);
 }
 
 void wxSettingsWindow::OnSetObjectMovementSpeed(wxScrollEvent& event)
 {
 	float val = (float)(event.GetInt());
 	float factor = (val / 100.0) * 5.0;
-	wxEdit::Instance().GetOgrePane()->GetEdit()->SetObjectMoveSpeed(factor);
+	wxEdit::Instance().GetOgrePane()->SetObjectMoveSpeed(factor);
 }
 
 void wxSettingsWindow::OnSetObjectRotationSpeed(wxScrollEvent& event)
 {
 	float val = (float)(event.GetInt());
 	float factor = (val / 100.0) * 1.0;
-	wxEdit::Instance().GetOgrePane()->GetEdit()->SetObjectRotationSpeed(factor);
+	wxEdit::Instance().GetOgrePane()->SetObjectRotationSpeed(factor);
 }
 
 void wxSettingsWindow::OnSetCaelumTimeScale(wxScrollEvent& event)

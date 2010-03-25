@@ -3,6 +3,7 @@
 #include "IceScenemanager.h"
 #include "IceGOCAnimatedCharacter.h"
 #include "IceMainLoop.h"
+#include "Edit.h"
 
 enum
 {
@@ -52,7 +53,7 @@ void wxObjectFolderTree::OnSelectItemCallback()
 		Ogre::String File = mCurrentItem->GetName().c_str();
 		mCurrentPath += File;
 		Ogre::String extension = File.substr(File.find(".")+1, File.length());
-		wxEdit::Instance().GetOgrePane()->GetEdit()->OnSelectResource();
+		wxEdit::Instance().GetOgrePane()->OnSelectResource();
 
 		if (extension == "ocs" && wxEdit::Instance().GetWorldExplorer()->GetSelection() == 1)
 		{
@@ -80,7 +81,7 @@ void wxObjectFolderTree::CreateObjectPreview(Ogre::String file)
 {
 	ClearObjectPreview();
 	Ice::Main::Instance().SetSceneMgr(false);
-	mPreviewObject = new Ice::GameObject(-1);
+	mPreviewObject = new Ice::GameObject();
 	LoadSave::LoadSystem *ls=LoadSave::LoadSave::Instance().LoadFile(file);
 	std::list<Ice::ComponentSection> sections;
 	ls->LoadAtom("std::list<ComponentSection>", (void*)(&sections));
@@ -178,7 +179,7 @@ void wxObjectFolderTree::OnEnterTab()
 		}
 	}
 
-	if (wxEdit::Instance().GetOgrePane()->GetEdit())
+	if (wxEdit::Instance().GetOgrePane())
 	{
 		if (mCurrentItem) OnSelectItemCallback();
 	}

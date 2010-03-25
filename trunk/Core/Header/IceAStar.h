@@ -3,7 +3,7 @@
 
 #include "IceIncludes.h"
 #include <list>
-#include "IceGOCIntern.h"
+#include "IceGOCWaypoint.h"
 #include "NxPhysics.h"
 #include "Ice3D.h"
 

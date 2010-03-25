@@ -3,6 +3,7 @@
 #include "IceMain.h"
 #include "IceGameObject.h"
 #include "IceAIManager.h"
+#include "IceSceneManager.h"
 
 
 	NavMeshEditorNode::NavMeshEditorNode()
@@ -84,7 +85,7 @@
 		}
 		else
 		{
-			bind.edge = new NavMeshEditorNode(new Ice::GameObject(-1, mOwnerGO->GetParent()), EDGE, this, bind.neighbour);
+			bind.edge = new NavMeshEditorNode(new Ice::GameObject(), EDGE, this, bind.neighbour);
 			bind.line = CreateLine(bind.neighbour);
 		}
 	}
@@ -107,13 +108,13 @@
 			if (!i->n1.edge && border)
 			{
 				if (border->edge) i->n1.edge = border->edge;
-				else i->n1.edge = new NavMeshEditorNode(new Ice::GameObject(-1, mOwnerGO->GetParent()), EDGE, this, i->n1.neighbour);
+				else i->n1.edge = new NavMeshEditorNode(new Ice::GameObject(), EDGE, this, i->n1.neighbour);
 			}
 			border = _getBorderEdge(i->n2.neighbour);
 			if (!i->n2.edge && border)
 			{
 				if (border->edge) i->n2.edge = border->edge;
-				else i->n2.edge = new NavMeshEditorNode(new Ice::GameObject(-1, mOwnerGO->GetParent()), EDGE, this, i->n2.neighbour);
+				else i->n2.edge = new NavMeshEditorNode(new Ice::GameObject(), EDGE, this, i->n2.neighbour);
 			}
 		}
 		UpdatePosition(mOwnerGO->GetGlobalPosition());
@@ -291,7 +292,7 @@
 
 	Ogre::ManualObject* NavMeshEditorNode::CreateLine(NavMeshEditorNode *other)
 	{
-		Ogre::ManualObject* line = Ice::Main::Instance().GetOgreSceneMgr()->createManualObject("WaynetLine_" + mOwnerGO->GetIDStr() + other->GetOwner()->GetIDStr());
+		Ogre::ManualObject* line = Ice::Main::Instance().GetOgreSceneMgr()->createManualObject("WaynetLine_" + Ice::SceneManager::Instance().RequestIDStr());
 		Ogre::SceneNode* lineNode = Ice::Main::Instance().GetOgreSceneMgr()->getRootSceneNode();//->createChildSceneNode("WaynetLine_" + mOwnerGO->GetIDStr() + other->GetOwner()->GetIDStr());
 		line->begin("WPLine", Ogre::RenderOperation::OT_LINE_LIST);
 		line->position(GetOwner()->GetGlobalPosition() + Ogre::Vector3(0,0.2f,0));

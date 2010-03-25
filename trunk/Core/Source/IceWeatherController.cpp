@@ -51,6 +51,7 @@ namespace Ice
 
 		mCaelumSystem->getSun ()->setDiffuseMultiplier (Ogre::ColourValue (1.5f, 1.5f, 1.3f));
 		mCaelumSystem->getSun ()->setSpecularMultiplier (Ogre::ColourValue (1, 1, 1));
+		mCaelumSystem->getSun ()->setAmbientMultiplier(Ogre::ColourValue(0.1f, 0.1f, 0.1f));
 
 		mCaelumSystem->setEnsureSingleShadowSource(true);
 		mCaelumSystem->getMoon()->setPhase(1.0f);

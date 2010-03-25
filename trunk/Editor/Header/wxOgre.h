@@ -1,10 +1,9 @@
-#ifndef __WXOGRE_H__
-#define __WXOGRE_H__
+
+#pragma once
 
 #include "Ogre.h"
 #include "wx/wx.h"
 #include "EDTIncludes.h"
-#include "Edit.h"
 
 	/**
 	@brief WX widget for and Ogre rendering window
@@ -19,26 +18,10 @@
 	It can even be passed to an wxAUI pane.
 	*/
 
-enum
-{
-	wxOgre_insertObject,
-	wxOgre_insertObjectAsChild,
-	wxOgre_editObject,
-	wxOgre_deleteObject,
-	wxOgre_createObjectgroup,
-	wxOgre_saveObjectgroup,
-	wxOgre_createChain,
-	wxOgre_connectWaypoints,
-	wxOgre_saveBones,
-	wxOgre_createWayTriangle
-};
-
-
-	class wxOgre : 
-		public wxControl/*, 
-		public Ogre::Singleton<wxOgre>*/
+	class wxOgre : public wxControl
 	{
-		DECLARE_CLASS(wxOgre) 
+		DECLARE_CLASS(wxOgre)
+
 	public:
 		/** A new wxOgre must receive a parent frame to which to attach 
 		itself to */
@@ -46,11 +29,9 @@ enum
            const wxPoint& pos = wxDefaultPosition,
            const wxSize& size = wxSize(960, 600), long style = 0,
            const wxString& name = wxPanelNameStr); 
-		~wxOgre();
+		virtual ~wxOgre();
 
 		void initOgre();
-
-		Edit* GetEdit() { return mEdit; }
 
 		/** Renders a single Ogre frame */
 		void update();
@@ -58,33 +39,10 @@ enum
 		inline Ogre::RenderWindow* getRenderWindow() { return mRenderWindow; };
 		inline Ogre::Camera* getCamera() { return mCamera; };
 		inline void setCamera(Ogre::Camera* camera) { mCamera = camera;};
-		void initEdit();
-		
-		/*
-		Input stuff
-		OIS überwacht das gesamte Fenster, während hier die Möglichkeit besteht, nur den Input des Ogre widgets zu überwachen.
-		*/
-		void OnKeyDown(wxKeyEvent& key);
-		void OnKeyUp(wxKeyEvent& key);
-
-		void OnSetFocus(wxFocusEvent& event);
-		void OnKillFocus(wxFocusEvent& event);
 		
 
 	protected:
 		DECLARE_EVENT_TABLE()
-
-		void OnMouseEvent(wxMouseEvent& ev);
-
-		void OnInsertObject(wxCommandEvent& WXUNUSED(event));
-		void OnInsertObjectAsChild(wxCommandEvent& WXUNUSED(event));
-		void OnDeleteObject(wxCommandEvent& WXUNUSED(event));
-		void OnCreateObjectGroup(wxCommandEvent& WXUNUSED(event));
-		void OnSaveObjectGroup(wxCommandEvent& WXUNUSED(event));
-		void OnCreateChain(wxCommandEvent& WXUNUSED(event));
-		void OnConnectWaypoints(wxCommandEvent& WXUNUSED(event));
-		void OnSaveBones(wxCommandEvent& WXUNUSED(event));
-		void OnCreateWayTriangle(wxCommandEvent& WXUNUSED(event));
 
 	private:
 		/** Creates an ogre rendering window and all other default objects
@@ -113,12 +71,7 @@ enum
 		Ogre::RenderWindow* mRenderWindow;
 		Ogre::Camera *mCamera;
 
-		Edit *mEdit;
-
 		bool mInitialized;
 
 
 	};
-
-
-#endif // __WXOGRE_H__

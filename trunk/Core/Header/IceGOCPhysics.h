@@ -37,12 +37,11 @@ namespace Ice
 	class DllExport GOPhysXRenderable : public OgrePhysX::PointRenderable
 	{
 	private:
-		GameObject *mGO;
+		GOCRigidBody *mBody;
 	public:
-		GOPhysXRenderable(GameObject *mGO) : mGO(mGO) {};
+		GOPhysXRenderable(GOCRigidBody *body) : mBody(body) {};
 		virtual ~GOPhysXRenderable() {}
 		void setTransform(Ogre::Vector3 position, Ogre::Quaternion rotation);
-		void setGO(GameObject *go);
 	};
 
 	class DllExport GOCRigidBody : public GOCEditorInterface, public GOCPhysics

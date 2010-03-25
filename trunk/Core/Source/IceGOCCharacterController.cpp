@@ -76,7 +76,7 @@ namespace Ice
 
 	void GOCCharacterController::UpdatePosition(Ogre::Vector3 position)
 	{
-		if (!mOwnerGO->GetTranformingComponents()) mCharacterController->setPosition(NxExtendedVec3(position.x, position.y + mDimensions.y * 0.5, position.z));
+		mCharacterController->setPosition(NxExtendedVec3(position.x, position.y + mDimensions.y * 0.5, position.z));
 	}
 	void GOCCharacterController::UpdateOrientation(Ogre::Quaternion orientation)
 	{
@@ -113,7 +113,7 @@ namespace Ice
 		if (msg.mNewsgroup == "END_PHYSICS" && !mFreezed)
 		{
 			NxExtendedVec3 nxPos = mCharacterController->getFilteredPosition();
-			mOwnerGO->UpdateTransform(Ogre::Vector3(nxPos.x, nxPos.y - mDimensions.y * 0.5, nxPos.z), mOwnerGO->GetGlobalOrientation());
+			SetOwnerPosition(Ogre::Vector3(nxPos.x, nxPos.y - mDimensions.y * 0.5, nxPos.z));
 		}
 	}
 

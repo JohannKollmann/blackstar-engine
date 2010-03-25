@@ -13,12 +13,13 @@
 #include "IceGOCPlayerInput.h"
 #include "IceGOCCameraController.h"
 #include "IceGOCAnimatedCharacter.h"
-#include "IceGOCIntern.h"
+#include "IceGOCWaypoint.h"
 #include "IceGOCAI.h"
 #include "IceAIManager.h"
 #include "IceFollowPathway.h"
 #include "IceDialog.h"
 #include "IceLevelMesh.h"
+#include "IceGOCMover.h"
 
 #include "boost/filesystem/operations.hpp"
 #include "boost/filesystem/path.hpp"
@@ -106,7 +107,7 @@ namespace Ice
 
 	void SceneManager::ShowEditorMeshes(bool show)
 	{
-		for (std::map<int, GameObject*>::iterator i = mGameObjects.begin(); i != mGameObjects.end(); i++)
+		for (std::map<int, ManagedGameObject*>::iterator i = mGameObjects.begin(); i != mGameObjects.end(); i++)
 		{
 			if (show)
 			{
@@ -158,6 +159,7 @@ namespace Ice
 		LoadSave::LoadSave::Instance().RegisterObject(&GenericProperty::Register);
 		LoadSave::LoadSave::Instance().RegisterObject(&ComponentSection::Register);
 		LoadSave::LoadSave::Instance().RegisterObject(&GameObject::Register);
+		LoadSave::LoadSave::Instance().RegisterObject(&ManagedGameObject::Register);
 		LoadSave::LoadSave::Instance().RegisterObject(&LoadSave::SaveableDummy::Register);
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCWaypoint::Register);
 
@@ -176,6 +178,9 @@ namespace Ice
 
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCAI::Register);
 
+		LoadSave::LoadSave::Instance().RegisterObject(&GOCMover::Register);
+		LoadSave::LoadSave::Instance().RegisterObject(&GOCAnimKey::Register);
+
 		LoadSave::LoadSave::Instance().RegisterObject(&NavigationMesh::Register);
 
 		RegisterEditorInterface("A", "Mesh", (EDTCreatorFn)&MeshRenderable::NewEditorInterfaceInstance, MeshRenderable::GetDefaultParameters);
@@ -190,9 +195,12 @@ namespace Ice
 		RegisterEditorInterface("B_x", "Character", (EDTCreatorFn)&GOCCharacterController::NewEditorInterfaceInstance, GOCCharacterController::GetDefaultParameters);
 
 		RegisterEditorInterface("C_x", "Script", (EDTCreatorFn)&GOCAI::NewEditorInterfaceInstance, GOCAI::GetDefaultParameters);
-		RegisterEditorInterface("C_x", "Player Control", (EDTCreatorFn)&GOCPlayerInput::NewEditorInterfaceInstance, GOCPlayerInput::GetDefaultParameters);
+		RegisterEditorInterface("C_x", "Player Input", (EDTCreatorFn)&GOCPlayerInput::NewEditorInterfaceInstance, GOCPlayerInput::GetDefaultParameters);
 
 		RegisterEditorInterface("D", "Camera", (EDTCreatorFn)&GOCCameraController::NewEditorInterfaceInstance, GOCCameraController::GetDefaultParameters);
+
+		RegisterEditorInterface("E", "Mover", (EDTCreatorFn)&GOCMover::NewEditorInterfaceInstance, GOCMover::GetDefaultParameters);
+		RegisterEditorInterface("", "Anim Key", (EDTCreatorFn)&GOCAnimKey::NewEditorInterfaceInstance, GOCAnimKey::GetDefaultParameters);
 
 		//Setup Lua Callback
 		ScriptSystem::GetInstance().ShareCFunction("LogMessage", &SceneManager::Lua_LogMessage);
@@ -225,7 +233,7 @@ namespace Ice
 
 	void SceneManager::ClearGameObjects()
 	{
-		std::map<int, GameObject*>::iterator i = mGameObjects.begin();
+		std::map<int, ManagedGameObject*>::iterator i = mGameObjects.begin();
 		while (i != mGameObjects.end())
 		{
 			delete i->second;
@@ -306,8 +314,8 @@ namespace Ice
 		DataMap *levelparams = (DataMap*)ls->LoadObject();
 		CreateFromDataMap(levelparams);
 
-		std::list<LoadSave::Saveable*> objects;
-		ls->LoadAtom("std::list<Saveable*>", &objects);
+		std::vector<ManagedGameObject*> objects;
+		ls->LoadAtom("std::vector<Saveable*>", &objects);
 		//Objects call SceneManager::RegisterObject
 
 		delete AIManager::Instance().mNavigationMesh;
@@ -332,12 +340,12 @@ namespace Ice
 		DataMap map;
 		GetParameters(&map);
 		ss->SaveObject(&map, "LevelParams");
-		std::list<LoadSave::Saveable*> objects;
-		for (std::map<int, GameObject*>::iterator i = mGameObjects.begin(); i != mGameObjects.end(); i++)
+		std::vector<LoadSave::Saveable*> objects;
+		for (std::map<int, ManagedGameObject*>::iterator i = mGameObjects.begin(); i != mGameObjects.end(); i++)
 		{
 			objects.push_back(i->second);
 		}
-		ss->SaveAtom("std::list<Saveable*>", &objects, "Objects");
+		ss->SaveAtom("std::vector<Saveable*>", &objects, "Objects");
 		ss->SaveObject(AIManager::Instance().GetNavigationMesh(), "WayMesh");
 		ss->CloseFiles();
 		delete ss;
@@ -362,27 +370,34 @@ namespace Ice
 		parameters->AddBool("Indoor", mIndoorRendering);
 	}
 
-	std::map<int, GameObject*>& SceneManager::GetGameObjects()
+	std::map<int, ManagedGameObject*>& SceneManager::GetGameObjects()
 	{
 		return mGameObjects;
 	}
 
-	int SceneManager::RegisterObject(GameObject *object)
+	void  SceneManager::NotifyGODelete(ManagedGameObject *object)
 	{
-		int id = RequestID();
-		mGameObjects.insert(std::make_pair<int, GameObject*>(id, object));
-		return id;
-	}
-
-	void  SceneManager::UnregisterObject(int id)
-	{
-		std::map<int, GameObject*>::iterator i = mGameObjects.find(id);
+		std::map<int, ManagedGameObject*>::iterator i = mGameObjects.find(object->GetID());
 		if (i != mGameObjects.end()) mGameObjects.erase(i);
 	}
-
-	GameObject* SceneManager::GetObjectByInternID(int id)
+	int SceneManager::RegisterObject(ManagedGameObject *object)
 	{
-		std::map<int, GameObject*>::iterator i = mGameObjects.find(id);
+		int id = RequestID();
+		mGameObjects.insert(std::make_pair<int, ManagedGameObject*>(id, object));
+		return id;
+	}
+	void SceneManager::RemoveGameObject(ManagedGameObject *object)
+	{
+		delete object;
+	}
+	ManagedGameObject* SceneManager::CreateGameObject()
+	{
+		return new ManagedGameObject();
+	}
+
+	ManagedGameObject* SceneManager::GetObjectByInternID(int id)
+	{
+		std::map<int, ManagedGameObject*>::iterator i = mGameObjects.find(id);
 		if (i != mGameObjects.end()) return i->second;
 		return 0;
 	}
@@ -632,7 +647,7 @@ namespace Ice
 		if (vParams[2].getType() != ScriptParam::PARM_TYPE_FLOAT) return out;
 		int collision = (int)vParams[2].getFloat();
 
-		GameObject *object = new GameObject();
+		GameObject *object = Instance().CreateGameObject();
 		GOCViewContainer *container = new GOCViewContainer();
 		container->AddItem(new MeshRenderable(mesh, shadows));
 		object->AddComponent(container);
@@ -732,7 +747,7 @@ namespace Ice
 		}
 		if (mesh != "")
 		{
-			GameObject *go = new GameObject();
+			GameObject *go = Instance().CreateGameObject();
 			//GOCAnimatedCharacter *body = new GOCAnimatedCharacter(mesh, scale);
 			GOCViewContainer *body = new GOCViewContainer();
 			body->AddItem(new MeshRenderable("cube.1m.mesh", true));
@@ -755,7 +770,7 @@ namespace Ice
 		if (test == "")
 		{
 			Ogre::String model = vParams[0].getString();
-			GameObject* player = new GameObject();
+			GameObject* player = Instance().CreateGameObject();
 			player->AddComponent(new GOCPlayerInput());
 			player->AddComponent(new GOCCameraController(Main::Instance().GetCamera()));
 			player->AddComponent(new GOCCharacterController(Ogre::Vector3(0.5f,1.8f,0.5f)));

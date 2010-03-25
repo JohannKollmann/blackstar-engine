@@ -286,6 +286,46 @@ void SaveableListHandler::Load(LoadSave::LoadSystem& ls, void* pDest)
 	}
 }
 
+class SaveableVectorHandler : LoadSave::AtomHandler
+{
+public:
+	SaveableVectorHandler (){m_strName= std::string("std::vector<Saveable*>");}
+	std::string& TellName(){return m_strName;}
+	void Save(LoadSave::SaveSystem& ss, void* pData, std::string strVarName);
+	void Load(LoadSave::LoadSystem& ls, void* pDest);
+private:
+	std::string m_strName;
+};
+
+void SaveableVectorHandler::Save(LoadSave::SaveSystem& ss, void* pData, std::string strVarName)
+{
+	/*test what category the data is*/
+	std::vector<int> dims;
+	std::vector< LoadSave::Saveable* >* pVector=(std::vector< LoadSave::Saveable* >*)pData;
+	dims.push_back(pVector->size());
+
+	ss.OpenObjectArray("Saveable" , dims, "_vector");
+
+	for (std::vector< LoadSave::Saveable* >::const_iterator it=pVector->begin(); it != pVector->end(); it++)
+	{
+		ss.AddObject((LoadSave::Saveable*)(*it));
+	}
+}
+
+void SaveableVectorHandler::Load(LoadSave::LoadSystem& ls, void* pDest)
+{
+	std::vector<int> dims;
+	std::vector< LoadSave::Saveable* >* pVector=(std::vector< LoadSave::Saveable* >*)pDest;
+	std::string str;
+	dims=ls.LoadObjectArray(&str);
+	if(str!="Saveable")
+		return;
+	for(int i=0; i<dims[0]; i++)
+	{
+		pVector->push_back(ls.LoadArrayObject());
+	}
+}
+
 //the stl atoms
 
 //this is not a regular hack, it's MADNESS !1!one1eleven!!
@@ -565,6 +605,7 @@ RegisterStandardAtoms()
 	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new StringIntMapHandler());
 	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new FloatListHandler());
 	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new SaveableListHandler());
+	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new SaveableVectorHandler());
 	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new ComponentSectionListHandler());
 	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new GenericPropertyHandler());
 	//Ogre

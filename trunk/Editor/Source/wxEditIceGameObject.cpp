@@ -12,6 +12,8 @@
 #include "IceSceneManager.h"
 #include "IceGOCEditorInterface.h"
 
+#include "Edit.h"
+
 
 enum
 {
@@ -338,15 +340,15 @@ void wxEditIceGameObject::OnApply()
 		if (mCurrentEditPath == "DoNotSave")
 		{
 			bool select = false;
-			if (wxEdit::Instance().GetOgrePane()->GetEdit()->ObjectIsSelected(mGameObject))
+			if (wxEdit::Instance().GetOgrePane()->ObjectIsSelected(mGameObject))
 			{
 				select = true;
-				wxEdit::Instance().GetOgrePane()->GetEdit()->DeselectObject(mGameObject);
+				wxEdit::Instance().GetOgrePane()->DeselectObject(mGameObject);
 			}
 
 			//Remove all components that have an editor interface
 			std::map<Ogre::String, void*> removeList;
-			for (std::list<Ice::GOComponent*>::iterator ci = mGameObject->GetComponentIterator(); ci != mGameObject->GetComponentIteratorEnd(); ci++)
+			for (std::vector<Ice::GOComponent*>::iterator ci = mGameObject->GetComponentIterator(); ci != mGameObject->GetComponentIteratorEnd(); ci++)
 			{
 				Ice::GOCEditorInterface* editor_interface = dynamic_cast<Ice::GOCEditorInterface*>(*ci);
 				if (editor_interface)
@@ -387,7 +389,7 @@ void wxEditIceGameObject::OnApply()
 
 			if (select == true)
 			{
-				wxEdit::Instance().GetOgrePane()->GetEdit()->SelectObject(mGameObject);
+				wxEdit::Instance().GetOgrePane()->SelectObject(mGameObject);
 			}
 			wxEdit::Instance().GetWorldExplorer()->GetMaterialTree()->Update();
 			wxEdit::Instance().GetWorldExplorer()->GetSceneTree()->Update();
@@ -421,12 +423,12 @@ void wxEditIceGameObject::SetObject(Ice::GameObject *object, bool update_ui)
 	transform_data.AddOgreQuat("Orientation", mGameObject->GetGlobalOrientation());
 	transform_data.AddOgreVec3("Scale", mGameObject->GetGlobalScale());
 	AddGOCSection("GameObject", transform_data);
-	for (std::list<Ice::GOComponent*>::iterator i = mGameObject->GetComponentIterator(); i != mGameObject->GetComponentIteratorEnd(); i++)
+	for (std::vector<Ice::GOComponent*>::iterator i = mGameObject->GetComponentIterator(); i != mGameObject->GetComponentIteratorEnd(); i++)
 	{
 		if ((*i)->GetComponentID() == "ViewContainer")
 		{
 			Ice::GOCViewContainer *container = (Ice::GOCViewContainer*)(*i);
-			for (std::list<Ice::GOCViewComponent*>::iterator x = container->GetItemIterator(); x != container->GetItemIteratorEnd(); x++)
+			for (std::vector<Ice::GOCViewComponent*>::iterator x = container->GetItemIterator(); x != container->GetItemIteratorEnd(); x++)
 			{
 				Ice::GOCEditorInterface *editor_interface = dynamic_cast<Ice::GOCEditorInterface*>((*x));
 				if (editor_interface)
