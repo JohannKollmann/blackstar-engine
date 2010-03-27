@@ -1,4 +1,4 @@
-=IceGuiSystem=
+=Einführung=
 
 das gui (graphical user interface)-system kümmert sich um die grafische in-game-benutzerschnittstelle, also vor allem um fenster und anzeigen.
 das system ist sehr simpel gehalten: es kennt nur fenster und unter-fenster (letztere allerdings nur um etwas mehr geschwindigkeit zu erhalten, es ginge auch nur mit fenstern). diese fenster können erstellt, zerstört, versteckt und verschoben werden. zusätzlich ist es mit callback-funktionen möglich auf allerhand benutzereingaben zu reagieren (z.b. tastendrücke, mausklicks, mausbewegungen etc). einem fenster kann ein ogre-material zugewiesen werden, welches es dann anzeigt. fenster werden über einen eindeutigen handle identifiziert. bevor ein fenster angezeigt werden kann muss es "gebacken" werden. alle fenster und unter-fenster müssen erstellt sein, bevor es gebacken wird, ansonsten werden sie nicht angezeigt werden.
