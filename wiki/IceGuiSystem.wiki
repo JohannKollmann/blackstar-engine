@@ -1,4 +1,4 @@
-#grafische in-game-benutzeroberfläche
+#summary grafische in-game-benutzeroberfläche
 =Einführung=
 
 das gui (graphical user interface)-system kümmert sich um die grafische in-game-benutzerschnittstelle, also vor allem um fenster und anzeigen.
