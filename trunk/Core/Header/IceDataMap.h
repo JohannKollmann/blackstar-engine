@@ -77,6 +77,7 @@ public:
 	bool GetBool(Ogre::String keyname);
 	float GetFloat(Ogre::String keyname);
 	Ogre::Vector3 GetOgreVec3(Ogre::String keyname);
+	Ogre::ColourValue GetOgreCol(Ogre::String keyname);
 	Ogre::Quaternion GetOgreQuat(Ogre::String keyname);
 	Ogre::String GetOgreString(Ogre::String keyname);
 
@@ -95,6 +96,7 @@ public:
 	void AddInt(Ogre::String keyname, int val);
 	void AddFloat(Ogre::String keyname, float val);
 	void AddOgreVec3(Ogre::String keyname, Ogre::Vector3 vec);
+	void AddOgreCol(Ogre::String keyname, Ogre::ColourValue val);
 	void AddOgreQuat(Ogre::String keyname, Ogre::Quaternion quat);
 	void AddOgreString(Ogre::String keyname, Ogre::String text);
 

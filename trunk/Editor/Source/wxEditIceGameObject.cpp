@@ -392,7 +392,7 @@ void wxEditIceGameObject::OnApply()
 				wxEdit::Instance().GetOgrePane()->SelectObject(mGameObject);
 			}
 			wxEdit::Instance().GetWorldExplorer()->GetMaterialTree()->Update();
-			wxEdit::Instance().GetWorldExplorer()->GetSceneTree()->Update();
+			wxEdit::Instance().GetWorldExplorer()->GetSceneTree()->UpdateObject(mGameObject);
 			wxEdit::Instance().GetOgrePane()->SetFocus();
 		}
 		else

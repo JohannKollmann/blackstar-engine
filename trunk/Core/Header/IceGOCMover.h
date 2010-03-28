@@ -32,6 +32,7 @@ namespace Ice
 	{
 		friend class GOCMover;
 	private:
+		float mTotalStayTime;
 		float mTimeSinceLastKey;
 
 	public:

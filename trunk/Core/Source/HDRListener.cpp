@@ -26,7 +26,7 @@ namespace Ice
 		{
 			Ogre::CompositionTechnique::TextureDefinition* def =
 				defIter.getNext();
-			if(def->name == "rt_bloom0")
+			if(def->name == "rt_bloomHorz0")
 			{
 				mBloomSize = (int)def->width; // should be square
 				// Calculate gaussian texture offsets & weights
@@ -83,7 +83,7 @@ namespace Ice
 			break;
 		case 800: // rt_brightpass
 			break;
-		case 701: // rt_bloom1
+		case 701: // horz1
 			{
 				// horizontal bloom
 				mat->load();
@@ -95,7 +95,44 @@ namespace Ice
 
 				break;
 			}
-		case 700: // rt_bloom0
+			break;
+		case 702: // horz0
+			{
+				// horizontal bloom
+				mat->load();
+				Ogre::GpuProgramParametersSharedPtr fparams =
+					mat->getBestTechnique()->getPass(0)->getFragmentProgramParameters();
+				const Ogre::String& progName = mat->getBestTechnique()->getPass(0)->getFragmentProgramName();
+				fparams->setNamedConstant("sampleOffsets", mBloomTexOffsetsHorz[0], 15);
+				fparams->setNamedConstant("sampleWeights", mBloomTexWeights[0], 15);
+
+				break;
+			}
+		case 703: // vert1
+			{
+				// vertical bloom
+				mat->load();
+				Ogre::GpuProgramParametersSharedPtr fparams =
+					mat->getTechnique(0)->getPass(0)->getFragmentProgramParameters();
+				const Ogre::String& progName = mat->getBestTechnique()->getPass(0)->getFragmentProgramName();
+				fparams->setNamedConstant("sampleOffsets", mBloomTexOffsetsVert[0], 15);
+				fparams->setNamedConstant("sampleWeights", mBloomTexWeights[0], 15);
+
+				break;
+			}
+		case 704: // vert0
+			{
+				// vertical bloom
+				mat->load();
+				Ogre::GpuProgramParametersSharedPtr fparams =
+					mat->getTechnique(0)->getPass(0)->getFragmentProgramParameters();
+				const Ogre::String& progName = mat->getBestTechnique()->getPass(0)->getFragmentProgramName();
+				fparams->setNamedConstant("sampleOffsets", mBloomTexOffsetsVert[0], 15);
+				fparams->setNamedConstant("sampleWeights", mBloomTexWeights[0], 15);
+
+				break;
+			}
+		case 705: // vert0
 			{
 				// vertical bloom
 				mat->load();

@@ -55,7 +55,7 @@ wxEdit::wxEdit(wxWindow* parent) : wxFrame(parent, -1, _("Blackstar Edit"),
 
 		mWorldExplorer = new wxEntityTreeNotebook(this, wxID_ANY,
 									wxPoint(GetClientSize().x, GetClientSize().y),
-                                    wxSize(330,300),
+                                    wxSize(330,400),
                                     wxAUI_NB_TOP | wxAUI_NB_TAB_SPLIT | wxAUI_NB_TAB_MOVE | wxAUI_NB_SCROLL_BUTTONS | wxAUI_NB_TAB_EXTERNAL_MOVE | wxNO_BORDER);
 
 		mSettingsWindow = new wxSettingsWindow(this, wxID_ANY, wxDefaultPosition, wxSize(800,600));

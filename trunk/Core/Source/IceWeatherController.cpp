@@ -49,9 +49,9 @@ namespace Ice
 
 		mCaelumSystem->getUniversalClock ()->setGregorianDateTime (2007, 4, 9, 9, 30, 0);
 
-		mCaelumSystem->getSun ()->setDiffuseMultiplier (Ogre::ColourValue (1.5f, 1.5f, 1.3f));
-		mCaelumSystem->getSun ()->setSpecularMultiplier (Ogre::ColourValue (1, 1, 1));
-		mCaelumSystem->getSun ()->setAmbientMultiplier(Ogre::ColourValue(0.1f, 0.1f, 0.1f));
+		mCaelumSystem->getSun ()->setDiffuseMultiplier (Ogre::ColourValue (4, 4, 3.8f));
+		mCaelumSystem->getSun ()->setSpecularMultiplier (Ogre::ColourValue (2, 2, 2));
+		mCaelumSystem->getSun ()->setAmbientMultiplier(Ogre::ColourValue(0.2f, 0.2f, 0.2f));
 
 		mCaelumSystem->setEnsureSingleShadowSource(true);
 		mCaelumSystem->getMoon()->setPhase(1.0f);

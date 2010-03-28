@@ -17,121 +17,63 @@ Zeigt ein Ice::GameObject mit allen children geordnet nach Typ (Licht, Geometrie
 #include "EntityTreeNotebookListener.h"
 #include "EDTIncludes.h"
 
+
 class OgreTreeItemBase : public wxTreeItemData
 {
 protected:
-	wxString _name;
-	int _type;
-	Ice::GameObject *mNode;
+	wxString mName;
+	int mType;
+	Ice::GameObject *mGameObject;
+	bool mIsDir;
 
 public:
-	OgreTreeItemBase(int type, const wxString &name, Ice::GameObject *node)
-		: _type(type)
-		, _name(name)
-		, mNode(node)
+	OgreTreeItemBase(const wxString &name)
+		: mIsDir(true), mName(name), mGameObject(nullptr) {}
+	OgreTreeItemBase(Ice::GameObject *object)
+		: mIsDir(false)
+		, mGameObject(object) {}
+
+	~OgreTreeItemBase() {}
+
+	const wxString &GetName()
 	{
-	};
-
-	/** Default destructor */
-	~OgreTreeItemBase()
+		if (mGameObject) mName = wxString(mGameObject->GetName().c_str());
+		return mName;
+	}
+	virtual const wxString &GetCaption()
 	{
-		// NOTE: do not delete the tree item
-		// because the tree item deletes this item data
-	};
+		return GetName();
+	}
 
-	/** Virtual function to report the caption back to the wxTreeCtrl to be added. If the caption should be
-	    something else then the default name it gets from the file (or the root path when this node points
-		to a root item, inherit this class and redefine GetCaption
-	*/
-	virtual const wxString &GetCaption() const {
-		return _name;
-	};
+	Ice::GameObject* getGO() { return mGameObject; }
 
-	Ice::GameObject* getNode() { return mNode; };
-
-	/** Virtual function to return the icon ID this node should get. Per default it gets the ID of the
-	    default image list. If you assigned more bitmaps (or different bitmaps) to the image list, return
-		the proper indices based upon the class it refers to. The ID's returned are:
-
-		- VDTC_ICON_ROOT: For root
-		- VDTC_ICON_DIR: For a directory
-		- VDTC_ICON_FILE: For a file
-	*/
-	virtual int GetIconId() const {
-		switch(_type)
-		{
-			case VDTC_TI_ROOT:
-				return VDTC_ICON_ROOT;
-			case VDTC_TI_DIR:
-				return VDTC_ICON_DIR;
-			case VDTC_TI_FILE:
-				return VDTC_ICON_FILE;
-		}
+	virtual int GetIconId() const
+	{
+		return mIsDir ? -1 : -1;
+	}
+	virtual int GetSelectedIconId() const
+	{
 		return -1;
-	};
+	}
 
-	/** Virtual function to return the selected icon ID this node should get. Per default there is no icon
-	    associated with a selection. If you would like a selection, inherit this class and redefine this function
-		to return a proper id.
-	*/
-	virtual int GetSelectedIconId() const {
-		return -1;
-	};
-
-	/** Gets this name. The name of the root is the base path of the whole directory, the
-	   name of a file node is the filename, and from a dir node the directory name.
-	   \sa IsDir, IsFile, IsRoot */
-	const wxString &GetName() {
-		return _name;
-	};
-
-	/** Returns true if this is of type VDTC_TI_DIR */
-	bool IsDir() const {
-		return _type == VDTC_TI_DIR;
-	};
-
-	/** Returns true if this is of type VDTC_TI_ROOT */
-	bool IsRoot() const {
-		return _type == VDTC_TI_ROOT;
-	};
-
-	/** Returns true if this is of type VDTC_TI_FILE */
-	bool IsFile() const {
-		return _type == VDTC_TI_FILE;
-	};
+	bool IsDir() const { return mIsDir; }
+	bool IsRoot() const { return mIsDir; }
+	bool IsFile() const { return !mIsDir; }
 
 };
 
-WX_DEFINE_ARRAY(OgreTreeItemBase *, OgreTreeItemBaseArray);
-
 class wxOgreSceneTree : public wxTreeCtrl, public EntityTreeNotebookListener
 {
-private:
-	/** Icons image list */
-	wxImageList *_iconList;
-	/** Extra flags */
-	int _flags;
-
+protected:
 	OgreTreeItemBase *mStart;
+
+	std::vector<OgreTreeItemBase*> mAllItems;
+
+	OgreTreeItemBase* FindItemByObject(Ice::GameObject *object);
 
 	OgreTreeItemBase *mSelectedItem;
 
-protected:
-	/** This method can be used in the method OnAssignIcons. It returns a pointer to a newly created bitmap
-	    holding the default icon image for a root node. NOTE: When this bitmap is assigned to the icon list,
-		don't forget to delete it! */
-	wxBitmap *CreateRootBitmap();
-
-	/** This method can be used in the method OnAssignIcons. It returns a pointer to a newly created bitmap
-	    holding the default icon image for a folder node. NOTE: When this bitmap is assigned to the icon list,
-		don't forget to delete it! */
-	wxBitmap *CreateFolderBitmap();
-
-	/** This method can be used in the method OnAssignIcons. It returns a pointer to a newly created bitmap
-	    holding the default icon image for a file node. NOTE: When this bitmap is assigned to the icon list,
-		don't forget to delete it! */
-	wxBitmap *CreateNodeBitmap();
-
+	OgreTreeItemBase* AppendGameObject(wxTreeItemId parent, Ice::GameObject *object);
 
 	void OnItemMenu(wxTreeEvent &event);
 	void OnItemActivated(wxTreeEvent &event);
@@ -150,19 +92,11 @@ public:
 
 	void Update();
 	void NotifyObject(Ice::GameObject *object);
+	void UpdateObject(Ice::GameObject* object);
 
-	void ScanFromNode(OgreTreeItemBase *item, Ice::GameObject *scanFrom, bool subScan = true);
-
-	void AddItemsToTreeCtrl(OgreTreeItemBase *item, OgreTreeItemBaseArray &items);
+	void ScanFromNode(OgreTreeItemBase *item, Ice::GameObject *scanFrom);
 
 	void OnExpanding(wxTreeEvent &event);
-
-	bool _itemHasFolder(OgreTreeItemBase *item, wxString& FolderName, wxTreeItemId *destfolderID);
-
-	bool _itemHasChild(wxTreeItemId itemID, Ice::GameObject *item, Ice::GameObject* node);
-
-	virtual void OnAssignIcons(wxImageList &icons);
-	virtual OgreTreeItemBase *OnCreateTreeItem(int type, Ice::GameObject *node);
 
 	void OnSelChanged(wxTreeEvent &event);
 

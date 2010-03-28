@@ -9,20 +9,25 @@ namespace Ice
 
 	GOCAnimKey::GOCAnimKey()
 	{
+		mTotalStayTime = 0.0f;
+		mTimeSinceLastKey = 1.0f;
 	}
 	GOCAnimKey::~GOCAnimKey()
 	{
 	}
 	void GOCAnimKey::CreateFromDataMap(DataMap *parameters)
 	{
+		mTotalStayTime = parameters->GetFloat("TotalStayTime");
 		mTimeSinceLastKey = parameters->GetFloat("TimeSinceLastKey");
 	}
 	void GOCAnimKey::GetParameters(DataMap *parameters)
 	{
+		parameters->AddFloat("TotalStayTime", mTotalStayTime);
 		parameters->AddFloat("TimeSinceLastKey", mTimeSinceLastKey);
 	}
 	void GOCAnimKey::GetDefaultParameters(DataMap *parameters)
 	{
+		parameters->AddFloat("TotalStayTime", 0);
 		parameters->AddFloat("TimeSinceLastKey", 1.0f);
 	}
 	void GOCAnimKey::AttachToGO(GameObject *go)
@@ -32,10 +37,12 @@ namespace Ice
 	}
 	void GOCAnimKey::Save(LoadSave::SaveSystem& mgr)
 	{
+		mgr.SaveAtom("float", &mTotalStayTime, "TotalStayTime");
 		mgr.SaveAtom("float", &mTimeSinceLastKey, "TimeSinceLastKey");
 	}
 	void GOCAnimKey::Load(LoadSave::LoadSystem& mgr)
 	{
+		mgr.LoadAtom("float", &mTotalStayTime);
 		mgr.LoadAtom("float",  &mTimeSinceLastKey);
 	}
 

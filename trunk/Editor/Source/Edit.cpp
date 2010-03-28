@@ -1270,6 +1270,7 @@ void Edit::OnInsertAnimKey( wxCommandEvent& WXUNUSED(event) /*= wxCommandEvent()
 	animKey->SetGlobalPosition(GetInsertPosition());
 
 	SelectObject(animKey);
+	wxEdit::Instance().GetWorldExplorer()->GetSceneTree()->NotifyObject(animKey);
 }
 
 void Edit::OnTriggerMover( wxCommandEvent& WXUNUSED(event) /*= wxCommandEvent()*/ )

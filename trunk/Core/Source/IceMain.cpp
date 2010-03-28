@@ -194,7 +194,7 @@ void Main::initScene()
 	ambientlight->setDiffuseColour(Ogre::ColourValue(1,1,1));
 	ambientlight->setSpecularColour(Ogre::ColourValue(1,1,1));
 
-	mSceneMgr->setAmbientLight(Ogre::ColourValue(0.1f,0.1f,0.1f));
+	mSceneMgr->setAmbientLight(Ogre::ColourValue(0.2f,0.2f,0.2f));
 	//mSceneMgr->setFog(Ogre::FOG_LINEAR, Ogre::ColourValue::Blue, 0.015);
 
 	mCameraController = new CameraController();
@@ -217,11 +217,12 @@ void Main::initScene()
 	CompositorLoader::Instance().AddListener("ssao", ssaoParamUpdater);
 	CompositorLoader::Instance().EnableCompositor("ssao");*/
 	//CompositorLoader::Instance().EnableCompositor("Bloom2");
+
 	HDRListener *hdrListener = new HDRListener(); 
-	Ogre::CompositorInstance* hdrinstance = CompositorLoader::Instance().AddListener("HDR", hdrListener);
+	Ogre::CompositorInstance* hdrinstance = CompositorLoader::Instance().AddListener("HDRTest", hdrListener);
 	hdrListener->notifyViewportSize(mViewport->getActualWidth(), mViewport->getActualHeight());
 	hdrListener->notifyCompositor(hdrinstance);
-	CompositorLoader::Instance().EnableCompositor("HDR");
+	CompositorLoader::Instance().EnableCompositor("HDRTest");
 
 
 	SceneManager::Instance().Init();

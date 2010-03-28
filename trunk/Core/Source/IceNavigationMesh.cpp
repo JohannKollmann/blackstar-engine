@@ -435,13 +435,18 @@ namespace Ice
 		{
 			if ((*i)->IsBlocked()) return false;
 		}
-		for (float x = box.getMinimum().x; x < box.getMaximum().x; x += 1.0f)
+
+		OgrePhysX::Scene::QueryHit dummyQuery;
+		float rayDist = box.getMaximum().y - box.getMinimum().y;
+		for (float x = box.getMinimum().x; x < box.getMaximum().x; x += NODE_BORDER)
 		{
-			for (float z = box.getMinimum().z; z < box.getMaximum().z; z += 1.0f)
+			for (float z = box.getMinimum().z; z < box.getMaximum().z; z += NODE_BORDER)
 			{
-				Ogre::AxisAlignedBox subBox(x, box.getMinimum().y, z, x+1.5f, box.getMaximum().y, z+1.0f);
-				if (!mPhysXMeshShape->checkOverlapAABB(OgrePhysX::Convert::toNx(subBox)))
+				if (!Ice::Main::Instance().GetPhysXScene()->raycastClosestShape(dummyQuery, Ogre::Ray(Ogre::Vector3(x, box.getMaximum().y, z), Ogre::Vector3(0, -1, 0)), NX_STATIC_SHAPES, 1<<CollisionGroups::AI, rayDist))
 					return false;
+				/*Ogre::AxisAlignedBox subBox(x, box.getMinimum().y, z, x+1.5f, box.getMaximum().y, z+1.0f);
+				if (!mPhysXMeshShape->checkOverlapAABB(OgrePhysX::Convert::toNx(subBox)))
+					return false;*/
 			}
 		}
 		return true;

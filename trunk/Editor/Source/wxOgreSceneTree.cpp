@@ -17,12 +17,8 @@ END_EVENT_TABLE()
 
 wxOgreSceneTree::wxOgreSceneTree(wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style, const wxValidator& validator, const wxString& name)
 	: wxTreeCtrl(parent, id, pos, size, style, validator, name)
-	, _flags(wxVDTC_DEFAULT)
 {
-	// create an icon list for the tree ctrl
-	_iconList = new wxImageList(16,16);
-
-	mSelectedItem = NULL;
+	mSelectedItem = nullptr;
 };
 
 wxOgreSceneTree::~wxOgreSceneTree()
@@ -30,18 +26,15 @@ wxOgreSceneTree::~wxOgreSceneTree()
 	// first delete all OgreTreeItemBase items (client data)
 	DeleteAllItems();
 
-	// delete the icons
-	delete _iconList;
-
 }
 
 Ice::GameObject* wxOgreSceneTree::GetSelectedItem()
 {
-	if (mSelectedItem != NULL)
+	if (mSelectedItem != nullptr)
 	{
-		return mSelectedItem->getNode();
+		return mSelectedItem->getGO();
 	}
-	return NULL;
+	return nullptr;
 }
 
 void wxOgreSceneTree::Update()
@@ -50,248 +43,93 @@ void wxOgreSceneTree::Update()
 	DeleteAllItems();
 	OgreTreeItemBase *start = 0;
 
-	// now call for icons management, the virtual
-	// handler so the derived class can assign icons
-
-	_iconList->RemoveAll();
-	OnAssignIcons(*_iconList);
-
-	SetImageList(_iconList);
+	mAllItems.clear();
 
 	// create a root item
-	start = OnCreateTreeItem(VDTC_TI_ROOT, 0);
+	start = new OgreTreeItemBase("Root");
 	mStart = start;
 
-	if(start)
+	if(mStart)
 	{
+		wxTreeItemId id = AddRoot(mStart->GetCaption(), mStart->GetIconId(), mStart->GetSelectedIconId(), mStart);
 
-		// add this item to the tree, with info of the developer
-		wxTreeItemId id = AddRoot(start->GetCaption(), start->GetIconId(), start->GetSelectedIconId(), start);
-
-		// scan directory, either the smart way or not at all
 		for (std::map<int, Ice::ManagedGameObject*>::iterator i = Ice::SceneManager::Instance().GetGameObjects().begin(); i != Ice::SceneManager::Instance().GetGameObjects().end(); i++)
 		{
 			if (!i->second->GetParent())
 			{
-				OgreTreeItemBase *item = OnCreateTreeItem(VDTC_TI_FILE, i->second);
-				OgreTreeItemBaseArray addedItems;
-				addedItems.Add(item);
-				AddItemsToTreeCtrl(mStart, addedItems);
-				ScanFromNode(item, i->second);
+				AppendGameObject(mStart->GetId(), i->second);
 			}
 		}
 
-		// expand root when allowed
-		if(!(_flags & wxVDTC_NO_EXPAND))
-			Expand(id);
+		Expand(id);
 	}
 
-	mSelectedItem = 0;
+	mSelectedItem = nullptr;
+
+	wxEdit::Instance().GetpropertyWindow()->SetPage("EditSceneParams");
+	wxEdit::Instance().GetpropertyWindow()->Refresh();
 };
+
+OgreTreeItemBase* wxOgreSceneTree::AppendGameObject(wxTreeItemId parent, Ice::GameObject *object)
+{
+	OgreTreeItemBase *item = new OgreTreeItemBase(object);
+	mAllItems.push_back(item);
+	AppendItem(parent, item->GetName(), item->GetIconId(), item->GetSelectedIconId(), item);
+	ScanFromNode(item, object);
+	return item;
+}
+
+OgreTreeItemBase* wxOgreSceneTree::FindItemByObject(Ice::GameObject *object)
+{
+	for (auto i = mAllItems.begin(); i != mAllItems.end(); i++)
+		if ((*i)->getGO() == object) return *i;
+	return nullptr;
+}
+
+void wxOgreSceneTree::UpdateObject(Ice::GameObject* object)
+{
+	OgreTreeItemBase *item = FindItemByObject(object);
+	if (item) SetItemText(item->GetId(), object->GetName());
+}
 
 void wxOgreSceneTree::NotifyObject(Ice::GameObject *object)
 {
 	Ice::GameObject *parent = object->GetParent();
-	//Parent suchen, objekt unter parent einfügen.
 	if (parent)
 	{
-		Update();
+		OgreTreeItemBase *parentItem = FindItemByObject(parent);
+		AppendGameObject(parentItem->GetId(), object);
 	}
 	else
 	{
-		OgreTreeItemBase *item = OnCreateTreeItem(VDTC_TI_FILE, object);
-		OgreTreeItemBaseArray addedItems;
-		addedItems.Add(item);
-		AddItemsToTreeCtrl(mStart, addedItems);
-		ScanFromNode(item, object);
+		AppendGameObject(mStart->GetId(), object);
 	}
 }
 
-void wxOgreSceneTree::ScanFromNode(OgreTreeItemBase *item, Ice::GameObject *scanFrom, bool subScan)
+void wxOgreSceneTree::ScanFromNode(OgreTreeItemBase *item, Ice::GameObject *scanFrom)
 {
-	if (scanFrom == 0) return;
+	if (scanFrom == nullptr) return;
 	OgreTreeItemBase *currentItem = 0;
-	Ice::GameObject *currentNode = NULL;
-	OgreTreeItemBaseArray addedItems;
+	Ice::GameObject *currentNode = nullptr;
 	//Ogre::LogManager::getSingleton().logMessage(scanFrom->GetName() + " " + Ogre::StringConverter::toString(scanFrom->GetNumChildren()));
 	if (scanFrom->GetNumChildren() > 0)
 	{
 		for (unsigned short i = 0; i < scanFrom->GetNumChildren(); i++)
 		{
 			currentNode = scanFrom->GetChild(i);
-			currentItem = OnCreateTreeItem(VDTC_TI_FILE, currentNode);
-			addedItems.Add(currentItem);
-		}
-		AddItemsToTreeCtrl(item, addedItems);
-	}
-
-	if (subScan == true)
-	{
-		OgreTreeItemBase *b;
-		wxTreeItemIdValue cookie = 0;
-
-		wxTreeItemId child = GetFirstChild(item->GetId(), cookie);
-		while(child.IsOk())
-		{
-			b = (OgreTreeItemBase *)GetItemData(child);
-			if(b)
-			{
-				if (b->IsFile()) ScanFromNode(b, b->getNode(), false);
-			}
-
-			child = GetNextChild(item->GetId(), cookie);
+			AppendGameObject(item->GetId(), currentNode);
 		}
 	}
-};
-
-bool wxOgreSceneTree::_itemHasFolder(OgreTreeItemBase *item, wxString& FolderName, wxTreeItemId *destfolderID)
-{
-	OgreTreeItemBase *b;
-	wxTreeItemIdValue cookie = 0;
-
-	wxTreeItemId child = GetFirstChild(item->GetId(), cookie);
-	while(child.IsOk())
-	{
-		b = (OgreTreeItemBase *)GetItemData(child);
-		if ((b->IsDir()) && (b->GetCaption() == FolderName))
-		{
-			*destfolderID = b->GetId();
-			return true;
-		}
-		child = GetNextChild(item->GetId(), cookie);
-	}
-	return false;
-};
-
-bool wxOgreSceneTree::_itemHasChild(wxTreeItemId itemID, Ice::GameObject *item, Ice::GameObject* node)
-{
-	OgreTreeItemBase *b;
-	wxTreeItemIdValue cookie = 0;
-
-	wxTreeItemId child = GetFirstChild(itemID, cookie);
-	while(child.IsOk())
-	{
-		b = (OgreTreeItemBase *)GetItemData(child);
-		if (b->getNode() == node) return true;
-		child = GetNextChild(itemID, cookie);
-	}
-	return false;
 };
 
 void wxOgreSceneTree::OnExpanding(wxTreeEvent &event)
 {
-	// check for collapsing item, and scan from there
-	wxTreeItemId id = event.GetItem();
-	if(id.IsOk())
-	{
-		OgreTreeItemBase *t = (OgreTreeItemBase *)GetItemData(id);
-		if(t)
-		{
-			//Ogre::LogManager::getSingleton().logMessage("OnExpanding " + Ogre::String(t->GetName().c_str()));
-			if (t->IsDir())
-			{
-				//Item ist nur Filter ohne Node
-				OgreTreeItemBase *b;
-				wxTreeItemIdValue cookie = 0;
-				wxTreeItemId child = GetFirstChild(t->GetId(), cookie);
-				while(child.IsOk())
-				{
-					b = (OgreTreeItemBase *)GetItemData(child);
-					if(b)
-					{
-						ScanFromNode(b, b->getNode(), false);
-					}
-					child = GetNextChild(t->GetId(), cookie);
-				}
-			}
-
-			// extract data element belonging to it, and scan.
-			else ScanFromNode(t, t->getNode());
-		}
-	}
-
-	// be kind, and let someone else also handle this event
 	event.Skip();
-}
-
-
-void wxOgreSceneTree::AddItemsToTreeCtrl(OgreTreeItemBase *item, OgreTreeItemBaseArray &items)
-{
-	//Ogre::LogManager::getSingleton().logMessage("AddItemsToTreeCtrl " + Ogre::String(item->GetName().c_str()) + " " + Ogre::StringConverter::toString(items.GetCount()));
-	wxCHECK2(item, return);
-
-	// now loop through all elements on this level and add them
-	// to the tree ctrl pointed out by 'id'
-
-	OgreTreeItemBase *t;
-	wxTreeItemId id = item->GetId();
-	for(size_t i = 0; i < items.GetCount(); i++)
-	{
-		id = item->GetId();
-		t = items[i];
-		if(t)
-		{
-			if (!_itemHasChild(id, item->getNode(), t->getNode())) AppendItem(id, t->GetCaption(), t->GetIconId(), t->GetSelectedIconId(), t);
-			/*wxTreeItemId folderID;
-			if (!_itemHasFolder(item, wxString(t->getNode()->TellName().c_str()), &folderID))
-			{
-				OgreTreeItemBase *folder = new OgreTreeItemBase(VDTC_TI_DIR, wxString(t->getNode()->TellName().c_str()), t->getNode());
-				AppendItem(id, folder->GetCaption(), folder->GetIconId(), folder->GetSelectedIconId(), folder);
-				folderID = folder->GetId();
-			}
-			if (!_itemHasChild(folderID, item->getNode(), t->getNode())) AppendItem(folderID, t->GetCaption(), t->GetIconId(), t->GetSelectedIconId(), t);*/
-		}
-	}
-};
-
-wxBitmap *wxOgreSceneTree::CreateRootBitmap()
-{
-	// create root and return
-	return new wxBitmap(xpm_root);
-};
-
-wxBitmap *wxOgreSceneTree::CreateFolderBitmap()
-{
-	// create folder and return
-	return new wxBitmap(xpm_folder);
-};
-
-wxBitmap *wxOgreSceneTree::CreateNodeBitmap()
-{
-	// create file and return
-	return new wxBitmap(xpm_file);
-};
-
-void wxOgreSceneTree::OnAssignIcons(wxImageList &icons)
-{
-	wxBitmap *bmp;
-	// default behaviour, assign three bitmaps
-
-	bmp = CreateRootBitmap();
-	icons.Add(*bmp);
-	delete bmp;
-
-	// 1 = folder
-	bmp = CreateFolderBitmap();
-	icons.Add(*bmp);
-	delete bmp;
-
-	// 2 = file
-	bmp = CreateNodeBitmap();
-	icons.Add(*bmp);
-	delete bmp;
-};
-
-OgreTreeItemBase* wxOgreSceneTree::OnCreateTreeItem(int type, Ice::GameObject *node)
-{
-	// return a default instance, no extra info needed in this item
-	if (node == 0) return new OgreTreeItemBase(type, "Root", node);
-	return new OgreTreeItemBase(type, node->GetName(), node);
-}; 
+} 
 
 void wxOgreSceneTree::OnItemMenu(wxTreeEvent &event)
 {
-};
+}
 
 void wxOgreSceneTree::OnItemActivated(wxTreeEvent &event)
 {
@@ -301,13 +139,13 @@ void wxOgreSceneTree::OnItemActivated(wxTreeEvent &event)
 		OgreTreeItemBase *t = (OgreTreeItemBase *)GetItemData(id);
 		if (t->IsFile())
 		{
-			wxEdit::Instance().GetOgrePane()->SelectObject(t->getNode());
-			Ice::Main::Instance().GetCamera()->setPosition(t->getNode()->GetGlobalPosition() - Ogre::Vector3(0,0,5));
-			Ice::Main::Instance().GetCamera()->lookAt(t->getNode()->GetGlobalPosition());
+			wxEdit::Instance().GetOgrePane()->SelectObject(t->getGO());
+			Ice::Main::Instance().GetCamera()->setPosition(t->getGO()->GetGlobalPosition() - Ogre::Vector3(0,0,5));
+			Ice::Main::Instance().GetCamera()->lookAt(t->getGO()->GetGlobalPosition());
 			wxEdit::Instance().GetOgrePane()->update();
 		}
 	}
-};
+}
 
 void wxOgreSceneTree::OnSelChanged(wxTreeEvent &event)
 {
@@ -323,7 +161,7 @@ void wxOgreSceneTree::OnSelChanged(wxTreeEvent &event)
 		if (t->IsFile())
 		{
 			mSelectedItem = t;
-			((wxEditIceGameObject*)(wxEdit::Instance().GetpropertyWindow()->SetPage("EditGameObject")))->SetObject(t->getNode());
+			((wxEditIceGameObject*)(wxEdit::Instance().GetpropertyWindow()->SetPage("EditGameObject")))->SetObject(t->getGO());
 			wxEdit::Instance().GetpropertyWindow()->Refresh();
 		}
 	}
@@ -344,7 +182,7 @@ bool wxOgreSceneTree::ExpandToObject(OgreTreeItemBase *from, Ice::GameObject *ob
 		b = (OgreTreeItemBase *)GetItemData(child);
 		if (b->IsFile())
 		{
-			if (b->getNode() == object)
+			if (b->getGO() == object)
 			{
 				Expand(from->GetId());
 				SelectItem(b->GetId());

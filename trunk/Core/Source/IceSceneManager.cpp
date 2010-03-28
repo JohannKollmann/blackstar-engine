@@ -199,7 +199,7 @@ namespace Ice
 
 		RegisterEditorInterface("D", "Camera", (EDTCreatorFn)&GOCCameraController::NewEditorInterfaceInstance, GOCCameraController::GetDefaultParameters);
 
-		RegisterEditorInterface("E", "Mover", (EDTCreatorFn)&GOCMover::NewEditorInterfaceInstance, GOCMover::GetDefaultParameters);
+		RegisterEditorInterface("D", "Mover", (EDTCreatorFn)&GOCMover::NewEditorInterfaceInstance, GOCMover::GetDefaultParameters);
 		RegisterEditorInterface("", "Anim Key", (EDTCreatorFn)&GOCAnimKey::NewEditorInterfaceInstance, GOCAnimKey::GetDefaultParameters);
 
 		//Setup Lua Callback
@@ -290,14 +290,13 @@ namespace Ice
 
 	void SceneManager::LoadLevelMesh(Ogre::String meshname)
 	{
-		if (mIndoorRendering)
+		if (mLevelMesh)
 		{
+			if (mLevelMesh->GetMeshFileName() == meshname) return;
 		}
-		else
-		{
-			if (mLevelMesh) delete mLevelMesh;
-			mLevelMesh = new LevelMesh(meshname);
-		}
+
+		if (mLevelMesh) delete mLevelMesh;
+		mLevelMesh = new LevelMesh(meshname);
 	}
 
 	void SceneManager::LoadLevel(Ogre::String levelfile, bool load_dynamic)
@@ -357,10 +356,40 @@ namespace Ice
 	void SceneManager::CreateFromDataMap(DataMap *parameters)
 	{
 		Ogre::String levelmesh = parameters->GetOgreString("LevelMesh");
-		if (levelmesh != "") LoadLevelMesh(levelmesh.c_str());
+		if (levelmesh != "")
+		{
+			LoadLevelMesh(levelmesh.c_str());
+		}
 		bool indoor = parameters->GetBool("Indoor");
 		if (indoor) SetToIndoor();
-		else SetToOutdoor();
+		else
+		{
+			SetToOutdoor();
+			mWeatherController->GetCaelumSystem()->getSun()->setAmbientMultiplier(parameters->GetOgreCol("AmbientLight"));
+			mWeatherController->GetCaelumSystem()->getSun()->setDiffuseMultiplier(parameters->GetOgreCol("Sun_DiffuseLight"));
+			mWeatherController->GetCaelumSystem()->getSun()->setSpecularMultiplier(parameters->GetOgreCol("Sun_SpecularLight"));
+			mWeatherController->Update(0);
+		}
+
+		Ogre::GpuSharedParametersPtr hdrParams = Ogre::GpuProgramManager::getSingleton().getSharedParameters("HDRParams");
+		/*hdrParams->removeAllConstantDefinitions();
+		hdrParams->addConstantDefinition("Luminence_Factor", Ogre::GpuConstantType::GCT_FLOAT4);
+		hdrParams->addConstantDefinition("Tonemap_White", Ogre::GpuConstantType::GCT_FLOAT1);
+		hdrParams->addConstantDefinition("Brightpass_Threshold", Ogre::GpuConstantType::GCT_FLOAT4);
+		hdrParams->addConstantDefinition("LinearTonemap_KeyLumScale", Ogre::GpuConstantType::GCT_FLOAT1);
+		hdrParams->addConstantDefinition("LinearTonemap_KeyMax", Ogre::GpuConstantType::GCT_FLOAT1);
+		hdrParams->addConstantDefinition("LinearTonemap_KeyMaxOffset", Ogre::GpuConstantType::GCT_FLOAT1);
+		hdrParams->addConstantDefinition("LinearTonemap_KeyMin", Ogre::GpuConstantType::GCT_FLOAT1);*/
+
+		Ogre::ColourValue col = parameters->GetOgreCol("Luminence_Factor"); col.a = 0;
+		hdrParams->setNamedConstant("Luminence_Factor", col);
+		hdrParams->setNamedConstant("Tonemap_White", parameters->GetFloat("Tonemap_White"));
+		col = parameters->GetOgreCol("Brightpass_Threshold"); col.a = 0;
+		hdrParams->setNamedConstant("Brightpass_Threshold", col);
+		hdrParams->setNamedConstant("LinearTonemap_KeyLumScale", parameters->GetFloat("LinearTonemap_KeyLumScale"));
+		hdrParams->setNamedConstant("LinearTonemap_KeyMax", parameters->GetFloat("LinearTonemap_KeyMax"));
+		hdrParams->setNamedConstant("LinearTonemap_KeyMaxOffset", parameters->GetFloat("LinearTonemap_KeyMaxOffset"));
+		hdrParams->setNamedConstant("LinearTonemap_KeyMin", parameters->GetFloat("LinearTonemap_KeyMin"));
 	}
 
 	void SceneManager::GetParameters(DataMap *parameters)
@@ -368,6 +397,23 @@ namespace Ice
 		if (mLevelMesh) parameters->AddOgreString("LevelMesh", mLevelMesh->GetMeshFileName());
 		else parameters->AddOgreString("LevelMesh", "");
 		parameters->AddBool("Indoor", mIndoorRendering);
+
+		if (mWeatherController)
+		{
+			parameters->AddOgreCol("AmbientLight", mWeatherController->GetCaelumSystem()->getSun()->getAmbientMultiplier());
+			parameters->AddOgreCol("Sun_DiffuseLight", mWeatherController->GetCaelumSystem()->getSun()->getDiffuseMultiplier());
+			parameters->AddOgreCol("Sun_SpecularLight", mWeatherController->GetCaelumSystem()->getSun()->getSpecularMultiplier());
+		}
+
+		Ogre::GpuSharedParametersPtr hdrParams = Ogre::GpuProgramManager::getSingleton().getSharedParameters("HDRParams");
+		float *buf = hdrParams->getFloatPointer(0);
+		parameters->AddOgreVec3("Luminence_Factor", Ogre::Vector3(buf[0], buf[1], buf[2]));
+		parameters->AddFloat("Tonemap_White", buf[4]);	//skip buf[3] (float4)
+		parameters->AddOgreVec3("Brightpass_Threshold", Ogre::Vector3(buf[5], buf[6], buf[7]));
+		parameters->AddFloat("LinearTonemap_KeyLumScale", buf[9]);
+		parameters->AddFloat("LinearTonemap_KeyMax", buf[10]);
+		parameters->AddFloat("LinearTonemap_KeyMaxOffset", buf[11]);
+		parameters->AddFloat("LinearTonemap_KeyMin", buf[12]);
 	}
 
 	std::map<int, ManagedGameObject*>& SceneManager::GetGameObjects()
