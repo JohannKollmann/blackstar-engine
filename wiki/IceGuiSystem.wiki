@@ -15,7 +15,7 @@ gui_set_window_material(handle, "yourmaterial");
 
 =gui-funktionen=
 
-koordinaten liegen im intervall [`0:1`]
+koordinaten liegen im intervall [`0:1`], die gilt auch für sub-fenster, für die jedoch das übergeordnete fenster die bezugsbasis darstellt
 
 ==fenster==
 
@@ -65,22 +65,47 @@ koordinaten liegen im intervall [`0:1`]
 `gui_set_cursor_pos(float x, float y)`
   * `x,y` X und Y-Koordinate auf die die maus zu setzen ist
 
-`gui_get_screen_coords`
+`gui_get_screen_coords(int handle)`
+  * `return` x,y-koordinate des fensters in bildschirmkoordinaten
+  * `return` breite und höhe des fensters in bildschirmkoordinaten
 
-`gui_get_cursor`
+`gui_get_cursor()`
+  * `return` handle des cursor-fensters
 
-`gui_set_cursor`
+`gui_set_cursor(int handle)`
+  * `handle` handle des fensters, das als cursor gesetzt werden soll
 
 
 ==fonts==
 
-`gui_change_font_material`
+`gui_create_font_texture(string spacing_file, string text, int maxwidth, int maxheight)`
+  * `spacing_file` die spacing-datei des fonts
+  * `text` selbstredend der text, der auf der textur stehen soll
+  * `maxwidth, maxheight` maximale höhe und breite der textur
+  * `return` texture_name: name der erstellten textur
+  * `return` actual_width: tatsächliche breite der textur
+  * `return` actual_height: tatsächliche höhe der textur
 
-`gui_create_font_material`
 
-`gui_create_font_texture`
+`gui_delete_texture(string texture)`
+  * `texture` textur, die gelöscht werden soll (geht mit allen ogre-texturen)
 
-`gui_delete_texture`
+`gui_create_font_material(string spacing_file, string texture_name, string base_material_name, string pass_name, string target_texture_name, int maxwidth, int maxheight)`
+  * `spacing_file` die spacing-datei des fonts
+  * `texture_name` font-textur-name
+  * `base_material_name` name des materials, aus dem das font-material erzeugt wird
+  * `pass_name` pass im basis-material, der verändert werden soll
+  * `target_texture_name` texturname im basis-material im basis-pass, der verändert werden soll (in die angegebene textur)
+  * `maxwidth, maxheight` maximale höhe und breite der textur
+  * `return` material name
+
+`gui_change_font_material(string spacing_file, string material_name, string base_material_name, string pass_name, string target_texture_name, int maxwidth, int maxheight)`
+  * `spacing_file` die spacing-datei des fonts
+  * `material_name` material, das geändert werden soll
+  * `texture_name` font-textur-name
+  * `pass_name` pass im basis-material, der verändert werden soll
+  * `target_texture_name` texturname im basis-material im basis-pass, der verändert werden soll (in die angegebene textur)
+  * `maxwidth, maxheight` maximale höhe und breite der textur
 
 ==mouse events==
 
