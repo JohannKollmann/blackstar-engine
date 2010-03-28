@@ -83,7 +83,7 @@ namespace Ice
 			break;
 		case 800: // rt_brightpass
 			break;
-		case 701: // horz1
+		case 701:
 			{
 				// horizontal bloom
 				mat->load();
@@ -96,43 +96,7 @@ namespace Ice
 				break;
 			}
 			break;
-		case 702: // horz0
-			{
-				// horizontal bloom
-				mat->load();
-				Ogre::GpuProgramParametersSharedPtr fparams =
-					mat->getBestTechnique()->getPass(0)->getFragmentProgramParameters();
-				const Ogre::String& progName = mat->getBestTechnique()->getPass(0)->getFragmentProgramName();
-				fparams->setNamedConstant("sampleOffsets", mBloomTexOffsetsHorz[0], 15);
-				fparams->setNamedConstant("sampleWeights", mBloomTexWeights[0], 15);
-
-				break;
-			}
-		case 703: // vert1
-			{
-				// vertical bloom
-				mat->load();
-				Ogre::GpuProgramParametersSharedPtr fparams =
-					mat->getTechnique(0)->getPass(0)->getFragmentProgramParameters();
-				const Ogre::String& progName = mat->getBestTechnique()->getPass(0)->getFragmentProgramName();
-				fparams->setNamedConstant("sampleOffsets", mBloomTexOffsetsVert[0], 15);
-				fparams->setNamedConstant("sampleWeights", mBloomTexWeights[0], 15);
-
-				break;
-			}
-		case 704: // vert0
-			{
-				// vertical bloom
-				mat->load();
-				Ogre::GpuProgramParametersSharedPtr fparams =
-					mat->getTechnique(0)->getPass(0)->getFragmentProgramParameters();
-				const Ogre::String& progName = mat->getBestTechnique()->getPass(0)->getFragmentProgramName();
-				fparams->setNamedConstant("sampleOffsets", mBloomTexOffsetsVert[0], 15);
-				fparams->setNamedConstant("sampleWeights", mBloomTexWeights[0], 15);
-
-				break;
-			}
-		case 705: // vert0
+		case 702:
 			{
 				// vertical bloom
 				mat->load();
