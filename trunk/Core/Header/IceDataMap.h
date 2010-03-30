@@ -72,6 +72,15 @@ public:
 		//Invalid key! Let's return some bullshit.
 		throw Ogre::Exception(Ogre::Exception::ERR_ITEM_NOT_FOUND , "DataMap::Get Invalid key (" + keyname + ")!", "IceDataMap.h, line 71");
 	}
+	template <class templateType>
+	templateType GetValue(Ogre::String keyname, templateType defaultVal)
+	{
+		templateType val;
+		try {
+			val = GetValue<templateType>(keyname);
+		} catch (Ogre::Exception) { val = defaultVal; }
+		return val;
+	}
 
 	int GetInt(Ogre::String keyname);
 	bool GetBool(Ogre::String keyname);

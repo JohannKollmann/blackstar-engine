@@ -212,6 +212,8 @@ void Edit::PauseGame()
 
 void Edit::PlayGame()
 {
+	SetFocus();
+
 	if (mSelectedObjects.size () != 1) return;
 
 	Ice::GameObject* obj = (*mSelectedObjects.begin()).mObject;

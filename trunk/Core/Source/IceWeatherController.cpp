@@ -23,7 +23,7 @@ namespace Ice
 
 		// Initialise Caelum
 		mCaelumSystem = new Caelum::CaelumSystem (Ogre::Root::getSingletonPtr(), Main::Instance().GetOgreSceneMgr(), componentMask);//Caelum::CaelumSystem::CAELUM_COMPONENTS_NONE);
-		mCaelumSystem->setSun (new Caelum::SpriteSun(Main::Instance().GetOgreSceneMgr(), mCaelumSystem->getCaelumCameraNode (), "sun_disc.png", Ogre::Degree(15)));
+		mCaelumSystem->setSun (new Caelum::SpriteSun(Main::Instance().GetOgreSceneMgr(), mCaelumSystem->getCaelumCameraNode (), "sun_disc.png", Ogre::Degree(10)));
 
 		/*mCaelumSystem->setSkyDome (new Caelum::SkyDome (Main::Instance().GetOgreSceneMgr(), mCaelumSystem->getCaelumCameraNode ()));
 	    mCaelumSystem->setSun (new Caelum::SphereSun(Main::Instance().GetOgreSceneMgr(), mCaelumSystem->getCaelumCameraNode ()));

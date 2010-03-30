@@ -386,10 +386,26 @@ namespace Ice
 		hdrParams->setNamedConstant("Tonemap_White", parameters->GetFloat("Tonemap_White"));
 		col = parameters->GetOgreCol("Brightpass_Threshold"); col.a = 0;
 		hdrParams->setNamedConstant("Brightpass_Threshold", col);
+
+		try { col = parameters->GetOgreCol("BrightpassAmbient_Threshold");} catch(Ogre::Exception) {col = Ogre::ColourValue(1,1,1,0); }
+		col.a = 0;hdrParams->setNamedConstant("BrightpassAmbient_Threshold", col);
+		hdrParams->setNamedConstant("BloomAmbient_GlareScale", parameters->GetValue<float>("BloomAmbient_GlareScale", 0.5f));
+		hdrParams->setNamedConstant("BloomAmbient_GlarePower", parameters->GetValue<float>("BloomAmbient_GlarePower", 0.5f));
+
+		hdrParams->setNamedConstant("Bloom_GlareScale", parameters->GetValue<float>("Bloom_GlareScale", 1.0f));
+		hdrParams->setNamedConstant("Bloom_GlarePower", parameters->GetValue<float>("Bloom_GlarePower", 1.0f));
+		hdrParams->setNamedConstant("Bloom_StarScale", parameters->GetValue<float>("Bloom_StarScale", 1.0f));
+		hdrParams->setNamedConstant("Bloom_StarPower", parameters->GetValue<float>("Bloom_StarPower", 1.0f));
+
 		hdrParams->setNamedConstant("LinearTonemap_KeyLumScale", parameters->GetFloat("LinearTonemap_KeyLumScale"));
 		hdrParams->setNamedConstant("LinearTonemap_KeyMax", parameters->GetFloat("LinearTonemap_KeyMax"));
 		hdrParams->setNamedConstant("LinearTonemap_KeyMaxOffset", parameters->GetFloat("LinearTonemap_KeyMaxOffset"));
 		hdrParams->setNamedConstant("LinearTonemap_KeyMin", parameters->GetFloat("LinearTonemap_KeyMin"));
+
+		hdrParams->setNamedConstant("LightAdaption_Exponent", parameters->GetValue<float>("LightAdaption_Exponent", 2.0f));
+		hdrParams->setNamedConstant("LightAdaption_Factor", parameters->GetValue<float>("LightAdaption_Factor", 0.1f));
+		hdrParams->setNamedConstant("ShadowAdaption_Exponent", parameters->GetValue<float>("ShadowAdaption_Exponent", 2));
+		hdrParams->setNamedConstant("ShadowAdaption_Factor", parameters->GetValue<float>("ShadowAdaption_Factor", 0.1f));
 	}
 
 	void SceneManager::GetParameters(DataMap *parameters)
@@ -410,10 +426,26 @@ namespace Ice
 		parameters->AddOgreVec3("Luminence_Factor", Ogre::Vector3(buf[0], buf[1], buf[2]));
 		parameters->AddFloat("Tonemap_White", buf[4]);	//skip buf[3] (float4)
 		parameters->AddOgreVec3("Brightpass_Threshold", Ogre::Vector3(buf[5], buf[6], buf[7]));
-		parameters->AddFloat("LinearTonemap_KeyLumScale", buf[9]);
-		parameters->AddFloat("LinearTonemap_KeyMax", buf[10]);
-		parameters->AddFloat("LinearTonemap_KeyMaxOffset", buf[11]);
-		parameters->AddFloat("LinearTonemap_KeyMin", buf[12]);
+
+		parameters->AddOgreVec3("BrightpassAmbient_Threshold", Ogre::Vector3(buf[9], buf[10], buf[11]));
+
+		parameters->AddFloat("BloomAmbient_GlareScale", buf[13]);
+		parameters->AddFloat("BloomAmbient_GlarePower", buf[14]);
+
+		parameters->AddFloat("Bloom_GlareScale", buf[15]);
+		parameters->AddFloat("Bloom_GlarePower", buf[16]);
+		parameters->AddFloat("Bloom_StarScale", buf[17]);
+		parameters->AddFloat("Bloom_StarPower", buf[18]);
+
+		parameters->AddFloat("LinearTonemap_KeyLumScale", buf[19]);
+		parameters->AddFloat("LinearTonemap_KeyMax", buf[20]);
+		parameters->AddFloat("LinearTonemap_KeyMaxOffset", buf[21]);
+		parameters->AddFloat("LinearTonemap_KeyMin", buf[22]);
+
+		parameters->AddFloat("LightAdaption_Exponent", buf[23]);
+		parameters->AddFloat("LightAdaption_Factor", buf[24]);
+		parameters->AddFloat("ShadowAdaption_Exponent", buf[25]);
+		parameters->AddFloat("ShadowAdaption_Factor", buf[26]);
 	}
 
 	std::map<int, ManagedGameObject*>& SceneManager::GetGameObjects()
