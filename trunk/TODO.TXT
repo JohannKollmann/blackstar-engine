@@ -1,11 +1,8 @@
 [Editor]
 - Filter (nur bodies anzeigen, nur objekte mit namen anzeigen usw.) für SceneTree implementieren
-- Engine bekommt inputs, während man im script-edit ist
 - möglicherweise Crash bei Materialauswahl
 - material-editor: script-editor mit anderem syntax-highlighting für .material-files, reparse-button anpassen
-- script remove über icon löscht die datei nicht   -  [Caph] es gibt doch gar kein lösch icon?
 - [script-edit] wenn man alles rückgängig macht bleibt der geändert-stern
-- [script-edit] Klammern hervorheben
 - [script-edit] Intellisense fertig machen
 
 [Engine]

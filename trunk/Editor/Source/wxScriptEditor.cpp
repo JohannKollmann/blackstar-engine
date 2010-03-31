@@ -1,11 +1,14 @@
 
+
 #include "wxScriptEditor.h"
 #include "wxEdit.h"  
 #include <list>
 #include <iterator>
+#include <cstring>
 
 BEGIN_EVENT_TABLE (wxScriptEditor, wxStyledTextCtrl)
-    EVT_STC_MARGINCLICK (wxID_ANY,     wxScriptEditor::OnMarginClick)
+	EVT_STC_MARGINCLICK (wxID_ANY,     wxScriptEditor::OnMarginClick)
+	EVT_UPDATE_UI(wxID_ANY, 			wxScriptEditor::OnUpdateUI)
     EVT_STC_CHARADDED (wxID_ANY,       wxScriptEditor::OnCharAdded)
 	EVT_STC_MODIFIED(wxID_ANY, wxScriptEditor::OnModified)
 	EVT_KEY_DOWN(wxScriptEditor::OnKeyPressed)
@@ -48,6 +51,9 @@ wxScriptEditor::wxScriptEditor(wxWindow *parent, wxWindowID id,
         StyleSetFont (i, font);
 	}
 
+	StyleSetBold(wxSTC_STYLE_BRACELIGHT, true);
+	StyleSetForeground(wxSTC_STYLE_BRACELIGHT, wxColour("red"));
+
 	//Keywords
 	StyleSetBold(5, true);
 	StyleSetForeground(5, wxColour("blue"));
@@ -74,6 +80,19 @@ wxScriptEditor::wxScriptEditor(wxWindow *parent, wxWindowID id,
 
 wxScriptEditor::~wxScriptEditor(void)
 {
+}
+
+void wxScriptEditor::OnUpdateUI(wxUpdateUIEvent& key)
+{
+	//Highlight matching braces
+	BraceHighlight(wxSTC_INVALID_POSITION, wxSTC_INVALID_POSITION);
+	char c = GetCharAt(GetCurrentPos());
+	if (strchr("()[]{}", c))
+	{
+		int b = BraceMatch(GetCurrentPos());
+		if (b != wxSTC_INVALID_POSITION) BraceHighlight(GetCurrentPos(), b);
+		else BraceBadLight(GetCurrentPos());
+	}
 }
 
 void wxScriptEditor::OnKeyPressed(wxKeyEvent& key)
