@@ -47,23 +47,21 @@ namespace Ice
 		mCaelumSystem->setMinimumAmbientLight(Ogre::ColourValue(0.1f, 0.1f,0.1f));
 	    mCaelumSystem->setManageAmbientLight (true); 
 
-		mCaelumSystem->getUniversalClock ()->setGregorianDateTime (2007, 4, 9, 9, 30, 0);
+		mCaelumSystem->getUniversalClock ()->setGregorianDateTime (2010, 8, 24, 11, 0, 0);
+		mCaelumSystem->setObserverLatitude(Ogre::Degree(0));
+		mCaelumSystem->setObserverLongitude(Ogre::Degree(0));
 
-		mCaelumSystem->getSun ()->setDiffuseMultiplier (Ogre::ColourValue (4, 4, 3.8f));
-		mCaelumSystem->getSun ()->setSpecularMultiplier (Ogre::ColourValue (2, 2, 2));
-		mCaelumSystem->getSun ()->setAmbientMultiplier(Ogre::ColourValue(0.2f, 0.2f, 0.2f));
+		mCaelumSystem->getSun ()->setDiffuseMultiplier (Ogre::ColourValue (3.0f, 3.0f, 2.8f));
+		mCaelumSystem->getSun ()->setSpecularMultiplier (Ogre::ColourValue (1.0f, 1.0f, 1.0f));
+		mCaelumSystem->getSun ()->setAmbientMultiplier(Ogre::ColourValue(0.7f, 0.7f, 0.7f));
 
 		mCaelumSystem->setEnsureSingleShadowSource(true);
-		mCaelumSystem->getMoon()->setPhase(1.0f);
-		mCaelumSystem->getMoon()->setForceDisable(true);
-		/*mCaelumSystem->getMoon()->setDiffuseMultiplier(Ogre::ColourValue (0, 0, 0.5));
-		mCaelumSystem->getMoon()->setSpecularMultiplier(Ogre::ColourValue (0.5, 0.5, 0.5));
-		mCaelumSystem->getMoon()->getMainLight()->setCastShadows(false);*/
-		  //mCaelumSystem->getSun()->getMainLight()->setCastShadows(false);
+		mCaelumSystem->setEnsureSingleLightSource(true);
 
-		// Register caelum to the render target
-		//Main::Instance().GetWindow()->addListener (mCaelumSystem);
-		//Ogre::Root::getSingletonPtr()->addFrameListener (mCaelumSystem);
+		mCaelumSystem->getMoon()->setPhase(1.0f);
+		mCaelumSystem->getMoon()->setDiffuseMultiplier(Ogre::ColourValue (0.6f, 0.6f, 0.8f));
+		mCaelumSystem->getMoon()->setSpecularMultiplier(Ogre::ColourValue (0.5, 0.5, 0.5));
+		mCaelumSystem->getMoon ()->setAmbientMultiplier(Ogre::ColourValue(0.25f, 0.25f, 0.25f));
 
 		mPaused = false;
 
@@ -71,90 +69,6 @@ namespace Ice
 
 		MessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
 		MessageSystem::Instance().JoinNewsgroup(this, "KEY_UP");
-
-	        /*// Test spinning the caelum root node. Looks wrong in the demo;
-	        // but at least the sky components are aligned with each other.
-	        if (false) {
-	            mCaelumSystem->getRootNode()->setOrientation(
-	                    Ogre::Quaternion(Ogre::Radian(Ogre::Math::PI), Ogre::Vector3::UNIT_Z) *
-	                    Ogre::Quaternion(Ogre::Radian(Ogre::Math::PI / 2), Ogre::Vector3::UNIT_X));
-	            mCaelumSystem->getRootNode()->_update(true, true);
-	        }
-
-	        // KNOWN BUG: The horizon is pure white if setManageFog is false.
-	        // I blame it on the transparent skydome.
-	        mCaelumSystem->setManageSceneFog(true);
-			mCaelumSystem->setSceneFogDensityMultiplier(0.0001);
-
-	        // For sphere-based sun:
-	        //mCaelumSystem->setSun (NULL);
-	        //mCaelumSystem->setSun (new Caelum::SphereSun(mScene, mCaelumSystem->getRootNode ()));
-
-	      // Setup sun options
-	      if (mCaelumSystem->getSun ())
-	      {
-			  mCaelumSystem->getSun ()->setAmbientMultiplier (Ogre::ColourValue(1.5, 1.5, 1.5));
-	         mCaelumSystem->getSun ()->setDiffuseMultiplier (Ogre::ColourValue(1.0, 1.0, 1.0));
-	         mCaelumSystem->getSun ()->setSpecularMultiplier (Ogre::ColourValue(1, 1, 1));
-	      }
-
-	      if (mCaelumSystem->getMoon())
-	      {
-	         mCaelumSystem->getMoon()->setAmbientMultiplier (Ogre::ColourValue(1.0, 1.0, 1.0));
-	         mCaelumSystem->getMoon()->setDiffuseMultiplier (Ogre::ColourValue(1, 1, 1));
-	         mCaelumSystem->getMoon()->setSpecularMultiplier (Ogre::ColourValue(1, 1, 1));
-	      } 
-
-	        // Disable ground fog ang haze.
-	        SetGroundFogEnabled(false);
-	        SetHazeEnabled(false);
-
-	        // Setup cloud options.
-	        // Tweak these settings to make the demo look pretty.
-	        if (mCaelumSystem->getClouds ()) {
-	            mCaelumSystem->getClouds ()->setCloudSpeed(Ogre::Vector2(0.000005, -0.000009));
-	            mCaelumSystem->getClouds ()->setCloudBlendTime(3600 * 24);
-	            mCaelumSystem->getClouds ()->setCloudCover(0.4);
-	        }
-
-	        // Setup starfield options
-	        if (mCaelumSystem->getStarfield ()) {
-				mCaelumSystem->getStarfield ()->setInclination (Ogre::Degree (13));
-	        }
-
-	        // Set time acceleration.
-	        mCaelumSystem->getUniversalClock ()->setTimeScale (0);
-
-	        // Total solar eclipse maximum
-			if (false) {
-				mCaelumSystem->getUniversalClock ()->setGregorianDateTime (1999, 8, 11, 11, 3, 0);
-				mCaelumSystem->getSolarSystemModel ()->setObserverLongitude (Ogre::Degree(24.3));
-				mCaelumSystem->getSolarSystemModel ()->setObserverLatitude (Ogre::Degree(45.1));
-			}
-
-			// Winter dawn in Sydney, Australia
-			if (true) {
-	            mCaelumSystem->getUniversalClock ()->setGregorianDateTime (2008, 5, 1, 24, 0, 0);
-	            mCaelumSystem->getSolarSystemModel ()->setObserverLongitude (
-	                    Ogre::Degree(151 + 12.0 / 60 + 35.9 / 3600));
-	            mCaelumSystem->getSolarSystemModel ()->setObserverLatitude (
-	                    Ogre::Degree(-33 - 51.0 / 60 - 40.0 / 3600));
-			}
-
-	        // Sunrise with visible moon.
-			if (false) {
-	            mCaelumSystem->getUniversalClock ()->setGregorianDateTime (2007, 4, 9, 23, 33, 0);
-	            mCaelumSystem->getSolarSystemModel ()->setObserverLongitude (
-	                    Ogre::Degree(45));
-	            mCaelumSystem->getSolarSystemModel ()->setObserverLatitude (
-	                    Ogre::Degree(45));
-			}
-
-		mCaelumSystem->getSun()->getMainLight()->setCastShadows(true);*/
-
-
-		mOneTime = 0;
-
 	};
 
 	void WeatherController::SetGroundFogEnabled (bool enable)

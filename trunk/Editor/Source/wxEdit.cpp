@@ -21,7 +21,8 @@ wxEdit::wxEdit(wxWindow* parent) : wxFrame(parent, -1, _("Blackstar Edit"),
 		m_mgr.SetManagedWindow(this);
 
 		mProgressBar = new wxProgressBar(this, -1);
-		this->SetStatusBar(mProgressBar);
+		SetStatusBar(mProgressBar);
+		PositionStatusBar();
 
 		wxInitAllImageHandlers();
 		mMainToolbar = new wxEditorToolbar(this);

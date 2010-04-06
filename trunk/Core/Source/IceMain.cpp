@@ -224,7 +224,6 @@ void Main::initScene()
 	hdrListener->notifyCompositor(hdrinstance);
 	CompositorLoader::Instance().EnableCompositor("HDRTest");
 
-
 	SceneManager::Instance().Init();
 
 	/*mCollisionCallback = new ScriptedCollisionCallback();

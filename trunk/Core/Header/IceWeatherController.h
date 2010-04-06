@@ -15,8 +15,6 @@ private:
 	double mSpeedFactor;
 	bool mPaused;
 
-	int mOneTime;
-
 public:
 	WeatherController(void);
 	~WeatherController(void);

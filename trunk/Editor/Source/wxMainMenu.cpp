@@ -7,6 +7,8 @@
 #include "IceAIManager.h"
 #include "IceSceneManager.h"
 #include "Edit.h"
+#include "AmbientOcclusionGenerator.h"
+#include "IceLevelMesh.h"
 
 
 // Required for WX
@@ -163,14 +165,18 @@ void wxMainMenu::OnLoadMesh(wxCommandEvent& WXUNUSED(event))
     if (dialog.ShowModal() == wxID_OK)
     {
 		Ogre::String sFile = dialog.GetFilename().c_str();
+		Ogre::String sPath = dialog.GetPath().c_str();
 		wxEdit::Instance().GetProgressBar()->SetStatusMessage("Importing world...");
 		wxEdit::Instance().GetProgressBar()->SetProgress(0.1);
-		Ogre::String extension = sFile.substr(sFile.find("."), sFile.size());
-		if (extension == ".mesh") Ice::SceneManager::Instance().LoadLevelMesh(sFile);
+		Ogre::String extension = sFile.substr(sFile.find_last_of("."), sFile.size());
+		if (extension == ".mesh")
+		{
+			Ice::SceneManager::Instance().LoadLevelMesh(sFile);
+		}
 		else DotSceneLoader::Instance().ImportScene(sFile);
 
 		wxEdit::Instance().GetpropertyWindow()->SetPage("None");
-		Ice::Main::Instance().GetCamera()->setPosition(Ogre::Vector3(0,0,0));
+		//Ice::Main::Instance().GetCamera()->setPosition(Ogre::Vector3(0,0,0));
 		wxEdit::Instance().GetProgressBar()->SetStatusMessage("Updating material tree...");
 		wxEdit::Instance().GetProgressBar()->SetProgress(0.8);
 		wxEdit::Instance().GetWorldExplorer()->GetMaterialTree()->Update();

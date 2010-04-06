@@ -8,6 +8,7 @@
 class wxProgressBar : public wxStatusBar
 {
 	DECLARE_CLASS(wxProgressBar)
+	DECLARE_EVENT_TABLE()
 
 private:
 	wxStaticText *mStatusMessage;
@@ -25,4 +26,7 @@ public:
 	void SetStatusMessage(wxString message);
 
 	void SetProgress(float progress);
+	void SetShowBar(bool show);
+
+	void OnSize(wxSizeEvent& event);
 };

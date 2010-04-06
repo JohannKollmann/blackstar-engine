@@ -8,6 +8,13 @@
 #include "OgreScriptCompiler.h"
 #include "IceSceneManager.h"
 #include "OgreOggSound.h"
+#include "AmbientOcclusionGenerator.h"
+
+enum
+{
+	AssetTree_bakeAO = 4570
+};
+
 
 wxMediaTree::wxMediaTree(wxWindow* parent, wxWindowID id, const wxPoint& pos,
              const wxSize& size, long style,
@@ -76,10 +83,22 @@ void wxMediaTree::OnRenameItemCallback(Ogre::String oldpath, Ogre::String newpat
 
 void wxMediaTree::OnShowMenuCallback(wxMenu *menu, VdtcTreeItemBase *item)
 {
+	if (item->IsFile() && item->GetName().EndsWith(".mesh"))
+	{
+		menu->Append(AssetTree_bakeAO, "Bake Ambient Occlusion");
+		menu->AppendSeparator();
+	}
 }
 
 void wxMediaTree::OnMenuCallback(int id)
 {
+	if (id == AssetTree_bakeAO)
+	{
+		Ogre::Entity *ent = Ice::Main::Instance().GetOgreSceneMgr()->createEntity(mCurrentItem->GetName().c_str());
+		Ogre::String path = GetFullPath(mCurrentItem->GetId()).GetFullPath().c_str();
+		Ogre::LogManager::getSingleton().logMessage(path);
+		AmbientOcclusionGenerator::Instance().bakeAmbientOcclusion(ent->getMesh(), path);
+	}
 }
 
 bool wxMediaTree::IsTexture(wxString filename)

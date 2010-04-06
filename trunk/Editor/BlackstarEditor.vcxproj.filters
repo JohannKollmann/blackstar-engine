@@ -114,6 +114,9 @@
     <ClInclude Include="Header\OgreAxisObject.h">
       <Filter>Editor</Filter>
     </ClInclude>
+    <ClInclude Include="Header\AmbientOcclusionGenerator.h">
+      <Filter>Editor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\virtualdirtreectrl.cpp">
@@ -210,6 +213,9 @@
       <Filter>Editor</Filter>
     </ClCompile>
     <ClCompile Include="Source\OgreAxisObject.cpp">
+      <Filter>Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\AmbientOcclusionGenerator.cpp">
       <Filter>Editor</Filter>
     </ClCompile>
   </ItemGroup>

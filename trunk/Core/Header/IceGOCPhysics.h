@@ -31,7 +31,8 @@ namespace Ice
 		LEVELMESH,
 		BONE,
 		CHARACTER,
-		AI
+		AI,
+		TMP
 	};
 
 	class DllExport GOPhysXRenderable : public OgrePhysX::PointRenderable

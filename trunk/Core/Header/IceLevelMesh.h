@@ -20,6 +20,7 @@ public:
 	~LevelMesh(void);
 
 	Ogre::String GetMeshFileName() { return mEntity->getMesh()->getName(); };
+	Ogre::Entity* GetEntity() { return mEntity; }
 };
 
 };
