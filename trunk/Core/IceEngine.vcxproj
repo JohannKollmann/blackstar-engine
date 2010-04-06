@@ -140,6 +140,7 @@
     <ClCompile Include="Source\IceLevelMesh.cpp" />
     <ClCompile Include="Source\IceMain.cpp" />
     <ClCompile Include="Source\IceMainLoop.cpp" />
+    <ClCompile Include="Source\IceSpline.cpp" />
     <ClCompile Include="Source\IceUtils.cpp" />
     <ClCompile Include="Source\IceAIManager.cpp" />
     <ClCompile Include="Source\IceAStar.cpp" />
@@ -219,6 +220,7 @@
     <ClInclude Include="Header\IceLevelMesh.h" />
     <ClInclude Include="Header\IceMain.h" />
     <ClInclude Include="Header\IceMainLoop.h" />
+    <ClInclude Include="Header\IceSpline.h" />
     <ClInclude Include="Header\IceUtils.h" />
     <ClInclude Include="Header\IceAIManager.h" />
     <ClInclude Include="Header\IceAIState.h" />

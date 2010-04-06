@@ -249,6 +249,9 @@
     <ClCompile Include="Source\IceGOCWaypoint.cpp">
       <Filter>Content</Filter>
     </ClCompile>
+    <ClCompile Include="Source\IceSpline.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header\IceMessageListener.h">
@@ -550,6 +553,9 @@
     </ClInclude>
     <ClInclude Include="Header\IceGOCWaypoint.h">
       <Filter>Content</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceSpline.h">
+      <Filter>Common</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

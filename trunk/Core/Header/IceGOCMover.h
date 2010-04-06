@@ -7,6 +7,8 @@
 #include "IceGOCEditorInterface.h"
 #include "IceMessageListener.h"
 
+#include "IceSpline.h"
+
 namespace Ice
 {
 	class GOCMover;
@@ -42,7 +44,7 @@ namespace Ice
 		goc_id_family& GetFamilyID() const { static std::string name = "MoverAnimKey"; return name; }
 		goc_id_type& GetComponentID() const { static std::string name = "MoverAnimKey"; return name; }
 
-		void UpdatePosition(Ogre::Vector3 position) {}
+		void UpdatePosition(Ogre::Vector3 position);
 		void UpdateOrientation(Ogre::Quaternion orientation) {}
 
 		void CreateFromDataMap(DataMap *parameters);
@@ -65,6 +67,9 @@ namespace Ice
 		std::list<GameObject*> mCurrentTrack;
 		Ogre::String mKeyCallbackScript;
 		bool mMoving;
+		float mfLastPos;
+		Spline mSpline;
+		Ogre::ManualObject* mSplineObject;
 
 	public:
 		GOCMover(void);
@@ -73,6 +78,7 @@ namespace Ice
 		GameObject* CreateAnimKey();
 
 		void Trigger();
+		void UpdateKeys();
 
 		void ReceiveMessage(Msg &msg);
 
