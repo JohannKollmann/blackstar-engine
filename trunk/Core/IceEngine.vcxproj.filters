@@ -4,12 +4,6 @@
     <Filter Include="MessageSystem">
       <UniqueIdentifier>{e993853e-73ef-4304-a501-f635fceaaf7c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Content">
-      <UniqueIdentifier>{5324ea6c-c577-4c7d-8406-af1e6e44ffd9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Common">
-      <UniqueIdentifier>{41ef9cb0-82b0-4199-a17b-bcdd0a9d1900}</UniqueIdentifier>
-    </Filter>
     <Filter Include="AI">
       <UniqueIdentifier>{0f39ca52-880e-4885-8ca6-e5b1b3d18549}</UniqueIdentifier>
     </Filter>
@@ -31,6 +25,12 @@
     <Filter Include="ScriptSystem\Lua">
       <UniqueIdentifier>{756f1c87-c805-4045-b279-27176f3cf60f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="System">
+      <UniqueIdentifier>{41ef9cb0-82b0-4199-a17b-bcdd0a9d1900}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Object/Component">
+      <UniqueIdentifier>{5324ea6c-c577-4c7d-8406-af1e6e44ffd9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\IceMessageListener.cpp">
@@ -40,67 +40,67 @@
       <Filter>MessageSystem</Filter>
     </ClCompile>
     <ClCompile Include="Source\IceGameObject.cpp">
-      <Filter>Content</Filter>
+      <Filter>Object/Component</Filter>
     </ClCompile>
     <ClCompile Include="Source\IceGOCAI.cpp">
-      <Filter>Content</Filter>
+      <Filter>Object/Component</Filter>
     </ClCompile>
     <ClCompile Include="Source\IceGOCAnimatedCharacter.cpp">
-      <Filter>Content</Filter>
+      <Filter>Object/Component</Filter>
     </ClCompile>
     <ClCompile Include="Source\IceGOCCameraController.cpp">
-      <Filter>Content</Filter>
+      <Filter>Object/Component</Filter>
     </ClCompile>
     <ClCompile Include="Source\IceGOCCharacterController.cpp">
-      <Filter>Content</Filter>
+      <Filter>Object/Component</Filter>
     </ClCompile>
     <ClCompile Include="Source\IceGOCGameplay.cpp">
-      <Filter>Content</Filter>
+      <Filter>Object/Component</Filter>
     </ClCompile>
     <ClCompile Include="Source\IceGOComponent.cpp">
-      <Filter>Content</Filter>
+      <Filter>Object/Component</Filter>
     </ClCompile>
     <ClCompile Include="Source\IceGOCPhysics.cpp">
-      <Filter>Content</Filter>
+      <Filter>Object/Component</Filter>
     </ClCompile>
     <ClCompile Include="Source\IceGOCPlayerInput.cpp">
-      <Filter>Content</Filter>
+      <Filter>Object/Component</Filter>
     </ClCompile>
     <ClCompile Include="Source\IceGOCView.cpp">
-      <Filter>Content</Filter>
+      <Filter>Object/Component</Filter>
     </ClCompile>
     <ClCompile Include="Source\IceObjectLevelRayCaster.cpp">
-      <Filter>Content</Filter>
+      <Filter>Object/Component</Filter>
     </ClCompile>
     <ClCompile Include="Source\IceSceneManager.cpp">
-      <Filter>Content</Filter>
+      <Filter>Object/Component</Filter>
     </ClCompile>
     <ClCompile Include="Source\IceCameraController.cpp">
-      <Filter>Common</Filter>
+      <Filter>System</Filter>
     </ClCompile>
     <ClCompile Include="Source\IceConsole.cpp">
-      <Filter>Common</Filter>
+      <Filter>System</Filter>
     </ClCompile>
     <ClCompile Include="Source\IceDataMap.cpp">
-      <Filter>Common</Filter>
+      <Filter>System</Filter>
     </ClCompile>
     <ClCompile Include="Source\IceGameState.cpp">
-      <Filter>Common</Filter>
+      <Filter>System</Filter>
     </ClCompile>
     <ClCompile Include="Source\IceInput.cpp">
-      <Filter>Common</Filter>
+      <Filter>System</Filter>
     </ClCompile>
     <ClCompile Include="Source\IceLevelMesh.cpp">
-      <Filter>Common</Filter>
+      <Filter>System</Filter>
     </ClCompile>
     <ClCompile Include="Source\IceMain.cpp">
-      <Filter>Common</Filter>
+      <Filter>System</Filter>
     </ClCompile>
     <ClCompile Include="Source\IceMainLoop.cpp">
-      <Filter>Common</Filter>
+      <Filter>System</Filter>
     </ClCompile>
     <ClCompile Include="Source\IceUtils.cpp">
-      <Filter>Common</Filter>
+      <Filter>System</Filter>
     </ClCompile>
     <ClCompile Include="Source\IceAIManager.cpp">
       <Filter>AI</Filter>
@@ -244,13 +244,16 @@
       <Filter>ScriptSystem\Lua</Filter>
     </ClCompile>
     <ClCompile Include="Source\IceGOCMover.cpp">
-      <Filter>Content</Filter>
+      <Filter>Object/Component</Filter>
     </ClCompile>
     <ClCompile Include="Source\IceGOCWaypoint.cpp">
-      <Filter>Content</Filter>
+      <Filter>Object/Component</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\IceSoundMaterial.cpp">
+      <Filter>System</Filter>
     </ClCompile>
     <ClCompile Include="Source\IceSpline.cpp">
-      <Filter>Common</Filter>
+      <Filter>System</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -264,76 +267,76 @@
       <Filter>MessageSystem</Filter>
     </ClInclude>
     <ClInclude Include="Header\IceGameObject.h">
-      <Filter>Content</Filter>
+      <Filter>Object/Component</Filter>
     </ClInclude>
     <ClInclude Include="Header\IceGOCAI.h">
-      <Filter>Content</Filter>
+      <Filter>Object/Component</Filter>
     </ClInclude>
     <ClInclude Include="Header\IceGOCAnimatedCharacter.h">
-      <Filter>Content</Filter>
+      <Filter>Object/Component</Filter>
     </ClInclude>
     <ClInclude Include="Header\IceGOCCameraController.h">
-      <Filter>Content</Filter>
+      <Filter>Object/Component</Filter>
     </ClInclude>
     <ClInclude Include="Header\IceGOCCharacterController.h">
-      <Filter>Content</Filter>
+      <Filter>Object/Component</Filter>
     </ClInclude>
     <ClInclude Include="Header\IceGOCEditorInterface.h">
-      <Filter>Content</Filter>
+      <Filter>Object/Component</Filter>
     </ClInclude>
     <ClInclude Include="Header\IceGOCGameplay.h">
-      <Filter>Content</Filter>
+      <Filter>Object/Component</Filter>
     </ClInclude>
     <ClInclude Include="Header\IceGOComponent.h">
-      <Filter>Content</Filter>
+      <Filter>Object/Component</Filter>
     </ClInclude>
     <ClInclude Include="Header\IceGOCPhysics.h">
-      <Filter>Content</Filter>
+      <Filter>Object/Component</Filter>
     </ClInclude>
     <ClInclude Include="Header\IceGOCPlayerInput.h">
-      <Filter>Content</Filter>
+      <Filter>Object/Component</Filter>
     </ClInclude>
     <ClInclude Include="Header\IceGOCView.h">
-      <Filter>Content</Filter>
+      <Filter>Object/Component</Filter>
     </ClInclude>
     <ClInclude Include="Header\IceObjectLevelRayCaster.h">
-      <Filter>Content</Filter>
+      <Filter>Object/Component</Filter>
     </ClInclude>
     <ClInclude Include="Header\IceSceneManager.h">
-      <Filter>Content</Filter>
+      <Filter>Object/Component</Filter>
     </ClInclude>
     <ClInclude Include="Header\IceCameraController.h">
-      <Filter>Common</Filter>
+      <Filter>System</Filter>
     </ClInclude>
     <ClInclude Include="Header\IceConsole.h">
-      <Filter>Common</Filter>
+      <Filter>System</Filter>
     </ClInclude>
     <ClInclude Include="Header\IceDataMap.h">
-      <Filter>Common</Filter>
+      <Filter>System</Filter>
     </ClInclude>
     <ClInclude Include="Header\IceDirectionBlender.h">
-      <Filter>Common</Filter>
+      <Filter>System</Filter>
     </ClInclude>
     <ClInclude Include="Header\IceGameState.h">
-      <Filter>Common</Filter>
+      <Filter>System</Filter>
     </ClInclude>
     <ClInclude Include="Header\IceIncludes.h">
-      <Filter>Common</Filter>
+      <Filter>System</Filter>
     </ClInclude>
     <ClInclude Include="Header\IceInput.h">
-      <Filter>Common</Filter>
+      <Filter>System</Filter>
     </ClInclude>
     <ClInclude Include="Header\IceLevelMesh.h">
-      <Filter>Common</Filter>
+      <Filter>System</Filter>
     </ClInclude>
     <ClInclude Include="Header\IceMain.h">
-      <Filter>Common</Filter>
+      <Filter>System</Filter>
     </ClInclude>
     <ClInclude Include="Header\IceMainLoop.h">
-      <Filter>Common</Filter>
+      <Filter>System</Filter>
     </ClInclude>
     <ClInclude Include="Header\IceUtils.h">
-      <Filter>Common</Filter>
+      <Filter>System</Filter>
     </ClInclude>
     <ClInclude Include="Header\IceAIManager.h">
       <Filter>AI</Filter>
@@ -546,22 +549,24 @@
       <Filter>ScriptSystem\Lua</Filter>
     </ClInclude>
     <ClInclude Include="Header\IceGOCMover.h">
-      <Filter>Content</Filter>
+      <Filter>Object/Component</Filter>
     </ClInclude>
     <ClInclude Include="Header\Ice3D.h">
-      <Filter>Common</Filter>
+      <Filter>System</Filter>
     </ClInclude>
     <ClInclude Include="Header\IceGOCWaypoint.h">
-      <Filter>Content</Filter>
+      <Filter>Object/Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceSoundMaterial.h">
+      <Filter>System</Filter>
     </ClInclude>
     <ClInclude Include="Header\IceSpline.h">
-      <Filter>Common</Filter>
+      <Filter>System</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Header\Messaging.txt">
       <Filter>MessageSystem</Filter>
     </None>
-    <None Include="ClassDiagram1.cd" />
   </ItemGroup>
 </Project>

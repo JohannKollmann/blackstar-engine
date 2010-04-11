@@ -112,7 +112,7 @@ namespace Ice
 	Ogre::Vector3
 	Spline::CSplineSector::CalcSample(double fPos)
 	{
-		double afResults[3];
+		double afResults[3] = {0, 0, 0};
 		double fPosPow=1.0;
 		for(int iParam=3; iParam>=0; iParam--)
 		{
@@ -127,7 +127,7 @@ namespace Ice
 	Spline::Sample(double fPos)
 	{
 		int iSector=(int)fPos;
-		if(iSector<(int)m_Sectors.size() && fPos>0.0)
+		if(iSector<(int)m_Sectors.size() && fPos>=0.0)
 		{
 			return m_Sectors[iSector].CalcSample(fPos-(double)iSector);
 		}

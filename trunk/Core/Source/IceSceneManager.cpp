@@ -150,6 +150,9 @@ namespace Ice
 	{
 		Reset();
 
+		mSoundMaterialTable.InitTableFromCfg("SoundMaterialTable.cfg");
+		//mSoundMaterialTable.InitBindingsFromCfg("OgreMaterialSoundBindings.cfg");
+
 		Main::Instance().GetOgreSceneMgr()->createStaticGeometry("StaticGeometry");
 
 		RegisterStandardAtoms();

@@ -51,7 +51,7 @@
     <ClCompile>
       <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>script\;..\..\Dependencies\wxWidgets\include\msvc;..\..\Dependencies\wxWidgets\include\;..\..\Dependencies\wxWidgets\wxthings\include;..\..\Dependencies\OpenAL\include;..\..\Dependencies\OgreOggSound\include;..\..\Dependencies\Alut\include;..\Common\;..\..\Dependencies\Ogre3D\include\;..\..\Dependencies\Ogre3D\CEGUIRenderer\include\;..\..\Dependencies\Ogre3D\Dependencies\include;..\..\Dependencies\Caelum\include\;..\..\Dependencies\PhysX\SDKs\PhysXLoader\include;..\..\Dependencies\PhysX\SDKs\Physics\include;..\..\Dependencies\PhysX\SDKs\Foundation\include;..\..\Dependencies\PhysX\SDKs\Cooking\include;..\..\Dependencies\PhysX\SDKs\NxCharacter\include;..\..\Dependencies\OgrePhysX\include;..\..\Dependencies\PhysX\Tools\NxuStream2;Header\;..\LoadSave_dll\LoadSave\ExternalHeaders;..\..\Dependencies\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>script\;..\..\Dependencies\wxWidgets\include\msvc;..\..\Dependencies\wxWidgets\include\;..\..\Dependencies\wxWidgets\wxthings\include;..\..\Dependencies\OpenAL\include;..\..\Dependencies\OgreOggSound\include;..\..\Dependencies\Alut\include;..\Common\;..\..\Dependencies\Ogre3D\include\;..\..\Dependencies\Ogre3D\CEGUIRenderer\include\;..\..\Dependencies\Ogre3D\Dependencies\include;..\..\Dependencies\Caelum\include\;..\..\Dependencies\PhysX\SDKs\PhysXLoader\include;..\..\Dependencies\PhysX\SDKs\Physics\include;..\..\Dependencies\PhysX\SDKs\Foundation\include;..\..\Dependencies\PhysX\SDKs\Cooking\include;..\..\Dependencies\PhysX\SDKs\NxCharacter\include;../../Dependencies/OgrePhysX/include/;..\..\Dependencies\PhysX\Tools\NxuStream2;Header\;..\LoadSave_dll\LoadSave\ExternalHeaders;..\..\Dependencies\;..\..\..\Dependencies\OgrePhysX\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -140,6 +140,7 @@
     <ClCompile Include="Source\IceLevelMesh.cpp" />
     <ClCompile Include="Source\IceMain.cpp" />
     <ClCompile Include="Source\IceMainLoop.cpp" />
+    <ClCompile Include="Source\IceSoundMaterial.cpp" />
     <ClCompile Include="Source\IceSpline.cpp" />
     <ClCompile Include="Source\IceUtils.cpp" />
     <ClCompile Include="Source\IceAIManager.cpp" />
@@ -220,6 +221,7 @@
     <ClInclude Include="Header\IceLevelMesh.h" />
     <ClInclude Include="Header\IceMain.h" />
     <ClInclude Include="Header\IceMainLoop.h" />
+    <ClInclude Include="Header\IceSoundMaterial.h" />
     <ClInclude Include="Header\IceSpline.h" />
     <ClInclude Include="Header\IceUtils.h" />
     <ClInclude Include="Header\IceAIManager.h" />
@@ -294,7 +296,6 @@
     <ClInclude Include="..\..\Dependencies\lua\src\lzio.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="ClassDiagram1.cd" />
     <None Include="Header\Messaging.txt" />
   </ItemGroup>
   <ItemGroup>

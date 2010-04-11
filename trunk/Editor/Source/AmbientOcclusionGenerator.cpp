@@ -152,7 +152,7 @@ void AmbientOcclusionGenerator::computeAO( Ogre::Vector3 position, Ogre::Vector3
 {
 	//position += normal*0.01f;
 	target.r = 0; target.g = 0; target.b = 0; target.a = 1;
-	const int c = 4;
+	const float c = 4;
 	float fNumSamples = 0;
 	float sum = 0;
 

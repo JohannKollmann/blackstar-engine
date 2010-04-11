@@ -16,6 +16,7 @@ namespace Ice
 	}
 	GOCAnimKey::~GOCAnimKey()
 	{
+		mMover->notifyKeyDelete(this);
 	}
 	void GOCAnimKey::CreateFromDataMap(DataMap *parameters)
 	{
@@ -55,12 +56,15 @@ namespace Ice
 	GOCMover::GOCMover()
 	{
 		mMover = this;
+		mMoving = false;
 		MessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
 		mSplineObject = Ice::Main::Instance().GetOgreSceneMgr()->createManualObject("Spline_" + SceneManager::Instance().RequestIDStr());
 		Ice::Main::Instance().GetOgreSceneMgr()->getRootSceneNode()->attachObject(mSplineObject);
 	}
 	GOCMover::~GOCMover()
 	{
+		Ice::Main::Instance().GetOgreSceneMgr()->getRootSceneNode()->detachObject(mSplineObject);
+		Ice::Main::Instance().GetOgreSceneMgr()->destroyManualObject(mSplineObject);
 	}
 	void GOCMover::CreateFromDataMap(DataMap *parameters)
 	{
@@ -107,12 +111,7 @@ namespace Ice
 	void GOCMover::Trigger()
 	{
 		mMoving = true;
-		/*mCurrentTrack.clear();
-		for (auto i = mAnimKeys.begin(); i != mAnimKeys.end(); i++)
-		{
-			(*i)->SetIgnoreParent(true);
-			mCurrentTrack.push_back(*i);
-		}*/
+		SetKeyIgnoreParent(true);
 		mfLastPos=0;
 	}
 
@@ -120,30 +119,15 @@ namespace Ice
 	{
 		if (msg.mNewsgroup == "UPDATE_PER_FRAME" && mMoving)
 		{
-			/*if (mCurrentTrack.empty())
+			float time = msg.mData.GetFloat("TIME");
+			mfLastPos+=time;
+			SetOwnerPosition(mSpline.Sample(mfLastPos));
+			if(mfLastPos>mSpline.GetLength())
 			{
 				mMoving = false;
+				mfLastPos=0;
 				SetKeyIgnoreParent(false);
 			}
-			else
-			{*/
-				float time = msg.mData.GetFloat("TIME");
-				/*GameObject *target = mCurrentTrack.front();
-				Ogre::Vector3 dir = target->GetGlobalPosition() - mOwnerGO->GetGlobalPosition();
-				dir.normalise();
-				dir *= time;
-				SetOwnerPosition(mOwnerGO->GetGlobalPosition() + dir);
-				if (mOwnerGO->GetGlobalPosition().distance(target->GetGlobalPosition()) < 0.1f) mCurrentTrack.pop_front();*/
-				
-				SetOwnerPosition(mOwnerGO->GetGlobalPosition() + mSpline.Sample(mfLastPos+time) - mSpline.Sample(mfLastPos));
-				mfLastPos+=time;
-				if(mfLastPos>mSpline.GetLength())
-				{
-					mMoving = false;
-					mfLastPos=0;
-					SetKeyIgnoreParent(false);
-				}
-			//}
 		}
 	}
 
@@ -157,31 +141,43 @@ namespace Ice
 
 	void GOCMover::UpdateKeys()
 	{
+		mSplineObject->clear();
 		if(mAnimKeys.size()<1)
 			return;
+		int keyCounter = 0;
 		std::vector<Ogre::Vector3> vKeys;
 		vKeys.push_back(mOwnerGO->GetGlobalPosition());
 		for(int iKey=0; iKey<(int)mAnimKeys.size(); iKey++)
+		{
+			mAnimKeys[iKey]->SetName("Key_" + Ogre::StringConverter::toString(++keyCounter));
 			vKeys.push_back(mAnimKeys[iKey]->GetGlobalPosition());
+		}
 		mSpline.SetPoints(vKeys);
 
-		Ice::Main::Instance().GetOgreSceneMgr()->getRootSceneNode()->detachObject(mSplineObject);
-		Ice::Main::Instance().GetOgreSceneMgr()->destroyManualObject(mSplineObject);
-
-		mSplineObject = Ice::Main::Instance().GetOgreSceneMgr()->createManualObject("Spline_" + SceneManager::Instance().RequestIDStr());
-		
-
-		mSplineObject->clear();
-
 		mSplineObject->begin("WPLine", Ogre::RenderOperation::OT_LINE_STRIP);
-		for(double fPos=0; fPos<mSpline.GetLength(); fPos+=0.1)
+		mSplineObject->position(mOwnerGO->GetGlobalPosition());
+		for(double fPos=0.1; fPos<=mSpline.GetLength(); fPos+=0.1)
 		{
 			mSplineObject->position(mSpline.Sample(fPos));
 		}
 		mSplineObject->end();
 		mSplineObject->setCastShadows(false);
+	}
 
-		Ice::Main::Instance().GetOgreSceneMgr()->getRootSceneNode()->attachObject(mSplineObject);
+	void GOCMover::notifyKeyDelete(GOCAnimKey *key)
+	{
+		for (auto i = mAnimKeys.begin(); i != mAnimKeys.end(); i++)
+		{
+			if ((*i) == key->GetOwner())
+			{
+				mAnimKeys.erase(i);
+				break;
+			}
+		}
+		if (mAnimKeys.empty()) mIsLastKey = true;
+		else mAnimKeys.back()->GetComponent<GOCAnimKey>()->mIsLastKey = true;
+
+		UpdateKeys();
 	}
 
 	GameObject* AnimKey::CreateSuccessor()

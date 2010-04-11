@@ -446,7 +446,7 @@ void Main::GetConfig()
 		secName = seci.peekNextKey();
 		Ogre::ConfigFile::SettingsMultiMap *Settings = seci.getNext();
 		Ogre::ConfigFile::SettingsMultiMap::iterator i;
-		if (mSettings.find("secName") == mSettings.end()) mSettings[secName] = std::vector<KeyVal>();
+		if (mSettings.find(secName) == mSettings.end()) mSettings[secName] = std::vector<KeyVal>();
 
 		for (i = Settings->begin(); i != Settings->end(); i++)
 		{

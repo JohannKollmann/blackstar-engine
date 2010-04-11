@@ -9,6 +9,7 @@
 #include "IceGOCEditorInterface.h"
 #include "IceMessageSystem.h"
 #include "IceScriptSystem.h"
+#include "IceSoundMaterial.h"
 
 namespace Ice
 {
@@ -40,6 +41,8 @@ namespace Ice
 	public:
 
 		GameObject *mPlayer;
+
+		SoundMaterialTable mSoundMaterialTable;
 
 		void RegisterPlayer(GameObject *player);
 		GameObject* GetPlayer() { return mPlayer; }

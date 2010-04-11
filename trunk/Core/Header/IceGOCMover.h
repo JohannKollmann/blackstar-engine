@@ -47,6 +47,9 @@ namespace Ice
 		void UpdatePosition(Ogre::Vector3 position);
 		void UpdateOrientation(Ogre::Quaternion orientation) {}
 
+		float GetTimeSinceLastKey() { return mTimeSinceLastKey; }
+		float GetTotalStayTime() { return mTotalStayTime; }
+
 		void CreateFromDataMap(DataMap *parameters);
 		void GetParameters(DataMap *parameters);
 		static void GetDefaultParameters(DataMap *parameters);
@@ -62,6 +65,8 @@ namespace Ice
 
 	class DllExport GOCMover : public AnimKey, public GOComponent, public GOCEditorInterface, public MessageListener
 	{
+		friend class GOCAnimKey;
+
 	private:
 		std::vector<GameObject*> mAnimKeys;
 		std::list<GameObject*> mCurrentTrack;
@@ -70,6 +75,8 @@ namespace Ice
 		float mfLastPos;
 		Spline mSpline;
 		Ogre::ManualObject* mSplineObject;
+
+		void notifyKeyDelete(GOCAnimKey *key);
 
 	public:
 		GOCMover(void);
