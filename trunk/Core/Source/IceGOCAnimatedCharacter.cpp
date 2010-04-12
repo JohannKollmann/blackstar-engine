@@ -163,7 +163,7 @@ void GOCAnimatedCharacterBone::UpdatePosition(Ogre::Vector3 position)
 				//if root bone moves, don't update BoneOffset
 				GameObject *superparent = mOwnerGO->GetParent();
 				while (superparent->GetParent()) superparent = superparent->GetParent(); 
-				if (superparent->GetTranformingChildren()) mGlobalBindPosition = position - (mBoneConfig.mBoneOffset*scale_factor);
+				if (superparent->GetTransformingChildren()) mGlobalBindPosition = position - (mBoneConfig.mBoneOffset*scale_factor);
 				else
 				{
 					float scale_factor = ((mMeshNode->_getDerivedScale().x + mMeshNode->_getDerivedScale().y + mMeshNode->_getDerivedScale().z) / 3);
@@ -171,7 +171,7 @@ void GOCAnimatedCharacterBone::UpdatePosition(Ogre::Vector3 position)
 					mBoneConfig.mBoneOffset = mBoneConfig.mBoneOffset / scale_factor;
 				}
 			}
-			else if (mOwnerGO->GetParent() || !mOwnerGO->GetTranformingChildren())
+			else if (mOwnerGO->GetParent() || !mOwnerGO->GetTransformingChildren())
 			{
 				mBoneConfig.mBoneOffset = position - mGlobalBindPosition;
 				mBoneConfig.mBoneOffset = mBoneConfig.mBoneOffset / scale_factor;

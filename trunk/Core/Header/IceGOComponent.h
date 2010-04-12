@@ -20,10 +20,11 @@ namespace Ice
 	{
 		friend class GameObject;
 	private:
+		//Called by GO Owner
 		void _updatePosition(const Ogre::Vector3 &position);
 		void _updateOrientation(const Ogre::Quaternion &quat);
 		void _updateScale(const Ogre::Vector3 &scale);
-		bool mTranformingOwner;
+		bool mTransformingOwner;
 
 	protected:
 		GameObject *mOwnerGO;
@@ -32,7 +33,7 @@ namespace Ice
 		typedef std::string goc_id_type;
 		typedef std::string goc_id_family;
 
-		GOComponent() : mOwnerGO(nullptr), mTranformingOwner(false) {}
+		GOComponent() : mOwnerGO(nullptr), mTransformingOwner(false) {}
 		virtual ~GOComponent() {}
 
 		void SetOwnerPosition(const Ogre::Vector3 &position);
@@ -49,7 +50,6 @@ namespace Ice
 		virtual void OnAddChild(GameObject *child) {}
 		virtual void OnRemoveChild(GameObject *child) {}
 
-		//Called by GO Owner
 		virtual void UpdatePosition(Ogre::Vector3 position) {}
 		virtual void UpdateOrientation(Ogre::Quaternion orientation) {}
 		virtual void UpdateScale(Ogre::Vector3 scale) {}

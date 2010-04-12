@@ -239,7 +239,7 @@
 		if (mType == EDGE)
 		{
 			bool parentUpdate = false;
-			if (mOwnerGO->GetParent()) parentUpdate = mOwnerGO->GetParent()->GetTranformingChildren();
+			if (mOwnerGO->GetParent()) parentUpdate = mOwnerGO->GetParent()->GetTransformingChildren();
 			if (mEdgeLocked && !parentUpdate)
 			{
 				mType = NODE;

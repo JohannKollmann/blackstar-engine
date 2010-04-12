@@ -15,31 +15,31 @@ namespace Ice
 
 	void GOComponent::_updatePosition(const Ogre::Vector3 &position)
 	{
-		if (!mTranformingOwner) UpdatePosition(position);
+		if (!mTransformingOwner) UpdatePosition(position);
 	}
 	void GOComponent::_updateOrientation(const Ogre::Quaternion &quat)
 	{
-		if (!mTranformingOwner) UpdateOrientation(quat);
+		if (!mTransformingOwner) UpdateOrientation(quat);
 	}
 	void GOComponent::_updateScale(const Ogre::Vector3 &scale)
 	{
-		if (!mTranformingOwner) UpdateScale(scale);
+		if (!mTransformingOwner) UpdateScale(scale);
 	}
 
 	void GOComponent::SetOwnerPosition(const Ogre::Vector3 &position)
 	{
 		if (!mOwnerGO) return;
-		mTranformingOwner = true;
+		mTransformingOwner = true;
 		mOwnerGO->SetGlobalPosition(position);
-		mTranformingOwner = false;
+		mTransformingOwner = false;
 	}
 
 	void GOComponent::SetOwnerOrientation(const Ogre::Quaternion &orientation)
 	{
 		if (!mOwnerGO) return;
-		mTranformingOwner = true;
+		mTransformingOwner = true;
 		mOwnerGO->SetGlobalOrientation(orientation);
-		mTranformingOwner = false;
+		mTransformingOwner = false;
 	}
 
 };

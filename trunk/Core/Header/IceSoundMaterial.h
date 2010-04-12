@@ -23,14 +23,11 @@ namespace Ice
 			std::map< SoundMaterialName, SoundIdentifier > relations;
 		};
 
-		typedef std::map< SoundMaterialName, SoundMaterial > MaterialTable;
-		typedef std::map< OgreMaterialName, NxMaterialID > OgreBindings;
-
-		OgreBindings mOgreBindings;
+		std::map< OgreMaterialName, NxMaterialID > mOgreBindings;
 
 	private:
 		NxMaterialID mCurrentIndex;
-		MaterialTable mTable;
+		std::map< SoundMaterialName, SoundMaterial > mTable;
 
 		void verifyMaterial(SoundMaterialName name); 
 
