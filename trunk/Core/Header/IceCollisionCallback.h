@@ -6,6 +6,14 @@
 namespace Ice
 {
 
+	class ActorContactReport : public NxUserContactReport
+	{
+	private:
+		void onMaterialContact(Ogre::String material1, Ogre::String material2, Ogre::Vector3 position, float force);
+	public:
+		void onContactNotify(NxContactPair &pair, NxU32 events);
+	};
+
 	class TriggerCallback : public OgrePhysX::TriggerReportListener
 	{
 	public:

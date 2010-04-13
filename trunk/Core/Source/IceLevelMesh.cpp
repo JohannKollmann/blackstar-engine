@@ -27,9 +27,10 @@ LevelMesh::LevelMesh(Ogre::String mesh)
 	mNode->scale(1.0,1.0,1.0);
 
 	if (!OgrePhysX::Cooker::getSingleton().hasNxMesh(mesh + ".nxs"))
-		OgrePhysX::Cooker::getSingleton().cookNxMeshToFile(mEntity->getMesh(), "Data\\Media\\Meshes\\NXS\\" + mesh + ".nxs", OgrePhysX::CookerParams().materials(SceneManager::Instance().mSoundMaterialTable.mOgreBindings));
+		OgrePhysX::Cooker::getSingleton().cookNxMeshToFile(mEntity->getMesh(), "Data\\Media\\Meshes\\NXS\\" + mesh + ".nxs", OgrePhysX::CookerParams().materials(SceneManager::Instance().mSoundMaterialTable.mOgreNxBindings));
 
 	mActor = Main::Instance().GetPhysXScene()->createActor(OgrePhysX::CookedMeshShape(mesh + ".nxs").group(CollisionGroups::LEVELMESH));
+	mActor->getNxActor()->setGroup(CollisionGroups::LEVELMESH);
 }
 
 LevelMesh::~LevelMesh(void)

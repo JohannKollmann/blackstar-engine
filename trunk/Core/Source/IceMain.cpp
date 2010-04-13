@@ -154,6 +154,7 @@ void Main::initScene()
 
 	//Collision Callback
 	mPhysXScene->setTriggerReport(new TriggerCallback());
+	mPhysXScene->getNxScene()->setUserContactReport(new ActorContactReport());
 
 	mPhysXScene->getNxScene()->setGroupCollisionFlag(CollisionGroups::CHARACTER, CollisionGroups::BONE, false);
 
@@ -161,6 +162,9 @@ void Main::initScene()
 	mPhysXScene->getNxScene()->setGroupCollisionFlag(CollisionGroups::AI, CollisionGroups::CHARACTER, false);
 	mPhysXScene->getNxScene()->setGroupCollisionFlag(CollisionGroups::AI, CollisionGroups::DEFAULT, false);
 	mPhysXScene->getNxScene()->setGroupCollisionFlag(CollisionGroups::AI, CollisionGroups::LEVELMESH, false);
+
+	mPhysXScene->getNxScene()->setActorGroupPairFlags(CollisionGroups::DEFAULT, CollisionGroups::DEFAULT, NX_NOTIFY_ON_START_TOUCH|NX_NOTIFY_FORCES);
+	mPhysXScene->getNxScene()->setActorGroupPairFlags(CollisionGroups::DEFAULT, CollisionGroups::LEVELMESH, NX_NOTIFY_ON_START_TOUCH|NX_NOTIFY_FORCES);
 
 	//Init Ogre Resources
 	for (std::vector<KeyVal>::iterator i = mSettings["Resources"].begin(); i != mSettings["Resources"].end(); i++)

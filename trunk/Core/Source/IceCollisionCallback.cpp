@@ -4,6 +4,10 @@
 #include "IceGameObject.h"
 #include "IceGOCPhysics.h"
 #include "IceMessageSystem.h"
+#include "IceSceneManager.h"
+#include "IceLevelMesh.h"
+#include "IceIncludes.h"
+#include "OgreOggSound.h"
 
 namespace Ice
 {
@@ -63,4 +67,100 @@ namespace Ice
 		return true;
 	}
 
+
+	void ActorContactReport::onMaterialContact(Ogre::String material1, Ogre::String material2, Ogre::Vector3 position, float force )
+	{
+		Ogre::LogManager::getSingleton().logMessage("OnMaterialContact: " + material1 + " - " + material2 + "  Force: " + Ogre::StringConverter::toString(force));
+		Ogre::String oggFile = SceneManager::Instance().mSoundMaterialTable.GetSound(material1, material2);
+		if (Ogre::ResourceGroupManager::getSingleton().resourceExists("General", oggFile))
+		{
+			int id = Ice::SceneManager::Instance().RequestID();
+			Ogre::SceneNode *node = Ice::Main::Instance().GetPreviewSceneMgr()->getRootSceneNode()->createChildSceneNode(position);
+			OgreOggSound::OgreOggISound *sound = Ice::Main::Instance().GetSoundManager()->createSound(Ogre::StringConverter::toString(id), oggFile, true, false);
+			sound->setReferenceDistance(15);
+			sound->setMaxDistance(30);
+			if (sound) sound->play();
+			node->attachObject(sound);
+		}
+	}
+
+
+	void ActorContactReport::onContactNotify(NxContactPair &pair, NxU32 events)
+	{
+		// Iterate through contact points
+		NxContactStreamIterator i(pair.stream);
+		//user can call getNumPairs() here
+		while(i.goNextPair())
+		{
+			NxShape *shape1 = i.getShape(0);
+			NxShape *shape2 = i.getShape(1);
+
+			//First material callback
+			Ogre::String material1 = SceneManager::Instance().mSoundMaterialTable.GetMaterialNameByNxMaterial(shape1->getMaterial());
+			Ogre::String material2 = SceneManager::Instance().mSoundMaterialTable.GetMaterialNameByNxMaterial(shape2->getMaterial());
+
+			float summed_force = 0.0f;
+			Ogre::Vector3 contactPoint;
+			while(i.goNextPatch())
+			{
+				//user can also call getPatchNormal() and getNumPoints() here
+				const NxVec3& contactNormal = i.getPatchNormal();
+				bool once = true;
+				while(i.goNextPoint())
+				{
+					//user can also call getPoint() and getSeparation() here
+					contactPoint = OgrePhysX::Convert::toOgre(i.getPoint());
+					summed_force += i.getPointNormalForce();
+					if (!once) continue;
+					once = false;
+
+					NxTriangleMeshShape *meshShape = 0;
+					int triIndex = 0;
+					bool mat1 = true;
+					if (shape1->getType() == NxShapeType::NX_SHAPE_MESH)
+					{
+						meshShape = (NxTriangleMeshShape*)shape1;
+						triIndex = i.getFeatureIndex0();
+					}
+					else if (shape2->getType() == NxShapeType::NX_SHAPE_MESH)
+					{
+						mat1 = false;
+						meshShape = (NxTriangleMeshShape*)shape2;
+						triIndex = i.getFeatureIndex1();
+					}
+					if (meshShape)
+					{
+						Ogre::Entity *ent = 0;
+						if (!meshShape->getActor().userData)
+						{
+							ent = SceneManager::Instance().GetLevelMesh()->GetEntity();
+						}
+						else
+						{
+							GameObject *object = (GameObject*)meshShape->getActor().userData;
+							//todo
+						}
+						if (ent)
+						{
+							int triCount = 0;
+							for (unsigned i = 0; i < ent->getMesh()->getNumSubMeshes(); i++)
+							{
+								Ogre::SubMesh *subMesh = ent->getMesh()->getSubMesh(i);
+								int subMeshTriCount = subMesh->indexData->indexCount / 3;
+								if (triIndex >= triCount && triIndex < triCount+subMeshTriCount)
+								{
+									Ogre::String meshMat = SceneManager::Instance().mSoundMaterialTable.GetMaterialNameByOgreMaterial(subMesh->getMaterialName());
+									if (mat1) material1 = meshMat;
+									else material2 = meshMat;
+									break;
+								}
+								triCount += subMeshTriCount;
+							}
+						}
+					}
+				}
+			}
+			onMaterialContact(material1, material2, contactPoint, summed_force);
+		}
+	}
 };

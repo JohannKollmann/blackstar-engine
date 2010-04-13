@@ -47,6 +47,7 @@ namespace Ice
 		Ogre::String internname = "RigidBody" + Ogre::StringConverter::toString(SceneManager::Instance().RequestID());
 		mCollisionMeshName = collision_mesh;
 		mDensity = density;
+		NxMaterialIndex nxID = SceneManager::Instance().mSoundMaterialTable.GetMaterialID(mMaterialName);
 		if (!Ogre::ResourceGroupManager::getSingleton().resourceExists("General", mCollisionMeshName))
 		{
 			Ogre::LogManager::getSingleton().logMessage("Error: Resource \"" + mCollisionMeshName + "\" does not exist. Loading dummy Resource...");
@@ -58,7 +59,7 @@ namespace Ice
 			float sphereShapeRadius = entity->getBoundingRadius();
 			mActor = Main::Instance().GetPhysXScene()->createRenderedActor(
 				mRenderable,
-				OgrePhysX::SphereShape(sphereShapeRadius * ((scale.x + scale.y + scale.z) / 3)).density(mDensity).group(CollisionGroups::DEFAULT));
+				OgrePhysX::SphereShape(sphereShapeRadius * ((scale.x + scale.y + scale.z) / 3)).density(mDensity).group(CollisionGroups::DEFAULT).material(nxID));
 		}
 		else if (mShapeType == Shapes::SHAPE_CAPSULE)
 		{
@@ -69,14 +70,15 @@ namespace Ice
 			if (cubeShapeSize.y - capsule_radius > 0.0f) offset = (cubeShapeSize.y / capsule_radius) * 0.1f;
 			mActor = Main::Instance().GetPhysXScene()->createRenderedActor(
 				mRenderable,
-				OgrePhysX::CapsuleShape(capsule_radius * 0.5f, cubeShapeSize.y * 0.5f + offset).density(mDensity).group(CollisionGroups::DEFAULT));
+				OgrePhysX::CapsuleShape(capsule_radius * 0.5f, cubeShapeSize.y * 0.5f + offset).density(mDensity).group(CollisionGroups::DEFAULT).material(nxID));
 		}
 		else		//Default: Box
 		{
 			mActor = Main::Instance().GetPhysXScene()->createRenderedActor(
 				mRenderable,
-				OgrePhysX::BoxShape(entity, scale).density(mDensity).group(CollisionGroups::DEFAULT));
+				OgrePhysX::BoxShape(entity, scale).density(mDensity).group(CollisionGroups::DEFAULT).material(nxID));
 		}
+		mActor->getNxActor()->setGroup(CollisionGroups::DEFAULT);
 		Main::Instance().GetOgreSceneMgr()->destroyEntity(entity);
 	}
 
@@ -124,6 +126,7 @@ namespace Ice
 	void GOCRigidBody::CreateFromDataMap(DataMap *parameters)
 	{
 		mCollisionMeshName = parameters->GetOgreString("CollisionMeshFile");
+		mMaterialName = parameters->GetOgreString("mMaterialName");
 		Ogre::Vector3 scale = Ogre::Vector3(1,1,1);
 		scale = parameters->GetOgreVec3("Scale");
 		mDensity = parameters->GetFloat("Density");
@@ -133,12 +136,14 @@ namespace Ice
 	void GOCRigidBody::GetParameters(DataMap *parameters)
 	{
 		parameters->AddOgreString("CollisionMeshFile", mCollisionMeshName);
+		parameters->AddOgreString("mMaterialName", mMaterialName);
 		parameters->AddFloat("Density", mDensity);
 		parameters->AddInt("ShapeType", mShapeType);
 	}
 	void GOCRigidBody::GetDefaultParameters(DataMap *parameters)
 	{
 		parameters->AddOgreString("CollisionMeshFile", "");
+		parameters->AddOgreString("mMaterialName", "Wood");
 		parameters->AddFloat("Density", 10.0f);
 		parameters->AddInt("ShapeType", 0);
 	}
@@ -155,6 +160,7 @@ namespace Ice
 		mgr.SaveAtom("Ogre::Vector3", &mOwnerGO->GetGlobalScale(), "Scale");
 		mgr.SaveAtom("float", &mDensity, "Density");
 		mgr.SaveAtom("int", &mShapeType, "ShapeType");
+		mgr.SaveAtom("Ogre::String", &mMaterialName, "mMaterialName");
 	}
 	void GOCRigidBody::Load(LoadSave::LoadSystem& mgr)
 	{
@@ -163,6 +169,7 @@ namespace Ice
 		mgr.LoadAtom("Ogre::Vector3", &scale);
 		mgr.LoadAtom("float", &mDensity);
 		mgr.LoadAtom("int", &mShapeType);
+		mgr.LoadAtom("Ogre::String", &mMaterialName);
 		Create(mCollisionMeshName, mDensity, mShapeType, scale);
 	}
 
@@ -195,7 +202,7 @@ namespace Ice
 		}
 		Ogre::Entity *entity = Main::Instance().GetOgreSceneMgr()->createEntity("tempCollisionModell", mCollisionMeshName);
 		mActor = Main::Instance().GetPhysXScene()->createActor(
-			OgrePhysX::RTMeshShape(entity->getMesh()).materials(SceneManager::Instance().mSoundMaterialTable.mOgreBindings).scale(scale).group(CollisionGroups::DEFAULT));
+			OgrePhysX::RTMeshShape(entity->getMesh()).materials(SceneManager::Instance().mSoundMaterialTable.mOgreNxBindings).scale(scale).group(CollisionGroups::DEFAULT));
 		Main::Instance().GetOgreSceneMgr()->destroyEntity(entity);
 	}
 

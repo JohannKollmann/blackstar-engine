@@ -23,16 +23,17 @@ namespace Ice
 			std::map< SoundMaterialName, SoundIdentifier > relations;
 		};
 
-		std::map< OgreMaterialName, NxMaterialID > mOgreBindings;
+		std::map< OgreMaterialName, NxMaterialID > mOgreNxBindings;
 
 	private:
-		NxMaterialID mCurrentIndex;
 		std::map< SoundMaterialName, SoundMaterial > mTable;
+		std::map<NxMaterialID, SoundMaterialName> mNxBinds;
+		std::map< OgreMaterialName, SoundMaterialName > mOgreBindings;
 
 		void verifyMaterial(SoundMaterialName name); 
 
 	public:
-		SoundMaterialTable() : mCurrentIndex(1) {}
+		SoundMaterialTable() {}
 		~SoundMaterialTable() {}
 
 		void AddRelation(SoundMaterialName mat1, SoundMaterialName mat2, SoundIdentifier sound);
@@ -40,6 +41,13 @@ namespace Ice
 		void InitTableFromCfg(Ogre::String cfgFile);
 		void InitBindingsFromCfg(Ogre::String cfgFile);
 
+		NxMaterialID GetMaterialID(SoundMaterialName mat);
+		NxMaterialID GetMaterialIDByOgreMaterial(Ogre::String mat);
+
+		SoundMaterialName GetMaterialNameByOgreMaterial(Ogre::String mat);
+		SoundMaterialName GetMaterialNameByNxMaterial(NxMaterialID id);
+
 		SoundIdentifier GetSound(SoundMaterialName mat1, SoundMaterialName mat2);
+		SoundIdentifier GetSound(NxMaterialID mat1, NxMaterialID mat2);
 	};
 }

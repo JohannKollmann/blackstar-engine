@@ -1,5 +1,8 @@
 
 #include "IceSoundMaterial.h"
+#include "IceMain.h"
+#include "OgrePhysX.h"
+#include "NxMaterialDesc.h"
 
 namespace Ice
 {
@@ -11,8 +14,14 @@ namespace Ice
 		{
 			SoundMaterial m;
 			m.name = name;
-			m.nxId = mCurrentIndex++;
+
+			NxMaterialDesc	physXMat;
+			physXMat.restitution		= 0.1f;
+			physXMat.staticFriction	= 0.5f;
+			physXMat.dynamicFriction	= 0.5f;
+			m.nxId = Main::Instance().GetPhysXScene()->getNxScene()->createMaterial(physXMat)->getMaterialIndex();
 			mTable.insert(std::make_pair<SoundMaterialName, SoundMaterial>(name, m));
+			mNxBinds.insert(std::make_pair<NxMaterialID, SoundMaterialName>(m.nxId, name));
 		}
 	}
 
@@ -43,7 +52,7 @@ namespace Ice
 				{
 					Ogre::String keyName = i->first;
 					SoundMaterialName mat1 = keyName.substr(0, keyName.find("|"));
-					SoundMaterialName mat2 = keyName.substr(keyName.find("|"));
+					SoundMaterialName mat2 = keyName.substr(keyName.find("|")+1);
 					AddRelation(mat1, mat2, i->second);
 				}
 			}
@@ -68,9 +77,13 @@ namespace Ice
 					Ogre::String oMat = i->first;
 					Ogre::String mat = i->second;
 					verifyMaterial(mat);
-					auto x = mOgreBindings.find(oMat);
-					if (x != mOgreBindings.end()) x->second = mTable[mat].nxId;
-					else mOgreBindings.insert(std::make_pair<OgreMaterialName, NxMaterialID>(oMat, mTable[mat].nxId));
+					auto x = mOgreNxBindings.find(oMat);
+					if (x != mOgreNxBindings.end()) x->second = mTable[mat].nxId;
+					else mOgreNxBindings.insert(std::make_pair<OgreMaterialName, NxMaterialID>(oMat, mTable[mat].nxId));
+
+					auto y = mOgreBindings.find(oMat);
+					if (y != mOgreBindings.end()) y->second=mat;
+					else mOgreBindings.insert(std::make_pair<OgreMaterialName, SoundMaterialName>(oMat, mat));
 				}
 			}
 		}
@@ -92,6 +105,62 @@ namespace Ice
 			return "NotFound.ogg";
 		}
 		return x->second;
+	}
+
+	SoundMaterialTable::SoundIdentifier SoundMaterialTable::GetSound(NxMaterialID mat1, NxMaterialID mat2)
+	{
+		auto i = mNxBinds.find(mat1);
+		auto i2 = mNxBinds.find(mat2);
+		if (i == mNxBinds.end() || i2 == mNxBinds.end())
+		{
+			Ogre::LogManager::getSingleton().logMessage("Error in SoundMaterialTable::GetSound: Invalid Nx material ID");
+			return "NotFound.ogg";
+		}
+		return GetSound(i->second, i2->second);
+	}
+
+	SoundMaterialTable::NxMaterialID SoundMaterialTable::GetMaterialID( SoundMaterialName mat )
+	{
+		auto i = mTable.find(mat);
+		if (i == mTable.end())
+		{
+			Ogre::LogManager::getSingleton().logMessage("Error in SoundMaterialTable::GetMaterialName: Invalid material (" + mat + ")");
+			return 0;
+		}
+		return i->second.nxId;
+	}
+
+	SoundMaterialTable::NxMaterialID SoundMaterialTable::GetMaterialIDByOgreMaterial( Ogre::String mat )
+	{
+		auto i = mOgreNxBindings.find(mat);
+		if (i == mOgreNxBindings.end())
+		{
+			Ogre::LogManager::getSingleton().logMessage("Error in SoundMaterialTable::GetMaterialIDByOgreMaterial: Invalid material (" + mat + ")");
+			return 0;
+		}
+		return i->second;
+	}
+
+	SoundMaterialTable::SoundMaterialName SoundMaterialTable::GetMaterialNameByOgreMaterial( Ogre::String mat )
+	{
+		auto i = mOgreBindings.find(mat);
+		if (i == mOgreBindings.end())
+		{
+			Ogre::LogManager::getSingleton().logMessage("Error in SoundMaterialTable::GetMaterialNameByOgreMaterial: Invalid material (" + mat + ")");
+			return 0;
+		}
+		return i->second;
+	}
+
+	SoundMaterialTable::SoundMaterialName SoundMaterialTable::GetMaterialNameByNxMaterial(NxMaterialID id)
+	{
+		auto i = mNxBinds.find(id);
+		if (i == mNxBinds.end())
+		{
+			//Ogre::LogManager::getSingleton().logMessage("Error in SoundMaterialTable::GetMaterialNameByNxMaterial: Invalid id (" + Ogre::StringConverter::toString(id) + ")");
+			return "DefaultMaterial";
+		}
+		return i->second;
 	}
 
 

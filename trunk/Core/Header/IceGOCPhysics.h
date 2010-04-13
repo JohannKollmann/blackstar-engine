@@ -52,6 +52,7 @@ namespace Ice
 		GOPhysXRenderable *mRenderable;
 		void Create(Ogre::String collision_mesh, float density, int shapetype, Ogre::Vector3 scale);
 		Ogre::String mCollisionMeshName;
+		Ogre::String mMaterialName;
 		float mDensity;
 		int mShapeType;
 
