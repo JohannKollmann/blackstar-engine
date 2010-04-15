@@ -141,9 +141,10 @@ namespace Ice
 	{
 		if (msg.mNewsgroup == "UPDATE_PER_FRAME" && mMoving)
 		{
-			float time = msg.mData.GetFloat("TIME");
-			mfLastPos+=time;
+			float fKeyTime=((GOCAnimKey*)mAnimKeys[((int)mfLastPos)])->GetTimeSinceLastKey();
+			float time = msg.mData.GetFloat("TIME")/fKeyTime;
 			SetOwnerPosition(mSpline.Sample(mfLastPos));
+			mfLastPos+=time;
 			if(mfLastPos>mSpline.GetLength())
 			{
 				mMoving = false;
@@ -167,14 +168,18 @@ namespace Ice
 		if(mAnimKeys.size()<1)
 			return;
 		int keyCounter = 0;
-		std::vector<Ogre::Vector3> vKeys;
-		vKeys.push_back(mOwnerGO->GetGlobalPosition());
+		
+		std::vector<Ogre::Vector4> vKeys;
+		vKeys.push_back(Ogre::Vector4(mOwnerGO->GetGlobalPosition().x, mOwnerGO->GetGlobalPosition().y, mOwnerGO->GetGlobalPosition().z, 0.0f));
+		float fTime=0.0f;
 		for(int iKey=0; iKey<(int)mAnimKeys.size(); iKey++)
 		{
 			mAnimKeys[iKey]->SetName("Key_" + Ogre::StringConverter::toString(++keyCounter));
-			vKeys.push_back(mAnimKeys[iKey]->GetGlobalPosition());
+			fTime+=((GOCAnimKey*)mAnimKeys[iKey])->GetTimeSinceLastKey();
+			vKeys.push_back(Ogre::Vector4(mAnimKeys[iKey]->GetGlobalPosition().x, mAnimKeys[iKey]->GetGlobalPosition().y, mAnimKeys[iKey]->GetGlobalPosition().z, fTime));
 		}
 		mSpline.SetPoints(vKeys);
+		
 
 		mSplineObject->begin("WPLine", Ogre::RenderOperation::OT_LINE_STRIP);
 		mSplineObject->position(mOwnerGO->GetGlobalPosition());
@@ -184,6 +189,9 @@ namespace Ice
 		}
 		mSplineObject->end();
 		mSplineObject->setCastShadows(false);
+
+		//calculate timing
+		
 	}
 
 	void GOCMover::notifyKeyDelete(GOCAnimKey *key)

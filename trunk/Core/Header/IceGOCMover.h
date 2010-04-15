@@ -77,6 +77,7 @@ namespace Ice
 		bool mMoving;
 		float mfLastPos;
 		Spline mSpline;
+		Spline mTimeSpline;
 		Ogre::ManualObject* mSplineObject;
 
 		void notifyKeyDelete(GOCAnimKey *key);
