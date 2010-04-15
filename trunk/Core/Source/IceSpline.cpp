@@ -170,6 +170,7 @@ namespace Ice
 			m_SectorLengths.push_back(vPoints[iSector].w);
 
 		}
+		m_SectorLengths.push_back(vPoints[vPoints.size()-1].w);
 		m_bIsTimedSpline=true;
 	}
 
@@ -258,7 +259,7 @@ namespace Ice
 		}
 		else
 		{
-			return m_SectorLengths[m_Sectors.size()-1];
+			return m_SectorLengths[m_Sectors.size()];
 		}
 	}
 

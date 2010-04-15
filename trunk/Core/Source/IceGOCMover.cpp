@@ -141,8 +141,7 @@ namespace Ice
 	{
 		if (msg.mNewsgroup == "UPDATE_PER_FRAME" && mMoving)
 		{
-			float fKeyTime=((GOCAnimKey*)mAnimKeys[((int)mfLastPos)])->GetTimeSinceLastKey();
-			float time = msg.mData.GetFloat("TIME")/fKeyTime;
+			float time = msg.mData.GetFloat("TIME");
 			SetOwnerPosition(mSpline.Sample(mfLastPos));
 			mfLastPos+=time;
 			if(mfLastPos>mSpline.GetLength())
@@ -175,7 +174,7 @@ namespace Ice
 		for(int iKey=0; iKey<(int)mAnimKeys.size(); iKey++)
 		{
 			mAnimKeys[iKey]->SetName("Key_" + Ogre::StringConverter::toString(++keyCounter));
-			fTime+=((GOCAnimKey*)mAnimKeys[iKey])->GetTimeSinceLastKey();
+			fTime += mAnimKeys[iKey]->GetComponent<GOCAnimKey>()->GetTimeSinceLastKey();
 			vKeys.push_back(Ogre::Vector4(mAnimKeys[iKey]->GetGlobalPosition().x, mAnimKeys[iKey]->GetGlobalPosition().y, mAnimKeys[iKey]->GetGlobalPosition().z, fTime));
 		}
 		mSpline.SetPoints(vKeys);
