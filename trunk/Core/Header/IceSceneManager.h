@@ -11,6 +11,11 @@
 #include "IceScriptSystem.h"
 #include "IceSoundMaterial.h"
 
+namespace OgreOggSound
+{
+	class OgreOggISound;	//Forward declaration
+}
+
 namespace Ice
 {
 
@@ -38,6 +43,11 @@ namespace Ice
 
 		std::map<Ogre::String, EDTCreatorFn> mEditorInterfaces;
 
+		std::vector<OgreOggSound::OgreOggISound*> mPlayingSounds;
+		void DestroyStoppedSounds();
+		float mDestroyStoppedSoundsDelay; //Hack because of OgreOggSound threading!
+		float mDestroyStoppedSoundsLast;
+
 	public:
 
 		GameObject *mPlayer;
@@ -46,6 +56,8 @@ namespace Ice
 
 		void RegisterPlayer(GameObject *player);
 		GameObject* GetPlayer() { return mPlayer; }
+
+		void RegisterSound(OgreOggSound::OgreOggISound* sound);
 
 		void AddToMessageQueue(GameObject *object);
 
@@ -99,6 +111,8 @@ namespace Ice
 
 		static std::vector<ScriptParam> Lua_CreatePlayer(Script& caller, std::vector<ScriptParam> vParams);
 
+		static std::vector<ScriptParam> Lua_Play3DSound(Script& caller, std::vector<ScriptParam> vParams);
+
 		/*
 		Alle Methoden im Format Npc_* erwarten als ersten Parameter die eindeutige ID des AI-Objekts.
 		*/
@@ -145,6 +159,7 @@ namespace Ice
 		Liefert -1, falls kein Objekt fokussiert ist.
 		*/
 		static std::vector<ScriptParam> Lua_GetFocusObject(Script& caller, std::vector<ScriptParam> params);
+
 		static std::vector<ScriptParam> Lua_NPCOpenDialog(Script& caller, std::vector<ScriptParam> params);
 		static std::vector<ScriptParam> Lua_SetObjectVisible(Script& caller, std::vector<ScriptParam> params);
 		static std::vector<ScriptParam> Lua_GetObjectName(Script& caller, std::vector<ScriptParam> params);

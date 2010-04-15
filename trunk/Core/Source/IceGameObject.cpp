@@ -25,13 +25,13 @@ namespace Ice
 	}
 	ManagedGameObject::~ManagedGameObject()
 	{
-		ClearChildren();
-		ClearGOCs();
 		SceneManager::Instance().NotifyGODelete(this);
 		if (mParent)
 		{
 			mParent->UnregisterChild(this);
 		}
+		ClearChildren();
+		ClearGOCs();
 	}
 
 
@@ -55,12 +55,12 @@ namespace Ice
 
 	GameObject::~GameObject()
 	{
-		ClearChildren();
-		ClearGOCs();
 		if (mParent)
 		{
 			mParent->UnregisterChild(this);
 		}
+		ClearChildren();
+		ClearGOCs();
 	}
 
 	void GameObject::SendMessage(Ogre::SharedPtr<ObjectMsg> msg)

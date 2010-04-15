@@ -154,7 +154,6 @@ void Main::initScene()
 
 	//Collision Callback
 	mPhysXScene->setTriggerReport(new TriggerCallback());
-	mPhysXScene->getNxScene()->setUserContactReport(new ActorContactReport());
 
 	mPhysXScene->getNxScene()->setGroupCollisionFlag(CollisionGroups::CHARACTER, CollisionGroups::BONE, false);
 
@@ -214,6 +213,7 @@ void Main::initScene()
 	//sound
 	mSoundManager = OgreOggSound::OgreOggSoundManager::getSingletonPtr();
 	mSoundManager->init("");
+	mSoundManager->setSceneManager(mSceneMgr);
 	mSoundManager->setDistanceModel(AL_LINEAR_DISTANCE);
 	//mCamera->getParentSceneNode()->attachObject(mSoundManager->getListener());
 
@@ -229,6 +229,8 @@ void Main::initScene()
 	CompositorLoader::Instance().EnableCompositor("HDRTest");
 
 	SceneManager::Instance().Init();
+
+	mPhysXScene->getNxScene()->setUserContactReport(new ActorContactReport("ContactReport.lua"));
 
 	/*mCollisionCallback = new ScriptedCollisionCallback();
 	NxOgre::ActorGroup *dynamicbodies = mScene->createActorGroup("DynamicBody");

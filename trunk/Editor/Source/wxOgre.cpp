@@ -34,7 +34,8 @@ wxOgre::wxOgre(wxWindow* parent, wxWindowID id,
     mRenderWindow(0),
     mRoot(0),
 	mCamera(0),
-	mInitialized(false)
+	mInitialized(false),
+	mPaused(false)
 {
 	//Ogre::LogManager::getSingleton().logMessage("new wxOgre");
 }
@@ -105,8 +106,8 @@ void wxOgre::createOgreRenderWindow()
 	int width;
 	int height;
 	GetSize(&width, &height);
-	width -= width%4;
-	height -= height%4;
+	/*width -= width%4;
+	height -= height%4;*/
 	// Create the render window
 	Ogre::LogManager::getSingleton().logMessage("createOgreRenderWindow 3");
 	mRenderWindow = Ogre::Root::getSingleton().createRenderWindow("OgreRenderWindow", width, height, false, &params);
@@ -127,7 +128,7 @@ wxOgre::~wxOgre()
 
 void wxOgre::OnSize(wxSizeEvent& event)
 {
-	if (mInitialized)
+	/*if (mInitialized && !mPaused)
 	{
 		// Setting new size;
 		int width;
@@ -142,7 +143,7 @@ void wxOgre::OnSize(wxSizeEvent& event)
 
 		if (Ice::SceneManager::Instance().GetWeatherController()) Ice::SceneManager::Instance().GetWeatherController()->UpdateViewport();
 		//update();
-	}
+	}*/
 }
 void wxOgre::OnPaint(wxPaintEvent& event)
 {
@@ -171,8 +172,13 @@ void wxOgre::OnRenderTimer(wxTimerEvent& event)
 
 void wxOgre::update()
 {
-	if (mInitialized)
+	if (mInitialized && !mPaused)
 	{
 		Ice::MainLoop::Instance().doLoop();
 	}
+}
+
+void wxOgre::SetPaused(bool paused)
+{
+	mPaused = paused;
 }

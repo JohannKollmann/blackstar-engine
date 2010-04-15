@@ -8,6 +8,7 @@
 #include "IceLevelMesh.h"
 #include "IceIncludes.h"
 #include "OgreOggSound.h"
+#include "IceScriptSystem.h"
 
 namespace Ice
 {
@@ -70,8 +71,17 @@ namespace Ice
 
 	void ActorContactReport::onMaterialContact(Ogre::String material1, Ogre::String material2, Ogre::Vector3 position, float force )
 	{
-		Ogre::LogManager::getSingleton().logMessage("OnMaterialContact: " + material1 + " - " + material2 + "  Force: " + Ogre::StringConverter::toString(force));
-		Ogre::String oggFile = SceneManager::Instance().mSoundMaterialTable.GetSound(material1, material2);
+		//Ogre::LogManager::getSingleton().logMessage("OnMaterialContact: " + material1 + " - " + material2 + "  Force: " + Ogre::StringConverter::toString(force));
+		std::vector<ScriptParam> params;
+		params.push_back(ScriptParam(position.x));
+		params.push_back(ScriptParam(position.y));
+		params.push_back(ScriptParam(position.z));
+		params.push_back(ScriptParam(std::string(material1.c_str())));
+		params.push_back(ScriptParam(std::string(material2.c_str())));
+		params.push_back(ScriptParam(force));
+		mScript.CallFunction("onMaterialContact", params);
+
+		/*Ogre::String oggFile = SceneManager::Instance().mSoundMaterialTable.GetSound(material1, material2);
 		if (Ogre::ResourceGroupManager::getSingleton().resourceExists("General", oggFile))
 		{
 			int id = Ice::SceneManager::Instance().RequestID();
@@ -81,7 +91,7 @@ namespace Ice
 			sound->setMaxDistance(30);
 			if (sound) sound->play();
 			node->attachObject(sound);
-		}
+		}*/
 	}
 
 
@@ -163,4 +173,20 @@ namespace Ice
 			onMaterialContact(material1, material2, contactPoint, summed_force);
 		}
 	}
+
+	ActorContactReport::ActorContactReport(Ogre::String scriptFileName)
+	{
+		mScriptFileName = scriptFileName;
+		mScript = ScriptSystem::GetInstance().CreateInstance(scriptFileName);
+		MessageSystem::Instance().JoinNewsgroup(this, "REPARSE_SCRIPTS_POST");
+	}
+
+	void ActorContactReport::ReceiveMessage(Msg &msg)
+	{
+		if (msg.mNewsgroup == "REPARSE_SCRIPTS_POST")
+		{
+			mScript = ScriptSystem::GetInstance().CreateInstance(mScriptFileName);
+		}
+	}
+
 };

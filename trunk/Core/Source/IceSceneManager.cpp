@@ -26,6 +26,8 @@
 
 #include "IceUtils.h"
 
+#include "mmsystem.h"
+
 namespace Ice
 {
 
@@ -40,6 +42,9 @@ namespace Ice
 		mPlayer = 0;
 		mMaxDayTime = 86400.0f;
 		mTimeScale = 64.0f;
+		mDestroyStoppedSoundsDelay = 0;
+		mDestroyStoppedSoundsLast = 0;
+
 		MessageSystem::Instance().CreateNewsgroup("ENABLE_GAME_CLOCK");
 		MessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
 
@@ -224,6 +229,8 @@ namespace Ice
 		ScriptSystem::GetInstance().ShareCFunction("SetObjectPosition", &SceneManager::Lua_SetObjectPosition);
 		ScriptSystem::GetInstance().ShareCFunction("SetObjectOrientation", &SceneManager::Lua_SetObjectOrientation);
 		ScriptSystem::GetInstance().ShareCFunction("SetObjectScale", &SceneManager::Lua_SetObjectScale);
+
+		ScriptSystem::GetInstance().ShareCFunction("Play3DSound", &SceneManager::Lua_Play3DSound);
 
 		ScriptSystem::GetInstance().ShareCFunction("GetFocusObject", &SceneManager::Lua_GetFocusObject);
 		ScriptSystem::GetInstance().ShareCFunction("Npc_OpenDialog", &SceneManager::Lua_NPCOpenDialog);
@@ -876,6 +883,8 @@ namespace Ice
 				AIManager::Instance().Update(time);
 				if (mWeatherController) mWeatherController->Update(time);
 			}
+
+			DestroyStoppedSounds();
 		}
 	}
 
@@ -1078,10 +1087,11 @@ namespace Ice
 		return std::vector<ScriptParam>();
 	}
 
+
 	std::vector<ScriptParam> SceneManager::Lua_GetObjectName(Script& caller, std::vector<ScriptParam> params)
 	{
 		std::vector<Ice::ScriptParam> errout(1, Ice::ScriptParam());
-		std::vector<Ice::ScriptParam> vRef=std::vector<Ice::ScriptParam>(1, Ice::ScriptParam(0.0));
+		std::vector<Ice::ScriptParam> vRef=std::vector<Ice::ScriptParam>(1, Ice::ScriptParam(0.0f));
 		std::string strErrString=Ice::Utils::TestParameters(params, vRef);
 		if(strErrString.length())
 		{
@@ -1096,11 +1106,74 @@ namespace Ice
 		return std::vector<ScriptParam>();
 	}
 
+	std::vector<ScriptParam> SceneManager::Lua_Play3DSound(Script& caller, std::vector<ScriptParam> vParams)
+	{
+		std::vector<Ice::ScriptParam> vRef;
+		vRef.push_back(ScriptParam(0.0f));	//x pos
+		vRef.push_back(ScriptParam(0.0f));	//y pos
+		vRef.push_back(ScriptParam(0.0f));	//z pos
+		vRef.push_back(ScriptParam(std::string()));	//Soundfile
+		vRef.push_back(ScriptParam(0.0f));	//Range
+		vRef.push_back(ScriptParam(0.0f));	//Loudness
+		std::string strErrString=Ice::Utils::TestParameters(vParams, vRef);
+		if (strErrString != "")
+		{
+			Utils::LogParameterErrors(caller, strErrString);
+			return std::vector<ScriptParam>();
+		}
+		Ogre::Vector3 position;
+		position.x = vParams[0].getFloat();
+		position.y = vParams[1].getFloat();
+		position.z = vParams[2].getFloat();
+		std::string soundFile = vParams[3].getString();
+		float range = vParams[4].getFloat();
+		float loudness = vParams[5].getFloat();
+		if (loudness > 1) loudness = 1;
+		if (Ogre::ResourceGroupManager::getSingleton().resourceExists("General", soundFile))
+		{
+			int id = Ice::SceneManager::Instance().RequestID();
+			Ogre::SceneNode *node = Ice::Main::Instance().GetOgreSceneMgr()->getRootSceneNode()->createChildSceneNode(position);
+			OgreOggSound::OgreOggISound *sound = Ice::Main::Instance().GetSoundManager()->createSound(Ogre::StringConverter::toString(id), soundFile, true, false);
+			sound->setReferenceDistance(range/2);
+			sound->setMaxDistance(range);
+			sound->setVolume(loudness);
+			sound->play();
+			node->attachObject(sound);
+			SceneManager::Instance().RegisterSound(sound);
+		}
+		return std::vector<ScriptParam>();
+	}
+
 
 	SceneManager& SceneManager::Instance()
 	{
 		static SceneManager TheOneAndOnly;
 		return TheOneAndOnly;
 	};
+
+	void SceneManager::RegisterSound(OgreOggSound::OgreOggISound* sound)
+	{
+		mPlayingSounds.push_back(sound);
+		mDestroyStoppedSoundsDelay = 10;
+	}
+
+	void SceneManager::DestroyStoppedSounds()
+	{
+		float time = (float)(timeGetTime() / 1000);
+		if (time - mDestroyStoppedSoundsLast < mDestroyStoppedSoundsDelay)
+			return;
+		auto iter = mPlayingSounds.begin();
+		for (int i = 0; i < mPlayingSounds.size(); i++)
+		{
+			if ((*iter)->isStopped())
+			{
+				Main::Instance().GetOgreSceneMgr()->destroySceneNode((*iter)->getParentSceneNode());
+				Main::Instance().GetSoundManager()->destroySound(*iter);
+				iter = mPlayingSounds.erase(iter);
+			}
+			else iter++;
+		}
+		mDestroyStoppedSoundsLast = time;
+	}
 
 }

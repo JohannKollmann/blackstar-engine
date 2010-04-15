@@ -147,7 +147,7 @@ namespace Ice
 		if (i == mOgreBindings.end())
 		{
 			Ogre::LogManager::getSingleton().logMessage("Error in SoundMaterialTable::GetMaterialNameByOgreMaterial: Invalid material (" + mat + ")");
-			return 0;
+			return "DefaultMaterial";
 		}
 		return i->second;
 	}

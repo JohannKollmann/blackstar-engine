@@ -467,7 +467,7 @@ MusicSystem::Clear()
 {
 	m_lTasks.clear();
 	m_mMoods.clear();
-	OgreOggSound::OgreOggSoundManager::getSingleton().destroyAllSounds();
+	//OgreOggSound::OgreOggSoundManager::getSingleton().destroyAllSounds();
 	m_mProperties.clear();
 }
 

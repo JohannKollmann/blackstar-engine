@@ -16,18 +16,14 @@ namespace Ice
 	class DllExport AnimKey
 	{
 	protected:
-		bool mIsLastKey;
 		GOCMover *mMover;
-
 	public:
-		AnimKey() : mIsLastKey(true) {}
+		AnimKey() : mMover(nullptr) {}
 		virtual ~AnimKey() {}
 
-		void SetMover(GOCMover *mover);
+		virtual void SetMover(GOCMover *mover) {};
 
 		GameObject* CreateSuccessor();
-
-		bool IsLastKey() { return mIsLastKey; }
 	};
 
 	class DllExport GOCAnimKey : public AnimKey, public GOComponent, public GOCEditorInterface
@@ -36,16 +32,23 @@ namespace Ice
 	private:
 		float mTotalStayTime;
 		float mTimeSinceLastKey;
+		AnimKey *mPredecessor;
+		GOCAnimKey() {}
 
 	public:
-		GOCAnimKey(void);
+		GOCAnimKey(AnimKey *pred);
 		~GOCAnimKey(void);
+
+		void SetMover(GOCMover *mover);
 
 		goc_id_family& GetFamilyID() const { static std::string name = "MoverAnimKey"; return name; }
 		goc_id_type& GetComponentID() const { static std::string name = "MoverAnimKey"; return name; }
 
 		void UpdatePosition(Ogre::Vector3 position);
 		void UpdateOrientation(Ogre::Quaternion orientation) {}
+
+		void* GetUserData();
+		void InjectUserData(void* data);
 
 		float GetTimeSinceLastKey() { return mTimeSinceLastKey; }
 		float GetTotalStayTime() { return mTotalStayTime; }
@@ -82,8 +85,6 @@ namespace Ice
 		GOCMover(void);
 		~GOCMover(void);
 
-		GameObject* CreateAnimKey();
-
 		void Trigger();
 		void UpdateKeys();
 
@@ -96,6 +97,10 @@ namespace Ice
 		void UpdateOrientation(Ogre::Quaternion orientation) {}
 
 		bool IsMoving() { return mMoving; }
+
+		void InsertKey(GameObject *key, AnimKey *pred);
+
+		void OnAddChild(GameObject *child);
 
 		void SetKeyIgnoreParent(bool ignore);
 

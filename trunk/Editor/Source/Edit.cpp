@@ -359,7 +359,7 @@ void Edit::OnMouseEvent(wxMouseEvent &ev)
 						menu.Append(EVT_SaveBones, "Save Bone Config");
 					}
 					if (obj1->GetComponent<Ice::AnimKey>())
-						if (obj1->GetComponent<Ice::AnimKey>()->IsLastKey()) menu.Append(EVT_InsertAnimKey, "New Anim Key");
+						menu.Append(EVT_InsertAnimKey, "New Anim Key");
 					if (obj1->GetComponent<Ice::GOCMover>())
 						menu.Append(EVT_TriggerMover, "Test Mover");
 				}
@@ -1264,11 +1264,10 @@ void Edit::OnInsertAnimKey( wxCommandEvent& WXUNUSED(event) /*= wxCommandEvent()
 {
 	if (mSelectedObjects.size() != 1) return;
 
-	Ice::AnimKey *lastKey = mSelectedObjects.front().mObject->GetComponent<Ice::AnimKey>();
-	if (!lastKey) return;
-	if (!lastKey->IsLastKey()) return;
+	Ice::AnimKey *key = mSelectedObjects.front().mObject->GetComponent<Ice::AnimKey>();
+	if (!key) return;
 
-	Ice::GameObject *animKey = lastKey->CreateSuccessor();
+	Ice::GameObject *animKey = key->CreateSuccessor();
 	animKey->SetGlobalPosition(GetInsertPosition());
 
 	SelectObject(animKey);

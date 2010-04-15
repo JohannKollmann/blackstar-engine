@@ -49,6 +49,7 @@ void wxMainNotebook::OnNotebookChanged(wxAuiNotebookEvent& event)
 		wxEdit::Instance().GetMainToolbar()->SetGroupStatus("ObjectMgr", true);
 
 		wxEdit::Instance().GetMainToolbar()->SetGroupStatus("ScriptEditor", false);
+		mOgreWindow->SetPaused(false);
 	}
 	else if (event.old_selection == 0)
 	{
@@ -59,6 +60,7 @@ void wxMainNotebook::OnNotebookChanged(wxAuiNotebookEvent& event)
 		wxEdit::Instance().GetMainToolbar()->SetGroupStatus("ObjectMgr", false);
 
 		wxEdit::Instance().GetMainToolbar()->SetGroupStatus("ScriptEditor", true);
+		mOgreWindow->SetPaused(true);
 
 	}
 }

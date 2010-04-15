@@ -9,8 +9,25 @@
 namespace Ice
 {
 
-	GOCAnimKey::GOCAnimKey()
+	GameObject* AnimKey::CreateSuccessor()
 	{
+		if (!mMover)
+		{
+			Ogre::LogManager::getSingleton().logMessage("Error in AnimKey::CreateSuccessor: mMover = 0 !");
+			return 0;
+		}
+		GameObject *go = new GameObject();
+		go->SetLoadSaveByParent(false);
+		GOCAnimKey *key = new GOCAnimKey(this);
+		go->AddComponent(key);
+		go->AddComponent(new MeshDebugRenderable("Editor_AnimKey.mesh"));
+		go->SetParent(mMover->GetOwner());
+		return go;
+	}
+
+	GOCAnimKey::GOCAnimKey(AnimKey *pred)
+	{
+		mPredecessor = pred;
 		mTotalStayTime = 0.0f;
 		mTimeSinceLastKey = 1.0f;
 	}
@@ -18,6 +35,12 @@ namespace Ice
 	{
 		mMover->notifyKeyDelete(this);
 	}
+	void GOCAnimKey::SetMover(GOCMover *mover)
+	{
+		mMover = mover;
+		mMover->InsertKey(mOwnerGO, mPredecessor);
+	}
+
 	void GOCAnimKey::CreateFromDataMap(DataMap *parameters)
 	{
 		mTotalStayTime = parameters->GetFloat("TotalStayTime");
@@ -50,7 +73,19 @@ namespace Ice
 	}
 	void GOCAnimKey::UpdatePosition(Ogre::Vector3 position)
 	{
-		mMover->UpdateKeys();
+		if (mMover) mMover->UpdateKeys();
+	}
+
+	void* GOCAnimKey::GetUserData()
+	{
+		//Hack: This is called before the key is de deleted and recreated with the new properties.
+		return mPredecessor;
+	}
+
+	void GOCAnimKey::InjectUserData( void* data )
+	{
+		mPredecessor = (AnimKey*)data;
+		mOwnerGO->GetParent()->GetComponent<GOCMover>()->OnAddChild(mOwnerGO);	//Hack
 	}
 
 	GOCMover::GOCMover()
@@ -93,19 +128,6 @@ namespace Ice
 	{
 		mgr.LoadAtom("Ogre::String", &mKeyCallbackScript);
 		mgr.LoadAtom("std::vector<Saveable*>", &mAnimKeys);
-	}
-
-	GameObject* GOCMover::CreateAnimKey()
-	{
-		GameObject *go = new GameObject();
-		go->SetLoadSaveByParent(false);
-		go->SetParent(mOwnerGO);
-		GOCAnimKey *key = new GOCAnimKey();
-		key->SetMover(this);
-		go->AddComponent(key);
-		go->AddComponent(new MeshDebugRenderable("Editor_AnimKey.mesh"));
-		mAnimKeys.push_back(go);
-		return go;
 	}
 
 	void GOCMover::Trigger()
@@ -170,28 +192,50 @@ namespace Ice
 		{
 			if ((*i) == key->GetOwner())
 			{
+				if ((i+1) != mAnimKeys.end())
+				{
+					if (i == mAnimKeys.begin())
+						(*(i+1))->GetComponent<GOCAnimKey>()->mPredecessor = this;
+					else (*(i+1))->GetComponent<GOCAnimKey>()->mPredecessor = (*(i-1))->GetComponent<AnimKey>();
+				}
 				mAnimKeys.erase(i);
 				break;
 			}
 		}
-		if (mAnimKeys.empty()) mIsLastKey = true;
-		else mAnimKeys.back()->GetComponent<GOCAnimKey>()->mIsLastKey = true;
 
 		UpdateKeys();
 	}
 
-	GameObject* AnimKey::CreateSuccessor()
+	void GOCMover::InsertKey(GameObject *key, AnimKey *pred)
 	{
-		if (!mIsLastKey) return nullptr;
-		mIsLastKey = false;
-		return mMover->CreateAnimKey();
+		if (pred == this)
+		{
+			if (!mAnimKeys.empty())
+				(*(mAnimKeys.begin()))->GetComponent<GOCAnimKey>()->mPredecessor = key->GetComponent<AnimKey>();
+			mAnimKeys.insert(mAnimKeys.begin(), key);
+		}
+		else
+		{
+			for (auto i = mAnimKeys.begin(); i != mAnimKeys.end(); i++)
+			{
+				if ((*i)->GetComponent<AnimKey>() == pred)
+				{
+					if ((i+1) != mAnimKeys.end())
+					{
+						(*(i+1))->GetComponent<GOCAnimKey>()->mPredecessor = key->GetComponent<AnimKey>();
+					}
+					mAnimKeys.insert((i+1), key);
+					break;
+				}
+			}
+		}
+		UpdateKeys();
 	}
 
-	void AnimKey::SetMover( GOCMover *mover )
+	void GOCMover::OnAddChild(GameObject *child)
 	{
-		mMover = mover;
+		GOCAnimKey *key = child->GetComponent<GOCAnimKey>();
+		if (key) key->SetMover(this);
 	}
-
-
 
 }

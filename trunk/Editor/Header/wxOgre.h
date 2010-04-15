@@ -39,12 +39,16 @@
 		inline Ogre::RenderWindow* getRenderWindow() { return mRenderWindow; };
 		inline Ogre::Camera* getCamera() { return mCamera; };
 		inline void setCamera(Ogre::Camera* camera) { mCamera = camera;};
+
+		void SetPaused(bool paused);
 		
 
 	protected:
 		DECLARE_EVENT_TABLE()
 
 	private:
+		bool mPaused;
+
 		/** Creates an ogre rendering window and all other default objects
 		such as the Ogre Root, default camera, default scene manager etc */ 
 		void createOgreRenderWindow();
