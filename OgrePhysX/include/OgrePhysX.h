@@ -1,0 +1,15 @@
+#pragma once
+
+#include "OgrePhysXClasses.h"
+#include "OgrePhysXConvert.h"
+#include "OgrePhysXWorld.h"
+#include "OgrePhysXScene.h"
+#include "OgrePhysXActor.h"
+#include "OgrePhysXRenderedActor.h"
+#include "OgrePhysXShapes.h"
+#include "OgrePhysXPointRenderable.h"
+#include "OgrePhysXNodeRenderable.h"
+#include "OgrePhysXCooker.h"
+#include "OgrePhysXRagdoll.h"
+#include "OgrePhysXTriggerReport.h"
+#include "OgrePhysXContactReport.h"

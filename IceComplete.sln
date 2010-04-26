@@ -1,0 +1,53 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IceEngine", "Core\IceEngine.vcxproj", "{C20C5958-3E38-47C9-A028-83D7C2A939B5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9C485379-64ED-4445-A6C0-50FAD011B055} = {9C485379-64ED-4445-A6C0-50FAD011B055}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BlackstarEditor", "Editor\BlackstarEditor.vcxproj", "{99006E22-5259-4818-896B-B66CE367A9F2}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BlackstarGame", "Game\Game.vcxproj", "{A657A530-555D-48FA-9DBF-AFA2E12F0EAA}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LoadSave", "LoadSave_dll\LoadSave\LoadSave.vcxproj", "{2981707E-A12F-4B7E-95FF-B1813492A077}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ScriptExtensions", "ScriptExtensions\ScriptExtensions.vcxproj", "{3F60D252-8466-4BEF-BA22-F2309DFD1853}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OgrePhysX", "OgrePhysX\OgrePhysX.vcxproj", "{9C485379-64ED-4445-A6C0-50FAD011B055}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C20C5958-3E38-47C9-A028-83D7C2A939B5}.Debug|Win32.ActiveCfg = Debug|Win32
+		{C20C5958-3E38-47C9-A028-83D7C2A939B5}.Debug|Win32.Build.0 = Debug|Win32
+		{C20C5958-3E38-47C9-A028-83D7C2A939B5}.Release|Win32.ActiveCfg = Release|Win32
+		{C20C5958-3E38-47C9-A028-83D7C2A939B5}.Release|Win32.Build.0 = Release|Win32
+		{99006E22-5259-4818-896B-B66CE367A9F2}.Debug|Win32.ActiveCfg = Debug|Win32
+		{99006E22-5259-4818-896B-B66CE367A9F2}.Debug|Win32.Build.0 = Debug|Win32
+		{99006E22-5259-4818-896B-B66CE367A9F2}.Release|Win32.ActiveCfg = Release|Win32
+		{99006E22-5259-4818-896B-B66CE367A9F2}.Release|Win32.Build.0 = Release|Win32
+		{A657A530-555D-48FA-9DBF-AFA2E12F0EAA}.Debug|Win32.ActiveCfg = Debug|Win32
+		{A657A530-555D-48FA-9DBF-AFA2E12F0EAA}.Debug|Win32.Build.0 = Debug|Win32
+		{A657A530-555D-48FA-9DBF-AFA2E12F0EAA}.Release|Win32.ActiveCfg = Release|Win32
+		{A657A530-555D-48FA-9DBF-AFA2E12F0EAA}.Release|Win32.Build.0 = Release|Win32
+		{2981707E-A12F-4B7E-95FF-B1813492A077}.Debug|Win32.ActiveCfg = Debug|Win32
+		{2981707E-A12F-4B7E-95FF-B1813492A077}.Debug|Win32.Build.0 = Debug|Win32
+		{2981707E-A12F-4B7E-95FF-B1813492A077}.Release|Win32.ActiveCfg = Release|Win32
+		{2981707E-A12F-4B7E-95FF-B1813492A077}.Release|Win32.Build.0 = Release|Win32
+		{3F60D252-8466-4BEF-BA22-F2309DFD1853}.Debug|Win32.ActiveCfg = Debug|Win32
+		{3F60D252-8466-4BEF-BA22-F2309DFD1853}.Debug|Win32.Build.0 = Debug|Win32
+		{3F60D252-8466-4BEF-BA22-F2309DFD1853}.Release|Win32.ActiveCfg = Release|Win32
+		{3F60D252-8466-4BEF-BA22-F2309DFD1853}.Release|Win32.Build.0 = Release|Win32
+		{9C485379-64ED-4445-A6C0-50FAD011B055}.Debug|Win32.ActiveCfg = Debug|Win32
+		{9C485379-64ED-4445-A6C0-50FAD011B055}.Debug|Win32.Build.0 = Debug|Win32
+		{9C485379-64ED-4445-A6C0-50FAD011B055}.Release|Win32.ActiveCfg = Release|Win32
+		{9C485379-64ED-4445-A6C0-50FAD011B055}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

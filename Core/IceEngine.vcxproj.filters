@@ -1,0 +1,578 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="MessageSystem">
+      <UniqueIdentifier>{e993853e-73ef-4304-a501-f635fceaaf7c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="AI">
+      <UniqueIdentifier>{0f39ca52-880e-4885-8ca6-e5b1b3d18549}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Graphics">
+      <UniqueIdentifier>{b53fc1c7-8530-4d1f-8ff1-d69ccb7effd0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Boost">
+      <UniqueIdentifier>{eff448cd-1510-4f9a-b08a-469179bebdaf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Boost\Thread">
+      <UniqueIdentifier>{b863b822-4e2f-450d-9a20-c183504bd88a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Physics">
+      <UniqueIdentifier>{c07132dd-4eca-43d7-8e76-4cfc46ae1207}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ScriptSystem">
+      <UniqueIdentifier>{a82a6299-c5c2-4e11-9e0e-fc451747a73b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ScriptSystem\Lua">
+      <UniqueIdentifier>{756f1c87-c805-4045-b279-27176f3cf60f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="System">
+      <UniqueIdentifier>{41ef9cb0-82b0-4199-a17b-bcdd0a9d1900}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Object/Component">
+      <UniqueIdentifier>{5324ea6c-c577-4c7d-8406-af1e6e44ffd9}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\IceMessageListener.cpp">
+      <Filter>MessageSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\IceMessageSystem.cpp">
+      <Filter>MessageSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\IceGameObject.cpp">
+      <Filter>Object/Component</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\IceGOCAI.cpp">
+      <Filter>Object/Component</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\IceGOCAnimatedCharacter.cpp">
+      <Filter>Object/Component</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\IceGOCCameraController.cpp">
+      <Filter>Object/Component</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\IceGOCCharacterController.cpp">
+      <Filter>Object/Component</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\IceGOCGameplay.cpp">
+      <Filter>Object/Component</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\IceGOComponent.cpp">
+      <Filter>Object/Component</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\IceGOCPhysics.cpp">
+      <Filter>Object/Component</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\IceGOCPlayerInput.cpp">
+      <Filter>Object/Component</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\IceGOCView.cpp">
+      <Filter>Object/Component</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\IceObjectLevelRayCaster.cpp">
+      <Filter>Object/Component</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\IceSceneManager.cpp">
+      <Filter>Object/Component</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\IceCameraController.cpp">
+      <Filter>System</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\IceConsole.cpp">
+      <Filter>System</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\IceDataMap.cpp">
+      <Filter>System</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\IceGameState.cpp">
+      <Filter>System</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\IceInput.cpp">
+      <Filter>System</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\IceLevelMesh.cpp">
+      <Filter>System</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\IceMain.cpp">
+      <Filter>System</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\IceMainLoop.cpp">
+      <Filter>System</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\IceUtils.cpp">
+      <Filter>System</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\IceAIManager.cpp">
+      <Filter>AI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\IceAStar.cpp">
+      <Filter>AI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\IceDialog.cpp">
+      <Filter>AI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\IceFollowPathway.cpp">
+      <Filter>AI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\IceNavigationMesh.cpp">
+      <Filter>AI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\IceScriptedAIState.cpp">
+      <Filter>AI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\HDRListener.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\IceCompositorLoader.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\IceSceneListener.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\IceWeatherController.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\IceCollisionCallback.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\IceScript.cpp">
+      <Filter>ScriptSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\IceScriptParam.cpp">
+      <Filter>ScriptSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\IceScriptSystem.cpp">
+      <Filter>ScriptSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\LuaScript.cpp">
+      <Filter>ScriptSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Dependencies\lua\src\lapi.c">
+      <Filter>ScriptSystem\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Dependencies\lua\src\lauxlib.c">
+      <Filter>ScriptSystem\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Dependencies\lua\src\lbaselib.c">
+      <Filter>ScriptSystem\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Dependencies\lua\src\lcode.c">
+      <Filter>ScriptSystem\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Dependencies\lua\src\ldblib.c">
+      <Filter>ScriptSystem\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Dependencies\lua\src\ldebug.c">
+      <Filter>ScriptSystem\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Dependencies\lua\src\ldo.c">
+      <Filter>ScriptSystem\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Dependencies\lua\src\ldump.c">
+      <Filter>ScriptSystem\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Dependencies\lua\src\lfunc.c">
+      <Filter>ScriptSystem\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Dependencies\lua\src\lgc.c">
+      <Filter>ScriptSystem\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Dependencies\lua\src\linit.c">
+      <Filter>ScriptSystem\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Dependencies\lua\src\liolib.c">
+      <Filter>ScriptSystem\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Dependencies\lua\src\llex.c">
+      <Filter>ScriptSystem\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Dependencies\lua\src\lmathlib.c">
+      <Filter>ScriptSystem\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Dependencies\lua\src\lmem.c">
+      <Filter>ScriptSystem\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Dependencies\lua\src\loadlib.c">
+      <Filter>ScriptSystem\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Dependencies\lua\src\lobject.c">
+      <Filter>ScriptSystem\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Dependencies\lua\src\lopcodes.c">
+      <Filter>ScriptSystem\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Dependencies\lua\src\loslib.c">
+      <Filter>ScriptSystem\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Dependencies\lua\src\lparser.c">
+      <Filter>ScriptSystem\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Dependencies\lua\src\lstate.c">
+      <Filter>ScriptSystem\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Dependencies\lua\src\lstring.c">
+      <Filter>ScriptSystem\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Dependencies\lua\src\lstrlib.c">
+      <Filter>ScriptSystem\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Dependencies\lua\src\ltable.c">
+      <Filter>ScriptSystem\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Dependencies\lua\src\ltablib.c">
+      <Filter>ScriptSystem\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Dependencies\lua\src\ltm.c">
+      <Filter>ScriptSystem\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Dependencies\lua\src\lua.c">
+      <Filter>ScriptSystem\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Dependencies\lua\src\luac.c">
+      <Filter>ScriptSystem\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Dependencies\lua\src\lundump.c">
+      <Filter>ScriptSystem\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Dependencies\lua\src\lvm.c">
+      <Filter>ScriptSystem\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Dependencies\lua\src\lzio.c">
+      <Filter>ScriptSystem\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Dependencies\lua\src\print.c">
+      <Filter>ScriptSystem\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\IceGOCMover.cpp">
+      <Filter>Object/Component</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\IceGOCWaypoint.cpp">
+      <Filter>Object/Component</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\IceSpline.cpp">
+      <Filter>System</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\IceScriptMessageListener.cpp">
+      <Filter>ScriptSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\IceSoundMaterialTable.cpp">
+      <Filter>System</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Header\IceMessageListener.h">
+      <Filter>MessageSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceMessageSystem.h">
+      <Filter>MessageSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceMsg.h">
+      <Filter>MessageSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceGameObject.h">
+      <Filter>Object/Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceGOCAI.h">
+      <Filter>Object/Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceGOCAnimatedCharacter.h">
+      <Filter>Object/Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceGOCCameraController.h">
+      <Filter>Object/Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceGOCCharacterController.h">
+      <Filter>Object/Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceGOCEditorInterface.h">
+      <Filter>Object/Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceGOCGameplay.h">
+      <Filter>Object/Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceGOComponent.h">
+      <Filter>Object/Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceGOCPhysics.h">
+      <Filter>Object/Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceGOCPlayerInput.h">
+      <Filter>Object/Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceGOCView.h">
+      <Filter>Object/Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceObjectLevelRayCaster.h">
+      <Filter>Object/Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceSceneManager.h">
+      <Filter>Object/Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceCameraController.h">
+      <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceConsole.h">
+      <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceDataMap.h">
+      <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceDirectionBlender.h">
+      <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceGameState.h">
+      <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceIncludes.h">
+      <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceInput.h">
+      <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceLevelMesh.h">
+      <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceMain.h">
+      <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceMainLoop.h">
+      <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceUtils.h">
+      <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceAIManager.h">
+      <Filter>AI</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceAIState.h">
+      <Filter>AI</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceAStar.h">
+      <Filter>AI</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceDialog.h">
+      <Filter>AI</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceFollowPathway.h">
+      <Filter>AI</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceNavigationMesh.h">
+      <Filter>AI</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceScriptedAIState.h">
+      <Filter>AI</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\HDRListener.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceCompositorLoader.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceSceneListener.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceWeatherController.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\SSAOListener.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Dependencies\Boost\thread\barrier.hpp">
+      <Filter>Boost\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Dependencies\Boost\thread\win32\basic_recursive_mutex.hpp">
+      <Filter>Boost\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Dependencies\Boost\thread\win32\basic_timed_mutex.hpp">
+      <Filter>Boost\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Dependencies\Boost\thread\condition.hpp">
+      <Filter>Boost\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Dependencies\Boost\thread\win32\condition_variable.hpp">
+      <Filter>Boost\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Dependencies\Boost\thread\condition_variable.hpp">
+      <Filter>Boost\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Dependencies\Boost\thread\pthread\condition_variable.hpp">
+      <Filter>Boost\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Dependencies\Boost\thread\pthread\condition_variable_fwd.hpp">
+      <Filter>Boost\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Dependencies\Boost\thread\detail\config.hpp">
+      <Filter>Boost\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Dependencies\Boost\thread\exceptions.hpp">
+      <Filter>Boost\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Dependencies\Boost\thread\detail\force_cast.hpp">
+      <Filter>Boost\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Dependencies\Boost\thread\win32\interlocked_read.hpp">
+      <Filter>Boost\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Dependencies\Boost\thread\locks.hpp">
+      <Filter>Boost\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Dependencies\Boost\thread\detail\move.hpp">
+      <Filter>Boost\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Dependencies\Boost\thread\win32\mutex.hpp">
+      <Filter>Boost\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Dependencies\Boost\thread\once.hpp">
+      <Filter>Boost\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Dependencies\Boost\thread\detail\platform.hpp">
+      <Filter>Boost\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Dependencies\Boost\thread\pthread\pthread_mutex_scoped_lock.hpp">
+      <Filter>Boost\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Dependencies\Boost\thread\recursive_mutex.hpp">
+      <Filter>Boost\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Dependencies\Boost\thread\pthread\shared_mutex.hpp">
+      <Filter>Boost\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Dependencies\Boost\thread\detail\singleton.hpp">
+      <Filter>Boost\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Dependencies\Boost\thread\thread.hpp">
+      <Filter>Boost\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Dependencies\Boost\thread\pthread\thread_data.hpp">
+      <Filter>Boost\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Dependencies\Boost\thread\win32\thread_heap_alloc.hpp">
+      <Filter>Boost\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Dependencies\Boost\thread\win32\thread_primitives.hpp">
+      <Filter>Boost\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Dependencies\Boost\thread\thread_time.hpp">
+      <Filter>Boost\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Dependencies\Boost\thread\pthread\timespec.hpp">
+      <Filter>Boost\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Dependencies\Boost\thread\tss.hpp">
+      <Filter>Boost\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Dependencies\Boost\thread\detail\tss_hooks.hpp">
+      <Filter>Boost\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Dependencies\Boost\thread\xtime.hpp">
+      <Filter>Boost\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceCollisionCallback.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceScript.h">
+      <Filter>ScriptSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceScriptParam.h">
+      <Filter>ScriptSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceScriptSystem.h">
+      <Filter>ScriptSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\LuaScript.h">
+      <Filter>ScriptSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Dependencies\lua\src\lapi.h">
+      <Filter>ScriptSystem\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Dependencies\lua\src\lauxlib.h">
+      <Filter>ScriptSystem\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Dependencies\lua\src\lcode.h">
+      <Filter>ScriptSystem\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Dependencies\lua\src\ldebug.h">
+      <Filter>ScriptSystem\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Dependencies\lua\src\ldo.h">
+      <Filter>ScriptSystem\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Dependencies\lua\src\lfunc.h">
+      <Filter>ScriptSystem\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Dependencies\lua\src\lgc.h">
+      <Filter>ScriptSystem\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Dependencies\lua\src\llex.h">
+      <Filter>ScriptSystem\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Dependencies\lua\src\llimits.h">
+      <Filter>ScriptSystem\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Dependencies\lua\src\lmem.h">
+      <Filter>ScriptSystem\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Dependencies\lua\src\lobject.h">
+      <Filter>ScriptSystem\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Dependencies\lua\src\lopcodes.h">
+      <Filter>ScriptSystem\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Dependencies\lua\src\lparser.h">
+      <Filter>ScriptSystem\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Dependencies\lua\src\lstate.h">
+      <Filter>ScriptSystem\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Dependencies\lua\src\lstring.h">
+      <Filter>ScriptSystem\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Dependencies\lua\src\ltable.h">
+      <Filter>ScriptSystem\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Dependencies\lua\src\ltm.h">
+      <Filter>ScriptSystem\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Dependencies\lua\src\lua.h">
+      <Filter>ScriptSystem\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Dependencies\lua\src\luaconf.h">
+      <Filter>ScriptSystem\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Dependencies\lua\src\lualib.h">
+      <Filter>ScriptSystem\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Dependencies\lua\src\lundump.h">
+      <Filter>ScriptSystem\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Dependencies\lua\src\lvm.h">
+      <Filter>ScriptSystem\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Dependencies\lua\src\lzio.h">
+      <Filter>ScriptSystem\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceGOCMover.h">
+      <Filter>Object/Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\Ice3D.h">
+      <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceGOCWaypoint.h">
+      <Filter>Object/Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceSpline.h">
+      <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceScriptMessageListener.h">
+      <Filter>ScriptSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceSoundMaterialTable.h">
+      <Filter>System</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Header\Messaging.txt">
+      <Filter>MessageSystem</Filter>
+    </None>
+  </ItemGroup>
+</Project>

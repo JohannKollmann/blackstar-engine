@@ -1,0 +1,311 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{C20C5958-3E38-47C9-A028-83D7C2A939B5}</ProjectGuid>
+    <RootNamespace>nxTutorial606</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30128.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\lib\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Debug\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\lib\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Release\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectName)_d</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>script\;..\..\Dependencies\OpenAL\include;..\..\Dependencies\OgreOggSound\include;..\..\Dependencies\Alut\include;..\Common\;..\..\Dependencies\Ogre3D\include\;..\..\Dependencies\Ogre3D\CEGUIRenderer\include\;..\..\Dependencies\Ogre3D\Dependencies\include;..\..\Dependencies\Caelum\include\;..\..\Dependencies\PhysX\SDKs\PhysXLoader\include;..\..\Dependencies\PhysX\SDKs\Physics\include;..\..\Dependencies\PhysX\SDKs\Foundation\include;..\..\Dependencies\PhysX\SDKs\Cooking\include;..\..\Dependencies\PhysX\SDKs\NxCharacter\include;..\..\Dependencies\PhysX\Tools\NxuStream2;Header\;..\LoadSave_dll\LoadSave\ExternalHeaders;../OgrePhysX/include/;..\..\Dependencies\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>OgreMain_d.lib;PhysXLoader.lib;PhysXCooking.lib;NxCharacter.lib;OgrePhysX_d.lib;ws2_32.lib;OgreOggSound_d.lib;caelum_d.lib;WinMM.lib;LoadSave_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)$(TargetName).dll</OutputFile>
+      <AdditionalLibraryDirectories>..\..\Dependencies\OgreOggSound\lib\;..\..\Dependencies\Ogre3D\lib;..\..\Dependencies\Ogre3D\Dependencies\lib\Debug;..\..\Dependencies\PhysX\SDKs\lib\win32;..\..\Dependencies\wxWidgets\lib\vc_lib\;..\..\Dependencies\wxWidgets\wxthings\lib\;..\..\Dependencies\Caelum\lib\debug;..\..\Ogre3D\Dependencies\lib\Release\;..\..\lib\;..\..\Dependencies\Hydrax\lib;..\..\Dependencies\boost\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(TargetDir)$(TargetName).pdb</ProgramDatabaseFile>
+      <SubSystem>Console</SubSystem>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <ImportLibrary>$(OutDir)$(TargetName).lib</ImportLibrary>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+    <PostBuildEvent>
+      <Command>copy $(OutDir)$(TargetFileName) ..\..\bin\</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>MaxSpeed</Optimization>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <AdditionalIncludeDirectories>script\;..\..\Dependencies\OpenAL\include;..\..\Dependencies\Alut\include;..\Common\;..\..\Dependencies\Ogre3D\include\;..\..\Dependencies\Ogre3D\CEGUIRenderer\include\;..\..\Dependencies\Ogre3D\Dependencies\include;..\..\Dependencies\Caelum\include\;..\..\Dependencies\PhysX\SDKs\PhysXLoader\include;..\..\Dependencies\PhysX\SDKs\Physics\include;..\..\Dependencies\PhysX\SDKs\Foundation\include;..\..\Dependencies\PhysX\SDKs\Cooking\include;..\..\Dependencies\PhysX\Tools\NxuStream2;..\..\Dependencies\;..\..\Dependencies\PhysX\SDKs\NxCharacter\include;..\OgrePhysX\include;Header\;..\LoadSave_dll\LoadSave\ExternalHeaders;..\..\Dependencies\Hydrax\include;..\..\Dependencies\OgreOggSound\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <RegisterOutput>false</RegisterOutput>
+      <AdditionalDependencies>OgreMain.lib;PhysXLoader.lib;PhysXCooking.lib;NxCharacter.lib;OgrePhysX.lib;ws2_32.lib;OgreOggSound.lib;caelum.lib;WinMM.lib;LoadSave.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)$(TargetName).dll</OutputFile>
+      <AdditionalLibraryDirectories>..\..\Dependencies\OgreOggSound\lib\;..\..\Dependencies\Ogre3D\lib;..\..\Dependencies\Ogre3D\Dependencies\lib\Release;..\..\Dependencies\PhysX\SDKs\lib\win32;..\..\Dependencies\Caelum\lib\release;..\..\Ogre3D\Dependencies\lib\Release\;..\..\lib\;..\..\Dependencies\Hydrax\lib;..\..\Dependencies\boost\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <ImportLibrary>$(OutDir)$(TargetName).lib</ImportLibrary>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+    <PostBuildEvent>
+      <Command>copy $(OutDir)$(TargetFileName) ..\..\bin\</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\IceGOCMover.cpp" />
+    <ClCompile Include="Source\IceMessageListener.cpp" />
+    <ClCompile Include="Source\IceMessageSystem.cpp" />
+    <ClCompile Include="Source\IceGameObject.cpp" />
+    <ClCompile Include="Source\IceGOCAI.cpp" />
+    <ClCompile Include="Source\IceGOCAnimatedCharacter.cpp" />
+    <ClCompile Include="Source\IceGOCCameraController.cpp" />
+    <ClCompile Include="Source\IceGOCCharacterController.cpp" />
+    <ClCompile Include="Source\IceGOCGameplay.cpp" />
+    <ClCompile Include="Source\IceGOCWaypoint.cpp" />
+    <ClCompile Include="Source\IceGOComponent.cpp" />
+    <ClCompile Include="Source\IceGOCPhysics.cpp" />
+    <ClCompile Include="Source\IceGOCPlayerInput.cpp" />
+    <ClCompile Include="Source\IceGOCView.cpp" />
+    <ClCompile Include="Source\IceObjectLevelRayCaster.cpp" />
+    <ClCompile Include="Source\IceSceneManager.cpp" />
+    <ClCompile Include="Source\IceCameraController.cpp" />
+    <ClCompile Include="Source\IceConsole.cpp" />
+    <ClCompile Include="Source\IceDataMap.cpp" />
+    <ClCompile Include="Source\IceGameState.cpp">
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
+      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
+      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
+    </ClCompile>
+    <ClCompile Include="Source\IceInput.cpp" />
+    <ClCompile Include="Source\IceLevelMesh.cpp" />
+    <ClCompile Include="Source\IceMain.cpp" />
+    <ClCompile Include="Source\IceMainLoop.cpp" />
+    <ClCompile Include="Source\IceScriptMessageListener.cpp" />
+    <ClCompile Include="Source\IceSoundMaterialTable.cpp" />
+    <ClCompile Include="Source\IceSpline.cpp" />
+    <ClCompile Include="Source\IceUtils.cpp" />
+    <ClCompile Include="Source\IceAIManager.cpp" />
+    <ClCompile Include="Source\IceAStar.cpp" />
+    <ClCompile Include="Source\IceDialog.cpp" />
+    <ClCompile Include="Source\IceFollowPathway.cpp" />
+    <ClCompile Include="Source\IceNavigationMesh.cpp" />
+    <ClCompile Include="Source\IceScriptedAIState.cpp" />
+    <ClCompile Include="Source\HDRListener.cpp" />
+    <ClCompile Include="Source\IceCompositorLoader.cpp" />
+    <ClCompile Include="Source\IceSceneListener.cpp" />
+    <ClCompile Include="Source\IceWeatherController.cpp" />
+    <ClCompile Include="Source\IceCollisionCallback.cpp" />
+    <ClCompile Include="Source\IceScript.cpp" />
+    <ClCompile Include="Source\IceScriptParam.cpp" />
+    <ClCompile Include="Source\IceScriptSystem.cpp" />
+    <ClCompile Include="Source\LuaScript.cpp" />
+    <ClCompile Include="..\..\Dependencies\lua\src\lapi.c" />
+    <ClCompile Include="..\..\Dependencies\lua\src\lauxlib.c" />
+    <ClCompile Include="..\..\Dependencies\lua\src\lbaselib.c" />
+    <ClCompile Include="..\..\Dependencies\lua\src\lcode.c" />
+    <ClCompile Include="..\..\Dependencies\lua\src\ldblib.c" />
+    <ClCompile Include="..\..\Dependencies\lua\src\ldebug.c" />
+    <ClCompile Include="..\..\Dependencies\lua\src\ldo.c" />
+    <ClCompile Include="..\..\Dependencies\lua\src\ldump.c" />
+    <ClCompile Include="..\..\Dependencies\lua\src\lfunc.c" />
+    <ClCompile Include="..\..\Dependencies\lua\src\lgc.c" />
+    <ClCompile Include="..\..\Dependencies\lua\src\linit.c" />
+    <ClCompile Include="..\..\Dependencies\lua\src\liolib.c" />
+    <ClCompile Include="..\..\Dependencies\lua\src\llex.c" />
+    <ClCompile Include="..\..\Dependencies\lua\src\lmathlib.c" />
+    <ClCompile Include="..\..\Dependencies\lua\src\lmem.c" />
+    <ClCompile Include="..\..\Dependencies\lua\src\loadlib.c" />
+    <ClCompile Include="..\..\Dependencies\lua\src\lobject.c" />
+    <ClCompile Include="..\..\Dependencies\lua\src\lopcodes.c" />
+    <ClCompile Include="..\..\Dependencies\lua\src\loslib.c" />
+    <ClCompile Include="..\..\Dependencies\lua\src\lparser.c" />
+    <ClCompile Include="..\..\Dependencies\lua\src\lstate.c" />
+    <ClCompile Include="..\..\Dependencies\lua\src\lstring.c" />
+    <ClCompile Include="..\..\Dependencies\lua\src\lstrlib.c" />
+    <ClCompile Include="..\..\Dependencies\lua\src\ltable.c" />
+    <ClCompile Include="..\..\Dependencies\lua\src\ltablib.c" />
+    <ClCompile Include="..\..\Dependencies\lua\src\ltm.c" />
+    <ClCompile Include="..\..\Dependencies\lua\src\lua.c" />
+    <ClCompile Include="..\..\Dependencies\lua\src\luac.c" />
+    <ClCompile Include="..\..\Dependencies\lua\src\lundump.c" />
+    <ClCompile Include="..\..\Dependencies\lua\src\lvm.c" />
+    <ClCompile Include="..\..\Dependencies\lua\src\lzio.c" />
+    <ClCompile Include="..\..\Dependencies\lua\src\print.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Header\IceGOCMover.h" />
+    <ClInclude Include="Header\IceMessageListener.h" />
+    <ClInclude Include="Header\IceMessageSystem.h" />
+    <ClInclude Include="Header\IceMsg.h" />
+    <ClInclude Include="Header\IceGameObject.h" />
+    <ClInclude Include="Header\IceGOCAI.h" />
+    <ClInclude Include="Header\IceGOCAnimatedCharacter.h" />
+    <ClInclude Include="Header\IceGOCCameraController.h" />
+    <ClInclude Include="Header\IceGOCCharacterController.h" />
+    <ClInclude Include="Header\IceGOCEditorInterface.h" />
+    <ClInclude Include="Header\IceGOCGameplay.h" />
+    <ClInclude Include="Header\IceGOCWaypoint.h" />
+    <ClInclude Include="Header\IceGOComponent.h" />
+    <ClInclude Include="Header\IceGOCPhysics.h" />
+    <ClInclude Include="Header\IceGOCPlayerInput.h" />
+    <ClInclude Include="Header\IceGOCView.h" />
+    <ClInclude Include="Header\IceObjectLevelRayCaster.h" />
+    <ClInclude Include="Header\IceSceneManager.h" />
+    <ClInclude Include="Header\Ice3D.h" />
+    <ClInclude Include="Header\IceCameraController.h" />
+    <ClInclude Include="Header\IceConsole.h" />
+    <ClInclude Include="Header\IceDataMap.h" />
+    <ClInclude Include="Header\IceDirectionBlender.h" />
+    <ClInclude Include="Header\IceGameState.h" />
+    <ClInclude Include="Header\IceIncludes.h" />
+    <ClInclude Include="Header\IceInput.h" />
+    <ClInclude Include="Header\IceLevelMesh.h" />
+    <ClInclude Include="Header\IceMain.h" />
+    <ClInclude Include="Header\IceMainLoop.h" />
+    <ClInclude Include="Header\IceScriptMessageListener.h" />
+    <ClInclude Include="Header\IceSoundMaterialTable.h" />
+    <ClInclude Include="Header\IceSpline.h" />
+    <ClInclude Include="Header\IceUtils.h" />
+    <ClInclude Include="Header\IceAIManager.h" />
+    <ClInclude Include="Header\IceAIState.h" />
+    <ClInclude Include="Header\IceAStar.h" />
+    <ClInclude Include="Header\IceDialog.h" />
+    <ClInclude Include="Header\IceFollowPathway.h" />
+    <ClInclude Include="Header\IceNavigationMesh.h" />
+    <ClInclude Include="Header\IceScriptedAIState.h" />
+    <ClInclude Include="Header\HDRListener.h" />
+    <ClInclude Include="Header\IceCompositorLoader.h" />
+    <ClInclude Include="Header\IceSceneListener.h" />
+    <ClInclude Include="Header\IceWeatherController.h" />
+    <ClInclude Include="Header\SSAOListener.h" />
+    <ClInclude Include="..\..\Dependencies\Boost\thread\barrier.hpp" />
+    <ClInclude Include="..\..\Dependencies\Boost\thread\win32\basic_recursive_mutex.hpp" />
+    <ClInclude Include="..\..\Dependencies\Boost\thread\win32\basic_timed_mutex.hpp" />
+    <ClInclude Include="..\..\Dependencies\Boost\thread\condition.hpp" />
+    <ClInclude Include="..\..\Dependencies\Boost\thread\win32\condition_variable.hpp" />
+    <ClInclude Include="..\..\Dependencies\Boost\thread\condition_variable.hpp" />
+    <ClInclude Include="..\..\Dependencies\Boost\thread\pthread\condition_variable.hpp" />
+    <ClInclude Include="..\..\Dependencies\Boost\thread\pthread\condition_variable_fwd.hpp" />
+    <ClInclude Include="..\..\Dependencies\Boost\thread\detail\config.hpp" />
+    <ClInclude Include="..\..\Dependencies\Boost\thread\exceptions.hpp" />
+    <ClInclude Include="..\..\Dependencies\Boost\thread\detail\force_cast.hpp" />
+    <ClInclude Include="..\..\Dependencies\Boost\thread\win32\interlocked_read.hpp" />
+    <ClInclude Include="..\..\Dependencies\Boost\thread\locks.hpp" />
+    <ClInclude Include="..\..\Dependencies\Boost\thread\detail\move.hpp" />
+    <ClInclude Include="..\..\Dependencies\Boost\thread\win32\mutex.hpp" />
+    <ClInclude Include="..\..\Dependencies\Boost\thread\once.hpp" />
+    <ClInclude Include="..\..\Dependencies\Boost\thread\detail\platform.hpp" />
+    <ClInclude Include="..\..\Dependencies\Boost\thread\pthread\pthread_mutex_scoped_lock.hpp" />
+    <ClInclude Include="..\..\Dependencies\Boost\thread\recursive_mutex.hpp" />
+    <ClInclude Include="..\..\Dependencies\Boost\thread\pthread\shared_mutex.hpp" />
+    <ClInclude Include="..\..\Dependencies\Boost\thread\detail\singleton.hpp" />
+    <ClInclude Include="..\..\Dependencies\Boost\thread\thread.hpp" />
+    <ClInclude Include="..\..\Dependencies\Boost\thread\pthread\thread_data.hpp" />
+    <ClInclude Include="..\..\Dependencies\Boost\thread\win32\thread_heap_alloc.hpp" />
+    <ClInclude Include="..\..\Dependencies\Boost\thread\win32\thread_primitives.hpp" />
+    <ClInclude Include="..\..\Dependencies\Boost\thread\thread_time.hpp" />
+    <ClInclude Include="..\..\Dependencies\Boost\thread\pthread\timespec.hpp" />
+    <ClInclude Include="..\..\Dependencies\Boost\thread\tss.hpp" />
+    <ClInclude Include="..\..\Dependencies\Boost\thread\detail\tss_hooks.hpp" />
+    <ClInclude Include="..\..\Dependencies\Boost\thread\xtime.hpp" />
+    <ClInclude Include="Header\IceCollisionCallback.h" />
+    <ClInclude Include="Header\IceScript.h" />
+    <ClInclude Include="Header\IceScriptParam.h" />
+    <ClInclude Include="Header\IceScriptSystem.h" />
+    <ClInclude Include="Header\LuaScript.h" />
+    <ClInclude Include="..\..\Dependencies\lua\src\lapi.h" />
+    <ClInclude Include="..\..\Dependencies\lua\src\lauxlib.h" />
+    <ClInclude Include="..\..\Dependencies\lua\src\lcode.h" />
+    <ClInclude Include="..\..\Dependencies\lua\src\ldebug.h" />
+    <ClInclude Include="..\..\Dependencies\lua\src\ldo.h" />
+    <ClInclude Include="..\..\Dependencies\lua\src\lfunc.h" />
+    <ClInclude Include="..\..\Dependencies\lua\src\lgc.h" />
+    <ClInclude Include="..\..\Dependencies\lua\src\llex.h" />
+    <ClInclude Include="..\..\Dependencies\lua\src\llimits.h" />
+    <ClInclude Include="..\..\Dependencies\lua\src\lmem.h" />
+    <ClInclude Include="..\..\Dependencies\lua\src\lobject.h" />
+    <ClInclude Include="..\..\Dependencies\lua\src\lopcodes.h" />
+    <ClInclude Include="..\..\Dependencies\lua\src\lparser.h" />
+    <ClInclude Include="..\..\Dependencies\lua\src\lstate.h" />
+    <ClInclude Include="..\..\Dependencies\lua\src\lstring.h" />
+    <ClInclude Include="..\..\Dependencies\lua\src\ltable.h" />
+    <ClInclude Include="..\..\Dependencies\lua\src\ltm.h" />
+    <ClInclude Include="..\..\Dependencies\lua\src\lua.h" />
+    <ClInclude Include="..\..\Dependencies\lua\src\luaconf.h" />
+    <ClInclude Include="..\..\Dependencies\lua\src\lualib.h" />
+    <ClInclude Include="..\..\Dependencies\lua\src\lundump.h" />
+    <ClInclude Include="..\..\Dependencies\lua\src\lvm.h" />
+    <ClInclude Include="..\..\Dependencies\lua\src\lzio.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Header\Messaging.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\LoadSave_dll\LoadSave\LoadSave.vcxproj">
+      <Project>{2981707e-a12f-4b7e-95ff-b1813492a077}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
