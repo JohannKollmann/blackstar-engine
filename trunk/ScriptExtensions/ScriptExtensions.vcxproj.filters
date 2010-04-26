@@ -1,0 +1,75 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Residents">
+      <UniqueIdentifier>{8d32a055-cb6b-4a39-9c64-f007f162f095}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ScriptableInstances">
+      <UniqueIdentifier>{be99d7ee-fd08-455f-bcd4-ecb8e787c5be}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI">
+      <UniqueIdentifier>{d18a8817-73a7-47ea-b0a1-05ef2819a551}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ScriptExtensions">
+      <UniqueIdentifier>{19430cf3-ea12-42dc-8614-46fe790106dd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Music">
+      <UniqueIdentifier>{414ba8a6-a1f6-4a50-8639-ca5ee783cff8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ScriptedControls">
+      <UniqueIdentifier>{4411e884-4c7a-4b04-841c-24d4def24663}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Header\LoadSaveMapHandler.h">
+      <Filter>Residents</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\ResidentVariables.h">
+      <Filter>Residents</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\SGTMusicSystem.h">
+      <Filter>Residents</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\ScriptableInstances.h">
+      <Filter>ScriptableInstances</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\FontTextures.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\GUISystem.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\ScriptExtensions.h">
+      <Filter>ScriptExtensions</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\MusicSystem.h">
+      <Filter>Music</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\ScriptedControls.h">
+      <Filter>ScriptedControls</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\ResidentVariables.cpp">
+      <Filter>Residents</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ScriptableInstances.cpp">
+      <Filter>ScriptableInstances</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\FontTextures.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\GUISystem.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ScriptExtensions.cpp">
+      <Filter>ScriptExtensions</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\MusicSystem.cpp">
+      <Filter>Music</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ScriptedControls.cpp">
+      <Filter>ScriptedControls</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

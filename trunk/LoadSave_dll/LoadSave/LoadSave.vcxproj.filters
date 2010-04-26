@@ -1,0 +1,74 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="LowLevelSrc">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Libs">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="InterfaceSrc">
+      <UniqueIdentifier>{f0a4d934-b5d9-4b21-a1bc-f83ac3885353}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LowLevelLibs">
+      <UniqueIdentifier>{0cc7def1-d2f8-4f3b-b64f-ca0150333ef6}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="LowLevelSrc\CMemFile.cpp">
+      <Filter>LowLevelSrc</Filter>
+    </ClCompile>
+    <ClCompile Include="LowLevelSrc\Load_dll.cpp">
+      <Filter>LowLevelSrc</Filter>
+    </ClCompile>
+    <ClCompile Include="LowLevelSrc\Save_dll.cpp">
+      <Filter>LowLevelSrc</Filter>
+    </ClCompile>
+    <ClCompile Include="InterfaceSrc\LoadSave.cpp">
+      <Filter>InterfaceSrc</Filter>
+    </ClCompile>
+    <ClCompile Include="InterfaceSrc\LoadSystem.cpp">
+      <Filter>InterfaceSrc</Filter>
+    </ClCompile>
+    <ClCompile Include="InterfaceSrc\SaveSystem.cpp">
+      <Filter>InterfaceSrc</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="SGTLibs\AtomHandler.h">
+      <Filter>Libs</Filter>
+    </ClInclude>
+    <ClInclude Include="SGTLibs\LoadSave.h">
+      <Filter>Libs</Filter>
+    </ClInclude>
+    <ClInclude Include="SGTLibs\LoadSystem.h">
+      <Filter>Libs</Filter>
+    </ClInclude>
+    <ClInclude Include="SGTLibs\RecordReference.h">
+      <Filter>Libs</Filter>
+    </ClInclude>
+    <ClInclude Include="SGTLibs\Saveable.h">
+      <Filter>Libs</Filter>
+    </ClInclude>
+    <ClInclude Include="SGTLibs\SaveSystem.h">
+      <Filter>Libs</Filter>
+    </ClInclude>
+    <ClInclude Include="LowLevelLibs\CMemFile.h">
+      <Filter>LowLevelLibs</Filter>
+    </ClInclude>
+    <ClInclude Include="LowLevelLibs\LoadSave_dll.h">
+      <Filter>LowLevelLibs</Filter>
+    </ClInclude>
+    <ClInclude Include="LowLevelLibs\LoadSave_dll_intl.h">
+      <Filter>LowLevelLibs</Filter>
+    </ClInclude>
+    <ClInclude Include="LoadSave_Hash.h">
+      <Filter>LowLevelLibs</Filter>
+    </ClInclude>
+    <ClInclude Include="LowLevelLibs\save_helpers.h">
+      <Filter>LowLevelLibs</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
