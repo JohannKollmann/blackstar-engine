@@ -228,9 +228,7 @@ void Main::initScene()
 	hdrListener->notifyCompositor(hdrinstance);
 	CompositorLoader::Instance().EnableCompositor("HDRTest");
 
-	SceneManager::Instance().Init();
-
-	mPhysXScene->getNxScene()->setUserContactReport(new ActorContactReport("ContactReport.lua"));
+	mPhysXScene->getNxScene()->setUserContactReport(new ActorContactReport());
 
 	/*mCollisionCallback = new ScriptedCollisionCallback();
 	NxOgre::ActorGroup *dynamicbodies = mScene->createActorGroup("DynamicBody");
@@ -277,11 +275,10 @@ void Main::initScene()
 
 	Ogre::LogManager::getSingleton().logMessage("PSSMSplitPoints: " + Ogre::StringConverter::toString(PSSMSplitPoints));
 
+	SceneManager::Instance().Init();
+
 	//Load Plugins
 	LoadPlugins();
-
-	//Call init script
-	Script script = ScriptSystem::GetInstance().CreateInstance("InitEngine.lua");
 
 	/*RefractionTextureListener *TestRefractionListener = new RefractionTextureListener();
 	ReflectionTextureListener *TestReflectionListener = new ReflectionTextureListener(mCamera);*/

@@ -100,6 +100,39 @@ namespace Ice
 		}
 	}
 
+	void GenericProperty::GetAsScriptParam(std::vector<ScriptParam> &params)
+	{
+		if (mType == "int")
+		{
+			params.push_back(ScriptParam(Get<int>()));
+		}
+		else if (mType == "float")
+		{
+			params.push_back(ScriptParam(Get<float>()));
+		}
+		else if (mType == "bool")
+		{
+			params.push_back(ScriptParam(Get<bool>()));
+		}
+		else if (mType == "Ogre::Vector3")
+		{
+			params.push_back(ScriptParam(Get<Ogre::Vector3>().x));
+			params.push_back(ScriptParam(Get<Ogre::Vector3>().y));
+			params.push_back(ScriptParam(Get<Ogre::Vector3>().z));
+		}
+		else if (mType == "Ogre::Quaternion")
+		{
+			params.push_back(ScriptParam(Get<Ogre::Quaternion>().w));
+			params.push_back(ScriptParam(Get<Ogre::Quaternion>().x));
+			params.push_back(ScriptParam(Get<Ogre::Quaternion>().y));
+			params.push_back(ScriptParam(Get<Ogre::Quaternion>().z));
+		}
+		else if (mType == "Ogre::String")
+		{
+			params.push_back(ScriptParam(std::string(Get<Ogre::String>().c_str())));
+		}
+	}
+
 	DataMap::DataMap()
 	{
 		mIterator = mData.begin();

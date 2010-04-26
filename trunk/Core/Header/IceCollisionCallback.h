@@ -8,19 +8,15 @@
 namespace Ice
 {
 
-	class ActorContactReport : public NxUserContactReport, public MessageListener
+	class ActorContactReport : public NxUserContactReport
 	{
 	private:
-		Script mScript;
-		Ogre::String mScriptFileName;
 
 		void onMaterialContact(Ogre::String material1, Ogre::String material2, Ogre::Vector3 position, float force);
 	public:
-		ActorContactReport(Ogre::String scriptFileName);
+		ActorContactReport();
 		~ActorContactReport() {}
 		void onContactNotify(NxContactPair &pair, NxU32 events);
-
-		void ReceiveMessage(Msg &msg);
 	};
 
 	class TriggerCallback : public OgrePhysX::TriggerReportListener

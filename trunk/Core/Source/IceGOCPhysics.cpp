@@ -202,7 +202,7 @@ namespace Ice
 		}
 		Ogre::Entity *entity = Main::Instance().GetOgreSceneMgr()->createEntity("tempCollisionModell", mCollisionMeshName);
 		mActor = Main::Instance().GetPhysXScene()->createActor(
-			OgrePhysX::RTMeshShape(entity->getMesh()).materials(SceneManager::Instance().mSoundMaterialTable.mOgreNxBindings).scale(scale).group(CollisionGroups::DEFAULT));
+			OgrePhysX::RTMeshShape(entity->getMesh()).materials(SceneManager::Instance().mSoundMaterialTable.mOgreNxBinds).scale(scale).group(CollisionGroups::DEFAULT));
 		Main::Instance().GetOgreSceneMgr()->destroyEntity(entity);
 	}
 

@@ -4,6 +4,7 @@
 
 namespace Ice
 {
+	class ScriptMessageListener;
 
 class __declspec(dllexport) ScriptSystem
 {
@@ -27,8 +28,13 @@ public:
 
 	//hard hack for proxy calls
 	std::vector<int> GetInstances(std::string strScriptName){if(m_mScriptInstances.find(strScriptName)!=m_mScriptInstances.end())return m_mScriptInstances.find(strScriptName)->second;else return std::vector<int>();}
+
+	static std::vector<ScriptParam> Lua_JoinNewsgroup(Script &caller, std::vector<ScriptParam> params);
+
 private:
 	friend class ScriptParam;//needs these maps for callbacks
+
+	std::vector<ScriptMessageListener*> mScriptMessageListeners;
 
 	std::map<std::string, ScriptFunction> m_mCFunctions;
 	std::map<std::string, Script> m_mScriptFunctions;

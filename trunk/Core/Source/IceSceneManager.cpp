@@ -55,6 +55,8 @@ namespace Ice
 
 		Ice::MessageSystem::Instance().CreateNewsgroup("ACOTR_ONSLEEP");
 		Ice::MessageSystem::Instance().CreateNewsgroup("ACOTR_ONWAKE");
+
+		Ice::MessageSystem::Instance().CreateNewsgroup("MATERIAL_ONCONTACT");
 	}
 
 	SceneManager::~SceneManager(void)
@@ -155,9 +157,6 @@ namespace Ice
 	{
 		Reset();
 
-		mSoundMaterialTable.InitTableFromCfg("SoundMaterialTable.cfg");
-		mSoundMaterialTable.InitBindingsFromCfg("OgreMaterialSoundBindings.cfg");
-
 		Main::Instance().GetOgreSceneMgr()->createStaticGeometry("StaticGeometry");
 
 		RegisterStandardAtoms();
@@ -211,6 +210,7 @@ namespace Ice
 		RegisterEditorInterface("", "Anim Key", (EDTCreatorFn)&GOCAnimKey::NewEditorInterfaceInstance, GOCAnimKey::GetDefaultParameters);
 
 		//Setup Lua Callback
+		ScriptSystem::GetInstance().ShareCFunction("Listen", &ScriptSystem::Lua_JoinNewsgroup);
 		ScriptSystem::GetInstance().ShareCFunction("LogMessage", &SceneManager::Lua_LogMessage);
 		ScriptSystem::GetInstance().ShareCFunction("Self", &SceneManager::Lua_Npc_GetThis);
 		ScriptSystem::GetInstance().ShareCFunction("LoadLevel", &SceneManager::Lua_LoadLevel);
@@ -225,12 +225,12 @@ namespace Ice
 		ScriptSystem::GetInstance().ShareCFunction("Npc_GotoWP", &SceneManager::Lua_Npc_GotoWP);
 		ScriptSystem::GetInstance().ShareCFunction("Npc_GetDistToWP", &SceneManager::Lua_Npc_GetDistToWP);
 
-		ScriptSystem::GetInstance().ShareCFunction("InsertMesh", &SceneManager::Lua_InsertMesh);
 		ScriptSystem::GetInstance().ShareCFunction("SetObjectPosition", &SceneManager::Lua_SetObjectPosition);
 		ScriptSystem::GetInstance().ShareCFunction("SetObjectOrientation", &SceneManager::Lua_SetObjectOrientation);
 		ScriptSystem::GetInstance().ShareCFunction("SetObjectScale", &SceneManager::Lua_SetObjectScale);
 
 		ScriptSystem::GetInstance().ShareCFunction("Play3DSound", &SceneManager::Lua_Play3DSound);
+		ScriptSystem::GetInstance().ShareCFunction("CreateMaterialProfile", &SceneManager::Lua_CreateMaterialProfile);
 
 		ScriptSystem::GetInstance().ShareCFunction("GetFocusObject", &SceneManager::Lua_GetFocusObject);
 		ScriptSystem::GetInstance().ShareCFunction("Npc_OpenDialog", &SceneManager::Lua_NPCOpenDialog);
@@ -238,6 +238,9 @@ namespace Ice
 		ScriptSystem::GetInstance().ShareCFunction("SetObjectVisible", &SceneManager::Lua_SetObjectVisible);
 
 		ScriptSystem::GetInstance().ShareCFunction("IsNpc", &SceneManager::Lua_ObjectIsNpc);
+
+		ScriptSystem::GetInstance().CreateInstance("InitEngine.lua");
+		mSoundMaterialTable.InitBindingsFromCfg("OgreMaterialSoundBindings.cfg");
 
 	}
 
@@ -1106,6 +1109,29 @@ namespace Ice
 		return std::vector<ScriptParam>();
 	}
 
+	std::vector<ScriptParam> SceneManager::Lua_CreateMaterialProfile(Script& caller, std::vector<ScriptParam> vParams)
+	{
+		std::vector<ScriptParam> ret;
+		std::vector<Ice::ScriptParam> vRef;
+		vRef.push_back(ScriptParam(std::string()));	//Name
+		std::string strErrString=Ice::Utils::TestParameters(vParams, vRef);
+		if (strErrString != "")
+		{
+			Utils::LogParameterErrors(caller, strErrString);
+			ret.push_back(ScriptParam(0));
+			return ret;
+		}
+		NxMaterialDesc desc;
+		desc.setToDefault();
+		NxMaterial* material = Main::Instance().GetPhysXScene()->getNxScene()->createMaterial(desc);
+		material->setRestitution(0.1f);
+		material->setStaticFriction(0.5f);
+		material->setDynamicFriction(0.5f);
+		Instance().mSoundMaterialTable.AddMaterialProfile(vParams[0].getString().c_str(), material->getMaterialIndex());
+		ret.push_back(ScriptParam((int)material->getMaterialIndex()));
+		return ret;
+	}
+
 	std::vector<ScriptParam> SceneManager::Lua_Play3DSound(Script& caller, std::vector<ScriptParam> vParams)
 	{
 		std::vector<Ice::ScriptParam> vRef;
@@ -1163,7 +1189,7 @@ namespace Ice
 		if (time - mDestroyStoppedSoundsLast < mDestroyStoppedSoundsDelay)
 			return;
 		auto iter = mPlayingSounds.begin();
-		for (int i = 0; i < mPlayingSounds.size(); i++)
+		for (unsigned int i = 0; i < mPlayingSounds.size(); i++)
 		{
 			if ((*iter)->isStopped())
 			{

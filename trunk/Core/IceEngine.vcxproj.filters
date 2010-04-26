@@ -249,10 +249,13 @@
     <ClCompile Include="Source\IceGOCWaypoint.cpp">
       <Filter>Object/Component</Filter>
     </ClCompile>
-    <ClCompile Include="Source\IceSoundMaterial.cpp">
+    <ClCompile Include="Source\IceSpline.cpp">
       <Filter>System</Filter>
     </ClCompile>
-    <ClCompile Include="Source\IceSpline.cpp">
+    <ClCompile Include="Source\IceScriptMessageListener.cpp">
+      <Filter>ScriptSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\IceSoundMaterialTable.cpp">
       <Filter>System</Filter>
     </ClCompile>
   </ItemGroup>
@@ -557,10 +560,13 @@
     <ClInclude Include="Header\IceGOCWaypoint.h">
       <Filter>Object/Component</Filter>
     </ClInclude>
-    <ClInclude Include="Header\IceSoundMaterial.h">
+    <ClInclude Include="Header\IceSpline.h">
       <Filter>System</Filter>
     </ClInclude>
-    <ClInclude Include="Header\IceSpline.h">
+    <ClInclude Include="Header\IceScriptMessageListener.h">
+      <Filter>ScriptSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceSoundMaterialTable.h">
       <Filter>System</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,6 +1,7 @@
 [Editor]
 - Filter (nur bodies anzeigen, nur objekte mit namen anzeigen usw.) für SceneTree implementieren
 - möglicherweise Crash bei Materialauswahl
+- möglicher crash im materialmodus beim mehrfache anklicken eines objekts
 - material-editor: script-editor mit anderem syntax-highlighting für .material-files, reparse-button anpassen
 - [script-edit] wenn man alles rückgängig macht bleibt der geändert-stern
 - [script-edit] Intellisense fertig machen

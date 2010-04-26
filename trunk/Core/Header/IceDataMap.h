@@ -7,6 +7,7 @@
 #include "LoadSave.h"
 #include "boost/any.hpp"
 #include "OgreAny.h"
+#include "IceScriptParam.h"
 
 namespace Ice
 {
@@ -33,10 +34,15 @@ public:
 	Ogre::String mKey;
 
 	GenericProperty() {};
-	template <typename T>
-		void Set(T value, Ogre::String type, Ogre::String key) { mData = value; mType = type; mKey = key; };
 	~GenericProperty() {};
 
+	template <typename T>
+		void Set(T value, Ogre::String type, Ogre::String key) { mData = value; mType = type; mKey = key; };
+
+	template <typename T>
+		T Get() { return Ogre::any_cast<T>(mData); };
+
+	void GetAsScriptParam(std::vector<ScriptParam> &params);
 
 	void Save(LoadSave::SaveSystem& myManager);
 	void Load(LoadSave::LoadSystem& mgr); 

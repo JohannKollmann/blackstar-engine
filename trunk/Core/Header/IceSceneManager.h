@@ -9,7 +9,7 @@
 #include "IceGOCEditorInterface.h"
 #include "IceMessageSystem.h"
 #include "IceScriptSystem.h"
-#include "IceSoundMaterial.h"
+#include "IceSoundMaterialTable.h"
 
 namespace OgreOggSound
 {
@@ -111,6 +111,8 @@ namespace Ice
 
 		static std::vector<ScriptParam> Lua_CreatePlayer(Script& caller, std::vector<ScriptParam> vParams);
 
+		//Sound system
+		static std::vector<ScriptParam> Lua_CreateMaterialProfile(Script& caller, std::vector<ScriptParam> vParams);
 		static std::vector<ScriptParam> Lua_Play3DSound(Script& caller, std::vector<ScriptParam> vParams);
 
 		/*

@@ -9,6 +9,7 @@
 #include "wxPropertyGridListener.h"
 #include <list>
 #include "EDTIncludes.h"
+#include "IceMessageSystem.h"
 
 
 class wxMaterialEditor : public wxPropertyGridListener
@@ -18,11 +19,14 @@ private:
 
 	Ogre::String Scan_Line_For_Material(Ogre::String line);
 
+	std::map<Ogre::String, int> mMaterialProfileEnumIds;
+
 	struct MaterialTemplate
 	{
 		Ogre::String mName;
 		Ogre::String mFile;
 	};
+
 
 	std::map<Ogre::String, MaterialTemplate> mMapTemplates;
 

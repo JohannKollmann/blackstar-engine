@@ -72,26 +72,13 @@ namespace Ice
 	void ActorContactReport::onMaterialContact(Ogre::String material1, Ogre::String material2, Ogre::Vector3 position, float force )
 	{
 		//Ogre::LogManager::getSingleton().logMessage("OnMaterialContact: " + material1 + " - " + material2 + "  Force: " + Ogre::StringConverter::toString(force));
-		std::vector<ScriptParam> params;
-		params.push_back(ScriptParam(position.x));
-		params.push_back(ScriptParam(position.y));
-		params.push_back(ScriptParam(position.z));
-		params.push_back(ScriptParam(std::string(material1.c_str())));
-		params.push_back(ScriptParam(std::string(material2.c_str())));
-		params.push_back(ScriptParam(force));
-		mScript.CallFunction("onMaterialContact", params);
-
-		/*Ogre::String oggFile = SceneManager::Instance().mSoundMaterialTable.GetSound(material1, material2);
-		if (Ogre::ResourceGroupManager::getSingleton().resourceExists("General", oggFile))
-		{
-			int id = Ice::SceneManager::Instance().RequestID();
-			Ogre::SceneNode *node = Ice::Main::Instance().GetPreviewSceneMgr()->getRootSceneNode()->createChildSceneNode(position);
-			OgreOggSound::OgreOggISound *sound = Ice::Main::Instance().GetSoundManager()->createSound(Ogre::StringConverter::toString(id), oggFile, true, false);
-			sound->setReferenceDistance(15);
-			sound->setMaxDistance(30);
-			if (sound) sound->play();
-			node->attachObject(sound);
-		}*/
+		Msg msg;
+		msg.mNewsgroup = "MATERIAL_ONCONTACT";
+		msg.mData.AddOgreVec3("Position", position);
+		msg.mData.AddOgreString("Material1", material1);
+		msg.mData.AddOgreString("Material2", material2);
+		msg.mData.AddFloat("Force", force);
+		MessageSystem::Instance().SendMessage(msg);
 	}
 
 
@@ -106,8 +93,8 @@ namespace Ice
 			NxShape *shape2 = i.getShape(1);
 
 			//First material callback
-			Ogre::String material1 = SceneManager::Instance().mSoundMaterialTable.GetMaterialNameByNxMaterial(shape1->getMaterial());
-			Ogre::String material2 = SceneManager::Instance().mSoundMaterialTable.GetMaterialNameByNxMaterial(shape2->getMaterial());
+			Ogre::String material1 = SceneManager::Instance().mSoundMaterialTable.GetMaterialName(shape1->getMaterial());
+			Ogre::String material2 = SceneManager::Instance().mSoundMaterialTable.GetMaterialName(shape2->getMaterial());
 
 			float summed_force = 0.0f;
 			Ogre::Vector3 contactPoint;
@@ -159,7 +146,7 @@ namespace Ice
 								int subMeshTriCount = subMesh->indexData->indexCount / 3;
 								if (triIndex >= triCount && triIndex < triCount+subMeshTriCount)
 								{
-									Ogre::String meshMat = SceneManager::Instance().mSoundMaterialTable.GetMaterialNameByOgreMaterial(subMesh->getMaterialName());
+									Ogre::String meshMat = SceneManager::Instance().mSoundMaterialTable.GetMaterialName(subMesh->getMaterialName());
 									if (mat1) material1 = meshMat;
 									else material2 = meshMat;
 									break;
@@ -174,19 +161,8 @@ namespace Ice
 		}
 	}
 
-	ActorContactReport::ActorContactReport(Ogre::String scriptFileName)
+	ActorContactReport::ActorContactReport()
 	{
-		mScriptFileName = scriptFileName;
-		mScript = ScriptSystem::GetInstance().CreateInstance(scriptFileName);
-		MessageSystem::Instance().JoinNewsgroup(this, "REPARSE_SCRIPTS_POST");
-	}
-
-	void ActorContactReport::ReceiveMessage(Msg &msg)
-	{
-		if (msg.mNewsgroup == "REPARSE_SCRIPTS_POST")
-		{
-			mScript = ScriptSystem::GetInstance().CreateInstance(mScriptFileName);
-		}
 	}
 
 };

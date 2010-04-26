@@ -75,10 +75,10 @@ void wxScriptFileTree::OnToolbarEvent(int toolID, Ogre::String toolname)
 		msg.mNewsgroup = "REPARSE_SCRIPTS";
 		Ice::MessageSystem::Instance().SendInstantMessage(msg);
 		Ice::ScriptSystem::GetInstance().Clear();
-		msg.mNewsgroup = "REPARSE_SCRIPTS_POST";
-		Ice::MessageSystem::Instance().SendInstantMessage(msg);
 		//Call init script
 		Ice::Script script = Ice::ScriptSystem::GetInstance().CreateInstance("InitEngine.lua");
+		msg.mNewsgroup = "REPARSE_SCRIPTS_POST";
+		Ice::MessageSystem::Instance().SendInstantMessage(msg);
 	}
 	if (toolname == "NewScript" || toolname == "NewNpcScript" || toolname == "NewStateScript")
 	{

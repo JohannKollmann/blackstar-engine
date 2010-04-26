@@ -6,6 +6,7 @@
 #include "MaterialReload.h"
 #include "IceUtils.h"
 #include "Edit.h"
+#include "IceSceneManager.h"
 
 wxMaterialEditor::wxMaterialEditor(void)
 {
@@ -80,10 +81,17 @@ void wxMaterialEditor::OnApply()
 
 				newfile.push_back("material " + mCurrentMaterial->getName() + " : " + mCurrentTemplate);
 				newfile.push_back("{");
-				for (wxPropertyGridIterator it = mPropGrid->GetIterator(); !it.AtEnd(); it++)
+				bool shaderParamCategory = false;
+				for (wxPropertyGridIterator it = mPropGrid->GetIterator(wxPG_ITERATE_ALL); !it.AtEnd(); it++)
 				{
 					wxPGProperty* p = *it;
-					if (p->IsCategory()) continue;
+					if (p->IsCategory())
+					{
+						if (p->GetName() == wxT("Shader_Params")) shaderParamCategory = true;
+						else shaderParamCategory = false;
+						continue;
+					}
+					if (!shaderParamCategory) continue;
 					Ogre::String oValue = p->GetValue().GetString().c_str();
 					if (oValue == "") oValue = "1";
 					Ogre::String newline = Ogre::String("\tset $") + Ogre::String(p->GetName().c_str()) + " " + oValue;
@@ -149,6 +157,26 @@ void wxMaterialEditor::OnApply()
 		if (decal->getMaterialName() == "BaseWhiteNoLighting") decal->setMaterialName(mCurrentMaterial->getName());
 	}
 
+
+
+	for (wxPropertyGridIterator it = mPropGrid->GetIterator(); !it.AtEnd(); it++)
+	{
+		wxPGProperty* p = *it;
+		if (p->IsCategory()) continue;
+		if (p->GetName() == wxT("__MaterialProfile__"))
+		{
+			for (auto i = mMaterialProfileEnumIds.begin(); i != mMaterialProfileEnumIds.end(); i++)
+			{
+				if (i->second == p->GetValue().GetInteger())
+				{
+					Ice::SceneManager::Instance().mSoundMaterialTable.SetOgreBinding(mCurrentMaterial->getName(), i->first);
+					Ice::SceneManager::Instance().mSoundMaterialTable.SaveBindingsToCfg("Data\\Scripts\\materials\\OgreMaterialSoundBindings.cfg");
+				}
+			}
+			break;
+		}
+	}
+
 	wxEdit::Instance().GetOgrePane()->SetFocus();
 	}
 }
@@ -170,7 +198,7 @@ void wxMaterialEditor::SetMaterialTemplate(Ogre::String Name, Ogre::String File)
 	mCurrentTemplate = Name;
 	mCurrentTemplateFile = File;
 
-	wxPGProperty* parameters = mPropGrid->Append( new wxPropertyCategory(wxT("Shader Params")) );
+	wxPGProperty* parameters = mPropGrid->Append( new wxPropertyCategory(wxT("Shader Params"), wxT("Shader_Params")) );
 	parameters->SetExpanded(true);
 
 	std::fstream f;
@@ -252,6 +280,18 @@ void wxMaterialEditor::SetMaterialTemplate(Ogre::String Name, Ogre::String File)
 		}
 	}
 	f.close();
+
+	mMaterialProfileEnumIds.clear();
+	wxPGProperty* soundParams = mPropGrid->Append( new wxPropertyCategory(wxT("Physics")) );
+	wxArrayString materialProfiles;
+	std::vector<Ogre::String> mats = Ice::SceneManager::Instance().mSoundMaterialTable.GetMaterialProfiles();
+	int id = 0;
+	for (auto i = mats.begin(); i != mats.end(); i++)
+	{
+		mMaterialProfileEnumIds.insert(std::make_pair<Ogre::String, int>(*i, id++));
+		materialProfiles.Add((*i).c_str());
+	}
+	mPropGrid->Append(new wxEnumProperty(wxT("Profile"), wxT("__MaterialProfile__"), materialProfiles));
 
 	mPropGrid->Refresh();
 }
@@ -362,6 +402,20 @@ void wxMaterialEditor::EditMaterial(Ogre::MaterialPtr material, bool detect_temp
 		}
 	}
 	f.close();
+
+	for (wxPropertyGridIterator it = mPropGrid->GetIterator(); !it.AtEnd(); it++)
+	{
+		wxPGProperty* p = *it;
+		if (p->IsCategory()) continue;
+		if (p->GetName() == wxT("__MaterialProfile__"))
+		{
+			Ogre::String profileName = Ice::SceneManager::Instance().mSoundMaterialTable.GetMaterialName(mCurrentMaterial->getName());
+			auto matFind = mMaterialProfileEnumIds.find(profileName);
+			if (matFind != mMaterialProfileEnumIds.end())
+				p->SetValue(wxVariant(matFind->second));
+			break;
+		}
+	}
 }
 
 void wxMaterialEditor::RegisterDefaultMapTemplate(Ogre::String map_type, Ogre::String tname, Ogre::String tfile)
@@ -371,6 +425,7 @@ void wxMaterialEditor::RegisterDefaultMapTemplate(Ogre::String map_type, Ogre::S
 	mt.mFile = tfile;
 	mMapTemplates.insert(std::make_pair<Ogre::String, MaterialTemplate>(map_type, mt));
 }
+
 
 bool wxMaterialEditor::OnDropText(const wxString& text)
 {
@@ -388,17 +443,26 @@ bool wxMaterialEditor::OnDropText(const wxString& text)
 					|| item->GetName().find(".jpg") != Ogre::String::npos
 					|| item->GetName().find(".psd") != Ogre::String::npos)
 				{
-					wxArrayString choices;
-					for (std::map<Ogre::String, MaterialTemplate>::iterator i = mMapTemplates.begin(); i != mMapTemplates.end(); i++) choices.Add(i->first.c_str());
 
-					wxSingleChoiceDialog dialog(wxEdit::Instance().GetWorldExplorer()->GetMaterialTree(),
-						_T("Please select a map type:"),
-						"What's that?",
+					MaterialTemplate materialTemplate;
+
+					wxEdit::Instance().GetMainNotebook()->GetOgreWindow()->SetPaused(true);
+
+					wxArrayString choices;
+					for (std::map<Ogre::String, MaterialTemplate>::iterator i = mMapTemplates.begin(); i != mMapTemplates.end(); i++) choices.Add(wxT(i->first.c_str()));
+
+					wxSingleChoiceDialog dialog(&wxEdit::Instance(),//.GetpropertyWindow(),
+						wxT("Please select a map type:"),
+						wxT("What's this?"),
 						choices);
 
 					dialog.SetSelection(0);
 
-					if (dialog.ShowModal() == wxID_OK)
+					int result = dialog.ShowModal();
+
+					wxEdit::Instance().GetMainNotebook()->GetOgreWindow()->SetPaused(false);
+
+					if (result == wxID_OK)
 					{
 						int selection = dialog.GetSelection();
 						std::map<Ogre::String, MaterialTemplate>::iterator it = mMapTemplates.begin();
