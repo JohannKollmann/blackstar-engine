@@ -37,16 +37,16 @@ void CameraController::ReceiveMessage(Msg &msg)
 {
 
 	//Der folgende Code ermöglicht eine einfache Kamerasteuerung über WASD und die Maus und ist eher für Debug oder Editorzwecke gedacht.
-	if (msg.mNewsgroup == "MOUSE_MOVE")
+	if (msg.type == "MOUSE_MOVE")
 	{
-		if (mYRot) mCamera->yaw(Ogre::Degree(-msg.mData.GetInt("ROT_X_REL") * mRotSpeed));
-		if (mXRot) mCamera->pitch(Ogre::Degree(-msg.mData.GetInt("ROT_Y_REL") * mRotSpeed));
+		if (mYRot) mCamera->yaw(Ogre::Degree(-msg.params.GetInt("ROT_X_REL") * mRotSpeed));
+		if (mXRot) mCamera->pitch(Ogre::Degree(-msg.params.GetInt("ROT_Y_REL") * mRotSpeed));
 	}
-	else if (msg.mNewsgroup == "UPDATE_PER_FRAME")
+	else if (msg.type == "UPDATE_PER_FRAME")
 	{
 		if (mMove)
 		{
-			float time = msg.mData.GetFloat("TIME");
+			float time = msg.params.GetFloat("TIME");
 			mMovementVec = Ogre::Vector3(0,0,0);
 			if (Main::Instance().GetInputManager()->isKeyDown(OIS::KeyCode::KC_A)) mMovementVec.x = -1;
 			if (Main::Instance().GetInputManager()->isKeyDown(OIS::KeyCode::KC_D)) mMovementVec.x = 1;
@@ -59,16 +59,16 @@ void CameraController::ReceiveMessage(Msg &msg)
 		Main::Instance().GetSoundManager()->getListener()->setPosition(mCamera->getDerivedPosition());
 		Main::Instance().GetSoundManager()->getListener()->setOrientation(mCamera->getDerivedOrientation());
 	}
-	else if (msg.mNewsgroup == "CONSOLE_INGAME")
+	else if (msg.type == "CONSOLE_INGAME")
 	{
-		if (msg.mData.GetOgreString("COMMAND") == "cam_goto_pos")
+		if (msg.params.GetOgreString("COMMAND") == "cam_goto_pos")
 		{
-			mCamera->setPosition(msg.mData.GetOgreVec3("PARAM1"));
+			mCamera->setPosition(msg.params.GetOgreVec3("PARAM1"));
 		}
 	}
-	else if (msg.mNewsgroup == "KEY_UP")
+	else if (msg.type == "KEY_UP")
 	{
-		int keyid = msg.mData.GetInt("KEY_ID_OIS");
+		int keyid = msg.params.GetInt("KEY_ID_OIS");
 		if (keyid == OIS::KC_F2)
 		{
 			/*Ogre::Entity *jaiqua = Main::Instance().GetOgreSceneMgr()->createEntity("ragdolltest" + Ogre::StringConverter::toString(SceneManager::Instance().RequestID()), "jaiqua.mesh");

@@ -139,9 +139,9 @@ namespace Ice
 
 	void GOCMover::ReceiveMessage( Msg &msg )
 	{
-		if (msg.mNewsgroup == "UPDATE_PER_FRAME" && mMoving)
+		if (msg.type == "UPDATE_PER_FRAME" && mMoving)
 		{
-			float time = msg.mData.GetFloat("TIME");
+			float time = msg.params.GetFloat("TIME");
 			SetOwnerPosition(mSpline.Sample(mfLastPos));
 			mfLastPos+=time;
 			if(mfLastPos>mSpline.GetLength())

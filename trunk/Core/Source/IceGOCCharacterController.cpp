@@ -15,10 +15,10 @@ namespace Ice
 
 	void CharacterControllerInput::BroadcastMovementState()
 	{
-		ObjectMsg *objmsg = new ObjectMsg();
-		objmsg->mName = "UpdateCharacterMovementState";
-		objmsg->mData.AddInt("CharacterMovementState", mCharacterMovementState);
-		mOwnerGO->SendInstantMessage("", Ogre::SharedPtr<ObjectMsg>(objmsg));
+		Msg objmsg;
+		objmsg.type = "UpdateCharacterMovementState";
+		objmsg.params.AddInt("CharacterMovementState", mCharacterMovementState);
+		mOwnerGO->SendInstantMessage("", objmsg);
 	}
 	void CharacterControllerInput::BroadcastMovementState(int state)
 	{
@@ -37,7 +37,7 @@ namespace Ice
 		if (mCharacterController)
 		{
 			Msg msg;
-			msg.mNewsgroup = "ACOTR_ONWAKE";
+			msg.type = "ACOTR_ONWAKE";
 			msg.rawData = mCharacterController->getActor();
 			MessageSystem::Instance().SendInstantMessage(msg);
 			OgrePhysX::World::getSingleton().getControllerManager()->releaseController(*mCharacterController);
@@ -87,9 +87,9 @@ namespace Ice
 
 	void GOCCharacterController::ReceiveMessage(Msg &msg)
 	{
-		if (msg.mNewsgroup == "START_PHYSICS" && !mFreezed)
+		if (msg.type == "START_PHYSICS" && !mFreezed)
 		{
-			float time = msg.mData.GetFloat("TIME");
+			float time = msg.params.GetFloat("TIME");
 			float jumpDelta = 0.0f;
 			if (mJump.mJumping) jumpDelta = mJump.GetHeight(time);
 			Ogre::Vector3 dir_rotated = mOwnerGO->GetGlobalOrientation() * (mDirection + Ogre::Vector3(0, jumpDelta, 0));
@@ -101,28 +101,28 @@ namespace Ice
 			{
 				mCharacterController->setStepOffset(mStepOffset);
 				mJump.StopJump();
-				ObjectMsg *jump_response = new ObjectMsg;
-				jump_response->mName = "CharacterJumpEnded";
-				mOwnerGO->SendInstantMessage("", Ogre::SharedPtr<ObjectMsg>(jump_response));
+				Msg jump_response;
+				jump_response.type = "CharacterJumpEnded";
+				mOwnerGO->SendInstantMessage("", jump_response);
 			}
-			ObjectMsg *collision_response = new ObjectMsg;
-			collision_response->mName = "CharacterCollisionReport";
-			collision_response->mData.AddInt("collisionFlags", collisionFlags);
-			mOwnerGO->SendMessage(Ogre::SharedPtr<ObjectMsg>(collision_response));
+			Msg collision_response;
+			collision_response.type = "CharacterCollisionReport";
+			collision_response.params.AddInt("collisionFlags", collisionFlags);
+			mOwnerGO->SendMessage(collision_response);
 		}
-		if (msg.mNewsgroup == "END_PHYSICS" && !mFreezed)
+		if (msg.type == "END_PHYSICS" && !mFreezed)
 		{
 			NxExtendedVec3 nxPos = mCharacterController->getFilteredPosition();
 			SetOwnerPosition(Ogre::Vector3(nxPos.x, nxPos.y - mDimensions.y * 0.5, nxPos.z));
 		}
 	}
 
-	void GOCCharacterController::ReceiveObjectMessage(Ogre::SharedPtr<ObjectMsg> msg)
+	void GOCCharacterController::ReceiveObjectMessage(const Msg &msg)
 	{
-		if (msg->mName == "UpdateCharacterMovementState")
+		if (msg.type == "UpdateCharacterMovementState")
 		{
 			mDirection = Ogre::Vector3(0,0,0);
-			int movementFlags = msg->mData.GetInt("CharacterMovementState");
+			int movementFlags = msg.params.GetInt("CharacterMovementState");
 			if (movementFlags & CharacterMovement::FORWARD) mDirection.z += (mMovementSpeed*mSpeedFactor);
 			if (movementFlags & CharacterMovement::BACKWARD) mDirection.z -= (mMovementSpeed*mSpeedFactor);
 			if (movementFlags & CharacterMovement::LEFT) mDirection.x += (mMovementSpeed*mSpeedFactor);
@@ -137,7 +137,7 @@ namespace Ice
 				}
 			}
 		}
-		if (msg->mName == "KillCharacter")
+		if (msg.type == "KillCharacter")
 		{
 			mFreezed = true;
 		}

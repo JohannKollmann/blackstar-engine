@@ -53,7 +53,7 @@ public:
 
 	void Update(float time);
 
-	void ReceiveObjectMessage(Ogre::SharedPtr<ObjectMsg> msg);
+	void ReceiveObjectMessage(const Msg &msg);
 
 	void ReceiveMessage(Msg &msg);
 

@@ -315,7 +315,7 @@ namespace Ice
 	void SceneManager::LoadLevel(Ogre::String levelfile, bool load_dynamic)
 	{
 		Msg msg;
-		msg.mNewsgroup = "LOADLEVEL_BEGIN";
+		msg.type = "LOADLEVEL_BEGIN";
 		MessageSystem::Instance().SendInstantMessage(msg);
 
 		ClearGameObjects();
@@ -337,14 +337,14 @@ namespace Ice
 		ls->CloseFile();
 		delete ls;
 
-		msg.mNewsgroup = "LOADLEVEL_END";
+		msg.type = "LOADLEVEL_END";
 		MessageSystem::Instance().SendInstantMessage(msg);
 	}
 
 	void SceneManager::SaveLevel(Ogre::String levelfile)
 	{
 		Msg msg;
-		msg.mNewsgroup = "SAVELEVEL_BEGIN";
+		msg.type = "SAVELEVEL_BEGIN";
 		MessageSystem::Instance().SendInstantMessage(msg);
 
 		ShowEditorMeshes(false);
@@ -362,7 +362,7 @@ namespace Ice
 		ss->CloseFiles();
 		delete ss;
 
-		msg.mNewsgroup = "SAVELEVEL_END";
+		msg.type = "SAVELEVEL_END";
 		MessageSystem::Instance().SendInstantMessage(msg);
 	}
 
@@ -876,9 +876,9 @@ namespace Ice
 
 	void SceneManager::ReceiveMessage(Msg &msg)
 	{
-		if (msg.mNewsgroup == "UPDATE_PER_FRAME")
+		if (msg.type == "UPDATE_PER_FRAME")
 		{
-			float time = msg.mData.GetFloat("TIME");
+			float time = msg.params.GetFloat("TIME");
 			if (mClockEnabled)
 			{
 				mDayTime += (time*0.001*mTimeScale);
@@ -895,8 +895,8 @@ namespace Ice
 	{
 		mClockEnabled = enable;
 		Msg msg;
-		msg.mNewsgroup = "ENABLE_GAME_CLOCK";
-		msg.mData.AddBool("enable", enable);
+		msg.type = "ENABLE_GAME_CLOCK";
+		msg.params.AddBool("enable", enable);
 		MessageSystem::Instance().SendInstantMessage(msg);
 	}
 

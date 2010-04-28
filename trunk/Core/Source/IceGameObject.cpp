@@ -63,13 +63,13 @@ namespace Ice
 		ClearGOCs();
 	}
 
-	void GameObject::SendMessage(Ogre::SharedPtr<ObjectMsg> msg)
+	void GameObject::SendMessage(const Msg &msg)
 	{
 		mCurrentMessages.push_back(msg);
 		if (mCurrentMessages.size() == 1) SceneManager::Instance().AddToMessageQueue(this);
 	}
 
-	void GameObject::SendInstantMessage(Ogre::String receiver_family, Ogre::SharedPtr<ObjectMsg> msg)
+	void GameObject::SendInstantMessage(Ogre::String receiver_family, const Msg &msg)
 	{
 		for (std::vector<GOComponent*>::iterator i = mComponents.begin(); i != mComponents.end(); i++)
 		{
@@ -82,11 +82,11 @@ namespace Ice
 
 	void GameObject::ProcessMessages()
 	{
-		std::vector<Ogre::SharedPtr<ObjectMsg> > msgcopy = mCurrentMessages;
+		std::vector<Msg> msgcopy = mCurrentMessages;
 		mCurrentMessages.clear();
 		for (std::vector<GOComponent*>::iterator i = mComponents.begin(); i != mComponents.end(); i++)
 		{
-			for (std::vector<Ogre::SharedPtr<ObjectMsg> >::iterator x = msgcopy.begin(); x != msgcopy.end(); x++)
+			for (std::vector<Msg>::iterator x = msgcopy.begin(); x != msgcopy.end(); x++)
 			{
 				(*i)->ReceiveObjectMessage((*x));
 			}

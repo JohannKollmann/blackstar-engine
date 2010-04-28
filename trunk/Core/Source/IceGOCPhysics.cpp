@@ -32,7 +32,7 @@ namespace Ice
 		if (mActor)
 		{
 			Msg msg;
-			msg.mNewsgroup = "ACOTR_ONWAKE";
+			msg.type = "ACOTR_ONWAKE";
 			msg.rawData = mActor->getNxActor();
 			MessageSystem::Instance().SendInstantMessage(msg);
 			Main::Instance().GetPhysXScene()->destroyRenderedActor(mActor);
@@ -307,9 +307,9 @@ namespace Ice
 	{
 		if (mOwnerGO)
 		{
-			Ogre::SharedPtr<ObjectMsg> msg;
-			msg->mName = "TRIGGER_ENTER";
-			msg->rawData = object;
+			Msg msg;
+			msg.type = "TRIGGER_ENTER";
+			msg.rawData = object;
 			mOwnerGO->SendMessage(msg);
 		}
 	}
@@ -317,9 +317,9 @@ namespace Ice
 	{
 		if (mOwnerGO)
 		{
-			Ogre::SharedPtr<ObjectMsg> msg;
-			msg->mName = "TRIGGER_LEAVE";
-			msg->rawData = object;
+			Msg msg;
+			msg.type = "TRIGGER_LEAVE";
+			msg.rawData = object;
 			mOwnerGO->SendMessage(msg);
 		}
 	}

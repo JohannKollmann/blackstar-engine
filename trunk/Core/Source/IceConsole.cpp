@@ -42,17 +42,17 @@ void Console::Show(bool show)
 
 void Console::ReceiveMessage(Msg &msg)
 {
-	if (msg.mNewsgroup == "CONSOLE_INGAME")
+	if (msg.type == "CONSOLE_INGAME")
 	{
-		if (msg.mData.GetOgreString("COMMAND") == "lua_loadscript")
+		if (msg.params.GetOgreString("COMMAND") == "lua_loadscript")
 		{
 			int counter = 0;
 			Ogre::String scriptfile = "";
 			Ogre::String funcname = "";
 			std::vector<ScriptParam> params;
-			while (msg.mData.HasNext())
+			while (msg.params.HasNext())
 			{
-				GenericProperty entry = msg.mData.GetNext();
+				GenericProperty entry = msg.params.GetNext();
 				if (counter == 0)
 				{
 					counter = 1;
@@ -62,7 +62,7 @@ void Console::ReceiveMessage(Msg &msg)
 				{
 					if (entry.mType == "Ogre::String")
 					{
-						scriptfile = Ogre::any_cast<Ogre::String>(entry.mData);
+						scriptfile = entry.Get<Ogre::String>();
 						counter = 2;
 						continue;
 					}
@@ -71,18 +71,18 @@ void Console::ReceiveMessage(Msg &msg)
 				{
 					if (entry.mType == "Ogre::String")
 					{
-						funcname = Ogre::any_cast<Ogre::String>(entry.mData);
+						funcname = entry.Get<Ogre::String>();
 						counter = 3;
 						continue;
 					}
 				}
 				if (counter == 3)
 				{
-					if (entry.mType == "bool") params.push_back(ScriptParam(Ogre::any_cast<bool>(entry.mData)));
-					if (entry.mType == "float") params.push_back(ScriptParam(Ogre::any_cast<float>(entry.mData)));
+					if (entry.mType == "bool") params.push_back(ScriptParam(entry.Get<bool>()));
+					if (entry.mType == "float") params.push_back(ScriptParam(entry.Get<float>()));
 					if (entry.mType == "Ogre::String")
 					{
-						std::string str = Ogre::any_cast<Ogre::String>(entry.mData);
+						std::string str = entry.Get<Ogre::String>();
 						params.push_back(ScriptParam(str));
 					}
 				}
@@ -139,12 +139,12 @@ void Console::ExecCommand(Ogre::String command)
 		if ((*i).first == inputs[0])
 		{
 			Msg msg;
-			msg.mNewsgroup = "CONSOLE_INGAME";
-			msg.mData.AddOgreString("COMMAND", (*i).first);
+			msg.type = "CONSOLE_INGAME";
+			msg.params.AddOgreString("COMMAND", (*i).first);
 			for (unsigned int paramindex = 1; paramindex < inputs.size(); paramindex++)
 			{
 				Ogre::String paramname = "PARAM" + Ogre::StringConverter::toString(paramindex);
-				msg.mData.AddOgreString(paramname, inputs[paramindex]);
+				msg.params.AddOgreString(paramname, inputs[paramindex]);
 			}
 			MessageSystem::Instance().SendMessage(msg);
 			Print(command);

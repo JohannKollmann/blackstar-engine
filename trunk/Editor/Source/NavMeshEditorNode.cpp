@@ -312,11 +312,11 @@
 
 	void NavMeshEditorNode::ReceiveMessage(Ice::Msg &msg)
 	{
-		if (msg.mNewsgroup == "LOADLEVEL_BEGIN")
+		if (msg.type == "LOADLEVEL_BEGIN")
 		{
 			mClearingScene = true;
 		}
-		if (msg.mNewsgroup == "LOADLEVEL_END")
+		if (msg.type == "LOADLEVEL_END")
 		{
 			mClearingScene = false;
 		}

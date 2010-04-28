@@ -20,9 +20,9 @@ namespace Ice
 	void ScriptMessageListener::ReceiveMessage(Msg &msg)
 	{
 		std::vector<ScriptParam> params;
-		while (msg.mData.HasNext())
+		while (msg.params.HasNext())
 		{
-			GenericProperty prop = msg.mData.GetNext();
+			GenericProperty prop = msg.params.GetNext();
 			prop.GetAsScriptParam(params);
 		}
 		ScriptSystem::RunCallbackFunction(mScriptCallback, params);

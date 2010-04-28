@@ -14,9 +14,9 @@ namespace Ice
 bool Editor::OnUpdate(float time, float time_total)
 {
 	Msg msg;
-	msg.mNewsgroup = "START_PHYSICS";
-	msg.mData.AddFloat("TIME", time);
-	msg.mData.AddFloat("TIME_TOTAL", time_total);
+	msg.type = "START_PHYSICS";
+	msg.params.AddFloat("TIME", time);
+	msg.params.AddFloat("TIME_TOTAL", time_total);
 	MessageSystem::Instance().SendInstantMessage(msg);
 
 	if (MainLoop::Instance().GetRunPhysics())
@@ -28,14 +28,14 @@ bool Editor::OnUpdate(float time, float time_total)
 	Main::Instance().GetSoundManager()->update();
 
 	//Game stuff
-	msg.mNewsgroup = "UPDATE_PER_FRAME";
+	msg.type = "UPDATE_PER_FRAME";
 	MessageSystem::Instance().SendInstantMessage(msg);
 
 	if (MainLoop::Instance().GetRunPhysics())
 	{
 		OgrePhysX::World::getSingleton().fetchSimulate();	//blocking
 		OgrePhysX::World::getSingleton().syncRenderables();
-		msg.mNewsgroup = "END_PHYSICS";
+		msg.type = "END_PHYSICS";
 		MessageSystem::Instance().SendInstantMessage(msg);
 	}
 
@@ -44,10 +44,10 @@ bool Editor::OnUpdate(float time, float time_total)
 
 	SceneManager::Instance().UpdateGameObjects();
 
-	msg.mNewsgroup = "START_RENDERING";
+	msg.type = "START_RENDERING";
 	MessageSystem::Instance().SendInstantMessage(msg);
 	bool render = Ogre::Root::getSingleton().renderOneFrame();
-	msg.mNewsgroup = "END_RENDERING";
+	msg.type = "END_RENDERING";
 	MessageSystem::Instance().SendInstantMessage(msg);
 
 	return render;
@@ -56,9 +56,9 @@ bool Editor::OnUpdate(float time, float time_total)
 bool Game::OnUpdate(float time, float time_total)
 {
 	Msg msg;
-	msg.mNewsgroup = "UPDATE_PER_FRAME";
-	msg.mData.AddFloat("TIME", time);
-	msg.mData.AddFloat("TIME_TOTAL", time_total);
+	msg.type = "UPDATE_PER_FRAME";
+	msg.params.AddFloat("TIME", time);
+	msg.params.AddFloat("TIME_TOTAL", time_total);
 	MessageSystem::Instance().SendMessage(msg);
 
 	Main::Instance().GetInputManager()->Update();

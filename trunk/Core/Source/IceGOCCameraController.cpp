@@ -73,9 +73,9 @@ void GOCCameraController::ReceiveMessage(Msg &msg)
 	static double sfAbsCamYaw=0.0;
 	static double sfActualZoom=0.0;
 	
-	if (msg.mNewsgroup == "KEY_DOWN")
+	if (msg.type == "KEY_DOWN")
 	{
-		OIS::KeyCode kc = (OIS::KeyCode)msg.mData.GetInt("KEY_ID_OIS");
+		OIS::KeyCode kc = (OIS::KeyCode)msg.params.GetInt("KEY_ID_OIS");
 		if (kc == OIS::KC_PGDOWN)
 			mfZoom += (mfZoom+0.1f)*0.2f;
 		if (kc == OIS::KC_PGUP)
@@ -85,16 +85,16 @@ void GOCCameraController::ReceiveMessage(Msg &msg)
 		if(mfZoom<0.0)
 			mfZoom=0.0;
 	}
-	if (msg.mNewsgroup == "MOUSE_MOVE")
+	if (msg.type == "MOUSE_MOVE")
 	{
-		mfZoom -= (mfZoom+0.1f)*(msg.mData.GetInt("ROT_Z_REL")*0.001f);
+		mfZoom -= (mfZoom+0.1f)*(msg.params.GetInt("ROT_Z_REL")*0.001f);
 
 		if(mfZoom>1.5f)
 			mfZoom=1.5f;
 		if(mfZoom<0.0f)
 			mfZoom=0.0f;
 		
-		double pitch = msg.mData.GetInt("ROT_Y_REL")*mTightness;
+		double pitch = msg.params.GetInt("ROT_Y_REL")*mTightness;
 		sfAbsRefPitch+=pitch;
 		if(sfAbsRefPitch>=Ogre::Math::PI*0.4f)
 			sfAbsRefPitch=Ogre::Math::PI*0.4f;
@@ -115,9 +115,9 @@ void GOCCameraController::ReceiveMessage(Msg &msg)
 		}
 		
 	}
-	if (msg.mNewsgroup == "UPDATE_PER_FRAME")
+	if (msg.type == "UPDATE_PER_FRAME")
 	{
-		float time = msg.mData.GetFloat("TIME");
+		float time = msg.params.GetFloat("TIME");
 		if(mfZoom>0.0)
 		{
 			const double cfSpeed=7.0f;
@@ -149,7 +149,7 @@ void GOCCameraController::AttachToGO(GameObject *go)
 	go->AddComponent(this);
 }
 
-void GOCCameraController::ReceiveObjectMessage(Ogre::SharedPtr<ObjectMsg> msg)
+void GOCCameraController::ReceiveObjectMessage(const Msg &msg)
 {
 }
 

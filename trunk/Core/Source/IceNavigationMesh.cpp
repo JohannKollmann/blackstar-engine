@@ -565,7 +565,7 @@ namespace Ice
 	void NavigationMesh::ReceiveMessage(Msg &msg)
 	{
 		if (!mPathNodeTree) return;
-		if (msg.mNewsgroup == "ACOTR_ONSLEEP")
+		if (msg.type == "ACOTR_ONSLEEP")
 		{
 			NxActor *a = (NxActor*)msg.rawData;
 			if (!a) return;
@@ -575,7 +575,7 @@ namespace Ice
 			Ogre::AxisAlignedBox box = OgrePhysX::Convert::toOgre(nxBounds);
 			mPathNodeTree->InjectObstacle(a, box);
 		}
-		if (msg.mNewsgroup == "ACOTR_ONWAKE")
+		if (msg.type == "ACOTR_ONWAKE")
 		{
 			NxActor *a = (NxActor*)msg.rawData;
 			if (!a) return;

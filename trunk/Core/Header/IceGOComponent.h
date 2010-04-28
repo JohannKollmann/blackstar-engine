@@ -9,13 +9,6 @@
 namespace Ice
 {
 
-	struct ObjectMsg
-	{
-		Ogre::String mName;
-		DataMap mData;
-		void *rawData;
-	};
-
 	class DllExport GOComponent : public LoadSave::Saveable
 	{
 		friend class GameObject;
@@ -57,7 +50,7 @@ namespace Ice
 		virtual bool IsStatic() { return true; }
 
 		//Messaging
-		virtual void ReceiveObjectMessage(Ogre::SharedPtr<ObjectMsg> msg) {}
+		virtual void ReceiveObjectMessage(const Msg &msg) {}
 
 		//Editor stuff
 		virtual void Freeze(bool freeze) {};

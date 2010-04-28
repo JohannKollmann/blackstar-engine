@@ -24,18 +24,18 @@ ScriptedControls::ScriptedControls()
 void
 ScriptedControls::ReceiveMessage(Ice::Msg &msg)
 {
-	if(msg.mNewsgroup == "CONTROL_DOWN")
+	if(msg.type == "CONTROL_DOWN")
 	{
-		if(m_mControlDownCallbacks.find(msg.mData.GetOgreString("CONTROL_NAME"))!=m_mControlDownCallbacks.end())
+		if(m_mControlDownCallbacks.find(msg.params.GetOgreString("CONTROL_NAME"))!=m_mControlDownCallbacks.end())
 		{
-			Ice::ScriptSystem::RunCallbackFunction(m_mControlDownCallbacks[msg.mData.GetOgreString("CONTROL_NAME")], std::vector<Ice::ScriptParam>(1, Ice::ScriptParam(msg.mData.GetOgreString("CONTROL_NAME"))));
+			Ice::ScriptSystem::RunCallbackFunction(m_mControlDownCallbacks[msg.params.GetOgreString("CONTROL_NAME")], std::vector<Ice::ScriptParam>(1, Ice::ScriptParam(msg.params.GetOgreString("CONTROL_NAME"))));
 		}
 	}
-	if(msg.mNewsgroup == "CONTROL_UP")
+	if(msg.type == "CONTROL_UP")
 	{
-		if(m_mControlUpCallbacks.find(msg.mData.GetOgreString("CONTROL_NAME"))!=m_mControlUpCallbacks.end())
+		if(m_mControlUpCallbacks.find(msg.params.GetOgreString("CONTROL_NAME"))!=m_mControlUpCallbacks.end())
 		{
-			Ice::ScriptSystem::RunCallbackFunction(m_mControlUpCallbacks[msg.mData.GetOgreString("CONTROL_NAME")], std::vector<Ice::ScriptParam>(1, Ice::ScriptParam(msg.mData.GetOgreString("CONTROL_NAME"))));
+			Ice::ScriptSystem::RunCallbackFunction(m_mControlUpCallbacks[msg.params.GetOgreString("CONTROL_NAME")], std::vector<Ice::ScriptParam>(1, Ice::ScriptParam(msg.params.GetOgreString("CONTROL_NAME"))));
 		}
 	}
 }

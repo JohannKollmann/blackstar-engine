@@ -51,9 +51,9 @@ void GOCPlayerInput::Pause(bool pause)
 void GOCPlayerInput::ReceiveMessage(Msg &msg)
 {
 	if (!mActive) return;
-	if (msg.mNewsgroup == "KEY_DOWN")
+	if (msg.type == "KEY_DOWN")
 	{
-		OIS::KeyCode kc = (OIS::KeyCode)msg.mData.GetInt("KEY_ID_OIS");
+		OIS::KeyCode kc = (OIS::KeyCode)msg.params.GetInt("KEY_ID_OIS");
 		if (kc == OIS::KC_W)
 		{
 			mCharacterMovementState = mCharacterMovementState | CharacterMovement::FORWARD;
@@ -75,9 +75,9 @@ void GOCPlayerInput::ReceiveMessage(Msg &msg)
 			mCharacterMovementState = mCharacterMovementState | CharacterMovement::JUMP;
 		}
 	}
-	if (msg.mNewsgroup == "KEY_UP")
+	if (msg.type == "KEY_UP")
 	{
-		OIS::KeyCode kc = (OIS::KeyCode)msg.mData.GetInt("KEY_ID_OIS");
+		OIS::KeyCode kc = (OIS::KeyCode)msg.params.GetInt("KEY_ID_OIS");
 		if (kc == OIS::KC_W)
 		{
 			mCharacterMovementState = mCharacterMovementState & ~CharacterMovement::FORWARD;
@@ -98,27 +98,27 @@ void GOCPlayerInput::ReceiveMessage(Msg &msg)
 	BroadcastMovementState();
 	//mCharacterMovementState = mCharacterMovementState & ~CharacterMovement::JUMP;	//Jumping is always a one-time event
 
-	if (msg.mNewsgroup == "MOUSE_MOVE")
+	if (msg.type == "MOUSE_MOVE")
 	{
-		mOwnerGO->Rotate(Ogre::Vector3(0,1,0), Ogre::Radian((Ogre::Degree(-msg.mData.GetInt("ROT_X_REL") * 0.2f))));
+		mOwnerGO->Rotate(Ogre::Vector3(0,1,0), Ogre::Radian((Ogre::Degree(-msg.params.GetInt("ROT_X_REL") * 0.2f))));
 	}
-	if (msg.mNewsgroup == "UPDATE_PER_FRAME")
+	if (msg.type == "UPDATE_PER_FRAME")
 	{
 	}
 }
 
 #include "NxController.h"
 
-void GOCPlayerInput::ReceiveObjectMessage(Ogre::SharedPtr<ObjectMsg> msg)
+void GOCPlayerInput::ReceiveObjectMessage(const Msg &msg)
 {
-	if (msg->mName == "CharacterJumpEnded")
+	if (msg.type == "CharacterJumpEnded")
 	{
 		mCharacterMovementState = mCharacterMovementState & ~CharacterMovement::JUMP;
 		BroadcastMovementState();
 	}
-	if (msg->mName == "CharacterCollisionReport")
+	if (msg.type == "CharacterCollisionReport")
 	{
-		NxU32 collisionFlags = msg->mData.GetInt("collisionFlags");
+		NxU32 collisionFlags = msg.params.GetInt("collisionFlags");
 	}
 }
 

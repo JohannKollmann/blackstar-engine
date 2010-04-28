@@ -9,6 +9,7 @@
 #include "IceIncludes.h"
 #include "IceGOComponent.h"
 #include "Ice3D.h"
+#include "IceMsg.h"
 
 namespace Ice
 {
@@ -43,7 +44,7 @@ namespace Ice
 		std::vector<GOComponent*> mComponents;
 
 		//Messaging
-		std::vector<Ogre::SharedPtr<ObjectMsg> > mCurrentMessages;
+		std::vector<Msg> mCurrentMessages;
 
 		//Parent and children
 		GameObject* mParent;
@@ -64,8 +65,8 @@ namespace Ice
 
 		GameObject* GetParent() { return mParent; }
 
-		void SendMessage(Ogre::SharedPtr<ObjectMsg> msg);
-		void SendInstantMessage(Ogre::String receiver_family, Ogre::SharedPtr<ObjectMsg> msg);
+		void SendMessage(const Msg &msg);
+		void SendInstantMessage(Ogre::String receiver_family, const Msg &msg);
 		void ProcessMessages();
 
 		void AddComponent(GOComponent* component);

@@ -142,24 +142,24 @@ ScriptParam GOCAI::GetProperty(std::string key)
 	return ScriptParam(0);
 }
 
-void GOCAI::ReceiveObjectMessage(Ogre::SharedPtr<ObjectMsg> msg)
+void GOCAI::ReceiveObjectMessage(const Msg &msg)
 {
-	if (msg->mName == "CharacterJumpEnded")
+	if (msg.type == "CharacterJumpEnded")
 	{
 		mCharacterMovementState = mCharacterMovementState & ~CharacterMovement::JUMP;
 		BroadcastMovementState();
 	}
-	if (msg->mName == "CharacterCollisionReport")
+	if (msg.type == "CharacterCollisionReport")
 	{
-		NxU32 collisionFlags = msg->mData.GetInt("collisionFlags");
+		NxU32 collisionFlags = msg.params.GetInt("collisionFlags");
 	}
 }
 
 void GOCAI::ReceiveMessage(Msg &msg)
 {
-	if (msg.mNewsgroup == "ENABLE_GAME_CLOCK")
+	if (msg.type == "ENABLE_GAME_CLOCK")
 	{
-		bool enable = msg.mData.GetBool("enable");
+		bool enable = msg.params.GetBool("enable");
 		if (!enable)
 		{
 			BroadcastMovementState(0);

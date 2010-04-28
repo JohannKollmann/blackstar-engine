@@ -69,9 +69,9 @@ public:
 	bool HasKey(Ogre::String keyname);
 
 	template <class templateType>
-	templateType GetValue(Ogre::String keyname) throw(Ogre::Exception)
+	templateType GetValue(Ogre::String keyname) const throw(Ogre::Exception)
 	{
-		for (std::vector<GenericProperty>::iterator i = mData.begin(); i != mData.end(); i++)
+		for (auto i = mData.begin(); i != mData.end(); i++)
 		{
 			if ((*i).mKey == keyname) return Ogre::any_cast<templateType>((*i).mData);
 		}
@@ -79,7 +79,7 @@ public:
 		throw Ogre::Exception(Ogre::Exception::ERR_ITEM_NOT_FOUND , "DataMap::Get Invalid key (" + keyname + ")!", "IceDataMap.h, line 71");
 	}
 	template <class templateType>
-	templateType GetValue(Ogre::String keyname, templateType defaultVal)
+	templateType GetValue(Ogre::String keyname, templateType defaultVal) const
 	{
 		templateType val;
 		try {
@@ -88,13 +88,13 @@ public:
 		return val;
 	}
 
-	int GetInt(Ogre::String keyname);
-	bool GetBool(Ogre::String keyname);
-	float GetFloat(Ogre::String keyname);
-	Ogre::Vector3 GetOgreVec3(Ogre::String keyname);
-	Ogre::ColourValue GetOgreCol(Ogre::String keyname);
-	Ogre::Quaternion GetOgreQuat(Ogre::String keyname);
-	Ogre::String GetOgreString(Ogre::String keyname);
+	int GetInt(Ogre::String keyname)					const;
+	bool GetBool(Ogre::String keyname)					const;
+	float GetFloat(Ogre::String keyname)				const;
+	Ogre::Vector3 GetOgreVec3(Ogre::String keyname)		const;
+	Ogre::ColourValue GetOgreCol(Ogre::String keyname)	const;
+	Ogre::Quaternion GetOgreQuat(Ogre::String keyname)	const;
+	Ogre::String GetOgreString(Ogre::String keyname)	const;
 
 	/*
 	Template zum speichern von Basistypen.

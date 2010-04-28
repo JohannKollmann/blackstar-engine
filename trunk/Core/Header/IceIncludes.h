@@ -43,7 +43,6 @@ namespace Ice
 	class ManagedGameObject;
 	class GOComponent;
 	class ComponentSection;
-	struct ObjectMsg;
 	class GOCViewListener;
 	class GOCRigidBody;
 	class GOCAI;
