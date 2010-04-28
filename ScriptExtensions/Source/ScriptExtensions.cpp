@@ -77,7 +77,7 @@ ScriptExtensions::uninstall()
 void
 ScriptExtensions::ReceiveMessage(Ice::Msg &msg)
 {
-	if(msg.mNewsgroup == "REPARSE_SCRIPTS")
+	if(msg.type == "REPARSE_SCRIPTS")
 	{
 		GUISystem::GetInstance().Clear();
 		MusicSystem::GetInstance().Clear();

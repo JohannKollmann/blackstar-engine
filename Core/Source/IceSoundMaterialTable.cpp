@@ -130,7 +130,7 @@ namespace Ice
 
 	void SoundMaterialTable::ReceiveMessage(Msg &msg)
 	{
-		if (msg.mNewsgroup == "REPARSE_SCRIPTS")
+		if (msg.type == "REPARSE_SCRIPTS")
 		{
 			Clear();
 		}

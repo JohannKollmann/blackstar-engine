@@ -415,9 +415,8 @@ void GOCAnimatedCharacter::SetAnimationState(Ogre::String statename)
 void GOCAnimatedCharacter::Kill()
 {
 	mRagdoll->setControlToActors();
-	ObjectMsg *msg = new ObjectMsg();
-	msg->mName = "KillCharacter";
-	if (mOwnerGO) mOwnerGO->SendMessage(Ogre::SharedPtr<ObjectMsg>(msg));
+	Msg msg;
+	if (mOwnerGO) mOwnerGO->SendMessage(msg);
 }
 
 void GOCAnimatedCharacter::SerialiseBoneObjects(Ogre::String filename)
@@ -500,17 +499,17 @@ void GOCAnimatedCharacter::GetMovementAnis(Ogre::String configfile)
 
 void GOCAnimatedCharacter::ReceiveMessage(Msg &msg)
 {
-	if (msg.mNewsgroup == "UPDATE_PER_FRAME")
+	if (msg.type == "UPDATE_PER_FRAME")
 	{
-		if (mAnimationState) mAnimationState->addTime(msg.mData.GetFloat("TIME"));
+		if (mAnimationState) mAnimationState->addTime(msg.params.GetFloat("TIME"));
 	}
 }
 
-void GOCAnimatedCharacter::ReceiveObjectMessage(Ogre::SharedPtr<ObjectMsg> msg)
+void GOCAnimatedCharacter::ReceiveObjectMessage(const Msg &msg)
 {
-	if (msg->mName == "UpdateCharacterMovementState")
+	if (msg.type == "UpdateCharacterMovementState")
 	{
-		mMovementState = msg->mData.GetInt("CharacterMovementState");
+		mMovementState = msg.params.GetInt("CharacterMovementState");
 
 		if (mMovementState & CharacterMovement::JUMP)
 		{

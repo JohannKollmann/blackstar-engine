@@ -158,38 +158,38 @@ namespace Ice
 		return false;
 	}
 
-	int DataMap::GetInt(Ogre::String keyname)
+	int DataMap::GetInt(Ogre::String keyname) const
 	{
 		return GetValue<int>(keyname);
 	}
 
-	bool DataMap::GetBool(Ogre::String keyname)
+	bool DataMap::GetBool(Ogre::String keyname) const
 	{
 		return GetValue<bool>(keyname);
 	}
 
-	float DataMap::GetFloat(Ogre::String keyname)
+	float DataMap::GetFloat(Ogre::String keyname) const
 	{
 		return GetValue<float>(keyname);
 	}
 
-	Ogre::Vector3 DataMap::GetOgreVec3(Ogre::String keyname)
+	Ogre::Vector3 DataMap::GetOgreVec3(Ogre::String keyname) const
 	{
 		return GetValue<Ogre::Vector3>(keyname);
 	}
 
-	Ogre::ColourValue DataMap::GetOgreCol(Ogre::String keyname)
+	Ogre::ColourValue DataMap::GetOgreCol(Ogre::String keyname) const
 	{
 		Ogre::Vector3 vec = GetValue<Ogre::Vector3>(keyname);
 		return Ogre::ColourValue(vec.x, vec.y, vec.z);
 	}
 
-	Ogre::Quaternion DataMap::GetOgreQuat(Ogre::String keyname)
+	Ogre::Quaternion DataMap::GetOgreQuat(Ogre::String keyname) const
 	{
 		return GetValue<Ogre::Quaternion>(keyname);
 	}
 
-	Ogre::String DataMap::GetOgreString(Ogre::String keyname)
+	Ogre::String DataMap::GetOgreString(Ogre::String keyname) const
 	{
 		return GetValue<Ogre::String>(keyname);
 	}

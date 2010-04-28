@@ -119,7 +119,7 @@ namespace Ice
 
 	void AIManager::ReceiveMessage(Msg &msg)
 	{
-		if (msg.mNewsgroup == "REPARSE_SCRIPTS_POST")
+		if (msg.type == "REPARSE_SCRIPTS_POST")
 		{
 			ReloadScripts();
 		}

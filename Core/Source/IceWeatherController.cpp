@@ -131,7 +131,7 @@ namespace Ice
 
 	void WeatherController::ReceiveMessage(Msg &msg)
 	{
-		if (msg.mNewsgroup == "UPDATE_PER_FRAME")
+		if (msg.type == "UPDATE_PER_FRAME")
 		{
 			mCaelumSystem->notifyCameraChanged(Main::Instance().GetCamera());
 		}

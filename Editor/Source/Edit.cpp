@@ -1228,11 +1228,11 @@ void Edit::SetObjectRotationSpeed(float factor)
 
 void Edit::ReceiveMessage(Ice::Msg &msg)
 {
-	if (msg.mNewsgroup == "MOUSE_MOVE")
+	if (msg.type == "MOUSE_MOVE")
 	{
-		OnMouseMove(Ogre::Degree(msg.mData.GetInt("ROT_X_REL")), Ogre::Degree(msg.mData.GetInt("ROT_Y_REL")));
+		OnMouseMove(Ogre::Degree(msg.params.GetInt("ROT_X_REL")), Ogre::Degree(msg.params.GetInt("ROT_Y_REL")));
 	}
-	if (msg.mNewsgroup == "UPDATE_PER_FRAME")
+	if (msg.type == "UPDATE_PER_FRAME")
 	{
 		if (mMoverReset.mover)
 		{
@@ -1248,7 +1248,7 @@ void Edit::ReceiveMessage(Ice::Msg &msg)
 		//Die Preview node, wenn vorhanden, rotieren
 		if (wxEdit::Instance().GetAuiManager().GetPane("preview").IsShown())
 		{
-			wxEdit::Instance().GetPreviewWindow()->Update(msg.mData.GetFloat("TIME"));
+			wxEdit::Instance().GetPreviewWindow()->Update(msg.params.GetFloat("TIME"));
 		}
 		/*if (wxEdit::Instance().GetpropertyWindow()->GetCurrentPageName() == "EditGameObject")
 		{

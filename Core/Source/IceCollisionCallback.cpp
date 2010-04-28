@@ -46,7 +46,7 @@ namespace Ice
 		for (unsigned int i = 0; i < count; i++)
 		{
 			Msg msg;
-			msg.mNewsgroup = "ACOTR_ONSLEEP";
+			msg.type = "ACOTR_ONSLEEP";
 			msg.rawData = actors[i];
 			MessageSystem::Instance().SendInstantMessage(msg);
 		}
@@ -57,7 +57,7 @@ namespace Ice
 		for (unsigned int i = 0; i < count; i++)
 		{
 			Msg msg;
-			msg.mNewsgroup = "ACOTR_ONWAKE";
+			msg.type = "ACOTR_ONWAKE";
 			msg.rawData = actors[i];
 			MessageSystem::Instance().SendInstantMessage(msg);
 		}
@@ -73,11 +73,11 @@ namespace Ice
 	{
 		//Ogre::LogManager::getSingleton().logMessage("OnMaterialContact: " + material1 + " - " + material2 + "  Force: " + Ogre::StringConverter::toString(force));
 		Msg msg;
-		msg.mNewsgroup = "MATERIAL_ONCONTACT";
-		msg.mData.AddOgreVec3("Position", position);
-		msg.mData.AddOgreString("Material1", material1);
-		msg.mData.AddOgreString("Material2", material2);
-		msg.mData.AddFloat("Force", force);
+		msg.type = "MATERIAL_ONCONTACT";
+		msg.params.AddOgreVec3("Position", position);
+		msg.params.AddOgreString("Material1", material1);
+		msg.params.AddOgreString("Material2", material2);
+		msg.params.AddFloat("Force", force);
 		MessageSystem::Instance().SendMessage(msg);
 	}
 

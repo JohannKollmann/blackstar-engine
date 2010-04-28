@@ -22,7 +22,7 @@ public:
 	void SetActive(bool active);
 	void Pause(bool pause);
 
-	void ReceiveObjectMessage(Ogre::SharedPtr<ObjectMsg> msg);
+	void ReceiveObjectMessage(const Msg &msg);
 	GOComponent::goc_id_type& GetComponentID() const { static std::string name = "PlayerInput"; return name; }
 
 	std::string& TellName() { static std::string name = "PlayerInput"; return name; };

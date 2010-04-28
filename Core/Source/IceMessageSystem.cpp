@@ -34,7 +34,7 @@ namespace Ice
 	{
 		for (std::list<Newsgroup>::iterator ni = mNewsgroups.begin(); ni != mNewsgroups.end(); ni++)
 		{
-			if ((*ni).mName == msg.mNewsgroup)
+			if ((*ni).mName == msg.type)
 			{
 				(*ni).mCurrentMessages.push_back(msg);
 			}
@@ -153,7 +153,7 @@ namespace Ice
 			{
 				for (std::list<MessageListener*>::iterator li = (*ni).mListeners.begin(); li != (*ni).mListeners.end(); li++)
 				{
-					//Ogre::LogManager::getSingleton().logMessage((*MsgIter).mNewsgroup);
+					//Ogre::LogManager::getSingleton().logMessage((*MsgIter).type);
 					(*li)->ReceiveMessage((*MsgIter));
 				}
 			}
@@ -164,7 +164,7 @@ namespace Ice
 	{
 		for (std::list<Newsgroup>::iterator ni = mNewsgroups.begin(); ni != mNewsgroups.end(); ni++)
 		{
-			if ((*ni).mName == msg.mNewsgroup)
+			if ((*ni).mName == msg.type)
 			{
 				for (std::list<MessageListener*>::iterator li = (*ni).mListeners.begin(); li != (*ni).mListeners.end(); li++)
 				{

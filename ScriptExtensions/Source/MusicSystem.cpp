@@ -36,9 +36,9 @@ MusicSystem::GetInstance()
 void
 MusicSystem::ReceiveMessage(Ice::Msg &msg)
 {
-	if (msg.mNewsgroup == "UPDATE_PER_FRAME")
+	if (msg.type == "UPDATE_PER_FRAME")
 	{
-		float time = msg.mData.GetFloat("TIME_TOTAL");
+		float time = msg.params.GetFloat("TIME_TOTAL");
 		m_fCurrTime=time;
 		if(m_lTasks.size())
 			for(std::list<SScheduledTask>::iterator it=m_lTasks.begin(); it->fTime<=m_fCurrTime; )

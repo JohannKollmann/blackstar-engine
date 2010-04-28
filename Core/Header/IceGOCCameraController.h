@@ -35,7 +35,7 @@ public:
 
 	void ReceiveMessage(Msg &msg);
 
-	void ReceiveObjectMessage(Ogre::SharedPtr<ObjectMsg> msg);
+	void ReceiveObjectMessage(const Msg &msg);
 	void UpdatePosition(Ogre::Vector3 position);
 	void UpdateOrientation(Ogre::Quaternion orientation);
 

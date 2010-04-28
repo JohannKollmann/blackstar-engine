@@ -12,17 +12,14 @@ namespace Ice
 	class DllExport Msg
 	{
 	public:
-
 		Msg()		
 		{						//Default: Broadcast
-			mReceiver = nullptr;
-			mNewsgroup = "COMMON";
+			rawData = nullptr;
 		}
 		virtual ~Msg() { };
 
-		MessageListener *mReceiver;
-		Ogre::String mNewsgroup;
-		DataMap mData;
+		Ogre::String type;
+		DataMap params;
 		void *rawData;
 	};
 
