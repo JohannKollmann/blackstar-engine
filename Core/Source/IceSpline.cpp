@@ -6,12 +6,12 @@
 namespace Ice
 {
 
-	Spline::Spline(std::vector<Ogre::Vector3> vPoints)
+	Spline::Spline(std::vector<Ogre::Vector3> vPoints, bool bClosed=false)
 	{
-		SetPoints(vPoints);
+		SetPoints(vPoints, bClosed);
 	}
 	void
-	Spline::SetPoints(std::vector<Ogre::Vector3> vPoints)
+	Spline::SetPoints(std::vector<Ogre::Vector3> vPoints, bool bClosed)
 	{
 		m_Sectors.clear();
 		double* ppfCoordinates[3]={new double[vPoints.size()], new double[vPoints.size()], new double[vPoints.size()]};
@@ -85,12 +85,12 @@ namespace Ice
 
 	bool CompVectorByW(Ogre::Vector4 v1, Ogre::Vector4 v2) {return v1.w<v2.w;}
 
-	Spline::Spline(std::vector<Ogre::Vector4> vPoints)
+	Spline::Spline(std::vector<Ogre::Vector4> vPoints, bool bClosed)
 	{
-		SetPoints(vPoints);
+		SetPoints(vPoints, bClosed);
 	}
 	void
-	Spline::SetPoints(std::vector<Ogre::Vector4> vPoints)
+	Spline::SetPoints(std::vector<Ogre::Vector4> vPoints, bool bClosed)
 	{
 		if(vPoints.size()<2)
 			return;
@@ -129,7 +129,8 @@ namespace Ice
 			ppfMatrix[iMatrixSize][0]=ppfCoordinates[iCoordinate][1]-ppfCoordinates[iCoordinate][0];
 			for(int iPoint=0; iPoint<(int)vPoints.size()-2; iPoint++)
 			{
-				td=vPoints[iPoint+2].w-vPoints[iPoint+1].w;
+				//td=vPoints[iPoint+2].w-vPoints[iPoint+1].w;
+				td=vPoints[iPoint+1].w-vPoints[iPoint].w;
 				//this line states that the slope at the end of the sector is equal to the slope in the beginning of the next sector
 				ppfMatrix[iPoint*3][iPoint*3+1]=3.0*td*td;
 				ppfMatrix[iPoint*3+1][iPoint*3+1]=2.0*td;
@@ -140,13 +141,14 @@ namespace Ice
 				ppfMatrix[iPoint*3+1][iPoint*3+2]=2.0;
 				ppfMatrix[iPoint*3+4][iPoint*3+2]=-2.0;
 				//this line is the equation stating that the spline sectors end is the next point
+				td=vPoints[iPoint+2].w-vPoints[iPoint+1].w;
 				ppfMatrix[iPoint*3+3][iPoint*3+3]=td*td*td;
 				ppfMatrix[iPoint*3+4][iPoint*3+3]=td*td;
 				ppfMatrix[iPoint*3+5][iPoint*3+3]=td;
 				ppfMatrix[iMatrixSize][iPoint*3+3]=ppfCoordinates[iCoordinate][iPoint+2]-ppfCoordinates[iCoordinate][iPoint+1];
 			}
 			//the last two equations say that the slope in the beginning and end of the spline must be 0
-			ppfMatrix[1][iMatrixSize-1]=6.0;
+			ppfMatrix[0][iMatrixSize-1]=6.0;
 			ppfMatrix[1][iMatrixSize-1]=2.0;
 			//
 			ppfMatrix[iMatrixSize-2][iMatrixSize-2]=2.0;
