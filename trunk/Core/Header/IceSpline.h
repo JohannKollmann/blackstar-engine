@@ -8,11 +8,11 @@ class Spline
 {
 public:
 	Spline(){m_Sectors.clear();}
-	Spline(std::vector<Ogre::Vector3> vPoints);
-	void SetPoints(std::vector<Ogre::Vector3> vPoints);
+	Spline(std::vector<Ogre::Vector3> vPoints, bool bClosed);
+	void SetPoints(std::vector<Ogre::Vector3> vPoints, bool bClosed=false);
 
-	Spline(std::vector<Ogre::Vector4> vPoints);
-	void SetPoints(std::vector<Ogre::Vector4> vPoints);
+	Spline(std::vector<Ogre::Vector4> vPoints, bool bClosed);
+	void SetPoints(std::vector<Ogre::Vector4> vPoints, bool bClosed=false);
 
 	Ogre::Vector3 Sample(double fPos);
 	double GetLength();
