@@ -4,7 +4,7 @@
 
 #include "EDTIncludes.h"
 #include "wxFileTree.h"
-#include "wxEditIceGameObject.h"
+#include "propGridEditIceGOC.h"
 #include "IceGameObject.h"
 #include "EntityTreeNotebookListener.h"
 #include "wxEdit.h"

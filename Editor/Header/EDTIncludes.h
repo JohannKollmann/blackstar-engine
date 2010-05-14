@@ -9,7 +9,6 @@
 class Edit;
 class wxOgre;
 class wxEdit;
-class wxEditIceGameObject;
 class wxObjectFolderTree;
 class wxMainMenu;
 class wxOgreSceneTree;
@@ -24,3 +23,6 @@ class wxFileTree;
 class wxEditorToolbar;
 class EntityTreeNotebookListener;
 class wxMediaTree;
+class wxEditIceGameObject;
+class wxEditGOResource;
+class ComponentSection;

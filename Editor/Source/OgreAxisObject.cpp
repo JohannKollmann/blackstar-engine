@@ -9,6 +9,7 @@
 #include "IceMain.h"
 #include "IceSceneManager.h"
 #include "IceGameObject.h"
+#include "IceGOCView.h"
 
 using namespace Ogre;
 
@@ -117,12 +118,10 @@ Ogre::ManualObject* AxisComponent::createAxis(const Ogre::String &name, Ogre::Ve
 
 AxisComponent::AxisComponent()
 {
-	mNode = Ice::Main::Instance().GetOgreSceneMgr()->getRootSceneNode()->createChildSceneNode();
-	mAxisObject = 0;
+	mAxisObject = nullptr;
 }
 AxisComponent::~AxisComponent()
 {
-	Ice::Main::Instance().GetOgreSceneMgr()->destroySceneNode(mNode);
 	if (mAxisObject)
 	{
 		Ice::Main::Instance().GetOgreSceneMgr()->destroyManualObject(mAxisObject);
@@ -137,17 +136,13 @@ void AxisComponent::SetOwner(Ice::GameObject *go)
 		Ice::Main::Instance().GetOgreSceneMgr()->destroyManualObject(mAxisObject);
 	}
 	Ogre::Vector3 vAxisDimensions = Ogre::Vector3(1,1,1);
-	Ice::GOCViewContainer *visuals = (Ice::GOCViewContainer*)mOwnerGO->GetComponent("View", "ViewContainer");
-	if (visuals != 0)
+	Ice::GOCMeshRenderable *gocmesh = mOwnerGO->GetComponent<Ice::GOCMeshRenderable>();
+	if (gocmesh != 0)
 	{
-		Ice::MeshRenderable *gocmesh = (Ice::MeshRenderable*)visuals->GetItem("MeshRenderable");
-		if (gocmesh != 0)
-		{
-			vAxisDimensions = gocmesh->GetEditorVisual()->getBoundingBox().getSize() * visuals->GetNode()->_getDerivedScale();
-		}
+		vAxisDimensions = gocmesh->GetEntity()->getBoundingBox().getSize() * gocmesh->GetNode()->_getDerivedScale();
 	}
 	createAxis("AxisObject_" + Ogre::StringConverter::toString(Ice::SceneManager::Instance().RequestID()), vAxisDimensions);
-	mNode->attachObject(mAxisObject);
-	mNode->setPosition(mOwnerGO->GetGlobalPosition());
-	mNode->setOrientation(mOwnerGO->GetGlobalOrientation());
+	GetNode()->attachObject(mAxisObject);
+	GetNode()->setPosition(mOwnerGO->GetGlobalPosition());
+	GetNode()->setOrientation(mOwnerGO->GetGlobalOrientation());
 }

@@ -7,7 +7,7 @@
 #include "wxOgreSceneTree.h"
 #include "wxMaterialTree.h"
 #include "EDTIncludes.h"
-#include "wxEditIceGameObject.h"
+#include "propGridEditIceEditorInterface.h"
 #include "wxMainMenu.h"
 #include "wxPropertyGridWindow.h"
 #include "wxEntityTreeNotebook.h"

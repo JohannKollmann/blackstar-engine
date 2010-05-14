@@ -20,7 +20,6 @@ namespace Ice
 		go->SetLoadSaveByParent(false);
 		GOCAnimKey *key = new GOCAnimKey(this);
 		go->AddComponent(key);
-		go->AddComponent(new MeshDebugRenderable("Editor_AnimKey.mesh"));
 		go->SetParent(mMover->GetOwner());
 		return go;
 	}
@@ -41,7 +40,7 @@ namespace Ice
 		mMover->InsertKey(mOwnerGO, mPredecessor);
 	}
 
-	void GOCAnimKey::CreateFromDataMap(DataMap *parameters)
+	void GOCAnimKey::SetParameters(DataMap *parameters)
 	{
 		mTotalStayTime = parameters->GetFloat("TotalStayTime");
 		mTimeSinceLastKey = parameters->GetFloat("TimeSinceLastKey");
@@ -55,11 +54,6 @@ namespace Ice
 	{
 		parameters->AddFloat("TotalStayTime", 0);
 		parameters->AddFloat("TimeSinceLastKey", 1.0f);
-	}
-	void GOCAnimKey::AttachToGO(GameObject *go)
-	{
-		go->RemoveComponent(GetFamilyID());
-		go->AddComponent(this);
 	}
 	void GOCAnimKey::Save(LoadSave::SaveSystem& mgr)
 	{
@@ -92,18 +86,27 @@ namespace Ice
 	{
 		mMover = this;
 		mMoving = false;
+		mSplineObject = nullptr;
+	}
+	void GOCMover::Init()
+	{
+		if (mSplineObject) return;
 		MessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
 		mSplineObject = Ice::Main::Instance().GetOgreSceneMgr()->createManualObject("Spline_" + SceneManager::Instance().RequestIDStr());
 		Ice::Main::Instance().GetOgreSceneMgr()->getRootSceneNode()->attachObject(mSplineObject);
 	}
 	GOCMover::~GOCMover()
 	{
-		Ice::Main::Instance().GetOgreSceneMgr()->getRootSceneNode()->detachObject(mSplineObject);
-		Ice::Main::Instance().GetOgreSceneMgr()->destroyManualObject(mSplineObject);
+		if (mSplineObject)
+		{
+			Ice::Main::Instance().GetOgreSceneMgr()->getRootSceneNode()->detachObject(mSplineObject);
+			Ice::Main::Instance().GetOgreSceneMgr()->destroyManualObject(mSplineObject);
+		}
 	}
-	void GOCMover::CreateFromDataMap(DataMap *parameters)
+	void GOCMover::SetParameters(DataMap *parameters)
 	{
 		mKeyCallbackScript = parameters->GetOgreString("Callback Script");
+		Init();
 	}
 	void GOCMover::GetParameters(DataMap *parameters)
 	{
@@ -112,11 +115,6 @@ namespace Ice
 	void GOCMover::GetDefaultParameters(DataMap *parameters)
 	{
 		parameters->AddOgreString("Callback Script", "");
-	}
-	void GOCMover::AttachToGO(GameObject *go)
-	{
-		go->RemoveComponent(GetFamilyID());
-		go->AddComponent(this);
 	}
 
 	void GOCMover::Save(LoadSave::SaveSystem& mgr)
@@ -128,6 +126,7 @@ namespace Ice
 	{
 		mgr.LoadAtom("Ogre::String", &mKeyCallbackScript);
 		mgr.LoadAtom("std::vector<Saveable*>", &mAnimKeys);
+		Init();
 	}
 
 	void GOCMover::Trigger()

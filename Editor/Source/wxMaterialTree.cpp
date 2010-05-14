@@ -104,14 +104,10 @@ void wxMaterialTree::Update()
 
 		for (std::map<int, Ice::ManagedGameObject*>::iterator i = Ice::SceneManager::Instance().GetGameObjects().begin(); i != Ice::SceneManager::Instance().GetGameObjects().end(); i++)
 		{
-			Ice::GOCViewContainer *visuals = (Ice::GOCViewContainer*)i->second->GetComponent("View", "ViewContainer");
-			if (visuals != 0)
+			Ice::GOCMeshRenderable *gocmesh = i->second->GetComponent<Ice::GOCMeshRenderable>();
+			if (gocmesh != 0)
 			{
-				Ice::MeshRenderable *gocmesh = (Ice::MeshRenderable*)visuals->GetItem("MeshRenderable");
-				if (gocmesh != 0)
-				{
-					AddEntity((Ogre::Entity*)gocmesh->GetEditorVisual());
-				}
+				AddEntity((Ogre::Entity*)gocmesh->GetEntity());
 			}
 		}
 

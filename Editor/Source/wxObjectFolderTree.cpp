@@ -4,6 +4,7 @@
 #include "IceGOCAnimatedCharacter.h"
 #include "IceMainLoop.h"
 #include "Edit.h"
+#include "IceGOCOgreNode.h"
 
 enum
 {
@@ -58,7 +59,7 @@ void wxObjectFolderTree::OnSelectItemCallback()
 		if (extension == "ocs" && wxEdit::Instance().GetWorldExplorer()->GetSelection() == 1)
 		{
 			CreateObjectPreview(Path + File);
-			((wxEditIceGameObject*)(wxEdit::Instance().GetpropertyWindow()->SetPage("EditGameObject")))->SetResource(Path + File);
+			((wxEditGOResource*)(wxEdit::Instance().GetpropertyWindow()->SetPage("EditGOCRes")))->SetResource(Path + File);
 		}
 	}
 }
@@ -83,32 +84,21 @@ void wxObjectFolderTree::CreateObjectPreview(Ogre::String file)
 	Ice::Main::Instance().SetSceneMgr(false);
 	mPreviewObject = new Ice::GameObject();
 	LoadSave::LoadSystem *ls=LoadSave::LoadSave::Instance().LoadFile(file);
-	std::list<Ice::ComponentSection> sections;
-	ls->LoadAtom("std::list<ComponentSection>", (void*)(&sections));
+	std::vector<ComponentSection> sections;
+	ls->LoadAtom("std::vector<ComponentSection>", (void*)(&sections));
 	Ogre::Vector3 scale(1,1,1);
-	for (std::list<Ice::ComponentSection>::iterator i = sections.begin(); i != sections.end(); i++)
+	for (auto i = sections.begin(); i != sections.end(); i++)
 	{
 		if ((*i).mSectionName == "GameObject") continue;
-		(*i).mSectionData->AddOgreVec3("Scale", scale);
-		Ice::GOCEditorInterface *component = Ice::SceneManager::Instance().CreateComponent((*i).mSectionName, (*i).mSectionData.getPointer());
+		(*i).mSectionData.AddOgreVec3("Scale", scale);
+		Ice::GOCEditorInterface *component = Ice::SceneManager::Instance().CreateGOCEditorInterface((*i).mSectionName, &(*i).mSectionData);
 		if (!component) continue;
-		Ice::GOComponent *test1 = dynamic_cast<Ice::GOComponent*>(component);
-		Ice::GOCNodeRenderable *test2 = dynamic_cast<Ice::GOCNodeRenderable*>(component);
-		Ice::GOCPhysics *test3 = dynamic_cast<Ice::GOCPhysics*>(component);
-		if (test1 && !test2)
-		{
-			if (test3)
-			{
-				OgrePhysX::World::getSingleton().startSimulate(0);
-				OgrePhysX::World::getSingleton().fetchSimulate();	//blocking
-				OgrePhysX::World::getSingleton().syncRenderables();
-			}
-			delete test1;
-		}
-		else component->AttachToGO(mPreviewObject);
+		Ice::GOComponent *test = dynamic_cast<Ice::GOCOgreNodeUser*>(component);
+		if (!test) delete component;
+		else mPreviewObject->AddComponent(component->GetGOComponent());
 	}
 	ls->CloseFile();
-	Ice::GOCNodeRenderable *renderable = (Ice::GOCNodeRenderable*)mPreviewObject->GetComponent("View");
+	Ice::GOCOgreNode *renderable = mPreviewObject->GetComponent<Ice::GOCOgreNode>();
 	if (!renderable)
 	{
 		delete mPreviewObject;
@@ -138,7 +128,7 @@ void wxObjectFolderTree::OnMenuCallback(int id)
 		if (file.find(".ocs") == Ogre::String::npos) file = file + ".ocs";
 		Ogre::String fullPath = wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->mRootPath + "\\" + relPath + file;
 
-		wxEditIceGameObject *page = ((wxEditIceGameObject*)(wxEdit::Instance().GetpropertyWindow()->SetPage("EditGameObject")));
+		wxEditGOResource *page = ((wxEditGOResource*)(wxEdit::Instance().GetpropertyWindow()->SetPage("EditGOCRes")));
 		page->NewResource(fullPath);
 		page->OnApply();
 		page->SetResource(fullPath);
@@ -159,7 +149,7 @@ void wxObjectFolderTree::OnToolbarEvent(int toolID, Ogre::String toolname)
 		if (file.find(".ocs") == Ogre::String::npos) file = file + ".ocs";
 		Ogre::String fullPath = wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->mRootPath + "\\" + insertpath + file;
 
-		wxEditIceGameObject *page = ((wxEditIceGameObject*)(wxEdit::Instance().GetpropertyWindow()->SetPage("EditGameObject")));
+		wxEditGOResource *page = ((wxEditGOResource*)(wxEdit::Instance().GetpropertyWindow()->SetPage("EditGOCRes")));
 		page->NewResource(fullPath);
 		page->OnApply();
 		page->SetResource(fullPath);
@@ -175,7 +165,7 @@ void wxObjectFolderTree::OnEnterTab()
 	{
 		if (GetSelectedResource().find(".ocs") != Ogre::String::npos)
 		{
-			((wxEditIceGameObject*)(wxEdit::Instance().GetpropertyWindow()->GetCurrentPage()))->SetResource(GetSelectedResource());
+			((wxEditGOResource*)(wxEdit::Instance().GetpropertyWindow()->GetCurrentPage()))->SetResource(GetSelectedResource());
 		}
 	}
 

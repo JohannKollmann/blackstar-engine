@@ -5,6 +5,7 @@
 #include "IceMainLoop.h"
 #include "IceSceneManager.h"
 #include "Edit.h"
+#include "propGridEditIceGOC.h"
 
 
 BEGIN_EVENT_TABLE(wxEdit, wxFrame)
@@ -50,6 +51,7 @@ wxEdit::wxEdit(wxWindow* parent) : wxFrame(parent, -1, _("Blackstar Edit"),
 
 		mPropertyWindow = new wxPropertyGridWindow(this, -1, wxDefaultPosition, wxSize(200,250));
 		mPropertyWindow->AddPage(new wxEditIceGameObject(), "EditGameObject");
+		mPropertyWindow->AddPage(new wxEditGOResource(), "EditGOCRes");
 		mPropertyWindow->AddPage(new wxEditIceSceneParams(), "EditSceneParams");
 
 		mPropertyWindow->AddPage(new wxMaterialEditor(), "material");
@@ -145,6 +147,9 @@ void wxEdit::PostCreate()
 	wxEdit::Instance().GetExplorerToolbar()->SetGroupStatus("ResourceMgr", false);	//Hack
 	Ice::MainLoop::Instance().doLoop();
 	Ice::SceneManager::Instance().EnableClock(false);
+
+	LoadSave::LoadSave::Instance().RegisterObject(&ComponentSection::Register);
+	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new ComponentSectionVectorHandler());
 }
 
 wxPoint wxEdit::GetStartPosition()

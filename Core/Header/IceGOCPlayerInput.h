@@ -32,12 +32,12 @@ public:
 	virtual void Load(LoadSave::LoadSystem& mgr) {};
 
 	//Editor
-	void CreateFromDataMap(DataMap *parameters) {};
+	void SetParameters(DataMap *parameters) {};
 	void GetParameters(DataMap *parameters) {};
-	static void GetDefaultParameters(DataMap *parameters) {};
-	static GOCEditorInterface* NewEditorInterfaceInstance() { return new GOCPlayerInput(); }
-	void AttachToGO(GameObject *go); 
+	void GetDefaultParameters(DataMap *parameters) {};
+	GOCEditorInterface* New() { return new GOCPlayerInput(); }
 	Ogre::String GetLabel() { return "Player Input"; }
+	GOComponent* GetGOComponent() { return this; }
 };
 
 };

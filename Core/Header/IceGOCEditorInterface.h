@@ -10,30 +10,33 @@ Interface for Editors.
 
 namespace Ice
 {
-	class EditorInterface
+	class DllExport EditorInterface
 	{
 	public:
 		virtual ~EditorInterface() {}
-		virtual void CreateFromDataMap(DataMap *parameters) = 0;
+		virtual void SetParameters(DataMap *parameters) = 0;
 		virtual void GetParameters(DataMap *parameters) = 0;
-		virtual Ogre::String GetLabel() = 0;
 		virtual void* GetUserData() { return 0; }
 		virtual void InjectUserData(void* data) { }
-
-		static EditorInterface* NewEditorInterfaceInstance();
 	};
 
-	class GOCEditorInterface : public EditorInterface
+	template<class T>
+	class DllExport Cloneable
+	{
+	public:
+		virtual ~Cloneable() {}
+		virtual T* New() = 0;
+	};
+
+	class DllExport GOCEditorInterface : public EditorInterface, public Cloneable<GOCEditorInterface>
 	{
 	public:
 		virtual ~GOCEditorInterface() {}
 
-		/*
-		Attaches the editor interface to a GO and replaces the existing component width the same family, if it exists!
-		*/
-		virtual void AttachToGO(GameObject *go) = 0;
+		virtual void GetDefaultParameters(DataMap *parameters) = 0;
+		virtual Ogre::String GetLabel() = 0;
 
-		static GOCEditorInterface* NewEditorInterfaceInstance();
+		virtual GOComponent* GetGOComponent() = 0;
 	};
 
 };

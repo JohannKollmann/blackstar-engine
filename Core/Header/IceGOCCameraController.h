@@ -8,7 +8,7 @@
 namespace Ice
 {
 	
-class DllExport GOCCameraController : public GOComponent, public MessageListener, public GOCEditorInterface
+class DllExport GOCCameraController : public GOComponentEditable, public MessageListener
 {
 private:
 	Ogre::Camera *mCamera;
@@ -46,14 +46,13 @@ public:
 	static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "CameraController"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };
 	static LoadSave::Saveable* NewInstance() { return new GOCCameraController; };
 	virtual void Save(LoadSave::SaveSystem& mgr) {};
-	virtual void Load(LoadSave::LoadSystem& mgr) {};
+	virtual void Load(LoadSave::LoadSystem& mgr) { CreateNodes(); };
 
 	//Editor
-	void CreateFromDataMap(DataMap *parameters) {};
+	void SetParameters(DataMap *parameters) { CreateNodes(); };
 	void GetParameters(DataMap *parameters) {};
-	static void GetDefaultParameters(DataMap *parameters) {};
-	static GOCEditorInterface* NewEditorInterfaceInstance() { return new GOCCameraController(); }
-	void AttachToGO(GameObject *go); 
+	void GetDefaultParameters(DataMap *parameters) {};
+	GOCEditorInterface* New() { return new GOCCameraController(); }
 	Ogre::String GetLabel() { return "Camera"; }
 };
 

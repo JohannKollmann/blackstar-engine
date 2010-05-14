@@ -116,7 +116,8 @@
     <ClInclude Include="Header\virtualdirtreectrl.h" />
     <ClInclude Include="Header\wxComponentBar.h" />
     <ClInclude Include="Header\wxEdit.h" />
-    <ClInclude Include="Header\wxEditIceGameObject.h" />
+    <ClInclude Include="Header\propGridEditIceEditorInterface.h" />
+    <ClInclude Include="Header\propGridEditIceGOC.h" />
     <ClInclude Include="Header\wxEditorToolbar.h" />
     <ClInclude Include="Header\wxEntityTreeNotebook.h" />
     <ClInclude Include="Header\wxFileTree.h" />
@@ -151,7 +152,8 @@
     <ClCompile Include="Source\virtualdirtreectrl.cpp" />
     <ClCompile Include="Source\wxComponentBar.cpp" />
     <ClCompile Include="Source\wxEdit.cpp" />
-    <ClCompile Include="Source\wxEditIceGameObject.cpp" />
+    <ClCompile Include="Source\propGridEditIceEditorInterface.cpp" />
+    <ClCompile Include="Source\propGridEditIceGOC.cpp" />
     <ClCompile Include="Source\wxEditorToolbar.cpp" />
     <ClCompile Include="Source\wxEntityTreeNotebook.cpp" />
     <ClCompile Include="Source\wxFileTree.cpp" />

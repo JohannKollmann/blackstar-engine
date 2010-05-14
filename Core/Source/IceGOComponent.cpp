@@ -8,9 +8,13 @@ namespace Ice
 	void GOComponent::SetOwner(GameObject *go)
 	{
 		mOwnerGO = go;
-		UpdatePosition(go->GetGlobalPosition());
-		UpdateOrientation(go->GetGlobalOrientation());
-		UpdateScale(go->GetGlobalScale());
+		NotifyOwnerGO();
+	}
+	void GOComponent::NotifyOwnerGO()
+	{
+		UpdatePosition(mOwnerGO->GetGlobalPosition());
+		UpdateOrientation(mOwnerGO->GetGlobalOrientation());
+		UpdateScale(mOwnerGO->GetGlobalScale());
 	}
 
 	void GOComponent::_updatePosition(const Ogre::Vector3 &position)

@@ -5,6 +5,7 @@
 #include "IceIncludes.h"
 #include "Ogre.h"
 #include "IceDataMap.h"
+#include "IceGOCEditorInterface.h"
 
 namespace Ice
 {
@@ -21,6 +22,7 @@ namespace Ice
 
 	protected:
 		GameObject *mOwnerGO;
+		virtual void NotifyOwnerGO();
 
 	public:
 		typedef std::string goc_id_type;
@@ -33,9 +35,11 @@ namespace Ice
 		void SetOwnerOrientation(const Ogre::Quaternion &orientation);
 
 		virtual goc_id_type& GetComponentID() const = 0;
-		virtual goc_id_family& GetFamilyID() const = 0;
+		virtual goc_id_family& GetFamilyID() const { return GetComponentID(); }
 
 		std::string& TellName() { return GetComponentID(); };
+		void Save(LoadSave::SaveSystem& mgr) {}
+		void Load(LoadSave::LoadSystem& mgr) {}
 
 		virtual void SetOwner(GameObject *go);
 		GameObject* GetOwner() const { return mOwnerGO; }
@@ -55,6 +59,14 @@ namespace Ice
 		//Editor stuff
 		virtual void Freeze(bool freeze) {};
 		virtual void ShowEditorVisual(bool show) {};
+	};
+
+	class DllExport GOComponentEditable : public GOCEditorInterface, public GOComponent
+	{
+	public:
+		virtual ~GOComponentEditable() {}
+
+		GOComponent* GetGOComponent() { return this; }
 	};
 
 };

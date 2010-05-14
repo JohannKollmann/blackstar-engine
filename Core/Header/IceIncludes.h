@@ -42,7 +42,6 @@ namespace Ice
 	class GameObject;
 	class ManagedGameObject;
 	class GOComponent;
-	class ComponentSection;
 	class GOCViewListener;
 	class GOCRigidBody;
 	class GOCAI;

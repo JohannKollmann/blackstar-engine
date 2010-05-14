@@ -12,6 +12,16 @@ namespace Ice
 
 namespace Utils
 {
+	template<class T>
+	DllExport void DeletePointerVector(std::vector<T*> &vec)
+	{
+		for (auto i = vec.begin(); i != vec.end(); i++)
+		{
+			delete *i;
+		}
+		vec.clear();
+	}
+
 	/*
 	Sucht rekursiv in einem Verzeichnis nach einer Datei und liefert, wenn erfolgreich, den Pfad zurück.
 	*/

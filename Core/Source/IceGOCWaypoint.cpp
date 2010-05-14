@@ -27,12 +27,9 @@ namespace Ice
 
 	void GOCWaypoint::Save(LoadSave::SaveSystem& mgr)
 	{
-		//mgr.SaveAtom("std::list<Saveable*>", (void*)(&mConnectedWaypoints), "mConnectedWaypoints");
 	}
 	void GOCWaypoint::Load(LoadSave::LoadSystem& mgr)
 	{
-		std::list<LoadSave::Saveable*> dummy;
-		mgr.LoadAtom("std::list<Saveable*>", (void*)(&dummy));
 	}
 
 };

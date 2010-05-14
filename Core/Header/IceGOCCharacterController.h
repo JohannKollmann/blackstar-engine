@@ -78,6 +78,8 @@ namespace Ice
 		float mMovementSpeed;
 		float mSpeedFactor;
 
+		void _clear();
+
 	public:
 		GOCCharacterController() : mCharacterController(0) {}
 		GOCCharacterController(Ogre::Vector3 dimensions);
@@ -100,12 +102,12 @@ namespace Ice
 
 		void SetOwner(GameObject *go);
 
-		void CreateFromDataMap(DataMap *parameters);
+		void SetParameters(DataMap *parameters);
 		void GetParameters(DataMap *parameters);
-		static void GetDefaultParameters(DataMap *parameters);
-		static GOCEditorInterface* NewEditorInterfaceInstance() { return new GOCCharacterController(); }
-		void AttachToGO(GameObject *go); 
+		void GetDefaultParameters(DataMap *parameters);
+		GOCEditorInterface* New() { return new GOCCharacterController(); }
 		Ogre::String GetLabel() { return "Character"; }
+		GOComponent* GetGOComponent() { return this; }
 
 		void Save(LoadSave::SaveSystem& mgr);
 		void Load(LoadSave::LoadSystem& mgr);

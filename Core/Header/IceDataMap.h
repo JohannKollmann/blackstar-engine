@@ -69,14 +69,14 @@ public:
 	bool HasKey(Ogre::String keyname);
 
 	template <class templateType>
-	templateType GetValue(Ogre::String keyname) const throw(Ogre::Exception)
+	templateType GetValue(Ogre::String keyname) const
 	{
 		for (auto i = mData.begin(); i != mData.end(); i++)
 		{
 			if ((*i).mKey == keyname) return Ogre::any_cast<templateType>((*i).mData);
 		}
 		//Invalid key! Let's return some bullshit.
-		throw Ogre::Exception(Ogre::Exception::ERR_ITEM_NOT_FOUND , "DataMap::Get Invalid key (" + keyname + ")!", "IceDataMap.h, line 71");
+		OGRE_EXCEPT(Ogre::Exception::ERR_ITEM_NOT_FOUND , "DataMap::Get Invalid key (" + keyname + ")!", "IceDataMap.h, line 71");
 	}
 	template <class templateType>
 	templateType GetValue(Ogre::String keyname, templateType defaultVal) const
@@ -121,31 +121,6 @@ public:
 	static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "DataMap"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };
 	static LoadSave::Saveable* NewInstance() { return new DataMap; };
 	std::string& TellName() { static std::string name = "DataMap"; return name; };
-};
-
-//For Editors
-class DllExport ComponentSection : public LoadSave::Saveable
-{
-private:
-	std::string m_strName;
-public:
-	ComponentSection() { m_strName = "ComponentSection"; }
-	Ogre::String mSectionName;
-	Ogre::SharedPtr<DataMap> mSectionData;
-
-	void Save(LoadSave::SaveSystem& myManager)
-	{
-		myManager.SaveAtom("Ogre::String", (void*)&mSectionName, "Key");
-		myManager.SaveObject(mSectionData.getPointer(), "Value");	
-	}
-	void Load(LoadSave::LoadSystem& mgr)
-	{
-		mgr.LoadAtom("Ogre::String", &mSectionName);
-		mSectionData = Ogre::SharedPtr<DataMap>((DataMap*)mgr.LoadObject());
-	};
-	static LoadSave::Saveable* NewInstance() { return new ComponentSection; };
-	static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "ComponentSection"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };
-	std::string& TellName() { return m_strName; };
 };
 
 };

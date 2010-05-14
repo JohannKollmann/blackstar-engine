@@ -14,6 +14,7 @@
 #include "NavMeshEditorNode.h"
 #include "IceAIManager.h"
 #include "IceGOCMover.h"
+#include "IceGOCOgreNode.h"
 
 IMPLEMENT_CLASS(Edit, wxOgre)
 
@@ -719,7 +720,6 @@ Ice::GameObject* Edit::InsertWaypoint(bool align, bool create_only)
 {
 	Ice::GameObject *waypoint = Ice::SceneManager::Instance().CreateGameObject();
 	waypoint->AddComponent(new Ice::GOCWaypoint());
-	waypoint->AddComponent(new Ice::MeshDebugRenderable("Editor_Waypoint.mesh"));
 	waypoint->ShowEditorVisuals(true);
 	waypoint->SetGlobalOrientation(Ogre::Quaternion(Ice::Main::Instance().GetCamera()->getDerivedOrientation().getYaw(), Ogre::Vector3(0,1,0)));
 	if (align) AlignObjectWithMesh(waypoint);
@@ -790,26 +790,26 @@ Ice::GameObject* Edit::InsertObject(Ice::GameObject *parent, bool align, bool cr
 			object = Ice::SceneManager::Instance().CreateGameObject();
 			object->SetParent(parent);
 
-			std::list<Ice::ComponentSection> sections;
+			std::vector<ComponentSection> sections;
 			Ogre::Vector3 offset;
 			Ogre::Vector3 scale = Ogre::Vector3(1,1,1);
 			Ogre::Quaternion orientation;
-			ls->LoadAtom("std::list<ComponentSection>", (void*)(&sections));
-			for (std::list<Ice::ComponentSection>::iterator i = sections.begin(); i != sections.end(); i++)
+			ls->LoadAtom("std::vector<ComponentSection>", (void*)(&sections));
+			for (auto i = sections.begin(); i != sections.end(); i++)
 			{
 				if ((*i).mSectionName == "GameObject")
 				{
-					offset = (*i).mSectionData->GetOgreVec3("Position");
-					orientation = (*i).mSectionData->GetOgreQuat("Orientation");
-					scale = (*i).mSectionData->GetOgreVec3("Scale");
+					offset = (*i).mSectionData.GetOgreVec3("Position");
+					orientation = (*i).mSectionData.GetOgreQuat("Orientation");
+					scale = (*i).mSectionData.GetOgreVec3("Scale");
 					object->SetGlobalOrientation(orientation);
 					object->SetGlobalScale(scale);
 					continue;
 				} 
-				(*i).mSectionData->AddOgreVec3("Scale", scale);
+				(*i).mSectionData.AddOgreVec3("Scale", scale);
 
-				Ice::GOCEditorInterface *component = Ice::SceneManager::Instance().CreateComponent((*i).mSectionName, (*i).mSectionData.getPointer());
-				if (component) component->AttachToGO(object);
+				Ice::GOCEditorInterface *component = Ice::SceneManager::Instance().CreateGOCEditorInterface((*i).mSectionName, &(*i).mSectionData);
+				object->AddComponent(component->GetGOComponent());
 			}
 
 		}
@@ -967,22 +967,18 @@ void Edit::OnSelectMaterial(float MouseX, float MouseY)
 	Ice::GameObject *object = rc.GetFirstHit(true);
 	if (object)
 	{
-		Ice::GOCViewContainer *visuals = (Ice::GOCViewContainer*)object->GetComponent("View", "ViewContainer");
-		if (visuals != 0)
+		Ice::GOCMeshRenderable *gocmesh = object->GetComponent<Ice::GOCMeshRenderable>();
+		if (gocmesh != 0)
 		{
-			Ice::MeshRenderable *gocmesh = (Ice::MeshRenderable*)visuals->GetItem("MeshRenderable");
-			if (gocmesh != 0)
-			{
-				EntityMaterialInspector emi((Ogre::Entity*)gocmesh->GetEditorVisual());
-				Ogre::SubEntity *ent = emi.GetSubEntity(ray);
-				if (ent == 0) return;
-				mCurrentMaterialSelection.mSubEntity = ent;
-				mCurrentMaterialSelection.mOriginalMaterialName = ent->getMaterialName();
-				ent->setMaterialName("Editor_Submesh_Selected");
-				wxEdit::Instance().GetWorldExplorer()->GetMaterialTree()->ExpandToMaterial(((Ogre::Entity*)gocmesh->GetEditorVisual())->getMesh()->getName(), mCurrentMaterialSelection.mOriginalMaterialName);
-				wxEdit::Instance().GetOgrePane()->SetFocus();
-				return;
-			}
+			EntityMaterialInspector emi(gocmesh->GetEntity());
+			Ogre::SubEntity *ent = emi.GetSubEntity(ray);
+			if (ent == 0) return;
+			mCurrentMaterialSelection.mSubEntity = ent;
+			mCurrentMaterialSelection.mOriginalMaterialName = ent->getMaterialName();
+			ent->setMaterialName("Editor_Submesh_Selected");
+			wxEdit::Instance().GetWorldExplorer()->GetMaterialTree()->ExpandToMaterial(((Ogre::Entity*)gocmesh->GetEntity())->getMesh()->getName(), mCurrentMaterialSelection.mOriginalMaterialName);
+			wxEdit::Instance().GetOgrePane()->SetFocus();
+			return;
 		}
 	}
 
@@ -1057,8 +1053,8 @@ void Edit::SelectObject(Ice::GameObject *object)
 	}
 
 	object->Freeze(true);
-	Ice::GOCNodeRenderable *visuals = (Ice::GOCNodeRenderable*)object->GetComponent("View");
-	if (visuals != 0)
+	Ice::GOCOgreNode *visuals = object->GetComponent<Ice::GOCOgreNode>();
+	if (visuals != nullptr)
 	{
 		visuals->GetNode()->showBoundingBox(true);
 	}
@@ -1077,7 +1073,7 @@ void Edit::SelectChildren(Ice::GameObject *object)
 	{
 		Ice::GameObject *child = object->GetChild(i);
 		child->Freeze(true);
-		Ice::GOCNodeRenderable *visuals = (Ice::GOCNodeRenderable*)child->GetComponent("View");
+		Ice::GOCOgreNode *visuals = object->GetComponent<Ice::GOCOgreNode>();
 		if (visuals != 0)
 		{
 			visuals->GetNode()->showBoundingBox(true);
@@ -1093,7 +1089,7 @@ void Edit::DeselectChildren(Ice::GameObject *object)
 	{
 		Ice::GameObject *child = object->GetChild(i);
 		child->Freeze(false);
-		Ice::GOCNodeRenderable *visuals = (Ice::GOCNodeRenderable*)child->GetComponent("View");
+		Ice::GOCOgreNode *visuals = object->GetComponent<Ice::GOCOgreNode>();
 		if (visuals != 0)
 		{
 			visuals->GetNode()->showBoundingBox(false);
@@ -1127,7 +1123,7 @@ void Edit::DeselectObject(Ice::GameObject *object)
 		if ((*i).mObject == object)
 		{
 			DetachAxisObject((*i).mObject);
-			Ice::GOCNodeRenderable *visuals = (Ice::GOCNodeRenderable*)(*i).mObject->GetComponent("View");
+			Ice::GOCOgreNode *visuals = object->GetComponent<Ice::GOCOgreNode>();
 			if (visuals != 0)
 			{
 				visuals->GetNode()->showBoundingBox(false);
@@ -1146,7 +1142,7 @@ void Edit::DeselectAllObjects()
 	for (std::list<EditorSelection>::iterator i = mSelectedObjects.begin(); i != mSelectedObjects.end(); i++)
 	{
 		DetachAxisObject((*i).mObject);
-		Ice::GOCNodeRenderable *visuals = (Ice::GOCNodeRenderable*)(*i).mObject->GetComponent("View");
+		Ice::GOCOgreNode *visuals = (*i).mObject->GetComponent<Ice::GOCOgreNode>();
 		if (visuals != 0)
 		{
 			visuals->GetNode()->showBoundingBox(false);
@@ -1188,8 +1184,7 @@ void Edit::AlignObjectWithMesh(Ice::GameObject *object, bool rotate)
 			}
 		}
 		Ogre::Vector3 offset = Ogre::Vector3(0,0,0);
-		Ice::GOCNodeRenderable *visuals = (Ice::GOCNodeRenderable*)object->GetComponent("View");
-		if (visuals == 0) visuals = (Ice::GOCNodeRenderable*)object->GetComponent("MeshDebugRenderable");
+		Ice::GOCOgreNode *visuals = object->GetComponent<Ice::GOCOgreNode>();
 		if (visuals != 0)
 		{
 			if (visuals->GetNode()->getAttachedObject(0))

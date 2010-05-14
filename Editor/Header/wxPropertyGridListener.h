@@ -1,7 +1,6 @@
 
 
-#ifndef __wxPropertyGridListener_H__
-#define __wxPropertyGridListener_H__
+#pragma once
 
 #include "wx/propgrid/propgrid.h"
 
@@ -23,5 +22,3 @@ public:
 protected:
 	wxPropertyGrid *mPropGrid;
 };
-
-#endif

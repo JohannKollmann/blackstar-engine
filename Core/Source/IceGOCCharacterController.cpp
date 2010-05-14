@@ -34,6 +34,11 @@ namespace Ice
 
 	GOCCharacterController::~GOCCharacterController(void)
 	{
+		_clear();
+	}
+
+	void GOCCharacterController::_clear()
+	{
 		if (mCharacterController)
 		{
 			Msg msg;
@@ -41,6 +46,7 @@ namespace Ice
 			msg.rawData = mCharacterController->getActor();
 			MessageSystem::Instance().SendInstantMessage(msg);
 			OgrePhysX::World::getSingleton().getControllerManager()->releaseController(*mCharacterController);
+			mCharacterController = nullptr;
 		}
 	}
 
@@ -166,8 +172,9 @@ namespace Ice
 		}
 	}
 
-	void GOCCharacterController::CreateFromDataMap(DataMap *parameters)
+	void GOCCharacterController::SetParameters(DataMap *parameters)
 	{
+		_clear();
 		try {
 			mDimensions = parameters->GetOgreVec3("Dimensions");
 		} catch (Ogre::Exception) { mDimensions = Ogre::Vector3(1,1,1); }
@@ -195,12 +202,6 @@ namespace Ice
 		mgr.LoadAtom("Ogre::Vector3", &mDimensions);
 		Create(mDimensions);
 		mgr.LoadAtom("float", &mMovementSpeed);		//Load Save: Todo!
-	}
-
-	void GOCCharacterController::AttachToGO(GameObject *go)
-	{
-		go->RemoveComponent(GetFamilyID());
-		go->AddComponent(this);
 	}
 
 };

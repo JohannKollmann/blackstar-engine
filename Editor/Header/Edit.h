@@ -13,6 +13,7 @@
 #include "IceGOCPlayerInput.h"
 #include "IceGOCCameraController.h"
 #include "wxOgre.h"
+#include "wx/msw/winundef.h"
 
 class IEditorSelection
 {
