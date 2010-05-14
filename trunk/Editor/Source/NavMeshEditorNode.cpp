@@ -7,7 +7,6 @@
 
 
 	NavMeshEditorNode::NavMeshEditorNode()
-	: Ice::MeshDebugRenderable("sphere.25cm.mesh")
 	{
 		mType = Type::NODE;
 		mClearingScene = false;
@@ -16,7 +15,6 @@
 	}
 
 	NavMeshEditorNode::NavMeshEditorNode(Ice::GameObject *owner, Type type, NavMeshEditorNodePtr node1, NavMeshEditorNodePtr node2)
-	: Ice::MeshDebugRenderable("sphere.25cm.mesh")
 	{
 		mClearingScene = false;
 		Ice::MessageSystem::Instance().JoinNewsgroup(this, "LOADLEVEL_BEGIN");
@@ -235,7 +233,6 @@
 
 	void NavMeshEditorNode::UpdatePosition(Ogre::Vector3 position)
 	{
-		mNode->setPosition(position);
 		if (mType == EDGE)
 		{
 			bool parentUpdate = false;

@@ -14,7 +14,6 @@
 #include "HDRListener.h"
 #include "IceWeatherController.h"
 #include "IceCollisionCallback.h"
-#include "SSAOListener.h"
 
 #include "OgrePlugin.h"
 #include "OgreDynLibManager.h"
@@ -216,11 +215,6 @@ void Main::initScene()
 	mSoundManager->setSceneManager(mSceneMgr);
 	mSoundManager->setDistanceModel(AL_LINEAR_DISTANCE);
 	//mCamera->getParentSceneNode()->attachObject(mSoundManager->getListener());
-
-	/*SSAOListener *ssaoParamUpdater = new SSAOListener();
-	CompositorLoader::Instance().AddListener("ssao", ssaoParamUpdater);
-	CompositorLoader::Instance().EnableCompositor("ssao");*/
-	//CompositorLoader::Instance().EnableCompositor("Bloom2");
 
 	HDRListener *hdrListener = new HDRListener(); 
 	Ogre::CompositorInstance* hdrinstance = CompositorLoader::Instance().AddListener("HDRTest", hdrListener);

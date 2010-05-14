@@ -7,6 +7,7 @@
 #include "IceConsole.h"
 #include "IceSceneManager.h"
 #include "IceGOCAnimatedCharacter.h"
+#include "OgreOggSound.h"
 
 namespace Ice
 {

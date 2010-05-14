@@ -59,9 +59,9 @@ namespace Ice
 				{
 					for (int y = -2; y <= 2; y++)
 					{
-						mBloomGlareTexOffset[index][0] = x;
-						mBloomGlareTexOffset[index][1] = y;
-						float gausx = Ogre::Math::Sqrt((x*x) + (y*y));
+						mBloomGlareTexOffset[index][0] = static_cast<float>(x);
+						mBloomGlareTexOffset[index][1] = static_cast<float>(y);
+						float gausx = Ogre::Math::Sqrt(static_cast<float>((x*x) + (y*y)));
 						float w = Ogre::Math::gaussianDistribution(gausx, 0, 2); 
 						mBloomGlareTexOffset[index][2] = w;
 						allWeights += w;
@@ -87,12 +87,12 @@ namespace Ice
 				// 'pre' samples
 				for(int i = 1; i < 13; i++)
 				{
-					mBloomTexOffsetsHorz[i][0] = i;
+					mBloomTexOffsetsHorz[i][0] = static_cast<float>(i);
 					mBloomTexOffsetsHorz[i][1] = 0.0f;
 					mBloomTexOffsetsVert[i][0] = 0.0f;
-					mBloomTexOffsetsVert[i][1] = i;
+					mBloomTexOffsetsVert[i][1] = static_cast<float>(i);
 
-					mBloomTexOffsetsHorz[i][2] = Ogre::Math::gaussianDistribution(i, 0, deviation);
+					mBloomTexOffsetsHorz[i][2] = Ogre::Math::gaussianDistribution(static_cast<float>(i), 0, deviation);
 					mBloomTexOffsetsVert[i][2] = mBloomTexOffsetsHorz[i][2];
 					allWeights += mBloomTexOffsetsHorz[i][2];
 				}

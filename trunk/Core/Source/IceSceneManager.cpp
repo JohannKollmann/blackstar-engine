@@ -61,7 +61,12 @@ namespace Ice
 
 	SceneManager::~SceneManager(void)
 	{
-		MessageSystem::Instance().QuitNewsgroup(this, "UPDATE_PER_FRAME");
+		for (auto i = mGOCPrototypes.begin(); i != mGOCPrototypes.end(); i++)
+		{
+			delete i->second;
+		}
+		mGOCPrototypes.clear();
+
 	}
 
 	unsigned int SceneManager::RequestID()
@@ -89,62 +94,60 @@ namespace Ice
 		mObjectMessageQueue.clear();
 	}
 
-	void SceneManager::RegisterEditorInterface(Ogre::String family, Ogre::String type, EDTCreatorFn RegisterFn, GOCDefaultParametersFn DefaulParametersFn)
+	void SceneManager::RegisterComponentDefaultParams(Ogre::String editFamily, Ogre::String type, DataMap &params)
 	{
-		mEditorInterfaces.insert(std::make_pair<Ogre::String, EDTCreatorFn>(type, RegisterFn));
-		if (family != "") RegisterComponentDefaultParameters(family, type, DefaulParametersFn);
-	}
-
-	void SceneManager::RegisterComponentDefaultParameters(Ogre::String family, Ogre::String type, GOCDefaultParametersFn RegisterFn)
-	{
-		DataMap *parameters = new DataMap();
-		RegisterFn(parameters);
-		std::map<Ogre::String, std::map<Ogre::String, DataMap*> >::iterator i = mGOCDefaultParameters.find(family);
+		std::map<Ogre::String, std::map<Ogre::String, DataMap> >::iterator i = mGOCDefaultParameters.find(editFamily);
 		if (i == mGOCDefaultParameters.end())
 		{
-			std::map<Ogre::String, DataMap*> map;
-			map.insert(std::make_pair<Ogre::String, DataMap*>(type, parameters));
-			mGOCDefaultParameters.insert(std::make_pair<Ogre::String, std::map<Ogre::String, DataMap*> >(family, map));
+			std::map<Ogre::String, DataMap> map;
+			map.insert(std::make_pair<Ogre::String, DataMap>(type, params));
+			mGOCDefaultParameters.insert(std::make_pair<Ogre::String, std::map<Ogre::String, DataMap> >(editFamily, map));
 		}
 		else
 		{
-			(*i).second.insert(std::make_pair<Ogre::String, DataMap*>(type, parameters));
+			(*i).second.insert(std::make_pair<Ogre::String, DataMap>(type, params));
 		}
+	}
+
+	void SceneManager::RegisterGOCPrototype(GOCEditorInterface *prototype)
+	{
+		mGOCPrototypes.insert(std::make_pair<Ogre::String, GOCEditorInterface*>(prototype->GetLabel(), prototype));
+	}
+	void SceneManager::RegisterGOCPrototype(Ogre::String editFamily, GOCEditorInterface *prototype)
+	{
+		mGOCPrototypes.insert(std::make_pair<Ogre::String, GOCEditorInterface*>(prototype->GetLabel(), prototype));
+		DataMap params;
+		prototype->GetDefaultParameters(&params);
+		RegisterComponentDefaultParams(editFamily, prototype->GetLabel(), params);
 	}
 
 	void SceneManager::ShowEditorMeshes(bool show)
 	{
-		for (std::map<int, ManagedGameObject*>::iterator i = mGameObjects.begin(); i != mGameObjects.end(); i++)
+		for (auto i = mGameObjects.begin(); i != mGameObjects.end(); i++)
 		{
-			if (show)
-			{
-				if (i->second->GetComponent("Waypoint") && !(i->second->GetComponent("MeshDebugRenderable")))
-				{
-					i->second->AddComponent(new MeshDebugRenderable("Editor_Waypoint.mesh"));
-				}
-			}
-			else
-			{
-				if (i->second->GetComponent("MeshDebugRenderable"))
-				{
-					i->second->RemoveComponent("MeshDebugRenderable");
-				}
-			}
 			i->second->ShowEditorVisuals(show);
 		}
 	}
 
-	GOCEditorInterface* SceneManager::CreateComponent(Ogre::String type, DataMap *parameters)
+	GOCEditorInterface* SceneManager::GetGOCPrototype(Ogre::String type)
 	{
-		std::map<Ogre::String, EDTCreatorFn>::iterator i = mEditorInterfaces.find(type);
-		GOCEditorInterface *goc = 0;
-		if (i != mEditorInterfaces.end())
+		std::map<Ogre::String, GOCEditorInterface*>::iterator i = mGOCPrototypes.find(type);
+		if (i != mGOCPrototypes.end())
+			return i->second;
+		return nullptr;
+	}
+
+	GOCEditorInterface* SceneManager::CreateGOCEditorInterface(Ogre::String type, DataMap *parameters)
+	{
+		std::map<Ogre::String, GOCEditorInterface*>::iterator i = mGOCPrototypes.find(type);
+		GOCEditorInterface *goc = nullptr;
+		if (i != mGOCPrototypes.end())
 		{
-			goc = (*i).second();
-			goc->CreateFromDataMap(parameters);
+			goc = (*i).second->New();
+			goc->SetParameters(parameters);
 			return goc;
 		}
-		Ogre::LogManager::getSingleton().logMessage("WARNING: SceneManager::CreateComponent - Can't find \"" + type + "\". Returning NULL.");
+		Ogre::LogManager::getSingleton().logMessage("WARNING: SceneManager::CreateGOCEditorInterface - Can't find \"" + type + "\". Returning nullptr.");
 		return goc;
 	}
 
@@ -164,19 +167,17 @@ namespace Ice
 
 		LoadSave::LoadSave::Instance().RegisterObject(&DataMap::Register);
 		LoadSave::LoadSave::Instance().RegisterObject(&GenericProperty::Register);
-		LoadSave::LoadSave::Instance().RegisterObject(&ComponentSection::Register);
 		LoadSave::LoadSave::Instance().RegisterObject(&GameObject::Register);
 		LoadSave::LoadSave::Instance().RegisterObject(&ManagedGameObject::Register);
 		LoadSave::LoadSave::Instance().RegisterObject(&LoadSave::SaveableDummy::Register);
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCWaypoint::Register);
 
-		LoadSave::LoadSave::Instance().RegisterObject(&MeshRenderable::Register);
-		LoadSave::LoadSave::Instance().RegisterObject(&PfxRenderable::Register);
-		LoadSave::LoadSave::Instance().RegisterObject(&LocalLightRenderable::Register);
-		LoadSave::LoadSave::Instance().RegisterObject(&Sound3D::Register);
+		LoadSave::LoadSave::Instance().RegisterObject(&GOCMeshRenderable::Register);
+		LoadSave::LoadSave::Instance().RegisterObject(&GOCPfxRenderable::Register);
+		LoadSave::LoadSave::Instance().RegisterObject(&GOCLocalLightRenderable::Register);
+		LoadSave::LoadSave::Instance().RegisterObject(&GOCSound3D::Register);
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCRigidBody::Register);
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCStaticBody::Register);
-		LoadSave::LoadSave::Instance().RegisterObject(&GOCViewContainer::Register);
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCAnimatedCharacter::Register);
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCAnimatedCharacterBone::Register);
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCCharacterController::Register);
@@ -190,24 +191,24 @@ namespace Ice
 
 		LoadSave::LoadSave::Instance().RegisterObject(&NavigationMesh::Register);
 
-		RegisterEditorInterface("A", "Mesh", (EDTCreatorFn)&MeshRenderable::NewEditorInterfaceInstance, MeshRenderable::GetDefaultParameters);
-		RegisterEditorInterface("A", "PFX", (EDTCreatorFn)&PfxRenderable::NewEditorInterfaceInstance, PfxRenderable::GetDefaultParameters);
-		RegisterEditorInterface("A", "Light", (EDTCreatorFn)&LocalLightRenderable::NewEditorInterfaceInstance, LocalLightRenderable::GetDefaultParameters);
-		RegisterEditorInterface("A", "Sound3D", (EDTCreatorFn)&Sound3D::NewEditorInterfaceInstance, Sound3D::GetDefaultParameters);
-		RegisterEditorInterface("A", "Skeleton", (EDTCreatorFn)&GOCAnimatedCharacter::NewEditorInterfaceInstance, GOCAnimatedCharacter::GetDefaultParameters);
-		RegisterEditorInterface("", "AnimatedCharacterBone", (EDTCreatorFn)&GOCAnimatedCharacterBone::NewEditorInterfaceInstance, GOCAnimatedCharacterBone::GetDefaultParameters);
+		RegisterGOCPrototype("A", new GOCMeshRenderable());
+		RegisterGOCPrototype("A", new GOCPfxRenderable());
+		RegisterGOCPrototype("A", new GOCLocalLightRenderable());
+		RegisterGOCPrototype("A", new GOCSound3D());
+		RegisterGOCPrototype("A", new GOCAnimatedCharacter());
+		RegisterGOCPrototype(new GOCAnimatedCharacterBone());
 
-		RegisterEditorInterface("B_x", "Rigid Body", (EDTCreatorFn)&GOCRigidBody::NewEditorInterfaceInstance, GOCRigidBody::GetDefaultParameters);
-		RegisterEditorInterface("B_x", "Static Body", (EDTCreatorFn)&GOCStaticBody::NewEditorInterfaceInstance, GOCStaticBody::GetDefaultParameters);
-		RegisterEditorInterface("B_x", "Character", (EDTCreatorFn)&GOCCharacterController::NewEditorInterfaceInstance, GOCCharacterController::GetDefaultParameters);
+		RegisterGOCPrototype("B_x", new GOCRigidBody());
+		RegisterGOCPrototype("B_x", new GOCStaticBody());
+		RegisterGOCPrototype("B_x", new GOCCharacterController());
 
-		RegisterEditorInterface("C_x", "Script", (EDTCreatorFn)&GOCAI::NewEditorInterfaceInstance, GOCAI::GetDefaultParameters);
-		RegisterEditorInterface("C_x", "Player Input", (EDTCreatorFn)&GOCPlayerInput::NewEditorInterfaceInstance, GOCPlayerInput::GetDefaultParameters);
+		RegisterGOCPrototype("C_x", new GOCAI());
+		RegisterGOCPrototype("C_x", new GOCPlayerInput());
 
-		RegisterEditorInterface("D", "Camera", (EDTCreatorFn)&GOCCameraController::NewEditorInterfaceInstance, GOCCameraController::GetDefaultParameters);
+		RegisterGOCPrototype("D", new GOCCameraController());
 
-		RegisterEditorInterface("D", "Mover", (EDTCreatorFn)&GOCMover::NewEditorInterfaceInstance, GOCMover::GetDefaultParameters);
-		RegisterEditorInterface("", "Anim Key", (EDTCreatorFn)&GOCAnimKey::NewEditorInterfaceInstance, GOCAnimKey::GetDefaultParameters);
+		RegisterGOCPrototype("D", new GOCMover());
+		RegisterGOCPrototype(new GOCAnimKey());
 
 		//Setup Lua Callback
 		ScriptSystem::GetInstance().ShareCFunction("Listen", &ScriptSystem::Lua_JoinNewsgroup);
@@ -324,7 +325,7 @@ namespace Ice
 		LoadSave::LoadSystem *ls=LoadSave::LoadSave::Instance().LoadFile(levelfile);
 
 		DataMap *levelparams = (DataMap*)ls->LoadObject();
-		CreateFromDataMap(levelparams);
+		SetParameters(levelparams);
 
 		std::vector<ManagedGameObject*> objects;
 		ls->LoadAtom("std::vector<Saveable*>", &objects);
@@ -366,7 +367,7 @@ namespace Ice
 		MessageSystem::Instance().SendInstantMessage(msg);
 	}
 
-	void SceneManager::CreateFromDataMap(DataMap *parameters)
+	void SceneManager::SetParameters(DataMap *parameters)
 	{
 		Ogre::String levelmesh = parameters->GetOgreString("LevelMesh");
 		if (levelmesh != "")
@@ -739,9 +740,7 @@ namespace Ice
 		int collision = (int)vParams[2].getFloat();
 
 		GameObject *object = Instance().CreateGameObject();
-		GOCViewContainer *container = new GOCViewContainer();
-		container->AddItem(new MeshRenderable(mesh, shadows));
-		object->AddComponent(container);
+		object->AddComponent(new GOCMeshRenderable(mesh, shadows));
 		if (collision == -1)
 		{
 			object->AddComponent(new GOCStaticBody(mesh));
@@ -840,11 +839,9 @@ namespace Ice
 		{
 			GameObject *go = Instance().CreateGameObject();
 			//GOCAnimatedCharacter *body = new GOCAnimatedCharacter(mesh, scale);
-			GOCViewContainer *body = new GOCViewContainer();
-			body->AddItem(new MeshRenderable("cube.1m.mesh", true));
 			GOCAI *ai = new GOCAI();
 			go->AddComponent(ai);		//Brain
-			go->AddComponent(body);		//Body
+			go->AddComponent(new GOCMeshRenderable("cube.1m.mesh", true));		//Body
 			returnerID = (int)ai->GetID();
 		}
 		out.push_back(ScriptParam(returnerID));
@@ -982,8 +979,8 @@ namespace Ice
 		float maxDist = 5;
 		int id = -1;
 		Ogre::Vector3 origin = Main::Instance().GetCamera()->getDerivedPosition();
-		if (SceneManager::Instance().mPlayer)
-			origin = SceneManager::Instance().mPlayer->GetGlobalPosition() + Ogre::Vector3(0, 2, 0);
+		if (SceneManager::Instance().GetPlayer())
+			origin = SceneManager::Instance().GetPlayer()->GetGlobalPosition() + Ogre::Vector3(0, 2, 0);
 		Ogre::Vector3 dir = Main::Instance().GetCamera()->getDerivedDirection().normalisedCopy();
 		std::vector<OgrePhysX::Scene::QueryHit> query;
 		Main::Instance().GetPhysXScene()->raycastAllShapes(query, Ogre::Ray(origin, dir), NX_ALL_SHAPES, -1, maxDist);
@@ -993,7 +990,7 @@ namespace Ice
 			if (i->hitActor->userData)
 			{
 				GameObject *object = (GameObject*)i->hitActor->userData;
-				if (object == SceneManager::Instance().mPlayer) continue;
+				if (object == SceneManager::Instance().GetPlayer()) continue;
 				if (i->distance < cdist)
 				{
 					cdist = i->distance;
@@ -1058,8 +1055,8 @@ namespace Ice
 			GOCAI* pAI = object->GetComponent<GOCAI>();
 			if (pAI)
 			{
-				if (SceneManager::Instance().mPlayer)
-					SceneManager::Instance().mPlayer->GetComponent<GOCPlayerInput>()->BroadcastMovementState(0);
+				if (SceneManager::Instance().GetPlayer())
+					SceneManager::Instance().GetPlayer()->GetComponent<GOCPlayerInput>()->BroadcastMovementState(0);
 
 				pAI->AddState(new Dialog(pAI));
 			}
@@ -1083,9 +1080,8 @@ namespace Ice
 		GameObject *object = SceneManager::Instance().GetObjectByInternID(id);
 		if (object)
 		{
-			GOCNodeRenderable *view;
-			if(view= (GOCNodeRenderable*)object->GetComponent("View"))
-				view->GetNode()->setVisible(params[1].getBool());
+			GOCOgreNode *gocNode = object->GetComponent<GOCOgreNode>();
+			if (gocNode) gocNode->GetNode()->setVisible(params[1].getBool());
 		}
 		return std::vector<ScriptParam>();
 	}

@@ -2,7 +2,7 @@
 
 #include "IceIncludes.h"
 #include "OgrePhysXRagdoll.h"
-#include "IceGOCView.h"
+#include "IceGOCOgreNode.h"
 #include "IceMessageSystem.h"
 
 namespace Ice
@@ -16,7 +16,7 @@ struct RagBoneRef
 	GOCAnimatedCharacter *mGOCRagdoll;
 };
 
-class DllExport GOCAnimatedCharacterBone : public GOCNodeRenderable, public GOCEditorInterface
+class DllExport GOCAnimatedCharacterBone : public GOCOgreNodeUser, public GOCEditorInterface
 {
 private:
 	Ogre::Entity *mEntity;
@@ -36,14 +36,14 @@ private:
 
 public:
 	GOCAnimatedCharacterBone(void);
+	void Init();
 	~GOCAnimatedCharacterBone(void);
 
-	goc_id_family& GetFamilyID() const { static std::string name = "AnimatedCharacterBone"; return name; }
 	GOComponent::goc_id_type& GetComponentID() const { static std::string name = "AnimatedCharacterBone"; return name; }
 
-	void CreateFromDataMap(DataMap *parameters);
+	void SetParameters(DataMap *parameters);
 	void GetParameters(DataMap *parameters);
-	static void GetDefaultParameters(DataMap *parameters);
+	void GetDefaultParameters(DataMap *parameters);
 	void* GetUserData();
 	void InjectUserData(void* data);
 
@@ -66,12 +66,12 @@ public:
 	std::string& TellName() { static std::string name = "AnimatedCharacterBone"; return name; };
 	static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "AnimatedCharacterBone"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };
 	static LoadSave::Saveable* NewInstance() { return new GOCAnimatedCharacterBone; };
-	static GOCEditorInterface* NewEditorInterfaceInstance() { return new GOCAnimatedCharacterBone(); }
-	void AttachToGO(GameObject *go);
+	GOCEditorInterface* New() { return new GOCAnimatedCharacterBone(); }
 	Ogre::String GetLabel() { return ""; }
+	GOComponent* GetGOComponent() { return this; }
 };
 
-class DllExport GOCAnimatedCharacter : public GOCEditorInterface, public GOCNodeRenderable, public MessageListener
+class DllExport GOCAnimatedCharacter : public GOCEditorInterface, public GOCOgreNodeUser, public MessageListener
 {
 	enum AnimationID
 	{
@@ -98,6 +98,8 @@ private:
 	std::map<AnimationID, Ogre::String> mMovementAnimations;
 	int mMovementState;
 
+	void _clear();
+
 	void Create(Ogre::String meshname, Ogre::Vector3 scale);
 
 public:
@@ -123,17 +125,17 @@ public:
 	void ReceiveObjectMessage(const Msg &msg);
 
 	void SetOwner(GameObject *go);
-	void CreateFromDataMap(DataMap *parameters);
+	void SetParameters(DataMap *parameters);
 	void GetParameters(DataMap *parameters);
-	static void GetDefaultParameters(DataMap *parameters);
+	void GetDefaultParameters(DataMap *parameters);
 	void Save(LoadSave::SaveSystem& mgr);
 	void Load(LoadSave::LoadSystem& mgr);
 	virtual std::string& TellName() { static std::string name = "Skeleton"; return name; };
 	static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "Skeleton"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };
 	static LoadSave::Saveable* NewInstance() { return new GOCAnimatedCharacter(); };
-	static GOCEditorInterface* NewEditorInterfaceInstance() { return new GOCAnimatedCharacter(); }
-	void AttachToGO(GameObject *go);
+	GOCEditorInterface* New() { return new GOCAnimatedCharacter(); }
 	Ogre::String GetLabel() { return "Skeleton"; }
+	GOComponent* GetGOComponent() { return this; }
 };
 
 };

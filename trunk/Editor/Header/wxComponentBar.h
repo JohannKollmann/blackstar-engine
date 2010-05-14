@@ -7,6 +7,7 @@
 #include "Ogre.h"
 #include "IceDataMap.h"
 #include "EDTIncludes.h"
+#include "propGridEditIceGOC.h"
 
 class wxComponentBar : public wxPanel
 {
@@ -34,6 +35,6 @@ public:
 
 	void OnCheckBoxClicked(wxCommandEvent& event);
 	void ResetCheckBoxes();
-	void SetSections(std::list<Ice::ComponentSection> sections);
+	void SetSections(std::vector<ComponentSection> &sections);
 	void SetSectionStatus(Ogre::String name, bool checked);
 };

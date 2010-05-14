@@ -3,10 +3,10 @@
 #define _AXIS_OBJECT_H_
 
 #include "IceGOComponent.h"
-#include "IceGOCView.h"
+#include "IceGOCOgreNode.h"
 #include "EDTIncludes.h"
 
-class AxisComponent : public Ice::GOCNodeRenderable
+class AxisComponent : public Ice::GOCOgreNode
 {
 	enum BoxParts
 	{

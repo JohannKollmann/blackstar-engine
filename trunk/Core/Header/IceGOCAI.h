@@ -13,71 +13,68 @@ namespace Ice
 {
 
 	class DllExport GOCAI : public GOCEditorInterface, public CharacterControllerInput, public MessageListener
-{
-private:
-	/*
-	Die Idle-Routine des AI Objekts (Tagesablauf), wird immer gelooped.
-	*/
-	std::vector<DayCycle*> mIdleQueue;
+	{
+	private:
+		/*
+		Die Idle-Routine des AI Objekts (Tagesablauf), wird immer gelooped.
+		*/
+		std::vector<DayCycle*> mIdleQueue;
 
-	/*
-	Priority Queue von Events, ueberlagert immer Idle-Routine.
-	*/
-	std::vector<AIState*> mActionQueue;
+		/*
+		Priority Queue von Events, ueberlagert immer Idle-Routine.
+		*/
+		std::vector<AIState*> mActionQueue;
 
 
-	Ogre::String mScriptFileName;
+		Ogre::String mScriptFileName;
 
-	//Lua stuff
-	std::map<std::string, ScriptParam> mProperties;
+		//Lua stuff
+		std::map<std::string, ScriptParam> mProperties;
 
-public:
-	GOCAI(void);
-	~GOCAI(void);
+	public:
+		GOCAI(void);
+		~GOCAI(void);
 
-	void AddState(AIState *state);
-	void AddDayCycleState(DayCycle *state);
-	void ClearActionQueue();
-	void ClearIdleQueue();
-	void SelectState();
-	void LeaveActiveActionState();
+		void AddState(AIState *state);
+		void AddDayCycleState(DayCycle *state);
+		void ClearActionQueue();
+		void ClearIdleQueue();
+		void SelectState();
+		void LeaveActiveActionState();
 
-	void ReloadScript();
+		void ReloadScript();
 
-	void SetOwner(GameObject *go);
+		void SetOwner(GameObject *go);
 
-	void SetProperty(std::string key, ScriptParam prop);
-	ScriptParam GetProperty(std::string key);
+		void SetProperty(std::string key, ScriptParam prop);
+		ScriptParam GetProperty(std::string key);
 
-	int GetID();
+		int GetID();
 
-	void Update(float time);
+		void Update(float time);
 
-	void ReceiveObjectMessage(const Msg &msg);
+		void ReceiveObjectMessage(const Msg &msg);
 
-	void ReceiveMessage(Msg &msg);
+		void ReceiveMessage(Msg &msg);
 
-	GOComponent::goc_id_type& GetComponentID() const { static std::string name = "AI"; return name; }
+		GOComponent::goc_id_type& GetComponentID() const { static std::string name = "AI"; return name; }
 
-	Ogre::String getTypeName() { return "AI"; }
+		void SetParameters(DataMap *parameters);
+		void GetParameters(DataMap *parameters);
+		void GetDefaultParameters(DataMap *parameters);
+		GOCEditorInterface* New() { return new GOCAI(); }
+		Ogre::String GetLabel() { return "Script"; }
+		GOComponent* GetGOComponent() { return this; }
 
-	void CreateFromDataMap(DataMap *parameters);
-	void GetParameters(DataMap *parameters);
-	static void GetDefaultParameters(DataMap *parameters);
-	static GOCEditorInterface* NewEditorInterfaceInstance() { return new GOCAI(); }
-	void AttachToGO(GameObject *go);
-	Ogre::String GetLabel() { return "Script"; }
+		bool IsStatic() { return false; }
 
-	bool IsStatic() { return false; }
+		std::string& TellName() { static std::string name = "AI"; return name; };
+		static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "AI"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };
+		static LoadSave::Saveable* NewInstance() { return new GOCAI; };
+		void Save(LoadSave::SaveSystem& mgr);
+		void Load(LoadSave::LoadSystem& mgr);
 
-	void Create(Ogre::String scriptFile);
-	std::string& TellName() { static std::string name = "AI"; return name; };
-	static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "AI"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };
-	static LoadSave::Saveable* NewInstance() { return new GOCAI; };
-	void Save(LoadSave::SaveSystem& mgr);
-	void Load(LoadSave::LoadSystem& mgr);
-
-	Script mScript;
-};
+		Script mScript;
+	};
 
 };

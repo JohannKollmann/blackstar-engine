@@ -22,7 +22,7 @@ namespace Ice
 	typedef GOCEditorInterface* (*EDTCreatorFn)();
 	typedef void (*GOCDefaultParametersFn)(DataMap*);
 
-	class DllExport SceneManager : public GOCEditorInterface, public MessageListener
+	class DllExport SceneManager : public EditorInterface, public MessageListener
 	{
 	private:
 		unsigned int mNextID;
@@ -34,6 +34,8 @@ namespace Ice
 
 		WeatherController *mWeatherController;
 
+		GameObject *mPlayer;
+
 		bool mIndoorRendering;
 
 		LevelMesh *mLevelMesh;
@@ -41,7 +43,7 @@ namespace Ice
 		std::vector<GameObject*> mObjectMessageQueue;
 		std::map<int, ManagedGameObject*> mGameObjects;
 
-		std::map<Ogre::String, EDTCreatorFn> mEditorInterfaces;
+		std::map<Ogre::String, GOCEditorInterface*> mGOCPrototypes;
 
 		std::vector<OgreOggSound::OgreOggISound*> mPlayingSounds;
 		void DestroyStoppedSounds();
@@ -49,8 +51,6 @@ namespace Ice
 		float mDestroyStoppedSoundsLast;
 
 	public:
-
-		GameObject *mPlayer;
 
 		SoundMaterialTable mSoundMaterialTable;
 
@@ -61,7 +61,7 @@ namespace Ice
 
 		void AddToMessageQueue(GameObject *object);
 
-		std::map<Ogre::String, std::map<Ogre::String, DataMap*> > mGOCDefaultParameters; //For Editors
+		std::map<Ogre::String, std::map<Ogre::String, DataMap> > mGOCDefaultParameters; //For Editors
 
 		SceneManager(void);
 		~SceneManager(void);
@@ -101,6 +101,37 @@ namespace Ice
 		void Init();
 		void Reset();
 		void Shutdown();
+
+		//Editor
+		void SetParameters(DataMap *parameters);
+		void GetParameters(DataMap *parameters);
+
+		void RegisterComponentDefaultParams(Ogre::String editFamily, Ogre::String type, DataMap &params);
+
+		void RegisterGOCPrototype(GOCEditorInterface *prototype);
+		void RegisterGOCPrototype(Ogre::String editFamily, GOCEditorInterface *prototype);
+
+		void ShowEditorMeshes(bool show);
+
+		GOCEditorInterface* GetGOCPrototype(Ogre::String type);
+		GOCEditorInterface* CreateGOCEditorInterface(Ogre::String type, DataMap *parameters);
+
+		//Game clock
+		void EnableClock(bool enable);
+		void SetTimeScale(float scale);
+		void SetTime(int hours, int minutes);
+		int GetHour();
+		int GetMinutes();
+		void ReceiveMessage(Msg &msg);
+
+		//Preview render helper functions (for items, editor object preview etc.) 
+		Ogre::TexturePtr CreatePreviewRender(Ogre::SceneNode *node, Ogre::String name, float width = 512, float height = 512);
+		void DestroyPreviewRender(Ogre::String name);
+
+		//Singleton
+		static SceneManager& Instance();
+
+
 
 		//Script
 
@@ -171,34 +202,6 @@ namespace Ice
 		Liefert true, wenn Objekt ein Npc ist, sonst false.
 		*/
 		static std::vector<ScriptParam> Lua_ObjectIsNpc(Script& caller, std::vector<ScriptParam> params);
-
-		//Editor
-		void CreateFromDataMap(DataMap *parameters);
-		void GetParameters(DataMap *parameters);
-		void AttachToGO(GameObject *go) {};
-		Ogre::String GetLabel() { return ""; }
-
-		void RegisterEditorInterface(Ogre::String family, Ogre::String type, EDTCreatorFn RegisterFn, GOCDefaultParametersFn DefaulParametersFn);
-		void RegisterComponentDefaultParameters(Ogre::String family, Ogre::String type, GOCDefaultParametersFn RegisterFn);
-
-		void ShowEditorMeshes(bool show);
-
-		GOCEditorInterface* CreateComponent(Ogre::String type, DataMap *parameters);
-
-		//Game clock
-		void EnableClock(bool enable);
-		void SetTimeScale(float scale);
-		void SetTime(int hours, int minutes);
-		int GetHour();
-		int GetMinutes();
-		void ReceiveMessage(Msg &msg);
-
-		//Preview render helper functions (for items, editor object preview etc.) 
-		Ogre::TexturePtr CreatePreviewRender(Ogre::SceneNode *node, Ogre::String name, float width = 512, float height = 512);
-		void DestroyPreviewRender(Ogre::String name);
-
-		//Singleton
-		static SceneManager& Instance();
 
 	};
 

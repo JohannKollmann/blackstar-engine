@@ -12,31 +12,25 @@ namespace Ice
 
 GOCPlayerInput::GOCPlayerInput(void)
 {
-	MessageSystem::Instance().JoinNewsgroup(this, "KEY_DOWN");
-	MessageSystem::Instance().JoinNewsgroup(this, "KEY_UP");
-	MessageSystem::Instance().JoinNewsgroup(this, "MOUSE_MOVE");
-	MessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
-
 	mCharacterMovementState = 0;
 	mActive = false;
 }
 
 GOCPlayerInput::~GOCPlayerInput(void)
 {
-	MessageSystem::Instance().QuitNewsgroup(this, "KEY_DOWN");
-	MessageSystem::Instance().QuitNewsgroup(this, "KEY_UP");
-	MessageSystem::Instance().QuitNewsgroup(this, "MOUSE_MOVE");
-	MessageSystem::Instance().QuitNewsgroup(this, "UPDATE_PER_FRAME");
-}
-
-void GOCPlayerInput::AttachToGO(GameObject *go)
-{
-	go->RemoveComponent(GetFamilyID());
-	go->AddComponent(this);
 }
 
 void GOCPlayerInput::SetActive(bool active)
 {
+	if (active)
+	{
+		MessageSystem::Instance().QuitAllNewsgroups(this);
+		MessageSystem::Instance().JoinNewsgroup(this, "KEY_DOWN");
+		MessageSystem::Instance().JoinNewsgroup(this, "KEY_UP");
+		MessageSystem::Instance().JoinNewsgroup(this, "MOUSE_MOVE");
+		MessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
+	}
+
 	mActive = active;
 	if (mActive && mOwnerGO)
 		SceneManager::Instance().RegisterPlayer(mOwnerGO);

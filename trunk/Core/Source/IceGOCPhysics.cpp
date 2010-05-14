@@ -29,6 +29,10 @@ namespace Ice
 
 	GOCRigidBody::~GOCRigidBody(void)
 	{
+		_clear();
+	}
+	void GOCRigidBody::_clear()
+	{
 		if (mActor)
 		{
 			Msg msg;
@@ -36,6 +40,7 @@ namespace Ice
 			msg.rawData = mActor->getNxActor();
 			MessageSystem::Instance().SendInstantMessage(msg);
 			Main::Instance().GetPhysXScene()->destroyRenderedActor(mActor);
+			mActor = nullptr;
 			//This also destroys the renderable!
 		}
 	}
@@ -123,8 +128,9 @@ namespace Ice
 		mActor->setGlobalPosition(mOwnerGO->GetGlobalPosition());
 	}
 
-	void GOCRigidBody::CreateFromDataMap(DataMap *parameters)
+	void GOCRigidBody::SetParameters(DataMap *parameters)
 	{
+		_clear();
 		mCollisionMeshName = parameters->GetOgreString("CollisionMeshFile");
 		mMaterialName = parameters->GetOgreString("mMaterialName");
 		Ogre::Vector3 scale = Ogre::Vector3(1,1,1);
@@ -146,12 +152,6 @@ namespace Ice
 		parameters->AddOgreString("mMaterialName", "Wood");
 		parameters->AddFloat("Density", 10.0f);
 		parameters->AddInt("ShapeType", 0);
-	}
-
-	void GOCRigidBody::AttachToGO(GameObject *go)
-	{
-		go->RemoveComponent(GetFamilyID());
-		go->AddComponent(this);
 	}
 
 	void GOCRigidBody::Save(LoadSave::SaveSystem& mgr)
@@ -185,9 +185,14 @@ namespace Ice
 
 	GOCStaticBody::~GOCStaticBody(void)
 	{
+		_clear();
+	}
+	void GOCStaticBody::_clear()
+	{
 		if (mActor)
 		{
 			Main::Instance().GetPhysXScene()->destroyActor(mActor);
+			mActor = nullptr;
 		}
 	}
 
@@ -232,8 +237,9 @@ namespace Ice
 		mActor->setGlobalPosition(mOwnerGO->GetGlobalPosition());
 	}
 
-	void GOCStaticBody::CreateFromDataMap(DataMap *parameters)
+	void GOCStaticBody::SetParameters(DataMap *parameters)
 	{
+		_clear();
 		mCollisionMeshName = parameters->GetOgreString("CollisionMeshFile");
 		Ogre::Vector3 scale = Ogre::Vector3(1,1,1);
 		scale = parameters->GetOgreVec3("Scale");
@@ -246,11 +252,6 @@ namespace Ice
 	void GOCStaticBody::GetDefaultParameters(DataMap *parameters)
 	{
 		parameters->AddOgreString("CollisionMeshFile", "");
-	}
-	void GOCStaticBody::AttachToGO(GameObject *go)
-	{
-		go->RemoveComponent(GetFamilyID());
-		go->AddComponent(this);
 	}
 
 	void GOCStaticBody::Save(LoadSave::SaveSystem& mgr)
@@ -283,9 +284,14 @@ namespace Ice
 
 	GOCTrigger::~GOCTrigger(void)
 	{
+		_clear();
+	}
+	void GOCTrigger::_clear()
+	{
 		if (mActor)
 		{
 			Main::Instance().GetPhysXScene()->destroyActor(mActor);
+			mActor = nullptr;
 		}
 	}
 
@@ -350,8 +356,9 @@ namespace Ice
 		mActor->setGlobalPosition(mOwnerGO->GetGlobalPosition());
 	}
 
-	void GOCTrigger::CreateFromDataMap(DataMap *parameters)
+	void GOCTrigger::SetParameters(DataMap *parameters)
 	{
+		_clear();
 		Ogre::Vector3 scale = Ogre::Vector3(1,1,1);
 		scale = parameters->GetOgreVec3("Scale");
 		mShapeType = (TriggerShapes)parameters->GetInt("ShapeType");
@@ -370,11 +377,6 @@ namespace Ice
 		parameters->AddInt("ShapeType", 0);
 		parameters->AddOgreVec3("BoxSize", Ogre::Vector3(1,1,1));
 		parameters->AddFloat("Radius", 0);
-	}
-	void GOCTrigger::AttachToGO(GameObject *go)
-	{
-		go->RemoveComponent(GetFamilyID());
-		go->AddComponent(this);
 	}
 
 	void GOCTrigger::Save(LoadSave::SaveSystem& mgr)

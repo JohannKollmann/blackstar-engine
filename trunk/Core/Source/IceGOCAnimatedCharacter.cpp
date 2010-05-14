@@ -10,18 +10,23 @@ namespace Ice
 
 GOCAnimatedCharacterBone::GOCAnimatedCharacterBone(void)
 {
-	mNode = Main::Instance().GetOgreSceneMgr()->getRootSceneNode()->createChildSceneNode();
-	mOffsetNode = mNode->createChildSceneNode(Ogre::Vector3(0,0,0), Ogre::Quaternion());
+	mOffsetNode = nullptr;
+	mEntity = nullptr;
+	mMeshNode = nullptr;
+	mJointAxisNode = nullptr;
+	mJointAxis = nullptr;
+	mBone = nullptr;
+	mRagBoneRef = nullptr;
+}
+void GOCAnimatedCharacterBone::Init()
+{
+	if (GetNode()) return;
+	mOffsetNode = GetNode()->createChildSceneNode(Ogre::Vector3(0,0,0), Ogre::Quaternion());
 	mEntity = Main::Instance().GetOgreSceneMgr()->createEntity(Ogre::StringConverter::toString(SceneManager::Instance().RequestID()), "capsule.mesh");
 	mEntity->setCastShadows(false);
 	mEntity->setUserAny(Ogre::Any(mOwnerGO));
 	mOffsetNode->attachObject(mEntity);
 	mDebugAnimation = true;
-	mMeshNode = 0;
-	mJointAxisNode = 0;
-	mJointAxis = 0;
-	mBone = 0;
-	mRagBoneRef = 0;
 	mBoneConfig.mBoneOffset = Ogre::Vector3(0,0,0);
 	mGlobalBindPosition = Ogre::Vector3(0,0,0);
 	mBoneConfig.mBoneOrientation = Ogre::Quaternion();
@@ -48,11 +53,10 @@ GOCAnimatedCharacterBone::GOCAnimatedCharacterBone(void)
 }
 GOCAnimatedCharacterBone::~GOCAnimatedCharacterBone(void)
 {
-	Main::Instance().GetOgreSceneMgr()->destroyEntity(mEntity);
+	if (mEntity) Main::Instance().GetOgreSceneMgr()->destroyEntity(mEntity);
 	if (mJointAxis) Main::Instance().GetOgreSceneMgr()->destroyManualObject(mJointAxis);
 	if (mJointAxisNode) Main::Instance().GetOgreSceneMgr()->destroySceneNode(mJointAxisNode);
-	Main::Instance().GetOgreSceneMgr()->destroySceneNode(mOffsetNode);
-	Main::Instance().GetOgreSceneMgr()->destroySceneNode(mNode);
+	if (mOffsetNode) Main::Instance().GetOgreSceneMgr()->destroySceneNode(mOffsetNode);
 	if (mBone) mBone->setManuallyControlled(false);
 	if (mRagBoneRef) mRagBoneRef->mGOCRagdoll->mBoneObjects.remove(mOwnerGO);
 }
@@ -63,27 +67,9 @@ void* GOCAnimatedCharacterBone::GetUserData()
 }
 void GOCAnimatedCharacterBone::InjectUserData(void* data)
 {
-	mRagBoneRef = (RagBoneRef*)data;
-	mBone = mRagBoneRef->mBone;
-	mMeshNode = mRagBoneRef->mMeshNode;
-	mBone->setManuallyControlled(mDebugAnimation);
-	mBoneConfig.mBoneName = mBone->getName();
-	mBoneGlobalBindOrientation = mBone->_getDerivedOrientation();
-	mRagBoneRef->mGOCRagdoll->mBoneObjects.push_back(mOwnerGO);
-	float scale_factor = ((mMeshNode->_getDerivedScale().x + mMeshNode->_getDerivedScale().y + mMeshNode->_getDerivedScale().z) / 3);
-	mBoneConfig.mBoneLength = mBoneConfig.mBoneLength / scale_factor;
-	mBoneConfig.mBoneOffset = mBoneConfig.mBoneOffset / scale_factor;
-	mBoneConfig.mRadius = mBoneConfig.mRadius / scale_factor;
-	ScaleNode();
-	mGlobalBindPosition = mOwnerGO->GetGlobalPosition() - (mBoneConfig.mBoneOffset*scale_factor);
-	if (mBoneConfig.mParentName != "None")
-	{
-		mBoneConfig.mJointOrientation = mOwnerGO->GetParent()->GetGlobalOrientation().Inverse() * mBoneConfig.mJointOrientation;
-		CreateJointAxis();
-	}
 }
 
-void GOCAnimatedCharacterBone::CreateFromDataMap(DataMap *parameters)
+void GOCAnimatedCharacterBone::SetParameters(DataMap *parameters)
 {
 	mBoneConfig.mParentName = parameters->GetOgreString("mParentName");
 	mBoneConfig.mBoneLength = parameters->GetFloat("BoneLength");
@@ -112,6 +98,18 @@ void GOCAnimatedCharacterBone::CreateFromDataMap(DataMap *parameters)
 	mBoneConfig.mTwistMin.mSpring = parameters->GetFloat("TwistMin_Spring");
 
 	mDebugAnimation = parameters->GetBool("TestAnimation");
+
+	float scale_factor = ((mMeshNode->_getDerivedScale().x + mMeshNode->_getDerivedScale().y + mMeshNode->_getDerivedScale().z) / 3);
+	mBoneConfig.mBoneLength = mBoneConfig.mBoneLength / scale_factor;
+	mBoneConfig.mBoneOffset = mBoneConfig.mBoneOffset / scale_factor;
+	mBoneConfig.mRadius = mBoneConfig.mRadius / scale_factor;
+	ScaleNode();
+	mGlobalBindPosition = mOwnerGO->GetGlobalPosition() - (mBoneConfig.mBoneOffset*scale_factor);
+	if (mBoneConfig.mParentName != "None")
+	{
+		mBoneConfig.mJointOrientation = mOwnerGO->GetParent()->GetGlobalOrientation().Inverse() * mBoneConfig.mJointOrientation;
+		CreateJointAxis();
+	}
 }
 
 void GOCAnimatedCharacterBone::GetParameters(DataMap *parameters)
@@ -152,9 +150,9 @@ void GOCAnimatedCharacterBone::GetDefaultParameters(DataMap *parameters)
 }
 void GOCAnimatedCharacterBone::UpdatePosition(Ogre::Vector3 position)
 {
-	if (mNode)
+	if (GetNode())
 	{
-		mNode->setPosition(position);
+		GetNode()->setPosition(position);
 		if (mBone)
 		{
 			float scale_factor = ((mMeshNode->_getDerivedScale().x + mMeshNode->_getDerivedScale().y + mMeshNode->_getDerivedScale().z) / 3);
@@ -182,7 +180,7 @@ void GOCAnimatedCharacterBone::UpdatePosition(Ogre::Vector3 position)
 
 void GOCAnimatedCharacterBone::UpdateScale(Ogre::Vector3 scale)
 {
-	/*if (mNode)
+	/*if (GetNode())
 	{
 		mBoneConfig.mRadius = mBoneConfig.mBoneLength * ((scale.x + scale.z) * 0.5f);
 		mBoneConfig.mBoneLength = mBoneConfig.mBoneLength*scale.y;
@@ -192,9 +190,9 @@ void GOCAnimatedCharacterBone::UpdateScale(Ogre::Vector3 scale)
 
 void GOCAnimatedCharacterBone::UpdateOrientation(Ogre::Quaternion orientation)
 {
-	if (mNode)
+	if (GetNode())
 	{
-		mNode->setOrientation(orientation);
+		GetNode()->setOrientation(orientation);
 		//Ogre::Quaternion q = Ogre::Vector3(1,0,0).getRotationTo(Ogre::Vector3(0,1,0));
 		mBoneConfig.mBoneOrientation = orientation;// * q.Inverse();
 		if (GetTestAnimation() && mBone)
@@ -263,7 +261,7 @@ void GOCAnimatedCharacterBone::CreateJointAxis()
 
 	mJointAxis->end();
 	mJointAxis->setCastShadows(false);
-	mJointAxisNode = mNode->createChildSceneNode("AxisLine_" + SceneManager::Instance().RequestIDStr());
+	mJointAxisNode = GetNode()->createChildSceneNode("AxisLine_" + SceneManager::Instance().RequestIDStr());
 	mJointAxisNode->setInheritOrientation(false);
 	Ogre::Quaternion parentOrientation = mOwnerGO->GetParent()->GetGlobalOrientation();
 	mJointAxisNode->setOrientation(parentOrientation * mBoneConfig.mJointOrientation);
@@ -282,6 +280,7 @@ void GOCAnimatedCharacterBone::ScaleNode()
 
 void GOCAnimatedCharacterBone::SetBone(Ogre::SceneNode *meshnode, GOCAnimatedCharacter* ragdoll, OgrePhysX::sBoneActorBind &bone_config, bool controlBone)
 {
+	Init();
 	mMeshNode = meshnode;
 	mBone = bone_config.mBone;
 	mDebugAnimation = controlBone;
@@ -342,14 +341,18 @@ void GOCAnimatedCharacterBone::SetOwner(GameObject *go)
 
 GOCAnimatedCharacter::~GOCAnimatedCharacter(void)
 {
+	_clear();
+}
+
+void GOCAnimatedCharacter::_clear()
+{
 	std::list<GameObject*>::iterator i = mBoneObjects.begin();
 	while (i != mBoneObjects.end())
 	{
 		delete (*i);
 		i = mBoneObjects.begin();
 	}
-	Main::Instance().GetOgreSceneMgr()->destroySceneNode(mNode);
-	Main::Instance().GetOgreSceneMgr()->destroyEntity(mEntity);
+	if (mEntity) Main::Instance().GetOgreSceneMgr()->destroyEntity(mEntity);
 	if (mRagdoll)
 	{
 		MessageSystem::Instance().QuitNewsgroup(this, "UPDATE_PER_FRAME");
@@ -360,11 +363,12 @@ GOCAnimatedCharacter::~GOCAnimatedCharacter(void)
 
 GOCAnimatedCharacter::GOCAnimatedCharacter()
 {
-	mRagdoll = 0;
+	mRagdoll = nullptr;
 	mMovementState = 0;
+	mEntity = nullptr;
 	mSetControlToActorsTemp = false;
 	mEditorMode = false;
-	mAnimationState = 0;
+	mAnimationState = nullptr;
 }
 
 GOCAnimatedCharacter::GOCAnimatedCharacter(Ogre::String meshname, Ogre::Vector3 scale)
@@ -378,18 +382,17 @@ GOCAnimatedCharacter::GOCAnimatedCharacter(Ogre::String meshname, Ogre::Vector3 
 void GOCAnimatedCharacter::Create(Ogre::String meshname, Ogre::Vector3 scale)
 {
 	mMovementState = 0;
-	mNode = Main::Instance().GetOgreSceneMgr()->getRootSceneNode()->createChildSceneNode(SceneManager::Instance().RequestIDStr());
-	mNode->scale(scale);
+	GetNode()->scale(scale);
 	if (!Ogre::ResourceGroupManager::getSingleton().resourceExists("General", meshname))
 	{
 		Ogre::LogManager::getSingleton().logMessage("Error: Resource \"" + meshname + "\" does not exist. Loading dummy Resource...");
 		meshname = "DummyMesh.mesh";
 	}
 	mEntity = Main::Instance().GetOgreSceneMgr()->createEntity(SceneManager::Instance().RequestIDStr(), meshname);
-	mNode->attachObject(mEntity);
+	GetNode()->attachObject(mEntity);
 	if (!mEntity->hasSkeleton()) return;
 
-	mRagdoll = Main::Instance().GetPhysXScene()->createRagdoll(mEntity, mNode, CollisionGroups::BONE);
+	mRagdoll = Main::Instance().GetPhysXScene()->createRagdoll(mEntity, GetNode(), CollisionGroups::BONE);
 
 	ResetMovementAnis();
 	if (Ogre::ResourceGroupManager::getSingleton().resourceExists("General", mEntity->getMesh()->getName() + ".anis"))
@@ -442,7 +445,7 @@ void GOCAnimatedCharacter::CreateBoneObjects()
 		go->SetGlobalPosition((*i).mActor->getGlobalPosition());
 		//Ogre::Quaternion q = Ogre::Vector3(1,0,0).getRotationTo(Ogre::Vector3(0,1,0));
 		go->SetGlobalOrientation((*i).mActor->getGlobalOrientation());// * q);
-		bone->SetBone(mNode, this, (*i), true);
+		bone->SetBone(GetNode(), this, (*i), true);
 		//go->SetFreezePosition(true);
 		bonemap.insert(std::make_pair<Ogre::String, GameObject*>((*i).mBone->getName(), go));
 	}
@@ -553,8 +556,9 @@ void GOCAnimatedCharacter::SetOwner(GameObject *go)
 	else if (mEditorMode && mAnimationStateStr == "DEBUG") CreateBoneObjects();
 }
 
-void GOCAnimatedCharacter::CreateFromDataMap(DataMap *parameters)
+void GOCAnimatedCharacter::SetParameters(DataMap *parameters)
 {
+	_clear();
 	Ogre::String meshname = parameters->GetOgreString("MeshName");
 	mAnimationStateStr = parameters->GetOgreString("AnimState");
 	bool shadowcaster = parameters->GetBool("ShadowCaster");
@@ -610,17 +614,6 @@ void GOCAnimatedCharacter::Load(LoadSave::LoadSystem& mgr)
 	if (!mRagdoll) return;
 	if (animstate != "") SetAnimationState(animstate);
 	if (ragdoll) mRagdoll->setControlToActors();
-}
-
-void GOCAnimatedCharacter::AttachToGO(GameObject *go)
-{
-	go->RemoveComponent(GetFamilyID());
-	go->AddComponent(this);
-}
-void GOCAnimatedCharacterBone::AttachToGO(GameObject *go)
-{
-	go->RemoveComponent(GetFamilyID());
-	go->AddComponent(this);
 }
 
 };

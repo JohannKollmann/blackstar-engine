@@ -56,8 +56,10 @@ namespace Ice
 		float mDensity;
 		int mShapeType;
 
+		void _clear();
+
 	public:
-		GOCRigidBody() { mActor = 0; mOwnerGO = 0; mRenderable = 0; }
+		GOCRigidBody() { mActor = nullptr; mOwnerGO = nullptr; mRenderable = nullptr; }
 		GOCRigidBody(Ogre::String collision_mesh, float density, int shapetype);
 		~GOCRigidBody(void);
 
@@ -72,18 +74,18 @@ namespace Ice
 		void SetOwner(GameObject *go);
 		bool IsStatic() { return false; }
 
-		void CreateFromDataMap(DataMap *parameters);
+		void SetParameters(DataMap *parameters);
 		void GetParameters(DataMap *parameters);
-		static void GetDefaultParameters(DataMap *parameters);
+		void GetDefaultParameters(DataMap *parameters);
 		Ogre::String GetLabel() { return "Rigid Body"; }
+		GOComponent* GetGOComponent() { return this; }
 
 		void Save(LoadSave::SaveSystem& mgr);
 		void Load(LoadSave::LoadSystem& mgr);
 		std::string& TellName() { static std::string name = "RigidBody"; return name; };
 		static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "RigidBody"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };
 		static LoadSave::Saveable* NewInstance() { return new GOCRigidBody; };
-		static GOCEditorInterface* NewEditorInterfaceInstance() { return new GOCRigidBody(); }
-		void AttachToGO(GameObject *go);
+		GOCEditorInterface* New() { return new GOCRigidBody(); }
 	};
 
 
@@ -93,6 +95,8 @@ namespace Ice
 		OgrePhysX::Actor *mActor;
 		void Create(Ogre::String collision_mesh, Ogre::Vector3 scale = Ogre::Vector3(1,1,1));
 		Ogre::String mCollisionMeshName;
+
+		void _clear();
 
 	public:
 		GOCStaticBody() { mActor = 0; mOwnerGO = 0; }
@@ -107,18 +111,18 @@ namespace Ice
 
 		void SetOwner(GameObject *go);
 
-		void CreateFromDataMap(DataMap *parameters);
+		void SetParameters(DataMap *parameters);
 		void GetParameters(DataMap *parameters);
-		static void GetDefaultParameters(DataMap *parameters);
-		void AttachToGO(GameObject *go);
+		void GetDefaultParameters(DataMap *parameters);
 		Ogre::String GetLabel() { return "Static Body"; }
+		GOComponent* GetGOComponent() { return this; }
 
 		void Save(LoadSave::SaveSystem& mgr);
 		void Load(LoadSave::LoadSystem& mgr);
 		std::string& TellName() { static std::string name = "StaticBody"; return name; };
 		static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "StaticBody"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };
 		static LoadSave::Saveable* NewInstance() { return new GOCStaticBody; };
-		static GOCEditorInterface* NewEditorInterfaceInstance() { return new GOCStaticBody(); }
+		GOCEditorInterface* New() { return new GOCStaticBody(); }
 	};
 
 	class DllExport GOCTrigger : public GOCEditorInterface, public GOCPhysics
@@ -134,6 +138,8 @@ namespace Ice
 		Ogre::Vector3 mBoxDimensions;
 		float mSphereRadius;
 		void Create(Ogre::Vector3 scale);
+
+		void _clear();
 
 	public:
 		GOCTrigger() { mActor = 0; mOwnerGO = 0; }
@@ -152,18 +158,18 @@ namespace Ice
 
 		void SetOwner(GameObject *go);
 
-		void CreateFromDataMap(DataMap *parameters);
+		void SetParameters(DataMap *parameters);
 		void GetParameters(DataMap *parameters);
-		static void GetDefaultParameters(DataMap *parameters);
-		void AttachToGO(GameObject *go);
+		void GetDefaultParameters(DataMap *parameters);
 		Ogre::String GetLabel() { return "Trigger"; }
+		GOComponent* GetGOComponent() { return this; }
 
 		void Save(LoadSave::SaveSystem& mgr);
 		void Load(LoadSave::LoadSystem& mgr);
 		std::string& TellName() { static std::string name = "Trigger"; return name; };
 		static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "Trigger"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };
 		static LoadSave::Saveable* NewInstance() { return new GOCTrigger; };
-		static GOCEditorInterface* NewEditorInterfaceInstance() { return new GOCTrigger(); }
+		GOCEditorInterface* New() { return new GOCTrigger(); }
 	};
 
 };

@@ -7,8 +7,11 @@
 #include <vector>
 #include "IceMessageSystem.h"
 
-class NavMeshEditorNode : public Ice::MeshDebugRenderable, public Ice::MessageListener
-	{
+class NavMeshEditorNode : public Ice::GOCEditorVisualised, public Ice::MessageListener
+{
+protected:
+	Ogre::String GetEditorVisualMeshName() { return "sphere.25cm.mesh"; }
+
 	public:
 		enum Type
 		{
@@ -71,4 +74,4 @@ class NavMeshEditorNode : public Ice::MeshDebugRenderable, public Ice::MessageLi
 		void ReceiveMessage(Ice::Msg &msg);
 
 		static void FromMesh(Ice::NavigationMesh *mesh);
-	};
+};

@@ -258,6 +258,12 @@
     <ClCompile Include="Source\IceSoundMaterialTable.cpp">
       <Filter>System</Filter>
     </ClCompile>
+    <ClCompile Include="Source\LoadSaveable.cpp">
+      <Filter>System</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\IceGOCOgreNode.cpp">
+      <Filter>Object/Component</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header\IceMessageListener.h">
@@ -372,9 +378,6 @@
       <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Header\IceWeatherController.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Header\SSAOListener.h">
       <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Dependencies\Boost\thread\barrier.hpp">
@@ -568,6 +571,12 @@
     </ClInclude>
     <ClInclude Include="Header\IceSoundMaterialTable.h">
       <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\LoadSaveable.h">
+      <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceGOCOgreNode.h">
+      <Filter>Object/Component</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

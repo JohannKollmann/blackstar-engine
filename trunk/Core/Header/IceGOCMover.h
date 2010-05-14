@@ -6,7 +6,7 @@
 #include "Ice3D.h"
 #include "IceGOCEditorInterface.h"
 #include "IceMessageListener.h"
-
+#include "IceGOCView.h"
 #include "IceSpline.h"
 
 namespace Ice
@@ -26,26 +26,27 @@ namespace Ice
 		GameObject* CreateSuccessor();
 	};
 
-	class DllExport GOCAnimKey : public AnimKey, public GOComponent, public GOCEditorInterface
+	class DllExport GOCAnimKey : public AnimKey, public GOCEditorVisualised, public GOCEditorInterface
 	{
 		friend class GOCMover;
 	private:
 		float mTotalStayTime;
 		float mTimeSinceLastKey;
 		AnimKey *mPredecessor;
-		GOCAnimKey() {}
 
 	public:
+		GOCAnimKey() {}
 		GOCAnimKey(AnimKey *pred);
 		~GOCAnimKey(void);
 
 		void SetMover(GOCMover *mover);
 
-		goc_id_family& GetFamilyID() const { static std::string name = "MoverAnimKey"; return name; }
 		goc_id_type& GetComponentID() const { static std::string name = "MoverAnimKey"; return name; }
 
 		void UpdatePosition(Ogre::Vector3 position);
 		void UpdateOrientation(Ogre::Quaternion orientation) {}
+
+		Ogre::String GetEditorVisualMeshName() { return "Editor_AnimKey.mesh"; }
 
 		void* GetUserData();
 		void InjectUserData(void* data);
@@ -53,12 +54,12 @@ namespace Ice
 		float GetTimeSinceLastKey() { return mTimeSinceLastKey; }
 		float GetTotalStayTime() { return mTotalStayTime; }
 
-		void CreateFromDataMap(DataMap *parameters);
+		void SetParameters(DataMap *parameters);
 		void GetParameters(DataMap *parameters);
-		static void GetDefaultParameters(DataMap *parameters);
-		void AttachToGO(GameObject *go);
+		void GetDefaultParameters(DataMap *parameters);
 		Ogre::String GetLabel() { return "Anim Key"; }
-		static GOCEditorInterface* NewEditorInterfaceInstance() { return new GOCAnimKey(); }
+		GOCEditorInterface* New() { return new GOCAnimKey(); }
+		GOComponent* GetGOComponent() { return this; }
 
 		void Save(LoadSave::SaveSystem& mgr);
 		void Load(LoadSave::LoadSystem& mgr);
@@ -66,7 +67,7 @@ namespace Ice
 		static LoadSave::Saveable* NewInstance() { return new GOCAnimKey; }
 	};
 
-	class DllExport GOCMover : public AnimKey, public GOComponent, public GOCEditorInterface, public MessageListener
+	class DllExport GOCMover : public AnimKey, public GOComponentEditable, public MessageListener
 	{
 		friend class GOCAnimKey;
 
@@ -85,16 +86,19 @@ namespace Ice
 		GOCMover(void);
 		~GOCMover(void);
 
+		void Init();
+
 		void Trigger();
 		void UpdateKeys();
 
 		void ReceiveMessage(Msg &msg);
 
-		goc_id_family& GetFamilyID() const { static std::string name = "Mover"; return name; }
 		goc_id_type& GetComponentID() const { static std::string name = "Mover"; return name; }
 
 		void UpdatePosition(Ogre::Vector3 position) {}
 		void UpdateOrientation(Ogre::Quaternion orientation) {}
+
+		Ogre::String GetEditorVisualMeshName() { return "Editor_AnimKey.mesh"; }
 
 		bool IsMoving() { return mMoving; }
 
@@ -104,12 +108,11 @@ namespace Ice
 
 		void SetKeyIgnoreParent(bool ignore);
 
-		void CreateFromDataMap(DataMap *parameters);
+		void SetParameters(DataMap *parameters);
 		void GetParameters(DataMap *parameters);
-		static void GetDefaultParameters(DataMap *parameters);
-		void AttachToGO(GameObject *go);
+		void GetDefaultParameters(DataMap *parameters);
 		Ogre::String GetLabel() { return "Mover"; }
-		static GOCEditorInterface* NewEditorInterfaceInstance() { return new GOCMover(); }
+		GOCEditorInterface* New() { return new GOCMover(); }
 
 		void Save(LoadSave::SaveSystem& mgr);
 		void Load(LoadSave::LoadSystem& mgr);
