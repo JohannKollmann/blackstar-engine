@@ -16,8 +16,6 @@ namespace Ice
 		virtual ~EditorInterface() {}
 		virtual void SetParameters(DataMap *parameters) = 0;
 		virtual void GetParameters(DataMap *parameters) = 0;
-		virtual void* GetUserData() { return 0; }
-		virtual void InjectUserData(void* data) { }
 	};
 
 	template<class T>

@@ -44,8 +44,6 @@ public:
 	void SetParameters(DataMap *parameters);
 	void GetParameters(DataMap *parameters);
 	void GetDefaultParameters(DataMap *parameters);
-	void* GetUserData();
-	void InjectUserData(void* data);
 
 	void CreateJointAxis();
 

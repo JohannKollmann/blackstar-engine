@@ -690,7 +690,7 @@ void Edit::CreatePreviewObject()
 		std::vector<Ogre::String> components = preview->GetComponentsStr();
 		for (std::vector<Ogre::String>::iterator i = components.begin(); i != components.end(); i++)
 		{
-			if ((*i) != "View" && (*i) != "MeshDebugRenderable" && (*i) != "Skeleton")
+			if ((*i) == "Physics")
 			{
 				preview->RemoveComponent((*i));
 			}

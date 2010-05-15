@@ -70,18 +70,6 @@ namespace Ice
 		if (mMover) mMover->UpdateKeys();
 	}
 
-	void* GOCAnimKey::GetUserData()
-	{
-		//Hack: This is called before the key is de deleted and recreated with the new properties.
-		return mPredecessor;
-	}
-
-	void GOCAnimKey::InjectUserData( void* data )
-	{
-		mPredecessor = (AnimKey*)data;
-		mOwnerGO->GetParent()->GetComponent<GOCMover>()->OnAddChild(mOwnerGO);	//Hack
-	}
-
 	GOCMover::GOCMover()
 	{
 		mMover = this;
