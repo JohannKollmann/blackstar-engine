@@ -200,14 +200,12 @@ void wxEditIceGameObject::OnApply()
 		wxEdit::Instance().GetOgrePane()->DeselectObject(mGameObject);
 	}
 
-	std::list<Ice::GOComponent*> existingGOCs;
-	for (std::vector<Ice::GOComponent*>::iterator ci = mGameObject->GetComponentIterator(); ci != mGameObject->GetComponentIteratorEnd(); ci++)
+	std::list<Ice::GOCEditorInterface*> existingGOCs;
+	for (auto ci = mGameObject->GetComponentIterator(); ci != mGameObject->GetComponentIteratorEnd(); ci++)
 	{
 		Ice::GOCEditorInterface* editor_interface = dynamic_cast<Ice::GOCEditorInterface*>(*ci);
 		if (editor_interface)
-		{
-			existingGOCs.push_back(*ci);
-		}
+			existingGOCs.push_back(editor_interface);
 	}
 
 	for (auto i = sections.begin(); i != sections.end(); i++)
@@ -228,9 +226,9 @@ void wxEditIceGameObject::OnApply()
 		bool found = false;
 		for (auto ie = existingGOCs.begin(); ie != existingGOCs.end(); ie++)
 		{
-			if ((*ie)->GetComponentID() == ((Ice::GOComponent*)proto)->GetComponentID())
+			if ((*ie)->GetGOComponent()->GetComponentID() == proto->GetGOComponent()->GetComponentID())
 			{
-				((Ice::GOCEditorInterface*)(*ie))->SetParameters(&(*i).mSectionData);
+				(*ie)->SetParameters(&(*i).mSectionData);
 				existingGOCs.erase(ie);
 				found = true;
 				break;
@@ -244,7 +242,11 @@ void wxEditIceGameObject::OnApply()
 	}
 
 	for (auto i = existingGOCs.begin(); i != existingGOCs.end(); i++)
-		mGameObject->RemoveComponent((*i)->GetFamilyID());
+		mGameObject->RemoveComponent((*i)->GetGOComponent()->GetFamilyID());
+
+	mGameObject->SetGlobalPosition(mGameObject->GetGlobalPosition());
+	mGameObject->SetGlobalOrientation(mGameObject->GetGlobalOrientation());
+	mGameObject->SetGlobalScale(mGameObject->GetGlobalScale());
 
 	if (select == true)
 	{

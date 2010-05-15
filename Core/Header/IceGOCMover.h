@@ -48,9 +48,6 @@ namespace Ice
 
 		Ogre::String GetEditorVisualMeshName() { return "Editor_AnimKey.mesh"; }
 
-		void* GetUserData();
-		void InjectUserData(void* data);
-
 		float GetTimeSinceLastKey() { return mTimeSinceLastKey; }
 		float GetTotalStayTime() { return mTotalStayTime; }
 

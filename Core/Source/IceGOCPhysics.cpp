@@ -42,6 +42,7 @@ namespace Ice
 			Main::Instance().GetPhysXScene()->destroyRenderedActor(mActor);
 			mActor = nullptr;
 			//This also destroys the renderable!
+			mRenderable = nullptr;
 		}
 	}
 

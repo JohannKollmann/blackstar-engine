@@ -165,7 +165,7 @@ void wxObjectFolderTree::OnEnterTab()
 	{
 		if (GetSelectedResource().find(".ocs") != Ogre::String::npos)
 		{
-			((wxEditGOResource*)(wxEdit::Instance().GetpropertyWindow()->GetCurrentPage()))->SetResource(GetSelectedResource());
+			((wxEditGOResource*)(wxEdit::Instance().GetpropertyWindow()->SetPage("EditGOCRes")))->SetResource(GetSelectedResource());
 		}
 	}
 

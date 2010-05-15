@@ -61,14 +61,6 @@ GOCAnimatedCharacterBone::~GOCAnimatedCharacterBone(void)
 	if (mRagBoneRef) mRagBoneRef->mGOCRagdoll->mBoneObjects.remove(mOwnerGO);
 }
 
-void* GOCAnimatedCharacterBone::GetUserData()
-{
-	return mRagBoneRef;
-}
-void GOCAnimatedCharacterBone::InjectUserData(void* data)
-{
-}
-
 void GOCAnimatedCharacterBone::SetParameters(DataMap *parameters)
 {
 	mBoneConfig.mParentName = parameters->GetOgreString("mParentName");
