@@ -27,8 +27,7 @@ namespace Ice
 	GOCAnimKey::GOCAnimKey(AnimKey *pred)
 	{
 		mPredecessor = pred;
-		mTotalStayTime = 0.0f;
-		mTimeSinceLastKey = 1.0f;
+		mTimeToNextKey = 1;
 	}
 	GOCAnimKey::~GOCAnimKey()
 	{
@@ -42,28 +41,23 @@ namespace Ice
 
 	void GOCAnimKey::SetParameters(DataMap *parameters)
 	{
-		mTotalStayTime = parameters->GetFloat("TotalStayTime");
-		mTimeSinceLastKey = parameters->GetFloat("TimeSinceLastKey");
+		mTimeToNextKey = parameters->GetValue<float>("TimeToNextKey", 1);
 	}
 	void GOCAnimKey::GetParameters(DataMap *parameters)
 	{
-		parameters->AddFloat("TotalStayTime", mTotalStayTime);
-		parameters->AddFloat("TimeSinceLastKey", mTimeSinceLastKey);
+		parameters->AddFloat("TimeToNextKey", mTimeToNextKey);
 	}
 	void GOCAnimKey::GetDefaultParameters(DataMap *parameters)
 	{
-		parameters->AddFloat("TotalStayTime", 0);
-		parameters->AddFloat("TimeSinceLastKey", 1.0f);
+		parameters->AddFloat("TimeToNextKey", 1.0f);
 	}
 	void GOCAnimKey::Save(LoadSave::SaveSystem& mgr)
 	{
-		mgr.SaveAtom("float", &mTotalStayTime, "TotalStayTime");
-		mgr.SaveAtom("float", &mTimeSinceLastKey, "TimeSinceLastKey");
+		mgr.SaveAtom("float", &mTimeToNextKey, "TimeToNextKey");
 	}
 	void GOCAnimKey::Load(LoadSave::LoadSystem& mgr)
 	{
-		mgr.LoadAtom("float", &mTotalStayTime);
-		mgr.LoadAtom("float",  &mTimeSinceLastKey);
+		mgr.LoadAtom("float",  &mTimeToNextKey);
 	}
 	void GOCAnimKey::UpdatePosition(Ogre::Vector3 position)
 	{
@@ -93,25 +87,30 @@ namespace Ice
 	}
 	void GOCMover::SetParameters(DataMap *parameters)
 	{
+		mTimeToNextKey = parameters->GetValue<float>("TimeToNextKey", 1);
 		mKeyCallbackScript = parameters->GetOgreString("Callback Script");
 		Init();
 	}
 	void GOCMover::GetParameters(DataMap *parameters)
 	{
+		parameters->AddFloat("TimeToNextKey", mTimeToNextKey);
 		parameters->AddOgreString("Callback Script", mKeyCallbackScript);
 	}
 	void GOCMover::GetDefaultParameters(DataMap *parameters)
 	{
+		parameters->AddFloat("TimeToNextKey", 1.0f);
 		parameters->AddOgreString("Callback Script", "");
 	}
 
 	void GOCMover::Save(LoadSave::SaveSystem& mgr)
 	{
+		mgr.SaveAtom("float", &mTimeToNextKey, "TimeToNextKey");
 		mgr.SaveAtom("Ogre::String", &mKeyCallbackScript, "KeyCallbackScript");
 		mgr.SaveAtom("std::vector<Saveable*>", &mAnimKeys, "AnimKeys");
 	}
 	void GOCMover::Load(LoadSave::LoadSystem& mgr)
 	{
+		mgr.LoadAtom("float", &mTimeToNextKey);
 		mgr.LoadAtom("Ogre::String", &mKeyCallbackScript);
 		mgr.LoadAtom("std::vector<Saveable*>", &mAnimKeys);
 		Init();
@@ -156,27 +155,25 @@ namespace Ice
 		int keyCounter = 0;
 		
 		std::vector<Ogre::Vector4> vKeys;
-		vKeys.push_back(Ogre::Vector4(mOwnerGO->GetGlobalPosition().x, mOwnerGO->GetGlobalPosition().y, mOwnerGO->GetGlobalPosition().z, 0.0f));
-		float fTime=0.0f;
+		float fTime = 0;
+		vKeys.push_back(Ogre::Vector4(mOwnerGO->GetGlobalPosition().x, mOwnerGO->GetGlobalPosition().y, mOwnerGO->GetGlobalPosition().z, fTime));
+		fTime += GetTimeToNextKey();
 		for(int iKey=0; iKey<(int)mAnimKeys.size(); iKey++)
 		{
 			mAnimKeys[iKey]->SetName("Key_" + Ogre::StringConverter::toString(++keyCounter));
-			fTime += mAnimKeys[iKey]->GetComponent<GOCAnimKey>()->GetTimeSinceLastKey();
-			vKeys.push_back(Ogre::Vector4(mAnimKeys[iKey]->GetGlobalPosition().x, mAnimKeys[iKey]->GetGlobalPosition().y, mAnimKeys[iKey]->GetGlobalPosition().z, fTime));
+			Ogre::Vector3 keyPos = mAnimKeys[iKey]->GetGlobalPosition();
+			vKeys.push_back(Ogre::Vector4(keyPos.x, keyPos.y, keyPos.z, fTime));
+			fTime += mAnimKeys[iKey]->GetComponent<AnimKey>()->GetTimeToNextKey();
 		}
 		mSpline.SetPoints(vKeys);
-		
 
 		mSplineObject->begin("WPLine", Ogre::RenderOperation::OT_LINE_STRIP);
-		mSplineObject->position(mOwnerGO->GetGlobalPosition());
 		for(double fPos=0.1; fPos<=mSpline.GetLength(); fPos+=0.1)
 		{
 			mSplineObject->position(mSpline.Sample(fPos));
 		}
 		mSplineObject->end();
 		mSplineObject->setCastShadows(false);
-
-		//calculate timing
 		
 	}
 

@@ -160,38 +160,38 @@ namespace Ice
 
 	int DataMap::GetInt(Ogre::String keyname) const
 	{
-		return GetValue<int>(keyname);
+		return GetValue<int>(keyname, 0);
 	}
 
 	bool DataMap::GetBool(Ogre::String keyname) const
 	{
-		return GetValue<bool>(keyname);
+		return GetValue<bool>(keyname, false);
 	}
 
 	float DataMap::GetFloat(Ogre::String keyname) const
 	{
-		return GetValue<float>(keyname);
+		return GetValue<float>(keyname, 0);
 	}
 
 	Ogre::Vector3 DataMap::GetOgreVec3(Ogre::String keyname) const
 	{
-		return GetValue<Ogre::Vector3>(keyname);
+		return GetValue<Ogre::Vector3>(keyname, Ogre::Vector3());
 	}
 
 	Ogre::ColourValue DataMap::GetOgreCol(Ogre::String keyname) const
 	{
-		Ogre::Vector3 vec = GetValue<Ogre::Vector3>(keyname);
+		Ogre::Vector3 vec = GetValue<Ogre::Vector3>(keyname, Ogre::Vector3());
 		return Ogre::ColourValue(vec.x, vec.y, vec.z);
 	}
 
 	Ogre::Quaternion DataMap::GetOgreQuat(Ogre::String keyname) const
 	{
-		return GetValue<Ogre::Quaternion>(keyname);
+		return GetValue<Ogre::Quaternion>(keyname, Ogre::Quaternion());
 	}
 
 	Ogre::String DataMap::GetOgreString(Ogre::String keyname) const
 	{
-		return GetValue<Ogre::String>(keyname);
+		return GetValue<Ogre::String>(keyname, "");
 	}
 
 	void DataMap::AddBool(Ogre::String keyname, bool val)

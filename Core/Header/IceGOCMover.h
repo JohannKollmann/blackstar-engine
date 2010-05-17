@@ -17,11 +17,15 @@ namespace Ice
 	{
 	protected:
 		GOCMover *mMover;
+		float mTimeToNextKey;
+
 	public:
-		AnimKey() : mMover(nullptr) {}
+		AnimKey() : mMover(nullptr), mTimeToNextKey(1) {}
 		virtual ~AnimKey() {}
 
 		virtual void SetMover(GOCMover *mover) {};
+
+		float GetTimeToNextKey() { return mTimeToNextKey; }
 
 		GameObject* CreateSuccessor();
 	};
@@ -30,8 +34,6 @@ namespace Ice
 	{
 		friend class GOCMover;
 	private:
-		float mTotalStayTime;
-		float mTimeSinceLastKey;
 		AnimKey *mPredecessor;
 
 	public:
@@ -47,9 +49,6 @@ namespace Ice
 		void UpdateOrientation(Ogre::Quaternion orientation) {}
 
 		Ogre::String GetEditorVisualMeshName() { return "Editor_AnimKey.mesh"; }
-
-		float GetTimeSinceLastKey() { return mTimeSinceLastKey; }
-		float GetTotalStayTime() { return mTotalStayTime; }
 
 		void SetParameters(DataMap *parameters);
 		void GetParameters(DataMap *parameters);

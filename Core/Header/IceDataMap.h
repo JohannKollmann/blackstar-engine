@@ -75,8 +75,9 @@ public:
 		{
 			if ((*i).mKey == keyname) return Ogre::any_cast<templateType>((*i).mData);
 		}
-		//Invalid key! Let's return some bullshit.
+		//Invalid key! return the default val
 		OGRE_EXCEPT(Ogre::Exception::ERR_ITEM_NOT_FOUND , "DataMap::Get Invalid key (" + keyname + ")!", "IceDataMap.h, line 71");
+		return templateType();
 	}
 	template <class templateType>
 	templateType GetValue(Ogre::String keyname, templateType defaultVal) const
