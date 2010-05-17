@@ -303,9 +303,9 @@ namespace Ice
 	}
 	void GameObject::ShowEditorVisuals(bool show)
 	{
-		for (std::vector<GOComponent*>::iterator i = mComponents.begin(); i != mComponents.end(); i++)
+		for (unsigned int i = 0; i < mComponents.size(); i++)
 		{
-			(*i)->ShowEditorVisual(show);
+			mComponents[i]->ShowEditorVisual(show);
 		}
 	}
 

@@ -120,7 +120,7 @@ namespace Ice
 		static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "GOCSound3D"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };
 		static LoadSave::Saveable* NewInstance() { return new GOCSound3D; };
 		GOCEditorInterface* New() { return new GOCSound3D(); }
-		Ogre::String GetLabel() { return "GOCSound3D"; }
+		Ogre::String GetLabel() { return "Sound3D"; }
 		GOComponent* GetGOComponent() { return this; }
 	};
 

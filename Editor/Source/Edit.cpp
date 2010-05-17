@@ -821,6 +821,8 @@ Ice::GameObject* Edit::InsertObject(Ice::GameObject *parent, bool align, bool cr
 	if (align) AlignObjectWithMesh(object);
 	else object->SetGlobalPosition(GetInsertPosition()); 
 
+	object->ShowEditorVisuals(true);
+
 	if (!create_only)
 	{
 		wxEdit::Instance().GetWorldExplorer()->GetSceneTree()->NotifyObject(object);
@@ -1039,6 +1041,8 @@ void Edit::SelectObject(Ice::GameObject *object)
 	//Ogre::LogManager::getSingleton().logMessage("Select Object " + object->GetName());
 	if (!mMultiSelect) DeselectAllObjects();
 	else DeselectObject(object);
+
+	object->ShowEditorVisuals(true);
 
 	wxEdit::Instance().GetWorldExplorer()->SetSelection(4);
 	wxEdit::Instance().GetWorldExplorer()->GetSceneTree()->ExpandToObject(object);
