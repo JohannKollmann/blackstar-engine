@@ -71,6 +71,7 @@ namespace Ice
 		std::vector<GameObject*> mAnimKeys;
 		Ogre::String mKeyCallbackScript;
 		bool mMoving;
+		bool mIsClosed;
 		float mfLastPos;
 		Spline mSpline;
 		Spline mTimeSpline;

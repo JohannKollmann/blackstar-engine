@@ -15,11 +15,11 @@ namespace Ice
 
 		void UpdatePosition(Ogre::Vector3 position);
 		void UpdateOrientation(Ogre::Quaternion orientation);
+		void UpdateScale(Ogre::Vector3 position);
 
 		virtual goc_id_family& GetComponentID() const { static std::string name = "OgreNode"; return name; }
 
-		static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "OgreNode"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; }
-		static LoadSave::Saveable* NewInstance() { return new GOCOgreNode; }
+		bool _getIsSaveable() const { return false; }
 
 		Ogre::SceneNode* GetNode() { return mNode; }
 	};

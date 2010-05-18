@@ -341,7 +341,12 @@ namespace Ice
 		mgr.SaveAtom("Ogre::Quaternion", (void*)(&mOrientation), "Orientation");
 		mgr.SaveAtom("Ogre::Vector3", (void*)(&mScale), "Scale");
 		mgr.SaveAtom("bool", (void*)&mSelectable, "Selectable");
-		mgr.SaveAtom("std::vector<Saveable*>", (void*)(&mComponents), "mComponents");
+
+		std::vector<GOComponent*> saveable_children;
+		for (auto i = mComponents.begin(); i != mComponents.end(); i++)
+			if ((*i)->_getIsSaveable()) saveable_children.push_back(*i);
+		mgr.SaveAtom("std::vector<Saveable*>", (void*)(&saveable_children), "mComponents");
+
 		std::vector<GameObject*> managed_children;
 		for (auto i = mChildren.begin(); i != mChildren.end(); i++)
 			if ((*i)->mLoadSaveByParent) managed_children.push_back(*i);
@@ -356,11 +361,11 @@ namespace Ice
 		mgr.LoadAtom("Ogre::Vector3", &mScale);
 		mgr.LoadAtom("bool", &mSelectable);
 		mgr.LoadAtom("std::vector<Saveable*>", (void*)(&mComponents));
-		for (std::vector<GOComponent*>::iterator i = mComponents.begin(); i != mComponents.end(); i++)
+		for (unsigned int i = 0; i < mComponents.size(); i++)
 		{
-			(*i)->SetOwner(this);
-			(*i)->UpdatePosition(GetGlobalPosition());
-			(*i)->UpdateOrientation(GetGlobalOrientation());
+			mComponents[i]->SetOwner(this);
+			mComponents[i]->UpdatePosition(GetGlobalPosition());
+			mComponents[i]->UpdateOrientation(GetGlobalOrientation());
 		}
 		std::vector<GameObject*> managed_children;
 		mgr.LoadAtom("std::vector<Saveable*>", (void*)(&managed_children));

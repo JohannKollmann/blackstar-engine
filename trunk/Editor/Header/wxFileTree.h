@@ -97,6 +97,7 @@ public:
 	virtual void OnShowMenuCallback(wxMenu *menu, VdtcTreeItemBase *item) {};
 	virtual void OnMenuCallback(int id) {};
 	virtual void OnSelectItemCallback() {};
+	virtual void OnRemoveItemCallback() {};
 	virtual void OnRenameItemCallback(Ogre::String oldpath, Ogre::String newpath) {};
 	virtual void OnCreateFolderCallback(Ogre::String path) {};
 	virtual void OnDropExternFilesCallback(const wxArrayString& filenames) {};

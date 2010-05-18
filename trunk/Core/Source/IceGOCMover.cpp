@@ -69,6 +69,7 @@ namespace Ice
 		mMover = this;
 		mMoving = false;
 		mSplineObject = nullptr;
+		mIsClosed = false;
 	}
 	void GOCMover::Init()
 	{
@@ -88,29 +89,34 @@ namespace Ice
 	void GOCMover::SetParameters(DataMap *parameters)
 	{
 		mTimeToNextKey = parameters->GetValue<float>("TimeToNextKey", 1);
+		mIsClosed = parameters->GetBool("Closed");
 		mKeyCallbackScript = parameters->GetOgreString("Callback Script");
 		Init();
 	}
 	void GOCMover::GetParameters(DataMap *parameters)
 	{
 		parameters->AddFloat("TimeToNextKey", mTimeToNextKey);
+		parameters->AddBool("Closed", mIsClosed);
 		parameters->AddOgreString("Callback Script", mKeyCallbackScript);
 	}
 	void GOCMover::GetDefaultParameters(DataMap *parameters)
 	{
 		parameters->AddFloat("TimeToNextKey", 1.0f);
+		parameters->AddBool("Closed", false);
 		parameters->AddOgreString("Callback Script", "");
 	}
 
 	void GOCMover::Save(LoadSave::SaveSystem& mgr)
 	{
 		mgr.SaveAtom("float", &mTimeToNextKey, "TimeToNextKey");
+		mgr.SaveAtom("bool", &mIsClosed, "Closed");
 		mgr.SaveAtom("Ogre::String", &mKeyCallbackScript, "KeyCallbackScript");
 		mgr.SaveAtom("std::vector<Saveable*>", &mAnimKeys, "AnimKeys");
 	}
 	void GOCMover::Load(LoadSave::LoadSystem& mgr)
 	{
 		mgr.LoadAtom("float", &mTimeToNextKey);
+		mgr.LoadAtom("bool", &mIsClosed);
 		mgr.LoadAtom("Ogre::String", &mKeyCallbackScript);
 		mgr.LoadAtom("std::vector<Saveable*>", &mAnimKeys);
 		Init();

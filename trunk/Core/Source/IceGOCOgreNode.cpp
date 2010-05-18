@@ -23,7 +23,10 @@ namespace Ice
 	{
 		mNode->setOrientation(orientation);
 	}
-
+	void GOCOgreNode::UpdateScale(Ogre::Vector3 scale)
+	{
+		mNode->setScale(scale);
+	}
 
 	GOCOgreNodeUser::~GOCOgreNodeUser()
 	{

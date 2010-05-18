@@ -35,6 +35,7 @@ namespace Ice
 
 	GOCMeshRenderable::GOCMeshRenderable(Ogre::String meshname, bool shadowcaster)
 	{
+		mEntity = nullptr;
 		Create(meshname, shadowcaster);
 	}
 
@@ -118,6 +119,7 @@ namespace Ice
 	//PFX
 	GOCPfxRenderable::GOCPfxRenderable(Ogre::String pfxresname)
 	{
+		mParticleSystem = nullptr;
 		Create(pfxresname);
 	}
 
@@ -180,6 +182,7 @@ namespace Ice
 	//Sound
 	GOCSound3D::GOCSound3D(Ogre::String audiofile, float referenceDistance, float maxDistance, bool streamed, bool looped, bool preBuffered)
 	{
+		mSound = nullptr;
 		Create(audiofile, referenceDistance, maxDistance, streamed, looped, preBuffered);
 	}
 
@@ -279,6 +282,7 @@ namespace Ice
 	//Light
 	GOCLocalLightRenderable::GOCLocalLightRenderable(Ogre::ColourValue diffuse, Ogre::ColourValue specular, bool spot, bool shadow_caster, float maxDistance, Ogre::Vector3 attenuation, Ogre::Vector3 spotlightdata, float flickerSpeed, float flickerIntensity)
 	{
+		mLight = nullptr;
 		Create(diffuse, specular, shadow_caster, spot, maxDistance, attenuation, spotlightdata, flickerSpeed, flickerIntensity);
 	}
 

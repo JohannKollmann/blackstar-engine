@@ -37,6 +37,7 @@ public:
 	void OnShowMenuCallback(wxMenu *menu, VdtcTreeItemBase *item);
 	void OnMenuCallback(int id);
 	void OnSelectItemCallback();
+	void OnRemoveItemCallback();
 	void OnRenameItemCallback(Ogre::String oldpath, Ogre::String newpath);
 	void OnCreateFolderCallback(Ogre::String path);
 	void OnDropExternFilesCallback(const wxArrayString& filenames);
