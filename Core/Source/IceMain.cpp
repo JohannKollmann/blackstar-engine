@@ -123,6 +123,7 @@ bool Main::Run(Ogre::RenderWindow *window, size_t OISInputWindow)
 
 void Main::AddOgreResourcePath(Ogre::String dir)
 {
+	if (dir.find("svn") != Ogre::String::npos) return;
 	boost::filesystem::path path(dir.c_str());
 	Ogre::ResourceGroupManager::getSingleton().addResourceLocation(dir, "FileSystem");
 	for (boost::filesystem::directory_iterator i(path); i != boost::filesystem::directory_iterator(); i++)

@@ -938,13 +938,14 @@ void Edit::OnSaveObjectGroup( wxCommandEvent& WXUNUSED(event) )
 		if (dialog.ShowModal() == wxID_OK)
 		{
 			LoadSave::SaveSystem *ss=LoadSave::LoadSave::Instance().CreateSaveFile(dialog.GetPath().c_str(), Ogre::String(dialog.GetPath().c_str()) + ".xml");
-			Ogre::Vector3 position = (*mSelectedObjects.begin()).mObject->GetGlobalPosition();
-			(*mSelectedObjects.begin()).mObject->SetGlobalPosition(Ogre::Vector3(0,0,0));
-			Ice::MainLoop::Instance().doLoop(); //Kleiner hack, damit alle children die temporären Positionen übernehmen
-			ss->SaveObject((*mSelectedObjects.begin()).mObject, "Root");
+			Ice::GameObject *go = (*mSelectedObjects.begin()).mObject;
+			DeselectAllObjects();
+			Ogre::Vector3 position = go->GetGlobalPosition();
+			go->SetGlobalPosition(Ogre::Vector3(0,0,0));
+			ss->SaveObject(go, "Root");
 			ss->CloseFiles();
-			(*mSelectedObjects.begin()).mObject->SetGlobalPosition(position);
-			Ice::MainLoop::Instance().doLoop();
+			go->SetGlobalPosition(position);
+			SelectObject(go);
 			delete ss;
 		}
 	}

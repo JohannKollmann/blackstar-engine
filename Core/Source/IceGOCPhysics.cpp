@@ -180,8 +180,8 @@ namespace Ice
 	GOCStaticBody::GOCStaticBody(Ogre::String collision_mesh)
 	{
 		mCollisionMeshName = collision_mesh;
-		mActor = 0;
-		mOwnerGO = 0;
+		mActor = nullptr;
+		mOwnerGO = nullptr;
 	}
 
 	GOCStaticBody::~GOCStaticBody(void)
@@ -199,6 +199,7 @@ namespace Ice
 
 	void GOCStaticBody::Create(Ogre::String collision_mesh, Ogre::Vector3 scale)
 	{
+		_clear();
 		Ogre::String internname = "StaticBody" + Ogre::StringConverter::toString(SceneManager::Instance().RequestID());
 		mCollisionMeshName = collision_mesh;
 		if (!Ogre::ResourceGroupManager::getSingleton().resourceExists("General", mCollisionMeshName))
@@ -222,8 +223,8 @@ namespace Ice
 	}
 	void GOCStaticBody::UpdateScale(Ogre::Vector3 scale)
 	{
-		if (mActor) Main::Instance().GetPhysXScene()->destroyActor(mActor);
 		Create(mCollisionMeshName, scale);
+		mActor->getNxActor()->userData = mOwnerGO;
 		mActor->setGlobalOrientation(mOwnerGO->GetGlobalOrientation());
 		mActor->setGlobalPosition(mOwnerGO->GetGlobalPosition());
 	}

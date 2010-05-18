@@ -173,7 +173,7 @@ void wxFileTree::OnMenuEvent(wxCommandEvent& event)
 			Path = Path + "/" + Ogre::String(mCurrentItem->GetName().c_str());
 		}
 		Ogre::LogManager::getSingleton().logMessage(Path);
-
+		OnRemoveItemCallback();
 		boost::filesystem::path SourcePath(Path.c_str());
 		unsigned long success = boost::filesystem::remove_all(SourcePath);
 

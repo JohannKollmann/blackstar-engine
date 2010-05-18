@@ -20,6 +20,8 @@ namespace Ice
 		void _updateScale(const Ogre::Vector3 &scale);
 		bool mTransformingOwner;
 
+		virtual bool _getIsSaveable() const { return true; }
+
 	protected:
 		GameObject *mOwnerGO;
 		virtual void NotifyOwnerGO();

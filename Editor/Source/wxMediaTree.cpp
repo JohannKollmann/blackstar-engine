@@ -139,6 +139,19 @@ bool wxMediaTree::IsAudio(wxString filename)
 	return false;
 }
 
+void wxMediaTree::OnRemoveItemCallback()
+{
+	if (mCurrentItem->IsFile())
+	{
+		if (IsMesh(mCurrentItem->GetName()))
+		{
+			Ogre::ResourcePtr rp = Ogre::MeshManager::getSingleton().getByName(mCurrentItem->GetName().c_str());
+			if (!rp.isNull())
+				Ogre::MeshManager::getSingleton().unload(rp->getHandle());
+		}
+	}
+}
+
 void wxMediaTree::OnSelectItemCallback()
 {
 	if (mCurrentItem->IsFile())
@@ -196,18 +209,28 @@ void wxMediaTree::OnDropExternFilesCallback(const wxArrayString& filenames)
 		boost::filesystem::path target(target_base + source.leaf());
 		target = boost::filesystem::complete(target);
 		bool removed = false;
-		try
+		if (source == target)
 		{
-			if (boost::filesystem::exists(target))
-			{
-				boost::filesystem::remove(target);
-				removed = true;
-			}
-			boost::filesystem::copy_file(source, target);
+			Ogre::ResourcePtr rp = Ogre::MeshManager::getSingleton().getByName(target.leaf().c_str());
+			if (!rp.isNull())
+				Ogre::MeshManager::getSingleton().unload(rp->getHandle());
+			removed = true;
 		}
-		catch (std::exception e)
+		else
 		{
-			Ogre::LogManager::getSingleton().logMessage(Ogre::String("Exception: ") + e.what());
+			try
+			{
+				if (boost::filesystem::exists(target))
+				{
+					boost::filesystem::remove(target);
+					removed = true;
+				}
+				boost::filesystem::copy_file(source, target);
+			}
+			catch (std::exception e)
+			{
+				Ogre::LogManager::getSingleton().logMessage(Ogre::String("Exception: ") + e.what());
+			}
 		}
 
 		if (IsMesh(target.leaf()))
@@ -224,7 +247,7 @@ void wxMediaTree::OnDropExternFilesCallback(const wxArrayString& filenames)
 			Ogre::MeshPtr meshpt = Ogre::MeshManager::getSingleton().load(target.leaf().c_str(), "General");
 			float height = meshpt->getBounds().getSize().y;
 			float scale_factor = 1.0f;
-			if (height < 0.1f)
+			if (height < 0.3f)
 			{
 				const wxString choices[] = { _T(Ogre::StringConverter::toString(height) + "m [Original]"), _T(Ogre::StringConverter::toString(height*10.0f)+"m"), _T(Ogre::StringConverter::toString(height*100.0f)+"m"), _T(Ogre::StringConverter::toString(height*39.3700787f)+"m")} ;
 
