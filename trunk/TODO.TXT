@@ -6,15 +6,10 @@
 - [script-edit] wenn man alles rückgängig macht bleibt der geändert-stern
 - [script-edit] Intellisense fertig machen
 
-[Engine]
-Physik-Callbacks (OnCollide etc)
-
-[Game]
-Items
 
 [Shader]
+- Volumetric lighting (compositor)
 - Automatischer Texturübergang
-- Specular mapping
 - Kombinieren von 2 verschieden skalierten normalmaps (r und g channels adden)
 - Point Lights mit Schatten und volumetric lighting
 

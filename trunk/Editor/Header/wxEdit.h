@@ -22,7 +22,7 @@
 #include "wxLogDisplay.h"
 #include "EDTIncludes.h"
 
-class wxEdit : public wxFrame
+class wxEdit : public wxFrame, public Ogre::Singleton<wxEdit>
 {
 	DECLARE_EVENT_TABLE() 
 
@@ -49,7 +49,7 @@ private:
 
 public:
 
-	wxEdit(wxWindow* parent);
+	wxEdit();
 
 	~wxEdit();
 

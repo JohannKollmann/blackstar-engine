@@ -17,12 +17,13 @@ IMPLEMENT_CLASS(wxPropertyGridWindow, wxControl)
 
 wxPropertyGridWindow::~wxPropertyGridWindow(void)
 {
+	//this->SetHWND(0);
 }
 
 wxPropertyGridWindow::wxPropertyGridWindow(wxWindow* parent, wxWindowID id, const wxPoint& pos,
                   const wxSize& size, long style,
                   const wxString& name) : 
-	wxPanel(parent, wxID_ANY, pos, size), wxFileDropTarget()
+	wxPanel(parent, wxID_ANY, pos, size)
 {
        // Construct wxPropertyGrid control
        long propstyle = // default style
@@ -52,9 +53,9 @@ wxPropertyGridWindow::wxPropertyGridWindow(wxWindow* parent, wxWindowID id, cons
 
 	this->SetSizer(sizer);
 
-	mCurrentPage = 0;
+	mCurrentPage = nullptr;
 
-	SetDropTarget(this);
+	SetDropTarget(new FileDropTarget(this));
 }
 
 void wxPropertyGridWindow::AddPage(wxPropertyGridListener* page, wxString name)
@@ -128,26 +129,27 @@ void wxPropertyGridWindow::OnApply(wxCommandEvent& event)
 	}
 }
 
-bool wxPropertyGridWindow::OnDropFiles(wxCoord x, wxCoord y, const wxArrayString&  filenames)
+bool wxPropertyGridWindow::FileDropTarget::OnDropFiles(wxCoord x, wxCoord y, const wxArrayString&  filenames)
 {
-	mPropGrid->SetEmptySpaceColour(wxColour("white"));
-	mPropGrid->Refresh();
+	mPropWindow->mPropGrid->SetEmptySpaceColour(wxColour("white"));
+	mPropWindow->mPropGrid->Refresh();
 	if (filenames.IsEmpty()) return false;
-	if (mCurrentPage != 0) return mCurrentPage->OnDropText(filenames[0]);
+	if (mPropWindow->mCurrentPage != 0) return mPropWindow->mCurrentPage->OnDropText(filenames[0]);
 	return false;
 }
 
-wxDragResult wxPropertyGridWindow::OnEnter(wxCoord x, wxCoord y, wxDragResult def)
+wxDragResult wxPropertyGridWindow::FileDropTarget::OnEnter(wxCoord x, wxCoord y, wxDragResult def)
 {
-	if (mCurrentPage != 0)
+	if (mPropWindow->mCurrentPage != 0)
 	{
-		mPropGrid->SetEmptySpaceColour(wxColour(0, 180, 20));
+		mPropWindow->mPropGrid->SetEmptySpaceColour(wxColour(0, 180, 20));
 	}
 	return def;
 }
-void wxPropertyGridWindow::OnLeave()
+
+void wxPropertyGridWindow::FileDropTarget::OnLeave()
 {
-	SetEmptySpaceColour(wxColour("white"));
+	mPropWindow->SetEmptySpaceColour(wxColour("white"));
 }
 
 void wxPropertyGridWindow::SetEmptySpaceColour(wxColour colour)

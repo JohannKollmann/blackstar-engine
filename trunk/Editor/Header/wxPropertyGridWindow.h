@@ -1,6 +1,5 @@
 
-#ifndef __wxPropertyGridWindow_H__
-#define __wxPropertyGridWindow_H__
+#pragma once
 
 #include "wx/wx.h"
 #include "wxEdit.h"
@@ -12,9 +11,23 @@
 #include "wxFileTree.h"
 
 
-class wxPropertyGridWindow : public wxPanel, public wxFileDropTarget
+class wxPropertyGridWindow : public wxPanel
 {
 	DECLARE_CLASS(wxPropertygridWindow)
+
+	class FileDropTarget : public wxFileDropTarget
+	{
+	private:
+		wxPropertyGridWindow *mPropWindow;
+	public:
+
+		FileDropTarget(wxPropertyGridWindow *propWindow) : wxFileDropTarget(), mPropWindow(propWindow) {}
+		~FileDropTarget() {}
+
+		bool OnDropFiles(wxCoord x, wxCoord y, const wxArrayString&  filenames);
+		wxDragResult OnEnter(wxCoord x, wxCoord y, wxDragResult def);
+		void OnLeave();
+	};
 
 public:
 	wxPropertyGridWindow(wxWindow* parent, wxWindowID id, const wxPoint& pos = wxDefaultPosition,
@@ -37,10 +50,6 @@ protected:
 	  void OnResize(wxSizeEvent& event);
 	  void OnSetFocus(wxFocusEvent& event);
 
-	bool OnDropFiles(wxCoord x, wxCoord y, const wxArrayString&  filenames);
-	wxDragResult OnEnter(wxCoord x, wxCoord y, wxDragResult def);
-	void OnLeave();
-
 private:
 
 	wxPropertyGrid *mPropGrid;
@@ -50,5 +59,3 @@ private:
 	Ogre::String mCurrentPageName;
 	std::map<wxString, wxPropertyGridListener*> mPages;
 };
-
-#endif

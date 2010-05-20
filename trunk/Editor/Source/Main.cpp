@@ -25,7 +25,7 @@ public:
 
 		Ogre::LogManager::getSingleton().logMessage("new wxEdit");
 		Ice::Main::Instance().ExternInit();
-		mFrame = &wxEdit::Instance();
+		mFrame = new wxEdit();
 		SetTopWindow(mFrame);
 		mFrame->Show();
 		Ice::MessageSystem::Instance().CreateNewsgroup("REPARSE_SCRIPTS");
