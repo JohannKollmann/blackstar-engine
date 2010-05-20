@@ -30,8 +30,11 @@ namespace Ice
 
 	GOCOgreNodeUser::~GOCOgreNodeUser()
 	{
-		if (GetNode()->numAttachedObjects() == 0)
-			mOwnerGO->RemoveComponent("OgreNode");
+		if (mOwnerGO)
+		{
+			if (GetNode()->numAttachedObjects() == 0)
+				mOwnerGO->RemoveComponent("OgreNode");
+		}
 	}
 	Ogre::SceneNode* GOCOgreNodeUser::GetNode()
 	{

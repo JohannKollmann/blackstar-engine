@@ -32,7 +32,7 @@ public:
 	DECLARE_NO_COPY_CLASS(wxDnDTreeItemData)
 };
 
-class wxFileTree : public wxVirtualDirTreeCtrl, public wxFileDropTarget
+class wxFileTree : public wxVirtualDirTreeCtrl
 {
 private:
 	void ClearHighlightedItem();
@@ -47,10 +47,20 @@ protected:
 	virtual void OnEndLabelEdit(wxTreeEvent& event);
 	virtual void OnBeginDrag(wxTreeEvent& event);
 
-	bool OnDropFiles(wxCoord x, wxCoord y, const wxArrayString&  filenames);
-	//Attention: MSW only!
-	wxDragResult OnDragOver(wxCoord x, wxCoord y, wxDragResult def);
-	void OnLeave();
+	class FileDropTarget : public wxFileDropTarget
+	{
+	private:
+		wxFileTree *mFileTree;
+	public:
+
+		FileDropTarget(wxFileTree *fileTree) : wxFileDropTarget(), mFileTree(fileTree) {}
+		~FileDropTarget() {}
+
+		bool OnDropFiles(wxCoord x, wxCoord y, const wxArrayString&  filenames);
+		//Attention: MSW only!
+		wxDragResult OnDragOver(wxCoord x, wxCoord y, wxDragResult def);
+		void OnLeave();
+	};
 
 	Ogre::String DoCreateFileDialog();
 	Ogre::String GetInsertPath();
@@ -76,10 +86,10 @@ public:
                     const wxString& name = "wxVirtualDirTreeCtrl")
 		: wxVirtualDirTreeCtrl(parent, id, pos, size, style, validator, name)
 	{
-		mCurrentItem = 0;
-		mCurrentlyDragged = 0;
+		mCurrentItem = nullptr;
+		mCurrentlyDragged = nullptr;
 		mDraggingFile = false;
-		SetDropTarget(this);
+		SetDropTarget(new FileDropTarget(this));
 	}
 	virtual ~wxFileTree()
 	{

@@ -308,20 +308,20 @@ Ogre::String wxFileTree::GetSelectedResource()
 	return ((mCurrentItem == NULL) ? "None" : (mCurrentItem->IsFile() ? Ogre::String(GetFullPath(mCurrentItem->GetId()).GetFullPath().c_str()) : "None"));
 }
 
-bool wxFileTree::OnDropFiles(wxCoord x, wxCoord y, const wxArrayString& filenames)
+bool wxFileTree::FileDropTarget::OnDropFiles(wxCoord x, wxCoord y, const wxArrayString& filenames)
 {
-	if (!mHighlightedItem.IsOk()) return false;
-	SelectItem(mHighlightedItem);
-	ClearHighlightedItem();
+	if (!mFileTree->mHighlightedItem.IsOk()) return false;
+	mFileTree->SelectItem(mFileTree->mHighlightedItem);
+	mFileTree->ClearHighlightedItem();
 	if (filenames.IsEmpty()) return false;
-	if (filenames[0] == GetDragName())
+	if (filenames[0] == mFileTree->GetDragName())
 	{
 	}
-	else if (IsExternFileDropTarget()) OnDropExternFilesCallback(filenames);
+	else if (mFileTree->IsExternFileDropTarget()) mFileTree->OnDropExternFilesCallback(filenames);
 	return false;
 }
 
-wxDragResult wxFileTree::OnDragOver(wxCoord x, wxCoord y, wxDragResult def)
+wxDragResult wxFileTree::FileDropTarget::OnDragOver(wxCoord x, wxCoord y, wxDragResult def)
 {
 	//if (mDraggingFile) return def;
 	wxPoint pt = wxPoint(x, y);
@@ -329,28 +329,28 @@ wxDragResult wxFileTree::OnDragOver(wxCoord x, wxCoord y, wxDragResult def)
     tvhti.pt.x = pt.x;
     tvhti.pt.y = pt.y;
 	wxTreeItemId item;
-	if (TreeView_HitTest((HWND)GetHWND(), &tvhti) )
+	if (TreeView_HitTest((HWND)mFileTree->GetHWND(), &tvhti) )
 	{
 		item = wxTreeItemId(tvhti.hItem);
-		VdtcTreeItemBase *t = (VdtcTreeItemBase *)GetItemData(item);
+		VdtcTreeItemBase *t = (VdtcTreeItemBase *)mFileTree->GetItemData(item);
 		if (!t->IsFile())
 		{
-			if (mHighlightedItem != item)
+			if (mFileTree->mHighlightedItem != item)
 			{
-				ClearHighlightedItem();
-				SetItemBackgroundColour(item, wxColour(0, 180, 20));
-				mHighlightedItem = item;
+				mFileTree->ClearHighlightedItem();
+				mFileTree->SetItemBackgroundColour(item, wxColour(0, 180, 20));
+				mFileTree->mHighlightedItem = item;
 			}
 		}
-		else ClearHighlightedItem();
+		else mFileTree->ClearHighlightedItem();
 	}
-	else ClearHighlightedItem();
+	else mFileTree->ClearHighlightedItem();
 	return def;
 }
 
-void wxFileTree::OnLeave()
+void wxFileTree::FileDropTarget::OnLeave()
 {
-	ClearHighlightedItem();
+	mFileTree->ClearHighlightedItem();
 }
 
 void wxFileTree::ClearHighlightedItem()

@@ -77,6 +77,9 @@ namespace Ice
 		Spline mTimeSpline;
 		Ogre::ManualObject* mSplineObject;
 
+		GameObject *mLookAtObject;			//the mover will always face this object
+		GameObject *mNormalLookAtObject;	//the mover's normal will always face this object
+
 		void notifyKeyDelete(GOCAnimKey *key);
 
 	public:
@@ -94,6 +97,9 @@ namespace Ice
 
 		void UpdatePosition(Ogre::Vector3 position) {}
 		void UpdateOrientation(Ogre::Quaternion orientation) {}
+
+		void SetLookAtObject(GameObject *target) { mLookAtObject = target; }
+		void SetNormalLookAtObject(GameObject *target) {mNormalLookAtObject = target; }
 
 		Ogre::String GetEditorVisualMeshName() { return "Editor_AnimKey.mesh"; }
 

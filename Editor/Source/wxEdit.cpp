@@ -14,7 +14,7 @@ BEGIN_EVENT_TABLE(wxEdit, wxFrame)
 END_EVENT_TABLE() 
 
 
-wxEdit::wxEdit(wxWindow* parent) : wxFrame(parent, -1, _("Blackstar Edit"),
+wxEdit::wxEdit() : wxFrame(nullptr, -1, _("Blackstar Edit"),
 		wxDefaultPosition, wxSize(1280,900),
 		wxDEFAULT_FRAME_STYLE)
 {
@@ -160,10 +160,10 @@ wxPoint wxEdit::GetStartPosition()
     return wxPoint(pt.x + x, pt.y + x);
 }
 
-
+template<> wxEdit* Ogre::Singleton<wxEdit>::ms_Singleton = nullptr;
 wxEdit& wxEdit::Instance()
 {
-	static wxEdit TheOneAndOnly(NULL); return TheOneAndOnly;
+	return ( *ms_Singleton );
 };
 
 wxEdit::~wxEdit()
@@ -171,11 +171,6 @@ wxEdit::~wxEdit()
 	std::cout << "~wxEdit" << std::endl;
 	//m_mgr.UnInit();
 	Ice::Main::Instance().Shutdown();
-	//PopEventHandler();
-
-	// deinitialize the frame manager
-	//m_mgr.UnInit();
-	exit(0);	//HACK! FUCK YOU WX WIDGETS ICH WEISS WO DEIN HAUS WOHNT!!!11einseinself
 
 };
 

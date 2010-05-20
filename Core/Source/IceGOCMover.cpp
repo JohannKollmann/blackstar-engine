@@ -31,7 +31,7 @@ namespace Ice
 	}
 	GOCAnimKey::~GOCAnimKey()
 	{
-		mMover->notifyKeyDelete(this);
+		if (mMover) mMover->notifyKeyDelete(this);
 	}
 	void GOCAnimKey::SetMover(GOCMover *mover)
 	{
@@ -70,6 +70,8 @@ namespace Ice
 		mMoving = false;
 		mSplineObject = nullptr;
 		mIsClosed = false;
+		mLookAtObject = nullptr;
+		mNormalLookAtObject = nullptr;
 	}
 	void GOCMover::Init()
 	{
