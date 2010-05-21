@@ -27,7 +27,7 @@ wxPropertyGridWindow::wxPropertyGridWindow(wxWindow* parent, wxWindowID id, cons
 {
        // Construct wxPropertyGrid control
        long propstyle = // default style
-                //wxPG_SPLITTER_AUTO_CENTER |
+                wxPG_SPLITTER_AUTO_CENTER |
                 wxPG_TOOLTIPS |
                 wxTAB_TRAVERSAL;
 				//| wxPG_DESCRIPTION;
@@ -41,6 +41,7 @@ wxPropertyGridWindow::wxPropertyGridWindow(wxWindow* parent, wxWindowID id, cons
 	mPropGrid->SetExtraStyle( wxPG_EX_HELP_AS_TOOLTIPS );
 
 	mPropGrid->RegisterAdditionalEditors();
+	//mPropGrid->SetColumnProportion
 	mPropGrid->SetPropertyAttributeAll(wxPG_BOOL_USE_CHECKBOX,wxVariant(true));
 
 	mPropGrid->GetGrid()->SetVerticalSpacing( 2 );
