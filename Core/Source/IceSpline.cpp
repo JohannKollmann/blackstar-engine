@@ -94,7 +94,11 @@ namespace Ice
 	{
 		if(vPoints.size()<2)
 			return;
-		std::sort(vPoints.begin(), vPoints.end(), CompVectorByW);		
+		
+		if(bClosed)
+		{
+			vPoints.push_back(vPoints[0]);
+		}
 
 		m_Sectors.clear();
 		m_SectorLengths.clear();
@@ -122,7 +126,7 @@ namespace Ice
 					ppfMatrix[iCol][iLine]=0.0;
 
 			//this line is the equation stating that the spline sectors end is the next point
-			double td=vPoints[1].w-vPoints[0].w;
+			double td=vPoints[0].w;
 			ppfMatrix[0][0]=td*td*td;
 			ppfMatrix[1][0]=td*td;
 			ppfMatrix[2][0]=td;
@@ -130,7 +134,7 @@ namespace Ice
 			for(int iPoint=0; iPoint<(int)vPoints.size()-2; iPoint++)
 			{
 				//td=vPoints[iPoint+2].w-vPoints[iPoint+1].w;
-				td=vPoints[iPoint+1].w-vPoints[iPoint].w;
+				td=vPoints[iPoint].w;
 				//this line states that the slope at the end of the sector is equal to the slope in the beginning of the next sector
 				ppfMatrix[iPoint*3][iPoint*3+1]=3.0*td*td;
 				ppfMatrix[iPoint*3+1][iPoint*3+1]=2.0*td;
@@ -141,23 +145,36 @@ namespace Ice
 				ppfMatrix[iPoint*3+1][iPoint*3+2]=2.0;
 				ppfMatrix[iPoint*3+4][iPoint*3+2]=-2.0;
 				//this line is the equation stating that the spline sectors end is the next point
-				td=vPoints[iPoint+2].w-vPoints[iPoint+1].w;
+				td=vPoints[iPoint+1].w;
 				ppfMatrix[iPoint*3+3][iPoint*3+3]=td*td*td;
 				ppfMatrix[iPoint*3+4][iPoint*3+3]=td*td;
 				ppfMatrix[iPoint*3+5][iPoint*3+3]=td;
 				ppfMatrix[iMatrixSize][iPoint*3+3]=ppfCoordinates[iCoordinate][iPoint+2]-ppfCoordinates[iCoordinate][iPoint+1];
 			}
 			//the last two equations say that the slope in the beginning and end of the spline must be 0
-			ppfMatrix[0][iMatrixSize-1]=6.0;
-			ppfMatrix[1][iMatrixSize-1]=2.0;
-			//
-			ppfMatrix[iMatrixSize-2][iMatrixSize-2]=2.0;
-			ppfMatrix[iMatrixSize-3][iMatrixSize-2]=6.0;
+			
+			if(!bClosed)
+			{
+				//ppfMatrix[0][iMatrixSize-1]=6.0;
+				ppfMatrix[1][iMatrixSize-1]=2.0;
+			
+				ppfMatrix[iMatrixSize-2][iMatrixSize-2]=2.0;
+				ppfMatrix[iMatrixSize-3][iMatrixSize-2]=6.0;
+			}
+			else
+			{
+				ppfMatrix[0][iMatrixSize-1]=1.0;
+				ppfMatrix[iMatrixSize-3][iMatrixSize-1]=1.0;
 
+				ppfMatrix[1][iMatrixSize-2]=1.0;
+				ppfMatrix[iMatrixSize-2][iMatrixSize-2]=1.0;
+			}
+			
 			ppfResults[iCoordinate]=new double[iMatrixSize];
 			SolveLinearSystem(ppfMatrix, ppfResults[iCoordinate], iMatrixSize);
 		}
 		CSplineSector sector;
+		double fTime=0.0;
 		for(int iSector=0; iSector<(int)vPoints.size()-1; iSector++)
 		{
 			for(int iCoordinate=0; iCoordinate<3; iCoordinate++)
@@ -169,10 +186,10 @@ namespace Ice
 				sector.m_aafParams[iCoordinate][3]=ppfCoordinates[iCoordinate][iSector];
 			}
 			m_Sectors.push_back(sector);
-			m_SectorLengths.push_back(vPoints[iSector].w);
-
+			m_SectorLengths.push_back(fTime);
+			fTime+=vPoints[iSector].w;
 		}
-		m_SectorLengths.push_back(vPoints[vPoints.size()-1].w);
+		m_SectorLengths.push_back(fTime);//vPoints[vPoints.size()-1].w);
 		m_bIsTimedSpline=true;
 	}
 
@@ -185,7 +202,7 @@ namespace Ice
 			for(int iCurrLine=iStartLine+1; iCurrLine<iMatrixSize; iCurrLine++)
 			{
 				double fMultiplier=-ppfMatrix[iStartLine][iCurrLine]/ppfMatrix[iStartLine][iStartLine];
-				if(fMultiplier!=0 && fMultiplier!=-0)
+				if(fMultiplier!=0.0 && fMultiplier!=-0.0)
 				{
 					for(int iCol=iStartLine; iCol<iMatrixSize+1; iCol++)
 						ppfMatrix[iCol][iCurrLine]+=fMultiplier*ppfMatrix[iCol][iStartLine];
