@@ -163,23 +163,23 @@ namespace Ice
 		int keyCounter = 0;
 		
 		std::vector<Ogre::Vector4> vKeys;
-		float fTime = 0;
-		vKeys.push_back(Ogre::Vector4(mOwnerGO->GetGlobalPosition().x, mOwnerGO->GetGlobalPosition().y, mOwnerGO->GetGlobalPosition().z, fTime));
-		fTime += GetTimeToNextKey();
+		//float fTime = 0;
+		vKeys.push_back(Ogre::Vector4(mOwnerGO->GetGlobalPosition().x, mOwnerGO->GetGlobalPosition().y, mOwnerGO->GetGlobalPosition().z, GetTimeToNextKey()));
+		//fTime += GetTimeToNextKey();
 		for(int iKey=0; iKey<(int)mAnimKeys.size(); iKey++)
 		{
 			mAnimKeys[iKey]->SetName("Key_" + Ogre::StringConverter::toString(++keyCounter));
 			Ogre::Vector3 keyPos = mAnimKeys[iKey]->GetGlobalPosition();
-			vKeys.push_back(Ogre::Vector4(keyPos.x, keyPos.y, keyPos.z, fTime));
-			fTime += mAnimKeys[iKey]->GetComponent<AnimKey>()->GetTimeToNextKey();
+			vKeys.push_back(Ogre::Vector4(keyPos.x, keyPos.y, keyPos.z, mAnimKeys[iKey]->GetComponent<AnimKey>()->GetTimeToNextKey()));
+			//fTime += mAnimKeys[iKey]->GetComponent<AnimKey>()->GetTimeToNextKey();
 		}
-		mSpline.SetPoints(vKeys);
+		mSpline.SetPoints(vKeys, mIsClosed);
 
 		mSplineObject->begin("WPLine", Ogre::RenderOperation::OT_LINE_STRIP);
-		for(double fPos=0.1; fPos<=mSpline.GetLength(); fPos+=0.1)
-		{
+		for(double fPos=0.0; fPos<=mSpline.GetLength()-0.01; fPos+=0.1)
 			mSplineObject->position(mSpline.Sample(fPos));
-		}
+
+		mSplineObject->position(mSpline.Sample(mSpline.GetLength()-0.01));
 		mSplineObject->end();
 		mSplineObject->setCastShadows(false);
 		
