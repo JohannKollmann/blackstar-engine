@@ -137,6 +137,7 @@
     <ClInclude Include="Header\wxScriptEditor.h" />
     <ClInclude Include="Header\wxScriptFileTree.h" />
     <ClInclude Include="Header\wxSettingsWindow.h" />
+    <ClInclude Include="Header\wxSimpleOgreView.h" />
     <ClInclude Include="Header\wxTextureDisplay.h" />
     <ClInclude Include="Header\DotSceneLoader.h" />
     <ClInclude Include="TinyXML\tinyxml.h" />
@@ -172,6 +173,7 @@
     <ClCompile Include="Source\wxScriptEditor.cpp" />
     <ClCompile Include="Source\wxScriptFileTree.cpp" />
     <ClCompile Include="Source\wxSettingsWindow.cpp" />
+    <ClCompile Include="Source\wxSimpleOgreView.cpp" />
     <ClCompile Include="Source\wxTextureDisplay.cpp" />
     <ClCompile Include="Source\DotSceneLoader.cpp" />
     <ClCompile Include="TinyXML\tinyxml.cpp" />

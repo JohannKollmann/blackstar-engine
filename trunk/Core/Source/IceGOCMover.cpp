@@ -54,10 +54,12 @@ namespace Ice
 	void GOCAnimKey::Save(LoadSave::SaveSystem& mgr)
 	{
 		mgr.SaveAtom("float", &mTimeToNextKey, "TimeToNextKey");
+		mgr.SaveObject(mMover, "Mover");
 	}
 	void GOCAnimKey::Load(LoadSave::LoadSystem& mgr)
 	{
 		mgr.LoadAtom("float",  &mTimeToNextKey);
+		mMover = (GOCMover*)mgr.LoadObject();
 	}
 	void GOCAnimKey::UpdatePosition(Ogre::Vector3 position)
 	{
@@ -72,6 +74,8 @@ namespace Ice
 		mIsClosed = false;
 		mLookAtObject = nullptr;
 		mNormalLookAtObject = nullptr;
+		mLookAtLine = nullptr;
+		mNormalLookAtLine = nullptr;
 	}
 	void GOCMover::Init()
 	{
@@ -82,6 +86,8 @@ namespace Ice
 	}
 	GOCMover::~GOCMover()
 	{
+		_destroyLookAtLine();
+		_destroyNormalLookAtLine();
 		if (mSplineObject)
 		{
 			Ice::Main::Instance().GetOgreSceneMgr()->getRootSceneNode()->detachObject(mSplineObject);
@@ -121,12 +127,19 @@ namespace Ice
 	}
 	void GOCMover::Load(LoadSave::LoadSystem& mgr)
 	{
+		Init();
 		mgr.LoadAtom("float", &mTimeToNextKey);
 		mgr.LoadAtom("bool", &mIsClosed);
 		mgr.LoadAtom("bool", &mStaticMode);
 		mgr.LoadAtom("Ogre::String", &mKeyCallback);
 		mgr.LoadAtom("std::vector<Saveable*>", &mAnimKeys);
-		Init();
+	}
+
+	void GOCMover::UpdatePosition(Ogre::Vector3 position)
+	{
+		_updateLookAtLine();
+		_updateNormalLookAtLine();
+		UpdateKeys();
 	}
 
 	void GOCMover::Trigger()
@@ -138,16 +151,37 @@ namespace Ice
 
 	void GOCMover::ReceiveMessage( Msg &msg )
 	{
-		if (msg.type == "UPDATE_PER_FRAME" && mMoving)
+		if (msg.type == "UPDATE_PER_FRAME")
 		{
-			float time = msg.params.GetFloat("TIME");
-			SetOwnerPosition(mSpline.Sample(mfLastPos));
-			mfLastPos+=time;
-			if(mfLastPos>mSpline.GetLength())
+			if (mLookAtLine) _updateLookAtLine();
+			if (mNormalLookAtLine) _updateNormalLookAtLine();
+			if (mLookAtObject)
 			{
-				mMoving = false;
-				mfLastPos=0;
-				SetKeyIgnoreParent(false);
+				Ogre::Vector3 upVector = Ogre::Vector3(0,1,0);
+				if (mNormalLookAtObject)
+				{
+					upVector = mNormalLookAtObject->GetGlobalPosition() - GetOwner()->GetGlobalPosition();
+					upVector.normalise();
+				}
+				Ogre::Vector3 lookAtDir = mLookAtObject->GetGlobalPosition() - GetOwner()->GetGlobalPosition();
+				lookAtDir.normalise();
+				Ogre::Vector3 xAxis = lookAtDir.crossProduct(upVector);
+				Ogre::Vector3 yAxis = lookAtDir.crossProduct(xAxis);
+
+				Ogre::Quaternion q(xAxis, yAxis, lookAtDir);
+				SetOwnerOrientation(q);
+			}
+			if (mMoving)
+			{
+				float time = msg.params.GetFloat("TIME");
+				SetOwnerPosition(mSpline.Sample(mfLastPos));
+				mfLastPos+=time;
+				if(mfLastPos>mSpline.GetLength())
+				{
+					mMoving = false;
+					mfLastPos=0;
+					SetKeyIgnoreParent(false);
+				}
 			}
 		}
 	}
@@ -162,6 +196,7 @@ namespace Ice
 
 	void GOCMover::UpdateKeys()
 	{
+		if (!mOwnerGO) return;
 		mSplineObject->clear();
 		if(mAnimKeys.size()<1)
 			return;
@@ -188,6 +223,117 @@ namespace Ice
 		mSplineObject->end();
 		mSplineObject->setCastShadows(false);
 		
+	}
+
+	void GOCMover::ShowEditorVisual(bool show)
+	{
+		if (show && !mEditorVisual)
+		{
+			mEditorVisual = Main::Instance().GetOgreSceneMgr()->createEntity(GetEditorVisualMeshName());
+			mEditorVisual->setUserAny(Ogre::Any(mOwnerGO));
+			GetNode()->attachObject(mEditorVisual);
+		}
+		else if (!show && mEditorVisual)
+		{
+			GetNode()->detachObject(mEditorVisual);
+			Main::Instance().GetOgreSceneMgr()->destroyEntity(mEditorVisual);
+			mEditorVisual = nullptr;
+		}
+
+		if (show)
+		{
+			_updateLookAtLine();
+			_updateNormalLookAtLine();
+		}
+		else
+		{
+			_destroyLookAtLine();
+			_destroyNormalLookAtLine();
+		}
+
+		for (auto i = mAnimKeys.begin(); i != mAnimKeys.end(); i++)
+			(*i)->ShowEditorVisuals(show);
+
+	}
+	void GOCMover::_destroyNormalLookAtLine()
+	{
+		if (mNormalLookAtLine)
+		{
+			Ice::Main::Instance().GetOgreSceneMgr()->getRootSceneNode()->detachObject(mNormalLookAtLine);
+			Main::Instance().GetOgreSceneMgr()->destroyManualObject(mNormalLookAtLine);
+			mNormalLookAtLine = nullptr;
+		}
+	}
+	void GOCMover::_destroyLookAtLine()
+	{
+		if (mLookAtLine)
+		{
+			Ice::Main::Instance().GetOgreSceneMgr()->getRootSceneNode()->detachObject(mLookAtLine);
+			Main::Instance().GetOgreSceneMgr()->destroyManualObject(mLookAtLine);
+			mLookAtLine = nullptr;
+		}
+	}
+	void GOCMover::_updateLookAtLine()
+	{
+		if (mLookAtObject)
+		{
+			if (!mLookAtLine)
+			{
+				mLookAtLine = Main::Instance().GetOgreSceneMgr()->createManualObject();
+				Ice::Main::Instance().GetOgreSceneMgr()->getRootSceneNode()->attachObject(mLookAtLine);
+			}
+			mLookAtLine->clear();
+			mLookAtLine->begin("WPLine", Ogre::RenderOperation::OT_LINE_STRIP);
+			mLookAtLine->position(GetOwner()->GetGlobalPosition());
+			mLookAtLine->position(mLookAtObject->GetGlobalPosition());
+			mLookAtLine->end();
+			mLookAtLine->setCastShadows(false);
+		}
+	}
+	void GOCMover::_updateNormalLookAtLine()
+	{
+		if (mNormalLookAtObject)
+		{
+			if (!mNormalLookAtLine)
+			{
+				mNormalLookAtLine = Main::Instance().GetOgreSceneMgr()->createManualObject();
+				Ice::Main::Instance().GetOgreSceneMgr()->getRootSceneNode()->attachObject(mNormalLookAtLine);
+			}
+			mNormalLookAtLine->clear();
+			mNormalLookAtLine->begin("WPLine", Ogre::RenderOperation::OT_LINE_STRIP);
+			mNormalLookAtLine->position(GetOwner()->GetGlobalPosition());
+			mNormalLookAtLine->position(mNormalLookAtObject->GetGlobalPosition());
+			mNormalLookAtLine->end();
+			mNormalLookAtLine->setCastShadows(false);
+		}
+	}
+	void GOCMover::onDeleteSubject(Utils::DeleteListener* subject)
+	{
+		if (subject == mLookAtObject)
+		{
+			_destroyLookAtLine();
+			mLookAtObject = nullptr;
+		}
+		else if (subject == mNormalLookAtObject)
+		{
+			_destroyNormalLookAtLine();
+			mNormalLookAtObject = nullptr;
+		}
+	}
+
+	void GOCMover::SetLookAtObject(GameObject *target)
+	{
+		if (mLookAtObject) mLookAtObject->removeListener(this);
+		mLookAtObject = target;
+		mLookAtObject->addDeleteListener(this);
+		_updateLookAtLine();
+	}
+	void GOCMover::SetNormalLookAtObject(GameObject *target)
+	{
+		if (mNormalLookAtObject) mNormalLookAtObject->removeListener(this);
+		mNormalLookAtObject = target;
+		mNormalLookAtObject->addDeleteListener(this);
+		_updateNormalLookAtLine();
 	}
 
 	void GOCMover::notifyKeyDelete(GOCAnimKey *key)

@@ -8,6 +8,7 @@
 #include "IceMessageListener.h"
 #include "IceGOCView.h"
 #include "IceSpline.h"
+#include "IceUtils.h"
 
 namespace Ice
 {
@@ -63,7 +64,7 @@ namespace Ice
 		static LoadSave::Saveable* NewInstance() { return new GOCAnimKey; }
 	};
 
-	class DllExport GOCMover : public AnimKey, public GOComponentEditable, public MessageListener
+	class DllExport GOCMover : public AnimKey, public GOCEditorVisualised, public GOCEditorInterface, public MessageListener, public Utils::DeleteListener
 	{
 		friend class GOCAnimKey;
 
@@ -77,12 +78,19 @@ namespace Ice
 		float mfLastPos;
 		Spline mSpline;
 		Spline mTimeSpline;
-		Ogre::ManualObject* mSplineObject;
+		Ogre::ManualObject *mSplineObject;
+		Ogre::ManualObject *mLookAtLine;
+		Ogre::ManualObject *mNormalLookAtLine;
 
 		GameObject *mLookAtObject;			//the mover will always face this object
 		GameObject *mNormalLookAtObject;	//the mover's normal will always face this object
 
 		void notifyKeyDelete(GOCAnimKey *key);
+
+		void _updateNormalLookAtLine();
+		void _updateLookAtLine();
+		void _destroyNormalLookAtLine();
+		void _destroyLookAtLine();
 
 	public:
 		GOCMover(void);
@@ -97,13 +105,15 @@ namespace Ice
 
 		goc_id_type& GetComponentID() const { static std::string name = "Mover"; return name; }
 
-		void UpdatePosition(Ogre::Vector3 position) {}
+		void UpdatePosition(Ogre::Vector3 position);
 		void UpdateOrientation(Ogre::Quaternion orientation) {}
 
-		void SetLookAtObject(GameObject *target) { mLookAtObject = target; }
-		void SetNormalLookAtObject(GameObject *target) {mNormalLookAtObject = target; }
+		void SetLookAtObject(GameObject *target);
+		void SetNormalLookAtObject(GameObject *target);
+		void onDeleteSubject(Utils::DeleteListener* subject);
 
 		Ogre::String GetEditorVisualMeshName() { return "Editor_AnimKey.mesh"; }
+		void ShowEditorVisual(bool show);		//Override, because we want to draw lines to the target objects
 
 		bool IsMoving() { return mMoving; }
 
@@ -118,6 +128,7 @@ namespace Ice
 		void GetDefaultParameters(DataMap *parameters);
 		Ogre::String GetLabel() { return "Mover"; }
 		GOCEditorInterface* New() { return new GOCMover(); }
+		GOComponent* GetGOComponent() { return this; }
 
 		void Save(LoadSave::SaveSystem& mgr);
 		void Load(LoadSave::LoadSystem& mgr);

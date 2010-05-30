@@ -80,6 +80,8 @@ public:
 	void OnCreateWayTriangle(wxCommandEvent& WXUNUSED(event) = wxCommandEvent());
 	void OnInsertAnimKey(wxCommandEvent& WXUNUSED(event) = wxCommandEvent());
 	void OnTriggerMover(wxCommandEvent& WXUNUSED(event) = wxCommandEvent());
+	void OnSetLookAtObject(wxCommandEvent& WXUNUSED(event) = wxCommandEvent());
+	void OnSetNormalLookAtObject(wxCommandEvent& WXUNUSED(event) = wxCommandEvent());
 
 
 	/*

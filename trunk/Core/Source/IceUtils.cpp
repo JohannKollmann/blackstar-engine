@@ -6,6 +6,31 @@
 
 namespace Ice
 {
+	namespace Utils
+	{
+		DeleteListener::~DeleteListener()
+		{
+			for (auto i = mDeleteListeners.begin(); i != mDeleteListeners.end(); i++)
+				(*i)->removeListener(this);
+		}
+		void DeleteListener::addDeleteListener(DeleteListener *listener)
+		{
+			listener->_registerDeleteListener(this);
+			mDeleteListeners.push_back(listener);
+		}
+		void DeleteListener::removeListener(DeleteListener *listener)
+		{
+			for (auto i = mDeleteListeners.begin(); i != mDeleteListeners.end(); i++)
+			{
+				if (*i == listener)
+				{
+					mDeleteListeners.erase(i);
+					break;
+				}
+			}
+			onDeleteSubject(listener);
+		}
+	}
 
 	Ogre::String Utils::FindResourcePath(Ogre::String path, Ogre::String filename)
 	{
