@@ -28,7 +28,9 @@ enum
 	EVT_SaveBones,
 	EVT_CreateWayTriangle,
 	EVT_InsertAnimKey,
-	EVT_TriggerMover
+	EVT_TriggerMover,
+	EVT_SetLookAtObject,
+	EVT_SetNormalLookAtObject
 };
 
 BEGIN_EVENT_TABLE(Edit, wxOgre)
@@ -49,6 +51,8 @@ BEGIN_EVENT_TABLE(Edit, wxOgre)
 	EVT_MENU(EVT_CreateWayTriangle, Edit::OnCreateWayTriangle)
 	EVT_MENU(EVT_InsertAnimKey, Edit::OnInsertAnimKey)
 	EVT_MENU(EVT_TriggerMover, Edit::OnTriggerMover)
+	EVT_MENU(EVT_SetLookAtObject, Edit::OnSetLookAtObject)
+	EVT_MENU(EVT_SetNormalLookAtObject, Edit::OnSetNormalLookAtObject)
 
 	END_EVENT_TABLE()
 
@@ -338,10 +342,16 @@ void Edit::OnMouseEvent(wxMouseEvent &ev)
 				}
 
 				if (mSelectedObjects.size() > 1) menu.Append(EVT_CreateObjectgroup, "Merge");
-				if (mSelectedObjects.size() == 2)
+				if (mSelectedObjects.size() == 2)		//Dyadic operators
 				{
 					Ice::GameObject* obj1 = (*mSelectedObjects.begin()).mObject;
 					Ice::GameObject* obj2 = mSelectedObjects.begin()._Mynode()->_Next->_Myval.mObject;
+
+					if (obj1->GetComponent<Ice::GOCMover>())
+					{
+						menu.Append(EVT_SetLookAtObject, "Look At");
+						menu.Append(EVT_SetNormalLookAtObject, "Look At (Normal)");
+					}
 
 					if (obj1->GetComponent<NavMeshEditorNode>() && obj2->GetComponent<NavMeshEditorNode>())
 					{
@@ -1286,6 +1296,21 @@ void Edit::OnTriggerMover( wxCommandEvent& WXUNUSED(event) /*= wxCommandEvent()*
 	mMoverReset.resetQuat = mover->GetOwner()->GetGlobalOrientation();
 
 	mover->Trigger();
+}
+
+void Edit::OnSetLookAtObject( wxCommandEvent& WXUNUSED(event) /*= wxCommandEvent()*/ )
+{
+	if (mSelectedObjects.size() != 2) return;
+	Ice::GOCMover *mover = mSelectedObjects.front().mObject->GetComponent<Ice::GOCMover>();
+	if (!mover) return;
+	mover->SetLookAtObject(mSelectedObjects.back().mObject);
+}
+void Edit::OnSetNormalLookAtObject( wxCommandEvent& WXUNUSED(event) /*= wxCommandEvent()*/ )
+{
+	if (mSelectedObjects.size() != 2) return;
+	Ice::GOCMover *mover = mSelectedObjects.front().mObject->GetComponent<Ice::GOCMover>();
+	if (!mover) return;
+	mover->SetNormalLookAtObject(mSelectedObjects.back().mObject);
 }
 
 Ogre::Vector3 Edit::GetInsertPosition()

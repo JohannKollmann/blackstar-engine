@@ -10,11 +10,12 @@
 #include "IceGOComponent.h"
 #include "Ice3D.h"
 #include "IceMsg.h"
+#include "IceUtils.h"
 
 namespace Ice
 {
 
-	class DllExport GameObject : public LoadSave::Saveable, public Transformable3D
+	class DllExport GameObject : public LoadSave::Saveable, public Transformable3D, public Utils::DeleteListener
 	{
 	protected:
 		int mID;

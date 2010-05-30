@@ -13,7 +13,7 @@ namespace Ice
 
 	class DllExport GOCEditorVisualised : public GOCOgreNodeUser
 	{
-	private:
+	protected:
 		Ogre::Entity *mEditorVisual;
 
 	protected:
@@ -22,7 +22,7 @@ namespace Ice
 	public:
 		GOCEditorVisualised() : mEditorVisual(nullptr) {}
 		virtual ~GOCEditorVisualised();
-		void ShowEditorVisual(bool show);
+		virtual void ShowEditorVisual(bool show);
 	};
 
 	class DllExport GOCMeshRenderable : public GOCOgreNodeUserEditable

@@ -12,6 +12,23 @@ namespace Ice
 
 namespace Utils
 {
+	class DllExport DeleteListener
+	{
+	protected:
+		std::vector<DeleteListener*> mDeleteListeners;
+		void _registerDeleteListener(DeleteListener *listener)
+		{
+			mDeleteListeners.push_back(listener);
+		}
+		virtual void onDeleteSubject(DeleteListener* subject) {};
+
+	public:
+		virtual ~DeleteListener();
+
+		void addDeleteListener(DeleteListener *listener);
+		void removeListener(DeleteListener *listener);
+	};
+
 	template<class T>
 	DllExport void DeletePointerVector(std::vector<T*> &vec)
 	{
