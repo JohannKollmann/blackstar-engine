@@ -134,7 +134,7 @@ namespace Ice
 			for(int iPoint=0; iPoint<(int)vPoints.size()-2; iPoint++)
 			{
 				//td=vPoints[iPoint+2].w-vPoints[iPoint+1].w;
-				td=vPoints[iPoint].w;
+				//td=vPoints[iPoint].w;
 				//this line states that the slope at the end of the sector is equal to the slope in the beginning of the next sector
 				ppfMatrix[iPoint*3][iPoint*3+1]=3.0*td*td;
 				ppfMatrix[iPoint*3+1][iPoint*3+1]=2.0*td;
@@ -152,22 +152,26 @@ namespace Ice
 				ppfMatrix[iMatrixSize][iPoint*3+3]=ppfCoordinates[iCoordinate][iPoint+2]-ppfCoordinates[iCoordinate][iPoint+1];
 			}
 			//the last two equations say that the slope in the beginning and end of the spline must be 0
-			
+			td=(vPoints[vPoints.size()-2].w);
 			if(!bClosed)
 			{
 				//ppfMatrix[0][iMatrixSize-1]=6.0;
 				ppfMatrix[1][iMatrixSize-1]=2.0;
 			
 				ppfMatrix[iMatrixSize-2][iMatrixSize-2]=2.0;
-				ppfMatrix[iMatrixSize-3][iMatrixSize-2]=6.0;
+				ppfMatrix[iMatrixSize-3][iMatrixSize-2]=6.0*td;
 			}
 			else
 			{
-				ppfMatrix[0][iMatrixSize-1]=1.0;
-				ppfMatrix[iMatrixSize-3][iMatrixSize-1]=1.0;
-
-				ppfMatrix[1][iMatrixSize-2]=1.0;
-				ppfMatrix[iMatrixSize-2][iMatrixSize-2]=1.0;
+				//acceleration
+				ppfMatrix[1][iMatrixSize-1]=-2.0;
+				ppfMatrix[iMatrixSize-2][iMatrixSize-1]=2.0;
+				ppfMatrix[iMatrixSize-3][iMatrixSize-1]=6.0*td;
+				//slope
+				ppfMatrix[2][iMatrixSize-2]=-1.0;
+				ppfMatrix[iMatrixSize-1][iMatrixSize-2]=1.0;
+				ppfMatrix[iMatrixSize-2][iMatrixSize-2]=2.0*td;
+				ppfMatrix[iMatrixSize-3][iMatrixSize-2]=3.0*td*td;
 			}
 			
 			ppfResults[iCoordinate]=new double[iMatrixSize];

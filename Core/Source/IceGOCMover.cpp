@@ -92,6 +92,7 @@ namespace Ice
 	{
 		mTimeToNextKey = parameters->GetValue<float>("TimeToNextKey", 1);
 		mIsClosed = parameters->GetBool("Closed");
+		mStaticMode = parameters->GetBool("Static Mode");
 		mKeyCallback = parameters->GetOgreString("Key Callback");
 		Init();
 	}
@@ -99,12 +100,14 @@ namespace Ice
 	{
 		parameters->AddFloat("TimeToNextKey", mTimeToNextKey);
 		parameters->AddBool("Closed", mIsClosed);
+		parameters->AddBool("Static Mode", mStaticMode);
 		parameters->AddOgreString("Key Callback", mKeyCallback);
 	}
 	void GOCMover::GetDefaultParameters(DataMap *parameters)
 	{
 		parameters->AddFloat("TimeToNextKey", 1.0f);
 		parameters->AddBool("Closed", false);
+		parameters->AddBool("Static Mode", false);
 		parameters->AddOgreString("Key Callback", "");
 	}
 
@@ -112,6 +115,7 @@ namespace Ice
 	{
 		mgr.SaveAtom("float", &mTimeToNextKey, "TimeToNextKey");
 		mgr.SaveAtom("bool", &mIsClosed, "Closed");
+		mgr.SaveAtom("bool", &mStaticMode, "StaticMode");
 		mgr.SaveAtom("Ogre::String", &mKeyCallback, "KeyCallback");
 		mgr.SaveAtom("std::vector<Saveable*>", &mAnimKeys, "AnimKeys");
 	}
@@ -119,6 +123,7 @@ namespace Ice
 	{
 		mgr.LoadAtom("float", &mTimeToNextKey);
 		mgr.LoadAtom("bool", &mIsClosed);
+		mgr.LoadAtom("bool", &mStaticMode);
 		mgr.LoadAtom("Ogre::String", &mKeyCallback);
 		mgr.LoadAtom("std::vector<Saveable*>", &mAnimKeys);
 		Init();
