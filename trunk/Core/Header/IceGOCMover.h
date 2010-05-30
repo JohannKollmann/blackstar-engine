@@ -73,6 +73,7 @@ namespace Ice
 		bool mMoving;
 		bool mLoop;
 		bool mIsClosed;
+		bool mStaticMode;
 		float mfLastPos;
 		Spline mSpline;
 		Spline mTimeSpline;
