@@ -81,8 +81,15 @@ SaveSystem::WriteAtom(std::string strType, void* pData, std::string varName, std
 }
 
 void
-SaveSystem::SaveObject(Saveable *pObj, std::string varName)
+SaveSystem::SaveObject(Saveable *pObj, std::string varName, bool allowNull)
 {
+	if (!pObj)
+	{
+		if (!allowNull) LoadSave::Instance().PostError("SaveSystem::SaveObject " + varName + " is null!");
+
+		this->SaveAtom("NullObject", nullptr, varName);
+		return;
+	}
 	if(m_RecordIDs.find(pObj)==m_RecordIDs.end())
 	{
 		m_RecordIDs.insert(std::pair<Saveable*, int>(pObj, m_pSM->GetRecordID()));

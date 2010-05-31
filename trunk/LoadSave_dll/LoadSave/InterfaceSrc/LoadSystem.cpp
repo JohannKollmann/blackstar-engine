@@ -108,6 +108,12 @@ LoadSystem::LoadObject()
 		LoadSave::Instance().PostError("tried to load an array as flat type!");
 		m_pLM->ExitChunk();
 	}
+	//test if a null object was saved
+	if(iID == LoadSave::Instance().GetAtomID("NullObject"))
+	{
+		m_pLM->ExitChunk();
+		return nullptr;
+	}
 	//test if a reference was saved instead of a real object
 	if(iID == LoadSave::Instance().GetAtomID("RecordReference"))
 	{

@@ -258,6 +258,18 @@ strHandlerName ::Load(LoadSave::LoadSystem& ls, void* pData)\
 namespace Ice
 {
 
+class NullObjectHandler : LoadSave::AtomHandler
+{
+public:
+	NullObjectHandler(){m_strName="NullObject";}
+	std::string& TellName(){return m_strName;}
+	int TellByteSize(){return sizeof(int);}
+	void Save(LoadSave::SaveSystem& ss, void* pData, std::string strVarName){}
+	void Load(LoadSave::LoadSystem& ls, void* pDest){}
+private:
+	std::string m_strName;
+};
+
 class BoolHandler : LoadSave::AtomHandler
 {
 public:
@@ -604,6 +616,7 @@ RegisterStandardAtoms()
 	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new SaveableListHandler());
 	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new SaveableVectorHandler());
 	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new GenericPropertyHandler());
+	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new NullObjectHandler());
 	//Ogre
 	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new OgreVec3Handler());
 	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new OgreQuaternionHandler());

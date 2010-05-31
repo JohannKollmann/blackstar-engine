@@ -21,7 +21,7 @@ public:
 	void WriteAtomString(std::string strDataType, std::string strArrayType, void *pData, std::string varName, std::string literalData);
 	void WriteAtomToArray(std::string strType, void* pData, std::string literalData);
 	//will save obejcts with the same pointer as reference to that object and also deliver the same pointers when loading them
-	void SaveObject(Saveable* pObj, std::string varName);
+	void SaveObject(Saveable* pObj, std::string varName, bool allowNull = false);
 	//array functions
 	void OpenAtomArray(std::string strType, std::vector<int> dimSizes, std::string varName);
 	void AddAtom(std::string strType, void* pData);
