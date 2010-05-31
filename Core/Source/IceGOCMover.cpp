@@ -169,7 +169,9 @@ namespace Ice
 				Ogre::Vector3 yAxis = lookAtDir.crossProduct(xAxis);
 
 				Ogre::Quaternion q(xAxis, yAxis, lookAtDir);
+				if (!mMoving) SetKeyIgnoreParent(true);
 				SetOwnerOrientation(q);
+				if (!mMoving) SetKeyIgnoreParent(false);
 			}
 			if (mMoving)
 			{
