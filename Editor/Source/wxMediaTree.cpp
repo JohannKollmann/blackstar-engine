@@ -160,7 +160,7 @@ void wxMediaTree::OnSelectItemCallback()
 		wxEdit::Instance().GetPreviewWindow()->ClearDisplay();
 		if (IsMesh(mCurrentItem->GetName()))
 		{
-			Ogre::SceneNode *node = Ice::Main::Instance().GetPreviewSceneMgr()->getRootSceneNode()->createChildSceneNode("EditorPreview");
+			Ogre::SceneNode *node = Ice::Main::Instance().GetPreviewSceneMgr()->getSceneNode("EditorPreview");
 			Ogre::Entity *entity = Ice::Main::Instance().GetPreviewSceneMgr()->createEntity("EditorPreview_Mesh", mCurrentItem->GetName().c_str());
 			node->attachObject(entity);
 			float width = 256;//wxEdit::Instance().GetAuiManager().GetPane("preview").floating_size.GetWidth();
@@ -178,7 +178,7 @@ void wxMediaTree::OnSelectItemCallback()
 		else if (IsAudio(mCurrentItem->GetName()))
 		{
 			int id = Ice::SceneManager::Instance().RequestID();
-			Ogre::SceneNode *node = Ice::Main::Instance().GetPreviewSceneMgr()->getRootSceneNode()->createChildSceneNode("EditorPreview");
+			Ogre::SceneNode *node = Ice::Main::Instance().GetPreviewSceneMgr()->getSceneNode("EditorPreview");
 			OgreOggSound::OgreOggISound *sound = Ice::Main::Instance().GetSoundManager()->createSound(Ogre::StringConverter::toString(id), mCurrentItem->GetName().c_str(), true, false);
 			if (sound) sound->play();
 			node->attachObject(sound);

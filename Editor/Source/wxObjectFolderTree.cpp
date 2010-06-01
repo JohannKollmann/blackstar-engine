@@ -71,9 +71,9 @@ void wxObjectFolderTree::ClearObjectPreview()
 		Ice::Main::Instance().SetSceneMgr(false);
 		delete mPreviewObject;
 		Ice::Main::Instance().SetSceneMgr(true);
-		mPreviewObject = 0;
+		mPreviewObject = nullptr;
 	}
-	wxEdit::Instance().GetPreviewWindow()->SetPreviewNode(0);
+	wxEdit::Instance().GetPreviewWindow()->SetPreviewNode(nullptr);
 	wxEdit::Instance().GetPreviewWindow()->ClearDisplay();
 	Ice::SceneManager::Instance().DestroyPreviewRender("EditorPreview");
 }

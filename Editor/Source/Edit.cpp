@@ -141,6 +141,8 @@ void Edit::PostInit()
 
 	Ice::MessageSystem::Instance().JoinNewsgroup(this, "MOUSE_MOVE");
 	Ice::MessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
+
+	Ice::Main::Instance().GetPreviewSceneMgr()->getRootSceneNode()->createChildSceneNode("EditorPreview");
 }
 
 void Edit::OnToolbarEvent(int toolID, Ogre::String toolname)
@@ -576,7 +578,7 @@ void Edit::OnMouseMove(Ogre::Radian RotX,Ogre::Radian RotY)
 					(*i).mObject->Rotate((*i).mObject->GetGlobalOrientation().Inverse() * rotaxis, RotX * mObjectRotSpeed, mZAxisLock == AxisLock::UNLOCKED);
 				}
 			}
-			((wxEditIceGameObject*)(wxEdit::Instance().GetpropertyWindow()->GetCurrentPage()))->SetObject(((wxEditIceGameObject*)(wxEdit::Instance().GetpropertyWindow()->GetCurrentPage()))->GetGameObject());
+			((wxEditIceGameObject*)(wxEdit::Instance().GetpropertyWindow()->GetCurrentPage()))->SetObject(((wxEditIceGameObject*)(wxEdit::Instance().GetpropertyWindow()->GetCurrentPage()))->GetGameObject());		//Danger! Todo!
 			wxEdit::Instance().GetpropertyWindow()->Refresh();
 		}
 	}
