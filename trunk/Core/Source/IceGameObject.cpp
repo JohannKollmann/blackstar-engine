@@ -342,10 +342,10 @@ namespace Ice
 		mgr.SaveAtom("Ogre::Vector3", (void*)(&mScale), "Scale");
 		mgr.SaveAtom("bool", (void*)&mSelectable, "Selectable");
 
-		std::vector<GOComponent*> saveable_children;
+		std::vector<GOComponent*> saveable_components;
 		for (auto i = mComponents.begin(); i != mComponents.end(); i++)
-			if ((*i)->_getIsSaveable()) saveable_children.push_back(*i);
-		mgr.SaveAtom("std::vector<Saveable*>", (void*)(&saveable_children), "mComponents");
+			if ((*i)->_getIsSaveable()) saveable_components.push_back(*i);
+		mgr.SaveAtom("std::vector<Saveable*>", (void*)(&saveable_components), "mComponents");
 
 		std::vector<GameObject*> managed_children;
 		for (auto i = mChildren.begin(); i != mChildren.end(); i++)

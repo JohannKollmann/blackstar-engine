@@ -128,8 +128,7 @@ void wxTextureDisplay::ClearDisplay()
 			if (sound) sound->stop();
 			mPreviewNode->getCreator()->destroyMovableObject(mPreviewNode->getAttachedObject(i));
 		}
-		mPreviewNode->getCreator()->destroySceneNode(mPreviewNode);
-		mPreviewNode = 0;
+		mPreviewNode = nullptr;
 	}
 	mTexture.setNull();
 	mBitmap = wxBitmap();
