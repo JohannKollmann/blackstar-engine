@@ -109,6 +109,8 @@ wxEdit::wxEdit() : wxFrame(nullptr, -1, _("Blackstar Edit"),
 	handle = Ogre::StringConverter::toString((size_t)((HWND)this->GetHandle()));
 
 	PushEventHandler(mMenuBar);
+
+	GetOgrePane()->initOgre();
 };
 
 void wxEdit::RefreshToolbars()
@@ -186,7 +188,6 @@ void wxEdit::UpdateOgre()
 
 void wxEdit::OnActivate(wxActivateEvent &event)
 {
-	GetOgrePane()->initOgre();
 }
 
 void wxEdit::OnClose(wxCloseEvent &event)

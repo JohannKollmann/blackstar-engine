@@ -281,4 +281,21 @@ namespace Ice
 		return ret;
 	}
 
+	Scriptable* ScriptSystem::GetScriptableObject(int scriptID)
+	{
+		auto i = mScriptObjectBinds.find(scriptID);
+		if (i != mScriptObjectBinds.end()) return i->second;
+		return nullptr;
+	}
+	void ScriptSystem::RegisterScriptable(Scriptable *scriptable, int scriptID)
+	{
+		assert(GetScriptableObject(scriptID) == nullptr);
+		mScriptObjectBinds.insert(std::make_pair<int, Scriptable*>(scriptID, scriptable));
+	}
+	void ScriptSystem::UnregisterScriptable(int scriptID)
+	{
+		auto i = mScriptObjectBinds.find(scriptID);
+		if (i != mScriptObjectBinds.end()) mScriptObjectBinds.erase(i);
+	}
+
 };
