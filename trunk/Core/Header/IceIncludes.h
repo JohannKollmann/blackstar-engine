@@ -51,4 +51,5 @@ namespace Ice
 	class AStarEdge;
 	class AStarNode;
 	class SoundMaterialTable;
+	class Scriptable;
 };

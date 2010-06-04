@@ -142,6 +142,8 @@
     <ClCompile Include="Source\IceLevelMesh.cpp" />
     <ClCompile Include="Source\IceMain.cpp" />
     <ClCompile Include="Source\IceMainLoop.cpp" />
+    <ClCompile Include="Source\IceScriptable.cpp" />
+    <ClCompile Include="Source\IceGOCScriptable.cpp" />
     <ClCompile Include="Source\IceScriptMessageListener.cpp" />
     <ClCompile Include="Source\IceSoundMaterialTable.cpp" />
     <ClCompile Include="Source\IceSpline.cpp" />
@@ -226,6 +228,8 @@
     <ClInclude Include="Header\IceLevelMesh.h" />
     <ClInclude Include="Header\IceMain.h" />
     <ClInclude Include="Header\IceMainLoop.h" />
+    <ClInclude Include="Header\IceScriptable.h" />
+    <ClInclude Include="Header\IceGOCScriptable.h" />
     <ClInclude Include="Header\IceScriptMessageListener.h" />
     <ClInclude Include="Header\IceSoundMaterialTable.h" />
     <ClInclude Include="Header\IceSpline.h" />

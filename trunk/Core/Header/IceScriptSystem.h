@@ -1,6 +1,8 @@
 #pragma once
 
 #include "IceScript.h"
+#include "IceScriptable.h"
+#include "IceIncludes.h"
 
 namespace Ice
 {
@@ -31,6 +33,10 @@ public:
 
 	static std::vector<ScriptParam> Lua_JoinNewsgroup(Script &caller, std::vector<ScriptParam> params);
 
+	Scriptable* GetScriptableObject(int scriptID);
+	void RegisterScriptable(Scriptable *scriptable, int scriptID);
+	void UnregisterScriptable(int scriptID);
+
 private:
 	friend class ScriptParam;//needs these maps for callbacks
 
@@ -40,6 +46,9 @@ private:
 	std::map<std::string, Script> m_mScriptFunctions;
 	std::map<std::string, LuaScript> m_mScripts;
 	std::map<std::string, std::vector<int>> m_mScriptInstances;//hack for deletion
+
+	//Script ID - Object bindings
+	std::map<int, Scriptable*> mScriptObjectBinds;
 
 	int m_iCurrID;
 

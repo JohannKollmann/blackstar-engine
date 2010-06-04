@@ -264,6 +264,12 @@
     <ClCompile Include="Source\IceGOCOgreNode.cpp">
       <Filter>Object/Component</Filter>
     </ClCompile>
+    <ClCompile Include="Source\IceScriptable.cpp">
+      <Filter>ScriptSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\IceGOCScriptable.cpp">
+      <Filter>Object/Component</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header\IceMessageListener.h">
@@ -576,6 +582,12 @@
       <Filter>System</Filter>
     </ClInclude>
     <ClInclude Include="Header\IceGOCOgreNode.h">
+      <Filter>Object/Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceScriptable.h">
+      <Filter>ScriptSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceGOCScriptable.h">
       <Filter>Object/Component</Filter>
     </ClInclude>
   </ItemGroup>

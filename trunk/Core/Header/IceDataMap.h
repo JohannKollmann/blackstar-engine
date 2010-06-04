@@ -18,7 +18,7 @@ Klasse zum sicheren und komfortablen Benutzen von std::map<Ogre::String, void*>
 
 class DllExport GenericProperty : public LoadSave::Saveable
 {
-private:
+public:
 	enum PropertyTypes
 	{
 		INT,
@@ -28,19 +28,23 @@ private:
 		VECTOR3,
 		QUATERNION
 	};
-public:
+	PropertyTypes getType();
+
 	Ogre::Any mData;
-	Ogre::String mType;
 	Ogre::String mKey;
 
 	GenericProperty() {};
 	~GenericProperty() {};
 
 	template <typename T>
-		void Set(T value, Ogre::String type, Ogre::String key) { mData = value; mType = type; mKey = key; };
+		void Set(const T &value, const Ogre::String &key) { mData = value; mKey = key; };
+
+	void Set(void *data, const Ogre::String &key, const PropertyTypes &types);
 
 	template <typename T>
-		T Get() { return Ogre::any_cast<T>(mData); };
+		T Get() { return Ogre::any_cast<T>(mData); }
+
+	PropertyTypes Get(void *target);
 
 	void GetAsScriptParam(std::vector<ScriptParam> &params);
 
@@ -97,16 +101,28 @@ public:
 	Ogre::Quaternion GetOgreQuat(Ogre::String keyname)	const;
 	Ogre::String GetOgreString(Ogre::String keyname)	const;
 
+	void AddProperty(GenericProperty &prop)
+	{
+		mData.push_back(prop);
+		mIterator = mData.begin();
+	}
+
+	void AddValue(Ogre::String keyname, void *data, const GenericProperty::PropertyTypes &type)
+	{
+		GenericProperty entry;
+		entry.Set(data, keyname, type);
+		AddProperty(entry);
+	};
+
 	/*
 	Template zum speichern von Basistypen.
 	*/
 	template <class templateType>
-		void AddValue(Ogre::String keyname, Ogre::String type, templateType var)
+		void AddValue(Ogre::String keyname, templateType var)
 		{
 			GenericProperty entry;
-			entry.Set<templateType>(var, type, keyname);
-			mData.push_back(entry);
-			mIterator = mData.begin();
+			entry.Set<templateType>(var, keyname);
+			AddProperty(entry);
 		};
 	void AddBool(Ogre::String keyname, bool val);
 	void AddInt(Ogre::String keyname, int val);

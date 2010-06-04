@@ -7,6 +7,7 @@ class wxSimpleOgreView : public wxOgre
 {
 private:
 	Ogre::SceneNode *mNode;
+
 public:
 	wxSimpleOgreView(wxWindow* parent);
 	~wxSimpleOgreView();

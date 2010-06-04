@@ -42,9 +42,10 @@ void Console::Show(bool show)
 
 void Console::ReceiveMessage(Msg &msg)
 {
+	//Todo
 	if (msg.type == "CONSOLE_INGAME")
 	{
-		if (msg.params.GetOgreString("COMMAND") == "lua_loadscript")
+		/*if (msg.params.GetOgreString("COMMAND") == "lua_loadscript")
 		{
 			int counter = 0;
 			Ogre::String scriptfile = "";
@@ -93,7 +94,7 @@ void Console::ReceiveMessage(Msg &msg)
 				script.CallFunction(funcname, params);
 			}
 			
-		}
+		}*/
 		
 	}
 }

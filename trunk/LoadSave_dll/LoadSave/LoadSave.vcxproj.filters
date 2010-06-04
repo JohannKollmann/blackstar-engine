@@ -37,24 +37,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="SGTLibs\AtomHandler.h">
-      <Filter>Libs</Filter>
-    </ClInclude>
-    <ClInclude Include="SGTLibs\LoadSave.h">
-      <Filter>Libs</Filter>
-    </ClInclude>
-    <ClInclude Include="SGTLibs\LoadSystem.h">
-      <Filter>Libs</Filter>
-    </ClInclude>
-    <ClInclude Include="SGTLibs\RecordReference.h">
-      <Filter>Libs</Filter>
-    </ClInclude>
-    <ClInclude Include="SGTLibs\Saveable.h">
-      <Filter>Libs</Filter>
-    </ClInclude>
-    <ClInclude Include="SGTLibs\SaveSystem.h">
-      <Filter>Libs</Filter>
-    </ClInclude>
     <ClInclude Include="LowLevelLibs\CMemFile.h">
       <Filter>LowLevelLibs</Filter>
     </ClInclude>
@@ -70,5 +52,6 @@
     <ClInclude Include="LowLevelLibs\save_helpers.h">
       <Filter>LowLevelLibs</Filter>
     </ClInclude>
+    <ClInclude Include="ExternalHeaders\standard_atoms.h" />
   </ItemGroup>
 </Project>

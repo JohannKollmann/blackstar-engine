@@ -5,52 +5,84 @@
 namespace Ice
 {
 
+	GenericProperty::PropertyTypes GenericProperty::getType()
+	{
+		if (mData.getType() == typeid(bool)) return PropertyTypes::BOOL;
+		if (mData.getType() == typeid(float)) return PropertyTypes::FLOAT;
+		if (mData.getType() == typeid(int)) return PropertyTypes::INT;
+		if (mData.getType() == typeid(Ogre::String)) return PropertyTypes::STRING;
+		if (mData.getType() == typeid(Ogre::Vector3)) return PropertyTypes::VECTOR3;
+		if (mData.getType() == typeid(Ogre::Quaternion)) return PropertyTypes::QUATERNION;
+		
+		assert(false);
+		return PropertyTypes::INT;
+	}
+	GenericProperty::PropertyTypes GenericProperty::Get(void *target)
+	{
+		if (mData.getType() == typeid(bool)) { bool src = Ogre::any_cast<bool>(mData); memcpy(target, &src, sizeof(bool)); return PropertyTypes::BOOL; }
+		if (mData.getType() == typeid(float)) { float src = Ogre::any_cast<float>(mData); *((float*)target) = src; return PropertyTypes::FLOAT; }
+		if (mData.getType() == typeid(int)) { int src = Ogre::any_cast<int>(mData); *((int*)target) = src; return PropertyTypes::INT; }
+		if (mData.getType() == typeid(Ogre::String)) { Ogre::String src = Ogre::any_cast<Ogre::String>(mData); *((Ogre::String*)target) = src; return PropertyTypes::STRING; }
+		if (mData.getType() == typeid(Ogre::Vector3)) { Ogre::Vector3 src = Ogre::any_cast<Ogre::Vector3>(mData); *((Ogre::Vector3*)target) = src;  return PropertyTypes::VECTOR3; }
+		if (mData.getType() == typeid(Ogre::Quaternion)) { Ogre::Quaternion src = Ogre::any_cast<Ogre::Quaternion>(mData); *((Ogre::Quaternion*)target) = src; return PropertyTypes::QUATERNION; }
+		
+		assert(false);
+		return PropertyTypes::INT;
+	}
+
+	void GenericProperty::Set(void *data, const Ogre::String &key, const GenericProperty::PropertyTypes &type)
+	{
+		switch (type)
+		{
+		case PropertyTypes::INT:
+			Set<int>(*((int*)data), key); break;
+		case PropertyTypes::BOOL:
+			Set<bool>(*((bool*)data), key); break;
+		case PropertyTypes::FLOAT:
+			Set<float>(*((float*)data), key); break;
+		case PropertyTypes::STRING:
+			Set<Ogre::String>(*((Ogre::String*)data), key); break;
+		case PropertyTypes::VECTOR3:
+			Set<Ogre::Vector3>(*((Ogre::Vector3*)data), key); break;
+		case PropertyTypes::QUATERNION:
+			Set<Ogre::Quaternion>(*((Ogre::Quaternion*)data), key); break;
+		}
+	}
+
 	void GenericProperty::Save(LoadSave::SaveSystem& myManager)
 	{
 		myManager.SaveAtom("Ogre::String", &mKey, "Key");
-		int iType = 0;
+		int type = getType();
+		myManager.SaveAtom("int", &type, "Type");
 
-		if (mType == "int")
+		int iData; bool bData; float fData; Ogre::String sData; Ogre::Vector3 vData; Ogre::Quaternion qData;
+
+		switch (type)
 		{
-			iType = PropertyTypes::INT;
-			myManager.SaveAtom("int", &iType, "Type");
-			int data = Ogre::any_cast<int>(mData);
-			myManager.SaveAtom(mType, (void*)&data, "Data");
-		}
-		else if (mType == "float")
-		{
-			iType = PropertyTypes::FLOAT;
-			myManager.SaveAtom("int", &iType, "Type");
-			float data = Ogre::any_cast<float>(mData);
-			myManager.SaveAtom(mType, (void*)&data, "Data");
-		}
-		else if (mType == "bool")
-		{
-			iType = PropertyTypes::BOOL;
-			myManager.SaveAtom("int", &iType, "Type");
-			bool data = Ogre::any_cast<bool>(mData);
-			myManager.SaveAtom(mType, (void*)&data, "Data");
-		}
-		else if (mType == "Ogre::Vector3")
-		{
-			iType = PropertyTypes::VECTOR3;
-			myManager.SaveAtom("int", &iType, "Type");
-			Ogre::Vector3 data = Ogre::any_cast<Ogre::Vector3>(mData);
-			myManager.SaveAtom(mType, (void*)&data, "Data");
-		}
-		else if (mType == "Ogre::Quaternion")
-		{
-			iType = PropertyTypes::QUATERNION;
-			myManager.SaveAtom("int", &iType, "Type");
-			Ogre::Quaternion data = Ogre::any_cast<Ogre::Quaternion>(mData);
-			myManager.SaveAtom(mType, (void*)&data, "Data");
-		}
-		else if (mType == "Ogre::String")
-		{
-			iType = PropertyTypes::STRING;
-			myManager.SaveAtom("int", &iType, "Type");
-			Ogre::String data = Ogre::any_cast<Ogre::String>(mData);
-			myManager.SaveAtom(mType, (void*)&data, "Data");
+		case PropertyTypes::INT:
+			iData = Ogre::any_cast<int>(mData);
+			myManager.SaveAtom("int", (void*)&iData, "Data");
+			break;
+		case PropertyTypes::BOOL:
+			bData = Ogre::any_cast<bool>(mData);
+			myManager.SaveAtom("bool", (void*)&bData, "Data");
+			break;
+		case PropertyTypes::FLOAT:
+			fData = Ogre::any_cast<float>(mData);
+			myManager.SaveAtom("float", (void*)&fData, "Data");
+			break;
+		case PropertyTypes::STRING:
+			sData = Ogre::any_cast<Ogre::String>(mData);
+			myManager.SaveAtom("Ogre::String", (void*)&sData, "Data");
+			break;
+		case PropertyTypes::VECTOR3:
+			vData = Ogre::any_cast<Ogre::Vector3>(mData);
+			myManager.SaveAtom("Ogre::Vector3", (void*)&vData, "Data");
+			break;
+		case PropertyTypes::QUATERNION:
+			qData = Ogre::any_cast<Ogre::Quaternion>(mData);
+			myManager.SaveAtom("Ogre::Quaternion", (void*)&qData, "Data");
+			break;
 		}
 	}
 
@@ -68,33 +100,27 @@ namespace Ice
 		switch (type)
 		{
 		case PropertyTypes::INT:
-			mType = "int";
-			mgr.LoadAtom(mType, &iVal);
+			mgr.LoadAtom("int", &iVal);
 			mData = iVal;
 			break;
 		case PropertyTypes::BOOL:
-			mType = "bool";
-			mgr.LoadAtom(mType, &bVal);
+			mgr.LoadAtom("bool", &bVal);
 			mData = bVal;
 			break;
 		case PropertyTypes::FLOAT:
-			mType = "float";
-			mgr.LoadAtom(mType, &fVal);
+			mgr.LoadAtom("float", &fVal);
 			mData = fVal;
 			break;
 		case PropertyTypes::STRING:
-			mType = "Ogre::String";
-			mgr.LoadAtom(mType, &sVal);
+			mgr.LoadAtom("Ogre::String", &sVal);
 			mData = sVal;
 			break;
 		case PropertyTypes::VECTOR3:
-			mType = "Ogre::Vector3";
-			mgr.LoadAtom(mType, &vVal);
+			mgr.LoadAtom("Ogre::Vector3", &vVal);
 			mData = vVal;
 			break;
 		case PropertyTypes::QUATERNION:
-			mType = "Ogre::Quaternion";
-			mgr.LoadAtom(mType, &qVal);
+			mgr.LoadAtom("Ogre::Quaternion", &qVal);
 			mData = qVal;
 			break;
 		}
@@ -102,34 +128,28 @@ namespace Ice
 
 	void GenericProperty::GetAsScriptParam(std::vector<ScriptParam> &params)
 	{
-		if (mType == "int")
+		int type = getType();
+		switch (type)
 		{
-			params.push_back(ScriptParam(Get<int>()));
-		}
-		else if (mType == "float")
-		{
-			params.push_back(ScriptParam(Get<float>()));
-		}
-		else if (mType == "bool")
-		{
-			params.push_back(ScriptParam(Get<bool>()));
-		}
-		else if (mType == "Ogre::Vector3")
-		{
+		case PropertyTypes::INT:
+			params.push_back(ScriptParam(Get<int>())); break;
+		case PropertyTypes::BOOL:
+			params.push_back(ScriptParam(Get<bool>())); break;
+		case PropertyTypes::FLOAT:
+			params.push_back(ScriptParam(Get<float>())); break;
+		case PropertyTypes::STRING:
+			params.push_back(ScriptParam(std::string(Get<Ogre::String>().c_str()))); break;
+		case PropertyTypes::VECTOR3:
 			params.push_back(ScriptParam(Get<Ogre::Vector3>().x));
 			params.push_back(ScriptParam(Get<Ogre::Vector3>().y));
 			params.push_back(ScriptParam(Get<Ogre::Vector3>().z));
-		}
-		else if (mType == "Ogre::Quaternion")
-		{
+			break;
+		case PropertyTypes::QUATERNION:
 			params.push_back(ScriptParam(Get<Ogre::Quaternion>().w));
 			params.push_back(ScriptParam(Get<Ogre::Quaternion>().x));
 			params.push_back(ScriptParam(Get<Ogre::Quaternion>().y));
 			params.push_back(ScriptParam(Get<Ogre::Quaternion>().z));
-		}
-		else if (mType == "Ogre::String")
-		{
-			params.push_back(ScriptParam(std::string(Get<Ogre::String>().c_str())));
+			break;
 		}
 	}
 
@@ -196,23 +216,23 @@ namespace Ice
 
 	void DataMap::AddBool(Ogre::String keyname, bool val)
 	{
-		AddValue(keyname, "bool", val);
+		AddValue(keyname, val);
 	}
 
 
 	void DataMap::AddInt(Ogre::String keyname, int val)
 	{
-		AddValue(keyname, "int", val);
+		AddValue(keyname, val);
 	}
 
 	void DataMap::AddFloat(Ogre::String keyname, float val)
 	{
-		AddValue(keyname, "float", val);
+		AddValue(keyname, val);
 	}
 
 	void DataMap::AddOgreVec3(Ogre::String keyname, Ogre::Vector3 vec)
 	{
-		AddValue(keyname, "Ogre::Vector3", vec);
+		AddValue(keyname, vec);
 	}
 
 	void DataMap::AddOgreCol(Ogre::String keyname, Ogre::ColourValue val)
@@ -222,12 +242,12 @@ namespace Ice
 
 	void DataMap::AddOgreQuat(Ogre::String keyname, Ogre::Quaternion quat)
 	{
-		AddValue(keyname, "Ogre::Quaternion", quat);
+		AddValue(keyname, quat);
 	}
 
 	void DataMap::AddOgreString(Ogre::String keyname, Ogre::String text)
 	{
-		AddValue<Ogre::String>(keyname, "Ogre::String", text);
+		AddValue<Ogre::String>(keyname, text);
 	}
 
 	bool DataMap::HasNext()

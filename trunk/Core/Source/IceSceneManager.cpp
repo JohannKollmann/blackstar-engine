@@ -20,6 +20,7 @@
 #include "IceDialog.h"
 #include "IceLevelMesh.h"
 #include "IceGOCMover.h"
+#include "IceGOCScriptable.h"
 
 #include "boost/filesystem/operations.hpp"
 #include "boost/filesystem/path.hpp"
@@ -183,6 +184,7 @@ namespace Ice
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCCharacterController::Register);
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCPlayerInput::Register);
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCCameraController::Register);
+		LoadSave::LoadSave::Instance().RegisterObject(&GOCScriptable::Register);
 
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCAI::Register);
 
@@ -204,6 +206,7 @@ namespace Ice
 
 		RegisterGOCPrototype("C_x", new GOCAI());
 		RegisterGOCPrototype("C_x", new GOCPlayerInput());
+		RegisterGOCPrototype("C_x", new GOCScriptable());
 
 		RegisterGOCPrototype("D", new GOCCameraController());
 
