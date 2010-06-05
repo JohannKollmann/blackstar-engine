@@ -57,7 +57,7 @@ namespace OgrePhysX
 				return;
 			}
 
-			mSDK->setParameter(NX_SKIN_WIDTH, 0.03f);
+			mSDK->setParameter(NX_SKIN_WIDTH, 0.04f);
 
 			mCookingInterface = NxGetCookingLib(NX_PHYSICS_SDK_VERSION);
 			if (!mCookingInterface)

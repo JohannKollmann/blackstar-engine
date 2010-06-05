@@ -112,6 +112,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\IceGOCEditorInterface.cpp" />
     <ClCompile Include="Source\IceGOCOgreNode.cpp" />
     <ClCompile Include="Source\IceGOCMover.cpp" />
     <ClCompile Include="Source\IceMessageListener.cpp" />
