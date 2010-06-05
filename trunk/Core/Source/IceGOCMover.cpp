@@ -17,7 +17,6 @@ namespace Ice
 			return 0;
 		}
 		GameObject *go = new GameObject();
-		go->SetLoadSaveByParent(false);
 		GOCAnimKey *key = new GOCAnimKey(this);
 		go->AddComponent(key);
 		go->SetParent(mMover->GetOwner());
