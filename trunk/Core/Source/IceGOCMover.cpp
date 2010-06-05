@@ -124,6 +124,8 @@ namespace Ice
 		mgr.SaveAtom("bool", &mStaticMode, "StaticMode");
 		mgr.SaveAtom("Ogre::String", &mKeyCallback, "KeyCallback");
 		mgr.SaveAtom("std::vector<Saveable*>", &mAnimKeys, "AnimKeys");
+		mgr.SaveObject(mLookAtObject, "mLookAtObject", true);
+		mgr.SaveObject(mNormalLookAtObject, "mNormalLookAtObject", true);
 	}
 	void GOCMover::Load(LoadSave::LoadSystem& mgr)
 	{
@@ -133,6 +135,8 @@ namespace Ice
 		mgr.LoadAtom("bool", &mStaticMode);
 		mgr.LoadAtom("Ogre::String", &mKeyCallback);
 		mgr.LoadAtom("std::vector<Saveable*>", &mAnimKeys);
+		mLookAtObject=(Ice::GameObject*)mgr.LoadObject();
+		mNormalLookAtObject=(Ice::GameObject*)mgr.LoadObject();
 	}
 
 	void GOCMover::UpdatePosition(Ogre::Vector3 position)
@@ -166,9 +170,10 @@ namespace Ice
 				Ogre::Vector3 lookAtDir = mLookAtObject->GetGlobalPosition() - GetOwner()->GetGlobalPosition();
 				lookAtDir.normalise();
 				Ogre::Vector3 xAxis = lookAtDir.crossProduct(upVector);
-				Ogre::Vector3 yAxis = lookAtDir.crossProduct(xAxis);
-
-				Ogre::Quaternion q(xAxis, yAxis, lookAtDir);
+				xAxis.normalise();
+				Ogre::Vector3 yAxis = xAxis.crossProduct(lookAtDir);
+				
+				Ogre::Quaternion q(lookAtDir, yAxis, xAxis);
 				if (!mMoving) SetKeyIgnoreParent(true);
 				SetOwnerOrientation(q);
 				if (!mMoving) SetKeyIgnoreParent(false);
@@ -176,14 +181,36 @@ namespace Ice
 			if (mMoving)
 			{
 				float time = msg.params.GetFloat("TIME");
-				SetOwnerPosition(mSpline.Sample(mfLastPos));
-				mfLastPos+=time;
-				if(mfLastPos>mSpline.GetLength())
+				
+				if(mStaticMode)
+				{
+					//search which sector we are in
+					int iSearchPos=mKeyTiming.size()/2;
+					int iStep=iSearchPos+1;
+			
+					while(iStep>1)
+					{
+						iStep>>=1;
+						double fSample=mKeyTiming[iSearchPos];
+						if(mfLastPos<fSample)
+							iSearchPos-=iStep;
+						else
+							iSearchPos+=iStep;
+					}
+					if(mfLastPos < mKeyTiming[iSearchPos] && iSearchPos)
+						iSearchPos--;
+					//iSearchPos holds the index we've passed last
+
+				}
+				else
+					SetOwnerPosition(mSpline.Sample(mfLastPos));
+				if(mfLastPos>(mStaticMode ? mKeyTiming[mKeyTiming.size()-1] : mSpline.GetLength()))
 				{
 					mMoving = false;
 					mfLastPos=0;
 					SetKeyIgnoreParent(false);
 				}
+				mfLastPos+=time;
 			}
 		}
 	}
@@ -205,17 +232,39 @@ namespace Ice
 		int keyCounter = 0;
 		
 		std::vector<Ogre::Vector4> vKeys;
-		//float fTime = 0;
-		vKeys.push_back(Ogre::Vector4(mOwnerGO->GetGlobalPosition().x, mOwnerGO->GetGlobalPosition().y, mOwnerGO->GetGlobalPosition().z, GetTimeToNextKey()));
-		//fTime += GetTimeToNextKey();
+		std::vector<Ogre::Vector3> vUntimedKeys;
+
+		double fCurrTime=0.0;
+
+		if(mStaticMode)
+		{
+			vUntimedKeys.push_back(mOwnerGO->GetGlobalPosition());
+			mKeyTiming.push_back(fCurrTime);
+			fCurrTime+=GetTimeToNextKey();
+			mKeyTiming.push_back(fCurrTime);
+		}
+		else
+			vKeys.push_back(Ogre::Vector4(mOwnerGO->GetGlobalPosition().x, mOwnerGO->GetGlobalPosition().y, mOwnerGO->GetGlobalPosition().z, GetTimeToNextKey()));
+
+
 		for(int iKey=0; iKey<(int)mAnimKeys.size(); iKey++)
 		{
 			mAnimKeys[iKey]->SetName("Key_" + Ogre::StringConverter::toString(++keyCounter));
 			Ogre::Vector3 keyPos = mAnimKeys[iKey]->GetGlobalPosition();
-			vKeys.push_back(Ogre::Vector4(keyPos.x, keyPos.y, keyPos.z, mAnimKeys[iKey]->GetComponent<AnimKey>()->GetTimeToNextKey()));
-			//fTime += mAnimKeys[iKey]->GetComponent<AnimKey>()->GetTimeToNextKey();
+
+			if(mStaticMode)
+			{
+				vUntimedKeys.push_back(keyPos);
+				fCurrTime+=mAnimKeys[iKey]->GetComponent<AnimKey>()->GetTimeToNextKey();
+				mKeyTiming.push_back(fCurrTime);
+			}
+			else
+				vKeys.push_back(Ogre::Vector4(keyPos.x, keyPos.y, keyPos.z, mAnimKeys[iKey]->GetComponent<AnimKey>()->GetTimeToNextKey()));
 		}
-		mSpline.SetPoints(vKeys, mIsClosed);
+		if(mStaticMode)
+			mSpline.SetPoints(vUntimedKeys, mIsClosed);
+		else
+			mSpline.SetPoints(vKeys, mIsClosed);
 
 		mSplineObject->begin("WPLine", Ogre::RenderOperation::OT_LINE_STRIP);
 		for(double fPos=0.0; fPos<=mSpline.GetLength()-0.01; fPos+=0.1)
