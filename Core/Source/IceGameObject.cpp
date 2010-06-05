@@ -372,7 +372,6 @@ namespace Ice
 		for (auto i = managed_children.begin(); i != managed_children.end(); i++)
 		{
 			(*i)->SetParent(this);
-			mChildren.push_back(*i);
 		}
 	}
 
