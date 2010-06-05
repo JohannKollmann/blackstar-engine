@@ -77,7 +77,8 @@ namespace Ice
 		bool mStaticMode;
 		float mfLastPos;
 		Spline mSpline;
-		Spline mTimeSpline;
+		std::vector<double> mKeyTiming;
+		//Spline mTimeSpline;
 		Ogre::ManualObject *mSplineObject;
 		Ogre::ManualObject *mLookAtLine;
 		Ogre::ManualObject *mNormalLookAtLine;
