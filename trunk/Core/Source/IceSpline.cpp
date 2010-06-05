@@ -13,6 +13,12 @@ namespace Ice
 	void
 	Spline::SetPoints(std::vector<Ogre::Vector3> vPoints, bool bClosed)
 	{
+		if(vPoints.size()<2)
+			return;
+		
+		if(bClosed)
+			vPoints.push_back(vPoints[0]);
+
 		m_Sectors.clear();
 		double* ppfCoordinates[3]={new double[vPoints.size()], new double[vPoints.size()], new double[vPoints.size()]};
 
@@ -58,12 +64,26 @@ namespace Ice
 				ppfMatrix[iPoint*3+5][iPoint*3+3]=1.0;
 				ppfMatrix[iMatrixSize][iPoint*3+3]=ppfCoordinates[iCoordinate][iPoint+2]-ppfCoordinates[iCoordinate][iPoint+1];
 			}
-			//the last two equations say that the slope in the beginning and end of the spline must be 0
-			ppfMatrix[1][iMatrixSize-1]=2.0;
-			//
-			ppfMatrix[iMatrixSize-2][iMatrixSize-2]=2.0;
-			ppfMatrix[iMatrixSize-3][iMatrixSize-2]=6.0;
-
+			if(!bClosed)
+			{
+				ppfMatrix[1][iMatrixSize-1]=2.0;
+			
+				ppfMatrix[iMatrixSize-2][iMatrixSize-2]=2.0;
+				ppfMatrix[iMatrixSize-3][iMatrixSize-2]=6.0;
+			}
+			else
+			{
+				//acceleration
+				ppfMatrix[1][iMatrixSize-1]=-2.0;
+				ppfMatrix[iMatrixSize-2][iMatrixSize-1]=2.0;
+				ppfMatrix[iMatrixSize-3][iMatrixSize-1]=6.0;
+				//slope
+				ppfMatrix[2][iMatrixSize-2]=-1.0;
+				ppfMatrix[iMatrixSize-1][iMatrixSize-2]=1.0;
+				ppfMatrix[iMatrixSize-2][iMatrixSize-2]=2.0;
+				ppfMatrix[iMatrixSize-3][iMatrixSize-2]=3.0;
+			}
+			
 			ppfResults[iCoordinate]=new double[iMatrixSize];
 			SolveLinearSystem(ppfMatrix, ppfResults[iCoordinate], iMatrixSize);
 		}
@@ -96,9 +116,7 @@ namespace Ice
 			return;
 		
 		if(bClosed)
-		{
 			vPoints.push_back(vPoints[0]);
-		}
 
 		m_Sectors.clear();
 		m_SectorLengths.clear();
@@ -133,8 +151,6 @@ namespace Ice
 			ppfMatrix[iMatrixSize][0]=ppfCoordinates[iCoordinate][1]-ppfCoordinates[iCoordinate][0];
 			for(int iPoint=0; iPoint<(int)vPoints.size()-2; iPoint++)
 			{
-				//td=vPoints[iPoint+2].w-vPoints[iPoint+1].w;
-				//td=vPoints[iPoint].w;
 				//this line states that the slope at the end of the sector is equal to the slope in the beginning of the next sector
 				ppfMatrix[iPoint*3][iPoint*3+1]=3.0*td*td;
 				ppfMatrix[iPoint*3+1][iPoint*3+1]=2.0*td;
@@ -155,7 +171,6 @@ namespace Ice
 			td=(vPoints[vPoints.size()-2].w);
 			if(!bClosed)
 			{
-				//ppfMatrix[0][iMatrixSize-1]=6.0;
 				ppfMatrix[1][iMatrixSize-1]=2.0;
 			
 				ppfMatrix[iMatrixSize-2][iMatrixSize-2]=2.0;
@@ -193,7 +208,7 @@ namespace Ice
 			m_SectorLengths.push_back(fTime);
 			fTime+=vPoints[iSector].w;
 		}
-		m_SectorLengths.push_back(fTime);//vPoints[vPoints.size()-1].w);
+		m_SectorLengths.push_back(fTime);
 		m_bIsTimedSpline=true;
 	}
 

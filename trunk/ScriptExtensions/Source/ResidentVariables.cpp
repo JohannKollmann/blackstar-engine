@@ -1,6 +1,7 @@
 #include "ResidentVariables.h"
 #include <string>
 
+#undef AddAtom
 CREATEMAPHANDLER(std::string, "std::string", ResidentVariables::SaveableScriptParam, "ResidentVariables::SaveableScriptParam", ScriptParamMapHandler);
 
 ResidentManager&
