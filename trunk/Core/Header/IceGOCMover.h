@@ -31,7 +31,7 @@ namespace Ice
 		GameObject* CreateSuccessor();
 	};
 
-	class DllExport GOCAnimKey : public AnimKey, public GOCEditorVisualised, public GOCEditorInterface
+	class DllExport GOCAnimKey : public AnimKey, public GOCEditorVisualised, public GOCStaticEditorInterface
 	{
 		friend class GOCMover;
 	private:
@@ -51,12 +51,9 @@ namespace Ice
 
 		Ogre::String GetEditorVisualMeshName() { return "Editor_AnimKey.mesh"; }
 
-		void SetParameters(DataMap *parameters);
-		void GetParameters(DataMap *parameters);
-		void GetDefaultParameters(DataMap *parameters);
-		Ogre::String GetLabel() { return "Anim Key"; }
-		GOCEditorInterface* New() { return new GOCAnimKey(); }
-		GOComponent* GetGOComponent() { return this; }
+		BEGIN_GOCEDITORINTERFACE(GOCAnimKey, "Anim Key")
+			PROPERTY_FLOAT(mTimeToNextKey, "TimeToNextKey", 1.0f)
+		END_GOCEDITORINTERFACE
 
 		void Save(LoadSave::SaveSystem& mgr);
 		void Load(LoadSave::LoadSystem& mgr);
@@ -64,7 +61,7 @@ namespace Ice
 		static LoadSave::Saveable* NewInstance() { return new GOCAnimKey; }
 	};
 
-	class DllExport GOCMover : public AnimKey, public GOCEditorVisualised, public GOCEditorInterface, public MessageListener, public Utils::DeleteListener
+	class DllExport GOCMover : public AnimKey, public GOCEditorVisualised, public GOCStaticEditorInterface, public MessageListener, public Utils::DeleteListener
 	{
 		friend class GOCAnimKey;
 
@@ -124,12 +121,14 @@ namespace Ice
 
 		void SetKeyIgnoreParent(bool ignore);
 
-		void SetParameters(DataMap *parameters);
-		void GetParameters(DataMap *parameters);
-		void GetDefaultParameters(DataMap *parameters);
-		Ogre::String GetLabel() { return "Mover"; }
-		GOCEditorInterface* New() { return new GOCMover(); }
-		GOComponent* GetGOComponent() { return this; }
+		BEGIN_GOCEDITORINTERFACE(GOCMover, "Mover")
+			PROPERTY_FLOAT(mTimeToNextKey, "TimeToNextKey", 1.0f);
+			PROPERTY_BOOL(mIsClosed, "Closed", false);
+			PROPERTY_BOOL(mStaticMode, "Static Mode", false);
+			PROPERTY_STRING(mKeyCallback, "Key Callback", "");
+		END_GOCEDITORINTERFACE
+
+		void OnSetParameters();
 
 		void Save(LoadSave::SaveSystem& mgr);
 		void Load(LoadSave::LoadSystem& mgr);

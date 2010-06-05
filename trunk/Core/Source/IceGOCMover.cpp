@@ -39,18 +39,6 @@ namespace Ice
 		mMover->InsertKey(mOwnerGO, mPredecessor);
 	}
 
-	void GOCAnimKey::SetParameters(DataMap *parameters)
-	{
-		mTimeToNextKey = parameters->GetValue<float>("TimeToNextKey", 1);
-	}
-	void GOCAnimKey::GetParameters(DataMap *parameters)
-	{
-		parameters->AddFloat("TimeToNextKey", mTimeToNextKey);
-	}
-	void GOCAnimKey::GetDefaultParameters(DataMap *parameters)
-	{
-		parameters->AddFloat("TimeToNextKey", 1.0f);
-	}
 	void GOCAnimKey::Save(LoadSave::SaveSystem& mgr)
 	{
 		mgr.SaveAtom("float", &mTimeToNextKey, "TimeToNextKey");
@@ -94,27 +82,9 @@ namespace Ice
 			Ice::Main::Instance().GetOgreSceneMgr()->destroyManualObject(mSplineObject);
 		}
 	}
-	void GOCMover::SetParameters(DataMap *parameters)
+	void GOCMover::OnSetParameters()
 	{
-		mTimeToNextKey = parameters->GetValue<float>("TimeToNextKey", 1);
-		mIsClosed = parameters->GetBool("Closed");
-		mStaticMode = parameters->GetBool("Static Mode");
-		mKeyCallback = parameters->GetOgreString("Key Callback");
 		Init();
-	}
-	void GOCMover::GetParameters(DataMap *parameters)
-	{
-		parameters->AddFloat("TimeToNextKey", mTimeToNextKey);
-		parameters->AddBool("Closed", mIsClosed);
-		parameters->AddBool("Static Mode", mStaticMode);
-		parameters->AddOgreString("Key Callback", mKeyCallback);
-	}
-	void GOCMover::GetDefaultParameters(DataMap *parameters)
-	{
-		parameters->AddFloat("TimeToNextKey", 1.0f);
-		parameters->AddBool("Closed", false);
-		parameters->AddBool("Static Mode", false);
-		parameters->AddOgreString("Key Callback", "");
 	}
 
 	void GOCMover::Save(LoadSave::SaveSystem& mgr)

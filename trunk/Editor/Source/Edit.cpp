@@ -460,8 +460,12 @@ void Edit::OnMouseEvent(wxMouseEvent &ev)
 				AttachAxisObject((*i).mObject);
 			}
 		}
-		((wxEditIceGameObject*)(wxEdit::Instance().GetpropertyWindow()->GetCurrentPage()))->SetObject(((wxEditIceGameObject*)(wxEdit::Instance().GetpropertyWindow()->GetCurrentPage()))->GetGameObject());
-		wxEdit::Instance().GetpropertyWindow()->Refresh();
+		wxEditIceGameObject *propgrid_page = dynamic_cast<wxEditIceGameObject*>(wxEdit::Instance().GetpropertyWindow()->GetCurrentPage());
+		if (propgrid_page)
+		{
+			propgrid_page->SetObject(propgrid_page->GetGameObject());
+			wxEdit::Instance().GetpropertyWindow()->Refresh();
+		}
 	}
 
 	ev.Skip();
@@ -540,8 +544,12 @@ void Edit::OnMouseMove(Ogre::Radian RotX,Ogre::Radian RotY)
 					AlignObjectWithMesh(i->mObject);
 				}
 			}
-			((wxEditIceGameObject*)(wxEdit::Instance().GetpropertyWindow()->GetCurrentPage()))->SetObject(((wxEditIceGameObject*)(wxEdit::Instance().GetpropertyWindow()->GetCurrentPage()))->GetGameObject());
-			wxEdit::Instance().GetpropertyWindow()->Refresh();
+			wxEditIceGameObject *propgrid_page = dynamic_cast<wxEditIceGameObject*>(wxEdit::Instance().GetpropertyWindow()->GetCurrentPage());
+			if (propgrid_page)
+			{
+				propgrid_page->SetObject(propgrid_page->GetGameObject());
+				wxEdit::Instance().GetpropertyWindow()->Refresh();
+			}
 		}
 	}
 	else if (mRightDown == true)
@@ -578,8 +586,12 @@ void Edit::OnMouseMove(Ogre::Radian RotX,Ogre::Radian RotY)
 					(*i).mObject->Rotate((*i).mObject->GetGlobalOrientation().Inverse() * rotaxis, RotX * mObjectRotSpeed, mZAxisLock == AxisLock::UNLOCKED);
 				}
 			}
-			((wxEditIceGameObject*)(wxEdit::Instance().GetpropertyWindow()->GetCurrentPage()))->SetObject(((wxEditIceGameObject*)(wxEdit::Instance().GetpropertyWindow()->GetCurrentPage()))->GetGameObject());		//Danger! Todo!
-			wxEdit::Instance().GetpropertyWindow()->Refresh();
+			wxEditIceGameObject *propgrid_page = dynamic_cast<wxEditIceGameObject*>(wxEdit::Instance().GetpropertyWindow()->GetCurrentPage());
+			if (propgrid_page)
+			{
+				propgrid_page->SetObject(propgrid_page->GetGameObject());
+				wxEdit::Instance().GetpropertyWindow()->Refresh();
+			}
 		}
 	}
 	else
@@ -1059,8 +1071,8 @@ void Edit::SelectObject(Ice::GameObject *object)
 
 	wxEdit::Instance().GetWorldExplorer()->SetSelection(4);
 	wxEdit::Instance().GetWorldExplorer()->GetSceneTree()->ExpandToObject(object);
-	wxEdit::Instance().GetpropertyWindow()->SetPage("EditGameObject");
-	((wxEditIceGameObject*)(wxEdit::Instance().GetpropertyWindow()->GetCurrentPage()))->SetObject(object);
+	wxEditIceGameObject *page = (wxEditIceGameObject*)wxEdit::Instance().GetpropertyWindow()->SetPage("EditGameObject");
+	page->SetObject(object);
 
 	if (object->GetComponent("CharacterInput", "PlayerInput") && object->GetComponent("Camera"))
 	{

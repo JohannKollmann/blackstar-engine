@@ -161,8 +161,12 @@ void wxOgreSceneTree::OnSelChanged(wxTreeEvent &event)
 		if (t->IsFile())
 		{
 			mSelectedItem = t;
-			((wxEditIceGameObject*)(wxEdit::Instance().GetpropertyWindow()->SetPage("EditGameObject")))->SetObject(t->getGO());
-			wxEdit::Instance().GetpropertyWindow()->Refresh();
+			wxEditIceGameObject *propgrid_page = dynamic_cast<wxEditIceGameObject*>(wxEdit::Instance().GetpropertyWindow()->GetCurrentPage());
+			if (propgrid_page)
+			{
+				propgrid_page->SetObject(propgrid_page->GetGameObject());
+				wxEdit::Instance().GetpropertyWindow()->Refresh();
+			}
 		}
 	}
 }
@@ -209,10 +213,10 @@ bool wxOgreSceneTree::ExpandToObject(OgreTreeItemBase *from, Ice::GameObject *ob
 
 void wxOgreSceneTree::OnEnterTab()
 {
-	wxEdit::Instance().GetpropertyWindow()->SetPage("EditGameObject");
+	wxEditIceGameObject *page = (wxEditIceGameObject*)wxEdit::Instance().GetpropertyWindow()->SetPage("EditGameObject");
 	if (GetSelectedItem() != 0)
 	{
-		((wxEditIceGameObject*)(wxEdit::Instance().GetpropertyWindow()->GetCurrentPage()))->SetObject(GetSelectedItem());
+		page->SetObject(GetSelectedItem());
 	}
 }
 void wxOgreSceneTree::OnLeaveTab()

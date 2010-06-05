@@ -4,7 +4,6 @@
 
 #include <list>
 #include <sstream>
-#include "IceIncludes.h"
 
 //#include "ResidentVariables.h"
 
@@ -263,7 +262,7 @@ class NullObjectHandler : LoadSave::AtomHandler
 public:
 	NullObjectHandler(){m_strName="NullObject";}
 	std::string& TellName(){return m_strName;}
-	int TellByteSize(){return sizeof(int);}
+	int TellByteSize(){return 0;}
 	void Save(LoadSave::SaveSystem& ss, void* pData, std::string strVarName){}
 	void Load(LoadSave::LoadSystem& ls, void* pDest){}
 private:

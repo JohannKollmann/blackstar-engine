@@ -21,12 +21,12 @@ class DllExport GenericProperty : public LoadSave::Saveable
 public:
 	enum PropertyTypes
 	{
-		INT,
-		BOOL,
-		FLOAT,
-		STRING,
-		VECTOR3,
-		QUATERNION
+		INT = 0,
+		BOOL = 1,
+		FLOAT = 2,
+		STRING = 3,
+		VECTOR3 = 4,
+		QUATERNION = 5
 	};
 	PropertyTypes getType();
 
