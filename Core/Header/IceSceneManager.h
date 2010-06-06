@@ -45,6 +45,8 @@ namespace Ice
 
 		std::map<Ogre::String, GOCEditorInterface*> mGOCPrototypes;
 
+		std::stack<GOCSimpleCameraController*> mCameraStack;
+
 		std::vector<OgreOggSound::OgreOggISound*> mPlayingSounds;
 		void DestroyStoppedSounds();
 		float mDestroyStoppedSoundsDelay; //Hack because of OgreOggSound threading!
@@ -56,6 +58,9 @@ namespace Ice
 
 		void RegisterPlayer(GameObject *player);
 		GameObject* GetPlayer() { return mPlayer; }
+
+		void AcquireCamera(GOCSimpleCameraController *cam);
+		void FreeCamera(GOCSimpleCameraController *cam);
 
 		void RegisterSound(OgreOggSound::OgreOggISound* sound);
 

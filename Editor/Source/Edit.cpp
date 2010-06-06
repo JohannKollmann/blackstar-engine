@@ -74,6 +74,8 @@ Edit::Edit(wxWindow* parent) : wxOgre(parent, -1)
 	mMaterialMode = false;
 	mBrushMode = false;
 
+	mFreezeCamera = false;
+
 	mAlignObjectWithMesh = false;
 
 	mXAxisLock = AxisLock::LOCKED;
@@ -489,6 +491,7 @@ void Edit::OnMouseMove(Ogre::Radian RotX,Ogre::Radian RotY)
 		SetCursorPos(mWinMousePosition.x, mWinMousePosition.y);
 		if (mPlaying) return;
 	}
+	if (mFreezeCamera) return;
 	if (mLeftDown && mRightDown && !mAltIsDown)
 	{
 		Ice::Main::Instance().GetCamera()->yaw(-RotX * mRotSpeed);
@@ -1262,6 +1265,11 @@ void Edit::ReceiveMessage(Ice::Msg &msg)
 		{
 			if (!mMoverReset.mover->GetComponent<Ice::GOCMover>()->IsMoving())
 			{
+				if (mFreezeCamera)
+				{
+					mFreezeCamera = false;
+					mSelectedObjects.front().mObject->GetComponent<Ice::GOCOgreNode>()->GetNode()->showBoundingBox(true);
+				}
 				mMoverReset.mover->GetComponent<Ice::GOCMover>()->SetKeyIgnoreParent(true);
 				mMoverReset.mover->SetGlobalPosition(mMoverReset.resetPos);
 				mMoverReset.mover->SetGlobalOrientation(mMoverReset.resetQuat);
@@ -1308,6 +1316,12 @@ void Edit::OnTriggerMover( wxCommandEvent& WXUNUSED(event) /*= wxCommandEvent()*
 	mMoverReset.mover = mover->GetOwner();
 	mMoverReset.resetPos = mover->GetOwner()->GetGlobalPosition();
 	mMoverReset.resetQuat = mover->GetOwner()->GetGlobalOrientation();
+
+	if (mSelectedObjects.front().mObject->GetComponent<Ice::GOCSimpleCameraController>())
+	{
+		mFreezeCamera = true;
+		mSelectedObjects.front().mObject->GetComponent<Ice::GOCOgreNode>()->GetNode()->showBoundingBox(false);
+	}
 
 	mover->Trigger();
 }

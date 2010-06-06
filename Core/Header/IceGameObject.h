@@ -68,6 +68,7 @@ namespace Ice
 
 		void SendMessage(const Msg &msg);
 		void SendInstantMessage(Ogre::String receiver_family, const Msg &msg);
+		void SendInstantMessage(const Msg &msg);
 		void ProcessMessages();
 
 		void AddComponent(GOComponent* component);
