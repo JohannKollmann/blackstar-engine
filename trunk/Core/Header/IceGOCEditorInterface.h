@@ -14,8 +14,8 @@ namespace Ice
 	{
 	public:
 		virtual ~EditorInterface() {}
-		virtual void SetParameters(DataMap *parameters) = 0;
-		virtual void GetParameters(DataMap *parameters) = 0;
+		virtual void SetParameters(DataMap *parameters) {};
+		virtual void GetParameters(DataMap *parameters) {};
 	};
 
 	template<class T>
@@ -31,7 +31,7 @@ namespace Ice
 	public:
 		virtual ~GOCEditorInterface() {}
 
-		virtual void GetDefaultParameters(DataMap *parameters) = 0;
+		virtual void GetDefaultParameters(DataMap *parameters) {};
 		virtual Ogre::String GetLabel() = 0;
 
 		virtual GOComponent* GetGOComponent() = 0;

@@ -52,4 +52,6 @@ namespace Ice
 	class AStarNode;
 	class SoundMaterialTable;
 	class Scriptable;
+	class GOCSimpleCameraController;
+	class GOCCameraController;
 };

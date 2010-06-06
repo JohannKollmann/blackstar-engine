@@ -79,6 +79,13 @@ namespace Ice
 			}
 		}
 	}
+	void GameObject::SendInstantMessage(const Msg &msg)
+	{
+		for (std::vector<GOComponent*>::iterator i = mComponents.begin(); i != mComponents.end(); i++)
+		{
+			(*i)->ReceiveObjectMessage(msg);
+		}
+	}
 
 	void GameObject::ProcessMessages()
 	{

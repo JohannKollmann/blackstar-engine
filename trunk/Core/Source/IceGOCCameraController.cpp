@@ -4,28 +4,62 @@
 #include "IceGameObject.h"
 #include "IceMain.h"
 #include "IceCameraController.h"
+#include "IceSceneManager.h"
+#include "IceGOCOgreNode.h"
 
 namespace Ice
 {
 
+	GOCSimpleCameraController::GOCSimpleCameraController()
+	{
+		mCamera = nullptr;
+	}
+
+	GOCSimpleCameraController::~GOCSimpleCameraController()
+	{
+		if (mCamera) DetachCamera();
+	}
+
+	void GOCSimpleCameraController::AttachCamera(Ogre::Camera *camera)
+	{
+		mCamera = camera;
+		mCamera->setPosition(0,0,0);
+		mCamera->lookAt(0,0,1);
+		GetNode()->attachObject(mCamera);
+	}
+	void GOCSimpleCameraController::DetachCamera()
+	{
+		if (!mCamera) return;
+		GetNode()->detachObject(mCamera);
+		mCamera = nullptr;
+	}	
+	void GOCSimpleCameraController::ReceiveObjectMessage(const Msg &msg)
+	{
+		if (msg.type == "MOVER_START")
+		{
+			SceneManager::Instance().AcquireCamera(this);
+		}
+		else if (msg.type == "MOVER_END")
+		{
+			SceneManager::Instance().FreeCamera(this);
+		}
+	}
+
+
+
+
+
 GOCCameraController::GOCCameraController()
 {
 	mCamera = nullptr;
-	mCharacterCenterNode = nullptr;
 	mCameraCenterNode = nullptr;
 	mCameraNode = nullptr;
 	mTargetNode = nullptr;
-}
-GOCCameraController::GOCCameraController(Ogre::Camera *camera)
-{
-	CreateNodes();
-	AttachCamera(camera);
 }
 
 GOCCameraController::~GOCCameraController()
 {
 	if (mCamera) DetachCamera();
-	if (mCharacterCenterNode) Main::Instance().GetOgreSceneMgr()->destroySceneNode(mCharacterCenterNode);
 	if (mCameraCenterNode) Main::Instance().GetOgreSceneMgr()->destroySceneNode(mCameraCenterNode);
 	if (mCameraNode) Main::Instance().GetOgreSceneMgr()->destroySceneNode(mCameraNode);
 	if (mTargetNode) Main::Instance().GetOgreSceneMgr()->destroySceneNode(mTargetNode);
@@ -33,8 +67,7 @@ GOCCameraController::~GOCCameraController()
 
 void GOCCameraController::CreateNodes()
 {
-	mCharacterCenterNode = Main::Instance().GetOgreSceneMgr()->getRootSceneNode()->createChildSceneNode();
-	mCameraCenterNode = mCharacterCenterNode->createChildSceneNode(Ogre::Vector3(0, 2, 0));
+	mCameraCenterNode = GetNode()->createChildSceneNode(Ogre::Vector3(0, 2, 0));
 	mTargetNode = mCameraCenterNode->createChildSceneNode(Ogre::Vector3(0,0,10));
 	mCameraNode = mCameraCenterNode->createChildSceneNode(Ogre::Vector3(0,0,0));
 
@@ -68,7 +101,7 @@ void GOCCameraController::DetachCamera()
 	MessageSystem::Instance().QuitNewsgroup(this, "MOUSE_MOVE");
 	MessageSystem::Instance().QuitNewsgroup(this, "UPDATE_PER_FRAME");
 	MessageSystem::Instance().QuitNewsgroup(this, "KEY_DOWN");
-	mCamera = 0;
+	mCamera = nullptr;
 }	
 
 void GOCCameraController::ReceiveMessage(Msg &msg)
@@ -146,15 +179,6 @@ void GOCCameraController::ReceiveMessage(Msg &msg)
 	q.FromRotationMatrix(mat3);
 	mCameraCenterNode->setOrientation(q);
 
-}
-
-void GOCCameraController::ReceiveObjectMessage(const Msg &msg)
-{
-}
-
-void GOCCameraController::UpdatePosition(Ogre::Vector3 position)
-{
-	mCharacterCenterNode->setPosition(position);
 }
 
 void GOCCameraController::UpdateOrientation(Ogre::Quaternion orientation)

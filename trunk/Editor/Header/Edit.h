@@ -156,6 +156,7 @@ private:
 	void FreeAndShowMouse();
 
 	bool mPlaying;
+	bool mFreezeCamera;
 	Ice::GOCCameraController *mPlayerCamera;
 	Ice::GOCPlayerInput *mPlayerInput;
 	void PlayGame();

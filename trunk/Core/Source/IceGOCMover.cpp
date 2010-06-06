@@ -120,6 +120,8 @@ namespace Ice
 		mMoving = true;
 		SetKeyIgnoreParent(true);
 		mfLastPos=0;
+		Ice::Msg msg; msg.type = "MOVER_START";
+		mOwnerGO->SendInstantMessage(msg);
 	}
 
 	void GOCMover::ReceiveMessage( Msg &msg )
@@ -172,14 +174,30 @@ namespace Ice
 
 				}
 				else
-					SetOwnerPosition(mSpline.Sample(mfLastPos));
-				if(mfLastPos>(mStaticMode ? mKeyTiming[mKeyTiming.size()-1] : mSpline.GetLength()))
 				{
+					Ogre::Vector3 oldPos = mOwnerGO->GetGlobalPosition();
+					SetOwnerPosition(mSpline.Sample(mfLastPos));
+					if (!mLookAtObject)
+					{
+						Ogre::Vector3 lookAtDir = (mOwnerGO->GetGlobalPosition() - oldPos).normalisedCopy();
+						Ogre::Vector3 yAxis = Ogre::Vector3::UNIT_Y;
+						Ogre::Vector3 xAxis = yAxis.crossProduct(lookAtDir);
+						xAxis.normalise();
+						Ogre::Vector3 zAxis = xAxis.crossProduct(yAxis);
+						yAxis = xAxis.crossProduct(zAxis);
+						Ogre::Quaternion q(xAxis, yAxis, zAxis);
+						SetOwnerOrientation(q);
+					}
+				}
+				mfLastPos+=time;
+				if(mfLastPos>=(mStaticMode ? mKeyTiming[mKeyTiming.size()-1] : mSpline.GetLength()))
+				{
+					Ice::Msg msg; msg.type = "MOVER_END";
+					mOwnerGO->SendInstantMessage(msg);
 					mMoving = false;
 					mfLastPos=0;
 					SetKeyIgnoreParent(false);
 				}
-				mfLastPos+=time;
 			}
 		}
 	}

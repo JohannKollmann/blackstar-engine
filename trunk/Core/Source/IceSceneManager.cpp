@@ -184,6 +184,7 @@ namespace Ice
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCCharacterController::Register);
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCPlayerInput::Register);
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCCameraController::Register);
+		LoadSave::LoadSave::Instance().RegisterObject(&GOCSimpleCameraController::Register);
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCScriptable::Register);
 
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCAI::Register);
@@ -208,9 +209,10 @@ namespace Ice
 		RegisterGOCPrototype("C_x", new GOCPlayerInput());
 		RegisterGOCPrototype("C_x", new GOCScriptable());
 
-		RegisterGOCPrototype("D", new GOCCameraController());
+		RegisterGOCPrototype("D_x", new GOCSimpleCameraController());
+		RegisterGOCPrototype("D_x", new GOCCameraController());
 
-		RegisterGOCPrototype("D", new GOCMover());
+		RegisterGOCPrototype("E", new GOCMover());
 		RegisterGOCPrototype(new GOCAnimKey());
 
 		//Setup Lua Callback
@@ -863,7 +865,8 @@ namespace Ice
 			Ogre::String model = vParams[0].getString();
 			GameObject* player = Instance().CreateGameObject();
 			player->AddComponent(new GOCPlayerInput());
-			player->AddComponent(new GOCCameraController(Main::Instance().GetCamera()));
+			player->AddComponent(new GOCCameraController());
+			player->GetComponent<GOCCameraController>()->AttachCamera(Main::Instance().GetCamera());
 			player->AddComponent(new GOCCharacterController(Ogre::Vector3(0.5f,1.8f,0.5f)));
 			GOCAnimatedCharacter *animated = new GOCAnimatedCharacter(model);
 			player->AddComponent(animated);
@@ -1199,6 +1202,21 @@ namespace Ice
 			else iter++;
 		}
 		mDestroyStoppedSoundsLast = time;
+	}
+
+	void SceneManager::AcquireCamera(GOCSimpleCameraController *cam)
+	{
+		if (mCameraStack.size() > 0) mCameraStack.top()->DetachCamera();
+		mCameraStack.push(cam);
+		cam->AttachCamera(Main::Instance().GetCamera());
+	}
+	void SceneManager::FreeCamera(GOCSimpleCameraController *cam)
+	{
+		assert(mCameraStack.size() > 0);
+		assert(mCameraStack.top() == cam);
+		cam->DetachCamera();
+		mCameraStack.pop();
+		if (mCameraStack.size() > 0) mCameraStack.top()->AttachCamera(Main::Instance().GetCamera());
 	}
 
 }
