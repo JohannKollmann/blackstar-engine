@@ -140,18 +140,20 @@ namespace Ice
 				}
 				Ogre::Vector3 lookAtDir = mLookAtObject->GetGlobalPosition() - GetOwner()->GetGlobalPosition();
 				lookAtDir.normalise();
-				Ogre::Vector3 xAxis = lookAtDir.crossProduct(upVector);
+				/*Ogre::Vector3 xAxis = lookAtDir.crossProduct(upVector);
 				xAxis.normalise();
 				Ogre::Vector3 yAxis = xAxis.crossProduct(lookAtDir);
-				
-				Ogre::Quaternion q(lookAtDir, yAxis, xAxis);
+				Ogre::Quaternion q(lookAtDir, yAxis, xAxis);*/
+
 				if (!mMoving) SetKeyIgnoreParent(true);
-				SetOwnerOrientation(q);
+				SetOwnerOrientation(Utils::ZDirToQuat(lookAtDir));
 				if (!mMoving) SetKeyIgnoreParent(false);
 			}
 			if (mMoving)
 			{
 				float time = msg.params.GetFloat("TIME");
+
+				Ogre::Vector3 oldPos = mOwnerGO->GetGlobalPosition();
 				
 				if(mStaticMode)
 				{
@@ -175,20 +177,15 @@ namespace Ice
 				}
 				else
 				{
-					Ogre::Vector3 oldPos = mOwnerGO->GetGlobalPosition();
 					SetOwnerPosition(mSpline.Sample(mfLastPos));
-					if (!mLookAtObject)
-					{
-						Ogre::Vector3 lookAtDir = (mOwnerGO->GetGlobalPosition() - oldPos).normalisedCopy();
-						Ogre::Vector3 yAxis = Ogre::Vector3::UNIT_Y;
-						Ogre::Vector3 xAxis = yAxis.crossProduct(lookAtDir);
-						xAxis.normalise();
-						Ogre::Vector3 zAxis = xAxis.crossProduct(yAxis);
-						yAxis = xAxis.crossProduct(zAxis);
-						Ogre::Quaternion q(xAxis, yAxis, zAxis);
-						SetOwnerOrientation(q);
-					}
 				}
+
+				if (!mLookAtObject)		//look towards current target direction
+				{
+					Ogre::Vector3 lookAtDir = (mOwnerGO->GetGlobalPosition() - oldPos).normalisedCopy();
+					SetOwnerOrientation(Utils::ZDirToQuat(lookAtDir));
+				}
+
 				mfLastPos+=time;
 				if(mfLastPos>=(mStaticMode ? mKeyTiming[mKeyTiming.size()-1] : mSpline.GetLength()))
 				{
@@ -253,7 +250,7 @@ namespace Ice
 		else
 			mSpline.SetPoints(vKeys, mIsClosed);
 
-		mSplineObject->begin("WPLine", Ogre::RenderOperation::OT_LINE_STRIP);
+		mSplineObject->begin("RedLine", Ogre::RenderOperation::OT_LINE_STRIP);
 		for(double fPos=0.0; fPos<=mSpline.GetLength()-0.01; fPos+=0.1)
 			mSplineObject->position(mSpline.Sample(fPos));
 
@@ -321,7 +318,7 @@ namespace Ice
 				Ice::Main::Instance().GetOgreSceneMgr()->getRootSceneNode()->attachObject(mLookAtLine);
 			}
 			mLookAtLine->clear();
-			mLookAtLine->begin("WPLine", Ogre::RenderOperation::OT_LINE_STRIP);
+			mLookAtLine->begin("BlueLine", Ogre::RenderOperation::OT_LINE_STRIP);
 			mLookAtLine->position(GetOwner()->GetGlobalPosition());
 			mLookAtLine->position(mLookAtObject->GetGlobalPosition());
 			mLookAtLine->end();
@@ -338,7 +335,7 @@ namespace Ice
 				Ice::Main::Instance().GetOgreSceneMgr()->getRootSceneNode()->attachObject(mNormalLookAtLine);
 			}
 			mNormalLookAtLine->clear();
-			mNormalLookAtLine->begin("WPLine", Ogre::RenderOperation::OT_LINE_STRIP);
+			mNormalLookAtLine->begin("BlueLine", Ogre::RenderOperation::OT_LINE_STRIP);
 			mNormalLookAtLine->position(GetOwner()->GetGlobalPosition());
 			mNormalLookAtLine->position(mNormalLookAtObject->GetGlobalPosition());
 			mNormalLookAtLine->end();

@@ -223,7 +223,7 @@ void GOCAnimatedCharacterBone::CreateJointAxis()
 {
 	float scale_factor = ((mMeshNode->_getDerivedScale().x + mMeshNode->_getDerivedScale().y + mMeshNode->_getDerivedScale().z) / 3);
 	mJointAxis = Main::Instance().GetOgreSceneMgr()->createManualObject("AxisLine_" + SceneManager::Instance().RequestIDStr());
-	mJointAxis->begin("WPLine", Ogre::RenderOperation::OT_TRIANGLE_LIST);
+	mJointAxis->begin("BlueLine", Ogre::RenderOperation::OT_TRIANGLE_LIST);
 	float width = 0.05f;
 	float height = mBoneConfig.mBoneLength*scale_factor;
 	mJointAxis->position(Ogre::Vector3(0, 0, 0)); //0

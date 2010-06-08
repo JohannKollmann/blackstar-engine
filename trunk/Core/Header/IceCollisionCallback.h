@@ -4,11 +4,12 @@
 #include "OgrePhysX.h"
 #include "IceScript.h"
 #include "IceMessageSystem.h"
+#include "IceIncludes.h"
 
 namespace Ice
 {
 
-	class ActorContactReport : public NxUserContactReport
+	class DllExport ActorContactReport : public NxUserContactReport
 	{
 	private:
 
@@ -19,7 +20,7 @@ namespace Ice
 		void onContactNotify(NxContactPair &pair, NxU32 events);
 	};
 
-	class TriggerCallback : public OgrePhysX::TriggerReportListener
+	class DllExport TriggerCallback : public OgrePhysX::TriggerReportListener
 	{
 	public:
 		TriggerCallback(void) {}
@@ -29,7 +30,7 @@ namespace Ice
 		void onLeave(NxActor &trigger, NxActor &other);
 	};
 
-	class PhysXUserCallback : public NxUserNotify
+	class DllExport PhysXUserCallback : public NxUserNotify
 	{
         void onSleep(NxActor** actors, NxU32 count);
 		void onWake(NxActor** actors, NxU32 count);

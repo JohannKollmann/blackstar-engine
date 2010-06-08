@@ -257,7 +257,7 @@
 				if (i->n1.line)
 				{
 					i->n1.line->clear();
-					i->n1.line->begin("WPLine", Ogre::RenderOperation::OT_LINE_LIST);
+					i->n1.line->begin("RedLine", Ogre::RenderOperation::OT_LINE_LIST);
 					i->n1.line->position(myPos);
 					i->n1.line->position(i->n1.neighbour->GetOwner()->GetGlobalPosition());
 					i->n1.line->end();
@@ -265,7 +265,7 @@
 				if (i->n2.line)
 				{
 					i->n2.line->clear();
-					i->n2.line->begin("WPLine", Ogre::RenderOperation::OT_LINE_LIST);
+					i->n2.line->begin("RedLine", Ogre::RenderOperation::OT_LINE_LIST);
 					i->n2.line->position(myPos);
 					i->n2.line->position(i->n2.neighbour->GetOwner()->GetGlobalPosition());
 					i->n2.line->end();
@@ -291,7 +291,7 @@
 	{
 		Ogre::ManualObject* line = Ice::Main::Instance().GetOgreSceneMgr()->createManualObject("WaynetLine_" + Ice::SceneManager::Instance().RequestIDStr());
 		Ogre::SceneNode* lineNode = Ice::Main::Instance().GetOgreSceneMgr()->getRootSceneNode();//->createChildSceneNode("WaynetLine_" + mOwnerGO->GetIDStr() + other->GetOwner()->GetIDStr());
-		line->begin("WPLine", Ogre::RenderOperation::OT_LINE_LIST);
+		line->begin("RedLine", Ogre::RenderOperation::OT_LINE_LIST);
 		line->position(GetOwner()->GetGlobalPosition() + Ogre::Vector3(0,0.2f,0));
 		line->position(other->GetOwner()->GetGlobalPosition() + Ogre::Vector3(0,0.2f,0));
 		line->end();
