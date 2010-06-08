@@ -27,7 +27,7 @@ CameraController::CameraController(void)
 	mRotSpeed = 0.2f;
 	mMoveSpeed = 10.0f;
 	mCamera = Main::Instance().GetCamera();
-	mCamera->lookAt(Ogre::Vector3(0,0,0));
+	mCamera->lookAt(Ogre::Vector3(0,0,1));
 }
 
 CameraController::~CameraController(void)
