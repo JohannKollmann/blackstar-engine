@@ -107,4 +107,18 @@ namespace Ice
 		Ogre::LogManager::getSingleton().logMessage(log);
 	}
 
+
+	Ogre::Quaternion Utils::ZDirToQuat(const Ogre::Vector3 &zDirNormalised)
+	{
+		Ogre::Vector3 zAxis = zDirNormalised;
+
+		Ogre::Vector3 xAxis = Ogre::Vector3::UNIT_X;
+		if (zAxis.dotProduct(Ogre::Vector3::UNIT_Y) != 0)
+			xAxis = Ogre::Vector3::UNIT_Y.crossProduct(zAxis);
+		xAxis.normalise();
+
+		Ogre::Vector3 yAxis = zAxis.crossProduct(xAxis);
+		return Ogre::Quaternion (xAxis, yAxis, zAxis);
+	}
+
 };

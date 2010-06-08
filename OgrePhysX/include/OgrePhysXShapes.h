@@ -49,7 +49,7 @@ namespace OgrePhysX
 		NxBoxShapeDesc mDesc;
 	public:
 		BoxShape(Ogre::Vector3 dims);
-		BoxShape(Ogre::Entity *ent, Ogre::Vector3 scale = Ogre::Vector3(1,1,1), float minDim = 0.1f);
+		BoxShape(Ogre::Entity *ent, Ogre::Vector3 scale = Ogre::Vector3(1,1,1), float minDim = 0.15f);
 		NxShapeDesc* getDesc() { return &mDesc; }
 	};
 	class OgrePhysXClass SphereShape : public PrimitiveShape
@@ -58,7 +58,7 @@ namespace OgrePhysX
 		NxSphereShapeDesc mDesc;
 	public:
 		SphereShape(float radius);
-		SphereShape(Ogre::Entity *ent, float scale = 1.0f, float minDim = 0.05);
+		SphereShape(Ogre::Entity *ent, float scale = 1.0f, float minDim = 0.15);
 		NxShapeDesc* getDesc() { return &mDesc; }
 	};
 	class OgrePhysXClass CapsuleShape : public PrimitiveShape
