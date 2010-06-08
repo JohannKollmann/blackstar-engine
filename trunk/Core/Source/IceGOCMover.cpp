@@ -140,13 +140,9 @@ namespace Ice
 				}
 				Ogre::Vector3 lookAtDir = mLookAtObject->GetGlobalPosition() - GetOwner()->GetGlobalPosition();
 				lookAtDir.normalise();
-				/*Ogre::Vector3 xAxis = lookAtDir.crossProduct(upVector);
-				xAxis.normalise();
-				Ogre::Vector3 yAxis = xAxis.crossProduct(lookAtDir);
-				Ogre::Quaternion q(lookAtDir, yAxis, xAxis);*/
 
 				if (!mMoving) SetKeyIgnoreParent(true);
-				SetOwnerOrientation(Utils::ZDirToQuat(lookAtDir));
+				SetOwnerOrientation(Utils::ZDirToQuat(lookAtDir, upVector));
 				if (!mMoving) SetKeyIgnoreParent(false);
 			}
 			if (mMoving)

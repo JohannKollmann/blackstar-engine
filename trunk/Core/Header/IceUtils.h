@@ -49,7 +49,7 @@ namespace Ice
 
 		DllExport void LogParameterErrors(Script& caller, Ogre::String msg, int line = -1);
 
-		DllExport Ogre::Quaternion ZDirToQuat(const Ogre::Vector3 &zDirNormalised);
+		DllExport Ogre::Quaternion ZDirToQuat(const Ogre::Vector3 &zDirNormalised, const Ogre::Vector3 &upVector = Ogre::Vector3::UNIT_Y);
 
 	};
 
