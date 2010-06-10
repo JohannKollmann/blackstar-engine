@@ -26,7 +26,7 @@ namespace Ice
 		goc_id_family& GetFamilyID() const { static std::string name = "Camera"; return name; }
 		virtual GOComponent::goc_id_type& GetComponentID() const { static std::string name = "SimpleCamera"; return name; }
 
-		static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "CameraController"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };
+		static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "SimpleCamera"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };
 		static LoadSave::Saveable* NewInstance() { return new GOCSimpleCameraController; };
 
 		GOCEditorInterface* New() { return new GOCSimpleCameraController(); }
