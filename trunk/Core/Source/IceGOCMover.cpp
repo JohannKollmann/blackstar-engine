@@ -271,6 +271,8 @@ namespace Ice
 			mEditorVisual = nullptr;
 		}
 
+		if (mSplineObject) mSplineObject->setVisible(show);
+
 		if (show)
 		{
 			_updateLookAtLine();
