@@ -130,14 +130,14 @@ namespace Ice
 		{
 			if (mLookAtLine) _updateLookAtLine();
 			if (mNormalLookAtLine) _updateNormalLookAtLine();
+			Ogre::Vector3 upVector = Ogre::Vector3(0,1,0);
+			if (mNormalLookAtObject)
+			{
+				upVector = mNormalLookAtObject->GetGlobalPosition() - GetOwner()->GetGlobalPosition();
+				upVector.normalise();
+			}
 			if (mLookAtObject)
 			{
-				Ogre::Vector3 upVector = Ogre::Vector3(0,1,0);
-				if (mNormalLookAtObject)
-				{
-					upVector = mNormalLookAtObject->GetGlobalPosition() - GetOwner()->GetGlobalPosition();
-					upVector.normalise();
-				}
 				Ogre::Vector3 lookAtDir = mLookAtObject->GetGlobalPosition() - GetOwner()->GetGlobalPosition();
 				lookAtDir.normalise();
 
@@ -179,7 +179,7 @@ namespace Ice
 				if (!mLookAtObject)		//look towards current target direction
 				{
 					Ogre::Vector3 lookAtDir = (mOwnerGO->GetGlobalPosition() - oldPos).normalisedCopy();
-					SetOwnerOrientation(Utils::ZDirToQuat(lookAtDir));
+					SetOwnerOrientation(Utils::ZDirToQuat(lookAtDir, upVector));
 				}
 
 				mfLastPos+=time;
