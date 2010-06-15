@@ -268,7 +268,7 @@ namespace Ice
 		else
 		{
 			//search which sector we are in
-			int iSearchPos=m_Sectors.size()/2;
+			/*int iSearchPos=m_Sectors.size()/2;
 			int iStep=iSearchPos+1;
 			
 			while(iStep>1)
@@ -282,7 +282,40 @@ namespace Ice
 			}
 			if(fPos < m_SectorLengths[iSearchPos] && iSearchPos)
 				iSearchPos--;
+			if(iSearchPos<(int)(m_SectorLengths.size()-1))
+				if(fPos > m_SectorLengths[iSearchPos+1])
+					iSearchPos++;
 			//now check the position relative to the begin of the sector
+			
+
+			//*/
+			int iSearchPos=m_SectorLengths.size()>>1;
+			int iStep=(iSearchPos>>1)+1;
+
+			while(iStep>0)
+			{
+				if(fPos<m_SectorLengths[iSearchPos])
+					iSearchPos-=iStep;
+				else if(fPos>m_SectorLengths[iSearchPos+1])
+					iSearchPos+=iStep;
+				else
+					break;
+
+				if(iSearchPos<0)
+					iSearchPos=0;
+				if(iSearchPos>=(int)m_SectorLengths.size())
+					iSearchPos=(int)m_SectorLengths.size()-1;
+				
+				iStep>>=1;
+			}
+
+			if(fPos<m_SectorLengths[iSearchPos] && iSearchPos)
+				iSearchPos--;
+			if(iSearchPos<(int)m_SectorLengths.size()-1)
+				if(fPos>m_SectorLengths[iSearchPos+1])
+					iSearchPos++;
+
+
 			return m_Sectors[iSearchPos].CalcSample(fPos-m_SectorLengths[iSearchPos]);
 		}
 	}
