@@ -156,7 +156,7 @@ namespace Ice
 	}
 
 	Script
-	ScriptSystem::CreateInstance(std::string strFileName, std::vector<ScriptParam> params)
+	ScriptSystem::CreateInstance(std::string strFileName, std::vector<ScriptParam> params, bool callCreate)
 	{
 		if(m_mScripts.find(strFileName)==m_mScripts.end())
 		{//script was not loaded yet
@@ -169,7 +169,7 @@ namespace Ice
 			luaScript.ShareCFunction(std::string("load"), LoadScriptCallback);
 			Script scriptInst=Script(m_iCurrID++, &luaScript);
 			luaScript.CallFunction(scriptInst, "init", std::vector<ScriptParam>());
-			scriptInst.CallFunction("create", params);
+			if (callCreate) scriptInst.CallFunction("create", params);
 			return scriptInst;
 		}
 		else
@@ -177,15 +177,15 @@ namespace Ice
 			//just make an instance
 			m_mScriptInstances.find(strFileName)->second.push_back(m_iCurrID);
 			Script script=Script(m_iCurrID++, &m_mScripts.find(strFileName)->second);
-			script.CallFunction("create", params);
+			if (callCreate) script.CallFunction("create", params);
 			return script;
 		}
 	}
 
 	Script
-	ScriptSystem::CreateInstance(std::string strFileName)
+	ScriptSystem::CreateInstance(std::string strFileName, bool callCreate)
 	{
-		return CreateInstance(strFileName, std::vector<ScriptParam>());
+		return CreateInstance(strFileName, std::vector<ScriptParam>(), callCreate);
 	}
 
 	std::vector<ScriptParam>
@@ -281,18 +281,18 @@ namespace Ice
 		return ret;
 	}
 
-	Scriptable* ScriptSystem::GetScriptableObject(int scriptID)
+	ScriptUser* ScriptSystem::GetScriptableObject(int scriptID)
 	{
 		auto i = mScriptObjectBinds.find(scriptID);
 		if (i != mScriptObjectBinds.end()) return i->second;
 		return nullptr;
 	}
-	void ScriptSystem::RegisterScriptable(Scriptable *scriptable, int scriptID)
+	void ScriptSystem::RegisterScriptUser(ScriptUser *script, int scriptID)
 	{
-		assert(GetScriptableObject(scriptID) == nullptr);
-		mScriptObjectBinds.insert(std::make_pair<int, Scriptable*>(scriptID, scriptable));
+		IceAssert((GetScriptableObject(scriptID) == nullptr));
+		mScriptObjectBinds.insert(std::make_pair<int, ScriptUser*>(scriptID, script));
 	}
-	void ScriptSystem::UnregisterScriptable(int scriptID)
+	void ScriptSystem::UnregisterScriptUser(int scriptID)
 	{
 		auto i = mScriptObjectBinds.find(scriptID);
 		if (i != mScriptObjectBinds.end()) mScriptObjectBinds.erase(i);

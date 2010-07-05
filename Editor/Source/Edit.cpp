@@ -1345,3 +1345,8 @@ Ogre::Vector3 Edit::GetInsertPosition()
 {
 	return Ice::Main::Instance().GetCamera()->getDerivedPosition() + (Ice::Main::Instance().GetCamera()->getDerivedOrientation() * Ogre::Vector3(0,0,-5));
 }
+
+void Edit::OnRender()
+{
+	Ice::MainLoop::Instance().doLoop();
+}

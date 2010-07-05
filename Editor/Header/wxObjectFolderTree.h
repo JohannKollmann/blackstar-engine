@@ -12,7 +12,6 @@
 class wxObjectFolderTree : public wxFileTree, public EntityTreeNotebookListener
 {
 private:
-	Ice::GameObject *mPreviewObject;
 	void CreateObjectPreview(Ogre::String file);
 	void ClearObjectPreview();
 

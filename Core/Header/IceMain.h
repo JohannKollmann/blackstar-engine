@@ -16,110 +16,110 @@ Initialisiert Ogre und das Inputsystem.
 namespace Ice
 {
 
-class DllExport Main
-{
-public:
-	class KeyVal
+	class DllExport Main
 	{
 	public:
-		KeyVal(Ogre::String k, Ogre::String v)
-			: Key(k), Val(v) {}
-		Ogre::String Key;
-		Ogre::String Val;
-	};
+		class KeyVal
+		{
+		public:
+			KeyVal(Ogre::String k, Ogre::String v)
+				: Key(k), Val(v) {}
+			Ogre::String Key;
+			Ogre::String Val;
+		};
 
-	Main();
-	~Main();
+		Main();
+		~Main();
 
-protected:
+	protected:
 
-	Ogre::Root* mRoot;
-	Ogre::RenderSystem* mRenderSystem;
-	Ogre::Camera* mCamera;
-	Ogre::RenderWindow* mWindow;
-	Ogre::Viewport* mViewport;
-	Ogre::SceneManager* mSceneMgr;
-	Ogre::SceneManager* mPreviewSceneMgr;
-	bool mMainSceneMgr;
-	ScriptedCollisionCallback *mCollisionCallback;
+		Ogre::Root* mRoot;
+		Ogre::RenderSystem* mRenderSystem;
+		Ogre::Camera* mCamera;
+		Ogre::RenderWindow* mWindow;
+		Ogre::Viewport* mViewport;
+		Ogre::SceneManager* mSceneMgr;
+		Ogre::SceneManager* mPreviewSceneMgr;
+		bool mMainSceneMgr;
+		ScriptedCollisionCallback *mCollisionCallback;
 
-	Ogre::ShadowCameraSetupPtr mDirectionalShadowCameraSetup;
-	Ogre::ShadowCameraSetupPtr mSpotShadowCameraSetup;
-	Ogre::ShadowCameraSetupPtr mPointShadowCameraSetup;
+		Ogre::ShadowCameraSetupPtr mDirectionalShadowCameraSetup;
+		Ogre::ShadowCameraSetupPtr mSpotShadowCameraSetup;
+		Ogre::ShadowCameraSetupPtr mPointShadowCameraSetup;
 
-	CameraController* mCameraController;
+		CameraController* mCameraController;
 
-	OgrePhysX::Scene		*mPhysXScene;
-	Input *mInputSystem;
+		OgrePhysX::Scene		*mPhysXScene;
+		Input *mInputSystem;
 
-	OgreOggSound::OgreOggSoundManager *mSoundManager;
+		OgreOggSound::OgreOggSoundManager *mSoundManager;
 
-	// List of plugin DLLs loaded
-	std::vector<Ogre::DynLib*> mPluginLibs;
-	// List of Plugin instances registered
-	std::vector<Ogre::Plugin*> mPlugins;
+		// List of plugin DLLs loaded
+		std::vector<Ogre::DynLib*> mPluginLibs;
+		// List of Plugin instances registered
+		std::vector<Ogre::Plugin*> mPlugins;
 
-	void AddOgreResourcePath(Ogre::String dir);
+		void AddOgreResourcePath(Ogre::String dir);
 
-	int winHeight;
-	int winWidth;
+		int winHeight;
+		int winWidth;
 
-public:
+	public:
 
-	Ogre::Entity *mWaterTestEntity;
+		Ogre::Entity *mWaterTestEntity;
 
-	// Settings
-	std::map<Ogre::String, std::vector<KeyVal> > mSettings;
+		// Settings
+		std::map<Ogre::String, std::vector<KeyVal> > mSettings;
 
-	bool Run();	//Eigenes Fenster erstellen
-	bool Run(Ogre::RenderWindow *window, size_t OISInputWindow);
-	void ExternInit();
+		bool Run();	//Eigenes Fenster erstellen
+		bool Run(Ogre::RenderWindow *window, size_t OISInputWindow);
+		void ExternInit();
 
-	void initScene();
+		void initScene();
 
-	void LoadPlugins();
+		void LoadPlugins();
 
-	void LoadOgrePlugins();
-	void setupRenderSystem();
+		void LoadOgrePlugins();
+		void setupRenderSystem();
 
-	void ResetConfig();
-	void GetConfig();
+		void ResetConfig();
+		void GetConfig();
 
-	void createInputSystem(size_t windowHnd, bool freeCursor = false);
+		void createInputSystem(size_t windowHnd, bool freeCursor = false);
 
-	void Shutdown();
+		void Shutdown();
 		
-	Ogre::RenderWindow* GetWindow() { return mWindow; };
-	OgrePhysX::Scene* GetPhysXScene() { return mPhysXScene; };
-	Ogre::SceneManager* GetOgreSceneMgr();// { return mSceneMgr; };
-	Ogre::SceneManager* GetPreviewSceneMgr() { return mPreviewSceneMgr; };
-	Ogre::Viewport* GetViewport() { return mViewport; };
-	Ogre::Camera* GetCamera() { return mCamera; };
-	OgreOggSound::OgreOggSoundManager* GetSoundManager() { return mSoundManager; };
-	Input* GetInputManager() { return mInputSystem; };
+		Ogre::RenderWindow* GetWindow() { return mWindow; };
+		OgrePhysX::Scene* GetPhysXScene() { return mPhysXScene; };
+		Ogre::SceneManager* GetOgreSceneMgr();// { return mSceneMgr; };
+		Ogre::SceneManager* GetPreviewSceneMgr() { return mPreviewSceneMgr; };
+		Ogre::Viewport* GetViewport() { return mViewport; };
+		Ogre::Camera* GetCamera() { return mCamera; };
+		OgreOggSound::OgreOggSoundManager* GetSoundManager() { return mSoundManager; };
+		Input* GetInputManager() { return mInputSystem; };
 
-	CameraController* GetCameraController() { return mCameraController; };
+		CameraController* GetCameraController() { return mCameraController; };
 
-	void SetSceneMgr(bool main = true) { mMainSceneMgr = main; }
+		void SetSceneMgr(bool main = true) { mMainSceneMgr = main; }
 
-	Ogre::ShadowCameraSetupPtr GetDirectionalShadowCameraSetup() { return mDirectionalShadowCameraSetup; };
-	Ogre::ShadowCameraSetupPtr GetSpotShadowCameraSetup() { return mSpotShadowCameraSetup; };
-	Ogre::ShadowCameraSetupPtr GetPointShadowCameraSetup() { return mPointShadowCameraSetup; };
-	void SetDirectionalShadowCameraSetup(Ogre::ShadowCameraSetupPtr setup) { mDirectionalShadowCameraSetup = setup; };
-	void SetSpotShadowCameraSetup(Ogre::ShadowCameraSetupPtr setup) { mSpotShadowCameraSetup = setup; };
-	void SetPointShadowCameraSetup(Ogre::ShadowCameraSetupPtr setup) { mPointShadowCameraSetup = setup; };
+		Ogre::ShadowCameraSetupPtr GetDirectionalShadowCameraSetup() { return mDirectionalShadowCameraSetup; };
+		Ogre::ShadowCameraSetupPtr GetSpotShadowCameraSetup() { return mSpotShadowCameraSetup; };
+		Ogre::ShadowCameraSetupPtr GetPointShadowCameraSetup() { return mPointShadowCameraSetup; };
+		void SetDirectionalShadowCameraSetup(Ogre::ShadowCameraSetupPtr setup) { mDirectionalShadowCameraSetup = setup; };
+		void SetSpotShadowCameraSetup(Ogre::ShadowCameraSetupPtr setup) { mSpotShadowCameraSetup = setup; };
+		void SetPointShadowCameraSetup(Ogre::ShadowCameraSetupPtr setup) { mPointShadowCameraSetup = setup; };
 
-	//Muss vom Plugin aus in dllStartPlugin aufgerufen werden!
-	void InstallPlugin(Ogre::Plugin* plugin);
-	//Muss vom Plugin aus dllStopPlugin aufgerufen werden!
-	void UninstallPlugin(Ogre::Plugin* plugin);
-	void LoadPlugin(const Ogre::String& pluginName);
-	void UnloadPlugin(const Ogre::String& pluginName);
-	void ClearPlugins();
+		//Muss vom Plugin aus in dllStartPlugin aufgerufen werden!
+		void InstallPlugin(Ogre::Plugin* plugin);
+		//Muss vom Plugin aus dllStopPlugin aufgerufen werden!
+		void UninstallPlugin(Ogre::Plugin* plugin);
+		void LoadPlugin(const Ogre::String& pluginName);
+		void UnloadPlugin(const Ogre::String& pluginName);
+		void ClearPlugins();
 
-	//Singleton
-	static Main& Instance();
-};
+		//Singleton
+		static Main& Instance();
+	};
 
 
 };

@@ -31,14 +31,14 @@
            const wxString& name = wxPanelNameStr); 
 		virtual ~wxOgre();
 
-		void initOgre();
+		void initOgre(Ogre::String renderWindowName);
 
 		/** Renders a single Ogre frame */
 		void update();
 		
-		inline Ogre::RenderWindow* getRenderWindow() { return mRenderWindow; };
-		inline Ogre::Camera* getCamera() { return mCamera; };
-		inline void setCamera(Ogre::Camera* camera) { mCamera = camera;};
+		Ogre::RenderWindow* getRenderWindow() { return mRenderWindow; };
+		Ogre::Camera* getCamera() { return mCamera; };
+		void setCamera(Ogre::Camera* camera) { mCamera = camera;};
 
 		void SetPaused(bool paused);
 		
@@ -46,12 +46,24 @@
 	protected:
 		DECLARE_EVENT_TABLE()
 
-	private:
+		virtual void OnRender() {}
+		virtual void OnInit() {}
+
+		/* Ogre members */
+		/** Local Ogre::Root pointer */
+		Ogre::Root* mRoot;
+		/** Local Ogre::RenderWindow pointer */
+		Ogre::RenderWindow* mRenderWindow;
+		Ogre::Camera *mCamera;
+
 		bool mPaused;
+		bool mInitialized;
+
+	private:
 
 		/** Creates an ogre rendering window and all other default objects
 		such as the Ogre Root, default camera, default scene manager etc */ 
-		void createOgreRenderWindow();
+		void createOgreRenderWindow(Ogre::String renderWindowName);
 		/** Toggles the rendering timer on/off */
 		void toggleTimerRendering();
 
@@ -67,15 +79,5 @@
 		/* WX members */
 		/** Rendering timer */
 		wxTimer	mTimer;
-
-		/* Ogre members */
-		/** Local Ogre::Root pointer */
-		Ogre::Root* mRoot;
-		/** Local Ogre::RenderWindow pointer */
-		Ogre::RenderWindow* mRenderWindow;
-		Ogre::Camera *mCamera;
-
-		bool mInitialized;
-
 
 	};

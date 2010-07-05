@@ -143,8 +143,7 @@
     <ClCompile Include="Source\IceLevelMesh.cpp" />
     <ClCompile Include="Source\IceMain.cpp" />
     <ClCompile Include="Source\IceMainLoop.cpp" />
-    <ClCompile Include="Source\IceScriptable.cpp" />
-    <ClCompile Include="Source\IceGOCScriptable.cpp" />
+    <ClCompile Include="Source\IceScriptUser.cpp" />
     <ClCompile Include="Source\IceScriptMessageListener.cpp" />
     <ClCompile Include="Source\IceSoundMaterialTable.cpp" />
     <ClCompile Include="Source\IceSpline.cpp" />
@@ -201,6 +200,7 @@
   <ItemGroup>
     <ClInclude Include="Header\IceGOCOgreNode.h" />
     <ClInclude Include="Header\IceGOCMover.h" />
+    <ClInclude Include="Header\IceGOCScript.h" />
     <ClInclude Include="Header\IceMessageListener.h" />
     <ClInclude Include="Header\IceMessageSystem.h" />
     <ClInclude Include="Header\IceMsg.h" />
@@ -229,8 +229,8 @@
     <ClInclude Include="Header\IceLevelMesh.h" />
     <ClInclude Include="Header\IceMain.h" />
     <ClInclude Include="Header\IceMainLoop.h" />
-    <ClInclude Include="Header\IceScriptable.h" />
-    <ClInclude Include="Header\IceGOCScriptable.h" />
+    <ClInclude Include="Header\IceScriptUser.h" />
+    <ClInclude Include="Header\IceGOCScriptMakros.h" />
     <ClInclude Include="Header\IceScriptMessageListener.h" />
     <ClInclude Include="Header\IceSoundMaterialTable.h" />
     <ClInclude Include="Header\IceSpline.h" />

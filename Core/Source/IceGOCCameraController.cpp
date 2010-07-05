@@ -140,7 +140,7 @@ void GOCCameraController::ReceiveMessage(Msg &msg)
 			sfAbsRefPitch=-Ogre::Math::PI*0.4f;
 		if(mfZoom>0.0f)
 		{
-			mCameraNode->setPosition(Ogre::Vector3(0,0.0f,-6)*sfActualZoom);
+			mCameraNode->setPosition(Ogre::Vector3(0.0f,0.0f,-6.0f)*static_cast<float>(sfActualZoom));
 			mCameraNode->setAutoTracking(true, mTargetNode);
 		}
 		else
@@ -160,21 +160,21 @@ void GOCCameraController::ReceiveMessage(Msg &msg)
 		{
 			const double cfSpeed=7.0f;
 			if(time>0.5f/cfSpeed)
-				time=0.5f/cfSpeed;
+				time=0.5f/static_cast<float>(cfSpeed);
 
 			double fRelPitch=(sfAbsCamPitch-sfAbsRefPitch)*time*cfSpeed;
 			sfAbsCamPitch-=fRelPitch;
 
-			double fRelAngle=(((mfRefCharacterAngle-sfAbsCamYaw)/(2.0f*Ogre::Math::PI)-Ogre::Math::Floor((mfRefCharacterAngle-sfAbsCamYaw)/(2.0f*Ogre::Math::PI)+0.5)+0.5)*2.0f-1)*Ogre::Math::PI;
+			double fRelAngle=(((mfRefCharacterAngle-sfAbsCamYaw)/(2.0f*Ogre::Math::PI)-Ogre::Math::Floor((mfRefCharacterAngle-sfAbsCamYaw)/(2.0f*Ogre::Math::PI)+0.5)+0.5f)*2.0f-1.0f)*Ogre::Math::PI;
 			double fRelYaw=fRelAngle*time*cfSpeed;
 			sfAbsCamYaw+=fRelYaw;
 
 			sfActualZoom-=(sfActualZoom-mfZoom)*time*cfSpeed*0.3f;
-			mCameraNode->setPosition(Ogre::Vector3(0,0.0f,-6)*sfActualZoom);
+			mCameraNode->setPosition(Ogre::Vector3(0.0f,0.0f,-6.0f)*static_cast<float>(sfActualZoom));
 		}
 	}
 	Ogre::Matrix3 mat3;
-	mat3.FromEulerAnglesYXZ(-Ogre::Radian(sfAbsCamYaw), Ogre::Radian(sfAbsCamPitch), Ogre::Radian(0));
+	mat3.FromEulerAnglesYXZ(-Ogre::Radian(sfAbsCamYaw), Ogre::Radian(sfAbsCamPitch), Ogre::Radian(0.0f));
 	Ogre::Quaternion q;
 	q.FromRotationMatrix(mat3);
 	mCameraCenterNode->setOrientation(q);

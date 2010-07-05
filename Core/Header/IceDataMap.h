@@ -41,6 +41,8 @@ public:
 
 	void Set(void *data, const Ogre::String &key, const PropertyTypes &types);
 
+	void Set(const ScriptParam &scriptParam, const Ogre::String &key);
+
 	template <typename T>
 		T Get() { return Ogre::any_cast<T>(mData); }
 

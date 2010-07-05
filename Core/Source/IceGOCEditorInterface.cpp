@@ -31,7 +31,7 @@ namespace Ice
 			{
 				if (i->defaultVal.mKey == gp.mKey)
 				{
-					assert(i->defaultVal.getType() == gp.getType());
+					IceAssert(i->defaultVal.getType() == gp.getType());
 					gp.Get(i->target);
 					break;
 				}

@@ -14,7 +14,7 @@ namespace Ice
 		if (mData.getType() == typeid(Ogre::Vector3)) return PropertyTypes::VECTOR3;
 		if (mData.getType() == typeid(Ogre::Quaternion)) return PropertyTypes::QUATERNION;
 		
-		assert(false);
+		IceAssert(false);
 		return PropertyTypes::INT;
 	}
 	GenericProperty::PropertyTypes GenericProperty::Get(void *target)
@@ -26,7 +26,7 @@ namespace Ice
 		if (mData.getType() == typeid(Ogre::Vector3)) { Ogre::Vector3 src = Ogre::any_cast<Ogre::Vector3>(mData); *((Ogre::Vector3*)target) = src;  return PropertyTypes::VECTOR3; }
 		if (mData.getType() == typeid(Ogre::Quaternion)) { Ogre::Quaternion src = Ogre::any_cast<Ogre::Quaternion>(mData); *((Ogre::Quaternion*)target) = src; return PropertyTypes::QUATERNION; }
 		
-		assert(false);
+		IceAssert(false);
 		return PropertyTypes::INT;
 	}
 
