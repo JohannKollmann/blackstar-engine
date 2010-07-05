@@ -38,11 +38,8 @@ namespace Ice
 	}
 	Ogre::SceneNode* GOCOgreNodeUser::GetNode()
 	{
-		if (!mOwnerGO)
-		{
-			OGRE_EXCEPT(Ogre::Exception::ERR_INTERNAL_ERROR, "Error in GOCOgreNodeUser::GetNode: Component has no OwnerGO yet!", "IceGOCOgreNode.cpp");
-			return nullptr;
-		}
+		IceAssert(mOwnerGO);
+
 		GOCOgreNode *gocNode = mOwnerGO->GetComponent<GOCOgreNode>();
 		if (gocNode) return gocNode->GetNode();
 

@@ -174,7 +174,7 @@ void Main::initScene()
 
 	mSceneMgr = mRoot->createSceneManager(Ogre::ST_GENERIC, "Esgaroth");
 	mCamera = mSceneMgr->createCamera("MainCamera");
-	mCamera->lookAt(Ogre::Vector3(0,0,0));
+	mCamera->lookAt(Ogre::Vector3(0,0,1));
 	mCamera->setNearClipDistance(0.5f);
 	mCamera->setFarClipDistance(50000);
 
@@ -389,7 +389,7 @@ void Main::setupRenderSystem()
 	//mRenderSystem->setConfigOption("Capture frames to AVI file (capture.avi)", "Yes");
 
 	mRenderSystem->setConfigOption("VSync", vsync);
-	mRenderSystem->setConfigOption("FSAA", "Level " + aa);
+	mRenderSystem->setConfigOption("FSAA", aa);
 
 	if (renderer == "Direct3D9 Rendering Subsystem")
 	{
@@ -448,7 +448,17 @@ void Main::GetConfig()
 
 		for (i = Settings->begin(); i != Settings->end(); i++)
 		{
-			mSettings[secName].push_back(KeyVal(i->first, i->second));
+			bool added = false;
+			for (auto x = mSettings[secName].begin(); x != mSettings[secName].end(); x++)
+			{
+				if (x->Key == i->first)
+				{
+					x->Val = i->second;
+					added = true;
+					break;
+				}
+			}
+			if (!added) mSettings[secName].push_back(KeyVal(i->first, i->second));
 		}
 	}
 }

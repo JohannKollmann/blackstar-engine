@@ -93,10 +93,6 @@ namespace Ice
 
 	void AIManager::ReloadScripts()
 	{
-		for (std::map<int, GOCAI*>::iterator i = mAIObjects.begin(); i != mAIObjects.end(); i++)
-		{
-			i->second->ReloadScript();
-		}
 	}
 
 	void AIManager::Clear()

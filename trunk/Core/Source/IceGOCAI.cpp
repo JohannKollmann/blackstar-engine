@@ -3,6 +3,7 @@
 #include "IceAIManager.h"
 #include "IceScriptSystem.h"
 #include "IceGameObject.h"
+#include "IceFollowPathway.h"
 
 namespace Ice
 {
@@ -17,11 +18,6 @@ namespace Ice
 	{
 		ClearActionQueue();
 		ClearIdleQueue();
-		if (mOwnerGO)
-		{
-			AIManager::Instance().UnregisterAIObject(mOwnerGO->GetID());
-			AIManager::Instance().UnregisterScriptAIBind(mScript.GetID());
-		}
 	}
 
 	int GOCAI::GetID()
@@ -49,8 +45,7 @@ namespace Ice
 			AIManager::Instance().RegisterAIObject(this, mOwnerGO->GetID());
 			std::vector<ScriptParam> params;
 			params.push_back(ScriptParam(mOwnerGO->GetID()));
-			mScript = ScriptSystem::GetInstance().CreateInstance(mScriptFileName, params);
-			AIManager::Instance().RegisterScriptAIBind(this, mScript.GetID());
+			InitScript(mScriptFileName);
 		}
 	}
 
@@ -124,26 +119,47 @@ namespace Ice
 		}	
 	}
 
-	void GOCAI::SetProperty(std::string key, ScriptParam prop)
+	std::vector<ScriptParam> GOCAI::Npc_AddState(std::vector<ScriptParam> &vParams)
 	{
-		std::map<Ogre::String, ScriptParam>::iterator i = mProperties.find(key);
-		if (i != mProperties.end())
-		{
-			(*i).second = prop;
-		}
-		else
-		{
-			mProperties.insert(std::make_pair(key, prop));
-		}
+		std::vector<ScriptParam> out;
+		return out;
 	}
-	ScriptParam GOCAI::GetProperty(std::string key)
+	std::vector<ScriptParam> GOCAI::Npc_KillActiveState(std::vector<ScriptParam> &vParams)
 	{
-		std::map<Ogre::String, ScriptParam>::iterator i = mProperties.find(key);
-		if (i != mProperties.end())
+		std::vector<ScriptParam> out;
+		LeaveActiveActionState();
+		return out;
+	}
+	std::vector<ScriptParam> GOCAI::Npc_ClearQueue(std::vector<ScriptParam> &vParams)
+	{
+		std::vector<ScriptParam> out;
+		return out;
+		ClearActionQueue();
+	}
+	std::vector<ScriptParam> GOCAI::Npc_AddTA(std::vector<ScriptParam> &vParams)
+	{
+		std::vector<ScriptParam> out;
+		std::string ta_script = vParams[0].getString();
+		int end_timeH = vParams[1].getInt();
+		int end_timeM = vParams[2].getInt();
+		bool time_abs = true;
+		std::vector<ScriptParam> miscparams;
+		std::vector<ScriptParam>::iterator i = vParams.begin();
+		i++;i++;i++;
+		for (; i != vParams.end(); i++)
 		{
-			return (*i).second;
+			miscparams.push_back((*i));
 		}
-		return ScriptParam(0);
+		
+		AddDayCycleState(new DayCycle(this, ta_script, miscparams, end_timeH, end_timeM, time_abs));
+		return out;
+	}
+	std::vector<ScriptParam> GOCAI::Npc_GotoWP(std::vector<ScriptParam> &vParams)
+	{
+		std::vector<ScriptParam> out;
+		Ogre::String wp = vParams[0].getString().c_str();
+		AddState(new FollowPathway(this, wp));
+		return out;
 	}
 
 	void GOCAI::ReceiveObjectMessage(const Msg &msg)
@@ -159,7 +175,7 @@ namespace Ice
 		}
 	}
 
-	void GOCAI::ReceiveMessage(Msg &msg)
+	void GOCAI::OnReceiveMessage(Msg &msg)
 	{
 		if (msg.type == "ENABLE_GAME_CLOCK")
 		{
@@ -171,19 +187,16 @@ namespace Ice
 		}
 	}
 
-	void GOCAI::ReloadScript()
+	void GOCAI::OnScriptReload()
 	{
 		ClearActionQueue();
 		ClearIdleQueue();
+	}
 
-		if (mOwnerGO)
-		{
-			std::vector<ScriptParam> params;
-			params.push_back(ScriptParam(mOwnerGO->GetID()));
-			AIManager::Instance().UnregisterScriptAIBind(mScript.GetID());
-			mScript = ScriptSystem::GetInstance().CreateInstance(mScriptFileName, params);
-			AIManager::Instance().RegisterScriptAIBind(this, mScript.GetID());
-		}
+	int GOCAI::GetThisID()
+	{
+		IceAssert(mOwnerGO);
+		return mOwnerGO->GetID();
 	}
 
 	void GOCAI::SetParameters(DataMap *parameters)

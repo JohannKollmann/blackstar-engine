@@ -29,7 +29,6 @@ wxObjectFolderTree::wxObjectFolderTree(wxWindow* parent, wxWindowID id, const wx
 	wxEdit::Instance().GetExplorerToolbar()->RegisterTool("NewResource", "ResourceMgr", "Data/Editor/Intern/Engine_Icon07.png", wxObjectFolderTree::OnToolbarEvent, "New object resource");
 	wxEdit::Instance().GetExplorerToolbar()->SetGroupStatus("ResourceMgr", true);
 	//wxEdit::Instance().GetExplorerToolbar()->SetGroupStatus("ResourceMgr", false);
-	mPreviewObject = 0;
 }
 
 void wxObjectFolderTree::OnShowMenuCallback(wxMenu *menu, VdtcTreeItemBase *item)
@@ -66,53 +65,23 @@ void wxObjectFolderTree::OnSelectItemCallback()
 
 void wxObjectFolderTree::ClearObjectPreview()
 {
-	if (mPreviewObject)
-	{
-		Ice::Main::Instance().SetSceneMgr(false);
-		delete mPreviewObject;
-		Ice::Main::Instance().SetSceneMgr(true);
-		mPreviewObject = nullptr;
-	}
-	wxEdit::Instance().GetPreviewWindow()->SetPreviewNode(nullptr);
-	wxEdit::Instance().GetPreviewWindow()->ClearDisplay();
-	Ice::SceneManager::Instance().DestroyPreviewRender("EditorPreview");
+	wxEdit::Instance().GetPreviewWindow()->Reset();
 }
 
 void wxObjectFolderTree::CreateObjectPreview(Ogre::String file)
 {
-	ClearObjectPreview();
-	Ice::Main::Instance().SetSceneMgr(false);
-	mPreviewObject = new Ice::GameObject();
 	LoadSave::LoadSystem *ls=LoadSave::LoadSave::Instance().LoadFile(file);
 	std::vector<ComponentSection> sections;
 	ls->LoadAtom("std::vector<ComponentSection>", (void*)(&sections));
 	Ogre::Vector3 scale(1,1,1);
 	for (auto i = sections.begin(); i != sections.end(); i++)
 	{
-		if ((*i).mSectionName == "GameObject") continue;
-		(*i).mSectionData.AddOgreVec3("Scale", scale);
-		Ice::GOCEditorInterface *component = Ice::SceneManager::Instance().CreateGOCEditorInterface((*i).mSectionName, &(*i).mSectionData);
-		if (!component) continue;
-		Ice::GOComponent *test = dynamic_cast<Ice::GOCOgreNodeUser*>(component);
-		if (!test) delete component;
-		else mPreviewObject->AddComponent(component->GetGOComponent());
+		if ((*i).mSectionName == "Mesh")
+		{
+			wxEdit::Instance().GetPreviewWindow()->ShowMesh(i->mSectionData.GetOgreString("MeshName"));
+		}
 	}
 	ls->CloseFile();
-	Ice::GOCOgreNode *renderable = mPreviewObject->GetComponent<Ice::GOCOgreNode>();
-	if (!renderable)
-	{
-		delete mPreviewObject;
-		mPreviewObject = 0;
-		Ice::Main::Instance().SetSceneMgr(true);
-		return;
-	}
-	Ice::Main::Instance().SetSceneMgr(true);
-	float width = 256;//wxEdit::Instance().GetAuiManager().GetPane("preview").floating_size.GetWidth();
-	float height = 256;//wxEdit::Instance().GetAuiManager().GetPane("preview").floating_size.GetHeight();
-	Ice::SceneManager::Instance().CreatePreviewRender(renderable->GetNode(), "EditorPreview", width, height);
-	Ogre::TexturePtr texture = Ogre::TextureManager::getSingleton().getByName("EditorPreview_Tex");
-	wxEdit::Instance().GetPreviewWindow()->SetPreviewNode(renderable->GetNode());
-	wxEdit::Instance().GetPreviewWindow()->SetTexture(texture);
 	
 }
 

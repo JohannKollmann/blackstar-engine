@@ -157,32 +157,21 @@ void wxMediaTree::OnSelectItemCallback()
 	if (mCurrentItem->IsFile())
 	{
 		Ice::SceneManager::Instance().DestroyPreviewRender("EditorPreview");
-		wxEdit::Instance().GetPreviewWindow()->ClearDisplay();
 		if (IsMesh(mCurrentItem->GetName()))
 		{
-			Ogre::SceneNode *node = Ice::Main::Instance().GetPreviewSceneMgr()->getSceneNode("EditorPreview");
-			Ogre::Entity *entity = Ice::Main::Instance().GetPreviewSceneMgr()->createEntity("EditorPreview_Mesh", mCurrentItem->GetName().c_str());
-			node->attachObject(entity);
-			float width = 256;//wxEdit::Instance().GetAuiManager().GetPane("preview").floating_size.GetWidth();
-			float height = 256;//wxEdit::Instance().GetAuiManager().GetPane("preview").floating_size.GetHeight();
-			Ice::SceneManager::Instance().CreatePreviewRender(node, "EditorPreview", width, height);
-			Ogre::TexturePtr texture = Ogre::TextureManager::getSingleton().getByName("EditorPreview_Tex");
-			wxEdit::Instance().GetPreviewWindow()->SetTexture(texture);
-			wxEdit::Instance().GetPreviewWindow()->SetPreviewNode(node);
+			wxEdit::Instance().GetPreviewWindow()->ShowMesh(mCurrentItem->GetName().c_str());
 		}
 		else if	(IsTexture(mCurrentItem->GetName()))
 		{
-			Ogre::TexturePtr texture = Ogre::TextureManager::getSingleton().load(mCurrentItem->GetName().c_str(), "General");
-			wxEdit::Instance().GetPreviewWindow()->SetTexture(texture);
+			wxEdit::Instance().GetPreviewWindow()->ShowTexture(mCurrentItem->GetName().c_str());
 		}
 		else if (IsAudio(mCurrentItem->GetName()))
 		{
-			int id = Ice::SceneManager::Instance().RequestID();
+			/*int id = Ice::SceneManager::Instance().RequestID();
 			Ogre::SceneNode *node = Ice::Main::Instance().GetPreviewSceneMgr()->getSceneNode("EditorPreview");
 			OgreOggSound::OgreOggISound *sound = Ice::Main::Instance().GetSoundManager()->createSound(Ogre::StringConverter::toString(id), mCurrentItem->GetName().c_str(), true, false);
 			if (sound) sound->play();
-			node->attachObject(sound);
-			wxEdit::Instance().GetPreviewWindow()->SetPreviewNode(node);
+			node->attachObject(sound);*/
 		}
 	}
 }
@@ -447,7 +436,7 @@ void wxMediaTree::OnLeaveTab()
 	wxEdit::Instance().GetExplorerToolbar()->SetGroupStatus("MediaTree", false);
 
 	Ice::SceneManager::Instance().DestroyPreviewRender("EditorPreview");
-	wxEdit::Instance().GetPreviewWindow()->ClearDisplay();
+	wxEdit::Instance().GetPreviewWindow()->Reset();
 }
 
 void wxMediaTree::OnSetupDragCursor(wxDropSource &dropSource)

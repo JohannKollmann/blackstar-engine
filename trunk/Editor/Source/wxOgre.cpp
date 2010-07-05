@@ -41,7 +41,7 @@ wxOgre::wxOgre(wxWindow* parent, wxWindowID id,
 }
 
 
-void wxOgre::initOgre()
+void wxOgre::initOgre(Ogre::String renderWindowName)
 {
     if (!mInitialized)
     {
@@ -51,7 +51,7 @@ void wxOgre::initOgre()
 
         mInitialized = true; 
 		// Create all Ogre objects
-		createOgreRenderWindow();
+		createOgreRenderWindow(renderWindowName);
 		// Start the rendering timer
 		toggleTimerRendering();
 
@@ -61,7 +61,7 @@ void wxOgre::initOgre()
 	}
 }
 
-void wxOgre::createOgreRenderWindow()
+void wxOgre::createOgreRenderWindow(Ogre::String renderWindowName)
 {
 	Ogre::LogManager::getSingleton().logMessage("createOgreRenderWindow 1");
 
@@ -100,8 +100,6 @@ void wxOgre::createOgreRenderWindow()
 		}
 	}
 
-	Ogre::LogManager::getSingletonPtr()->logMessage(handle);
-
 	// Get wx control window size
 	int width;
 	int height;
@@ -110,8 +108,10 @@ void wxOgre::createOgreRenderWindow()
 	height -= height%4;*/
 	// Create the render window
 	Ogre::LogManager::getSingleton().logMessage("createOgreRenderWindow 3");
-	mRenderWindow = Ogre::Root::getSingleton().createRenderWindow("OgreRenderWindow", width, height, false, &params);
+	mRenderWindow = Ogre::Root::getSingleton().createRenderWindow(renderWindowName, width, height, false, &params);
 	Ogre::LogManager::getSingleton().logMessage("createOgreRenderWindow 4");
+
+	OnInit();
 }
 
 void wxOgre::toggleTimerRendering()
@@ -155,26 +155,14 @@ void wxOgre::OnEraseBackground( wxEraseEvent& )
 }
 void wxOgre::OnRenderTimer(wxTimerEvent& event)
 {
-	//Ice::Main::Instance().GetOgreSceneMgr()->getRootSceneNode();
-	/*if (mEdit->mPerformingObjMov || mEdit->mPerformingObjRot)	//Hack...
-	{
-		//Ogre::LogManager::getSingleton().logMessage("Hack: SetFocus to Ogre!");
-		wxEdit::Instance().GetOgrePane()->SetFocus();
-	}*/
-	//if (wxEdit::Instance().FindFocus() == this || wxEdit::Instance().FindFocus() == wxEdit::Instance().GetSettingsWindow()) update();
-	/*if (wxEdit::Instance().FindFocus())
-	{
-		if (wxEdit::Instance().FindFocus()->GetName() == "panel" || wxEdit::Instance().FindFocus()->GetName() == "frame" || wxEdit::Instance().FindFocus()->GetName() == "slider") update();
-	}*/
 	update();
-	//else Ogre::LogManager::getSingleton().logMessage(wxEdit::Instance().FindFocus()->GetName().c_str());
 }
 
 void wxOgre::update()
 {
 	if (mInitialized && !mPaused)
 	{
-		Ice::MainLoop::Instance().doLoop();
+		OnRender();
 	}
 }
 

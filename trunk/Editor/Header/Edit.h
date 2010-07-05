@@ -39,6 +39,8 @@ class Edit : public wxOgre, public Ice::MessageListener
 protected:
 	DECLARE_EVENT_TABLE()
 
+	void OnRender();
+
 public:
 
 	enum EEditModes

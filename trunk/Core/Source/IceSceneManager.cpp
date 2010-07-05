@@ -20,7 +20,7 @@
 #include "IceDialog.h"
 #include "IceLevelMesh.h"
 #include "IceGOCMover.h"
-#include "IceGOCScriptable.h"
+#include "IceGOCScript.h"
 
 #include "boost/filesystem/operations.hpp"
 #include "boost/filesystem/path.hpp"
@@ -185,8 +185,7 @@ namespace Ice
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCPlayerInput::Register);
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCCameraController::Register);
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCSimpleCameraController::Register);
-		LoadSave::LoadSave::Instance().RegisterObject(&GOCScriptable::Register);
-
+		LoadSave::LoadSave::Instance().RegisterObject(&GOCScript::Register);
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCAI::Register);
 
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCMover::Register);
@@ -207,41 +206,36 @@ namespace Ice
 
 		RegisterGOCPrototype("C_x", new GOCAI());
 		RegisterGOCPrototype("C_x", new GOCPlayerInput());
-		RegisterGOCPrototype("C_x", new GOCScriptable());
 
 		RegisterGOCPrototype("D_x", new GOCSimpleCameraController());
 		RegisterGOCPrototype("D_x", new GOCCameraController());
 
 		RegisterGOCPrototype("E", new GOCMover());
+		RegisterGOCPrototype("E", new GOCScript());
 		RegisterGOCPrototype(new GOCAnimKey());
 
 		//Setup Lua Callback
 		ScriptSystem::GetInstance().ShareCFunction("Listen", &ScriptSystem::Lua_JoinNewsgroup);
 		ScriptSystem::GetInstance().ShareCFunction("LogMessage", &SceneManager::Lua_LogMessage);
-		ScriptSystem::GetInstance().ShareCFunction("Self", &SceneManager::Lua_Npc_GetThis);
+		ScriptSystem::GetInstance().ShareCFunction("This", &SceneManager::Lua_GetThis);
 		ScriptSystem::GetInstance().ShareCFunction("LoadLevel", &SceneManager::Lua_LoadLevel);
-		ScriptSystem::GetInstance().ShareCFunction("CreatePlayer", &SceneManager::Lua_CreatePlayer);
-		ScriptSystem::GetInstance().ShareCFunction("CreateNpc", &SceneManager::Lua_CreateNpc);
-		ScriptSystem::GetInstance().ShareCFunction("Npc_SetProperty", &SceneManager::Lua_Npc_SetProperty);
-		ScriptSystem::GetInstance().ShareCFunction("Npc_GetProperty", &SceneManager::Lua_Npc_GetProperty);
-		ScriptSystem::GetInstance().ShareCFunction("Npc_AddState", &SceneManager::Lua_Npc_AddState);
-		ScriptSystem::GetInstance().ShareCFunction("Npc_KillActiveState", &SceneManager::Lua_Npc_KillActiveState);
-		ScriptSystem::GetInstance().ShareCFunction("Npc_ClearQueue", &SceneManager::Lua_Npc_ClearQueue);
-		ScriptSystem::GetInstance().ShareCFunction("Npc_AddTA", &SceneManager::Lua_Npc_AddTA);
-		ScriptSystem::GetInstance().ShareCFunction("Npc_GotoWP", &SceneManager::Lua_Npc_GotoWP);
-		ScriptSystem::GetInstance().ShareCFunction("Npc_GetDistToWP", &SceneManager::Lua_Npc_GetDistToWP);
 
-		ScriptSystem::GetInstance().ShareCFunction("SetObjectPosition", &SceneManager::Lua_SetObjectPosition);
-		ScriptSystem::GetInstance().ShareCFunction("SetObjectOrientation", &SceneManager::Lua_SetObjectOrientation);
-		ScriptSystem::GetInstance().ShareCFunction("SetObjectScale", &SceneManager::Lua_SetObjectScale);
+		ScriptSystem::GetInstance().ShareCFunction("SetPosition", &GameObject::Lua_SetObjectPosition);
+		ScriptSystem::GetInstance().ShareCFunction("SetOrientation", &GameObject::Lua_SetObjectOrientation);
+		ScriptSystem::GetInstance().ShareCFunction("SetScale", &GameObject::Lua_SetObjectScale);
+		ScriptSystem::GetInstance().ShareCFunction("GetName", &GameObject::Lua_GetObjectName);
+
+		ScriptSystem::GetInstance().ShareCFunction("Npc_AddState", &GOCAI::Lua_Npc_AddState);
+		ScriptSystem::GetInstance().ShareCFunction("Npc_KillActiveState", &GOCAI::Lua_Npc_KillActiveState);
+		ScriptSystem::GetInstance().ShareCFunction("Npc_ClearQueue", &GOCAI::Lua_Npc_ClearQueue);
+		ScriptSystem::GetInstance().ShareCFunction("Npc_AddTA", &GOCAI::Lua_Npc_AddTA);
+		ScriptSystem::GetInstance().ShareCFunction("Npc_GotoWP", &GOCAI::Lua_Npc_GotoWP);
+		ScriptSystem::GetInstance().ShareCFunction("Npc_OpenDialog", &SceneManager::Lua_NPCOpenDialog);
 
 		ScriptSystem::GetInstance().ShareCFunction("Play3DSound", &SceneManager::Lua_Play3DSound);
 		ScriptSystem::GetInstance().ShareCFunction("CreateMaterialProfile", &SceneManager::Lua_CreateMaterialProfile);
 
 		ScriptSystem::GetInstance().ShareCFunction("GetFocusObject", &SceneManager::Lua_GetFocusObject);
-		ScriptSystem::GetInstance().ShareCFunction("Npc_OpenDialog", &SceneManager::Lua_NPCOpenDialog);
-		ScriptSystem::GetInstance().ShareCFunction("GetObjectName", &SceneManager::Lua_GetObjectName);
-		ScriptSystem::GetInstance().ShareCFunction("SetObjectVisible", &SceneManager::Lua_SetObjectVisible);
 
 		ScriptSystem::GetInstance().ShareCFunction("IsNpc", &SceneManager::Lua_ObjectIsNpc);
 
@@ -546,193 +540,6 @@ namespace Ice
 		return std::vector<ScriptParam>();
 	}
 
-
-	std::vector<ScriptParam> SceneManager::Lua_Npc_SetProperty(Script& caller, std::vector<ScriptParam> vParams)
-	{
-		std::vector<ScriptParam> out;
-		if (vParams.size() < 3) return out;
-		if (!vParams[0].hasInt()) return out;
-		if (vParams[1].getType() != ScriptParam::PARM_TYPE_STRING) return out;
-		int id = vParams[0].getInt();
-		std::string key = vParams[1].getString();
-		GOCAI *ai = AIManager::Instance().GetAIByID(id);
-		if (ai) ai->SetProperty(key, vParams[2]);
-		return out;
-	}
-	std::vector<ScriptParam> SceneManager::Lua_Npc_GetProperty(Script& caller, std::vector<ScriptParam> vParams)
-	{
-		std::vector<ScriptParam> out;
-		if (vParams.size() < 2) return out;
-		if (!vParams[0].hasInt()) return out;
-		if (vParams[1].getType() != ScriptParam::PARM_TYPE_STRING) return out;
-		int id = vParams[0].getInt();
-		std::string key = vParams[1].getString();
-		GOCAI *ai = AIManager::Instance().GetAIByID(id);
-		ScriptParam p(0);
-		if (ai) p = ai->GetProperty(key);
-		out.push_back(p);
-		return out;
-	}
-
-	std::vector<ScriptParam> SceneManager::Lua_Npc_AddState(Script& caller, std::vector<ScriptParam> vParams)
-	{
-		std::vector<ScriptParam> out;
-		std::vector<ScriptParam> ref;
-		float fdummy = 0;
-		ref.push_back(ScriptParam(fdummy));
-		Ogre::String param_test = Utils::TestParameters(vParams, ref, true);
-		if (param_test == "")
-		{
-			int id = vParams[0].getInt();
-			GOCAI *ai = AIManager::Instance().GetAIByID(id);
-			//Todo
-		}
-		else
-		{
-			Ogre::String msg = "[Script] Error in \"" + caller.GetScriptName() + "\": " + param_test;
-			Ogre::LogManager::getSingleton().logMessage(msg);
-		}
-		return out;
-	}
-	std::vector<ScriptParam> SceneManager::Lua_Npc_GetThis(Script& caller, std::vector<ScriptParam> vParams)
-	{
-		std::vector<ScriptParam> out;
-		int returnID = -1;
-		GOCAI *ai = AIManager::Instance().GetAIByScriptID(caller.GetID());
-		if (ai) returnID = ai->GetID();
-		else Utils::LogParameterErrors(caller, "This is no npc Script!");
-		out.push_back(ScriptParam(returnID));
-		return out;
-	}
-	GOCAI* SceneManager::Lua_Npc_ExtractAI(std::vector<ScriptParam> vParams)
-	{
-		std::vector<ScriptParam> ref;
-		float fdummy = 0;
-		GOCAI *ai = 0;
-		ref.push_back(ScriptParam(fdummy));
-		Ogre::String param_test = Utils::TestParameters(vParams, ref, true);
-		if (param_test == "")
-		{
-			int id = vParams[0].getInt();
-			ai = AIManager::Instance().GetAIByID(id);
-		}
-		return ai;
-	}
-	std::vector<ScriptParam> SceneManager::Lua_Npc_KillActiveState(Script& caller, std::vector<ScriptParam> vParams)
-	{
-		std::vector<ScriptParam> out;
-		std::vector<ScriptParam> ref;
-		float fdummy = 0;
-		ref.push_back(ScriptParam(fdummy));
-		Ogre::String param_test = Utils::TestParameters(vParams, ref, true);
-		if (param_test == "")
-		{
-			GOCAI *ai = SceneManager::Lua_Npc_ExtractAI(vParams);
-			if (ai)
-				ai->LeaveActiveActionState();
-			else
-			{
-				Utils::LogParameterErrors(caller, "Invalid Npc ID!");
-			}
-		}
-		else Utils::LogParameterErrors(caller, param_test);
-		return out;
-	}
-	std::vector<ScriptParam> SceneManager::Lua_Npc_ClearQueue(Script& caller, std::vector<ScriptParam> vParams)
-	{
-		std::vector<ScriptParam> out;
-		std::vector<ScriptParam> ref;
-		float fdummy = 0;
-		ref.push_back(ScriptParam(fdummy));
-		Ogre::String param_test = Utils::TestParameters(vParams, ref, true);
-		if (param_test == "")
-		{
-			int id = vParams[0].getInt();
-			GOCAI *ai = AIManager::Instance().GetAIByID(id);
-			if (ai)
-				ai->ClearActionQueue();
-		}
-		else
-		{
-			Ogre::String msg = "[Script] Error in \"" + caller.GetScriptName() + "\": " + param_test;
-			Ogre::LogManager::getSingleton().logMessage(msg);
-		}
-		return out;
-	}
-
-	std::vector<ScriptParam> SceneManager::Lua_Npc_AddTA(Script& caller, std::vector<ScriptParam> vParams)
-	{
-		std::vector<ScriptParam> out;
-		std::vector<ScriptParam> ref;
-		std::string sdummy;
-		float fdummy = 0;
-		ref.push_back(ScriptParam(fdummy));
-		ref.push_back(ScriptParam(sdummy));
-		ref.push_back(ScriptParam(fdummy));
-		ref.push_back(ScriptParam(fdummy));
-		Ogre::String param_test = Utils::TestParameters(vParams, ref, true);
-		if (param_test == "")
-		{
-			int id = vParams[0].getInt();
-			std::string ta_script = vParams[1].getString();
-			int end_timeH = vParams[2].getInt();
-			int end_timeM = vParams[3].getInt();
-			bool time_abs = true;
-			std::vector<ScriptParam> miscparams;
-			std::vector<ScriptParam>::iterator i = vParams.begin();
-			i++;i++;i++;i++;
-			for (; i != vParams.end(); i++)
-			{
-				miscparams.push_back((*i));
-			}
-		
-		/*if (vParams.size() == 6)
-		{
-			if (vParams[5].getType() == ScriptParam::PARM_TYPE_BOOL) time_abs = vParams[5].getBool();
-		}*/
-
-			GOCAI *ai = AIManager::Instance().GetAIByID(id);
-			if (ai) ai->AddDayCycleState(new DayCycle(ai, ta_script, miscparams, end_timeH, end_timeM, time_abs));
-		}
-		else
-		{
-			Ogre::String msg = "[Script] Error in \"" + caller.GetScriptName() + "\": " + param_test;
-			Ogre::LogManager::getSingleton().logMessage(msg);
-		}
-		return out;
-	}
-	std::vector<ScriptParam> SceneManager::Lua_Npc_GotoWP(Script& caller, std::vector<ScriptParam> vParams)
-	{
-		std::vector<ScriptParam> out;
-		if (vParams.size() < 2) return out;
-		if (!vParams[0].hasInt()) return out;
-		if (vParams[1].getType() != ScriptParam::PARM_TYPE_STRING) return out;
-		int id = vParams[0].getInt();
-		std::string wp = vParams[1].getString();
-		GOCAI *ai = AIManager::Instance().GetAIByID(id);
-		if (ai) ai->AddState(new FollowPathway(ai, wp));
-		return out;
-	}
-	std::vector<ScriptParam> SceneManager::Lua_Npc_GetDistToWP(Script& caller, std::vector<ScriptParam> vParams)
-	{
-		std::vector<ScriptParam> out;
-		if (vParams.size() < 2) return out;
-		if (!vParams[0].hasInt()) return out;
-		if (vParams[1].getType() != ScriptParam::PARM_TYPE_STRING) return out;
-		int id = vParams[0].getInt();
-		std::string wp = vParams[1].getString();
-		GOCWaypoint *pWp = AIManager::Instance().GetWPByName(wp);
-		GOCAI *ai = AIManager::Instance().GetAIByID(id);
-		float returner = 0;
-		if (pWp && ai)
-		{
-			if (pWp->GetOwner() && ai->GetOwner())
-				returner = pWp->GetOwner()->GetGlobalPosition().distance(ai->GetOwner()->GetGlobalPosition());
-		}
-		out.push_back(returner);
-		return out;
-	}
-
 	std::vector<ScriptParam> SceneManager::Lua_InsertMesh(Script& caller, std::vector<ScriptParam> vParams)
 	{
 		std::vector<ScriptParam> out;
@@ -757,125 +564,6 @@ namespace Ice
 		out.push_back(ScriptParam(object->GetID()));
 		return out;
 	}
-
-	std::vector<ScriptParam> SceneManager::Lua_SetObjectPosition(Script& caller, std::vector<ScriptParam> vParams)
-	{
-		std::vector<ScriptParam> out;
-		if (vParams.size() != 4) return out;
-		if (vParams[0].getType() != ScriptParam::PARM_TYPE_FLOAT || vParams[1].getType() != ScriptParam::PARM_TYPE_FLOAT || vParams[2].getType() != ScriptParam::PARM_TYPE_FLOAT || vParams[3].getType() != ScriptParam::PARM_TYPE_FLOAT) return out;
-		int id = (int)vParams[0].getFloat();
-		GameObject *object = SceneManager::Instance().GetObjectByInternID(id);
-		if (object)
-		{
-			float x = vParams[1].getFloat();
-			float y = vParams[2].getFloat();
-			float z = vParams[3].getFloat();
-			object->SetGlobalPosition(Ogre::Vector3(x,y,z));
-		}
-		return out;
-	}
-	std::vector<ScriptParam>SceneManager::Lua_SetObjectOrientation(Script& caller, std::vector<ScriptParam> vParams)
-	{
-		std::vector<ScriptParam> out;
-		if (vParams.size() != 4) return out;
-		if (vParams[0].getType() != ScriptParam::PARM_TYPE_FLOAT || vParams[1].getType() != ScriptParam::PARM_TYPE_FLOAT || vParams[2].getType() != ScriptParam::PARM_TYPE_FLOAT || vParams[3].getType() != ScriptParam::PARM_TYPE_FLOAT) return out;
-		int id = (int)vParams[0].getFloat();
-		GameObject *object = SceneManager::Instance().GetObjectByInternID(id);
-		if (object)
-		{
-			Ogre::Degree yDeg = Ogre::Degree(vParams[1].getFloat());
-			Ogre::Degree pDeg = Ogre::Degree(vParams[2].getFloat());
-			Ogre::Degree rDeg = Ogre::Degree(vParams[3].getFloat());
-			Ogre::Matrix3 mat3;
-			mat3.FromEulerAnglesYXZ(yDeg, pDeg, rDeg);
-			Ogre::Quaternion q;
-			q.FromRotationMatrix(mat3);
-			object->SetGlobalOrientation(q);
-		}
-		return out;
-	}
-	std::vector<ScriptParam>SceneManager::Lua_SetObjectScale(Script& caller, std::vector<ScriptParam> vParams)
-	{
-		std::vector<ScriptParam> out;
-		if (vParams.size() != 4) return out;
-		if (vParams[0].getType() != ScriptParam::PARM_TYPE_FLOAT || vParams[1].getType() != ScriptParam::PARM_TYPE_FLOAT || vParams[2].getType() != ScriptParam::PARM_TYPE_FLOAT || vParams[3].getType() != ScriptParam::PARM_TYPE_FLOAT) return out;
-		int id = (int)vParams[0].getFloat();
-		GameObject *object = SceneManager::Instance().GetObjectByInternID(id);
-		if (object)
-		{
-			float x = vParams[1].getFloat();
-			float y = vParams[2].getFloat();
-			float z = vParams[3].getFloat();
-			object->SetGlobalScale(Ogre::Vector3(x,y,z));
-		}
-		return out;
-	}
-
-	std::vector<ScriptParam>
-	SceneManager::Lua_CreateNpc(Script& caller, std::vector<ScriptParam> vParams)
-	{
-		std::vector<ScriptParam> out;
-		Ogre::Vector3 scale(1,1,1);
-		Ogre::String mesh = "";
-		int returnerID = -1;
-		if (vParams.size() > 0)
-		{
-			if (vParams[0].getType() == ScriptParam::PARM_TYPE_STRING)
-			{
-				mesh = vParams[0].getString().c_str();
-			}
-		}
-		if (vParams.size() == 4)
-		{
-			if (vParams[1].getType() == ScriptParam::PARM_TYPE_FLOAT)
-			{
-				scale.x = vParams[1].getFloat();
-			}
-			if (vParams[2].getType() == ScriptParam::PARM_TYPE_FLOAT)
-			{
-				scale.y = vParams[2].getFloat();
-			}
-			if (vParams[3].getType() == ScriptParam::PARM_TYPE_FLOAT)
-			{
-				scale.z = vParams[3].getFloat();
-			}
-		}
-		if (mesh != "")
-		{
-			GameObject *go = Instance().CreateGameObject();
-			//GOCAnimatedCharacter *body = new GOCAnimatedCharacter(mesh, scale);
-			GOCAI *ai = new GOCAI();
-			go->AddComponent(ai);		//Brain
-			go->AddComponent(new GOCMeshRenderable("cube.1m.mesh", true));		//Body
-			returnerID = (int)ai->GetID();
-		}
-		out.push_back(ScriptParam(returnerID));
-		return out;
-	}
-
-	std::vector<ScriptParam> SceneManager::Lua_CreatePlayer(Script& caller, std::vector<ScriptParam> vParams)
-	{
-		std::vector<ScriptParam> out;
-		std::vector<ScriptParam> ref;
-		std::string dummy;
-		ref.push_back(ScriptParam(dummy));
-		Ogre::String test = Utils::TestParameters(vParams, ref, false);
-		if (test == "")
-		{
-			Ogre::String model = vParams[0].getString();
-			GameObject* player = Instance().CreateGameObject();
-			player->AddComponent(new GOCPlayerInput());
-			player->AddComponent(new GOCCameraController());
-			player->GetComponent<GOCCameraController>()->AttachCamera(Main::Instance().GetCamera());
-			player->AddComponent(new GOCCharacterController(Ogre::Vector3(0.5f,1.8f,0.5f)));
-			GOCAnimatedCharacter *animated = new GOCAnimatedCharacter(model);
-			player->AddComponent(animated);
-			player->SetGlobalPosition(Ogre::Vector3(0,10,0));
-		}
-		else Ogre::LogManager::getSingleton().logMessage(test);
-		return out;
-	}
-
 
 	void SceneManager::ReceiveMessage(Msg &msg)
 	{
@@ -979,6 +667,15 @@ namespace Ice
 		//if (Ogre::MaterialManager::getSingleton().resourceExists(name + "_Mat"))	Ogre::MaterialManager::getSingleton().remove(name + "_Mat");
 	}
 
+	std::vector<ScriptParam> SceneManager::Lua_GetThis(Script& caller, std::vector<ScriptParam> vParams)
+	{
+		ScriptUser *scriptUser = ScriptSystem::GetInstance().GetScriptableObject(caller.GetID());
+		IceAssert(scriptUser);
+		std::vector<ScriptParam> returner;
+		returner.push_back(ScriptParam(scriptUser->GetThisID()));
+		return returner;	
+	}
+
 	std::vector<ScriptParam> SceneManager::Lua_GetFocusObject(Script& caller, std::vector<ScriptParam> params)
 	{
 		OgrePhysX::Scene::QueryHit hit;
@@ -1005,42 +702,29 @@ namespace Ice
 			}
 		}
 
-
-		/*if (Main::Instance().GetPhysXScene()->raycastClosestShape(hit, Ogre::Ray(origin, dir), NX_ALL_SHAPES, -1, maxDist))
-		{
-			if (hit.hitActor->userData)
-			{
-				GameObject *object = (GameObject*)hit.hitActor->userData;
-				if (object)
-				{
-					id = object->GetID();
-				}
-			}
-		}*/
 		std::vector<ScriptParam> returner;
 		returner.push_back(ScriptParam(id));
 		return returner;
 	}
 
-	std::vector<ScriptParam> SceneManager::Lua_ObjectIsNpc(Script& caller, std::vector<ScriptParam> params)
+	std::vector<ScriptParam> SceneManager::Lua_ObjectIsNpc(Script& caller, std::vector<ScriptParam> vParams)
 	{
-		std::vector<Ice::ScriptParam> errout(1, Ice::ScriptParam());
-		std::vector<Ice::ScriptParam> vRef=std::vector<Ice::ScriptParam>(1, Ice::ScriptParam(0.0));
-		std::string strErrString=Ice::Utils::TestParameters(params, vRef);
-		if(strErrString.length())
+		std::vector<ScriptParam> ref;
+		std::vector<ScriptParam> out;
+		bool isNpc = false;
+		float fdummy = 0;
+		ref.push_back(ScriptParam(fdummy));
+		Ogre::String param_test = Ice::Utils::TestParameters(vParams, ref, true);
+		if (param_test == "")
 		{
-			errout.push_back(strErrString);
-			return errout;
+			int id = vParams[0].getInt();
+			GameObject *obj = SceneManager::Instance().GetObjectByInternID(id);
+			isNpc = (obj->GetComponent<GOCAI>() != nullptr);
 		}
-		bool npc = false;
-		
-		int id = (int)params[0].getFloat();
-		GameObject *object = SceneManager::Instance().GetObjectByInternID(id);
-		if (object)
-		{
-			if (object->GetComponent("CharacterInput", "AI")) npc = true;
-		}
-		return std::vector<ScriptParam>(1,ScriptParam(npc));
+		else Ice::Utils::LogParameterErrors(caller, param_test);
+
+		out.push_back(isNpc);
+		return out;
 	}
 
 	std::vector<ScriptParam> SceneManager::Lua_NPCOpenDialog(Script& caller, std::vector<ScriptParam> params)
@@ -1067,47 +751,6 @@ namespace Ice
 				pAI->AddState(new Dialog(pAI));
 			}
 		}
-		return std::vector<ScriptParam>();
-	}
-
-	std::vector<ScriptParam> SceneManager::Lua_SetObjectVisible(Script& caller, std::vector<ScriptParam> params)
-	{
-		std::vector<Ice::ScriptParam> errout(1, Ice::ScriptParam());
-		std::vector<Ice::ScriptParam> vRef=std::vector<Ice::ScriptParam>(1, Ice::ScriptParam(0.0));
-		vRef.push_back(ScriptParam(false));
-		std::string strErrString=Ice::Utils::TestParameters(params, vRef);
-		if(strErrString.length())
-		{
-			errout.push_back(strErrString);
-			return errout;
-		}
-		
-		int id = (int)params[0].getFloat();
-		GameObject *object = SceneManager::Instance().GetObjectByInternID(id);
-		if (object)
-		{
-			GOCOgreNode *gocNode = object->GetComponent<GOCOgreNode>();
-			if (gocNode) gocNode->GetNode()->setVisible(params[1].getBool());
-		}
-		return std::vector<ScriptParam>();
-	}
-
-
-	std::vector<ScriptParam> SceneManager::Lua_GetObjectName(Script& caller, std::vector<ScriptParam> params)
-	{
-		std::vector<Ice::ScriptParam> errout(1, Ice::ScriptParam());
-		std::vector<Ice::ScriptParam> vRef=std::vector<Ice::ScriptParam>(1, Ice::ScriptParam(0.0f));
-		std::string strErrString=Ice::Utils::TestParameters(params, vRef);
-		if(strErrString.length())
-		{
-			errout.push_back(strErrString);
-			return errout;
-		}
-		
-		int id = (int)params[0].getFloat();
-		GameObject *object = SceneManager::Instance().GetObjectByInternID(id);
-		if (object)
-			return std::vector<ScriptParam>(1, ScriptParam(object->GetName()));
 		return std::vector<ScriptParam>();
 	}
 
@@ -1212,8 +855,8 @@ namespace Ice
 	}
 	void SceneManager::FreeCamera(GOCSimpleCameraController *cam)
 	{
-		assert(mCameraStack.size() > 0);
-		assert(mCameraStack.top() == cam);
+		IceAssert((mCameraStack.size() > 0));
+		IceAssert((mCameraStack.top() == cam));
 		cam->DetachCamera();
 		mCameraStack.pop();
 		if (mCameraStack.size() > 0) mCameraStack.top()->AttachCamera(Main::Instance().GetCamera());

@@ -1,6 +1,7 @@
 
 #include "IceGameObject.h"
 #include "IceSceneManager.h"
+#include "IceGOCScriptMakros.h"
 
 
 namespace Ice
@@ -381,5 +382,65 @@ namespace Ice
 			(*i)->SetParent(this);
 		}
 	}
+
+	std::vector<ScriptParam> GameObject::SetObjectProperty(std::vector<ScriptParam> &vParams)
+	{
+		std::vector<ScriptParam> out;
+		Ogre::String key = vParams[0].getString().c_str();
+		mScriptProperties[key] = vParams[1];
+		return out;
+	}
+	std::vector<ScriptParam> GameObject::GetObjectProperty(std::vector<ScriptParam> &vParams)
+	{
+		std::vector<ScriptParam> out;
+		Ogre::String key = vParams[0].getString().c_str();
+		auto i = mScriptProperties.find(key);
+		if (i == mScriptProperties.end()) return out;
+		out.push_back(i->second);
+		return out;
+	}
+	std::vector<ScriptParam> GameObject::SetObjectPosition(std::vector<ScriptParam> &vParams)
+	{
+		std::vector<ScriptParam> out;
+		float x = vParams[0].getFloat();
+		float y = vParams[1].getFloat();
+		float z = vParams[2].getFloat();
+		SetGlobalPosition(Ogre::Vector3(x,y,z));
+		return out;
+	}
+	std::vector<ScriptParam> GameObject::SetObjectOrientation(std::vector<ScriptParam> &vParams)
+	{
+		std::vector<ScriptParam> out;
+		Ogre::Degree yDeg = Ogre::Degree(vParams[0].getFloat());
+		Ogre::Degree pDeg = Ogre::Degree(vParams[1].getFloat());
+		Ogre::Degree rDeg = Ogre::Degree(vParams[2].getFloat());
+		Ogre::Matrix3 mat3;
+		mat3.FromEulerAnglesYXZ(yDeg, pDeg, rDeg);
+		Ogre::Quaternion q;
+		q.FromRotationMatrix(mat3);
+		SetGlobalOrientation(q);
+		return out;
+	}
+	std::vector<ScriptParam> GameObject::SetObjectScale(std::vector<ScriptParam> &vParams)
+	{
+		std::vector<ScriptParam> out;
+		float x = vParams[0].getFloat();
+		float y = vParams[1].getFloat();
+		float z = vParams[2].getFloat();
+		SetGlobalScale(Ogre::Vector3(x,y,z));
+		return out;
+	}
+	std::vector<ScriptParam> GameObject::GetObjectName(std::vector<ScriptParam> &vParams)
+	{
+		std::vector<ScriptParam> out;
+		return out;
+	}
+
+	DEFINE_TYPEDGOLUAMETHOD_CPP(SetObjectProperty, "string")
+	DEFINE_TYPEDGOLUAMETHOD_CPP(GetObjectProperty, "string")
+	DEFINE_TYPEDGOLUAMETHOD_CPP(SetObjectPosition, "float float float")
+	DEFINE_TYPEDGOLUAMETHOD_CPP(SetObjectOrientation, "float float float")
+	DEFINE_TYPEDGOLUAMETHOD_CPP(SetObjectScale, "float float float")
+	DEFINE_GOLUAMETHOD_CPP(GetObjectName)
 
 };

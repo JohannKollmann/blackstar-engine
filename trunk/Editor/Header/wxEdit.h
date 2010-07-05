@@ -21,6 +21,7 @@
 #include "wxTextureDisplay.h"
 #include "wxLogDisplay.h"
 #include "EDTIncludes.h"
+#include "wxSimpleOgreView.h"
 
 class wxEdit : public wxFrame, public Ogre::Singleton<wxEdit>
 {
@@ -41,7 +42,7 @@ private:
 	wxComponentBar *mComponentBar;
 	wxEditorToolbar *mMainToolbar;
 	wxEditorToolbar *mExplorerToolbar;
-	wxTextureDisplay *mPreviewWindow;
+	wxSimpleOgreView *mObjectPreviewWindow;
 	wxLogDisplay *mLogDisplay;
 
 	//Menu
@@ -62,7 +63,7 @@ public:
 	wxPropertyGridWindow* GetpropertyWindow() { return mPropertyWindow; };
 	wxSettingsWindow* GetSettingsWindow() { return mSettingsWindow; };
 	wxMeshMagick* GetMeshMagick() { return mMeshMagick; };
-	wxTextureDisplay* GetPreviewWindow() { return mPreviewWindow; };
+	wxSimpleOgreView* GetPreviewWindow() { return mObjectPreviewWindow; };
 	wxProgressBar* GetProgressBar() { return mProgressBar; };
 	wxComponentBar* GetComponentBar() { return mComponentBar; };
 	wxEditorToolbar* GetMainToolbar() { return mMainToolbar; };

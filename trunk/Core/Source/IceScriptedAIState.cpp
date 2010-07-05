@@ -29,7 +29,7 @@ namespace Ice
 		if (OnSimulate(time)) return true;
 		if (timeGetTime() - mLastUpdateCall > 0.1f)
 		{
-			mLastUpdateCall = timeGetTime();
+			mLastUpdateCall = (float)timeGetTime();
 			std::vector<ScriptParam> params;
 			params.push_back(ScriptParam((int)mAIObject->GetID()));
 			std::vector<ScriptParam> returns = mScript.CallFunction("onUpdate", params);
@@ -90,7 +90,7 @@ namespace Ice
 
 		if (timeGetTime() - mLastUpdateCall > 0.1f)
 		{
-			mLastUpdateCall = timeGetTime();
+			mLastUpdateCall = (float)timeGetTime();
 			std::vector<ScriptParam> returns = mScript.CallFunction("onUpdate", mScriptParams);
 
 			if (returns.size() == 0) return false;

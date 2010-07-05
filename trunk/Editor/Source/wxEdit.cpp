@@ -83,8 +83,8 @@ wxEdit::wxEdit() : wxFrame(nullptr, -1, _("Blackstar Edit"),
                   Name(wxT("meshmagick")).Caption(wxT("Mesh Magick Params")).
 				  Dockable(false).Float().Hide());
 
-	mPreviewWindow = new wxTextureDisplay(this, -1, wxDefaultPosition, wxDefaultSize);
-    m_mgr.AddPane(mPreviewWindow, wxAuiPaneInfo().
+	mObjectPreviewWindow = new wxSimpleOgreView(this, -1);
+    m_mgr.AddPane(mObjectPreviewWindow, wxAuiPaneInfo().
                   Name(wxT("preview")).Caption(wxT("Preview")).
 				 Dockable(false).Float().FloatingPosition(wxPoint(GetPosition().x + GetSize().GetWidth(),GetPosition().y)).FloatingSize(256,256));
 
@@ -110,7 +110,7 @@ wxEdit::wxEdit() : wxFrame(nullptr, -1, _("Blackstar Edit"),
 
 	PushEventHandler(mMenuBar);
 
-	GetOgrePane()->initOgre();
+	GetOgrePane()->initOgre("MainRenderWindow");
 };
 
 void wxEdit::RefreshToolbars()
@@ -149,6 +149,8 @@ void wxEdit::PostCreate()
 	wxEdit::Instance().GetExplorerToolbar()->SetGroupStatus("ResourceMgr", false);	//Hack
 	Ice::MainLoop::Instance().doLoop();
 	Ice::SceneManager::Instance().EnableClock(false);
+
+	mObjectPreviewWindow->initOgre("PreviewWindow");
 
 	LoadSave::LoadSave::Instance().RegisterObject(&ComponentSection::Register);
 	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new ComponentSectionVectorHandler());

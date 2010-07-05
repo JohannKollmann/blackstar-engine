@@ -1,7 +1,7 @@
 #pragma once
 
 #include "IceScript.h"
-#include "IceScriptable.h"
+#include "IceScriptUser.h"
 #include "IceIncludes.h"
 
 namespace Ice
@@ -17,8 +17,8 @@ public:
 	void ShareCFunction(std::string strName, ScriptFunction fn);
 	void ShareScriptFunction(std::string strName, Script& script);
 
-	Script CreateInstance(std::string strFileName);
-	Script CreateInstance(std::string strFileName, std::vector<ScriptParam> params);
+	Script CreateInstance(std::string strFileName, bool callCreate = true);
+	Script CreateInstance(std::string strFileName, std::vector<ScriptParam> params, bool callCreate = true);
 
 	static std::vector<ScriptParam> RunCallbackFunction(ScriptParam function, std::vector<ScriptParam> params);
 
@@ -33,9 +33,9 @@ public:
 
 	static std::vector<ScriptParam> Lua_JoinNewsgroup(Script &caller, std::vector<ScriptParam> params);
 
-	Scriptable* GetScriptableObject(int scriptID);
-	void RegisterScriptable(Scriptable *scriptable, int scriptID);
-	void UnregisterScriptable(int scriptID);
+	ScriptUser* GetScriptableObject(int scriptID);
+	void RegisterScriptUser(ScriptUser *script, int scriptID);
+	void UnregisterScriptUser(int scriptID);
 
 private:
 	friend class ScriptParam;//needs these maps for callbacks
@@ -48,7 +48,7 @@ private:
 	std::map<std::string, std::vector<int>> m_mScriptInstances;//hack for deletion
 
 	//Script ID - Object bindings
-	std::map<int, Scriptable*> mScriptObjectBinds;
+	std::map<int, ScriptUser*> mScriptObjectBinds;
 
 	int m_iCurrID;
 

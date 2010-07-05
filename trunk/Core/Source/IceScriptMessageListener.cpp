@@ -7,7 +7,7 @@ namespace Ice
 
 	ScriptMessageListener::ScriptMessageListener(ScriptParam &callbackFn)
 	{
-		assert(callbackFn.getType() == ScriptParam::PARM_TYPE_FUNCTION);
+		IceAssert((callbackFn.getType() == ScriptParam::PARM_TYPE_FUNCTION));
 
 		mScriptCallback = callbackFn;
 	}

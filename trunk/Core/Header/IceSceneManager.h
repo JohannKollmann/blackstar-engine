@@ -5,11 +5,11 @@
 #include <list>
 #include <map>
 #include "Ogre.h"
-#include "IceGameObject.h"
 #include "IceGOCEditorInterface.h"
 #include "IceMessageSystem.h"
 #include "IceScriptSystem.h"
 #include "IceSoundMaterialTable.h"
+#include "IceGameObject.h"
 
 namespace OgreOggSound
 {
@@ -143,54 +143,17 @@ namespace Ice
 		static void LogMessage(std::string strError);
 		static std::vector<ScriptParam> Lua_LogMessage(Script& caller, std::vector<ScriptParam> vParams);
 		static std::vector<ScriptParam> Lua_LoadLevel(Script& caller, std::vector<ScriptParam> vParams);
-		static std::vector<ScriptParam> Lua_CreateNpc(Script& caller, std::vector<ScriptParam> vParams);
-
-		static std::vector<ScriptParam> Lua_CreatePlayer(Script& caller, std::vector<ScriptParam> vParams);
 
 		//Sound system
 		static std::vector<ScriptParam> Lua_CreateMaterialProfile(Script& caller, std::vector<ScriptParam> vParams);
 		static std::vector<ScriptParam> Lua_Play3DSound(Script& caller, std::vector<ScriptParam> vParams);
 
 		/*
-		Alle Methoden im Format Npc_* erwarten als ersten Parameter die eindeutige ID des AI-Objekts.
+		Liefert die ID des mit dem caller script assozierten Script Objekts zurück.
 		*/
-		static GOCAI* Lua_Npc_ExtractAI(std::vector<ScriptParam> vParams);
-		/*
-		Liefert die ID des mit dem caller script assozierten AI Objekts zurück.
-		*/
-		static std::vector<ScriptParam> Lua_Npc_GetThis(Script& caller, std::vector<ScriptParam> vParams);
-		/*
-		Getter und Setter für Npc-Properties.
-		Erwartet den Namen der Property als String und einen beliebigen Wert.
-		*/
-		static std::vector<ScriptParam> Lua_Npc_SetProperty(Script& caller, std::vector<ScriptParam> vParams);
-		static std::vector<ScriptParam> Lua_Npc_GetProperty(Script& caller, std::vector<ScriptParam> vParams);
-		/*
-		Erwartet den anzunehmenden Statename als String
-		*/
-		static std::vector<ScriptParam> Lua_Npc_AddState(Script& caller, std::vector<ScriptParam> vParams);
-		/*
-		Killt den momentan akiven Action-State (wenn vorhanden)
-		*/
-		static std::vector<ScriptParam> Lua_Npc_KillActiveState(Script& caller, std::vector<ScriptParam> vParams);
-		/*
-		Leert die gesamte Action State Queue.
-		*/
-		static std::vector<ScriptParam> Lua_Npc_ClearQueue(Script& caller, std::vector<ScriptParam> vParams);
-		/*
-		Erwartet den Dateinamen des Script-TAs als String (z. B. TA_Sleep.lua)
-		*/
-		static std::vector<ScriptParam> Lua_Npc_AddTA(Script& caller, std::vector<ScriptParam> vParams);
-		/*
-		Erwartet den Ziel-WP
-		*/
-		static std::vector<ScriptParam> Lua_Npc_GotoWP(Script& caller, std::vector<ScriptParam> vParams);
-		static std::vector<ScriptParam> Lua_Npc_GetDistToWP(Script& caller, std::vector<ScriptParam> vParams);
+		static std::vector<ScriptParam> Lua_GetThis(Script& caller, std::vector<ScriptParam> vParams);
 
 		static std::vector<ScriptParam> Lua_InsertMesh(Script& caller, std::vector<ScriptParam> vParams);
-		static std::vector<ScriptParam> Lua_SetObjectPosition(Script& caller, std::vector<ScriptParam> vParams);
-		static std::vector<ScriptParam> Lua_SetObjectOrientation(Script& caller, std::vector<ScriptParam> vParams);
-		static std::vector<ScriptParam> Lua_SetObjectScale(Script& caller, std::vector<ScriptParam> vParams);
 
 		/*
 		Liefert die ID des aktuell fokussierten Objekts zurück.
@@ -199,8 +162,6 @@ namespace Ice
 		static std::vector<ScriptParam> Lua_GetFocusObject(Script& caller, std::vector<ScriptParam> params);
 
 		static std::vector<ScriptParam> Lua_NPCOpenDialog(Script& caller, std::vector<ScriptParam> params);
-		static std::vector<ScriptParam> Lua_SetObjectVisible(Script& caller, std::vector<ScriptParam> params);
-		static std::vector<ScriptParam> Lua_GetObjectName(Script& caller, std::vector<ScriptParam> params);
 		
 
 		/*

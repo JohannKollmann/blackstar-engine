@@ -54,6 +54,8 @@ namespace Ice
 		void UpdateChildren(bool move = true);
 		void UpdateLocalTransform();
 
+		std::map<Ogre::String, ScriptParam> mScriptProperties;
+
 	public:
 		GameObject();
 		virtual ~GameObject();
@@ -115,6 +117,21 @@ namespace Ice
 		void SetFreezeOrientation(bool freeze) { mFreezeOrientation = freeze; }
 
 		bool IsStatic();
+
+		//Scripting
+		std::vector<ScriptParam> SetObjectProperty(std::vector<ScriptParam> &params);
+		std::vector<ScriptParam> GetObjectProperty(std::vector<ScriptParam> &params);
+		std::vector<ScriptParam> SetObjectPosition(std::vector<ScriptParam> &params);
+		std::vector<ScriptParam> SetObjectOrientation(std::vector<ScriptParam> &params);
+		std::vector<ScriptParam> SetObjectScale(std::vector<ScriptParam> &params);
+		std::vector<ScriptParam> GetObjectName(std::vector<ScriptParam> &params);
+
+		static std::vector<ScriptParam> Lua_SetObjectProperty(Script& caller, std::vector<ScriptParam> params);
+		static std::vector<ScriptParam> Lua_GetObjectProperty(Script& caller, std::vector<ScriptParam> params);
+		static std::vector<ScriptParam> Lua_SetObjectPosition(Script& caller, std::vector<ScriptParam> params);
+		static std::vector<ScriptParam> Lua_SetObjectOrientation(Script& caller, std::vector<ScriptParam> params);
+		static std::vector<ScriptParam> Lua_SetObjectScale(Script& caller, std::vector<ScriptParam> params);
+		static std::vector<ScriptParam> Lua_GetObjectName(Script& caller, std::vector<ScriptParam> params);
 
 		//Editor stuff
 		void Freeze(bool freeze);

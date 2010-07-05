@@ -100,6 +100,33 @@ namespace Ice
 		return strOut;
 	}
 
+	std::string Utils::TestParameters(std::vector<ScriptParam> testparams, std::string sRefParams, bool bAllowMore)
+	{
+		std::vector<ScriptParam> vRefParams;
+		int i=0; std::string s; double d=0; bool b = false;  
+		std::string currParam = "";
+		unsigned int index = 0;
+		sRefParams += " ";	//Append blank
+		while (index < sRefParams.length())
+		{
+			if (sRefParams[index] == ' ')
+			{
+				if (currParam == "int") vRefParams.push_back(ScriptParam(i));
+				else if (currParam == "bool") vRefParams.push_back(ScriptParam(b));
+				else if (currParam == "string") vRefParams.push_back(ScriptParam(s));
+				else if (currParam == "float") vRefParams.push_back(ScriptParam(d));
+				else if (currParam == "double") vRefParams.push_back(ScriptParam(d));
+
+				currParam = "";
+			}
+			else currParam.push_back(sRefParams[index]);
+
+			index++;
+		}
+
+		return TestParameters(testparams, vRefParams, bAllowMore);
+	}
+
 	void Utils::LogParameterErrors(Script& caller, Ogre::String msg, int line)
 	{
 		Ogre::String log = "[Script] Error in \"" + caller.GetScriptName() + "\": " + msg;
