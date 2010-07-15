@@ -389,7 +389,7 @@ void Main::setupRenderSystem()
 	//mRenderSystem->setConfigOption("Capture frames to AVI file (capture.avi)", "Yes");
 
 	mRenderSystem->setConfigOption("VSync", vsync);
-	mRenderSystem->setConfigOption("FSAA", aa);
+	mRenderSystem->setConfigOption("FSAA", "Level" + aa);
 
 	if (renderer == "Direct3D9 Rendering Subsystem")
 	{
@@ -449,16 +449,19 @@ void Main::GetConfig()
 		for (i = Settings->begin(); i != Settings->end(); i++)
 		{
 			bool added = false;
-			for (auto x = mSettings[secName].begin(); x != mSettings[secName].end(); x++)
+			if (secName == "Graphics")
 			{
-				if (x->Key == i->first)
+				for (auto x = mSettings[secName].begin(); x != mSettings[secName].end(); x++)
 				{
-					x->Val = i->second;
-					added = true;
-					break;
+					if (x->Key == i->first)
+					{
+						x->Val = i->second;
+						added = true;
+						break;
+					}
 				}
 			}
-			if (!added) mSettings[secName].push_back(KeyVal(i->first, i->second));
+			else mSettings[secName].push_back(KeyVal(i->first, i->second));
 		}
 	}
 }
