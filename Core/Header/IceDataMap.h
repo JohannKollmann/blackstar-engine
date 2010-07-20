@@ -117,7 +117,7 @@ public:
 	};
 
 	/*
-	Template zum speichern von Basistypen.
+	Template for saving basic types.
 	*/
 	template <class templateType>
 		void AddValue(Ogre::String keyname, templateType var)

@@ -139,7 +139,6 @@ namespace Ice
 
 
 		//Script
-
 		static void LogMessage(std::string strError);
 		static std::vector<ScriptParam> Lua_LogMessage(Script& caller, std::vector<ScriptParam> vParams);
 		static std::vector<ScriptParam> Lua_LoadLevel(Script& caller, std::vector<ScriptParam> vParams);

@@ -33,34 +33,59 @@ namespace Ice
 		GOComponent() : mOwnerGO(nullptr), mTransformingOwner(false) {}
 		virtual ~GOComponent() {}
 
+		///Sets the position of the component's owner object.
 		void SetOwnerPosition(const Ogre::Vector3 &position);
+
+		///Sets the orientation of the component's owner object.
 		void SetOwnerOrientation(const Ogre::Quaternion &orientation);
 
+		///Retrieves the component type identifier.
 		virtual goc_id_type& GetComponentID() const = 0;
+
+		/**
+		Retrieves the component family type identifier.
+		@return the family name of the component.
+		@remarks Only one component of the same family can be attached to the same object.
+		*/		
 		virtual goc_id_family& GetFamilyID() const { return GetComponentID(); }
 
+		///Sets the component owner object.
+		virtual void SetOwner(GameObject *go);
+
+		///Retrieves the component owner object.
+		GameObject* GetOwner() const { return mOwnerGO; }
+
+		///Called when a child is added to the owner object.
+		virtual void OnAddChild(GameObject *child) {}
+
+		///Called when a child is removed from the owner object.
+		virtual void OnRemoveChild(GameObject *child) {}
+
+		///Called when the position of the owner object changes.
+		virtual void UpdatePosition(Ogre::Vector3 position) {}
+
+		///Called when the orientation of the owner object changes.
+		virtual void UpdateOrientation(Ogre::Quaternion orientation) {}
+
+		///Called when the scale of the owner object changes.
+		virtual void UpdateScale(Ogre::Vector3 scale) {}
+
+		///Retrieves whether the component is static (movable) or not.
+		virtual bool IsStatic() { return true; }
+
+		///Dispatches an object message
+		virtual void ReceiveObjectMessage(const Msg &msg) {}
+
+		///Freezes the component
+		virtual void Freeze(bool freeze) {};
+
+		///Shows the editor / debug visual
+		virtual void ShowEditorVisual(bool show) {};
+
+		//Load save methods
 		std::string& TellName() { return GetComponentID(); };
 		void Save(LoadSave::SaveSystem& mgr) {}
 		void Load(LoadSave::LoadSystem& mgr) {}
-
-		virtual void SetOwner(GameObject *go);
-		GameObject* GetOwner() const { return mOwnerGO; }
-
-		virtual void OnAddChild(GameObject *child) {}
-		virtual void OnRemoveChild(GameObject *child) {}
-
-		virtual void UpdatePosition(Ogre::Vector3 position) {}
-		virtual void UpdateOrientation(Ogre::Quaternion orientation) {}
-		virtual void UpdateScale(Ogre::Vector3 scale) {}
-
-		virtual bool IsStatic() { return true; }
-
-		//Messaging
-		virtual void ReceiveObjectMessage(const Msg &msg) {}
-
-		//Editor stuff
-		virtual void Freeze(bool freeze) {};
-		virtual void ShowEditorVisual(bool show) {};
 	};
 
 	class DllExport GOComponentEditable : public GOCEditorInterface, public GOComponent

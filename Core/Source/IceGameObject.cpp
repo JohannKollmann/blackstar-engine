@@ -18,8 +18,6 @@ namespace Ice
 		mPosition = Ogre::Vector3(0,0,0);
 		mOrientation = Ogre::Quaternion();
 		UpdateLocalTransform();
-		mFreezePosition = false;
-		mFreezeOrientation = false;
 		mTransformingChildren = false;
 		mUpdatingFromParent = false;
 		mIgnoreParent = false;
@@ -47,11 +45,10 @@ namespace Ice
 		mPosition = Ogre::Vector3(0,0,0);
 		mOrientation = Ogre::Quaternion();
 		UpdateLocalTransform();
-		mFreezePosition = false;
-		mFreezeOrientation = false;
 		mTransformingChildren = false;
 		mUpdatingFromParent = false;
 		mIgnoreParent = false;
+		mFreezed = false;
 	}
 
 	GameObject::~GameObject()
@@ -70,16 +67,6 @@ namespace Ice
 		if (mCurrentMessages.size() == 1) SceneManager::Instance().AddToMessageQueue(this);
 	}
 
-	void GameObject::SendInstantMessage(Ogre::String receiver_family, const Msg &msg)
-	{
-		for (std::vector<GOComponent*>::iterator i = mComponents.begin(); i != mComponents.end(); i++)
-		{
-			if ((*i)->GetFamilyID() == receiver_family || receiver_family == "")
-			{
-				(*i)->ReceiveObjectMessage(msg);
-			}
-		}
-	}
 	void GameObject::SendInstantMessage(const Msg &msg)
 	{
 		for (std::vector<GOComponent*>::iterator i = mComponents.begin(); i != mComponents.end(); i++)
@@ -198,16 +185,6 @@ namespace Ice
 		return 0;
 	}
 
-	std::vector<Ogre::String> GameObject::GetComponentsStr()
-	{
-		std::vector<Ogre::String> returner;
-		for (std::vector<GOComponent*>::iterator i = mComponents.begin(); i != mComponents.end(); i++)
-		{
-			returner.push_back((*i)->GetFamilyID());
-		}
-		return returner;
-	}
-
 	void GameObject::RemoveComponent(const GOComponent::goc_id_family &familyID)
 	{
 		for (std::vector<GOComponent*>::iterator i = mComponents.begin(); i != mComponents.end(); i++)
@@ -304,6 +281,7 @@ namespace Ice
 
 	void GameObject::Freeze(bool freeze)
 	{
+		mFreezed = freeze;
 		for (std::vector<GOComponent*>::iterator i = mComponents.begin(); i != mComponents.end(); i++)
 		{
 			(*i)->Freeze(freeze);

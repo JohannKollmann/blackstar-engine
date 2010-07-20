@@ -18,7 +18,7 @@ namespace Ice
 		Msg objmsg;
 		objmsg.type = "UpdateCharacterMovementState";
 		objmsg.params.AddInt("CharacterMovementState", mCharacterMovementState);
-		mOwnerGO->SendInstantMessage("", objmsg);
+		mOwnerGO->SendInstantMessage(objmsg);
 	}
 	void CharacterControllerInput::BroadcastMovementState(int state)
 	{
@@ -109,7 +109,7 @@ namespace Ice
 				mJump.StopJump();
 				Msg jump_response;
 				jump_response.type = "CharacterJumpEnded";
-				mOwnerGO->SendInstantMessage("", jump_response);
+				mOwnerGO->SendInstantMessage(jump_response);
 			}
 			Msg collision_response;
 			collision_response.type = "CharacterCollisionReport";
