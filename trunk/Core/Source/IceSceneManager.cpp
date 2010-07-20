@@ -148,8 +148,8 @@ namespace Ice
 			goc->SetParameters(parameters);
 			return goc;
 		}
-		Ogre::LogManager::getSingleton().logMessage("WARNING: SceneManager::CreateGOCEditorInterface - Can't find \"" + type + "\". Returning nullptr.");
-		return goc;
+		IceAssert(false);
+		return nullptr;
 	}
 
 	WeatherController* SceneManager::GetWeatherController()

@@ -23,21 +23,36 @@ class NxControllerManager;
 #define STRINGIFY(param) #param
 
 #define ICE_NOASSERRTS 0
+#define ICE_NOWARNINGS 0
+#define ICE_NONOTES 0
 
 #ifdef _DEBUG
 	#define IceAssert(expression) \
 	if (!expression) \
 	{ \
-		Ogre::LogManager::getSingleton().logMessage(Ogre::String("Assertion failed: ") + #expression +  Ogre::String(", file ") + __FILE__ +  Ogre::String(", line ") + Ogre::StringConverter::toString(__LINE__)); \
+		Ogre::LogManager::getSingleton().logMessage(Ogre::String("Assertion failed: ") + #expression + Ogre::String(", function ") + __FUNCTION__ + Ogre::String(", file ") + __FILE__ +  Ogre::String(", line ") + Ogre::StringConverter::toString(__LINE__)); \
 		DebugBreak();	\
 	}
 #else
 	#define IceAssert(expression) \
 	if (!expression) \
 	{ \
-		Ogre::LogManager::getSingleton().logMessage("Assertion failed: " ## #expression ## ", file " ## STRINGIFY(__FILE__) ## ", line " ## STRINGIFY(__LINE__)); \
+		Ogre::LogManager::getSingleton().logMessage(Ogre::String("Assertion failed: ") + #expression + Ogre::String(", function ") + __FUNCTION__ + Ogre::String(", file ") + __FILE__ +  Ogre::String(", line ") + Ogre::StringConverter::toString(__LINE__)); \
 	}
 #endif
+
+#if ICE_NOWARNINGS
+	#define IceWarning(message)
+#else
+	#define IceWarning(message) Ogre::LogManager::getSingleton().logMessage(Ogre::String("Warning: ") + message + Ogre::String(", function ") + __FUNCTION__ + Ogre::String(", file ") + __FILE__ +  Ogre::String(", line ") + Ogre::StringConverter::toString(__LINE__));
+#endif
+
+#if ICE_NONOTES
+	#define IceNote(message)
+#else
+	#define IceNote(message) Ogre::LogManager::getSingleton().logMessage(message + Ogre::String(", function ") + __FUNCTION__ + Ogre::String(", file ") + __FILE__ +  Ogre::String(", line ") + Ogre::StringConverter::toString(__LINE__));
+#endif
+
 
 #if ICE_NOASSERRTS
 	#undef IceAssert

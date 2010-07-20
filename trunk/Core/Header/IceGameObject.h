@@ -26,8 +26,7 @@ namespace Ice
 		bool mLoadSaveByParent;
 
 		bool mSelectable;
-		bool mFreezePosition;
-		bool mFreezeOrientation;
+		bool mFreezed;
 
 		bool mTransformingChildren;
 		bool mUpdatingFromParent;
@@ -60,21 +59,62 @@ namespace Ice
 		GameObject();
 		virtual ~GameObject();
 
+		/**
+		@return The name of the object.
+		*/
 		Ogre::String GetName() { return mName; }
+
+		/**
+		@param name The new name of the object.
+		*/
 		void SetName(Ogre::String name) { mName = name; }
 
+		/**
+		@return The unique ID of the object.
+		*/
 		int GetID() { return mID; }
+
+		/**
+		@return The unique ID of the object as string.
+		*/
 		Ogre::String GetIDStr() { return Ogre::StringConverter::toString(mID); }
 
+		/**
+		@return The object's parent (nullptr if not existing).
+		*/
 		GameObject* GetParent() { return mParent; }
 
+		/**
+		Broadcasts a message to all components.
+		@param msg The message.
+		*/
 		void SendMessage(const Msg &msg);
-		void SendInstantMessage(Ogre::String receiver_family, const Msg &msg);
+
+		/**
+		Broadcasts a messe too all components without any delay.
+		@param msg The message.
+		*/
 		void SendInstantMessage(const Msg &msg);
+
+		/**
+		Dispatches all waiting message requests created using SendMessage.
+		*/
 		void ProcessMessages();
 
+		/**
+		Attaches a component to the object.
+		@param component The component.
+		*/
 		void AddComponent(GOComponent* component);
 
+		/**
+		Removes the component of family familyID.
+		*/
+		void RemoveComponent(const GOComponent::goc_id_family& familyID);
+
+		/**
+		Returns the component of type T if it exists, otherwise nullptr.
+		*/
 		template<class T>
 		T* GetComponent()
 		{
@@ -83,18 +123,77 @@ namespace Ice
 				T *rtti = dynamic_cast<T*>((*i));
 				if (rtti) return rtti;
 			}
-			return 0;
+			return nullptr;
 		}
+
+		/**
+		Returns the component of family familyID if it exists, otherwise nullptr.
+		*/
 		GOComponent* GetComponent(const GOComponent::goc_id_family& familyID);
+
+		/**
+		Returns the component of family familyID and type typeID if it exists, otherwise nullptr.
+		*/
 		GOComponent* GetComponent(const GOComponent::goc_id_family& familyID, GOComponent::goc_id_type typeID);
-		std::vector<Ogre::String> GetComponentsStr();
+
+		/**
+		Provides a mechanism to iterate over the components attached to the object.
+		*/
 		std::vector<GOComponent*>::iterator GetComponentIterator() { return mComponents.begin(); }
 		std::vector<GOComponent*>::iterator GetComponentIteratorEnd() { return mComponents.end(); }
-		void RemoveComponent(const GOComponent::goc_id_family& familyID);
+
+		/**
+		Detaches and deletes all attaches components.
+		*/
 		void ClearGOCs();
+
+		/**
+		Deletes all children.
+		*/
 		void ClearChildren();
 
-		void SetLoadSaveByParent(bool loadsave) { mLoadSaveByParent = loadsave; }
+		/**
+		Set parent.
+		*/
+		void SetParent(GameObject *parent);
+
+		/**
+		Registers an object as child of this object.
+		*/
+		void RegisterChild(GameObject *child);
+
+		/**
+		Unregisters an object as child of this object.
+		*/
+		void UnregisterChild(GameObject *child);
+
+		/**
+		Detaches all children.
+		@return The detached children.
+		*/
+		std::vector<GameObject*> DetachChildren();
+
+		/**
+		@return The number of children.
+		*/
+		unsigned int GetNumChildren()
+		{
+			return mChildren.size();
+		}
+
+		/**
+		@return The child at index index if existing, otherwise nullptr.
+		*/
+		GameObject* GetChild(unsigned short index);
+
+		/**
+		Notifies the object that the state of its parent has changed.
+		*/
+		void OnParentChanged();
+
+		/**
+		Shall the object ignore the parent's movement/rotation/scale?
+		*/
 		void SetIgnoreParent(bool ignore) { mIgnoreParent = ignore; }
 
 		Ogre::Vector3 GetGlobalPosition() { return mPosition; }
@@ -105,17 +204,15 @@ namespace Ice
 		void SetGlobalOrientation(Ogre::Quaternion quat) { SetGlobalOrientation(quat, true); }
 		void SetGlobalOrientation(Ogre::Quaternion quat, bool updateChildren);
 		void SetGlobalScale(Ogre::Vector3 scale);
-		void Translate(Ogre::Vector3 vec, bool updateChildren = true) { if (!mFreezePosition) SetGlobalPosition(mPosition + vec, updateChildren); }
-		void Rotate(Ogre::Vector3 axis, Ogre::Radian angle, bool updateChildren = true) { if (!mFreezeOrientation) { Ogre::Quaternion q; q.FromAngleAxis(angle, axis); SetGlobalOrientation(mOrientation * q, updateChildren); } }
+		void Translate(Ogre::Vector3 vec, bool updateChildren = true) { if (!mFreezed) SetGlobalPosition(mPosition + vec, updateChildren); }
+		void Rotate(Ogre::Vector3 axis, Ogre::Radian angle, bool updateChildren = true) { if (!mFreezed) { Ogre::Quaternion q; q.FromAngleAxis(angle, axis); SetGlobalOrientation(mOrientation * q, updateChildren); } }
 		void Rescale(Ogre::Vector3 scaleoffset) { SetGlobalScale(mScale + scaleoffset); }
 		bool GetTransformingChildren() { return mTransformingChildren; }
 		bool GetUpdatingFromParent() { return mUpdatingFromParent; }
 
-		bool IsSelectable() { return mSelectable; }
-		void SetSelectable(bool selectable) { mSelectable = selectable; }
-		void SetFreezePosition(bool freeze) { mFreezePosition = freeze; }
-		void SetFreezeOrientation(bool freeze) { mFreezeOrientation = freeze; }
-
+		/**
+		Returns whether the object is movable and should be included in a save file.
+		*/
 		bool IsStatic();
 
 		//Scripting
@@ -137,18 +234,8 @@ namespace Ice
 		void Freeze(bool freeze);
 		void ShowEditorVisuals(bool show);
 
-		void SetParent(GameObject *parent);
-		void RegisterChild(GameObject *child);
-		void UnregisterChild(GameObject *child);
-		std::vector<GameObject*> DetachChildren();
-
-		unsigned int GetNumChildren()
-		{
-			return mChildren.size();
-		}
-		GameObject* GetChild(unsigned short index);
-
-		void OnParentChanged();
+		bool IsSelectable() { return mSelectable; }
+		void SetSelectable(bool selectable) { mSelectable = selectable; }
 
 		//Load / Save
 		std::string& TellName()

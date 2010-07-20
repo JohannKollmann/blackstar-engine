@@ -1,19 +1,21 @@
 
 #pragma once
 
-/*
-Interface for Editors.
-*/
-
 #include "IceDataMap.h"
 #include "IceIncludes.h"
 
 namespace Ice
 {
+	/**
+	Specifies an interface how objects can be manipulated using a DataMap.
+	@remarks
+		This interface is mainly for editors with property grids.
+	*/
 	class DllExport EditorInterface
 	{
 	public:
 		virtual ~EditorInterface() {}
+
 		virtual void SetParameters(DataMap *parameters) {};
 		virtual void GetParameters(DataMap *parameters) {};
 	};
@@ -26,17 +28,34 @@ namespace Ice
 		virtual T* New() = 0;
 	};
 
+	/**
+	Editor interface for components.
+	@remarks
+		It implements the cloneable interface because the SceneManager uses prototyping for component creation.
+	*/
 	class DllExport GOCEditorInterface : public EditorInterface, public Cloneable<GOCEditorInterface>
 	{
 	public:
 		virtual ~GOCEditorInterface() {}
 
 		virtual void GetDefaultParameters(DataMap *parameters) {};
+
+		/**
+		@return The name of the Component, intended to be displayed in the editor.
+		*/
 		virtual Ogre::String GetLabel() = 0;
 
+		/**
+		@return The component assciated with the Editor Interface.
+		@remarks
+			In most cases, the implementation "return this;" will be suitable.
+		*/
 		virtual GOComponent* GetGOComponent() = 0;
 	};
 
+	/**
+	This class allows components to declare member variables as modifiable using macros.
+	*/
 	class DllExport GOCStaticEditorInterface : public GOCEditorInterface
 	{
 	private:
@@ -49,7 +68,17 @@ namespace Ice
 		};
 	protected:
 		std::vector<RefParam> mRefParams;
+
+		/**
+		Setups member variable bindings and default values.
+		@remarks
+			Do not overload this method manually, use the macros!
+		*/
 		virtual void _initRefParams() {}
+
+		/**
+		Called after member variables were changed using the editor interface.
+		*/
 		virtual void OnSetParameters() {}
 
 	public:

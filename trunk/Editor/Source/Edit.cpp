@@ -714,14 +714,7 @@ void Edit::CreatePreviewObject()
 	Ice::GameObject *preview = InsertObject(0, true, true);
 	if (preview)
 	{
-		std::vector<Ogre::String> components = preview->GetComponentsStr();
-		for (std::vector<Ogre::String>::iterator i = components.begin(); i != components.end(); i++)
-		{
-			if ((*i) == "Physics")
-			{
-				preview->RemoveComponent((*i));
-			}
-		}
+		if (preview->GetComponent("Physics")) preview->RemoveComponent("Physics");
 		mPreviewObjects.push_back(preview);
 	}
 }
