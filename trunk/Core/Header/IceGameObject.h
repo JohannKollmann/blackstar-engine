@@ -15,6 +15,10 @@
 namespace Ice
 {
 
+	/**
+	Every entity in 3D space is a game object. A game object has a position, rotation and scale (Transformable3D) and provides parent-child support.
+	A game object also consists of a set of components, which provide special functionality like mesh, sound, ai etc.
+	*/
 	class DllExport GameObject : public LoadSave::Saveable, public Transformable3D, public Utils::DeleteListener
 	{
 	protected:
@@ -65,6 +69,7 @@ namespace Ice
 		Ogre::String GetName() { return mName; }
 
 		/**
+		Sets the name of the object.
 		@param name The new name of the object.
 		*/
 		void SetName(Ogre::String name) { mName = name; }
@@ -84,21 +89,13 @@ namespace Ice
 		*/
 		GameObject* GetParent() { return mParent; }
 
-		/**
-		Broadcasts a message to all components.
-		@param msg The message.
-		*/
+		///Broadcasts a message to all components.
 		void SendMessage(const Msg &msg);
 
-		/**
-		Broadcasts a messe too all components without any delay.
-		@param msg The message.
-		*/
+		///Broadcasts a messe too all components without any delay.
 		void SendInstantMessage(const Msg &msg);
 
-		/**
-		Dispatches all waiting message requests created using SendMessage.
-		*/
+		///Dispatches all waiting message requests created using SendMessage.
 		void ProcessMessages();
 
 		/**
@@ -107,14 +104,10 @@ namespace Ice
 		*/
 		void AddComponent(GOComponent* component);
 
-		/**
-		Removes the component of family familyID.
-		*/
+		///Removes the component of family familyID.
 		void RemoveComponent(const GOComponent::goc_id_family& familyID);
 
-		/**
-		Returns the component of type T if it exists, otherwise nullptr.
-		*/
+		///Returns the component of type T if it exists, otherwise nullptr.
 		template<class T>
 		T* GetComponent()
 		{
@@ -126,45 +119,29 @@ namespace Ice
 			return nullptr;
 		}
 
-		/**
-		Returns the component of family familyID if it exists, otherwise nullptr.
-		*/
+		///Returns the component of family familyID if it exists, otherwise nullptr.
 		GOComponent* GetComponent(const GOComponent::goc_id_family& familyID);
 
-		/**
-		Returns the component of family familyID and type typeID if it exists, otherwise nullptr.
-		*/
+		///Returns the component of family familyID and type typeID if it exists, otherwise nullptr.
 		GOComponent* GetComponent(const GOComponent::goc_id_family& familyID, GOComponent::goc_id_type typeID);
 
-		/**
-		Provides a mechanism to iterate over the components attached to the object.
-		*/
+		//Provides a mechanism to iterate over the components attached to the object.
 		std::vector<GOComponent*>::iterator GetComponentIterator() { return mComponents.begin(); }
 		std::vector<GOComponent*>::iterator GetComponentIteratorEnd() { return mComponents.end(); }
 
-		/**
-		Detaches and deletes all attaches components.
-		*/
+		///Detaches and deletes all attaches components.
 		void ClearGOCs();
 
-		/**
-		Deletes all children.
-		*/
+		///Deletes all children.
 		void ClearChildren();
 
-		/**
-		Set parent.
-		*/
+		///Sets the parent.
 		void SetParent(GameObject *parent);
 
-		/**
-		Registers an object as child of this object.
-		*/
+		///Registers an object as child of this object.
 		void RegisterChild(GameObject *child);
 
-		/**
-		Unregisters an object as child of this object.
-		*/
+		///Unregisters an object as child of this object.
 		void UnregisterChild(GameObject *child);
 
 		/**
@@ -186,14 +163,10 @@ namespace Ice
 		*/
 		GameObject* GetChild(unsigned short index);
 
-		/**
-		Notifies the object that the state of its parent has changed.
-		*/
+		///Notifies the object that the state of its parent has changed.
 		void OnParentChanged();
 
-		/**
-		Shall the object ignore the parent's movement/rotation/scale?
-		*/
+		///Shall the object ignore the parent's movement/rotation/scale?
 		void SetIgnoreParent(bool ignore) { mIgnoreParent = ignore; }
 
 		Ogre::Vector3 GetGlobalPosition() { return mPosition; }

@@ -236,7 +236,8 @@ void wxEditIceGameObject::OnApply()
 		}
 		if (!found)
 		{
-			Ice::GOCEditorInterface *editor_interface = Ice::SceneManager::Instance().CreateGOCEditorInterface((*i).mSectionName, &(*i).mSectionData);
+			Ice::GOCEditorInterface *editor_interface = Ice::SceneManager::Instance().NewGOC((*i).mSectionName);
+			editor_interface->SetParameters(&(*i).mSectionData);
 			mGameObject->AddComponent(editor_interface->GetGOComponent());
 		}
 	}

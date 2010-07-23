@@ -13,7 +13,7 @@ namespace Ice
 
 		for (auto i = mRefParams.begin(); i != mRefParams.end(); i++)
 		{
-			parameters->AddProperty(i->defaultVal);
+			parameters->AddItem(i->keyname, i->defaultVal);
 		}
 	}
 	void GOCStaticEditorInterface::SetParameters(DataMap *parameters)
@@ -26,13 +26,13 @@ namespace Ice
 
 		while (parameters->HasNext())
 		{
-			GenericProperty gp = parameters->GetNext();
+			DataMap::Item gp = parameters->GetNext();
 			for (auto i = mRefParams.begin(); i != mRefParams.end(); i++)
 			{
-				if (i->defaultVal.mKey == gp.mKey)
+				if (i->keyname == gp.key)
 				{
-					IceAssert(i->defaultVal.getType() == gp.getType());
-					gp.Get(i->target);
+					IceAssert(i->defaultVal.getType() == gp.data->getType());
+					gp.data->Get(i->target);
 					break;
 				}
 			}
@@ -51,7 +51,7 @@ namespace Ice
 		for (auto i = mRefParams.begin(); i != mRefParams.end(); i++)
 		{
 			GenericProperty::PropertyTypes type = i->defaultVal.getType();
-			parameters->AddValue(i->defaultVal.mKey, i->target, i->defaultVal.getType());
+			parameters->AddItem(i->keyname, i->target, i->defaultVal.getType());
 		}
 	}
 

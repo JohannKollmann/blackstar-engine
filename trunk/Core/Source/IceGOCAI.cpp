@@ -12,12 +12,15 @@ namespace Ice
 	{
 		mCharacterMovementState = 0;
 		mOwnerGO = 0;
+		AIManager::Instance().RegisterAIObject(this);
+		MessageSystem::Instance().JoinNewsgroup(this, "ENABLE_GAME_CLOCK");
 	}
 
 	GOCAI::~GOCAI(void)
 	{
 		ClearActionQueue();
 		ClearIdleQueue();
+		AIManager::Instance().UnregisterAIObject(this);
 	}
 
 	int GOCAI::GetID()
@@ -28,25 +31,13 @@ namespace Ice
 
 	void GOCAI::SetOwner(GameObject *go)
 	{
-		if (mOwnerGO)
+		if (!mOwnerGO && mScriptFileName != "")
 		{
-			MessageSystem::Instance().QuitAllNewsgroups(this);
-			AIManager::Instance().UnregisterAIObject(mOwnerGO->GetID());
-		}
-		mOwnerGO = go;
-
-		if (mOwnerGO)
-		{
-			MessageSystem::Instance().JoinNewsgroup(this, "ENABLE_GAME_CLOCK");
-
-			UpdatePosition(mOwnerGO->GetGlobalPosition());
-			UpdateOrientation(mOwnerGO->GetGlobalOrientation());
-
-			AIManager::Instance().RegisterAIObject(this, mOwnerGO->GetID());
-			std::vector<ScriptParam> params;
-			params.push_back(ScriptParam(mOwnerGO->GetID()));
 			InitScript(mScriptFileName);
 		}
+		mOwnerGO = go;
+		UpdatePosition(mOwnerGO->GetGlobalPosition());
+		UpdateOrientation(mOwnerGO->GetGlobalOrientation());
 	}
 
 	void GOCAI::AddState(AIState *state)
@@ -100,7 +91,7 @@ namespace Ice
 
 	void GOCAI::Update(float time)
 	{
-		if (mOwnerGO == 0) return;
+		if (mOwnerGO == nullptr) return;
 		if (mActionQueue.size() > 0)
 		{
 			bool finished = mActionQueue[0]->Update(time);
@@ -177,6 +168,7 @@ namespace Ice
 
 	void GOCAI::OnReceiveMessage(Msg &msg)
 	{
+		if (!mOwnerGO) return;
 		if (msg.type == "ENABLE_GAME_CLOCK")
 		{
 			bool enable = msg.params.GetBool("enable");
@@ -202,7 +194,7 @@ namespace Ice
 	void GOCAI::SetParameters(DataMap *parameters)
 	{
 		mScriptFileName = parameters->GetOgreString("Script");
-		SetOwner(mOwnerGO);
+		if (mOwnerGO) InitScript(mScriptFileName);
 	}
 	void GOCAI::GetParameters(DataMap *parameters)
 	{

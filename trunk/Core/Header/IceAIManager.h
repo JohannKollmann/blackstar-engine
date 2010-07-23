@@ -21,11 +21,8 @@ private:
 
 	std::vector<GOCWaypoint*> mWaypoints;
 
-	//maps script ID <=> ai object
-	std::map<int, GOCAI*> mScriptAIBinds;
-
 	//maps object ID <=> ai object
-	std::map<int, GOCAI*> mAIObjects;
+	std::vector<GOCAI*> mAIObjects;
 
 	NavigationMesh *mNavigationMesh;
 	bool mLoadWayMeshAsObjects;
@@ -39,20 +36,13 @@ public:
 	GOCWaypoint* GetWPByName(Ogre::String name);
 	void FindPath(Ogre::Vector3 origin, Ogre::String targetWP, std::vector<AStarNode3D*> &oPath);
 
-	void RegisterAIObject(GOCAI* object, int id);
-	void UnregisterAIObject(int id);
-	void RegisterScriptAIBind(GOCAI* object, int scriptID);
-	void UnregisterScriptAIBind(int scriptID);
+	void RegisterAIObject(GOCAI* object);
+	void UnregisterAIObject(GOCAI* object);
 
 	void SetWayMeshLoadingMode(bool loadAsObjects) { mLoadWayMeshAsObjects = loadAsObjects; }
 	bool GetWayMeshLoadingMode() { return mLoadWayMeshAsObjects; }
 
-	GOCAI* GetAIByID(int ID);
-	GOCAI* GetAIByScriptID(int scriptID);
-
 	NavigationMesh* GetNavigationMesh();
-
-	void ReloadScripts();
 
 	void Clear();
 

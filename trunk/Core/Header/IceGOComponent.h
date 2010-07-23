@@ -10,6 +10,9 @@
 namespace Ice
 {
 
+	/**
+	A component provides a certain functionality that can be attached to game object.
+	*/
 	class DllExport GOComponent : public LoadSave::Saveable
 	{
 		friend class GameObject;

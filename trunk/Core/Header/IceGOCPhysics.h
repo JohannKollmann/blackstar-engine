@@ -142,7 +142,7 @@ namespace Ice
 		void _clear();
 
 	public:
-		GOCTrigger() { mActor = 0; mOwnerGO = 0; }
+		GOCTrigger() { mActor = nullptr; mOwnerGO = nullptr; mSphereRadius = -1; }
 		GOCTrigger(Ogre::Vector3 boxDimensions);
 		GOCTrigger(float sphereRadius);
 		~GOCTrigger(void);

@@ -138,14 +138,12 @@ namespace Ice
 		return nullptr;
 	}
 
-	GOCEditorInterface* SceneManager::CreateGOCEditorInterface(Ogre::String type, DataMap *parameters)
+	GOCEditorInterface* SceneManager::NewGOC(Ogre::String type)
 	{
 		std::map<Ogre::String, GOCEditorInterface*>::iterator i = mGOCPrototypes.find(type);
-		GOCEditorInterface *goc = nullptr;
 		if (i != mGOCPrototypes.end())
 		{
-			goc = (*i).second->New();
-			goc->SetParameters(parameters);
+			GOCEditorInterface *goc = (*i).second->New();
 			return goc;
 		}
 		IceAssert(false);
@@ -847,17 +845,16 @@ namespace Ice
 		mDestroyStoppedSoundsLast = time;
 	}
 
-	void SceneManager::AcquireCamera(GOCSimpleCameraController *cam)
+	void SceneManager::AcquireCamera(CameraController *cam)
 	{
 		if (mCameraStack.size() > 0) mCameraStack.top()->DetachCamera();
 		mCameraStack.push(cam);
 		cam->AttachCamera(Main::Instance().GetCamera());
 	}
-	void SceneManager::FreeCamera(GOCSimpleCameraController *cam)
+	void SceneManager::TerminateCurrentCameraController()
 	{
 		IceAssert((mCameraStack.size() > 0));
-		IceAssert((mCameraStack.top() == cam));
-		cam->DetachCamera();
+		mCameraStack.top()->DetachCamera();
 		mCameraStack.pop();
 		if (mCameraStack.size() > 0) mCameraStack.top()->AttachCamera(Main::Instance().GetCamera());
 	}

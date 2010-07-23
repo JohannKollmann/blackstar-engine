@@ -47,7 +47,7 @@ namespace Ice
 		Ogre::ShadowCameraSetupPtr mSpotShadowCameraSetup;
 		Ogre::ShadowCameraSetupPtr mPointShadowCameraSetup;
 
-		CameraController* mCameraController;
+		FreeFlightCameraController* mCameraController;
 
 		OgrePhysX::Scene		*mPhysXScene;
 		Input *mInputSystem;
@@ -98,7 +98,7 @@ namespace Ice
 		OgreOggSound::OgreOggSoundManager* GetSoundManager() { return mSoundManager; };
 		Input* GetInputManager() { return mInputSystem; };
 
-		CameraController* GetCameraController() { return mCameraController; };
+		FreeFlightCameraController* GetCameraController() { return mCameraController; };
 
 		void SetSceneMgr(bool main = true) { mMainSceneMgr = main; }
 

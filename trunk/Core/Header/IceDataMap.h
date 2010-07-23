@@ -12,134 +12,151 @@
 namespace Ice
 {
 
-/*
-Klasse zum sicheren und komfortablen Benutzen von std::map<Ogre::String, void*>
-*/
-
-class DllExport GenericProperty : public LoadSave::Saveable
-{
-public:
-	enum PropertyTypes
-	{
-		INT = 0,
-		BOOL = 1,
-		FLOAT = 2,
-		STRING = 3,
-		VECTOR3 = 4,
-		QUATERNION = 5
-	};
-	PropertyTypes getType();
-
-	Ogre::Any mData;
-	Ogre::String mKey;
-
-	GenericProperty() {};
-	~GenericProperty() {};
-
-	template <typename T>
-		void Set(const T &value, const Ogre::String &key) { mData = value; mKey = key; };
-
-	void Set(void *data, const Ogre::String &key, const PropertyTypes &types);
-
-	void Set(const ScriptParam &scriptParam, const Ogre::String &key);
-
-	template <typename T>
-		T Get() { return Ogre::any_cast<T>(mData); }
-
-	PropertyTypes Get(void *target);
-
-	void GetAsScriptParam(std::vector<ScriptParam> &params);
-
-	void Save(LoadSave::SaveSystem& myManager);
-	void Load(LoadSave::LoadSystem& mgr); 
-	static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "GenericProperty"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };
-	static LoadSave::Saveable* NewInstance() { return new GenericProperty; };
-	std::string& TellName() { static std::string name = "GenericProperty"; return name; }
-};
-
-class DllExport DataMap : public LoadSave::Saveable
-{
-private:
-	std::vector<GenericProperty> mData;
-	std::vector<GenericProperty>::iterator mIterator;
-
-public:
-	DataMap();
-	DataMap(const DataMap &rhs);
-	~DataMap();
-
-	bool HasNext();
-	GenericProperty GetNext();
-	GenericProperty* GetNextPtr();
-
-	bool HasKey(Ogre::String keyname);
-
-	template <class templateType>
-	templateType GetValue(Ogre::String keyname) const
-	{
-		for (auto i = mData.begin(); i != mData.end(); i++)
-		{
-			if ((*i).mKey == keyname) return Ogre::any_cast<templateType>((*i).mData);
-		}
-		//Invalid key! return the default val
-		OGRE_EXCEPT(Ogre::Exception::ERR_ITEM_NOT_FOUND , "DataMap::Get Invalid key (" + keyname + ")!", "IceDataMap.h, line 71");
-		return templateType();
-	}
-	template <class templateType>
-	templateType GetValue(Ogre::String keyname, templateType defaultVal) const
-	{
-		templateType val;
-		try {
-			val = GetValue<templateType>(keyname);
-		} catch (Ogre::Exception) { val = defaultVal; }
-		return val;
-	}
-
-	int GetInt(Ogre::String keyname)					const;
-	bool GetBool(Ogre::String keyname)					const;
-	float GetFloat(Ogre::String keyname)				const;
-	Ogre::Vector3 GetOgreVec3(Ogre::String keyname)		const;
-	Ogre::ColourValue GetOgreCol(Ogre::String keyname)	const;
-	Ogre::Quaternion GetOgreQuat(Ogre::String keyname)	const;
-	Ogre::String GetOgreString(Ogre::String keyname)	const;
-
-	void AddProperty(GenericProperty &prop)
-	{
-		mData.push_back(prop);
-		mIterator = mData.begin();
-	}
-
-	void AddValue(Ogre::String keyname, void *data, const GenericProperty::PropertyTypes &type)
-	{
-		GenericProperty entry;
-		entry.Set(data, keyname, type);
-		AddProperty(entry);
-	};
-
-	/*
-	Template for saving basic types.
+	/**
+	A piece of any "basic" data. Supports int, bool, float, string, Vector3 and Quaternion
 	*/
-	template <class templateType>
-		void AddValue(Ogre::String keyname, templateType var)
+	class DllExport GenericProperty : public LoadSave::Saveable
+	{
+	private:
+		Ogre::Any mData;
+
+	public:
+		GenericProperty() {};
+		~GenericProperty() {};
+
+		enum PropertyTypes
+		{
+			INT = 0,
+			BOOL = 1,
+			FLOAT = 2,
+			STRING = 3,
+			VECTOR3 = 4,
+			QUATERNION = 5
+		};
+
+		///Retrieves the data type.
+		PropertyTypes getType() const;
+
+		///Sets the value of type T.
+		template <typename T>
+			void Set(const T &value) { mData = value;};
+		
+		///Sets the value using a void pointer and a type identifier.
+		void Set(void *data, const PropertyTypes &type);
+
+		///Converts from a ScriptParam.
+		void Set(const ScriptParam &scriptParam);
+
+		///Retrieves the saved data of type T.
+		template <typename T>
+			T Get() const { return Ogre::any_cast<T>(mData); }
+		
+		///Writes the saved data to a target buffer.
+		PropertyTypes Get(void *target) const;
+
+		///Converts the saved data to a ScriptParam.
+		void GetAsScriptParam(std::vector<ScriptParam> &params) const;
+
+		//Load Save methods
+		void Save(LoadSave::SaveSystem& myManager);
+		void Load(LoadSave::LoadSystem& mgr); 
+		static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "GenericProperty"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };
+		static LoadSave::Saveable* NewInstance() { return new GenericProperty; };
+		std::string& TellName() { static std::string name = "GenericProperty"; return name; }
+	};
+
+	/**
+	This class wraps a map<String, GenericProperty>
+	*/
+	class DllExport DataMap : public LoadSave::Saveable
+	{
+	public:
+		struct Item
+		{
+			Ogre::String key;
+			GenericProperty* data;
+		};
+	private:
+		std::map<Ogre::String, GenericProperty> mData;
+		std::map<Ogre::String, GenericProperty>::iterator mIterator;
+
+	public:
+		DataMap();
+		DataMap(const DataMap &rhs);
+		~DataMap();
+
+		//Iterator methods
+		bool HasNext();
+		Item GetNext();
+
+		///Retrieves whether there is an item with key keyname.
+		bool HasKey(const Ogre::String &keyname);
+
+		///Retrieves the data of the item with the key keyname.
+		template <class templateType>
+		templateType GetValue(const Ogre::String &keyname)	const
+		{
+			std::map<Ogre::String, GenericProperty>::const_iterator i = mData.find(keyname);
+			IceAssert(i != mData.end());
+			return i->second.Get<templateType>();
+		}
+
+		///Retrieves the data of the item with the key keyname, retungs defaultVal if it does not exist.
+		template <class templateType>
+		templateType GetValue(const Ogre::String &keyname, templateType defaultVal)	const
+		{
+			std::map<Ogre::String, GenericProperty>::const_iterator i = mData.find(keyname);
+			if (i == mData.end()) return defaultVal;
+			else return i->second.Get<templateType>();
+		}
+
+		//Typed get methods
+		int GetInt(const Ogre::String &keyname)						const;
+		bool GetBool(const Ogre::String &keyname)					const;
+		float GetFloat(const Ogre::String &keyname)					const;
+		Ogre::Vector3 GetOgreVec3(const Ogre::String &keyname)		const;
+		Ogre::ColourValue GetOgreCol(const Ogre::String &keyname)	const;
+		Ogre::Quaternion GetOgreQuat(const Ogre::String &keyname)	const;
+		Ogre::String GetOgreString(const Ogre::String &keyname)		const;
+
+		///Inserts a new item into the DataMap.
+		template <class templateType>
+		void AddItem(const Ogre::String &keyname, const templateType &var)
 		{
 			GenericProperty entry;
-			entry.Set<templateType>(var, keyname);
-			AddProperty(entry);
+			entry.Set<templateType>(var);
+			AddItem(keyname, entry);
 		};
-	void AddBool(Ogre::String keyname, bool val);
-	void AddInt(Ogre::String keyname, int val);
-	void AddFloat(Ogre::String keyname, float val);
-	void AddOgreVec3(Ogre::String keyname, Ogre::Vector3 vec);
-	void AddOgreCol(Ogre::String keyname, Ogre::ColourValue val);
-	void AddOgreQuat(Ogre::String keyname, Ogre::Quaternion quat);
-	void AddOgreString(Ogre::String keyname, Ogre::String text);
+		///Inserts a new item into the DataMap, the data is passed using a GenericProperty.
+		void AddItem(const Ogre::String &keyname, const GenericProperty &prop)
+		{
+			mData.insert(std::make_pair<Ogre::String, GenericProperty>(keyname, prop));
+			mIterator = mData.begin();
+		}
 
-	//Load Save
-	void Save(LoadSave::SaveSystem& myManager);
-	void Load(LoadSave::LoadSystem& mgr); 
-	static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "DataMap"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };
-	static LoadSave::Saveable* NewInstance() { return new DataMap; };
-	std::string& TellName() { static std::string name = "DataMap"; return name; };
-};
+		///Inserts a new item into the DataMap, the data is passed using a void buffer.
+		void AddItem(const Ogre::String &keyname, void *data, const GenericProperty::PropertyTypes &type)
+		{
+			GenericProperty entry;
+			entry.Set(data, type);
+			AddItem(keyname, entry);
+		};
+
+		//Typed set methods
+		void AddBool(const Ogre::String &keyname, const bool val);
+		void AddInt(const Ogre::String &keyname, const int val);
+		void AddFloat(const Ogre::String &keyname, const float val);
+		void AddOgreVec3(const Ogre::String &keyname, const Ogre::Vector3 &vec);
+		void AddOgreCol(const Ogre::String &keyname, const Ogre::ColourValue &val);
+		void AddOgreQuat(const Ogre::String &keyname, const Ogre::Quaternion &quat);
+		void AddOgreString(const Ogre::String &keyname, const Ogre::String &text);
+
+		//Load Save methods
+		void Save(LoadSave::SaveSystem& myManager);
+		void Load(LoadSave::LoadSystem& mgr); 
+		static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "DataMap"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };
+		static LoadSave::Saveable* NewInstance() { return new DataMap; };
+		std::string& TellName() { static std::string name = "DataMap"; return name; };
+	};
 
 };

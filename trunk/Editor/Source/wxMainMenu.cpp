@@ -215,8 +215,14 @@ void wxMainMenu::OnMeshEditor(wxCommandEvent& WXUNUSED(event))
 
 void wxMainMenu::OnReloadScripts(wxCommandEvent& WXUNUSED(event))
 {
+	Ice::Msg msg;
+	msg.type = "REPARSE_SCRIPTS";
+	Ice::MessageSystem::Instance().SendInstantMessage(msg);
 	Ice::ScriptSystem::GetInstance().Clear();
-	Ice::AIManager::Instance().ReloadScripts();
+	//Call init script
+	Ice::Script script = Ice::ScriptSystem::GetInstance().CreateInstance("InitEngine.lua");
+	msg.type = "REPARSE_SCRIPTS_POST";
+	Ice::MessageSystem::Instance().SendInstantMessage(msg);
 }
 
 void wxMainMenu::OnEnableBrushMode(wxCommandEvent& WXUNUSED(event))

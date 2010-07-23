@@ -828,7 +828,8 @@ Ice::GameObject* Edit::InsertObject(Ice::GameObject *parent, bool align, bool cr
 				} 
 				(*i).mSectionData.AddOgreVec3("Scale", scale);
 
-				Ice::GOCEditorInterface *component = Ice::SceneManager::Instance().CreateGOCEditorInterface((*i).mSectionName, &(*i).mSectionData);
+				Ice::GOCEditorInterface *component = Ice::SceneManager::Instance().NewGOC((*i).mSectionName);
+				component->SetParameters(&(*i).mSectionData);
 				object->AddComponent(component->GetGOComponent());
 			}
 

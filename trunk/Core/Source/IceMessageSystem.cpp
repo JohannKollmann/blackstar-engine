@@ -63,7 +63,7 @@ namespace Ice
 		}
 		mNewsgroups.insert(i, newsgroup);
 
-		IceNote("Created Newsgroup '" + groupname + "'.");
+		IceNote("Created Newsgroup \"" + groupname + "\"");
 	};
 
 	void MessageSystem::JoinNewsgroup(MessageListener *listener, Ogre::String groupname)
@@ -80,7 +80,7 @@ namespace Ice
 		}
 		if (!found)
 		{
-			IceWarning("Newsgroup \"" + groupname + "\" doesn't exist!");
+			IceWarning("Newsgroup \"" + groupname + "\" does not exist");
 			return;
 		}
 

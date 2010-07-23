@@ -5,7 +5,7 @@
 namespace Ice
 {
 
-	GenericProperty::PropertyTypes GenericProperty::getType()
+	GenericProperty::PropertyTypes GenericProperty::getType() const
 	{
 		if (mData.getType() == typeid(bool)) return PropertyTypes::BOOL;
 		if (mData.getType() == typeid(float)) return PropertyTypes::FLOAT;
@@ -17,7 +17,7 @@ namespace Ice
 		IceAssert(false);
 		return PropertyTypes::INT;
 	}
-	GenericProperty::PropertyTypes GenericProperty::Get(void *target)
+	GenericProperty::PropertyTypes GenericProperty::Get(void *target) const
 	{
 		if (mData.getType() == typeid(bool)) { bool src = Ogre::any_cast<bool>(mData); memcpy(target, &src, sizeof(bool)); return PropertyTypes::BOOL; }
 		if (mData.getType() == typeid(float)) { float src = Ogre::any_cast<float>(mData); *((float*)target) = src; return PropertyTypes::FLOAT; }
@@ -30,28 +30,27 @@ namespace Ice
 		return PropertyTypes::INT;
 	}
 
-	void GenericProperty::Set(void *data, const Ogre::String &key, const GenericProperty::PropertyTypes &type)
+	void GenericProperty::Set(void *data, const GenericProperty::PropertyTypes &type)
 	{
 		switch (type)
 		{
 		case PropertyTypes::INT:
-			Set<int>(*((int*)data), key); break;
+			Set<int>(*((int*)data)); break;
 		case PropertyTypes::BOOL:
-			Set<bool>(*((bool*)data), key); break;
+			Set<bool>(*((bool*)data)); break;
 		case PropertyTypes::FLOAT:
-			Set<float>(*((float*)data), key); break;
+			Set<float>(*((float*)data)); break;
 		case PropertyTypes::STRING:
-			Set<Ogre::String>(*((Ogre::String*)data), key); break;
+			Set<Ogre::String>(*((Ogre::String*)data)); break;
 		case PropertyTypes::VECTOR3:
-			Set<Ogre::Vector3>(*((Ogre::Vector3*)data), key); break;
+			Set<Ogre::Vector3>(*((Ogre::Vector3*)data)); break;
 		case PropertyTypes::QUATERNION:
-			Set<Ogre::Quaternion>(*((Ogre::Quaternion*)data), key); break;
+			Set<Ogre::Quaternion>(*((Ogre::Quaternion*)data)); break;
 		}
 	}
 
 	void GenericProperty::Save(LoadSave::SaveSystem& myManager)
 	{
-		myManager.SaveAtom("Ogre::String", &mKey, "Key");
 		int type = getType();
 		myManager.SaveAtom("int", &type, "Type");
 
@@ -88,7 +87,6 @@ namespace Ice
 
 	void GenericProperty::Load(LoadSave::LoadSystem& mgr)
 	{
-		mgr.LoadAtom("Ogre::String", &mKey);
 		int type = 0;
 		mgr.LoadAtom("int", &type);
 		int iVal = 0;
@@ -126,7 +124,7 @@ namespace Ice
 		}
 	}
 
-	void GenericProperty::GetAsScriptParam(std::vector<ScriptParam> &params)
+	void GenericProperty::GetAsScriptParam(std::vector<ScriptParam> &params) const
 	{
 		int type = getType();
 		switch (type)
@@ -169,85 +167,82 @@ namespace Ice
 		mData.clear();
 	}
 
-	bool DataMap::HasKey(Ogre::String keyname)
+	bool DataMap::HasKey(const Ogre::String &keyname)
 	{
-		for (std::vector<GenericProperty>::iterator i = mData.begin(); i != mData.end(); i++)
-		{
-			if ((*i).mKey == keyname) return true;
-		}
-		return false;
+		auto i = mData.find(keyname);
+		return (i != mData.end());
 	}
 
-	int DataMap::GetInt(Ogre::String keyname) const
+	int DataMap::GetInt(const Ogre::String &keyname) const
 	{
 		return GetValue<int>(keyname, 0);
 	}
 
-	bool DataMap::GetBool(Ogre::String keyname) const
+	bool DataMap::GetBool(const Ogre::String &keyname) const
 	{
 		return GetValue<bool>(keyname, false);
 	}
 
-	float DataMap::GetFloat(Ogre::String keyname) const
+	float DataMap::GetFloat(const Ogre::String &keyname) const
 	{
 		return GetValue<float>(keyname, 0);
 	}
 
-	Ogre::Vector3 DataMap::GetOgreVec3(Ogre::String keyname) const
+	Ogre::Vector3 DataMap::GetOgreVec3(const Ogre::String &keyname) const
 	{
 		return GetValue<Ogre::Vector3>(keyname, Ogre::Vector3());
 	}
 
-	Ogre::ColourValue DataMap::GetOgreCol(Ogre::String keyname) const
+	Ogre::ColourValue DataMap::GetOgreCol(const Ogre::String &keyname) const
 	{
 		Ogre::Vector3 vec = GetValue<Ogre::Vector3>(keyname, Ogre::Vector3());
 		return Ogre::ColourValue(vec.x, vec.y, vec.z);
 	}
 
-	Ogre::Quaternion DataMap::GetOgreQuat(Ogre::String keyname) const
+	Ogre::Quaternion DataMap::GetOgreQuat(const Ogre::String &keyname) const
 	{
 		return GetValue<Ogre::Quaternion>(keyname, Ogre::Quaternion());
 	}
 
-	Ogre::String DataMap::GetOgreString(Ogre::String keyname) const
+	Ogre::String DataMap::GetOgreString(const Ogre::String &keyname) const
 	{
 		return GetValue<Ogre::String>(keyname, "");
 	}
 
-	void DataMap::AddBool(Ogre::String keyname, bool val)
+	void DataMap::AddBool(const Ogre::String &keyname, const bool val)
 	{
-		AddValue(keyname, val);
+		AddItem(keyname, val);
 	}
 
 
-	void DataMap::AddInt(Ogre::String keyname, int val)
+	void DataMap::AddInt(const Ogre::String &keyname, const int val)
 	{
-		AddValue(keyname, val);
+		AddItem(keyname, val);
 	}
 
-	void DataMap::AddFloat(Ogre::String keyname, float val)
+	void DataMap::AddFloat(const Ogre::String &keyname, const float val)
 	{
-		AddValue(keyname, val);
+		AddItem(keyname, val);
 	}
 
-	void DataMap::AddOgreVec3(Ogre::String keyname, Ogre::Vector3 vec)
+	void DataMap::AddOgreVec3(const Ogre::String &keyname, const Ogre::Vector3 &vec)
 	{
-		AddValue(keyname, vec);
+		AddItem(keyname, vec);
 	}
 
-	void DataMap::AddOgreCol(Ogre::String keyname, Ogre::ColourValue val)
+	void DataMap::AddOgreCol(const Ogre::String &keyname, const Ogre::ColourValue &val)
 	{
 		AddOgreVec3(keyname, Ogre::Vector3(val.r, val.g, val.b));		//Hack: Add ad Vec3
 	}
 
-	void DataMap::AddOgreQuat(Ogre::String keyname, Ogre::Quaternion quat)
+	void DataMap::AddOgreQuat(const Ogre::String &keyname, const Ogre::Quaternion &quat)
 	{
-		AddValue(keyname, quat);
+		AddItem(keyname, quat);
 	}
 
-	void DataMap::AddOgreString(Ogre::String keyname, Ogre::String text)
+	void DataMap::AddOgreString(const Ogre::String &keyname, const Ogre::String &text)
 	{
-		AddValue<Ogre::String>(keyname, text);
+		AddItem<Ogre::String>(keyname, text);
 	}
 
 	bool DataMap::HasNext()
@@ -257,28 +252,23 @@ namespace Ice
 		return false;
 	}
 
-	GenericProperty DataMap::GetNext()
+	DataMap::Item DataMap::GetNext()
 	{
-		GenericProperty returner = (*mIterator);
-		mIterator++;
-		return returner;
-	}
-
-	GenericProperty* DataMap::GetNextPtr()
-	{
-		GenericProperty* returner = &(*mIterator);
+		Item returner;
+		returner.key = mIterator->first;
+		returner.data = &mIterator->second;
 		mIterator++;
 		return returner;
 	}
 
 	void DataMap::Save(LoadSave::SaveSystem& myManager)
 	{
-		myManager.SaveAtom("std::vector<GenericProperty>", &mData, "mDataList");
+		myManager.SaveAtom("std::map<Ogre::String, GenericProperty>", &mData, "mDataMap");
 	}
 
 	void DataMap::Load(LoadSave::LoadSystem& mgr)
 	{
-		mgr.LoadAtom("std::vector<GenericProperty>", &mData);
+		mgr.LoadAtom("std::map<Ogre::String, GenericProperty>", &mData);
 		mIterator = mData.begin();
 	}
 

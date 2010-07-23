@@ -324,9 +324,8 @@ void GOCAnimatedCharacterBone::SetBone(Ogre::SceneNode *meshnode, GOCAnimatedCha
 void GOCAnimatedCharacterBone::SetOwner(GameObject *go)
 {
 	mOwnerGO = go;
-	mEntity->setUserAny(Ogre::Any(mOwnerGO));
+	if (mEntity) mEntity->setUserAny(Ogre::Any(mOwnerGO));
 }
-
 
 
 //GOCAnimatedCharacter
@@ -533,6 +532,7 @@ void GOCAnimatedCharacter::ReceiveObjectMessage(const Msg &msg)
 void GOCAnimatedCharacter::SetOwner(GameObject *go)
 {
 	mOwnerGO = go;
+	if (!mEntity) return;
 	mEntity->setUserAny(Ogre::Any(mOwnerGO));
 	UpdatePosition(go->GetGlobalPosition());
 	UpdateOrientation(go->GetGlobalOrientation());
@@ -563,6 +563,7 @@ void GOCAnimatedCharacter::SetParameters(DataMap *parameters)
 	if (mAnimationStateStr != "DEBUG") SetAnimationState(mAnimationStateStr);
 	mRagdoll->resetBones();
 	mEditorMode = true;
+	if (mOwnerGO) SetOwner(mOwnerGO);
 }
 void GOCAnimatedCharacter::GetParameters(DataMap *parameters)
 {
