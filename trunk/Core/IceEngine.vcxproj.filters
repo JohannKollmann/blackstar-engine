@@ -54,9 +54,6 @@
     <ClCompile Include="Source\IceGOCCharacterController.cpp">
       <Filter>Components</Filter>
     </ClCompile>
-    <ClCompile Include="Source\IceGOCGameplay.cpp">
-      <Filter>Components</Filter>
-    </ClCompile>
     <ClCompile Include="Source\IceGOCPhysics.cpp">
       <Filter>Components</Filter>
     </ClCompile>
@@ -294,9 +291,6 @@
       <Filter>Components</Filter>
     </ClInclude>
     <ClInclude Include="Header\IceGOCCharacterController.h">
-      <Filter>Components</Filter>
-    </ClInclude>
-    <ClInclude Include="Header\IceGOCGameplay.h">
       <Filter>Components</Filter>
     </ClInclude>
     <ClInclude Include="Header\IceGOCPhysics.h">

@@ -122,7 +122,6 @@
     <ClCompile Include="Source\IceGOCAnimatedCharacter.cpp" />
     <ClCompile Include="Source\IceGOCCameraController.cpp" />
     <ClCompile Include="Source\IceGOCCharacterController.cpp" />
-    <ClCompile Include="Source\IceGOCGameplay.cpp" />
     <ClCompile Include="Source\IceGOCWaypoint.cpp" />
     <ClCompile Include="Source\IceGOComponent.cpp" />
     <ClCompile Include="Source\IceGOCPhysics.cpp" />
@@ -210,7 +209,6 @@
     <ClInclude Include="Header\IceGOCCameraController.h" />
     <ClInclude Include="Header\IceGOCCharacterController.h" />
     <ClInclude Include="Header\IceGOCEditorInterface.h" />
-    <ClInclude Include="Header\IceGOCGameplay.h" />
     <ClInclude Include="Header\IceGOCWaypoint.h" />
     <ClInclude Include="Header\IceGOComponent.h" />
     <ClInclude Include="Header\IceGOCPhysics.h" />
