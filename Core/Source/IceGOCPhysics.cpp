@@ -123,10 +123,13 @@ namespace Ice
 	void GOCRigidBody::SetOwner(GameObject *go)
 	{
 		mOwnerGO = go;
-		UpdateScale(mOwnerGO->GetGlobalScale());
-		mActor->getNxActor()->userData = mOwnerGO;
-		mActor->setGlobalOrientation(mOwnerGO->GetGlobalOrientation());
-		mActor->setGlobalPosition(mOwnerGO->GetGlobalPosition());
+		if (mActor)
+		{
+			UpdateScale(mOwnerGO->GetGlobalScale());
+			mActor->getNxActor()->userData = mOwnerGO;
+			mActor->setGlobalOrientation(mOwnerGO->GetGlobalOrientation());
+			mActor->setGlobalPosition(mOwnerGO->GetGlobalPosition());
+		}
 	}
 
 	void GOCRigidBody::SetParameters(DataMap *parameters)
@@ -232,6 +235,8 @@ namespace Ice
 	void GOCStaticBody::SetOwner(GameObject *go)
 	{
 		mOwnerGO = go;
+		if (mCollisionMeshName == "") return;
+
 		if (mActor) Main::Instance().GetPhysXScene()->destroyActor(mActor);
 		Create(mCollisionMeshName, mOwnerGO->GetGlobalScale());
 		mActor->getNxActor()->userData = mOwnerGO;
@@ -272,16 +277,16 @@ namespace Ice
 	{
 		mShapeType = TriggerShapes::BOX;
 		mBoxDimensions = boxDimensions;
-		mActor = 0;
-		mOwnerGO = 0;
+		mActor = nullptr;
+		mOwnerGO = nullptr;
 	}
 
 	GOCTrigger::GOCTrigger(float sphereRadius)
 	{
 		mShapeType = TriggerShapes::SPHERE;
 		mSphereRadius = sphereRadius;
-		mActor = 0;
-		mOwnerGO = 0;
+		mActor = nullptr;
+		mOwnerGO = nullptr;
 	}
 
 	GOCTrigger::~GOCTrigger(void)
@@ -351,6 +356,7 @@ namespace Ice
 	void GOCTrigger::SetOwner(GameObject *go)
 	{
 		mOwnerGO = go;
+		if (mSphereRadius == -1) return;
 		if (mActor) Main::Instance().GetPhysXScene()->destroyActor(mActor);
 		Create(mOwnerGO->GetGlobalScale());
 		mActor->getNxActor()->userData = mOwnerGO;

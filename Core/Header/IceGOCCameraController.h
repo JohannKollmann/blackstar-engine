@@ -5,11 +5,12 @@
 #include "IceMessageListener.h"
 #include "IceGOCCharacterController.h"
 #include "IceGOCOgreNode.h"
+#include "IceCameraController.h"
 
 namespace Ice
 {
 
-	class DllExport GOCSimpleCameraController : public GOCOgreNodeUserEditable
+	class DllExport GOCSimpleCameraController : public CameraController, public GOCOgreNodeUserEditable
 	{
 	protected:
 		Ogre::Camera *mCamera;

@@ -152,8 +152,11 @@ namespace Ice
 	void GOCCharacterController::SetOwner(GameObject *go)
 	{
 		mOwnerGO = go;
-		mCharacterController->getActor()->userData = mOwnerGO;
-		UpdatePosition(mOwnerGO->GetGlobalPosition());
+		if (mCharacterController)
+		{
+			mCharacterController->getActor()->userData = mOwnerGO;
+			UpdatePosition(mOwnerGO->GetGlobalPosition());
+		}
 	}
 
 	void GOCCharacterController::Freeze(bool freeze)
@@ -175,10 +178,9 @@ namespace Ice
 	void GOCCharacterController::SetParameters(DataMap *parameters)
 	{
 		_clear();
-		try {
-			mDimensions = parameters->GetOgreVec3("Dimensions");
-		} catch (Ogre::Exception) { mDimensions = Ogre::Vector3(1,1,1); }
+		mDimensions = parameters->GetValue("Dimensions", Ogre::Vector3(1,1,1));
 		Create(mDimensions);
+		if (mOwnerGO) mCharacterController->getActor()->userData = mOwnerGO;
 		mMovementSpeed = parameters->GetFloat("MaxSpeed");
 	}
 	void GOCCharacterController::GetParameters(DataMap *parameters)

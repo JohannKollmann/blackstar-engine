@@ -200,7 +200,8 @@ void Main::initScene()
 	mSceneMgr->setAmbientLight(Ogre::ColourValue(0.2f,0.2f,0.2f));
 	//mSceneMgr->setFog(Ogre::FOG_LINEAR, Ogre::ColourValue::Blue, 0.015);
 
-	mCameraController = new CameraController();
+	mCameraController = new FreeFlightCameraController();
+	SceneManager::Instance().AcquireCamera(mCameraController);
 
 	//init scripting stuff
 	ScriptSystem::GetInstance();

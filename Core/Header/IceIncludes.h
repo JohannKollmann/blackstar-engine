@@ -50,7 +50,7 @@ class NxControllerManager;
 #if ICE_NONOTES
 	#define IceNote(message)
 #else
-	#define IceNote(message) Ogre::LogManager::getSingleton().logMessage(message + Ogre::String(", function ") + __FUNCTION__ + Ogre::String(", file ") + __FILE__ +  Ogre::String(", line ") + Ogre::StringConverter::toString(__LINE__));
+	#define IceNote(message) Ogre::LogManager::getSingleton().logMessage(message + Ogre::String(", function ") + __FUNCTION__);
 #endif
 
 
@@ -92,4 +92,5 @@ namespace Ice
 	class SoundMaterialTable;
 	class GOCSimpleCameraController;
 	class GOCCameraController;
+	class FreeFlightCameraController;
 };

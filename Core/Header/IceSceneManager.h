@@ -45,7 +45,7 @@ namespace Ice
 
 		std::map<Ogre::String, GOCEditorInterface*> mGOCPrototypes;
 
-		std::stack<GOCSimpleCameraController*> mCameraStack;
+		std::stack<CameraController*> mCameraStack;
 
 		std::vector<OgreOggSound::OgreOggISound*> mPlayingSounds;
 		void DestroyStoppedSounds();
@@ -59,8 +59,14 @@ namespace Ice
 		void RegisterPlayer(GameObject *player);
 		GameObject* GetPlayer() { return mPlayer; }
 
-		void AcquireCamera(GOCSimpleCameraController *cam);
-		void FreeCamera(GOCSimpleCameraController *cam);
+		/** Acquires control over the main camera. GOCSimpleCameraController::AttachCamera will be called.
+		The old active camera controller gets pushed on a stack an will be informed when this camera controller calls FreeCamera.
+		@param cam The new camera controller.
+		*/
+		void AcquireCamera(CameraController *cam);
+
+		///Tells the system that the current camera controller has done its job.
+		void TerminateCurrentCameraController();
 
 		void RegisterSound(OgreOggSound::OgreOggISound* sound);
 
@@ -119,7 +125,7 @@ namespace Ice
 		void ShowEditorMeshes(bool show);
 
 		GOCEditorInterface* GetGOCPrototype(Ogre::String type);
-		GOCEditorInterface* CreateGOCEditorInterface(Ogre::String type, DataMap *parameters);
+		GOCEditorInterface* NewGOC(Ogre::String type);
 
 		//Game clock
 		void EnableClock(bool enable);

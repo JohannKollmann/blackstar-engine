@@ -8,8 +8,7 @@ namespace Ice
 {
 	/**
 	Specifies an interface how objects can be manipulated using a DataMap.
-	@remarks
-		This interface is mainly for editors with property grids.
+	@remarks This interface is mainly for editors with property grids.
 	*/
 	class DllExport EditorInterface
 	{
@@ -30,8 +29,7 @@ namespace Ice
 
 	/**
 	Editor interface for components.
-	@remarks
-		It implements the cloneable interface because the SceneManager uses prototyping for component creation.
+	@remarks It implements the cloneable interface because the SceneManager uses prototyping for component creation.
 	*/
 	class DllExport GOCEditorInterface : public EditorInterface, public Cloneable<GOCEditorInterface>
 	{
@@ -42,13 +40,13 @@ namespace Ice
 
 		/**
 		@return The name of the Component, intended to be displayed in the editor.
+		@remarks The label name must be unique.
 		*/
 		virtual Ogre::String GetLabel() = 0;
 
 		/**
 		@return The component assciated with the Editor Interface.
-		@remarks
-			In most cases, the implementation "return this;" will be suitable.
+		@remarks In most cases, the implementation "return this;" will be suitable.
 		*/
 		virtual GOComponent* GetGOComponent() = 0;
 	};
@@ -65,6 +63,7 @@ namespace Ice
 		{
 			void* target;
 			GenericProperty defaultVal;
+			Ogre::String keyname;
 		};
 	protected:
 		std::vector<RefParam> mRefParams;
@@ -97,12 +96,12 @@ namespace Ice
 	protected: \
 	void _initRefParams() { mRefParams.clear(); GOCStaticEditorInterface::RefParam rp;
 
-	#define PROPERTY_BOOL(memberVariable, key, defaultValue) rp.target = &##memberVariable; rp.defaultVal.Set<bool>(defaultValue, key); mRefParams.push_back(rp);
-	#define PROPERTY_INT(memberVariable, key, defaultValue) rp.target = &##memberVariable; rp.defaultVal.Set<int>(defaultValue, key); mRefParams.push_back(rp);
-	#define PROPERTY_FLOAT(memberVariable, key, defaultValue) rp.target = &##memberVariable; rp.defaultVal.Set<float>(defaultValue, key); mRefParams.push_back(rp);
-	#define PROPERTY_STRING(memberVariable, key, defaultValue) rp.target = &##memberVariable; rp.defaultVal.Set<Ogre::String>(defaultValue, key); mRefParams.push_back(rp);
-	#define PROPERTY_VECTOR3(memberVariable, key, defaultValue) rp.target = &##memberVariable; rp.defaultVal.Set<Ogre::Vector3>(defaultValue, key); mRefParams.push_back(rp);
-	#define PROPERTY_QUATERNION(memberVariable, key, defaultValue) rp.target = &##memberVariable; rp.defaultVal.Set<Ogre::Quaternion>(defaultValue, key); mRefParams.push_back(rp);
+	#define PROPERTY_BOOL(memberVariable, key, defaultValue) rp.target = &##memberVariable; rp.keyname = key; rp.defaultVal.Set<bool>(defaultValue); mRefParams.push_back(rp);
+	#define PROPERTY_INT(memberVariable, key, defaultValue) rp.target = &##memberVariable; rp.keyname = key; rp.defaultVal.Set<int>(defaultValue); mRefParams.push_back(rp);
+	#define PROPERTY_FLOAT(memberVariable, key, defaultValue) rp.target = &##memberVariable; rp.keyname = key; rp.defaultVal.Set<float>(defaultValue); mRefParams.push_back(rp);
+	#define PROPERTY_STRING(memberVariable, key, defaultValue) rp.target = &##memberVariable; rp.keyname = key; rp.defaultVal.Set<Ogre::String>(defaultValue); mRefParams.push_back(rp);
+	#define PROPERTY_VECTOR3(memberVariable, key, defaultValue) rp.target = &##memberVariable; rp.keyname = key; rp.defaultVal.Set<Ogre::Vector3>(defaultValue); mRefParams.push_back(rp);
+	#define PROPERTY_QUATERNION(memberVariable, key, defaultValue) rp.target = &##memberVariable; rp.keyname = key; rp.defaultVal.Set<Ogre::Quaternion>(defaultValue); mRefParams.push_back(rp);
 
 	#define END_GOCEDITORINTERFACE } \
 	public:

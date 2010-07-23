@@ -52,38 +52,21 @@ namespace Ice
 		mNavigationMesh->ShortestPath(origin, target->GetOwner()->GetGlobalPosition(), oPath);
 	}
 
-	void AIManager::RegisterAIObject(GOCAI* object, int id)
+	void AIManager::RegisterAIObject(GOCAI* object)
 	{
-		mAIObjects.insert(std::make_pair<int, GOCAI*>(id, object));
+		mAIObjects.push_back(object);
 	}
-	void AIManager::UnregisterAIObject(int id)
+	void AIManager::UnregisterAIObject(GOCAI* object)
 	{
-		std::map<int, GOCAI*>::iterator i = mAIObjects.find(id);
-		if (i != mAIObjects.end()) mAIObjects.erase(i);
-	}
-
-	void AIManager::RegisterScriptAIBind(GOCAI* object, int scriptID)
-	{
-		mScriptAIBinds.insert(std::make_pair<int, GOCAI*>(scriptID, object));
-	}
-	void AIManager::UnregisterScriptAIBind(int scriptID)
-	{
-		std::map<int, GOCAI*>::iterator i = mScriptAIBinds.find(scriptID);
-		if (i != mScriptAIBinds.end()) mScriptAIBinds.erase(i);
-	}
-
-	GOCAI* AIManager::GetAIByID(int id)
-	{
-		std::map<int, GOCAI*>::iterator i = mAIObjects.find(id);
-		if (i != mAIObjects.end()) return i->second;
-		return 0;
-	}
-
-	GOCAI* AIManager::GetAIByScriptID(int scriptID)
-	{
-		std::map<int, GOCAI*>::iterator i = mScriptAIBinds.find(scriptID);
-		if (i != mScriptAIBinds.end()) return i->second;
-		return 0;
+		for (auto i = mAIObjects.begin(); i != mAIObjects.end(); i++)
+		{
+			if ((*i) == object)
+			{
+				mAIObjects.erase(i);
+				return;
+			}
+		}
+		IceWarning("AI Object does not exist");
 	}
 
 	NavigationMesh* AIManager::GetNavigationMesh()
@@ -91,34 +74,21 @@ namespace Ice
 		return mNavigationMesh;
 	}
 
-	void AIManager::ReloadScripts()
-	{
-	}
-
 	void AIManager::Clear()
 	{
-		std::map<int, GOCAI*>::iterator i = mAIObjects.begin();
-		while (i != mAIObjects.end())
-		{
-			delete i->second->GetOwner();
-			i = mAIObjects.begin();
-		}
+		mAIObjects.clear();
 	}
 
 	void AIManager::Update(float time)
 	{
-		for (std::map<int, GOCAI*>::iterator i = mAIObjects.begin(); i != mAIObjects.end(); i++)
+		for (auto i = mAIObjects.begin(); i != mAIObjects.end(); i++)
 		{
-			i->second->Update(time);
+			(*i)->Update(time);
 		}
 	}
 
 	void AIManager::ReceiveMessage(Msg &msg)
 	{
-		if (msg.type == "REPARSE_SCRIPTS_POST")
-		{
-			ReloadScripts();
-		}
 	}
 
 	AIManager& AIManager::Instance()

@@ -66,12 +66,6 @@
     <ClCompile Include="Source\IceGOCView.cpp">
       <Filter>Components</Filter>
     </ClCompile>
-    <ClCompile Include="Source\IceCameraController.cpp">
-      <Filter>System</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\IceConsole.cpp">
-      <Filter>System</Filter>
-    </ClCompile>
     <ClCompile Include="Source\IceDataMap.cpp">
       <Filter>System</Filter>
     </ClCompile>
@@ -240,9 +234,6 @@
     <ClCompile Include="Source\IceScriptMessageListener.cpp">
       <Filter>ScriptSystem</Filter>
     </ClCompile>
-    <ClCompile Include="Source\IceSoundMaterialTable.cpp">
-      <Filter>System</Filter>
-    </ClCompile>
     <ClCompile Include="Source\IceGOCOgreNode.cpp">
       <Filter>Components</Filter>
     </ClCompile>
@@ -271,6 +262,15 @@
       <Filter>Utils</Filter>
     </ClCompile>
     <ClCompile Include="Source\IceGOCEditorInterface.cpp">
+      <Filter>System</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\IceConsole.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\IceSoundMaterialTable.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\IceCameraController.cpp">
       <Filter>System</Filter>
     </ClCompile>
   </ItemGroup>
@@ -308,16 +308,7 @@
     <ClInclude Include="Header\IceGOCView.h">
       <Filter>Components</Filter>
     </ClInclude>
-    <ClInclude Include="Header\IceCameraController.h">
-      <Filter>System</Filter>
-    </ClInclude>
-    <ClInclude Include="Header\IceConsole.h">
-      <Filter>System</Filter>
-    </ClInclude>
     <ClInclude Include="Header\IceDataMap.h">
-      <Filter>System</Filter>
-    </ClInclude>
-    <ClInclude Include="Header\IceDirectionBlender.h">
       <Filter>System</Filter>
     </ClInclude>
     <ClInclude Include="Header\IceGameState.h">
@@ -557,9 +548,6 @@
     <ClInclude Include="Header\IceScriptMessageListener.h">
       <Filter>ScriptSystem</Filter>
     </ClInclude>
-    <ClInclude Include="Header\IceSoundMaterialTable.h">
-      <Filter>System</Filter>
-    </ClInclude>
     <ClInclude Include="Header\IceGOCOgreNode.h">
       <Filter>Components</Filter>
     </ClInclude>
@@ -594,6 +582,18 @@
       <Filter>Utils</Filter>
     </ClInclude>
     <ClInclude Include="Header\IceGOCEditorInterface.h">
+      <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceDirectionBlender.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceConsole.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceSoundMaterialTable.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceCameraController.h">
       <Filter>System</Filter>
     </ClInclude>
   </ItemGroup>
