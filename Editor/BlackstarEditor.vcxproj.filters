@@ -84,9 +84,6 @@
     <ClInclude Include="Header\wxSettingsWindow.h">
       <Filter>View</Filter>
     </ClInclude>
-    <ClInclude Include="Header\wxTextureDisplay.h">
-      <Filter>View</Filter>
-    </ClInclude>
     <ClInclude Include="Header\DotSceneLoader.h">
       <Filter>View\TinyXML</Filter>
     </ClInclude>
@@ -121,6 +118,9 @@
       <Filter>View</Filter>
     </ClInclude>
     <ClInclude Include="Header\wxSimpleOgreView.h">
+      <Filter>View</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\wxMediaPane.h">
       <Filter>View</Filter>
     </ClInclude>
   </ItemGroup>
@@ -188,9 +188,6 @@
     <ClCompile Include="Source\wxSettingsWindow.cpp">
       <Filter>View</Filter>
     </ClCompile>
-    <ClCompile Include="Source\wxTextureDisplay.cpp">
-      <Filter>View</Filter>
-    </ClCompile>
     <ClCompile Include="Source\DotSceneLoader.cpp">
       <Filter>View\TinyXML</Filter>
     </ClCompile>
@@ -228,6 +225,9 @@
       <Filter>View</Filter>
     </ClCompile>
     <ClCompile Include="Source\wxSimpleOgreView.cpp">
+      <Filter>View</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\wxMediaPane.cpp">
       <Filter>View</Filter>
     </ClCompile>
   </ItemGroup>

@@ -269,58 +269,12 @@ void Main::initScene()
 		PSSMSplitPoints[i] = splitPointList[i];
 	}
 
-	Ogre::LogManager::getSingleton().logMessage("PSSMSplitPoints: " + Ogre::StringConverter::toString(PSSMSplitPoints));
+	IceNote("PSSMSplitPoints: " + Ogre::StringConverter::toString(PSSMSplitPoints));
 
 	SceneManager::Instance().Init();
 
 	//Load Plugins
 	LoadPlugins();
-
-	/*RefractionTextureListener *TestRefractionListener = new RefractionTextureListener();
-	ReflectionTextureListener *TestReflectionListener = new ReflectionTextureListener(mCamera);*/
-
-	mWaterTestEntity = 0;
-
-	/*Ogre::ResourceManager::ResourceMapIterator RI = Ogre::MaterialManager::getSingleton().getResourceIterator();
-	while (RI.hasMoreElements())
-	{
-		Ogre::MaterialPtr mat = RI.getNext();
-		if (mat->getTechnique(0)->getPass("SkyLight") != NULL) mat->getTechnique(0)->getPass("SkyLight")->getFragmentProgramParameters()->setNamedConstant("pssmSplitPoints", mPSSMSplitPoints);
-
-		/*if (mat->getTechnique(0)->getPass("ReflactionRefraction") != NULL)
-		{
-
-			Ogre::TexturePtr Texture = Ogre::TextureManager::getSingleton().createManual( "Refraction", 
-				Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, Ogre::TEX_TYPE_2D, 
-			512, 512, 0, Ogre::PF_R8G8B8, Ogre::TU_RENDERTARGET );
-        //RenderTexture* rttTex = mRoot->getRenderSystem()->createRenderTexture( "Refraction", 512, 512 );
-        Ogre::RenderTarget *rttTex = Texture->getBuffer()->getRenderTarget();
-		
-        {
-            Ogre::Viewport *v = rttTex->addViewport( mCamera );
-            mat->getTechnique(0)->getPass(0)->getTextureUnitState(2)->setTextureName("Refraction");
-            v->setOverlaysEnabled(false);
-            rttTex->addListener(TestRefractionListener);
-        }
-        
-		Texture = Ogre::TextureManager::getSingleton().createManual( "Reflection", 
-			Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, Ogre::TEX_TYPE_2D, 
-			512, 512, 0, Ogre::PF_R8G8B8, Ogre::TU_RENDERTARGET );
-        //rttTex = mRoot->getRenderSystem()->createRenderTexture( "Reflection", 512, 512 );
-		rttTex = Texture->getBuffer()->getRenderTarget();
-        {
-            Ogre::Viewport *v = rttTex->addViewport( mCamera );
-            mat->getTechnique(0)->getPass(0)->getTextureUnitState(1)->setTextureName("Reflection");
-            v->setOverlaysEnabled(false);
-            rttTex->addListener(TestReflectionListener);
-        }
-		}
-	}*/
-
-	/*Ogre::ShadowCameraSetupPtr shadowsetup = Ogre::ShadowCameraSetupPtr(new Ogre::FocusedShadowCameraSetup());
-	mSceneMgr->setShadowCameraSetup(shadowsetup);*/
-
-	/*mSceneMgr->addListener(new SceneListener());*/
 
 };
 

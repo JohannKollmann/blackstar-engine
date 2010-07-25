@@ -788,6 +788,7 @@ Ice::GameObject* Edit::InsertObject(Ice::GameObject *parent, bool align, bool cr
 {
 	Ice::GameObject *object = 0;
 	Ogre::String sResource = wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->GetSelectedResource().c_str();
+	if (sResource == "None") return nullptr;
 	if (sResource.find("Waypoint.static") != Ogre::String::npos)
 	{
 		return InsertWaypoint(align, create_only);

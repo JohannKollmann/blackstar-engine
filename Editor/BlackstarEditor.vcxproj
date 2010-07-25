@@ -126,6 +126,7 @@
     <ClInclude Include="Header\wxMainNotebook.h" />
     <ClInclude Include="Header\wxMaterialEditor.h" />
     <ClInclude Include="Header\wxMaterialTree.h" />
+    <ClInclude Include="Header\wxMediaPane.h" />
     <ClInclude Include="Header\wxMediaTree.h" />
     <ClInclude Include="Header\wxMeshMagick.h" />
     <ClInclude Include="Header\wxObjectFolderTree.h" />
@@ -138,7 +139,6 @@
     <ClInclude Include="Header\wxScriptFileTree.h" />
     <ClInclude Include="Header\wxSettingsWindow.h" />
     <ClInclude Include="Header\wxSimpleOgreView.h" />
-    <ClInclude Include="Header\wxTextureDisplay.h" />
     <ClInclude Include="Header\DotSceneLoader.h" />
     <ClInclude Include="TinyXML\tinyxml.h" />
     <ClInclude Include="Header\EDTIncludes.h" />
@@ -163,6 +163,7 @@
     <ClCompile Include="Source\wxMainNotebook.cpp" />
     <ClCompile Include="Source\wxMaterialEditor.cpp" />
     <ClCompile Include="Source\wxMaterialTree.cpp" />
+    <ClCompile Include="Source\wxMediaPane.cpp" />
     <ClCompile Include="Source\wxMediaTree.cpp" />
     <ClCompile Include="Source\wxMeshMagick.cpp" />
     <ClCompile Include="Source\wxObjectFolderTree.cpp" />
@@ -174,7 +175,6 @@
     <ClCompile Include="Source\wxScriptFileTree.cpp" />
     <ClCompile Include="Source\wxSettingsWindow.cpp" />
     <ClCompile Include="Source\wxSimpleOgreView.cpp" />
-    <ClCompile Include="Source\wxTextureDisplay.cpp" />
     <ClCompile Include="Source\DotSceneLoader.cpp" />
     <ClCompile Include="TinyXML\tinyxml.cpp" />
     <ClCompile Include="TinyXML\tinyxmlerror.cpp" />
