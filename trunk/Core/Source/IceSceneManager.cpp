@@ -165,6 +165,7 @@ namespace Ice
 		LoadSave::LoadSave::Instance().SetLogFunction(LogMessage);
 
 		LoadSave::LoadSave::Instance().RegisterObject(&DataMap::Register);
+		LoadSave::LoadSave::Instance().RegisterObject(&DataMap::Item::Register);
 		LoadSave::LoadSave::Instance().RegisterObject(&GenericProperty::Register);
 		LoadSave::LoadSave::Instance().RegisterObject(&GameObject::Register);
 		LoadSave::LoadSave::Instance().RegisterObject(&ManagedGameObject::Register);

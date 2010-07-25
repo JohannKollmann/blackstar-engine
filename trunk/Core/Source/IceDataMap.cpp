@@ -261,14 +261,45 @@ namespace Ice
 		return returner;
 	}
 
-	void DataMap::Save(LoadSave::SaveSystem& myManager)
+	void DataMap::Item::Save(LoadSave::SaveSystem& mgr)
 	{
-		myManager.SaveAtom("std::map<Ogre::String, GenericProperty>", &mData, "mDataMap");
+		mgr.SaveAtom("Ogre::String", &key, "key");
+		mgr.SaveObject(data, "Data");
+	}
+	void DataMap::Item::Load(LoadSave::LoadSystem& mgr)
+	{
+		mgr.LoadAtom("Ogre::String", &key);
+		data  = (GenericProperty*)mgr.LoadObject();
+	}
+
+	void DataMap::Save(LoadSave::SaveSystem& mgr)
+	{
+		/* Does not work:
+		mgr.SaveAtom("std::map<Ogre::String, GenericProperty>", &mData, "DataMap");*/
+
+		//Build vector
+		std::vector<Item> items;
+		for (auto i = mData.begin(); i != mData.end(); i++)
+		{
+			Item item;
+			item.key = i->first; item.data = &i->second;
+			items.push_back(item);
+		}
+		mgr.SaveAtom("std::vector<DataMapItem>", &items, "Items");
 	}
 
 	void DataMap::Load(LoadSave::LoadSystem& mgr)
 	{
-		mgr.LoadAtom("std::map<Ogre::String, GenericProperty>", &mData);
+		/* Does not work:
+		mgr.LoadAtom("std::map<Ogre::String, GenericProperty>", &mData); */
+
+		std::vector<Item> items;
+		mgr.LoadAtom("std::vector<DataMapItem>", &items);
+		for (auto i = items.begin(); i != items.end(); i++)
+		{
+			mData.insert(std::make_pair(i->key, *i->data));
+			delete i->data;
+		}
 		mIterator = mData.begin();
 	}
 

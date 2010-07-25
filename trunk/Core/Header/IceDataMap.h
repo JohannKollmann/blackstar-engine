@@ -71,11 +71,20 @@ namespace Ice
 	class DllExport DataMap : public LoadSave::Saveable
 	{
 	public:
-		struct Item
+		class Item : public LoadSave::Saveable
 		{
+		public:
 			Ogre::String key;
-			GenericProperty* data;
+			GenericProperty *data;
+
+			//Load Save methods
+			void Save(LoadSave::SaveSystem& myManager);
+			void Load(LoadSave::LoadSystem& mgr); 
+			static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "DataMapItem"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };
+			static LoadSave::Saveable* NewInstance() { return new Item; };
+			std::string& TellName() { static std::string name = "DataMapItem"; return name; };
 		};
+
 	private:
 		std::map<Ogre::String, GenericProperty> mData;
 		std::map<Ogre::String, GenericProperty>::iterator mIterator;

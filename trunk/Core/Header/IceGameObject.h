@@ -177,8 +177,8 @@ namespace Ice
 		void SetGlobalOrientation(Ogre::Quaternion quat) { SetGlobalOrientation(quat, true); }
 		void SetGlobalOrientation(Ogre::Quaternion quat, bool updateChildren);
 		void SetGlobalScale(Ogre::Vector3 scale);
-		void Translate(Ogre::Vector3 vec, bool updateChildren = true) { if (!mFreezed) SetGlobalPosition(mPosition + vec, updateChildren); }
-		void Rotate(Ogre::Vector3 axis, Ogre::Radian angle, bool updateChildren = true) { if (!mFreezed) { Ogre::Quaternion q; q.FromAngleAxis(angle, axis); SetGlobalOrientation(mOrientation * q, updateChildren); } }
+		void Translate(Ogre::Vector3 vec, bool updateChildren = true) { SetGlobalPosition(mPosition + vec, updateChildren); }
+		void Rotate(Ogre::Vector3 axis, Ogre::Radian angle, bool updateChildren = true) { Ogre::Quaternion q; q.FromAngleAxis(angle, axis); SetGlobalOrientation(mOrientation * q, updateChildren); }
 		void Rescale(Ogre::Vector3 scaleoffset) { SetGlobalScale(mScale + scaleoffset); }
 		bool GetTransformingChildren() { return mTransformingChildren; }
 		bool GetUpdatingFromParent() { return mUpdatingFromParent; }

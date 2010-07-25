@@ -18,7 +18,6 @@
 #include "wxMainNotebook.h"
 #include "wxEditorToolbar.h"
 #include "wxMediaTree.h"
-#include "wxTextureDisplay.h"
 #include "wxLogDisplay.h"
 #include "EDTIncludes.h"
 #include "wxSimpleOgreView.h"

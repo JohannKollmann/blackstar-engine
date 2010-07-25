@@ -596,6 +596,8 @@ CREATELISTHANDLER(float, "float", FloatListHandler);
 
 CREATEMAPHANDLER(Ogre::String, "Ogre::String", GenericProperty, "GenericProperty", GenericPropertyMapHandler)
 
+CREATEVECTORHANDLER(DataMap::Item, "DataMapItem", DataMapItemVectorHandler)
+
 CREATEVECTORHANDLER(int, "int", IntVectorHandler)
 
 CREATEVECTORHANDLER(Ogre::Vector3, "Ogre::Vector3", OgreVec3VectorHandler)
@@ -615,6 +617,7 @@ RegisterStandardAtoms()
 	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new SaveableListHandler());
 	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new SaveableVectorHandler());
 	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new GenericPropertyMapHandler());
+	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new DataMapItemVectorHandler());
 	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new NullObjectHandler());
 	//Ogre
 	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new OgreVec3Handler());
