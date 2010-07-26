@@ -62,11 +62,12 @@ namespace Ice
 
 	SceneManager::~SceneManager(void)
 	{
-		for (auto i = mGOCPrototypes.begin(); i != mGOCPrototypes.end(); i++)
+		//TODO: Proper cleanup
+		/*for (auto i = mGOCPrototypes.begin(); i != mGOCPrototypes.end(); i++)
 		{
 			delete i->second;
 		}
-		mGOCPrototypes.clear();
+		mGOCPrototypes.clear();*/
 
 	}
 
