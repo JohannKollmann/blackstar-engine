@@ -11,8 +11,8 @@ wxSimpleOgreView::wxSimpleOgreView(wxWindow* parent, wxWindowID id, const wxPoin
 
 wxSimpleOgreView::~wxSimpleOgreView(void)
 {
-	Reset();
-	if (mNode) mSceneMgr->destroySceneNode(mNode);
+	/*Reset();
+	if (mNode) mSceneMgr->destroySceneNode(mNode);*/
 }
 
 void wxSimpleOgreView::OnInit()
