@@ -4,6 +4,7 @@
 #include "wxFileTree.h"
 #include "Commctrl.h"
 #include "wxEdit.h"
+#include "Edit.h"
 
 enum
 {
@@ -145,7 +146,7 @@ void wxFileTree::OnMenuEvent(wxCommandEvent& event)
 	{
 		if (mCurrentItem->IsFile()) return;
 		Ogre::String BasePath = Ogre::String(this->GetRelativePath(mCurrentItem->GetId()).GetPath().c_str());
-		Ogre::String Path = mRootPath + "/" + BasePath;
+		Ogre::String Path = mRootPath + "\\" + BasePath;
 		wxTextEntryDialog dialog(this,
 			_T("Enter folder name:"),
 			_T("Please enter a string"),
@@ -153,34 +154,36 @@ void wxFileTree::OnMenuEvent(wxCommandEvent& event)
 			wxOK | wxCANCEL);
 
 		Ogre::String Folder = "";
+		wxEdit::Instance().GetMainNotebook()->GetOgreWindow()->SetPaused(true);
 		if (dialog.ShowModal() == wxID_OK)
 		{
 			Folder = dialog.GetValue().c_str();
 		}
-		boost::filesystem::path newPath((Path + "/" + Folder.c_str()));
+		boost::filesystem::path newPath((Path + "\\" + Folder.c_str()));
 		boost::filesystem::create_directory(newPath);
 		SetRootPath(mRootPath);
-		ExpandToPath(wxString((BasePath + "/" + Folder).c_str()));
-		OnCreateFolderCallback(BasePath + "/" + Folder);
+		ExpandToPath(wxString((BasePath + "\\" + Folder).c_str()));
+		OnCreateFolderCallback(BasePath + "\\" + Folder);
+		wxEdit::Instance().GetMainNotebook()->GetOgreWindow()->SetPaused(false);
 		return;
 	}
 	if (id == ResTree_del)
 	{
 		Ogre::String BasePath = Ogre::String(this->GetRelativePath(mCurrentItem->GetId()).GetPath().c_str());
-		Ogre::String Path = mRootPath + "/" + BasePath;
+		Ogre::String Path = mRootPath + "\\" + BasePath;
 		if (mCurrentItem->IsFile())
 		{
-			Path = Path + "/" + Ogre::String(mCurrentItem->GetName().c_str());
+			Path = Path + "\\" + Ogre::String(mCurrentItem->GetName().c_str());
 		}
 		Ogre::LogManager::getSingleton().logMessage(Path);
 		OnRemoveItemCallback();
 		boost::filesystem::path SourcePath(Path.c_str());
 		unsigned long success = boost::filesystem::remove_all(SourcePath);
 
-		int found = BasePath.find_last_of("/");
+		int found = BasePath.find_last_of("\\");
 		if (found != Ogre::String::npos)
 		{
-			BasePath = BasePath.substr(0, found) + "/";
+			BasePath = BasePath.substr(0, found) + "\\";
 		}
 		SetRootPath(mRootPath);
 		ExpandToPath(wxString((BasePath).c_str()));
@@ -196,11 +199,10 @@ Ogre::String wxFileTree::GetInsertPath()
 	{
 		if (mCurrentItem->IsDir())// || mCurrentItem->IsRoot())
 		{
-			relPath = Ogre::String(GetRelativePath(mCurrentItem->GetId()).GetFullPath().c_str()) + "\\";
+			relPath = Ogre::String(GetRelativePath(mCurrentItem->GetId()).GetFullPath().c_str());
 		}
 	}
-	Ogre::String Path = relPath + "\\";
-	return Path;
+	return relPath;
 }
 
 Ogre::String wxFileTree::DoCreateFileDialog()
@@ -212,10 +214,12 @@ Ogre::String wxFileTree::DoCreateFileDialog()
 		wxOK | wxCANCEL);
 
 	Ogre::String File = "";
+	wxEdit::Instance().GetMainNotebook()->GetOgreWindow()->SetPaused(true);
 	if (dialog.ShowModal() == wxID_OK)
 	{
 		File = dialog.GetValue().c_str();
 	}
+	wxEdit::Instance().GetMainNotebook()->GetOgreWindow()->SetPaused(false);
 	return File;
 }
 

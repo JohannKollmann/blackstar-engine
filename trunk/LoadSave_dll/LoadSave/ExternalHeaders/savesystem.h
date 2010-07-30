@@ -27,9 +27,13 @@ public:
 	void AddAtom(std::string strType, void* pData);
 	void OpenObjectArray(std::string strType, std::vector<int> dimSizes, std::string varName);
 	void AddObject(Saveable* pObj);
+
+	void SetUseRecordReferences(bool use);
 private:
 	CSaveManager* m_pSM;
 	std::map<Saveable*, int> m_RecordIDs;
+
+	bool mUseRecordReferences;
 
 };
 

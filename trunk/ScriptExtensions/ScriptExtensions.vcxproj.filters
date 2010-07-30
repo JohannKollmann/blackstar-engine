@@ -19,6 +19,9 @@
     <Filter Include="ScriptedControls">
       <UniqueIdentifier>{4411e884-4c7a-4b04-841c-24d4def24663}</UniqueIdentifier>
     </Filter>
+    <Filter Include="TextureDebugger">
+      <UniqueIdentifier>{1ad124ac-deb0-4a3d-ac92-2c1746008f92}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header\LoadSaveMapHandler.h">
@@ -48,6 +51,9 @@
     <ClInclude Include="Header\ScriptedControls.h">
       <Filter>ScriptedControls</Filter>
     </ClInclude>
+    <ClInclude Include="Header\TextureDebugger.h">
+      <Filter>TextureDebugger</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\ResidentVariables.cpp">
@@ -70,6 +76,9 @@
     </ClCompile>
     <ClCompile Include="Source\ScriptedControls.cpp">
       <Filter>ScriptedControls</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\TextureDebugger.cpp">
+      <Filter>TextureDebugger</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

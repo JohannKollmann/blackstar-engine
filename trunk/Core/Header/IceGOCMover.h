@@ -9,6 +9,7 @@
 #include "IceGOCView.h"
 #include "IceSpline.h"
 #include "IceUtils.h"
+#include "IceGOCScriptMakros.h"
 
 namespace Ice
 {
@@ -121,6 +122,7 @@ namespace Ice
 
 		void SetKeyIgnoreParent(bool ignore);
 
+		//Editor interface
 		BEGIN_GOCEDITORINTERFACE(GOCMover, "Mover")
 			PROPERTY_FLOAT(mTimeToNextKey, "TimeToNextKey", 1.0f);
 			PROPERTY_BOOL(mIsClosed, "Closed", false);
@@ -130,6 +132,11 @@ namespace Ice
 
 		void OnSetParameters();
 
+		//Scripting
+		std::vector<ScriptParam> TriggerMover(std::vector<ScriptParam> &params) { Trigger();  return std::vector<ScriptParam>(); };
+		DEFINE_GOCLUAMETHOD(GOCMover, TriggerMover)
+
+		//Load Save
 		void Save(LoadSave::SaveSystem& mgr);
 		void Load(LoadSave::LoadSystem& mgr);
 		static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "Mover"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };

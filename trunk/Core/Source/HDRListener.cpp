@@ -1,4 +1,7 @@
 #include "HDRListener.h"
+#include "IceMain.h"
+#include "IceSceneManager.h"
+#include "IceWeatherController.h"
 
 namespace Ice
 {
@@ -169,6 +172,30 @@ namespace Ice
 				mat->getTechnique(0)->getPass(0)->getFragmentProgramParameters();
 			fparams->setNamedConstant("oldAvgLum", mLumListener.avgLuminence);
 		}
+		if (pass_id == 995)
+			{
+				Ogre::Matrix4 viewproj = Ice::Main::Instance().GetCamera()->getProjectionMatrix() * Ice::Main::Instance().GetCamera()->getViewMatrix();
+				Ogre::Vector3 sunDir = SceneManager::Instance().GetWeatherController()->GetCaelumSystem()->getSun()->getLightDirection();
+				float camDotLight = Ice::Main::Instance().GetCamera()->getDerivedDirection().dotProduct(-sunDir);
+				Ogre::Vector3 sunPos = (-sunDir) * 1000;
+				Ogre::Vector3 sunUV = viewproj * sunPos;
+
+				//saturate and convert to image space
+				if (sunUV.x < -1) sunUV.x = -1;
+				if (sunUV.y < -1) sunUV.y = -1;
+				if (sunUV.x > 1) sunUV.x = 1;
+				if (sunUV.y > 1) sunUV.y = 1;
+				sunUV.y *= -1;
+				sunUV += Ogre::Vector3(1, 1, 0);
+				sunUV *= 0.5;
+
+				sunUV.z = camDotLight;
+				//IceNote(Ogre::StringConverter::toString(camDotLight));
+				mat->load();
+				Ogre::GpuProgramParametersSharedPtr fparams =
+				mat->getBestTechnique()->getPass(0)->getFragmentProgramParameters();
+				fparams->setNamedConstant("sunUV", sunUV);
+			}
 	}
 
 

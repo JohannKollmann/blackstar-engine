@@ -98,6 +98,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Header\TextureDebugger.h" />
     <ClInclude Include="Header\LoadSaveMapHandler.h" />
     <ClInclude Include="Header\ResidentVariables.h" />
     <ClInclude Include="Header\SGTMusicSystem.h" />
@@ -109,6 +110,7 @@
     <ClInclude Include="Header\ScriptedControls.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\TextureDebugger.cpp" />
     <ClCompile Include="Source\ResidentVariables.cpp" />
     <ClCompile Include="Source\ScriptableInstances.cpp" />
     <ClCompile Include="Source\FontTextures.cpp" />

@@ -214,23 +214,70 @@ namespace Ice
 		RegisterGOCPrototype("E", new GOCScript());
 		RegisterGOCPrototype(new GOCAnimKey());
 
-		//Setup Lua Callback
+		//Shared Lua functions
+
+		/**
+		Joins a newsgroup.
+		Example usage: Listen("UPDATE_PER_FRAME", myFunc)
+		*/
 		ScriptSystem::GetInstance().ShareCFunction("Listen", &ScriptSystem::Lua_JoinNewsgroup);
+
+		/**
+		Logs a message to the log.
+		Example usage: LogMessage("Everything is okay!")
+		*/
 		ScriptSystem::GetInstance().ShareCFunction("LogMessage", &SceneManager::Lua_LogMessage);
+
+		/**
+		Retrieves the object id of the script instance.
+		@pre: Script is an object script.
+		Example usage: id = This()
+		*/
 		ScriptSystem::GetInstance().ShareCFunction("This", &SceneManager::Lua_GetThis);
+
+		ScriptSystem::GetInstance().ShareCFunction("GetObjectIDByName", &SceneManager::Lua_GetObjectByName);
+
+		/**
+		Loads a level.
+		Example usage: LoadLevel("World.eew")
+		*/
 		ScriptSystem::GetInstance().ShareCFunction("LoadLevel", &SceneManager::Lua_LoadLevel);
 
+		/**
+		Object manipulation methods.
+		Example usage: SetPosition(id, 1.0, 2.5, 3.1)
+		*/
 		ScriptSystem::GetInstance().ShareCFunction("SetPosition", &GameObject::Lua_SetObjectPosition);
 		ScriptSystem::GetInstance().ShareCFunction("SetOrientation", &GameObject::Lua_SetObjectOrientation);
 		ScriptSystem::GetInstance().ShareCFunction("SetScale", &GameObject::Lua_SetObjectScale);
 		ScriptSystem::GetInstance().ShareCFunction("GetName", &GameObject::Lua_GetObjectName);
 
+
+		//Not implemented
 		ScriptSystem::GetInstance().ShareCFunction("Npc_AddState", &GOCAI::Lua_Npc_AddState);
+
+		/**
+		Terminates the active state.
+		*/
 		ScriptSystem::GetInstance().ShareCFunction("Npc_KillActiveState", &GOCAI::Lua_Npc_KillActiveState);
+
+		/**
+		Terminates all states in the queue.
+		*/
 		ScriptSystem::GetInstance().ShareCFunction("Npc_ClearQueue", &GOCAI::Lua_Npc_ClearQueue);
+
+		/**
+		Adds a scripted state to the daily routine queue.
+		*/
 		ScriptSystem::GetInstance().ShareCFunction("Npc_AddTA", &GOCAI::Lua_Npc_AddTA);
+
+		/**
+		Tells the npc to go to a certain waypoint.
+		*/
 		ScriptSystem::GetInstance().ShareCFunction("Npc_GotoWP", &GOCAI::Lua_Npc_GotoWP);
 		ScriptSystem::GetInstance().ShareCFunction("Npc_OpenDialog", &SceneManager::Lua_NPCOpenDialog);
+
+		ScriptSystem::GetInstance().ShareCFunction("TriggerMover", &GOCMover::Lua_TriggerMover);
 
 		ScriptSystem::GetInstance().ShareCFunction("Play3DSound", &SceneManager::Lua_Play3DSound);
 		ScriptSystem::GetInstance().ShareCFunction("CreateMaterialProfile", &SceneManager::Lua_CreateMaterialProfile);
@@ -676,6 +723,26 @@ namespace Ice
 		return returner;	
 	}
 
+	std::vector<ScriptParam> SceneManager::Lua_GetObjectByName(Script& caller, std::vector<ScriptParam> vParams)
+	{
+		int returnID = -1;
+		if (Utils::TestParameters(caller, vParams, "string"))
+		{
+			Ogre::String name = vParams[0].getString();
+			for (auto i = Instance().mGameObjects.begin(); i != Instance().mGameObjects.end(); i++)
+			{
+				if (i->second->GetName() == name)
+				{
+					returnID = i->first;
+					break;
+				}
+			}
+		}
+		std::vector<ScriptParam> out;
+		out.push_back(returnID);
+		return out;
+	}
+
 	std::vector<ScriptParam> SceneManager::Lua_GetFocusObject(Script& caller, std::vector<ScriptParam> params)
 	{
 		OgrePhysX::Scene::QueryHit hit;
@@ -815,13 +882,6 @@ namespace Ice
 		return std::vector<ScriptParam>();
 	}
 
-
-	SceneManager& SceneManager::Instance()
-	{
-		static SceneManager TheOneAndOnly;
-		return TheOneAndOnly;
-	};
-
 	void SceneManager::RegisterSound(OgreOggSound::OgreOggISound* sound)
 	{
 		mPlayingSounds.push_back(sound);
@@ -860,5 +920,12 @@ namespace Ice
 		mCameraStack.pop();
 		if (mCameraStack.size() > 0) mCameraStack.top()->AttachCamera(Main::Instance().GetCamera());
 	}
+
+
+	SceneManager& SceneManager::Instance()
+	{
+		static SceneManager TheOneAndOnly;
+		return TheOneAndOnly;
+	};
 
 }

@@ -269,7 +269,7 @@ void wxEditGOResource::OnApply()
 	delete ss;
 
 	wxFileName path = wxFileName(wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->GetCurrentPath().c_str());//GetRelativePath(wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->GetSelection());
-	wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->SetRootPath("Data/Editor/Objects/");
+	wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->SetRootPath("Data\\Editor\\Objects\\");
 	Ogre::LogManager::getSingleton().logMessage("Filename: " + Ogre::String(path.GetPath().c_str()));
 	wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->ExpandToPath(path);
 }

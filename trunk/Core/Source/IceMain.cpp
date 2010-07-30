@@ -9,7 +9,6 @@
 #include "IceCameraController.h"
 #include "IceConsole.h"
 #include "IceSceneManager.h"
-#include "IceCompositorLoader.h"
 #include "IceSceneListener.h"
 #include "HDRListener.h"
 #include "IceWeatherController.h"
@@ -218,11 +217,15 @@ void Main::initScene()
 	mSoundManager->setDistanceModel(AL_LINEAR_DISTANCE);
 	//mCamera->getParentSceneNode()->attachObject(mSoundManager->getListener());
 
+	Ogre::CompositorManager::getSingleton().addCompositor(Main::Instance().GetViewport(), "RenderDepth");
+	Ogre::CompositorManager::getSingleton().setCompositorEnabled(Main::Instance().GetViewport(), "RenderDepth", true);
+	//Ogre::CompositorManager::getSingleton().addCompositor(Main::Instance().GetViewport(), "VolumetricLightFilter");
+	Ogre::CompositorInstance *hdrinstance = Ogre::CompositorManager::getSingleton().addCompositor(Main::Instance().GetViewport(), "HDRTest");
 	HDRListener *hdrListener = new HDRListener(); 
-	Ogre::CompositorInstance* hdrinstance = CompositorLoader::Instance().AddListener("HDRTest", hdrListener);
+	hdrinstance->addListener(hdrListener);
 	hdrListener->notifyViewportSize(mViewport->getActualWidth(), mViewport->getActualHeight());
 	hdrListener->notifyCompositor(hdrinstance);
-	CompositorLoader::Instance().EnableCompositor("HDRTest");
+	Ogre::CompositorManager::getSingleton().setCompositorEnabled(Main::Instance().GetViewport(), "HDRTest", true);
 
 	mPhysXScene->getNxScene()->setUserContactReport(new ActorContactReport());
 

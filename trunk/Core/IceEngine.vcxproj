@@ -154,7 +154,6 @@
     <ClCompile Include="Source\IceNavigationMesh.cpp" />
     <ClCompile Include="Source\IceScriptedAIState.cpp" />
     <ClCompile Include="Source\HDRListener.cpp" />
-    <ClCompile Include="Source\IceCompositorLoader.cpp" />
     <ClCompile Include="Source\IceSceneListener.cpp" />
     <ClCompile Include="Source\IceWeatherController.cpp" />
     <ClCompile Include="Source\IceCollisionCallback.cpp" />
@@ -241,7 +240,6 @@
     <ClInclude Include="Header\IceNavigationMesh.h" />
     <ClInclude Include="Header\IceScriptedAIState.h" />
     <ClInclude Include="Header\HDRListener.h" />
-    <ClInclude Include="Header\IceCompositorLoader.h" />
     <ClInclude Include="Header\IceSceneListener.h" />
     <ClInclude Include="Header\IceWeatherController.h" />
     <ClInclude Include="..\..\Dependencies\Boost\thread\barrier.hpp" />

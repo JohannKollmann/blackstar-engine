@@ -11,7 +11,7 @@
 
 
 
-class GUISystem : public Ice::MessageListener
+class __declspec(dllexport) GUISystem : public Ice::MessageListener
 {
 public:
 	GUISystem(void);
