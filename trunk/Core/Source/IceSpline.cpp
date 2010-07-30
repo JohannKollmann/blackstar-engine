@@ -254,15 +254,19 @@ namespace Ice
 	}
 
 	Ogre::Vector3
-	Spline::Sample(double fPos)
+	Spline::Sample(double fPos, int* piCurrentKey=0)
 	{
 		if(!m_bIsTimedSpline)
 		{
 			int iSector=(int)fPos;
 			if((fPos-1.0)<(double)m_Sectors.size() && fPos>=0.0)
 			{
+				if(piCurrentKey)
+					*piCurrentKey=iSector;
 				return m_Sectors[iSector].CalcSample(fPos-(double)iSector);
 			}
+			if(piCurrentKey)
+				*piCurrentKey=iSector;
 			return Ogre::Vector3(0,0,0);
 		}
 		else
@@ -315,6 +319,8 @@ namespace Ice
 				if(fPos>m_SectorLengths[iSearchPos+1])
 					iSearchPos++;
 
+			if(piCurrentKey)
+				*piCurrentKey=iSearchPos;
 
 			return m_Sectors[iSearchPos].CalcSample(fPos-m_SectorLengths[iSearchPos]);
 		}
