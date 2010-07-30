@@ -7,6 +7,7 @@
 #include "ResidentVariables.h"
 #include "GUISystem.h"
 #include "ScriptableInstances.h"
+#include "TextureDebugger.h"
 
 #include "IceMessageSystem.h"
 
@@ -56,6 +57,8 @@ ScriptExtensions::initialise()
 	ScriptedControls::GetInstance();
 	Ogre::LogManager::getSingleton().logMessage("ScriptExtensions: initializing music system");
 	MusicSystem::GetInstance();
+
+	TextureDebugger::Instance();
 	Ice::MessageSystem::Instance().JoinNewsgroup(this, "REPARSE_SCRIPTS");
 }
 

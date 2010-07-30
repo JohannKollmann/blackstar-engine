@@ -285,7 +285,9 @@ namespace Ice
 			item.key = i->first; item.data = &i->second;
 			items.push_back(item);
 		}
+		mgr.SetUseRecordReferences(false);
 		mgr.SaveAtom("std::vector<DataMapItem>", &items, "Items");
+		mgr.SetUseRecordReferences(true);
 	}
 
 	void DataMap::Load(LoadSave::LoadSystem& mgr)

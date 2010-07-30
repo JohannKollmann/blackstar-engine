@@ -891,9 +891,11 @@ void Edit::OnDeleteObject( wxCommandEvent& WXUNUSED(event) )
 		if (object->GetNumChildren() > 0)
 		{
 			skip = true;
+			wxEdit::Instance().GetMainNotebook()->GetOgreWindow()->SetPaused(true);
 			wxMessageDialog dialog( NULL, _T("Delete Children?"),
 				_T("Deleting root object..."), wxYES_DEFAULT|wxYES_NO|wxCANCEL|wxICON_QUESTION);
 			int input = dialog.ShowModal();
+			wxEdit::Instance().GetMainNotebook()->GetOgreWindow()->SetPaused(false);
 			if (input == wxID_YES)
 			{
 				delete object;
@@ -957,6 +959,7 @@ void Edit::OnSaveObjectGroup( wxCommandEvent& WXUNUSED(event) )
 
 		dialog.SetFilterIndex(1);
 
+		wxEdit::Instance().GetMainNotebook()->GetOgreWindow()->SetPaused(true);
 		if (dialog.ShowModal() == wxID_OK)
 		{
 			LoadSave::SaveSystem *ss=LoadSave::LoadSave::Instance().CreateSaveFile(dialog.GetPath().c_str(), Ogre::String(dialog.GetPath().c_str()) + ".xml");
@@ -970,8 +973,9 @@ void Edit::OnSaveObjectGroup( wxCommandEvent& WXUNUSED(event) )
 			SelectObject(go);
 			delete ss;
 		}
+		wxEdit::Instance().GetMainNotebook()->GetOgreWindow()->SetPaused(false);
 	}
-	wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->SetRootPath("Data/Editor/Objects");
+	wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->SetRootPath("Data\\Editor\\Objects");
 }
 
 void Edit::OnSaveBones( wxCommandEvent& WXUNUSED(event) )

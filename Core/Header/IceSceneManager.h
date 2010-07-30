@@ -143,7 +143,6 @@ namespace Ice
 		static SceneManager& Instance();
 
 
-
 		//Script
 		static void LogMessage(std::string strError);
 		static std::vector<ScriptParam> Lua_LogMessage(Script& caller, std::vector<ScriptParam> vParams);
@@ -157,6 +156,7 @@ namespace Ice
 		Liefert die ID des mit dem caller script assozierten Script Objekts zurück.
 		*/
 		static std::vector<ScriptParam> Lua_GetThis(Script& caller, std::vector<ScriptParam> vParams);
+		static std::vector<ScriptParam> Lua_GetObjectByName(Script& caller, std::vector<ScriptParam> vParams);
 
 		static std::vector<ScriptParam> Lua_InsertMesh(Script& caller, std::vector<ScriptParam> vParams);
 

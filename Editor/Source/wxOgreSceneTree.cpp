@@ -98,7 +98,8 @@ void wxOgreSceneTree::NotifyObject(Ice::GameObject *object)
 	if (parent)
 	{
 		OgreTreeItemBase *parentItem = FindItemByObject(parent);
-		AppendGameObject(parentItem->GetId(), object);
+		if (parentItem) AppendGameObject(parentItem->GetId(), object);
+		else NotifyObject(parent);
 	}
 	else
 	{

@@ -26,12 +26,14 @@ void DoInit(CSaveManager* pSM)
 SaveSystem::SaveSystem(std::string strBinaryFile, std::string strXMLFile)
 {
 	m_pSM=new CSaveManager(strBinaryFile, strXMLFile);
+	mUseRecordReferences = true;
 	DoInit(m_pSM);
 }
 
 SaveSystem::SaveSystem(void* & pData, int& iDataSize, std::string strXMLFile)
 {
 	m_pSM=new CSaveManager(&pData, &iDataSize, strXMLFile);
+	mUseRecordReferences = true;
 	DoInit(m_pSM);
 }
 
@@ -80,6 +82,11 @@ SaveSystem::WriteAtom(std::string strType, void* pData, std::string varName, std
 	m_pSM->CloseCurrentElement();
 }
 
+void SaveSystem::SetUseRecordReferences(bool use)
+{
+	mUseRecordReferences = use;
+}
+
 void
 SaveSystem::SaveObject(Saveable *pObj, std::string varName, bool allowNull)
 {
@@ -90,7 +97,7 @@ SaveSystem::SaveObject(Saveable *pObj, std::string varName, bool allowNull)
 		this->SaveAtom("NullObject", nullptr, varName);
 		return;
 	}
-	if(m_RecordIDs.find(pObj)==m_RecordIDs.end())
+	if(!mUseRecordReferences || m_RecordIDs.find(pObj)==m_RecordIDs.end())
 	{
 		m_RecordIDs.insert(std::pair<Saveable*, int>(pObj, m_pSM->GetRecordID()));
 		m_pSM->AddOpenElement(LoadSave::Instance().GetObjectID(pObj->TellName()), EscapeXMLName(pObj->TellName()), varName, 0, NULL, "", false, NULL, false);

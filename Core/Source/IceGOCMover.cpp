@@ -420,5 +420,4 @@ namespace Ice
 		GOCAnimKey *key = child->GetComponent<GOCAnimKey>();
 		if (key) key->SetMover(this);
 	}
-
 }

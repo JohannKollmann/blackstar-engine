@@ -102,9 +102,6 @@
     <ClCompile Include="Source\HDRListener.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Source\IceCompositorLoader.cpp">
-      <Filter>Graphics</Filter>
-    </ClCompile>
     <ClCompile Include="Source\IceSceneListener.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
@@ -345,9 +342,6 @@
       <Filter>AI</Filter>
     </ClInclude>
     <ClInclude Include="Header\HDRListener.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Header\IceCompositorLoader.h">
       <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Header\IceSceneListener.h">

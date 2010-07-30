@@ -44,7 +44,7 @@ class NxControllerManager;
 #if ICE_NOWARNINGS
 	#define IceWarning(message)
 #else
-	#define IceWarning(message) Ogre::LogManager::getSingleton().logMessage(Ogre::String("Warning: ") + message + Ogre::String(", function ") + __FUNCTION__ + Ogre::String(", file ") + __FILE__ +  Ogre::String(", line ") + Ogre::StringConverter::toString(__LINE__));
+	#define IceWarning(message) Ogre::LogManager::getSingleton().logMessage(Ogre::String("Warning: ") + message + Ogre::String(" (") + __FUNCTION__ + Ogre::String(", file ") + __FILE__ +  Ogre::String(")"));
 #endif
 
 #if ICE_NONOTES
@@ -76,7 +76,6 @@ namespace Ice
 	class ObjectLevelRayCaster;
 	class CameraController;
 	class WeatherController;
-	class CompositorLoader;
 	class ScriptedCollisionCallback;
 	class GameObject;
 	class ManagedGameObject;

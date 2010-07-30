@@ -3,7 +3,7 @@
 #include "IceScriptSystem.h"
 #include <map>
 
-class ScriptableInstances
+class __declspec(dllexport) ScriptableInstances
 {
 public:
 	ScriptableInstances();

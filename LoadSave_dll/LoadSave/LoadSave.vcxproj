@@ -105,6 +105,12 @@ copy $(OutDir)$(TargetFileName) ..\Debug
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ExternalHeaders\standard_atoms.h" />
+    <ClInclude Include="InterfaceLibs\AtomHandler.h" />
+    <ClInclude Include="InterfaceLibs\LoadSave.h" />
+    <ClInclude Include="InterfaceLibs\LoadSystem.h" />
+    <ClInclude Include="InterfaceLibs\RecordReference.h" />
+    <ClInclude Include="InterfaceLibs\Saveable.h" />
+    <ClInclude Include="InterfaceLibs\SaveSystem.h" />
     <ClInclude Include="LowLevelLibs\CMemFile.h" />
     <ClInclude Include="LowLevelLibs\LoadSave_dll.h" />
     <ClInclude Include="LowLevelLibs\LoadSave_dll_intl.h" />

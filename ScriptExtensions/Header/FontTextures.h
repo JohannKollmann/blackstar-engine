@@ -1,6 +1,6 @@
 #include "Ogre.h"
 
-class FontTextures
+class __declspec(dllexport) FontTextures
 {
 public:
 	FontTextures(std::string strFontSpacings);

@@ -5,7 +5,6 @@
 #include "virtualdirtreectrl.h"
 #include "Ogre.h"
 #include <wx/dnd.h>
-#include "EDTIncludes.h"
 
 class wxDnDTreeItemData : public wxDataObjectSimple
 {

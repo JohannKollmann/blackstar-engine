@@ -5,15 +5,14 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
-    <Filter Include="Libs">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
-    </Filter>
     <Filter Include="InterfaceSrc">
       <UniqueIdentifier>{f0a4d934-b5d9-4b21-a1bc-f83ac3885353}</UniqueIdentifier>
     </Filter>
     <Filter Include="LowLevelLibs">
       <UniqueIdentifier>{0cc7def1-d2f8-4f3b-b64f-ca0150333ef6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="InterfaceLibs">
+      <UniqueIdentifier>{c8556c30-80f0-48d5-8d8a-76d0146ddf77}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -52,6 +51,26 @@
     <ClInclude Include="LowLevelLibs\save_helpers.h">
       <Filter>LowLevelLibs</Filter>
     </ClInclude>
-    <ClInclude Include="ExternalHeaders\standard_atoms.h" />
+    <ClInclude Include="InterfaceLibs\AtomHandler.h">
+      <Filter>InterfaceLibs</Filter>
+    </ClInclude>
+    <ClInclude Include="InterfaceLibs\LoadSave.h">
+      <Filter>InterfaceLibs</Filter>
+    </ClInclude>
+    <ClInclude Include="InterfaceLibs\LoadSystem.h">
+      <Filter>InterfaceLibs</Filter>
+    </ClInclude>
+    <ClInclude Include="InterfaceLibs\RecordReference.h">
+      <Filter>InterfaceLibs</Filter>
+    </ClInclude>
+    <ClInclude Include="InterfaceLibs\Saveable.h">
+      <Filter>InterfaceLibs</Filter>
+    </ClInclude>
+    <ClInclude Include="InterfaceLibs\SaveSystem.h">
+      <Filter>InterfaceLibs</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalHeaders\standard_atoms.h">
+      <Filter>InterfaceLibs</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

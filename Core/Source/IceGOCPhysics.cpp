@@ -130,6 +130,7 @@ namespace Ice
 			mActor->setGlobalOrientation(mOwnerGO->GetGlobalOrientation());
 			mActor->setGlobalPosition(mOwnerGO->GetGlobalPosition());
 		}
+		else if (mCollisionMeshName != "") Create(mCollisionMeshName, mDensity, mShapeType, mOwnerGO->GetGlobalScale());
 	}
 
 	void GOCRigidBody::SetParameters(DataMap *parameters)
