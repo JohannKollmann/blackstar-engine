@@ -67,7 +67,7 @@ void wxMediaTree::RefreshFilters()
 		extensions.Add("*.ogg");
 	}
 	SetExtensions(extensions);
-	SetRootPath("Data/Media/");
+	SetRootPath("Data\\Media\\");
 	wxFileName expandto = wxFileName(relPath.c_str());
 	ExpandToPath(expandto);
 }

@@ -15,12 +15,16 @@ private:
 	double mSpeedFactor;
 	bool mPaused;
 
+	int mDay;
+	int mMonth;
+
 public:
 	WeatherController(void);
 	~WeatherController(void);
 
 	Caelum::CaelumSystem* GetCaelumSystem();
 	void SetSpeedFactor(double speed);
+	void SetTime(int hour, int minutes);
 	void ReceiveMessage(Msg &msg);
 	void Update(float time);
 	void SetGroundFogEnabled (bool enable);

@@ -347,7 +347,7 @@ void Main::setupRenderSystem()
 	//mRenderSystem->setConfigOption("Capture frames to AVI file (capture.avi)", "Yes");
 
 	mRenderSystem->setConfigOption("VSync", vsync);
-	mRenderSystem->setConfigOption("FSAA", "Level" + aa);
+	mRenderSystem->setConfigOption("FSAA", aa);
 
 	if (renderer == "Direct3D9 Rendering Subsystem")
 	{

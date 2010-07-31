@@ -6,6 +6,8 @@
 
 //#define BOOST_ALL_DYN_LINK
 
+#define PATH_SEPERATOR "/"
+
 class Edit;
 class wxOgre;
 class wxEdit;

@@ -52,6 +52,8 @@ namespace Ice
 		float mDestroyStoppedSoundsDelay; //Hack because of OgreOggSound threading!
 		float mDestroyStoppedSoundsLast;
 
+		bool mShowEditorVisuals;
+
 	public:
 
 		SoundMaterialTable mSoundMaterialTable;
@@ -123,6 +125,7 @@ namespace Ice
 		void RegisterGOCPrototype(Ogre::String editFamily, GOCEditorInterface *prototype);
 
 		void ShowEditorMeshes(bool show);
+		bool GetShowEditorVisuals() { return mShowEditorVisuals; }
 
 		GOCEditorInterface* GetGOCPrototype(Ogre::String type);
 		GOCEditorInterface* NewGOC(Ogre::String type);
@@ -159,6 +162,12 @@ namespace Ice
 		static std::vector<ScriptParam> Lua_GetObjectByName(Script& caller, std::vector<ScriptParam> vParams);
 
 		static std::vector<ScriptParam> Lua_InsertMesh(Script& caller, std::vector<ScriptParam> vParams);
+
+		//Game clock methods
+		static std::vector<ScriptParam> Lua_GetGameTimeHour(Script& caller, std::vector<ScriptParam> vParams);
+		static std::vector<ScriptParam> Lua_GetGameTimeMinutes(Script& caller, std::vector<ScriptParam> vParams);
+		static std::vector<ScriptParam> Lua_SetGameTime(Script& caller, std::vector<ScriptParam> vParams);
+		static std::vector<ScriptParam> Lua_SetGameTimeScale(Script& caller, std::vector<ScriptParam> vParams);
 
 		/*
 		Liefert die ID des aktuell fokussierten Objekts zurück.

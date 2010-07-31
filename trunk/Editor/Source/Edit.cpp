@@ -975,13 +975,13 @@ void Edit::OnSaveObjectGroup( wxCommandEvent& WXUNUSED(event) )
 		}
 		wxEdit::Instance().GetMainNotebook()->GetOgreWindow()->SetPaused(false);
 	}
-	wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->SetRootPath("Data\\Editor\\Objects");
+	wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->SetRootPath("Data/Editor/Objects");
 }
 
 void Edit::OnSaveBones( wxCommandEvent& WXUNUSED(event) )
 {
 	Ice::GOCAnimatedCharacter *ragdoll = (Ice::GOCAnimatedCharacter*)(*mSelectedObjects.begin()).mObject->GetComponent("View", "Skeleton");
-	ragdoll->SerialiseBoneObjects("Data\\Scripts\\Animation\\" + ragdoll->GetRagdoll()->getEntity()->getMesh()->getName() + ".bones");
+	ragdoll->SerialiseBoneObjects("Data/Scripts/Animation/" + ragdoll->GetRagdoll()->getEntity()->getMesh()->getName() + ".bones");
 }
 
 void Edit::OnSelectMaterial(float MouseX, float MouseY)

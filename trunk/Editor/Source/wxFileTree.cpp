@@ -100,21 +100,21 @@ void wxFileTree::OnEndLabelEdit(wxTreeEvent& event)
 	VdtcTreeItemBase *t = (VdtcTreeItemBase *)GetItemData(id);
 	Ogre::String oldName = t->GetName();
 
-	Ogre::String BasePath = "\\" + Ogre::String(this->GetRelativePath(id).GetPath().c_str());
+	Ogre::String BasePath = PATH_SEPERATOR + Ogre::String(this->GetRelativePath(id).GetPath().c_str());
 	Ogre::String OldPath = mRootPath + BasePath;
 	if (t->IsDir())
 	{
-		int found = BasePath.find_last_of("\\");
+		int found = BasePath.find_last_of(PATH_SEPERATOR);
 		if (found != Ogre::String::npos)
 		{
-			BasePath = BasePath.substr(0, found) + "\\";
+			BasePath = BasePath.substr(0, found) + PATH_SEPERATOR;
 		}
 	}
 	if (t->IsFile())
 	{
 		Ogre::String oldextension = "";
 		Ogre::String newextension = "";
-		OldPath = OldPath + "\\" + Ogre::String(oldName);
+		OldPath = OldPath + PATH_SEPERATOR + Ogre::String(oldName);
 		oldextension = oldName.substr(oldName.find("."), oldName.length());
 		newextension = newName.substr(newName.find("."), newName.length());
 		if (oldextension != newextension)
@@ -125,7 +125,7 @@ void wxFileTree::OnEndLabelEdit(wxTreeEvent& event)
 	}
 	t->SetName(newName);
 
-	Ogre::String NewPath = mRootPath + BasePath + "\\" + newName;
+	Ogre::String NewPath = mRootPath + BasePath + PATH_SEPERATOR + newName;
 
 	boost::filesystem::path SourcePath(OldPath.c_str());
 	boost::filesystem::path TargetPath(NewPath.c_str());
@@ -146,7 +146,7 @@ void wxFileTree::OnMenuEvent(wxCommandEvent& event)
 	{
 		if (mCurrentItem->IsFile()) return;
 		Ogre::String BasePath = Ogre::String(this->GetRelativePath(mCurrentItem->GetId()).GetPath().c_str());
-		Ogre::String Path = mRootPath + "\\" + BasePath;
+		Ogre::String Path = mRootPath + PATH_SEPERATOR + BasePath;
 		wxTextEntryDialog dialog(this,
 			_T("Enter folder name:"),
 			_T("Please enter a string"),
@@ -159,31 +159,31 @@ void wxFileTree::OnMenuEvent(wxCommandEvent& event)
 		{
 			Folder = dialog.GetValue().c_str();
 		}
-		boost::filesystem::path newPath((Path + "\\" + Folder.c_str()));
+		boost::filesystem::path newPath((Path + PATH_SEPERATOR + Folder.c_str()));
 		boost::filesystem::create_directory(newPath);
 		SetRootPath(mRootPath);
-		ExpandToPath(wxString((BasePath + "\\" + Folder).c_str()));
-		OnCreateFolderCallback(BasePath + "\\" + Folder);
+		ExpandToPath(wxString((BasePath + PATH_SEPERATOR + Folder).c_str()));
+		OnCreateFolderCallback(BasePath + PATH_SEPERATOR + Folder);
 		wxEdit::Instance().GetMainNotebook()->GetOgreWindow()->SetPaused(false);
 		return;
 	}
 	if (id == ResTree_del)
 	{
 		Ogre::String BasePath = Ogre::String(this->GetRelativePath(mCurrentItem->GetId()).GetPath().c_str());
-		Ogre::String Path = mRootPath + "\\" + BasePath;
+		Ogre::String Path = mRootPath + PATH_SEPERATOR + BasePath;
 		if (mCurrentItem->IsFile())
 		{
-			Path = Path + "\\" + Ogre::String(mCurrentItem->GetName().c_str());
+			Path = Path + PATH_SEPERATOR + Ogre::String(mCurrentItem->GetName().c_str());
 		}
 		Ogre::LogManager::getSingleton().logMessage(Path);
 		OnRemoveItemCallback();
 		boost::filesystem::path SourcePath(Path.c_str());
 		unsigned long success = boost::filesystem::remove_all(SourcePath);
 
-		int found = BasePath.find_last_of("\\");
+		int found = BasePath.find_last_of(PATH_SEPERATOR);
 		if (found != Ogre::String::npos)
 		{
-			BasePath = BasePath.substr(0, found) + "\\";
+			BasePath = BasePath.substr(0, found) + PATH_SEPERATOR;
 		}
 		SetRootPath(mRootPath);
 		ExpandToPath(wxString((BasePath).c_str()));

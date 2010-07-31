@@ -241,6 +241,7 @@ namespace Ice
 		}
 		m_mScriptFunctions.clear();
 		m_mScripts.clear();
+		m_mScriptInstances.clear();
 	}
 
 	std::vector<std::string>
