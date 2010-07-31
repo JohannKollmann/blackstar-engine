@@ -46,10 +46,10 @@ void wxObjectFolderTree::OnSelectItemCallback()
 {
 	ClearObjectPreview();
 	if (mCurrentItem->IsRoot()) return;
-	mCurrentPath = Ogre::String(GetRelativePath(mCurrentItem->GetId()).GetPath().c_str()) + "/";
+	mCurrentPath = Ogre::String(GetRelativePath(mCurrentItem->GetId()).GetPath().c_str()) + PATH_SEPERATOR;
 	if (mCurrentItem->IsFile())
 	{
-		Ogre::String Path = "Data\\Editor\\Objects\\" + Ogre::String(GetRelativePath(mCurrentItem->GetId()).GetPath().c_str()) + "\\";
+		Ogre::String Path = "Data/Editor/Objects/" + Ogre::String(GetRelativePath(mCurrentItem->GetId()).GetPath().c_str()) + PATH_SEPERATOR;
 		Ogre::String File = mCurrentItem->GetName().c_str();
 		mCurrentPath += File;
 		Ogre::String extension = File.substr(File.find(".")+1, File.length());
@@ -91,11 +91,11 @@ void wxObjectFolderTree::OnMenuCallback(int id)
 	{
 		wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->ClearObjectPreview();
 
-		Ogre::String relPath = Ogre::String(this->GetRelativePath(mCurrentItem->GetId()).GetFullPath().c_str()) + "\\";
+		Ogre::String relPath = Ogre::String(this->GetRelativePath(mCurrentItem->GetId()).GetFullPath().c_str()) + PATH_SEPERATOR;
 		Ogre::String file = wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->DoCreateFileDialog();
 		if (file == "") return;
 		if (file.find(".ocs") == Ogre::String::npos) file = file + ".ocs";
-		Ogre::String fullPath = wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->mRootPath + "\\" + relPath + file;
+		Ogre::String fullPath = wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->mRootPath + PATH_SEPERATOR + relPath + file;
 
 		wxEditGOResource *page = ((wxEditGOResource*)(wxEdit::Instance().GetpropertyWindow()->SetPage("EditGOCRes")));
 		page->NewResource(fullPath);
@@ -116,7 +116,7 @@ void wxObjectFolderTree::OnToolbarEvent(int toolID, Ogre::String toolname)
 
 		if (file == "") return;
 		if (file.find(".ocs") == Ogre::String::npos) file = file + ".ocs";
-		Ogre::String fullPath = wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->mRootPath + "\\" + insertpath + file;
+		Ogre::String fullPath = wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->mRootPath + PATH_SEPERATOR + insertpath + file;
 
 		wxEditGOResource *page = ((wxEditGOResource*)(wxEdit::Instance().GetpropertyWindow()->SetPage("EditGOCRes")));
 		page->NewResource(fullPath);

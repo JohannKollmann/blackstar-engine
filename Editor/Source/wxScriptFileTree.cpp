@@ -48,7 +48,7 @@ void wxScriptFileTree::OnItemActivated(wxTreeEvent &event)
 	if (mCurrentItem->IsFile())
 	{
 		wxMainNotebook *notebook = wxEdit::Instance().GetMainNotebook();
-		notebook->AddScriptTab(mCurrentItem->GetName(), (mRootPath + "/" + GetRelativePath(mCurrentItem->GetId()).GetFullPath()));
+		notebook->AddScriptTab(mCurrentItem->GetName(), (mRootPath + PATH_SEPERATOR + GetRelativePath(mCurrentItem->GetId()).GetFullPath()));
 	}
 }
 
@@ -60,7 +60,7 @@ void wxScriptFileTree::OnMenuCallback(int id)
 {
 	if (id == ScriptTree_runScript)
 	{
-		Ogre::String scriptFile = Ogre::String(GetRelativePath(mCurrentItem->GetId()).GetFullPath());
+		Ogre::String scriptFile = mCurrentItem->GetName().c_str();
 		Ogre::LogManager::getSingleton().logMessage("Scriptfile: " + scriptFile);
 		Ice::Script script = Ice::ScriptSystem::GetInstance().CreateInstance(scriptFile);
 //		Ice::ScriptSystem::GetInstance().KillScript(scriptFile);
@@ -86,7 +86,7 @@ void wxScriptFileTree::OnToolbarEvent(int toolID, Ogre::String toolname)
 		Ogre::String file = wxEdit::Instance().GetWorldExplorer()->GetScriptTree()->DoCreateFileDialog();
 		if (file == "") return;
 		if (file.find(".lua") == Ogre::String::npos) file = file + ".lua";
-		Ogre::String fullPath = wxEdit::Instance().GetWorldExplorer()->GetScriptTree()->mRootPath + "\\" + insertpath + file;
+		Ogre::String fullPath = wxEdit::Instance().GetWorldExplorer()->GetScriptTree()->mRootPath + PATH_SEPERATOR + insertpath + file;
 		std::fstream stream;
 		stream.open(fullPath.c_str(), std::ios::out);
 		stream << std::endl;

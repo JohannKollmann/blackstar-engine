@@ -122,5 +122,5 @@ void wxSettingsWindow::OnSetCaelumTimeScale(wxScrollEvent& event)
 {
 	float val = (float)(event.GetInt());
 	float factor = (val / 50.0) * 4096.0;
-	Ice::SceneManager::Instance().GetWeatherController()->GetCaelumSystem()->getUniversalClock()->setTimeScale(factor);
+	Ice::SceneManager::Instance().SetTimeScale(factor);
 }

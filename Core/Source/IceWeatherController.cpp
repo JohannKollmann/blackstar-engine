@@ -47,7 +47,9 @@ namespace Ice
 		mCaelumSystem->setMinimumAmbientLight(Ogre::ColourValue(0.1f, 0.1f,0.1f));
 	    mCaelumSystem->setManageAmbientLight (true); 
 
-		mCaelumSystem->getUniversalClock ()->setGregorianDateTime (2010, 8, 24, 11, 0, 0);
+		mDay = 24;
+		mMonth = 8;
+		mCaelumSystem->getUniversalClock ()->setGregorianDateTime (2010, mMonth, mDay, 11, 0, 0);
 		mCaelumSystem->setObserverLatitude(Ogre::Degree(0));
 		mCaelumSystem->setObserverLongitude(Ogre::Degree(0));
 
@@ -111,7 +113,12 @@ namespace Ice
 		mSpeedFactor = speed;
 	    mCaelumSystem->getUniversalClock ()->setTimeScale (mPaused ? 0 : mSpeedFactor);
 	    Ogre::ControllerManager::getSingleton().setTimeFactor (mPaused ? 0 : mSpeedFactor);
-	};
+	}
+
+	void WeatherController::SetTime(int hour, int minutes)
+	{
+		mCaelumSystem->getUniversalClock ()->setGregorianDateTime(2010, mMonth, mDay, hour, minutes, 0);
+	}
 
 
 	void WeatherController::Update(float time)

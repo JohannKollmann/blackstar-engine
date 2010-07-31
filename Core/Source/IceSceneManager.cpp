@@ -46,6 +46,8 @@ namespace Ice
 		mDestroyStoppedSoundsDelay = 0;
 		mDestroyStoppedSoundsLast = 0;
 
+		mShowEditorVisuals = false;
+
 		MessageSystem::Instance().CreateNewsgroup("ENABLE_GAME_CLOCK");
 		MessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
 
@@ -125,6 +127,7 @@ namespace Ice
 
 	void SceneManager::ShowEditorMeshes(bool show)
 	{
+		mShowEditorVisuals = show;
 		for (auto i = mGameObjects.begin(); i != mGameObjects.end(); i++)
 		{
 			i->second->ShowEditorVisuals(show);
@@ -277,7 +280,16 @@ namespace Ice
 		ScriptSystem::GetInstance().ShareCFunction("Npc_GotoWP", &GOCAI::Lua_Npc_GotoWP);
 		ScriptSystem::GetInstance().ShareCFunction("Npc_OpenDialog", &SceneManager::Lua_NPCOpenDialog);
 
+		/**
+		Triggers a mover.
+		*/
 		ScriptSystem::GetInstance().ShareCFunction("TriggerMover", &GOCMover::Lua_TriggerMover);
+
+		//Time get/set methods
+		ScriptSystem::GetInstance().ShareCFunction("GetGameTimeHour", &SceneManager::Lua_GetGameTimeHour);
+		ScriptSystem::GetInstance().ShareCFunction("GetGameTimeMinutes", &SceneManager::Lua_GetGameTimeMinutes);
+		ScriptSystem::GetInstance().ShareCFunction("SetGameTime", &SceneManager::Lua_SetGameTime);
+		ScriptSystem::GetInstance().ShareCFunction("SetGameTimeScale", &SceneManager::Lua_SetGameTimeScale);
 
 		ScriptSystem::GetInstance().ShareCFunction("Play3DSound", &SceneManager::Lua_Play3DSound);
 		ScriptSystem::GetInstance().ShareCFunction("CreateMaterialProfile", &SceneManager::Lua_CreateMaterialProfile);
@@ -334,6 +346,7 @@ namespace Ice
 		
 		if (!mWeatherController) mWeatherController = new WeatherController();
 		SetTimeScale(mTimeScale);
+		SetTime(11, 0);
 		mIndoorRendering = false;
 	}
 
@@ -619,7 +632,7 @@ namespace Ice
 			float time = msg.params.GetFloat("TIME");
 			if (mClockEnabled)
 			{
-				mDayTime += (time*0.001*mTimeScale);
+				mDayTime += (time*mTimeScale);
 				if (mDayTime >= mMaxDayTime) mDayTime = 0.0f;
 				AIManager::Instance().Update(time);
 				if (mWeatherController) mWeatherController->Update(time);
@@ -646,6 +659,7 @@ namespace Ice
 	void SceneManager::SetTime(int hours, int minutes)
 	{
 		mDayTime = (float)(hours * 3600.0f + minutes * 60.0f);
+		if (mWeatherController) mWeatherController->SetTime(hours, minutes);
 	}
 	int SceneManager::GetHour()
 	{
@@ -882,6 +896,43 @@ namespace Ice
 		return std::vector<ScriptParam>();
 	}
 
+	std::vector<ScriptParam> SceneManager::Lua_GetGameTimeHour(Script& caller, std::vector<ScriptParam> vParams)
+	{
+		std::vector<ScriptParam> out;
+		out.push_back(ScriptParam(Instance().GetHour()));
+		return out;
+	}
+	std::vector<ScriptParam> SceneManager::Lua_GetGameTimeMinutes(Script& caller, std::vector<ScriptParam> vParams)
+	{
+		std::vector<ScriptParam> out;
+		out.push_back(ScriptParam(Instance().GetMinutes()));
+		return out;
+	}
+	std::vector<ScriptParam> SceneManager::Lua_SetGameTime(Script& caller, std::vector<ScriptParam> vParams)
+	{
+		std::vector<ScriptParam> out;
+		if (Utils::TestParameters(caller, vParams, "int int"))
+		{
+			int hour = vParams[0].getInt();
+			int minutes = vParams[1].getInt();
+			Instance().SetTime(hour, minutes);
+		}
+		return out;
+	}
+	std::vector<ScriptParam> SceneManager::Lua_SetGameTimeScale(Script& caller, std::vector<ScriptParam> vParams)
+	{
+		std::vector<ScriptParam> out;
+		if (Utils::TestParameters(caller, vParams, "float"))
+		{
+			float scale = vParams[0].getFloat();
+			Instance().SetTimeScale(scale);
+		}
+		return out;
+	}
+
+
+
+
 	void SceneManager::RegisterSound(OgreOggSound::OgreOggISound* sound)
 	{
 		mPlayingSounds.push_back(sound);
@@ -920,7 +971,6 @@ namespace Ice
 		mCameraStack.pop();
 		if (mCameraStack.size() > 0) mCameraStack.top()->AttachCamera(Main::Instance().GetCamera());
 	}
-
 
 	SceneManager& SceneManager::Instance()
 	{

@@ -70,6 +70,7 @@ namespace Ice
 		MessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
 		mSplineObject = Ice::Main::Instance().GetOgreSceneMgr()->createManualObject("Spline_" + SceneManager::Instance().RequestIDStr());
 		Ice::Main::Instance().GetOgreSceneMgr()->getRootSceneNode()->attachObject(mSplineObject);
+		mSplineObject->setVisible(SceneManager::Instance().GetShowEditorVisuals());
 	}
 	GOCMover::~GOCMover()
 	{
@@ -308,7 +309,7 @@ namespace Ice
 	}
 	void GOCMover::_updateLookAtLine()
 	{
-		if (mLookAtObject)
+		if (mLookAtObject && SceneManager::Instance().GetShowEditorVisuals())
 		{
 			if (!mLookAtLine)
 			{
@@ -325,7 +326,7 @@ namespace Ice
 	}
 	void GOCMover::_updateNormalLookAtLine()
 	{
-		if (mNormalLookAtObject)
+		if (mNormalLookAtObject && SceneManager::Instance().GetShowEditorVisuals())
 		{
 			if (!mNormalLookAtLine)
 			{

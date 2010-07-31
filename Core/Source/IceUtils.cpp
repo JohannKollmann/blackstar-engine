@@ -111,7 +111,7 @@ namespace Ice
 		{
 			if (sRefParams[index] == ' ')
 			{
-				if (currParam == "int") vRefParams.push_back(ScriptParam(i));
+				if (currParam == "int") vRefParams.push_back(ScriptParam(d));
 				else if (currParam == "bool") vRefParams.push_back(ScriptParam(b));
 				else if (currParam == "string") vRefParams.push_back(ScriptParam(s));
 				else if (currParam == "float") vRefParams.push_back(ScriptParam(d));
