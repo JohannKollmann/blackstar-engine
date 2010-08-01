@@ -53,8 +53,8 @@ namespace Ice
 		mCaelumSystem->setObserverLatitude(Ogre::Degree(0));
 		mCaelumSystem->setObserverLongitude(Ogre::Degree(0));
 
-		mCaelumSystem->getSun ()->setDiffuseMultiplier (Ogre::ColourValue (2.6f, 2.6f, 2.5f));
-		mCaelumSystem->getSun ()->setSpecularMultiplier (Ogre::ColourValue (1.0f, 1.0f, 1.0f));
+		mCaelumSystem->getSun ()->setDiffuseMultiplier (Ogre::ColourValue (2.8f, 2.8f, 2.6f));
+		mCaelumSystem->getSun ()->setSpecularMultiplier (Ogre::ColourValue (1.5f, 1.5f, 1.5f));
 		mCaelumSystem->getSun ()->setAmbientMultiplier(Ogre::ColourValue(0.7f, 0.7f, 0.7f));
 
 		mCaelumSystem->setEnsureSingleShadowSource(true);

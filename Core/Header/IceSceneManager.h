@@ -54,9 +54,11 @@ namespace Ice
 
 		bool mShowEditorVisuals;
 
+		SoundMaterialTable mSoundMaterialTable;
+
 	public:
 
-		SoundMaterialTable mSoundMaterialTable;
+		SoundMaterialTable& GetSoundMaterialTable() { return mSoundMaterialTable; }
 
 		void RegisterPlayer(GameObject *player);
 		GameObject* GetPlayer() { return mPlayer; }

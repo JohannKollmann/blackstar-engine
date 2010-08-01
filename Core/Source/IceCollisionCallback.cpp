@@ -93,8 +93,8 @@ namespace Ice
 			NxShape *shape2 = i.getShape(1);
 
 			//First material callback
-			Ogre::String material1 = SceneManager::Instance().mSoundMaterialTable.GetMaterialName(shape1->getMaterial());
-			Ogre::String material2 = SceneManager::Instance().mSoundMaterialTable.GetMaterialName(shape2->getMaterial());
+			Ogre::String material1 = SceneManager::Instance().GetSoundMaterialTable().GetMaterialName(shape1->getMaterial());
+			Ogre::String material2 = SceneManager::Instance().GetSoundMaterialTable().GetMaterialName(shape2->getMaterial());
 
 			float summed_force = 0.0f;
 			Ogre::Vector3 contactPoint;
@@ -146,7 +146,7 @@ namespace Ice
 								int subMeshTriCount = subMesh->indexData->indexCount / 3;
 								if (triIndex >= triCount && triIndex < triCount+subMeshTriCount)
 								{
-									Ogre::String meshMat = SceneManager::Instance().mSoundMaterialTable.GetMaterialName(subMesh->getMaterialName());
+									Ogre::String meshMat = SceneManager::Instance().GetSoundMaterialTable().GetMaterialName(subMesh->getMaterialName());
 									if (mat1) material1 = meshMat;
 									else material2 = meshMat;
 									break;

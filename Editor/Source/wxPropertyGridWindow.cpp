@@ -78,8 +78,7 @@ wxPropertyGridListener* wxPropertyGridWindow::SetPage(wxString name)
 	mCurrentPage = 0;
 	if (name == "None")
 	{
-		Ogre::LogManager::getSingleton().logMessage("Warning: wxPropertyGridWindow::SetPage(wxString name) - return NULL");
-		return 0;
+		return nullptr;
 	}
 	if ((*mPages.find(name)).first == name)
 	{

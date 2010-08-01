@@ -162,7 +162,7 @@ Ogre::SubEntity* EntityMaterialInspector::GetSubEntity(Ogre::Ray ray)
 	{
 		returner = mEntity->getSubEntity(closest_submesh->mIndex);
 	}
-	else Ogre::LogManager::getSingleton().logMessage("Warning: EntityMaterialInspector::GetSubEntity(Ogre::Ray ray) - return NULL");
+	//else Ogre::LogManager::getSingleton().logMessage("Warning: EntityMaterialInspector::GetSubEntity(Ogre::Ray ray) - return NULL");
 	for (std::vector<SubMeshInformation*>::iterator mesh = submeshes.begin(); mesh != submeshes.end(); mesh++)
 	{
 		delete (*mesh);
