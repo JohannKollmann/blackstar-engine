@@ -22,8 +22,7 @@ namespace Ice
 		std::vector<ScriptParam> params;
 		while (msg.params.HasNext())
 		{
-			GenericProperty *prop = msg.params.GetNext().data;
-			prop->GetAsScriptParam(params);
+			msg.params.GetNext().data.GetAsScriptParam(params);;
 		}
 		ScriptSystem::RunCallbackFunction(mScriptCallback, params);
 	}

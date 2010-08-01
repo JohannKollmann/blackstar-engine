@@ -169,8 +169,11 @@ namespace Ice
 
 	bool DataMap::HasKey(const Ogre::String &keyname)
 	{
-		auto i = mData.find(keyname);
-		return (i != mData.end());
+		for (auto i = mData.begin(); i != mData.end(); i++)
+		{
+			if (i->key == keyname) return true;
+		}
+		return false;
 	}
 
 	int DataMap::GetInt(const Ogre::String &keyname) const
@@ -254,9 +257,7 @@ namespace Ice
 
 	DataMap::Item DataMap::GetNext()
 	{
-		Item returner;
-		returner.key = mIterator->first;
-		returner.data = &mIterator->second;
+		Item returner = *mIterator;
 		mIterator++;
 		return returner;
 	}
@@ -264,44 +265,22 @@ namespace Ice
 	void DataMap::Item::Save(LoadSave::SaveSystem& mgr)
 	{
 		mgr.SaveAtom("Ogre::String", &key, "key");
-		mgr.SaveObject(data, "Data");
+		mgr.SaveObject(&data, "Data");
 	}
 	void DataMap::Item::Load(LoadSave::LoadSystem& mgr)
 	{
 		mgr.LoadAtom("Ogre::String", &key);
-		data  = (GenericProperty*)mgr.LoadObject();
+		data  = *(GenericProperty*)mgr.LoadObject();
 	}
 
 	void DataMap::Save(LoadSave::SaveSystem& mgr)
 	{
-		/* Does not work:
-		mgr.SaveAtom("std::map<Ogre::String, GenericProperty>", &mData, "DataMap");*/
-
-		//Build vector
-		std::vector<Item> items;
-		for (auto i = mData.begin(); i != mData.end(); i++)
-		{
-			Item item;
-			item.key = i->first; item.data = &i->second;
-			items.push_back(item);
-		}
-		mgr.SetUseRecordReferences(false);
-		mgr.SaveAtom("std::vector<DataMapItem>", &items, "Items");
-		mgr.SetUseRecordReferences(true);
+		mgr.SaveAtom("std::vector<DataMapItem>", &mData, "Items");
 	}
 
 	void DataMap::Load(LoadSave::LoadSystem& mgr)
 	{
-		/* Does not work:
-		mgr.LoadAtom("std::map<Ogre::String, GenericProperty>", &mData); */
-
-		std::vector<Item> items;
-		mgr.LoadAtom("std::vector<DataMapItem>", &items);
-		for (auto i = items.begin(); i != items.end(); i++)
-		{
-			mData.insert(std::make_pair(i->key, *i->data));
-			delete i->data;
-		}
+		mgr.LoadAtom("std::vector<DataMapItem>", &mData);
 		mIterator = mData.begin();
 	}
 

@@ -71,11 +71,11 @@ namespace Ice
 	class DllExport DataMap : public LoadSave::Saveable
 	{
 	public:
-		class Item : public LoadSave::Saveable
+		class DllExport Item : public LoadSave::Saveable
 		{
 		public:
 			Ogre::String key;
-			GenericProperty *data;
+			GenericProperty data;
 
 			//Load Save methods
 			void Save(LoadSave::SaveSystem& myManager);
@@ -86,8 +86,8 @@ namespace Ice
 		};
 
 	private:
-		std::map<Ogre::String, GenericProperty> mData;
-		std::map<Ogre::String, GenericProperty>::iterator mIterator;
+		std::vector<Item> mData;
+		std::vector<Item>::iterator mIterator;
 
 	public:
 		DataMap();
@@ -114,9 +114,9 @@ namespace Ice
 		template <class templateType>
 		templateType GetValue(const Ogre::String &keyname, templateType defaultVal)	const
 		{
-			std::map<Ogre::String, GenericProperty>::const_iterator i = mData.find(keyname);
-			if (i == mData.end()) return defaultVal;
-			else return i->second.Get<templateType>();
+			for (auto i = mData.begin(); i != mData.end(); i++)
+				if (i->key == keyname) return i->data.Get<templateType>();
+			return defaultVal;
 		}
 
 		//Typed get methods
@@ -132,23 +132,30 @@ namespace Ice
 		template <class templateType>
 		void AddItem(const Ogre::String &keyname, const templateType &var)
 		{
-			GenericProperty entry;
-			entry.Set<templateType>(var);
-			AddItem(keyname, entry);
+			Item item;
+			item.key = keyname;
+			item.data.Set<templateType>(var);
+			mData.push_back(item);
+			mIterator = mData.begin();
 		};
 		///Inserts a new item into the DataMap, the data is passed using a GenericProperty.
 		void AddItem(const Ogre::String &keyname, const GenericProperty &prop)
 		{
-			mData.insert(std::make_pair<Ogre::String, GenericProperty>(keyname, prop));
+			Item item;
+			item.key = keyname;
+			item.data = prop;
+			mData.push_back(item);
 			mIterator = mData.begin();
 		}
 
 		///Inserts a new item into the DataMap, the data is passed using a void buffer.
 		void AddItem(const Ogre::String &keyname, void *data, const GenericProperty::PropertyTypes &type)
 		{
-			GenericProperty entry;
-			entry.Set(data, type);
-			AddItem(keyname, entry);
+			Item item;
+			item.key = keyname;
+			item.data.Set(data, type);
+			mData.push_back(item);
+			mIterator = mData.begin();
 		};
 
 		//Typed set methods

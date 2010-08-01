@@ -111,14 +111,14 @@ void wxEditIceDataMap::AddDataMapSection(Ogre::String name, Ice::DataMap &map, b
 	{
 		Ice::DataMap::Item entry = map.GetNext();
 		Ogre::String key = entry.key;
-		Ice::GenericProperty::PropertyTypes prop_type = entry.data->getType();
+		Ice::GenericProperty::PropertyTypes prop_type = entry.data.getType();
 		Ogre::String internname = Ogre::StringConverter::toString(static_cast<int>(prop_type)) + "|" + key + "--" + name;
-		if (prop_type == Ice::GenericProperty::PropertyTypes::INT) mPropGrid->AppendIn(csprop, new wxIntProperty(wxT(key.c_str()), wxT(internname.c_str()), entry.data->Get<int>() ));
-		if (prop_type == Ice::GenericProperty::PropertyTypes::FLOAT) mPropGrid->AppendIn(csprop, new wxFloatProperty(wxT(key.c_str()), wxT(internname.c_str()), entry.data->Get<float>() ));
-		if (prop_type == Ice::GenericProperty::PropertyTypes::BOOL) mPropGrid->AppendIn(csprop, new wxBoolProperty(wxT(key.c_str()), wxT(internname.c_str()), entry.data->Get<bool>() ));
+		if (prop_type == Ice::GenericProperty::PropertyTypes::INT) mPropGrid->AppendIn(csprop, new wxIntProperty(wxT(key.c_str()), wxT(internname.c_str()), entry.data.Get<int>() ));
+		if (prop_type == Ice::GenericProperty::PropertyTypes::FLOAT) mPropGrid->AppendIn(csprop, new wxFloatProperty(wxT(key.c_str()), wxT(internname.c_str()), entry.data.Get<float>() ));
+		if (prop_type == Ice::GenericProperty::PropertyTypes::BOOL) mPropGrid->AppendIn(csprop, new wxBoolProperty(wxT(key.c_str()), wxT(internname.c_str()), entry.data.Get<bool>() ));
 		if (prop_type == Ice::GenericProperty::PropertyTypes::VECTOR3)
 		{
-			Ogre::Vector3 vec = entry.data->Get<Ogre::Vector3>();
+			Ogre::Vector3 vec = entry.data.Get<Ogre::Vector3>();
 			wxPGProperty* vecprop = mPropGrid->AppendIn(csprop, new wxStringProperty(wxT(key.c_str()), wxT(internname.c_str())));
 			mPropGrid->AppendIn(vecprop, new wxFloatProperty(wxT("X"), wxT((internname + "__X").c_str()), vec.x) );
 			mPropGrid->AppendIn(vecprop, new wxFloatProperty(wxT("Y"), wxT((internname + "__Y").c_str()), vec.y) );
@@ -127,7 +127,7 @@ void wxEditIceDataMap::AddDataMapSection(Ogre::String name, Ice::DataMap &map, b
 		}
 		if (prop_type == Ice::GenericProperty::PropertyTypes::QUATERNION)
 		{
-			Ogre::Quaternion quat = entry.data->Get<Ogre::Quaternion>();
+			Ogre::Quaternion quat = entry.data.Get<Ogre::Quaternion>();
 			Ogre::Matrix3 mat3;
 			quat.ToRotationMatrix(mat3);
 			Ogre::Radian yRad, pRad, rRad;
@@ -140,7 +140,7 @@ void wxEditIceDataMap::AddDataMapSection(Ogre::String name, Ice::DataMap &map, b
 		}
 		if (prop_type == Ice::GenericProperty::PropertyTypes::STRING)
 		{
-			Ogre::String str = entry.data->Get<Ogre::String>();
+			Ogre::String str = entry.data.Get<Ogre::String>();
 			mPropGrid->AppendIn(csprop, new wxStringProperty(wxT(key.c_str()), wxT(internname.c_str()), wxT(str.c_str())) );
 		}
 	}

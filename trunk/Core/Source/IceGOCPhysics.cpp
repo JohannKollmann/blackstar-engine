@@ -53,7 +53,7 @@ namespace Ice
 		Ogre::String internname = "RigidBody" + Ogre::StringConverter::toString(SceneManager::Instance().RequestID());
 		mCollisionMeshName = collision_mesh;
 		mDensity = density;
-		NxMaterialIndex nxID = SceneManager::Instance().mSoundMaterialTable.GetMaterialID(mMaterialName);
+		NxMaterialIndex nxID = SceneManager::Instance().GetSoundMaterialTable().GetMaterialID(mMaterialName);
 		if (!Ogre::ResourceGroupManager::getSingleton().resourceExists("General", mCollisionMeshName))
 		{
 			Ogre::LogManager::getSingleton().logMessage("Error: Resource \"" + mCollisionMeshName + "\" does not exist. Loading dummy Resource...");
@@ -213,7 +213,7 @@ namespace Ice
 		}
 		Ogre::Entity *entity = Main::Instance().GetOgreSceneMgr()->createEntity("tempCollisionModell", mCollisionMeshName);
 		mActor = Main::Instance().GetPhysXScene()->createActor(
-			OgrePhysX::RTMeshShape(entity->getMesh()).materials(SceneManager::Instance().mSoundMaterialTable.mOgreNxBinds).scale(scale).group(CollisionGroups::DEFAULT));
+			OgrePhysX::RTMeshShape(entity->getMesh()).materials(SceneManager::Instance().GetSoundMaterialTable().mOgreNxBinds).scale(scale).group(CollisionGroups::DEFAULT));
 		Main::Instance().GetOgreSceneMgr()->destroyEntity(entity);
 	}
 
