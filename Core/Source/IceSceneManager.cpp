@@ -223,7 +223,9 @@ namespace Ice
 		Joins a newsgroup.
 		Example usage: Listen("UPDATE_PER_FRAME", myFunc)
 		*/
-		ScriptSystem::GetInstance().ShareCFunction("Listen", &ScriptSystem::Lua_JoinNewsgroup);
+		ScriptSystem::GetInstance().ShareCFunction("Event", &ScriptSystem::Lua_JoinNewsgroup);
+
+		ScriptSystem::GetInstance().ShareCFunction("ObjectEvent", &GOCScript::Lua_ListenToObjectEvent);
 
 		/**
 		Logs a message to the log.
@@ -730,11 +732,13 @@ namespace Ice
 
 	std::vector<ScriptParam> SceneManager::Lua_GetThis(Script& caller, std::vector<ScriptParam> vParams)
 	{
+		std::vector<ScriptParam> out;
+		int id = -1;
 		ScriptUser *scriptUser = ScriptSystem::GetInstance().GetScriptableObject(caller.GetID());
-		IceAssert(scriptUser);
-		std::vector<ScriptParam> returner;
-		returner.push_back(ScriptParam(scriptUser->GetThisID()));
-		return returner;	
+		if (!scriptUser) IceWarning("No object is associated with the calling script.")
+		else id = scriptUser->GetThisID();
+		out.push_back(ScriptParam(id));
+		return out;	
 	}
 
 	std::vector<ScriptParam> SceneManager::Lua_GetObjectByName(Script& caller, std::vector<ScriptParam> vParams)

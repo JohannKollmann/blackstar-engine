@@ -20,7 +20,9 @@ namespace Ice
 
 	void Dialog::OnEnter()
 	{
-		mAIObject->mScript.CallFunction("StartDialog", std::vector<ScriptParam>());
+		Msg startDialog;
+		startDialog.type = "StartDialog";
+		mAIObject->GetOwner()->SendMessage(startDialog);
 		if (SceneManager::Instance().GetPlayer())
 		{
 			Ogre::Vector3 oldDir = mAIObject->GetOwner()->GetGlobalOrientation() * Ogre::Vector3::UNIT_Z;

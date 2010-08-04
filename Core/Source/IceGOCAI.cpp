@@ -14,6 +14,7 @@ namespace Ice
 		mOwnerGO = 0;
 		AIManager::Instance().RegisterAIObject(this);
 		MessageSystem::Instance().JoinNewsgroup(this, "ENABLE_GAME_CLOCK");
+		MessageSystem::Instance().JoinNewsgroup(this, "REPARSE_SCRIPTS");
 	}
 
 	GOCAI::~GOCAI(void)
@@ -31,10 +32,6 @@ namespace Ice
 
 	void GOCAI::SetOwner(GameObject *go)
 	{
-		if (!mOwnerGO && mScriptFileName != "")
-		{
-			InitScript(mScriptFileName);
-		}
 		mOwnerGO = go;
 		UpdatePosition(mOwnerGO->GetGlobalPosition());
 		UpdateOrientation(mOwnerGO->GetGlobalOrientation());
@@ -166,7 +163,7 @@ namespace Ice
 		}
 	}
 
-	void GOCAI::OnReceiveMessage(Msg &msg)
+	void GOCAI::ReceiveMessage(Msg &msg)
 	{
 		if (!mOwnerGO) return;
 		if (msg.type == "ENABLE_GAME_CLOCK")
@@ -177,41 +174,30 @@ namespace Ice
 				BroadcastMovementState(0);
 			}
 		}
-	}
-
-	void GOCAI::OnScriptReload()
-	{
-		ClearActionQueue();
-		ClearIdleQueue();
-	}
-
-	int GOCAI::GetThisID()
-	{
-		IceAssert(mOwnerGO);
-		return mOwnerGO->GetID();
+		else if (msg.type == "REPARSE_SCRIPTS")
+		{
+			ClearActionQueue();
+			ClearIdleQueue();
+		}
 	}
 
 	void GOCAI::SetParameters(DataMap *parameters)
 	{
-		mScriptFileName = parameters->GetOgreString("Script");
-		if (mOwnerGO) InitScript(mScriptFileName);
 	}
 	void GOCAI::GetParameters(DataMap *parameters)
 	{
-		parameters->AddOgreString("Script", mScriptFileName);
 	}
 	void GOCAI::GetDefaultParameters(DataMap *parameters)
 	{
-		parameters->AddOgreString("Script", "script.lua");
 	}
 
 	void GOCAI::Save(LoadSave::SaveSystem& mgr)
 	{
-		mgr.SaveAtom("Ogre::String", &mScriptFileName, "Script");
+		//Todo: Save current state
 	}
 	void GOCAI::Load(LoadSave::LoadSystem& mgr)
 	{
-		mgr.LoadAtom("Ogre::String", &mScriptFileName);
+		//Todo
 	}
 
 };

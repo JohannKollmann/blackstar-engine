@@ -14,7 +14,7 @@
 namespace Ice
 {
 
-	class DllExport GOCAI : public GOCEditorInterface, public CharacterControllerInput, public ScriptUser
+	class DllExport GOCAI : public GOCEditorInterface, public CharacterControllerInput, public MessageListener
 	{
 
 	private:
@@ -51,8 +51,6 @@ namespace Ice
 		void SelectState();
 		void LeaveActiveActionState();
 
-		int GetThisID();
-
 		void SetOwner(GameObject *go);
 
 		int GetID();
@@ -61,9 +59,7 @@ namespace Ice
 
 		void ReceiveObjectMessage(const Msg &msg);
 
-		void OnScriptReload();
-
-		void OnReceiveMessage(Msg &msg);
+		void ReceiveMessage(Msg &msg);
 
 		GOComponent::goc_id_type& GetComponentID() const { static std::string name = "AI"; return name; }
 

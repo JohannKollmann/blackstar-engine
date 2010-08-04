@@ -115,6 +115,7 @@
     <ClCompile Include="Source\IceGOCEditorInterface.cpp" />
     <ClCompile Include="Source\IceGOCOgreNode.cpp" />
     <ClCompile Include="Source\IceGOCMover.cpp" />
+    <ClCompile Include="Source\IceGOCScript.cpp" />
     <ClCompile Include="Source\IceMessageListener.cpp" />
     <ClCompile Include="Source\IceMessageSystem.cpp" />
     <ClCompile Include="Source\IceGameObject.cpp" />
