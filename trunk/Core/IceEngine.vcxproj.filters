@@ -267,6 +267,9 @@
     <ClCompile Include="Source\IceCameraController.cpp">
       <Filter>System</Filter>
     </ClCompile>
+    <ClCompile Include="Source\IceGOCScript.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header\IceMessageListener.h">

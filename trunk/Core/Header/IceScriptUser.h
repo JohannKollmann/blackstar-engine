@@ -20,6 +20,7 @@ namespace Ice
 
 		Script mScript;
 
+		ScriptUser();
 		virtual ~ScriptUser();
 
 		/*

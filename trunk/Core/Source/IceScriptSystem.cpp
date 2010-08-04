@@ -265,7 +265,6 @@ namespace Ice
 	std::vector<ScriptParam> ScriptSystem::Lua_JoinNewsgroup(Script &caller, std::vector<ScriptParam> params)
 	{
 		std::vector<ScriptParam> ret;
-		std::vector<ScriptParam> ref;
 		if (params.size() < 2)
 		{
 			Utils::LogParameterErrors(caller, "Too few parameters!");
