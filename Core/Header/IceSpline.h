@@ -14,7 +14,7 @@ public:
 	Spline(std::vector<Ogre::Vector4> vPoints, bool bClosed);
 	void SetPoints(std::vector<Ogre::Vector4> vPoints, bool bClosed=false);
 
-	Ogre::Vector3 Sample(double fPos);
+	Ogre::Vector3 Sample(double fPos, int* piCurrentKey=0);
 	double GetLength();
 
 	class CSplineSector

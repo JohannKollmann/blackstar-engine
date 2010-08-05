@@ -254,7 +254,7 @@ namespace Ice
 	}
 
 	Ogre::Vector3
-	Spline::Sample(double fPos, int* piCurrentKey=0)
+	Spline::Sample(double fPos, int* piCurrentKey)
 	{
 		if(!m_bIsTimedSpline)
 		{
