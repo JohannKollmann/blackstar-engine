@@ -2,6 +2,7 @@
 #include "IceGameObject.h"
 #include "IceSceneManager.h"
 #include "IceGOCScriptMakros.h"
+#include "IceGOCScript.h"
 
 namespace Ice
 {
@@ -423,6 +424,30 @@ namespace Ice
 		return std::vector<ScriptParam>();
 	}
 
+	std::vector<ScriptParam> GameObject::ReceiveObjectMessage(Script& caller, std::vector<ScriptParam> &vParams)
+	{
+		std::vector<ScriptParam> out;
+
+		GOCScriptMessageCallback *callback = GetComponent<GOCScriptMessageCallback>();
+		if (!callback)
+		{
+			callback = new GOCScriptMessageCallback();
+			AddComponent(callback);
+		}
+		callback->AddListener(vParams[0].getString(), vParams[1]);
+		return out;
+	}
+
+	std::vector<ScriptParam> GameObject::IsUsable(Script& caller, std::vector<ScriptParam> &vParams)
+	{
+		std::vector<ScriptParam> out;
+		bool usable = false;
+		GOCScriptMessageCallback *callback = GetComponent<GOCScriptMessageCallback>();
+		if (callback) usable = callback->HasListener(vParams[0].getString());
+		out.push_back(ScriptParam(usable));
+		return out;
+	}
+
 	DEFINE_TYPEDGOLUAMETHOD_CPP(SetObjectProperty, "string")
 	DEFINE_TYPEDGOLUAMETHOD_CPP(GetObjectProperty, "string")
 	DEFINE_TYPEDGOLUAMETHOD_CPP(SetObjectPosition, "float float float")
@@ -430,5 +455,7 @@ namespace Ice
 	DEFINE_TYPEDGOLUAMETHOD_CPP(SetObjectScale, "float float float")
 	DEFINE_GOLUAMETHOD_CPP(GetObjectName)
 	DEFINE_TYPEDGOLUAMETHOD_CPP(SendObjectMessage, "string")
+	DEFINE_TYPEDGOLUAMETHOD_CPP(ReceiveObjectMessage, "string function")
+	DEFINE_TYPEDGOLUAMETHOD_CPP(IsUsable, "string")
 
 };
