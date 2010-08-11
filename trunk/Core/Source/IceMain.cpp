@@ -278,6 +278,9 @@ void Main::initScene()
 
 	//Load Plugins
 	LoadPlugins();
+	//initialize scripts
+	ScriptSystem::GetInstance().CreateInstance("InitEngine.lua");
+
 
 };
 
