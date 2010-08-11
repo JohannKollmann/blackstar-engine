@@ -3,6 +3,7 @@
 #include "boost/filesystem/operations.hpp"
 #include "boost/filesystem/path.hpp"
 #include "IceScript.h"
+#include "IceDataMap.h"
 
 namespace Ice
 {
@@ -138,11 +139,43 @@ namespace Ice
 		return true;
 	}
 
-	void Utils::LogParameterErrors(Script& caller, Ogre::String msg, int line)
+	void Utils::LogParameterErrors(const Script& caller, Ogre::String msg, int line)
 	{
 		Ogre::String log = "[Script] Error in \"" + caller.GetScriptName() + "\": " + msg;
 		if (line >= 0) log = log + " (line " + Ogre::StringConverter::toString(line) + ")";
 		Ogre::LogManager::getSingleton().logMessage(log);
+	}
+
+	void Utils::ScriptParamsToDataMap(const Script& caller, const std::vector<ScriptParam> &params, DataMap* data, int param_start_index)
+	{
+		IceAssert(params.size() < param_start_index)
+		IceAssert(data)
+		for (int i = param_start_index; i < params.size(); i++)
+		{
+			if (params[i].getType() != ScriptParam::PARM_TYPE_STRING)
+			{
+				LogParameterErrors(caller, Ogre::StringConverter::toString(param_start_index + i) + ". is not a keyname (must be of type string).");
+				return;
+			}
+			Ogre::String param = params[i].getString();
+			int from = 0;
+			int to = param.find(" ");
+			Ogre::String key = param.substr(from, to);
+			from = to + 1;
+			to = param.find(" ", from);
+			Ogre::String type = param.substr(from, to);
+			from = to + 1;
+			to = param.find(" ", from);
+			Ogre::String value = param.substr(from, to);
+
+			if (key == "int") data->AddInt(key, Ogre::StringConverter::parseInt(value));
+			else if (key == "float") data->AddFloat(key, Ogre::StringConverter::parseReal(value));
+			else if (key == "bool") data->AddBool(key, Ogre::StringConverter::parseBool(value));
+			else if (key == "string") data->AddOgreString(key, value);
+			else if (key == "Vec3") data->AddOgreVec3(key, Ogre::StringConverter::parseVector3(value));
+			else if (key == "Quat") data->AddOgreQuat(key, Ogre::StringConverter::parseQuaternion(value));
+			else if (key == "Col") data->AddOgreCol(key, Ogre::StringConverter::parseColourValue(value));
+		}
 	}
 
 

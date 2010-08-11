@@ -3,7 +3,6 @@
 #include "IceSceneManager.h"
 #include "IceGOCScriptMakros.h"
 
-
 namespace Ice
 {
 
@@ -361,14 +360,14 @@ namespace Ice
 		}
 	}
 
-	std::vector<ScriptParam> GameObject::SetObjectProperty(std::vector<ScriptParam> &vParams)
+	std::vector<ScriptParam> GameObject::SetObjectProperty(Script& caller, std::vector<ScriptParam> &vParams)
 	{
 		std::vector<ScriptParam> out;
 		Ogre::String key = vParams[0].getString().c_str();
 		mScriptProperties[key] = vParams[1];
 		return out;
 	}
-	std::vector<ScriptParam> GameObject::GetObjectProperty(std::vector<ScriptParam> &vParams)
+	std::vector<ScriptParam> GameObject::GetObjectProperty(Script& caller, std::vector<ScriptParam> &vParams)
 	{
 		std::vector<ScriptParam> out;
 		Ogre::String key = vParams[0].getString().c_str();
@@ -377,7 +376,7 @@ namespace Ice
 		out.push_back(i->second);
 		return out;
 	}
-	std::vector<ScriptParam> GameObject::SetObjectPosition(std::vector<ScriptParam> &vParams)
+	std::vector<ScriptParam> GameObject::SetObjectPosition(Script& caller, std::vector<ScriptParam> &vParams)
 	{
 		std::vector<ScriptParam> out;
 		float x = vParams[0].getFloat();
@@ -386,7 +385,7 @@ namespace Ice
 		SetGlobalPosition(Ogre::Vector3(x,y,z));
 		return out;
 	}
-	std::vector<ScriptParam> GameObject::SetObjectOrientation(std::vector<ScriptParam> &vParams)
+	std::vector<ScriptParam> GameObject::SetObjectOrientation(Script& caller, std::vector<ScriptParam> &vParams)
 	{
 		std::vector<ScriptParam> out;
 		Ogre::Degree yDeg = Ogre::Degree(vParams[0].getFloat());
@@ -399,7 +398,7 @@ namespace Ice
 		SetGlobalOrientation(q);
 		return out;
 	}
-	std::vector<ScriptParam> GameObject::SetObjectScale(std::vector<ScriptParam> &vParams)
+	std::vector<ScriptParam> GameObject::SetObjectScale(Script& caller, std::vector<ScriptParam> &vParams)
 	{
 		std::vector<ScriptParam> out;
 		float x = vParams[0].getFloat();
@@ -408,10 +407,19 @@ namespace Ice
 		SetGlobalScale(Ogre::Vector3(x,y,z));
 		return out;
 	}
-	std::vector<ScriptParam> GameObject::GetObjectName(std::vector<ScriptParam> &vParams)
+	std::vector<ScriptParam> GameObject::GetObjectName(Script& caller, std::vector<ScriptParam> &vParams)
 	{
 		std::vector<ScriptParam> out;
 		return out;
+	}
+
+	std::vector<ScriptParam> GameObject::SendObjectMessage(Script& caller, std::vector<ScriptParam> &vParams)
+	{
+		Msg msg;
+		msg.type = vParams[0].getString();
+		Utils::ScriptParamsToDataMap(caller, vParams, &msg.params, 1);
+		SendMessage(msg);
+		return std::vector<ScriptParam>();
 	}
 
 	DEFINE_TYPEDGOLUAMETHOD_CPP(SetObjectProperty, "string")
@@ -420,5 +428,6 @@ namespace Ice
 	DEFINE_TYPEDGOLUAMETHOD_CPP(SetObjectOrientation, "float float float")
 	DEFINE_TYPEDGOLUAMETHOD_CPP(SetObjectScale, "float float float")
 	DEFINE_GOLUAMETHOD_CPP(GetObjectName)
+	DEFINE_TYPEDGOLUAMETHOD_CPP(SendObjectMessage, "string")
 
 };

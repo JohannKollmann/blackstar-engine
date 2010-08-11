@@ -11,14 +11,14 @@ ScriptParam::ScriptParam(double f){m_Type=PARM_TYPE_FLOAT;m_fData=f;}
 ScriptParam::ScriptParam(std::string s){m_Type=PARM_TYPE_STRING;m_strData=s;}
 ScriptParam::ScriptParam(std::string strFnName, Script& script){m_Type=PARM_TYPE_FUNCTION;m_strData=strFnName;m_pScript=&ScriptSystem::GetInstance().m_mScripts.find(script.GetScriptName())->second;m_iScriptID=script.GetID();}
 
-ScriptParam::ETypes ScriptParam::getType(){return m_Type;}
-bool ScriptParam::hasInt() { return (m_Type==PARM_TYPE_FLOAT || m_Type==PARM_TYPE_INT); }
+ScriptParam::ETypes ScriptParam::getType() const {return m_Type;}
+bool ScriptParam::hasInt()  const { return (m_Type==PARM_TYPE_FLOAT || m_Type==PARM_TYPE_INT); }
 
-int ScriptParam::getInt(){return ((m_Type==PARM_TYPE_FLOAT) ? (int)m_fData : m_iData);}
-bool ScriptParam::getBool(){return m_bData;}
-double ScriptParam::getFloat(){return m_fData;}
-std::string ScriptParam::getString(){return m_strData;}
-void ScriptParam::getFunction(std::string& strFnName, Script& script){strFnName=m_strData;script=Script(m_iScriptID, m_pScript);}
+int ScriptParam::getInt() const {return ((m_Type==PARM_TYPE_FLOAT) ? (int)m_fData : m_iData);}
+bool ScriptParam::getBool() const {return m_bData;}
+double ScriptParam::getFloat() const {return m_fData;}
+std::string ScriptParam::getString() const {return m_strData;}
+void ScriptParam::getFunction(std::string& strFnName, Script& script) const {strFnName=m_strData;script=Script(m_iScriptID, m_pScript);}
 
 void
 ScriptParam::set(ScriptParam &param)

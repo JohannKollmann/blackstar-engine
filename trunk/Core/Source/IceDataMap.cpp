@@ -124,6 +124,7 @@ namespace Ice
 		}
 	}
 
+
 	void GenericProperty::GetAsScriptParam(std::vector<ScriptParam> &params) const
 	{
 		int type = getType();

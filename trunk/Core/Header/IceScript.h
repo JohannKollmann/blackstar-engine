@@ -15,7 +15,7 @@ public:
 	Script(int iID, LuaScript* pScript);
 	std::vector<ScriptParam> CallFunction(std::string strName, std::vector<ScriptParam> params);
 	int GetID();
-	std::string GetScriptName();
+	std::string GetScriptName() const;
 
 private:
 	friend class ScriptSystem;//to access the following pointer to the lua-script

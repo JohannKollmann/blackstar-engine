@@ -45,7 +45,7 @@ namespace Ice
 		void Set(void *data, const PropertyTypes &type);
 
 		///Converts from a ScriptParam.
-		void Set(const ScriptParam &scriptParam);
+		//void Set(const ScriptParam &scriptParam);
 
 		///Retrieves the saved data of type T.
 		template <typename T>

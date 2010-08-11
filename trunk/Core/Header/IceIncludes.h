@@ -28,14 +28,14 @@ class NxControllerManager;
 
 #ifdef _DEBUG
 	#define IceAssert(expression) \
-	if (!expression) \
+	if (!(expression)) \
 	{ \
 		Ogre::LogManager::getSingleton().logMessage(Ogre::String("Assertion failed: ") + #expression + Ogre::String(", function ") + __FUNCTION__ + Ogre::String(", file ") + __FILE__ +  Ogre::String(", line ") + Ogre::StringConverter::toString(__LINE__)); \
 		DebugBreak();	\
 	}
 #else
 	#define IceAssert(expression) \
-	if (!expression) \
+	if (!(expression)) \
 	{ \
 		Ogre::LogManager::getSingleton().logMessage(Ogre::String("Assertion failed: ") + #expression + Ogre::String(", function ") + __FUNCTION__ + Ogre::String(", file ") + __FILE__ +  Ogre::String(", line ") + Ogre::StringConverter::toString(__LINE__)); \
 	}

@@ -107,24 +107,24 @@ namespace Ice
 		}	
 	}
 
-	std::vector<ScriptParam> GOCAI::Npc_AddState(std::vector<ScriptParam> &vParams)
+	std::vector<ScriptParam> GOCAI::Npc_AddState(Script& caller, std::vector<ScriptParam> &vParams)
 	{
 		std::vector<ScriptParam> out;
 		return out;
 	}
-	std::vector<ScriptParam> GOCAI::Npc_KillActiveState(std::vector<ScriptParam> &vParams)
+	std::vector<ScriptParam> GOCAI::Npc_KillActiveState(Script& caller, std::vector<ScriptParam> &vParams)
 	{
 		std::vector<ScriptParam> out;
 		LeaveActiveActionState();
 		return out;
 	}
-	std::vector<ScriptParam> GOCAI::Npc_ClearQueue(std::vector<ScriptParam> &vParams)
+	std::vector<ScriptParam> GOCAI::Npc_ClearQueue(Script& caller, std::vector<ScriptParam> &vParams)
 	{
 		std::vector<ScriptParam> out;
 		return out;
 		ClearActionQueue();
 	}
-	std::vector<ScriptParam> GOCAI::Npc_AddTA(std::vector<ScriptParam> &vParams)
+	std::vector<ScriptParam> GOCAI::Npc_AddTA(Script& caller, std::vector<ScriptParam> &vParams)
 	{
 		std::vector<ScriptParam> out;
 		std::string ta_script = vParams[0].getString();
@@ -142,7 +142,7 @@ namespace Ice
 		AddDayCycleState(new DayCycle(this, ta_script, miscparams, end_timeH, end_timeM, time_abs));
 		return out;
 	}
-	std::vector<ScriptParam> GOCAI::Npc_GotoWP(std::vector<ScriptParam> &vParams)
+	std::vector<ScriptParam> GOCAI::Npc_GotoWP(Script& caller, std::vector<ScriptParam> &vParams)
 	{
 		std::vector<ScriptParam> out;
 		Ogre::String wp = vParams[0].getString().c_str();

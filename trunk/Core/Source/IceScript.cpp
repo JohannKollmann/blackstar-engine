@@ -25,7 +25,7 @@ int
 Script::GetID(){return m_iID;}
 
 std::string
-Script::GetScriptName()
+Script::GetScriptName() const
 {
 	return m_pLuaScript->GetScriptName();
 }
