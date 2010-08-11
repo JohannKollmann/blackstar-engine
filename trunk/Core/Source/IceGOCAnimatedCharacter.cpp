@@ -532,6 +532,9 @@ void GOCAnimatedCharacter::ReceiveObjectMessage(const Msg &msg)
 void GOCAnimatedCharacter::SetOwner(GameObject *go)
 {
 	mOwnerGO = go;
+	_clear();
+	if (mMeshName == "") return;
+	Create(mMeshName, mOwnerGO->GetGlobalScale());
 	if (!mEntity) return;
 	mEntity->setUserAny(Ogre::Any(mOwnerGO));
 	UpdatePosition(go->GetGlobalPosition());
@@ -550,20 +553,20 @@ void GOCAnimatedCharacter::SetOwner(GameObject *go)
 
 void GOCAnimatedCharacter::SetParameters(DataMap *parameters)
 {
-	_clear();
-	Ogre::String meshname = parameters->GetOgreString("MeshName");
+	mMeshName = parameters->GetOgreString("MeshName");
 	mAnimationStateStr = parameters->GetOgreString("AnimState");
 	bool shadowcaster = parameters->GetBool("ShadowCaster");
 	mSetControlToActorsTemp = parameters->GetBool("Ragdoll");
 	Ogre::Vector3 scale = Ogre::Vector3(1,1,1);
 	scale = parameters->GetOgreVec3("Scale");
-	Create(meshname, scale);
-	mEntity->setCastShadows(shadowcaster);
-	if (!mRagdoll) return;
-	if (mAnimationStateStr != "DEBUG") SetAnimationState(mAnimationStateStr);
-	mRagdoll->resetBones();
-	mEditorMode = true;
-	if (mOwnerGO) SetOwner(mOwnerGO);
+	if (mOwnerGO)
+	{
+		SetOwner(mOwnerGO);
+		if (!mRagdoll) return;
+		if (mAnimationStateStr != "DEBUG") SetAnimationState(mAnimationStateStr);
+		mRagdoll->resetBones();
+		mEditorMode = true;
+	}
 }
 void GOCAnimatedCharacter::GetParameters(DataMap *parameters)
 {
