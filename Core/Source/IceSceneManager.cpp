@@ -301,7 +301,6 @@ namespace Ice
 
 		ScriptSystem::GetInstance().ShareCFunction("IsNpc", &SceneManager::Lua_ObjectIsNpc);
 
-		ScriptSystem::GetInstance().CreateInstance("InitEngine.lua");
 		mSoundMaterialTable.InitBindingsFromCfg("OgreMaterialSoundBindings.cfg");
 
 	}
