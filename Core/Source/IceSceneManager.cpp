@@ -223,9 +223,10 @@ namespace Ice
 		Joins a newsgroup.
 		Example usage: Listen("UPDATE_PER_FRAME", myFunc)
 		*/
-		ScriptSystem::GetInstance().ShareCFunction("Event", &ScriptSystem::Lua_JoinNewsgroup);
+		ScriptSystem::GetInstance().ShareCFunction("ReceiveGlobalMessage", &ScriptSystem::Lua_JoinNewsgroup);
 
-		ScriptSystem::GetInstance().ShareCFunction("ObjectEvent", &GOCScript::Lua_ListenToObjectEvent);
+		ScriptSystem::GetInstance().ShareCFunction("ReceiveObjectMessage", &GOCScript::Lua_ListenToObjectEvent);
+		ScriptSystem::GetInstance().ShareCFunction("SendObjectMessage", &GameObject::Lua_SendObjectMessage);
 
 		/**
 		Logs a message to the log.
@@ -252,10 +253,10 @@ namespace Ice
 		Object manipulation methods.
 		Example usage: SetPosition(id, 1.0, 2.5, 3.1)
 		*/
-		ScriptSystem::GetInstance().ShareCFunction("SetPosition", &GameObject::Lua_SetObjectPosition);
-		ScriptSystem::GetInstance().ShareCFunction("SetOrientation", &GameObject::Lua_SetObjectOrientation);
-		ScriptSystem::GetInstance().ShareCFunction("SetScale", &GameObject::Lua_SetObjectScale);
-		ScriptSystem::GetInstance().ShareCFunction("GetName", &GameObject::Lua_GetObjectName);
+		ScriptSystem::GetInstance().ShareCFunction("SetObjectPosition", &GameObject::Lua_SetObjectPosition);
+		ScriptSystem::GetInstance().ShareCFunction("SetObjectOrientation", &GameObject::Lua_SetObjectOrientation);
+		ScriptSystem::GetInstance().ShareCFunction("SetObjectScale", &GameObject::Lua_SetObjectScale);
+		ScriptSystem::GetInstance().ShareCFunction("GetObjectName", &GameObject::Lua_GetObjectName);
 
 
 		//Not implemented

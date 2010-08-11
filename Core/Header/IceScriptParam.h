@@ -21,13 +21,13 @@ public:
 		PARM_TYPE_FUNCTION,
 		PARM_TYPE_NONE //unknown or uninitialized
 	};
-	ETypes getType();
-	bool hasInt();
-	int getInt();
-	bool getBool();
-	double getFloat();
-	std::string getString();
-	void getFunction(std::string& strFnName, Script& script);
+	ETypes getType() const;
+	bool hasInt() const;
+	int getInt() const;
+	bool getBool() const;
+	double getFloat() const;
+	std::string getString() const;
+	void getFunction(std::string& strFnName, Script& script) const;
 	
 	ScriptParam();
 	ScriptParam(int i);

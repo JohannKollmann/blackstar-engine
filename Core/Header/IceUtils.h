@@ -49,7 +49,9 @@ namespace Ice
 		DllExport std::string TestParameters(std::vector<ScriptParam> testparams, std::string refParams, bool bAllowMore=false);
 		DllExport bool TestParameters(Script& caller, std::vector<ScriptParam> testparams, std::string refParams, bool bAllowMore=false);
 
-		DllExport void LogParameterErrors(Script& caller, Ogre::String msg, int line = -1);
+		DllExport void LogParameterErrors(const Script& caller, Ogre::String msg, int line = -1);
+
+		DllExport void ScriptParamsToDataMap(const Script& caller, const std::vector<ScriptParam> &params, DataMap* data, int param_start_index = 0);
 
 		DllExport Ogre::Quaternion ZDirToQuat(const Ogre::Vector3 &zDirNormalised, const Ogre::Vector3 &upVector = Ogre::Vector3::UNIT_Y);
 

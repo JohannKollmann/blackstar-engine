@@ -25,7 +25,7 @@ namespace Ice
 	}
 	void ScriptUser::ReceiveMessage(Msg& msg)
 	{
-		if (msg.type == "REPARSE_SCRIPTS_POST")
+		if (msg.type == "REPARSE_SCRIPTS_POST" && mScriptFileName != "")
 		{
 			OnScriptReload();
 			InitScript(mScriptFileName);

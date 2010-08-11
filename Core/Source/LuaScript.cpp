@@ -421,7 +421,7 @@ LuaScript::ApiCallback(lua_State* pState)
 }
 
 std::string
-LuaScript::GetScriptName(){return m_strScriptName;}
+LuaScript::GetScriptName() const {return m_strScriptName;}
 
 //error stuff
 

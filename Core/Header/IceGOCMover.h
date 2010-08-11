@@ -133,7 +133,7 @@ namespace Ice
 		void OnSetParameters();
 
 		//Scripting
-		std::vector<ScriptParam> TriggerMover(std::vector<ScriptParam> &params) { Trigger();  return std::vector<ScriptParam>(); };
+		std::vector<ScriptParam> TriggerMover(Script &caller, std::vector<ScriptParam> &params) { Trigger();  return std::vector<ScriptParam>(); };
 		DEFINE_GOCLUAMETHOD(GOCMover, TriggerMover)
 
 		//Load Save

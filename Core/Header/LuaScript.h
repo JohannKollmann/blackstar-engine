@@ -32,7 +32,7 @@ public:
 	void ShareStaticCFunction(std::string strName, StaticScriptFunction fn);
 	void ShareExternalFunction(std::string strShareName, std::string strInternalName, Script& script);
 	std::vector<ScriptParam> CallFunction(Script &caller, std::string strName, std::vector<ScriptParam> params, Script* pShareCallInstanceHack=0);
-	std::string GetScriptName();
+	std::string GetScriptName() const;
 	bool FunctionExists(std::string strFunction);
 	static void SetLogFn(void (*logFn)(std::string, int, std::string));
 	static void LogError(std::string strScript, int iLine, std::string strError);

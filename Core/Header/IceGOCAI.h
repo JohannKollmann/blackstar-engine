@@ -33,11 +33,11 @@ namespace Ice
 		~GOCAI(void);
 
 		//Scripting
-		std::vector<ScriptParam> Npc_AddState(std::vector<ScriptParam> &params);
-		std::vector<ScriptParam> Npc_KillActiveState(std::vector<ScriptParam> &params);
-		std::vector<ScriptParam> Npc_ClearQueue(std::vector<ScriptParam> &params);
-		std::vector<ScriptParam> Npc_AddTA(std::vector<ScriptParam> &params);
-		std::vector<ScriptParam> Npc_GotoWP(std::vector<ScriptParam> &params);
+		std::vector<ScriptParam> Npc_AddState(Script& caller, std::vector<ScriptParam> &vParams);
+		std::vector<ScriptParam> Npc_KillActiveState(Script& caller, std::vector<ScriptParam> &vParams);
+		std::vector<ScriptParam> Npc_ClearQueue(Script& caller, std::vector<ScriptParam> &vParams);
+		std::vector<ScriptParam> Npc_AddTA(Script& caller, std::vector<ScriptParam> &vParams);
+		std::vector<ScriptParam> Npc_GotoWP(Script& caller, std::vector<ScriptParam> &vParams);
 		DEFINE_TYPEDGOCLUAMETHOD(GOCAI, Npc_AddState, "string")
 		DEFINE_GOCLUAMETHOD(GOCAI, Npc_KillActiveState)
 		DEFINE_GOCLUAMETHOD(GOCAI, Npc_ClearQueue)

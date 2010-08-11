@@ -84,6 +84,7 @@ namespace Ice
 				mRenderable,
 				OgrePhysX::BoxShape(entity, scale).density(mDensity).group(CollisionGroups::DEFAULT).material(nxID));
 		}
+		mActor->getNxActor()->userData = mOwnerGO;
 		mActor->getNxActor()->setGroup(CollisionGroups::DEFAULT);
 		Main::Instance().GetOgreSceneMgr()->destroyEntity(entity);
 	}
@@ -214,6 +215,7 @@ namespace Ice
 		Ogre::Entity *entity = Main::Instance().GetOgreSceneMgr()->createEntity("tempCollisionModell", mCollisionMeshName);
 		mActor = Main::Instance().GetPhysXScene()->createActor(
 			OgrePhysX::RTMeshShape(entity->getMesh()).materials(SceneManager::Instance().GetSoundMaterialTable().mOgreNxBinds).scale(scale).group(CollisionGroups::DEFAULT));
+		mActor->getNxActor()->userData = mOwnerGO;
 		Main::Instance().GetOgreSceneMgr()->destroyEntity(entity);
 	}
 
@@ -315,6 +317,7 @@ namespace Ice
 			mActor = Main::Instance().GetPhysXScene()->createActor(
 				OgrePhysX::SphereShape(mSphereRadius * scale.length()).setTrigger());
 		}
+		mActor->getNxActor()->userData = mOwnerGO;
 	}
 
 	void GOCTrigger::onEnter(GameObject *object)

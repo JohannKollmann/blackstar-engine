@@ -32,7 +32,7 @@ namespace Ice
 			} \
 			std::vector<ScriptParam> vObjParams; \
 			for (unsigned int i = 0; i < vParams.size(); i++) vObjParams.push_back(vParams[i]);	/*pop the script id*/	\
-			return component->##methodName##(vObjParams); \
+			return component->##methodName##(caller, vObjParams); \
 		} \
 		else Ice::Utils::LogParameterErrors(caller, param_test); \
 		return std::vector<ScriptParam>(); \
@@ -61,15 +61,12 @@ namespace Ice
 			std::vector<ScriptParam> vObjParams; \
 			for (unsigned int i = 0; i < vParams.size(); i++) vObjParams.push_back(vParams[i]);	/*pop the script id*/	\
 			Ogre::String param_test2 = Ice::Utils::TestParameters(vParams, sRefParams, true); \
-			if (param_test == "") return component->##methodName##(vObjParams); \
+			if (param_test == "") return component->##methodName##(caller, vObjParams); \
 			else Ice::Utils::LogParameterErrors(caller, param_test2); \
 		} \
 		else Ice::Utils::LogParameterErrors(caller, param_test); \
 		return std::vector<ScriptParam>(); \
 	}
-
-	#define DEFINE_GOLUAMETHOD_H(methodName) \
-	static std::vector<ScriptParam> Lua_##methodName (Script& caller, std::vector<ScriptParam> vParams);
 
 	#define DEFINE_GOLUAMETHOD_CPP(methodName) \
 	std::vector<ScriptParam> GameObject::Lua_##methodName (Script& caller, std::vector<ScriptParam> vParams) \
@@ -88,7 +85,7 @@ namespace Ice
 			} \
 			std::vector<ScriptParam> vObjParams; \
 			for (unsigned int i = 0; i < vParams.size(); i++) vObjParams.push_back(vParams[i]);	/*pop the script id*/	\
-			return obj->##methodName##(vObjParams); \
+			return obj->##methodName##(caller, vObjParams); \
 		} \
 		else Ice::Utils::LogParameterErrors(caller, param_test); \
 		return std::vector<ScriptParam>(); \
@@ -112,7 +109,7 @@ namespace Ice
 			std::vector<ScriptParam> vObjParams; \
 			for (unsigned int i = 0; i < vParams.size(); i++) vObjParams.push_back(vParams[i]);	/*pop the script id*/	\
 			Ogre::String param_test2 = Ice::Utils::TestParameters(vParams, sRefParams, true); \
-			if (param_test == "") return obj->##methodName##(vObjParams); \
+			if (param_test == "") return obj->##methodName##(caller, vObjParams); \
 			else Ice::Utils::LogParameterErrors(caller, param_test2); \
 		} \
 		else Ice::Utils::LogParameterErrors(caller, param_test); \

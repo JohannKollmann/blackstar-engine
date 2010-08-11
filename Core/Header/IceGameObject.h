@@ -15,6 +15,10 @@
 namespace Ice
 {
 
+	//Script makro, must be here because of include issues
+	#define DEFINE_GOLUAMETHOD_H(methodName) \
+	static std::vector<ScriptParam> Lua_##methodName (Script& caller, std::vector<ScriptParam> vParams);
+
 	/**
 	Every entity in 3D space is a game object. A game object has a position, rotation and scale (Transformable3D) and provides parent-child support.
 	A game object also consists of a set of components, which provide special functionality like mesh, sound, ai etc.
@@ -189,19 +193,21 @@ namespace Ice
 		bool IsStatic();
 
 		//Scripting
-		std::vector<ScriptParam> SetObjectProperty(std::vector<ScriptParam> &params);
-		std::vector<ScriptParam> GetObjectProperty(std::vector<ScriptParam> &params);
-		std::vector<ScriptParam> SetObjectPosition(std::vector<ScriptParam> &params);
-		std::vector<ScriptParam> SetObjectOrientation(std::vector<ScriptParam> &params);
-		std::vector<ScriptParam> SetObjectScale(std::vector<ScriptParam> &params);
-		std::vector<ScriptParam> GetObjectName(std::vector<ScriptParam> &params);
+		std::vector<ScriptParam> SetObjectProperty(Script& caller, std::vector<ScriptParam> &vParams);
+		std::vector<ScriptParam> GetObjectProperty(Script& caller, std::vector<ScriptParam> &vParams);
+		std::vector<ScriptParam> SetObjectPosition(Script& caller, std::vector<ScriptParam> &vParams);
+		std::vector<ScriptParam> SetObjectOrientation(Script& caller, std::vector<ScriptParam> &vParams);
+		std::vector<ScriptParam> SetObjectScale(Script& caller, std::vector<ScriptParam> &vParams);
+		std::vector<ScriptParam> GetObjectName(Script& caller, std::vector<ScriptParam> &vParams);
+		std::vector<ScriptParam> SendObjectMessage(Script& caller, std::vector<ScriptParam> &vParams);
 
-		static std::vector<ScriptParam> Lua_SetObjectProperty(Script& caller, std::vector<ScriptParam> params);
-		static std::vector<ScriptParam> Lua_GetObjectProperty(Script& caller, std::vector<ScriptParam> params);
-		static std::vector<ScriptParam> Lua_SetObjectPosition(Script& caller, std::vector<ScriptParam> params);
-		static std::vector<ScriptParam> Lua_SetObjectOrientation(Script& caller, std::vector<ScriptParam> params);
-		static std::vector<ScriptParam> Lua_SetObjectScale(Script& caller, std::vector<ScriptParam> params);
-		static std::vector<ScriptParam> Lua_GetObjectName(Script& caller, std::vector<ScriptParam> params);
+		DEFINE_GOLUAMETHOD_H(SetObjectProperty)
+		DEFINE_GOLUAMETHOD_H(GetObjectProperty)
+		DEFINE_GOLUAMETHOD_H(SetObjectPosition)
+		DEFINE_GOLUAMETHOD_H(SetObjectOrientation)
+		DEFINE_GOLUAMETHOD_H(SetObjectScale)
+		DEFINE_GOLUAMETHOD_H(GetObjectName)
+		DEFINE_GOLUAMETHOD_H(SendObjectMessage)
 
 		//Editor stuff
 		void Freeze(bool freeze);
