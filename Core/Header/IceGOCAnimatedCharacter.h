@@ -93,6 +93,7 @@ private:
 	bool mSetControlToActorsTemp;
 	bool mEditorMode;
 	Ogre::String mAnimationStateStr;
+	Ogre::String mMeshName;
 	std::map<AnimationID, Ogre::String> mMovementAnimations;
 	int mMovementState;
 
