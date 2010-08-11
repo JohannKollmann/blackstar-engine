@@ -99,7 +99,7 @@ bool Input::keyPressed( const OIS::KeyEvent &arg )
 		{
 			Msg msgControl;
 			msgControl.type= "CONTROL_DOWN";
-			msg.params.AddOgreString("CONTROL_NAME", m_mKeyControls[arg.key][iControl]);
+			msgControl.params.AddOgreString("CONTROL_NAME", m_mKeyControls[arg.key][iControl]);
 			MessageSystem::Instance().SendMessage(msgControl);
 		}
 	}
