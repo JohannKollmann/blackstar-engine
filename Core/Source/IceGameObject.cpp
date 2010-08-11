@@ -410,6 +410,7 @@ namespace Ice
 	std::vector<ScriptParam> GameObject::GetObjectName(Script& caller, std::vector<ScriptParam> &vParams)
 	{
 		std::vector<ScriptParam> out;
+		out.push_back(ScriptParam(std::string(mName.c_str())));
 		return out;
 	}
 
