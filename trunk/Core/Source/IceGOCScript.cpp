@@ -8,37 +8,13 @@ namespace Ice
 		MessageSystem::Instance().JoinNewsgroup(this, "REPARSE_SCRIPTS");
 	}
 
-	std::vector<ScriptParam> GOCScript::Lua_ListenToObjectEvent(Script &caller, std::vector<ScriptParam> params)
+	void GOCScript::OnReceiveMessage(Msg &msg)
 	{
-		std::vector<ScriptParam> out;
-		if (params.size() < 2)
-		{
-			Utils::LogParameterErrors(caller, "Too few parameters!");
-			return out;
-		}
-		if (params[0].getType() != ScriptParam::PARM_TYPE_STRING || params[1].getType() != ScriptParam::PARM_TYPE_FUNCTION)
-		{
-			Utils::LogParameterErrors(caller, "Wrong parameters!");
-			return out;
-		}
-
-		ScriptUser *scriptUser = ScriptSystem::GetInstance().GetScriptableObject(caller.GetID());
-		if (!scriptUser) IceWarning("No object is associated with the calling script.")
-		else
-		{
-			GOCScript *gocScript = dynamic_cast<GOCScript*>(scriptUser);
-			if (!gocScript) IceWarning("Associated object does not have a script component.")
-			else
-			{
-				Ogre::String msgName = params[0].getString();
-				gocScript->mObjectMsgCallbacks.insert(std::make_pair<Ogre::String, ScriptParam>(msgName, params[1]));
-			}
-		}
-
-		return out;
+		if (msg.type == "REPARSE_SCRIPTS") mObjectMsgCallbacks.clear();
 	}
 
-	void GOCScript::ReceiveObjectMessage(Msg &msg)
+
+	void GOCScriptMessageCallback::ReceiveObjectMessage(Msg &msg)
 	{
 		auto i = mObjectMsgCallbacks.find(msg.type);
 		if (i == mObjectMsgCallbacks.end()) return;
@@ -48,12 +24,26 @@ namespace Ice
 		{
 			msg.params.GetNext().data.GetAsScriptParam(params);
 		}
-		ScriptSystem::RunCallbackFunction(i->second, params);
+		for (auto c = 0; c < i->second.size(); c++)
+		{
+			ScriptSystem::RunCallbackFunction(i->second[c], params);
+		}
 	}
 
-	void GOCScript::OnReceiveMessage(Msg &msg)
+	bool GOCScriptMessageCallback::HasListener(const Ogre::String &msgType)
 	{
-		if (msg.type == "REPARSE_SCRIPTS") mObjectMsgCallbacks.clear();
+		auto i = mObjectMsgCallbacks.find(msgType);
+		return (i != mObjectMsgCallbacks.end());
+	}
+	void GOCScriptMessageCallback::AddListener(const Ogre::String &msgType, ScriptParam callback)
+	{
+		auto i = mObjectMsgCallbacks.find(msgType);
+		if (i == mObjectMsgCallbacks.end())
+		{
+			mObjectMsgCallbacks.insert(std::make_pair(msgType, std::vector<ScriptParam>()));
+			i = mObjectMsgCallbacks.find(msgType);
+		}
+		i->second.push_back(callback);
 	}
 
 }

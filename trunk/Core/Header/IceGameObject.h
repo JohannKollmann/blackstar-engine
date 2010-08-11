@@ -200,6 +200,8 @@ namespace Ice
 		std::vector<ScriptParam> SetObjectScale(Script& caller, std::vector<ScriptParam> &vParams);
 		std::vector<ScriptParam> GetObjectName(Script& caller, std::vector<ScriptParam> &vParams);
 		std::vector<ScriptParam> SendObjectMessage(Script& caller, std::vector<ScriptParam> &vParams);
+		std::vector<ScriptParam> ReceiveObjectMessage(Script& caller, std::vector<ScriptParam> &vParams);
+		std::vector<ScriptParam> IsUsable(Script& caller, std::vector<ScriptParam> &vParams);
 
 		DEFINE_GOLUAMETHOD_H(SetObjectProperty)
 		DEFINE_GOLUAMETHOD_H(GetObjectProperty)
@@ -208,6 +210,8 @@ namespace Ice
 		DEFINE_GOLUAMETHOD_H(SetObjectScale)
 		DEFINE_GOLUAMETHOD_H(GetObjectName)
 		DEFINE_GOLUAMETHOD_H(SendObjectMessage)
+		DEFINE_GOLUAMETHOD_H(ReceiveObjectMessage)
+		DEFINE_GOLUAMETHOD_H(IsUsable)
 
 		//Editor stuff
 		void Freeze(bool freeze);

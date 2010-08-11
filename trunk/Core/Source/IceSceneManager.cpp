@@ -189,6 +189,7 @@ namespace Ice
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCCameraController::Register);
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCSimpleCameraController::Register);
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCScript::Register);
+		LoadSave::LoadSave::Instance().RegisterObject(&GOCScriptMessageCallback::Register);
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCAI::Register);
 
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCMover::Register);
@@ -225,7 +226,7 @@ namespace Ice
 		*/
 		ScriptSystem::GetInstance().ShareCFunction("ReceiveGlobalMessage", &ScriptSystem::Lua_JoinNewsgroup);
 
-		ScriptSystem::GetInstance().ShareCFunction("ReceiveObjectMessage", &GOCScript::Lua_ListenToObjectEvent);
+		ScriptSystem::GetInstance().ShareCFunction("ReceiveObjectMessage", &GameObject::Lua_ReceiveObjectMessage);
 		ScriptSystem::GetInstance().ShareCFunction("SendObjectMessage", &GameObject::Lua_SendObjectMessage);
 
 		/**
@@ -257,6 +258,7 @@ namespace Ice
 		ScriptSystem::GetInstance().ShareCFunction("SetObjectOrientation", &GameObject::Lua_SetObjectOrientation);
 		ScriptSystem::GetInstance().ShareCFunction("SetObjectScale", &GameObject::Lua_SetObjectScale);
 		ScriptSystem::GetInstance().ShareCFunction("GetObjectName", &GameObject::Lua_GetObjectName);
+		ScriptSystem::GetInstance().ShareCFunction("GetObjectIsUsable", &GameObject::Lua_IsUsable);
 
 
 		//Not implemented

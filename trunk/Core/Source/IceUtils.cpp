@@ -117,6 +117,7 @@ namespace Ice
 				else if (currParam == "string") vRefParams.push_back(ScriptParam(s));
 				else if (currParam == "float") vRefParams.push_back(ScriptParam(d));
 				else if (currParam == "double") vRefParams.push_back(ScriptParam(d));
+				else if (currParam == "function") vRefParams.push_back(ScriptParam(s, Script()));
 
 				currParam = "";
 			}
