@@ -123,6 +123,13 @@ namespace Ice
 		mfLastPos=0;
 		Ice::Msg msg; msg.type = "MOVER_START";
 		mOwnerGO->SendInstantMessage(msg);
+		if(mAnimKeys.size()<1)
+		{
+			Ice::Msg msg; msg.type = "MOVER_END";
+			mOwnerGO->SendInstantMessage(msg);
+			mMoving = false;
+			SetKeyIgnoreParent(false);
+		}
 	}
 
 	void GOCMover::ReceiveMessage( Msg &msg )
