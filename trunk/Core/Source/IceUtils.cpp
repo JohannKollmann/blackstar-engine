@@ -117,7 +117,7 @@ namespace Ice
 				else if (currParam == "string") vRefParams.push_back(ScriptParam(s));
 				else if (currParam == "float") vRefParams.push_back(ScriptParam(d));
 				else if (currParam == "double") vRefParams.push_back(ScriptParam(d));
-				else if (currParam == "function") vRefParams.push_back(ScriptParam(s, Script()));
+				else if (currParam == "function") vRefParams.push_back(ScriptParam(ScriptParam::PARM_TYPE_FUNCTION));
 
 				currParam = "";
 			}
@@ -149,8 +149,7 @@ namespace Ice
 
 	void Utils::ScriptParamsToDataMap(const Script& caller, const std::vector<ScriptParam> &params, DataMap* data, int param_start_index)
 	{
-		IceAssert(params.size() < param_start_index)
-		IceAssert(data)
+		IceAssert(data);
 		for (int i = param_start_index; i < params.size(); i++)
 		{
 			if (params[i].getType() != ScriptParam::PARM_TYPE_STRING)

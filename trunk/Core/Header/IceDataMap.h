@@ -105,9 +105,10 @@ namespace Ice
 		template <class templateType>
 		templateType GetValue(const Ogre::String &keyname)	const
 		{
-			std::map<Ogre::String, GenericProperty>::const_iterator i = mData.find(keyname);
-			IceAssert(i != mData.end());
-			return i->second.Get<templateType>();
+			for (auto i = mData.begin(); i != mData.end(); i++)
+				if (i->key == keyname) return i->data.Get<templateType>();
+			IceAssert(false)
+			return templateType();
 		}
 
 		///Retrieves the data of the item with the key keyname, retungs defaultVal if it does not exist.
@@ -127,6 +128,17 @@ namespace Ice
 		Ogre::ColourValue GetOgreCol(const Ogre::String &keyname)	const;
 		Ogre::Quaternion GetOgreQuat(const Ogre::String &keyname)	const;
 		Ogre::String GetOgreString(const Ogre::String &keyname)		const;
+
+		class Enum
+		{
+		public:
+			Ogre::String toString();
+			void fromString(Ogre::String coded_enum);
+			static bool isEnum(Ogre::String coded_enum);
+			std::vector<Ogre::String> choices;
+			int selection;
+		};
+		DataMap::Enum GetEnum(const Ogre::String &keyname)			const;
 
 		///Inserts a new item into the DataMap.
 		template <class templateType>
@@ -166,6 +178,7 @@ namespace Ice
 		void AddOgreCol(const Ogre::String &keyname, const Ogre::ColourValue &val);
 		void AddOgreQuat(const Ogre::String &keyname, const Ogre::Quaternion &quat);
 		void AddOgreString(const Ogre::String &keyname, const Ogre::String &text);
+		void AddEnum(const Ogre::String &keyname, std::vector<Ogre::String> choices, int selection = 0);
 
 		//Load Save methods
 		void Save(LoadSave::SaveSystem& myManager);

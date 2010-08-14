@@ -77,7 +77,7 @@ namespace Ice
 		virtual bool IsStatic() { return true; }
 
 		///Dispatches an object message
-		virtual void ReceiveObjectMessage(const Msg &msg) {}
+		virtual void ReceiveObjectMessage(Msg &msg) {}
 
 		///Freezes the component
 		virtual void Freeze(bool freeze) {};

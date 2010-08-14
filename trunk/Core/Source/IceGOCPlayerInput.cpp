@@ -103,7 +103,7 @@ void GOCPlayerInput::ReceiveMessage(Msg &msg)
 
 #include "NxController.h"
 
-void GOCPlayerInput::ReceiveObjectMessage(const Msg &msg)
+void GOCPlayerInput::ReceiveObjectMessage(Msg &msg)
 {
 	if (msg.type == "CharacterJumpEnded")
 	{

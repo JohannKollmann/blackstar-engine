@@ -5,6 +5,7 @@ namespace Ice
 {
 
 ScriptParam::ScriptParam(){m_Type=PARM_TYPE_NONE; m_pScript=0;}
+ScriptParam::ScriptParam(ETypes type) { m_Type = type; }
 ScriptParam::ScriptParam(int i){m_Type=PARM_TYPE_INT;m_iData=i;}
 ScriptParam::ScriptParam(bool b){m_Type=PARM_TYPE_BOOL;m_bData=b;}
 ScriptParam::ScriptParam(double f){m_Type=PARM_TYPE_FLOAT;m_fData=f;}

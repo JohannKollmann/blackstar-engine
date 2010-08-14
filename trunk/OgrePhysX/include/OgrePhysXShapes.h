@@ -3,7 +3,8 @@
 #include "OgrePhysXClasses.h"
 #include "Ogre.h"
 #include <NxShapeDesc.h> 
-#include <NxTriangleMeshShapeDesc.h> 
+#include <NxTriangleMeshShapeDesc.h>
+#include <NxConvexShapeDesc.h>
 #include "NxBoxShapeDesc.h"
 #include "NxSphereShapeDesc.h"
 #include "NxCapsuleShapeDesc.h"
@@ -77,10 +78,11 @@ namespace OgrePhysX
 	public:
 		virtual ~BaseMeshShape() {}
 
-		BaseMeshShape& material(NxMaterialIndex material);
-		BaseMeshShape& group(NxCollisionGroup group);
-		BaseMeshShape& groupsMask(NxGroupsMask mask);
+		BaseMeshShape& material(NxMaterialIndex material) { mDesc.materialIndex = material; return *this; }
+		BaseMeshShape& group(NxCollisionGroup group) { mDesc.group = group; return *this; }
+		BaseMeshShape& groupsMask(NxGroupsMask mask) { mDesc.groupsMask = mask; return *this; }
 	};
+
 	class OgrePhysXClass CookedMeshShape : public BaseMeshShape
 	{
 	public:
@@ -89,7 +91,6 @@ namespace OgrePhysX
 		~CookedMeshShape() {}
 		NxShapeDesc* getDesc() { return &mDesc; }
 	};
-
 	class OgrePhysXClass RTMeshShape : public BaseMeshShape
 	{
 	private:
@@ -97,7 +98,6 @@ namespace OgrePhysX
 		CookerParams mCookerParams;
 
 	public:
-
 		RTMeshShape(Ogre::MeshPtr mesh);
 		~RTMeshShape() {}
 		NxShapeDesc* getDesc();
@@ -105,5 +105,20 @@ namespace OgrePhysX
 		RTMeshShape& scale(Ogre::Vector3 scale);
 		RTMeshShape& materials(std::map<Ogre::String, NxMaterialIndex> &materialBindings);
 		RTMeshShape& backfaces(bool addBackfaces);
+	};
+
+	class OgrePhysXClass RTConvexMeshShape : public PrimitiveShape
+	{
+	private:
+		Ogre::MeshPtr mOgreMesh;
+		CookerParams mCookerParams;
+		NxConvexShapeDesc mDesc;
+
+	public:
+		RTConvexMeshShape(Ogre::MeshPtr mesh);
+		~RTConvexMeshShape() {}
+		NxShapeDesc* getDesc();
+
+		RTConvexMeshShape& scale(Ogre::Vector3 scale);
 	};
 };

@@ -33,7 +33,7 @@ namespace Ice
 		GetNode()->detachObject(mCamera);
 		mCamera = nullptr;
 	}	
-	void GOCSimpleCameraController::ReceiveObjectMessage(const Msg &msg)
+	void GOCSimpleCameraController::ReceiveObjectMessage(Msg &msg)
 	{
 		if (msg.type == "MOVER_START")
 		{

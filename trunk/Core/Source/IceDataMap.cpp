@@ -179,39 +179,70 @@ namespace Ice
 
 	int DataMap::GetInt(const Ogre::String &keyname) const
 	{
-		return GetValue<int>(keyname, 0);
+		return GetValue<int>(keyname);
 	}
 
 	bool DataMap::GetBool(const Ogre::String &keyname) const
 	{
-		return GetValue<bool>(keyname, false);
+		return GetValue<bool>(keyname);
 	}
 
 	float DataMap::GetFloat(const Ogre::String &keyname) const
 	{
-		return GetValue<float>(keyname, 0);
+		return GetValue<float>(keyname);
 	}
 
 	Ogre::Vector3 DataMap::GetOgreVec3(const Ogre::String &keyname) const
 	{
-		return GetValue<Ogre::Vector3>(keyname, Ogre::Vector3());
+		return GetValue<Ogre::Vector3>(keyname);
 	}
 
 	Ogre::ColourValue DataMap::GetOgreCol(const Ogre::String &keyname) const
 	{
-		Ogre::Vector3 vec = GetValue<Ogre::Vector3>(keyname, Ogre::Vector3());
+		Ogre::Vector3 vec = GetValue<Ogre::Vector3>(keyname);
 		return Ogre::ColourValue(vec.x, vec.y, vec.z);
 	}
 
 	Ogre::Quaternion DataMap::GetOgreQuat(const Ogre::String &keyname) const
 	{
-		return GetValue<Ogre::Quaternion>(keyname, Ogre::Quaternion());
+		return GetValue<Ogre::Quaternion>(keyname);
 	}
 
 	Ogre::String DataMap::GetOgreString(const Ogre::String &keyname) const
 	{
-		return GetValue<Ogre::String>(keyname, "");
+		return GetValue<Ogre::String>(keyname);
 	}
+
+	DataMap::Enum DataMap::GetEnum(const Ogre::String &keyname)	const
+	{
+		Ogre::String coded_enum = GetOgreString(keyname);
+		Enum e; e.fromString(coded_enum);
+		return e;
+	}
+
+	Ogre::String DataMap::Enum::toString()
+	{
+		Ogre::String coded_enum = "__enum " + Ogre::StringConverter::toString(selection) + " ";
+		for (auto i = choices.begin(); i != choices.end(); i++) coded_enum += (*i + " ");
+		return coded_enum;
+	}
+	void DataMap::Enum::fromString(Ogre::String coded_enum)
+	{
+		IceAssert(isEnum(coded_enum)); 
+		coded_enum = coded_enum.substr(6, coded_enum.size());
+		selection = Ogre::StringConverter::parseInt(coded_enum.substr(0, 1));
+		coded_enum = coded_enum.substr(1, coded_enum.size());
+		while (!coded_enum.empty())
+		{
+			choices.push_back(coded_enum.substr(0, coded_enum.find(" ")));
+			coded_enum = coded_enum.substr(coded_enum.find(" "), coded_enum.size());
+		}
+	}
+	bool DataMap::Enum::isEnum(Ogre::String coded_enum)
+	{
+		return (coded_enum.find("__enum") == 0);
+	}
+
 
 	void DataMap::AddBool(const Ogre::String &keyname, const bool val)
 	{
@@ -247,6 +278,15 @@ namespace Ice
 	void DataMap::AddOgreString(const Ogre::String &keyname, const Ogre::String &text)
 	{
 		AddItem<Ogre::String>(keyname, text);
+	}
+
+	void DataMap::AddEnum(const Ogre::String &keyname, std::vector<Ogre::String> choices, int selection)
+	{
+		IceAssert(choices.size() > selection)
+
+		//hack: code it as Ogre string
+		Enum e; e.choices = choices; e.selection = selection;
+		AddOgreString(keyname, e.toString());
 	}
 
 	bool DataMap::HasNext()

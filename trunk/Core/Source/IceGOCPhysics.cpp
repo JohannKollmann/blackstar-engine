@@ -142,7 +142,7 @@ namespace Ice
 		Ogre::Vector3 scale = Ogre::Vector3(1,1,1);
 		scale = parameters->GetOgreVec3("Scale");
 		mDensity = parameters->GetFloat("Density");
-		mShapeType = parameters->GetInt("ShapeType");
+		mShapeType = parameters->GetEnum("ShapeType").selection;
 		if (mOwnerGO) Create(mCollisionMeshName, mDensity, mShapeType, scale);
 	}
 	void GOCRigidBody::GetParameters(DataMap *parameters)
@@ -150,14 +150,18 @@ namespace Ice
 		parameters->AddOgreString("CollisionMeshFile", mCollisionMeshName);
 		parameters->AddOgreString("mMaterialName", mMaterialName);
 		parameters->AddFloat("Density", mDensity);
-		parameters->AddInt("ShapeType", mShapeType);
+		std::vector<Ogre::String> shape_types;
+		shape_types.push_back("Box"); shape_types.push_back("Sphere"); shape_types.push_back("Convex"); shape_types.push_back("NXS"); shape_types.push_back("Capsule");
+		parameters->AddEnum("ShapeType", shape_types, mShapeType);
 	}
 	void GOCRigidBody::GetDefaultParameters(DataMap *parameters)
 	{
 		parameters->AddOgreString("CollisionMeshFile", "");
 		parameters->AddOgreString("mMaterialName", "Wood");
 		parameters->AddFloat("Density", 10.0f);
-		parameters->AddInt("ShapeType", 0);
+		std::vector<Ogre::String> shape_types;
+		shape_types.push_back("Box"); shape_types.push_back("Sphere"); shape_types.push_back("Convex"); shape_types.push_back("NXS"); shape_types.push_back("Capsule");
+		parameters->AddEnum("ShapeType", shape_types, 0);
 	}
 
 	void GOCRigidBody::Save(LoadSave::SaveSystem& mgr)
@@ -214,7 +218,7 @@ namespace Ice
 		}
 		Ogre::Entity *entity = Main::Instance().GetOgreSceneMgr()->createEntity("tempCollisionModell", mCollisionMeshName);
 		mActor = Main::Instance().GetPhysXScene()->createActor(
-			OgrePhysX::RTMeshShape(entity->getMesh()).materials(SceneManager::Instance().GetSoundMaterialTable().mOgreNxBinds).scale(scale).group(CollisionGroups::DEFAULT));
+			OgrePhysX::RTMeshShape(entity->getMesh()).materials(SceneManager::Instance().GetSoundMaterialTable().mOgreNxBinds).scale(scale).group(CollisionGroups::DEFAULT), mOwnerGO->GetGlobalPosition(), mOwnerGO->GetGlobalOrientation());
 		mActor->getNxActor()->userData = mOwnerGO;
 		Main::Instance().GetOgreSceneMgr()->destroyEntity(entity);
 	}
@@ -243,8 +247,6 @@ namespace Ice
 		if (mActor) Main::Instance().GetPhysXScene()->destroyActor(mActor);
 		Create(mCollisionMeshName, mOwnerGO->GetGlobalScale());
 		mActor->getNxActor()->userData = mOwnerGO;
-		mActor->setGlobalOrientation(mOwnerGO->GetGlobalOrientation());
-		mActor->setGlobalPosition(mOwnerGO->GetGlobalPosition());
 	}
 
 	void GOCStaticBody::SetParameters(DataMap *parameters)

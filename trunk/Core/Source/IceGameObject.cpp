@@ -3,6 +3,7 @@
 #include "IceSceneManager.h"
 #include "IceGOCScriptMakros.h"
 #include "IceGOCScript.h"
+#include "IceGOCAI.h"
 
 namespace Ice
 {
@@ -61,13 +62,13 @@ namespace Ice
 		ClearGOCs();
 	}
 
-	void GameObject::SendMessage(const Msg &msg)
+	void GameObject::SendMessage(Msg &msg)
 	{
 		mCurrentMessages.push_back(msg);
 		if (mCurrentMessages.size() == 1) SceneManager::Instance().AddToMessageQueue(this);
 	}
 
-	void GameObject::SendInstantMessage(const Msg &msg)
+	void GameObject::SendInstantMessage(Msg &msg)
 	{
 		for (unsigned int i = 0; i < mComponents.size(); i++)
 		{
@@ -438,13 +439,35 @@ namespace Ice
 		return out;
 	}
 
-	std::vector<ScriptParam> GameObject::IsUsable(Script& caller, std::vector<ScriptParam> &vParams)
+	std::vector<ScriptParam> GameObject::HasScriptListener(Script& caller, std::vector<ScriptParam> &vParams)
 	{
 		std::vector<ScriptParam> out;
 		bool usable = false;
 		GOCScriptMessageCallback *callback = GetComponent<GOCScriptMessageCallback>();
 		if (callback) usable = callback->HasListener(vParams[0].getString());
 		out.push_back(ScriptParam(usable));
+		return out;
+	}
+	std::vector<ScriptParam> GameObject::GetChildObjectByName(Script& caller, std::vector<ScriptParam> &vParams)
+	{
+		std::vector<ScriptParam> out;
+		int id = -1;
+		Ogre::String cName = vParams[0].getString();
+		for (auto i = mChildren.begin(); i != mChildren.end(); i++)
+		{
+			if ((*i)->GetName() == cName)
+			{
+				id = (*i)->GetID();
+				break;
+			}
+		}
+		out.push_back(ScriptParam(id));
+		return out;
+	}
+	std::vector<ScriptParam> GameObject::IsNpc(Script& caller, std::vector<ScriptParam> &vParams)
+	{
+		std::vector<ScriptParam> out;
+		out.push_back(ScriptParam(GetComponent<GOCAI>() != nullptr));
 		return out;
 	}
 
@@ -456,6 +479,8 @@ namespace Ice
 	DEFINE_GOLUAMETHOD_CPP(GetObjectName)
 	DEFINE_TYPEDGOLUAMETHOD_CPP(SendObjectMessage, "string")
 	DEFINE_TYPEDGOLUAMETHOD_CPP(ReceiveObjectMessage, "string function")
-	DEFINE_TYPEDGOLUAMETHOD_CPP(IsUsable, "string")
+	DEFINE_TYPEDGOLUAMETHOD_CPP(GetChildObjectByName, "string")
+	DEFINE_TYPEDGOLUAMETHOD_CPP(HasScriptListener, "string")
+	DEFINE_GOLUAMETHOD_CPP(IsNpc)
 
 };

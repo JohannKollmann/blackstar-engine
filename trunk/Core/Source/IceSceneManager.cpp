@@ -17,7 +17,6 @@
 #include "IceGOCAI.h"
 #include "IceAIManager.h"
 #include "IceFollowPathway.h"
-#include "IceDialog.h"
 #include "IceLevelMesh.h"
 #include "IceGOCMover.h"
 #include "IceGOCScript.h"
@@ -226,9 +225,6 @@ namespace Ice
 		*/
 		ScriptSystem::GetInstance().ShareCFunction("ReceiveGlobalMessage", &ScriptSystem::Lua_JoinNewsgroup);
 
-		ScriptSystem::GetInstance().ShareCFunction("ReceiveObjectMessage", &GameObject::Lua_ReceiveObjectMessage);
-		ScriptSystem::GetInstance().ShareCFunction("SendObjectMessage", &GameObject::Lua_SendObjectMessage);
-
 		/**
 		Logs a message to the log.
 		Example usage: LogMessage("Everything is okay!")
@@ -251,14 +247,19 @@ namespace Ice
 		ScriptSystem::GetInstance().ShareCFunction("LoadLevel", &SceneManager::Lua_LoadLevel);
 
 		/**
-		Object manipulation methods.
+		Object get/set methods.
 		Example usage: SetPosition(id, 1.0, 2.5, 3.1)
 		*/
-		ScriptSystem::GetInstance().ShareCFunction("SetObjectPosition", &GameObject::Lua_SetObjectPosition);
-		ScriptSystem::GetInstance().ShareCFunction("SetObjectOrientation", &GameObject::Lua_SetObjectOrientation);
-		ScriptSystem::GetInstance().ShareCFunction("SetObjectScale", &GameObject::Lua_SetObjectScale);
-		ScriptSystem::GetInstance().ShareCFunction("GetObjectName", &GameObject::Lua_GetObjectName);
-		ScriptSystem::GetInstance().ShareCFunction("GetObjectIsUsable", &GameObject::Lua_IsUsable);
+		ScriptSystem::GetInstance().ShareCFunction("Object_SetPosition", &GameObject::Lua_SetObjectPosition);
+		ScriptSystem::GetInstance().ShareCFunction("Object_SetOrientation", &GameObject::Lua_SetObjectOrientation);
+		ScriptSystem::GetInstance().ShareCFunction("Object_SetScale", &GameObject::Lua_SetObjectScale);
+		ScriptSystem::GetInstance().ShareCFunction("Object_GetName", &GameObject::Lua_GetObjectName);
+		ScriptSystem::GetInstance().ShareCFunction("Object_HasScriptListener", &GameObject::Lua_HasScriptListener);
+		ScriptSystem::GetInstance().ShareCFunction("Object_GetChild", &GameObject::Lua_GetChildObjectByName);
+		ScriptSystem::GetInstance().ShareCFunction("Object_IsNpc", &GameObject::Lua_IsNpc);
+
+		ScriptSystem::GetInstance().ShareCFunction("Object_ReceiveMessage", &GameObject::Lua_ReceiveObjectMessage);
+		ScriptSystem::GetInstance().ShareCFunction("Object_SendMessage", &GameObject::Lua_SendObjectMessage);
 
 
 		//Not implemented
@@ -283,7 +284,7 @@ namespace Ice
 		Tells the npc to go to a certain waypoint.
 		*/
 		ScriptSystem::GetInstance().ShareCFunction("Npc_GotoWP", &GOCAI::Lua_Npc_GotoWP);
-		ScriptSystem::GetInstance().ShareCFunction("Npc_OpenDialog", &SceneManager::Lua_NPCOpenDialog);
+		ScriptSystem::GetInstance().ShareCFunction("Npc_OpenDialog", &GOCAI::Lua_Npc_OpenDialog);
 
 		/**
 		Triggers a mover.
@@ -300,8 +301,6 @@ namespace Ice
 		ScriptSystem::GetInstance().ShareCFunction("CreateMaterialProfile", &SceneManager::Lua_CreateMaterialProfile);
 
 		ScriptSystem::GetInstance().ShareCFunction("GetFocusObject", &SceneManager::Lua_GetFocusObject);
-
-		ScriptSystem::GetInstance().ShareCFunction("IsNpc", &SceneManager::Lua_ObjectIsNpc);
 
 		mSoundMaterialTable.InitBindingsFromCfg("OgreMaterialSoundBindings.cfg");
 
@@ -792,53 +791,6 @@ namespace Ice
 		std::vector<ScriptParam> returner;
 		returner.push_back(ScriptParam(id));
 		return returner;
-	}
-
-	std::vector<ScriptParam> SceneManager::Lua_ObjectIsNpc(Script& caller, std::vector<ScriptParam> vParams)
-	{
-		std::vector<ScriptParam> ref;
-		std::vector<ScriptParam> out;
-		bool isNpc = false;
-		float fdummy = 0;
-		ref.push_back(ScriptParam(fdummy));
-		Ogre::String param_test = Ice::Utils::TestParameters(vParams, ref, true);
-		if (param_test == "")
-		{
-			int id = vParams[0].getInt();
-			GameObject *obj = SceneManager::Instance().GetObjectByInternID(id);
-			isNpc = (obj->GetComponent<GOCAI>() != nullptr);
-		}
-		else Ice::Utils::LogParameterErrors(caller, param_test);
-
-		out.push_back(isNpc);
-		return out;
-	}
-
-	std::vector<ScriptParam> SceneManager::Lua_NPCOpenDialog(Script& caller, std::vector<ScriptParam> params)
-	{
-		std::vector<Ice::ScriptParam> errout(1, Ice::ScriptParam());
-		std::vector<Ice::ScriptParam> vRef=std::vector<Ice::ScriptParam>(1, Ice::ScriptParam(0.0));
-		std::string strErrString=Ice::Utils::TestParameters(params, vRef);
-		if(strErrString.length())
-		{
-			errout.push_back(strErrString);
-			return errout;
-		}
-		
-		int id = (int)params[0].getFloat();
-		GameObject *object = SceneManager::Instance().GetObjectByInternID(id);
-		if (object)
-		{
-			GOCAI* pAI = object->GetComponent<GOCAI>();
-			if (pAI)
-			{
-				if (SceneManager::Instance().GetPlayer())
-					SceneManager::Instance().GetPlayer()->GetComponent<GOCPlayerInput>()->BroadcastMovementState(0);
-
-				pAI->AddState(new Dialog(pAI));
-			}
-		}
-		return std::vector<ScriptParam>();
 	}
 
 	std::vector<ScriptParam> SceneManager::Lua_CreateMaterialProfile(Script& caller, std::vector<ScriptParam> vParams)
