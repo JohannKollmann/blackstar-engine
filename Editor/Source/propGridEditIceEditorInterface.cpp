@@ -141,7 +141,15 @@ void wxEditIceDataMap::AddDataMapSection(Ogre::String name, Ice::DataMap &map, b
 		if (prop_type == Ice::GenericProperty::PropertyTypes::STRING)
 		{
 			Ogre::String str = entry.data.Get<Ogre::String>();
-			mPropGrid->AppendIn(csprop, new wxStringProperty(wxT(key.c_str()), wxT(internname.c_str()), wxT(str.c_str())) );
+			if (Ice::DataMap::Enum::isEnum(str))
+			{
+				Ice::DataMap::Enum enu; enu.fromString(str);
+				wxPGChoices choices;
+				for (int choiceIter = 0; choiceIter < enu.choices.size(); choiceIter++)
+					choices.Add(wxT(enu.choices[choiceIter].c_str()), choiceIter);
+				new wxEnumProperty(wxT(key.c_str()), wxT(internname.c_str()), choices);
+			}
+			else mPropGrid->AppendIn(csprop, new wxStringProperty(wxT(key.c_str()), wxT(internname.c_str()), wxT(str.c_str())) );
 		}
 	}
 	csprop->SetExpanded(expand);

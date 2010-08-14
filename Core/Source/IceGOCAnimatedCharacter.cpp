@@ -499,7 +499,7 @@ void GOCAnimatedCharacter::ReceiveMessage(Msg &msg)
 	}
 }
 
-void GOCAnimatedCharacter::ReceiveObjectMessage(const Msg &msg)
+void GOCAnimatedCharacter::ReceiveObjectMessage(Msg &msg)
 {
 	if (msg.type == "UpdateCharacterMovementState")
 	{

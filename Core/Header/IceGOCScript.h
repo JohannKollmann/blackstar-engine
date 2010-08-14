@@ -13,11 +13,8 @@ namespace Ice
 
 	class DllExport GOCScript : public GOComponent, public GOCStaticEditorInterface, public ScriptUser
 	{
-	private:
-		std::map<Ogre::String, ScriptParam> mObjectMsgCallbacks;
-
 	public:
-		GOCScript();
+		GOCScript() {}
 		~GOCScript() {}
 
 		int GetThisID() { IceAssert(mOwnerGO); return mOwnerGO->GetID(); }
@@ -26,9 +23,9 @@ namespace Ice
 		BEGIN_GOCEDITORINTERFACE(GOCScript, "Script")
 			PROPERTY_STRING(mScriptFileName, "Script File", ".lua")
 		END_GOCEDITORINTERFACE
-		void OnSetParameters() { InitScript(mScriptFileName); }
+		void OnSetParameters();
 
-		void OnReceiveMessage(Msg &msg);
+		void SetOwner(GameObject *go);
 
 		std::string& TellName() { static std::string name = "Script"; return name; };
 		static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "Script"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };
@@ -37,17 +34,18 @@ namespace Ice
 		void Load(LoadSave::LoadSystem& mgr) { mgr.LoadAtom("std::string", &mScriptFileName); }
 	};
 
-	class DllExport GOCScriptMessageCallback : public GOComponent
+	class DllExport GOCScriptMessageCallback : public GOComponent, public MessageListener
 	{
 	private:
 		std::map< Ogre::String, std::vector<ScriptParam> > mObjectMsgCallbacks;
 
 	public:
-		GOCScriptMessageCallback() {}
+		GOCScriptMessageCallback();
 		~GOCScriptMessageCallback() {}
 
 		GOComponent::goc_id_type& GetComponentID() const { static std::string name = "ScriptCallback"; return name; }
 
+		void ReceiveMessage(Msg &msg);
 		void ReceiveObjectMessage(Msg &msg);
 
 		bool HasListener(const Ogre::String &msgType);

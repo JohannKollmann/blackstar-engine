@@ -94,10 +94,10 @@ namespace Ice
 		GameObject* GetParent() { return mParent; }
 
 		///Broadcasts a message to all components.
-		void SendMessage(const Msg &msg);
+		void SendMessage(Msg &msg);
 
 		///Broadcasts a messe too all components without any delay.
-		void SendInstantMessage(const Msg &msg);
+		void SendInstantMessage(Msg &msg);
 
 		///Dispatches all waiting message requests created using SendMessage.
 		void ProcessMessages();
@@ -201,7 +201,9 @@ namespace Ice
 		std::vector<ScriptParam> GetObjectName(Script& caller, std::vector<ScriptParam> &vParams);
 		std::vector<ScriptParam> SendObjectMessage(Script& caller, std::vector<ScriptParam> &vParams);
 		std::vector<ScriptParam> ReceiveObjectMessage(Script& caller, std::vector<ScriptParam> &vParams);
-		std::vector<ScriptParam> IsUsable(Script& caller, std::vector<ScriptParam> &vParams);
+		std::vector<ScriptParam> GetChildObjectByName(Script& caller, std::vector<ScriptParam> &vParams);
+		std::vector<ScriptParam> HasScriptListener(Script& caller, std::vector<ScriptParam> &vParams);
+		std::vector<ScriptParam> IsNpc(Script& caller, std::vector<ScriptParam> &vParams);
 
 		DEFINE_GOLUAMETHOD_H(SetObjectProperty)
 		DEFINE_GOLUAMETHOD_H(GetObjectProperty)
@@ -211,7 +213,9 @@ namespace Ice
 		DEFINE_GOLUAMETHOD_H(GetObjectName)
 		DEFINE_GOLUAMETHOD_H(SendObjectMessage)
 		DEFINE_GOLUAMETHOD_H(ReceiveObjectMessage)
-		DEFINE_GOLUAMETHOD_H(IsUsable)
+		DEFINE_GOLUAMETHOD_H(GetChildObjectByName)
+		DEFINE_GOLUAMETHOD_H(HasScriptListener)
+		DEFINE_GOLUAMETHOD_H(IsNpc)
 
 		//Editor stuff
 		void Freeze(bool freeze);

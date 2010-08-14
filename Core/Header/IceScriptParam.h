@@ -29,6 +29,7 @@ public:
 	std::string getString() const;
 	void getFunction(std::string& strFnName, Script& script) const;
 	
+	ScriptParam(ETypes type);
 	ScriptParam();
 	ScriptParam(int i);
 	ScriptParam(bool b);

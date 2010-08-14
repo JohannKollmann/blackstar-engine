@@ -4,6 +4,7 @@
 #include "Ogre.h"
 #include "NxCooking.h"
 #include <NxMaterial.h> 
+#include <NxConvexMesh.h> 
 
 namespace OgrePhysX
 {
@@ -27,6 +28,20 @@ namespace OgrePhysX
 	private:
 		Ogre::String mOgreResourceGroup;
 
+		struct MeshInfo
+		{
+			unsigned int numVertices;
+			NxArray<NxVec3> vertices;
+
+			NxArray<NxU32> indices;
+			unsigned int numTriangles;
+
+			NxArray<NxMaterialIndex> materialIndices;
+		};
+
+		void getMeshInfo(Ogre::MeshPtr mesh, CookerParams &params, MeshInfo &outInfo);
+		void mergeVertices(MeshInfo &outInfo);
+
 	public:
 		Cooker(void);
 		~Cooker(void);
@@ -45,24 +60,28 @@ namespace OgrePhysX
 		bool hasNxMesh(Ogre::String nxsFile);
 		/*
 		loadNxMeshFromFile
-		Loads a PhysX mesh from a nxs file. Throws an exception if the file is not found in the Ogre resource system.
+		Loads a PhysX triangle mesh from a nxs file. Throws an exception if the file is not found in the Ogre resource system.
 		*/
-		NxTriangleMesh* loadNxMeshFromFile(Ogre::String nxsFile);
+		NxTriangleMesh* loadNxTriangleMeshFromFile(Ogre::String nxsFile);
 
 		/*
-		cookNxMesh
-		cooks an PhysX mesh from an Ogre mesh.
+		cookNxTriangleMesh
+		cooks an PhysX triangle mesh from an Ogre mesh.
 		*/
-		void cookNxMesh(Ogre::MeshPtr mesh, NxStream& outputStream, CookerParams &params = CookerParams());				//Ogre::Vector3 scale = Ogre::Vector3(1,1,1), std::map<Ogre::String, NxMaterialIndex> &materialBindings = std::map<Ogre::String, NxMaterialIndex>());
-		void cookNxMeshToFile(Ogre::MeshPtr mesh, Ogre::String nxsOutputFile, CookerParams &params = CookerParams());	//Ogre::Vector3 scale = Ogre::Vector3(1,1,1), std::map<Ogre::String, NxMaterialIndex> &materialBindings = std::map<Ogre::String, NxMaterialIndex>());
+		void cookNxTriangleMesh(Ogre::MeshPtr mesh, NxStream& outputStream, CookerParams &params = CookerParams());
+		void cookNxTriangleMeshToFile(Ogre::MeshPtr mesh, Ogre::String nxsOutputFile, CookerParams &params = CookerParams());
+
+		void cookNxConvexMesh(Ogre::MeshPtr mesh, NxStream& outputStream, CookerParams &params = CookerParams());
 
 		/*
-		getNxMesh
+		createNxTriangleMesh
 		Cooks an nx mesh from an ogre mesh and returns it, does not save to file.
 		This is faster than getNxMesh(Ogre::MeshPtr, Ogre::String) if the mesh is not cooked yet, otherwise it is much slower.
 		Example use case: This method is useful, if you want to rescale an actor with a triangle mesh shape in realtime
 		*/
-		NxTriangleMesh* getNxMesh(Ogre::MeshPtr mesh, CookerParams &params = CookerParams());	//Ogre::Vector3 scale = Ogre::Vector3(1,1,1), std::map<Ogre::String, NxMaterialIndex> &materialBindings = std::map<Ogre::String, NxMaterialIndex>());
+		NxTriangleMesh* createNxTriangleMesh(Ogre::MeshPtr mesh, CookerParams &params = CookerParams());
+
+		NxConvexMesh* createNxConvexMesh(Ogre::MeshPtr mesh, CookerParams &params = CookerParams());
 
 		//Singleton
 		static Cooker& getSingleton();

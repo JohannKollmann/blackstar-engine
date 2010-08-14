@@ -4,6 +4,7 @@
 #include "IceScriptSystem.h"
 #include "IceGameObject.h"
 #include "IceFollowPathway.h"
+#include "IceDialog.h"
 
 namespace Ice
 {
@@ -149,8 +150,14 @@ namespace Ice
 		AddState(new FollowPathway(this, wp));
 		return out;
 	}
+	std::vector<ScriptParam> GOCAI::Npc_OpenDialog(Script& caller, std::vector<ScriptParam> &vParams)
+	{
+		std::vector<ScriptParam> out;
+		AddState(new Dialog(this));
+		return out;
+	}
 
-	void GOCAI::ReceiveObjectMessage(const Msg &msg)
+	void GOCAI::ReceiveObjectMessage(Msg &msg)
 	{
 		if (msg.type == "CharacterJumpEnded")
 		{

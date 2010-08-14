@@ -93,21 +93,6 @@ namespace OgrePhysX
 		mDesc.shapeFlags |= NX_SF_POINT_CONTACT_FORCE;
 	}
 
-	BaseMeshShape& BaseMeshShape::group(NxCollisionGroup group)
-	{
-		mDesc.group = group;
-		return (*this);
-	}
-	BaseMeshShape& BaseMeshShape::groupsMask(NxGroupsMask mask)
-	{
-		mDesc.groupsMask = mask;
-		return (*this);
-	}
-	BaseMeshShape& BaseMeshShape::material(NxMaterialIndex material)
-	{
-		mDesc.materialIndex = material;
-		return (*this);
-	}
 	CookedMeshShape::CookedMeshShape(NxTriangleMesh *mesh)
 	{
 		mDesc.meshData = mesh;
@@ -116,7 +101,7 @@ namespace OgrePhysX
 	}
 	CookedMeshShape::CookedMeshShape(Ogre::String nxsFile)
 	{
-		mDesc.meshData = Cooker::getSingleton().loadNxMeshFromFile(nxsFile);
+		mDesc.meshData = Cooker::getSingleton().loadNxTriangleMeshFromFile(nxsFile);
 		mDesc.shapeFlags |= NX_SF_FEATURE_INDICES;
 	}
 
@@ -128,7 +113,7 @@ namespace OgrePhysX
 	}
 	NxShapeDesc* RTMeshShape::getDesc()
 	{
-		mDesc.meshData = Cooker::getSingleton().getNxMesh(mOgreMesh, mCookerParams);
+		mDesc.meshData = Cooker::getSingleton().createNxTriangleMesh(mOgreMesh, mCookerParams);
 		return &mDesc;
 	}
 	RTMeshShape& RTMeshShape::scale(Ogre::Vector3 scale)
@@ -146,6 +131,22 @@ namespace OgrePhysX
 	{
 		mCookerParams.backfaces(addBackfaces);
 		return (*this);
+	}
+
+	RTConvexMeshShape::RTConvexMeshShape(Ogre::MeshPtr mesh)
+	{ 
+		mOgreMesh = mesh;
+		mDesc.shapeFlags |= NX_SF_POINT_CONTACT_FORCE;
+	}
+	RTConvexMeshShape& RTConvexMeshShape::scale(Ogre::Vector3 scale)
+	{
+		mCookerParams.scale(scale);
+		return (*this);
+	}
+	NxShapeDesc* RTConvexMeshShape::getDesc()
+	{
+		mDesc.meshData = Cooker::getSingleton().createNxConvexMesh(mOgreMesh, mCookerParams);
+		return &mDesc;
 	}
 
 }

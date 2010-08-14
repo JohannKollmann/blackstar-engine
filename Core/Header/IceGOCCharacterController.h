@@ -95,7 +95,7 @@ namespace Ice
 
 		NxController* GetNxController() { return mCharacterController; }
 
-		void ReceiveObjectMessage(const Msg &msg);
+		void ReceiveObjectMessage(Msg &msg);
 		void ReceiveMessage(Msg &msg);
 
 		void Freeze(bool freeze);

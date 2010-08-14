@@ -3,16 +3,27 @@
 
 namespace Ice
 {
-	GOCScript::GOCScript()
+	void GOCScript::OnSetParameters()
+	{
+		if (mOwnerGO) InitScript(mScriptFileName);
+	}
+
+	void GOCScript::SetOwner(GameObject *go)
+	{
+		mOwnerGO = go;
+		if (mScriptFileName != "") InitScript(mScriptFileName);
+	}
+
+
+	GOCScriptMessageCallback::GOCScriptMessageCallback()
 	{
 		MessageSystem::Instance().JoinNewsgroup(this, "REPARSE_SCRIPTS");
 	}
 
-	void GOCScript::OnReceiveMessage(Msg &msg)
+	void GOCScriptMessageCallback::ReceiveMessage(Msg &msg)
 	{
 		if (msg.type == "REPARSE_SCRIPTS") mObjectMsgCallbacks.clear();
 	}
-
 
 	void GOCScriptMessageCallback::ReceiveObjectMessage(Msg &msg)
 	{

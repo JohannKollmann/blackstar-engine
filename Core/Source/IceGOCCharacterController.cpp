@@ -123,7 +123,7 @@ namespace Ice
 		}
 	}
 
-	void GOCCharacterController::ReceiveObjectMessage(const Msg &msg)
+	void GOCCharacterController::ReceiveObjectMessage(Msg &msg)
 	{
 		if (msg.type == "UpdateCharacterMovementState")
 		{

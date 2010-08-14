@@ -22,7 +22,7 @@ namespace Ice
 		virtual void AttachCamera(Ogre::Camera *camera);
 		virtual void DetachCamera();
 
-		virtual void ReceiveObjectMessage(const Msg &msg);
+		virtual void ReceiveObjectMessage(Msg &msg);
 
 		goc_id_family& GetFamilyID() const { static std::string name = "Camera"; return name; }
 		virtual GOComponent::goc_id_type& GetComponentID() const { static std::string name = "SimpleCamera"; return name; }

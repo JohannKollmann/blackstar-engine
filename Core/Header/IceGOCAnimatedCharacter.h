@@ -121,7 +121,7 @@ public:
 	GOComponent::goc_id_type& GetComponentID() const { static std::string name = "Skeleton"; return name; }
 
 	void ReceiveMessage(Msg &msg);
-	void ReceiveObjectMessage(const Msg &msg);
+	void ReceiveObjectMessage(Msg &msg);
 
 	void SetOwner(GameObject *go);
 	void SetParameters(DataMap *parameters);
