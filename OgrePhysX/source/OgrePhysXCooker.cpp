@@ -220,7 +220,7 @@ namespace OgrePhysX
 
 		}
 
-		mergeVertices(outInfo);
+		//mergeVertices(outInfo);
 	}
 
 	void Cooker::mergeVertices(MeshInfo &meshInfo)

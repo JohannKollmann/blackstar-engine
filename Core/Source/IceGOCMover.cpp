@@ -193,11 +193,11 @@ namespace Ice
 				mfLastPos+=time;
 				if(mfLastPos>=(mStaticMode ? mKeyTiming[mKeyTiming.size()-1] : mSpline.GetLength()))
 				{
-					Ice::Msg msg; msg.type = "MOVER_END";
-					mOwnerGO->SendInstantMessage(msg);
+					SetKeyIgnoreParent(false);
 					mMoving = false;
 					mfLastPos=0;
-					SetKeyIgnoreParent(false);
+					Ice::Msg msg; msg.type = "MOVER_END";
+					mOwnerGO->SendInstantMessage(msg);
 				}
 			}
 		}
