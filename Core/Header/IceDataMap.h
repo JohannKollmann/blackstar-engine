@@ -31,7 +31,8 @@ namespace Ice
 			FLOAT = 2,
 			STRING = 3,
 			VECTOR3 = 4,
-			QUATERNION = 5
+			QUATERNION = 5,
+			ENUM = 6
 		};
 
 		///Retrieves the data type.
@@ -129,14 +130,19 @@ namespace Ice
 		Ogre::Quaternion GetOgreQuat(const Ogre::String &keyname)	const;
 		Ogre::String GetOgreString(const Ogre::String &keyname)		const;
 
-		class Enum
+		class DllExport Enum
 		{
 		public:
-			Ogre::String toString();
+			Ogre::String toString() const;
 			void fromString(Ogre::String coded_enum);
-			static bool isEnum(Ogre::String coded_enum);
 			std::vector<Ogre::String> choices;
-			int selection;
+			unsigned int selection;
+
+			friend DllExport std::ostream& operator<<(std::ostream& o, const Enum &e)
+			{
+				o << e.toString();
+				return o;
+			}
 		};
 		DataMap::Enum GetEnum(const Ogre::String &keyname)			const;
 
@@ -178,7 +184,7 @@ namespace Ice
 		void AddOgreCol(const Ogre::String &keyname, const Ogre::ColourValue &val);
 		void AddOgreQuat(const Ogre::String &keyname, const Ogre::Quaternion &quat);
 		void AddOgreString(const Ogre::String &keyname, const Ogre::String &text);
-		void AddEnum(const Ogre::String &keyname, std::vector<Ogre::String> choices, int selection = 0);
+		void AddEnum(const Ogre::String &keyname, std::vector<Ogre::String> choices, unsigned int selection = 0);
 
 		//Load Save methods
 		void Save(LoadSave::SaveSystem& myManager);

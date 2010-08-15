@@ -25,6 +25,7 @@ namespace Ice
 		mActor = nullptr;
 		mRenderable = nullptr;
 		mOwnerGO = nullptr;
+		mIsKinematic = false;
 	}
 
 	GOCRigidBody::~GOCRigidBody(void)
@@ -78,6 +79,12 @@ namespace Ice
 				mRenderable,
 				OgrePhysX::CapsuleShape(capsule_radius * 0.5f, cubeShapeSize.y * 0.5f + offset).density(mDensity).group(CollisionGroups::DEFAULT).material(nxID));
 		}
+		else if (mShapeType == Shapes::SHAPE_CONVEX)
+		{
+			mActor = Main::Instance().GetPhysXScene()->createRenderedActor(
+				mRenderable,
+				OgrePhysX::RTConvexMeshShape(entity->getMesh()).scale(scale).density(mDensity).group(CollisionGroups::DEFAULT).material(nxID));
+		}
 		else		//Default: Box
 		{
 			mActor = Main::Instance().GetPhysXScene()->createRenderedActor(
@@ -86,6 +93,7 @@ namespace Ice
 		}
 		mActor->getNxActor()->userData = mOwnerGO;
 		mActor->getNxActor()->setGroup(CollisionGroups::DEFAULT);
+		if (mIsKinematic) mActor->getNxActor()->raiseBodyFlag(NxBodyFlag::NX_BF_KINEMATIC);
 		Main::Instance().GetOgreSceneMgr()->destroyEntity(entity);
 	}
 
@@ -143,6 +151,7 @@ namespace Ice
 		scale = parameters->GetOgreVec3("Scale");
 		mDensity = parameters->GetFloat("Density");
 		mShapeType = parameters->GetEnum("ShapeType").selection;
+		mIsKinematic = parameters->GetValue<bool>("Kinematic", false);
 		if (mOwnerGO) Create(mCollisionMeshName, mDensity, mShapeType, scale);
 	}
 	void GOCRigidBody::GetParameters(DataMap *parameters)
@@ -153,6 +162,7 @@ namespace Ice
 		std::vector<Ogre::String> shape_types;
 		shape_types.push_back("Box"); shape_types.push_back("Sphere"); shape_types.push_back("Convex"); shape_types.push_back("NXS"); shape_types.push_back("Capsule");
 		parameters->AddEnum("ShapeType", shape_types, mShapeType);
+		parameters->AddBool("Kinematic", mIsKinematic);
 	}
 	void GOCRigidBody::GetDefaultParameters(DataMap *parameters)
 	{
@@ -162,6 +172,7 @@ namespace Ice
 		std::vector<Ogre::String> shape_types;
 		shape_types.push_back("Box"); shape_types.push_back("Sphere"); shape_types.push_back("Convex"); shape_types.push_back("NXS"); shape_types.push_back("Capsule");
 		parameters->AddEnum("ShapeType", shape_types, 0);
+		parameters->AddBool("Kinematic", false);
 	}
 
 	void GOCRigidBody::Save(LoadSave::SaveSystem& mgr)

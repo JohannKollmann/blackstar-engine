@@ -55,6 +55,7 @@ namespace Ice
 		Ogre::String mMaterialName;
 		float mDensity;
 		int mShapeType;
+		bool mIsKinematic;
 
 		void _clear();
 
