@@ -35,6 +35,19 @@ Ogre::String wxEditIceDataMap::SectionToDataMap(wxPropertyGridIterator &it, Ice:
 		{
 			data->AddOgreString(key, Ogre::String(p->GetValue().GetString().c_str()));
 		}
+		if (prop_type == Ice::GenericProperty::PropertyTypes::ENUM)
+		{
+			wxEnumProperty *enumProp = dynamic_cast<wxEnumProperty*>(p);
+			IceAssert(enumProp);
+			wxPGChoices choices = enumProp->GetChoices();
+			Ice::DataMap::Enum enu;
+			for (unsigned int ci = 0; ci < choices.GetCount(); ci++)
+			{
+				enu.choices.push_back(choices.Item(ci).GetText().c_str());
+			}
+			enu.selection = enumProp->GetCurrentChoice()->GetValue();
+			data->AddEnum(key, enu.choices, enu.selection);
+		}
 		if (prop_type == Ice::GenericProperty::PropertyTypes::VECTOR3)
 		{
 			if (counter == 3)
@@ -141,15 +154,15 @@ void wxEditIceDataMap::AddDataMapSection(Ogre::String name, Ice::DataMap &map, b
 		if (prop_type == Ice::GenericProperty::PropertyTypes::STRING)
 		{
 			Ogre::String str = entry.data.Get<Ogre::String>();
-			if (Ice::DataMap::Enum::isEnum(str))
-			{
-				Ice::DataMap::Enum enu; enu.fromString(str);
-				wxPGChoices choices;
-				for (int choiceIter = 0; choiceIter < enu.choices.size(); choiceIter++)
-					choices.Add(wxT(enu.choices[choiceIter].c_str()), choiceIter);
-				new wxEnumProperty(wxT(key.c_str()), wxT(internname.c_str()), choices);
-			}
-			else mPropGrid->AppendIn(csprop, new wxStringProperty(wxT(key.c_str()), wxT(internname.c_str()), wxT(str.c_str())) );
+			mPropGrid->AppendIn(csprop, new wxStringProperty(wxT(key.c_str()), wxT(internname.c_str()), wxT(str.c_str())) );
+		}
+		if (prop_type == Ice::GenericProperty::PropertyTypes::ENUM)
+		{
+			Ice::DataMap::Enum enu = entry.data.Get<Ice::DataMap::Enum>();
+			wxPGChoices choices;
+			for (unsigned int choiceIter = 0; choiceIter < enu.choices.size(); choiceIter++)
+				choices.Add(wxT(enu.choices[choiceIter].c_str()), choiceIter);
+			mPropGrid->AppendIn(csprop, new wxEnumProperty(wxT(key.c_str()), wxT(internname.c_str()), choices, enu.selection));
 		}
 	}
 	csprop->SetExpanded(expand);

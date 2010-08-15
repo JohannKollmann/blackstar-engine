@@ -13,6 +13,7 @@ namespace Ice
 		if (mData.getType() == typeid(Ogre::String)) return PropertyTypes::STRING;
 		if (mData.getType() == typeid(Ogre::Vector3)) return PropertyTypes::VECTOR3;
 		if (mData.getType() == typeid(Ogre::Quaternion)) return PropertyTypes::QUATERNION;
+		if (mData.getType() == typeid(DataMap::Enum)) return PropertyTypes::ENUM;
 		
 		IceAssert(false);
 		return PropertyTypes::INT;
@@ -25,6 +26,7 @@ namespace Ice
 		if (mData.getType() == typeid(Ogre::String)) { Ogre::String src = Ogre::any_cast<Ogre::String>(mData); *((Ogre::String*)target) = src; return PropertyTypes::STRING; }
 		if (mData.getType() == typeid(Ogre::Vector3)) { Ogre::Vector3 src = Ogre::any_cast<Ogre::Vector3>(mData); *((Ogre::Vector3*)target) = src;  return PropertyTypes::VECTOR3; }
 		if (mData.getType() == typeid(Ogre::Quaternion)) { Ogre::Quaternion src = Ogre::any_cast<Ogre::Quaternion>(mData); *((Ogre::Quaternion*)target) = src; return PropertyTypes::QUATERNION; }
+		if (mData.getType() == typeid(DataMap::Enum)) { DataMap::Enum src = Ogre::any_cast<DataMap::Enum>(mData); *((DataMap::Enum*)target) = src; return PropertyTypes::ENUM; }
 		
 		IceAssert(false);
 		return PropertyTypes::INT;
@@ -46,6 +48,8 @@ namespace Ice
 			Set<Ogre::Vector3>(*((Ogre::Vector3*)data)); break;
 		case PropertyTypes::QUATERNION:
 			Set<Ogre::Quaternion>(*((Ogre::Quaternion*)data)); break;
+		case PropertyTypes::ENUM:
+			Set<DataMap::Enum>(*((DataMap::Enum*)data)); break;
 		}
 	}
 
@@ -54,7 +58,7 @@ namespace Ice
 		int type = getType();
 		myManager.SaveAtom("int", &type, "Type");
 
-		int iData; bool bData; float fData; Ogre::String sData; Ogre::Vector3 vData; Ogre::Quaternion qData;
+		int iData; bool bData; float fData; Ogre::String sData; Ogre::Vector3 vData; Ogre::Quaternion qData; DataMap::Enum eData;
 
 		switch (type)
 		{
@@ -82,6 +86,10 @@ namespace Ice
 			qData = Ogre::any_cast<Ogre::Quaternion>(mData);
 			myManager.SaveAtom("Ogre::Quaternion", (void*)&qData, "Data");
 			break;
+		case PropertyTypes::ENUM:
+			eData = Ogre::any_cast<DataMap::Enum>(mData);
+			myManager.SaveAtom("Ogre::String", (void*)&eData.toString(), "Data");
+			break;
 		}
 	}
 
@@ -95,6 +103,7 @@ namespace Ice
 		Ogre::String sVal;
 		Ogre::Vector3 vVal;
 		Ogre::Quaternion qVal;
+		DataMap::Enum eData;
 		switch (type)
 		{
 		case PropertyTypes::INT:
@@ -120,6 +129,11 @@ namespace Ice
 		case PropertyTypes::QUATERNION:
 			mgr.LoadAtom("Ogre::Quaternion", &qVal);
 			mData = qVal;
+			break;
+		case PropertyTypes::ENUM:
+			mgr.LoadAtom("Ogre::String", &sVal);
+			eData.fromString(sVal);
+			mData = eData;
 			break;
 		}
 	}
@@ -148,6 +162,9 @@ namespace Ice
 			params.push_back(ScriptParam(Get<Ogre::Quaternion>().x));
 			params.push_back(ScriptParam(Get<Ogre::Quaternion>().y));
 			params.push_back(ScriptParam(Get<Ogre::Quaternion>().z));
+			break;
+		case PropertyTypes::ENUM:
+			params.push_back(ScriptParam(static_cast<int>(Get<DataMap::Enum>().selection)));
 			break;
 		}
 	}
@@ -215,32 +232,24 @@ namespace Ice
 
 	DataMap::Enum DataMap::GetEnum(const Ogre::String &keyname)	const
 	{
-		Ogre::String coded_enum = GetOgreString(keyname);
-		Enum e; e.fromString(coded_enum);
-		return e;
+		return GetValue<Enum>(keyname);
 	}
 
-	Ogre::String DataMap::Enum::toString()
+	Ogre::String DataMap::Enum::toString() const
 	{
-		Ogre::String coded_enum = "__enum " + Ogre::StringConverter::toString(selection) + " ";
-		for (auto i = choices.begin(); i != choices.end(); i++) coded_enum += (*i + " ");
+		Ogre::String coded_enum = Ogre::StringConverter::toString(selection) + " ";
+		for (std::vector<Ogre::String>::const_iterator i = choices.begin(); i != choices.end(); i++) coded_enum += (*i + " ");
 		return coded_enum;
 	}
 	void DataMap::Enum::fromString(Ogre::String coded_enum)
 	{
-		IceAssert(isEnum(coded_enum)); 
-		coded_enum = coded_enum.substr(6, coded_enum.size());
 		selection = Ogre::StringConverter::parseInt(coded_enum.substr(0, 1));
-		coded_enum = coded_enum.substr(1, coded_enum.size());
+		coded_enum = coded_enum.substr(2, coded_enum.size());
 		while (!coded_enum.empty())
 		{
 			choices.push_back(coded_enum.substr(0, coded_enum.find(" ")));
-			coded_enum = coded_enum.substr(coded_enum.find(" "), coded_enum.size());
+			coded_enum = coded_enum.substr(coded_enum.find(" ")+1, coded_enum.size());
 		}
-	}
-	bool DataMap::Enum::isEnum(Ogre::String coded_enum)
-	{
-		return (coded_enum.find("__enum") == 0);
 	}
 
 
@@ -280,13 +289,14 @@ namespace Ice
 		AddItem<Ogre::String>(keyname, text);
 	}
 
-	void DataMap::AddEnum(const Ogre::String &keyname, std::vector<Ogre::String> choices, int selection)
+	void DataMap::AddEnum(const Ogre::String &keyname, std::vector<Ogre::String> choices, unsigned int selection)
 	{
 		IceAssert(choices.size() > selection)
 
 		//hack: code it as Ogre string
 		Enum e; e.choices = choices; e.selection = selection;
-		AddOgreString(keyname, e.toString());
+		AddItem<Enum>(keyname, e);
+		//AddOgreString(keyname, e.toString());
 	}
 
 	bool DataMap::HasNext()

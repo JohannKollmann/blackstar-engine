@@ -287,7 +287,7 @@ namespace OgrePhysX
 	NxConvexMesh* Cooker::createNxConvexMesh(Ogre::MeshPtr mesh, CookerParams &params)	
 	{
 		NXU::MemoryWriteBuffer stream;
-		cookNxTriangleMesh(mesh, stream, params);
+		cookNxConvexMesh(mesh, stream, params);
 		return World::getSingleton().getSDK()->createConvexMesh(NXU::MemoryReadBuffer(stream.data));
 	}
 
