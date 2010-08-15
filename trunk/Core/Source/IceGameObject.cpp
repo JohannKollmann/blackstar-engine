@@ -298,7 +298,11 @@ namespace Ice
 
 	void GameObject::OnParentChanged()
 	{
-		if (mIgnoreParent) return;
+		if (mIgnoreParent)
+		{
+			UpdateLocalTransform();
+			return;
+		}
 
 		mUpdatingFromParent = true;
 		mOrientation = mParent->GetGlobalOrientation() * mLocalOrientation;

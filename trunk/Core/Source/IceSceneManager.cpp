@@ -74,8 +74,7 @@ namespace Ice
 
 	unsigned int SceneManager::RequestID()
 	{
-		mNextID++;
-		return (mNextID-1);
+		return mNextID++;
 	}
 
 	Ogre::String SceneManager::RequestIDStr()
@@ -382,7 +381,6 @@ namespace Ice
 		MessageSystem::Instance().SendInstantMessage(msg);
 
 		ClearGameObjects();
-		mNextID = 0;
 
 		LoadSave::LoadSystem *ls=LoadSave::LoadSave::Instance().LoadFile(levelfile);
 
