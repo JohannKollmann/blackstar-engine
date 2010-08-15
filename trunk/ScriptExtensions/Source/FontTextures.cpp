@@ -173,7 +173,7 @@ FontTextures::CreateTextTexture(std::string strText, int iMaxWidth, int iMaxHeig
 			//check if there must be a line break for word wrapping
 			int iNextWordEnd=iCurrLinePos;
 			int iTempChar=iChar+1;
-			while(iTempChar < strText.size() && std::isalnum(UNSIGN_CHAR(strText[iTempChar])))
+			while(iTempChar < (int)strText.size() && std::isalnum(UNSIGN_CHAR(strText[iTempChar])))
 			{
 				iNextWordEnd+=m_aaiFontSpacings[UNSIGN_CHAR(strText[iTempChar])][1]-m_aaiFontSpacings[UNSIGN_CHAR(strText[iTempChar])][0];
 				iTempChar++;
