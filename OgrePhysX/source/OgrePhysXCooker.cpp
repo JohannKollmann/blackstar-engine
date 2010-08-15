@@ -225,7 +225,53 @@ namespace OgrePhysX
 
 	void Cooker::mergeVertices(MeshInfo &meshInfo)
 	{
-		/* insert merge code here */
+		//copy vertices into new array and check all already copied vertices for identity
+		const float fMergeDistance=1e-6f;
+
+		//NxArray<NxVec3> aCopiedVertices;
+		std::vector<NxVec3> aCopiedVertices;
+		aCopiedVertices.resize(meshInfo.numVertices);
+		int nVerticesCopied=0;
+		std::map<int, int> mReplacedIndices;
+		int nReplacedIndices=0;
+		int iVertex=0;
+		for(;iVertex<(int)meshInfo.numVertices; iVertex++)
+		{
+			bool bMerged=false;
+			for(int iCopiedVertex=0; iCopiedVertex<nVerticesCopied; iCopiedVertex++)
+			{
+				if(aCopiedVertices[iCopiedVertex].x>meshInfo.vertices[iVertex].x-fMergeDistance &&
+					aCopiedVertices[iCopiedVertex].x<meshInfo.vertices[iVertex].x+fMergeDistance &&
+					aCopiedVertices[iCopiedVertex].y>meshInfo.vertices[iVertex].y-fMergeDistance &&
+					aCopiedVertices[iCopiedVertex].y<meshInfo.vertices[iVertex].y+fMergeDistance &&
+					aCopiedVertices[iCopiedVertex].z>meshInfo.vertices[iVertex].z-fMergeDistance &&
+					aCopiedVertices[iCopiedVertex].z<meshInfo.vertices[iVertex].z+fMergeDistance)
+				{
+					//the vertex is inside the merge volume. we won't copy it
+					mReplacedIndices[iVertex]=iCopiedVertex;
+					bMerged=true;
+				}
+			}
+			if(!bMerged)
+			{
+				//could not merge. just copy
+				aCopiedVertices[nVerticesCopied]=meshInfo.vertices[iVertex];
+				nVerticesCopied++;
+			}
+		}
+		//now look up the replaced indices and change them
+		std::map<int, int>::const_iterator it;
+		for(int iIndex=0; iIndex<(int)meshInfo.numTriangles*3; iIndex++)
+		{
+			if((it=mReplacedIndices.find(meshInfo.indices[iIndex]))!=mReplacedIndices.end())
+				meshInfo.indices[iIndex]=it->second;
+		}
+		meshInfo.numVertices=nVerticesCopied;
+		/*aCopiedVertices.resize(nVerticesCopied);
+		meshInfo.vertices=aCopiedVertices;*/
+		meshInfo.vertices.resize(nVerticesCopied);
+		for(iVertex=0; iVertex<nVerticesCopied; iVertex++)
+			meshInfo.vertices[iVertex]=aCopiedVertices[iVertex];
 	}
 
 
