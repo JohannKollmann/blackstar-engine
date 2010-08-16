@@ -74,6 +74,7 @@ namespace Ice
 		bool mIsClosed;
 		bool mStaticMode;
 		float mfLastPos;
+		int mLastKeyIndex;
 		Spline mSpline;
 		std::vector<double> mKeyTiming;
 		//Spline mTimeSpline;

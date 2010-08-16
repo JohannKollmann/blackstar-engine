@@ -94,7 +94,7 @@ void GOCPlayerInput::ReceiveMessage(Msg &msg)
 
 	if (msg.type == "MOUSE_MOVE")
 	{
-		mOwnerGO->Rotate(Ogre::Vector3(0,1,0), Ogre::Radian((Ogre::Degree(-msg.params.GetInt("ROT_X_REL") * 0.2f))));
+		mOwnerGO->Rotate(Ogre::Vector3(0,1,0), Ogre::Radian((Ogre::Degree(-msg.params.GetInt("ROT_X_REL") * 0.25f))));
 	}
 	if (msg.type == "UPDATE_PER_FRAME")
 	{
