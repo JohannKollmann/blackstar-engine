@@ -224,11 +224,52 @@ namespace OgrePhysX
 
 	struct OctreeNode
 	{
-		OctreeNode::OctreeNode(){vPos.x=0.0f;vPos.y=0.0f;vPos.z=0.0f;
+		OctreeNode(){vPos.x=0.0f;vPos.y=0.0f;vPos.z=0.0f;
 			aSubNodes[0]=0;aSubNodes[1]=0;aSubNodes[2]=0;aSubNodes[3]=0;aSubNodes[4]=0;aSubNodes[5]=0;aSubNodes[6]=0;aSubNodes[7]=0;}
 		NxVec3 vPos;
 		OctreeNode* aSubNodes[8];
 		std::list<int> liIndices;
+	};
+	
+	struct STri
+	{
+		STri(){i1=-1;i2=-1;i3=-1;}
+		STri(int iIndex1, int iIndex2, int iIndex3, NxMaterialIndex materialIndex)
+		{
+			//rotate indices
+			if(iIndex2<iIndex1)
+			{
+				if(iIndex3<iIndex2)
+				{//index 3 is the smallest
+					i1=iIndex3;
+					i2=iIndex1;
+					i3=iIndex2;
+				}
+				else
+				{
+					i1=iIndex2;
+					i2=iIndex3;
+					i3=iIndex1;
+				}
+			}
+			else
+			{
+				i1=iIndex1;
+				i2=iIndex2;
+				i3=iIndex3;
+			}
+		}
+		bool operator !=(STri& op){if(op.i1!=i1 || op.i2!=i2 || op.i3!=i3) return true; return false;}
+		bool operator <(STri& op)
+		{
+			if(op.i1!=i1)
+				return i1<op.i1;
+			if(op.i2!=i2)
+				return i2<op.i2;
+			return i3<op.i3;
+		}
+		int i1,i2,i3;
+		NxMaterialIndex mat;
 	};
 
 	//returns current vertex count
@@ -240,7 +281,10 @@ namespace OgrePhysX
 		aNewVertices[iVertexCount++]=pNode->vPos;
 		for(int iSubNode=0; iSubNode<8; iSubNode++)
 			if(pNode->aSubNodes[iSubNode])
+			{
 				iVertexCount=ExtractOctree(pNode->aSubNodes[iSubNode], iVertexCount, aiIndexTable, aNewVertices);
+				delete pNode->aSubNodes[iSubNode];
+			}
 		return iVertexCount;
 	}
 
@@ -251,7 +295,7 @@ namespace OgrePhysX
 
 	void Cooker::mergeVertices(MeshInfo &meshInfo)
 	{
-		const float fMergeDist=1e-4f;
+		const float fMergeDist=1e-3f;
 
 		OctreeNode root;
 		root.vPos=meshInfo.vertices[0];
@@ -296,6 +340,42 @@ namespace OgrePhysX
 		
 		delete aiIndexTable;
 		delete aNewVertices;
+		
+		//search for duplicated and degenerate tris
+		std::vector<STri> vTris;
+		vTris.resize(meshInfo.numTriangles);
+		int nTrisCopied=0;
+		int iTri=0;
+		for(; iTri<(int)meshInfo.numTriangles; iTri++)
+		{//check if this tri is degenerate
+			int index1=meshInfo.indices[iTri*3+0],
+				index2=meshInfo.indices[iTri*3+1],
+				index3=meshInfo.indices[iTri*3+2];
+			if(index1==index2 || index3==index2 || index1==index3)
+				//degenerate tri: two or more vertices are the same
+				continue;
+			vTris[nTrisCopied]=STri(index1,index2,index3, meshInfo.materialIndices[iTri]);
+			nTrisCopied++;
+		}
+		vTris.resize(nTrisCopied);
+		std::sort(vTris.begin(), vTris.end());//sort tris to find duplicates easily
+		nTrisCopied=0;
+		STri lastTri;
+		for(iTri=0; iTri<(int)vTris.size(); iTri++)
+		{
+			if(lastTri!=vTris[iTri])
+			{
+				meshInfo.indices[nTrisCopied*3+0]=vTris[iTri].i1;
+				meshInfo.indices[nTrisCopied*3+1]=vTris[iTri].i2;
+				meshInfo.indices[nTrisCopied*3+2]=vTris[iTri].i3;
+				meshInfo.materialIndices[nTrisCopied]=vTris[iTri].mat;
+				lastTri=vTris[iTri];
+				nTrisCopied++;
+			}
+		}
+		meshInfo.materialIndices.resize(nTrisCopied);
+		meshInfo.indices.resize(nTrisCopied*3);
+		meshInfo.numTriangles=nTrisCopied;
 	}
 
 
