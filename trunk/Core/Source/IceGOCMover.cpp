@@ -63,6 +63,7 @@ namespace Ice
 		mNormalLookAtObject = nullptr;
 		mLookAtLine = nullptr;
 		mNormalLookAtLine = nullptr;
+		mLastKeyIndex = -1;
 	}
 	void GOCMover::Init()
 	{
@@ -183,7 +184,17 @@ namespace Ice
 				}
 				else
 				{
-					SetOwnerPosition(mSpline.Sample(mfLastPos));
+					int keyIndex = 0;
+					SetOwnerPosition(mSpline.Sample(mfLastPos, &keyIndex));
+					keyIndex--;
+					if (keyIndex != mLastKeyIndex)
+					{
+						Ice::Msg msg; msg.type = "MOVER_KEY";
+						IceAssert(keyIndex < mAnimKeys.size());
+						msg.params.AddOgreString("Keyname", mAnimKeys[keyIndex]->GetName());
+						mOwnerGO->SendInstantMessage(msg);
+						mLastKeyIndex = keyIndex;
+					}
 				}
 
 				if (!mLookAtObject)		//look towards current target direction
@@ -200,6 +211,7 @@ namespace Ice
 					mfLastPos=0;
 					Ice::Msg msg; msg.type = "MOVER_END";
 					mOwnerGO->SendInstantMessage(msg);
+					mLastKeyIndex = -1;
 				}
 			}
 		}
