@@ -114,6 +114,7 @@ namespace Ice
 		void SaveLevel(Ogre::String levelfile);
 
 		void Init();
+		void PostInit(); //Called after plugins are installed and init script is called
 		void Reset();
 		void Shutdown();
 

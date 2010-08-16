@@ -14,22 +14,20 @@ namespace Ice
 bool Editor::OnUpdate(float time, float time_total)
 {
 	Msg msg;
-	msg.type = "START_PHYSICS";
 	msg.params.AddFloat("TIME", time);
 	msg.params.AddFloat("TIME_TOTAL", time_total);
-	MessageSystem::Instance().SendInstantMessage(msg);
 
 	if (MainLoop::Instance().GetRunPhysics())
+	{
+		msg.type = "START_PHYSICS";
+		MessageSystem::Instance().SendInstantMessage(msg);
 		OgrePhysX::World::getSingleton().startSimulate(time);		//non-blocking
+	}
 
 	//Input
 	Main::Instance().GetInputManager()->Update();
 	//Sound
 	Main::Instance().GetSoundManager()->update();
-
-	//Game stuff
-	msg.type = "UPDATE_PER_FRAME";
-	MessageSystem::Instance().SendInstantMessage(msg);
 
 	if (MainLoop::Instance().GetRunPhysics())
 	{
@@ -38,6 +36,10 @@ bool Editor::OnUpdate(float time, float time_total)
 		msg.type = "END_PHYSICS";
 		MessageSystem::Instance().SendInstantMessage(msg);
 	}
+
+	//Game stuff
+	msg.type = "UPDATE_PER_FRAME";
+	MessageSystem::Instance().SendInstantMessage(msg);
 
 	//Process all messages
 	MessageSystem::Instance().Update();

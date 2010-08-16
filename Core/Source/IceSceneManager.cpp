@@ -301,8 +301,11 @@ namespace Ice
 
 		ScriptSystem::GetInstance().ShareCFunction("GetFocusObject", &SceneManager::Lua_GetFocusObject);
 
-		mSoundMaterialTable.InitBindingsFromCfg("OgreMaterialSoundBindings.cfg");
+	}
 
+	void SceneManager::PostInit()
+	{
+		mSoundMaterialTable.InitBindingsFromCfg("OgreMaterialSoundBindings.cfg");
 	}
 
 	void SceneManager::ClearGameObjects()
