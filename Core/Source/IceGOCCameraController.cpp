@@ -101,6 +101,14 @@ namespace Ice
 		mCamera = nullptr;
 	}	
 
+	void GOCCameraController::SetOwner(GameObject *go)
+	{
+		mOwnerGO = go;
+		CreateNodes();
+		UpdatePosition(go->GetGlobalPosition());
+		UpdateOrientation(go->GetGlobalOrientation());
+	}
+
 	void GOCCameraController::ReceiveMessage(Msg &msg)
 	{
 		static double sfAbsRefPitch=0.0;

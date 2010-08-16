@@ -31,7 +31,7 @@ namespace Ice
 		static LoadSave::Saveable* NewInstance() { return new GOCSimpleCameraController; };
 
 		GOCEditorInterface* New() { return new GOCSimpleCameraController(); }
-		Ogre::String GetLabel() { return "Camera"; }
+		Ogre::String GetLabel() { return "Simple Camera"; }
 	};
 	
 	class DllExport GOCCameraController : public GOCSimpleCameraController, public MessageListener
@@ -57,6 +57,8 @@ namespace Ice
 		void AttachCamera(Ogre::Camera *camera);
 		void DetachCamera();
 
+		void SetOwner(GameObject *go);
+
 		void ReceiveMessage(Msg &msg);
 
 		void UpdateOrientation(Ogre::Quaternion orientation);
@@ -67,7 +69,7 @@ namespace Ice
 		static LoadSave::Saveable* NewInstance() { return new GOCCameraController; };
 
 		//Editor
-		void SetParameters(DataMap *parameters) { CreateNodes(); };
+		void SetParameters(DataMap *parameters) { };
 		void GetDefaultParameters(DataMap *parameters) {};
 		GOCEditorInterface* New() { return new GOCCameraController(); }
 		Ogre::String GetLabel() { return "Camera Contoller"; }
