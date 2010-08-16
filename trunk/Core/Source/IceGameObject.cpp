@@ -268,7 +268,7 @@ namespace Ice
 			mLocalOrientation = mParent->GetGlobalOrientation().Inverse() * orientation;
 		}
 		UpdateChildren(updateChildren);
-		mTransformingChildren = true;
+		mTransformingChildren = false;
 	}
 
 	void GameObject::SetGlobalScale(Ogre::Vector3 scale)

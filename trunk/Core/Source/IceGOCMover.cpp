@@ -106,7 +106,9 @@ namespace Ice
 		mgr.LoadAtom("Ogre::String", &mKeyCallback);
 		mgr.LoadAtom("std::vector<Saveable*>", &mAnimKeys);
 		mLookAtObject=(Ice::GameObject*)mgr.LoadObject();
+		if (mLookAtObject) SetLookAtObject(mLookAtObject);
 		mNormalLookAtObject=(Ice::GameObject*)mgr.LoadObject();
+		if (mNormalLookAtObject) SetNormalLookAtObject(mNormalLookAtObject);
 	}
 
 	void GOCMover::UpdatePosition(Ogre::Vector3 position)
@@ -134,7 +136,7 @@ namespace Ice
 
 	void GOCMover::ReceiveMessage( Msg &msg )
 	{
-		if (msg.type == "UPDATE_PER_FRAME")
+		if (msg.type == "UPDATE_PER_FRAME" && mOwnerGO)
 		{
 			if (mLookAtLine) _updateLookAtLine();
 			if (mNormalLookAtLine) _updateNormalLookAtLine();
@@ -355,7 +357,7 @@ namespace Ice
 			_destroyLookAtLine();
 			mLookAtObject = nullptr;
 		}
-		else if (subject == mNormalLookAtObject)
+		if (subject == mNormalLookAtObject)
 		{
 			_destroyNormalLookAtLine();
 			mNormalLookAtObject = nullptr;
@@ -364,17 +366,17 @@ namespace Ice
 
 	void GOCMover::SetLookAtObject(GameObject *target)
 	{
-		if (mLookAtObject) mLookAtObject->removeListener(this);
+		if (mLookAtObject && mNormalLookAtObject != mLookAtObject) mLookAtObject->removeListener(this);
 		mLookAtObject = target;
-		mLookAtObject->addDeleteListener(this);
-		_updateLookAtLine();
+		if (mLookAtObject && mLookAtObject != mNormalLookAtObject) mLookAtObject->addDeleteListener(this);
+		if (mOwnerGO) _updateLookAtLine();
 	}
 	void GOCMover::SetNormalLookAtObject(GameObject *target)
 	{
-		if (mNormalLookAtObject) mNormalLookAtObject->removeListener(this);
+		if (mNormalLookAtObject && mNormalLookAtObject != mLookAtObject) mNormalLookAtObject->removeListener(this);
 		mNormalLookAtObject = target;
-		mNormalLookAtObject->addDeleteListener(this);
-		_updateNormalLookAtLine();
+		if (mNormalLookAtObject && mLookAtObject != mNormalLookAtObject) mNormalLookAtObject->addDeleteListener(this);
+		if (mOwnerGO) _updateNormalLookAtLine();
 	}
 
 	void GOCMover::notifyKeyDelete(GOCAnimKey *key)

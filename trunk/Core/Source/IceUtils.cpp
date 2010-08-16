@@ -16,6 +16,7 @@ namespace Ice
 		}
 		void DeleteListener::addDeleteListener(DeleteListener *listener)
 		{
+			IceAssert(std::find(mDeleteListeners.begin(), mDeleteListeners.end(), listener) == mDeleteListeners.end())
 			listener->_registerDeleteListener(this);
 			mDeleteListeners.push_back(listener);
 		}

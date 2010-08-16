@@ -369,6 +369,12 @@ void Edit::OnMouseEvent(wxMouseEvent &ev)
 					menu.Append(EVT_SaveObjectgroup, "Save Object Group");
 
 					Ice::GameObject* obj1 = (*mSelectedObjects.begin()).mObject;
+					if (obj1->GetComponent<Ice::GOCMover>())
+					{
+						menu.Append(EVT_SetLookAtObject, "Clear Look At");
+						menu.Append(EVT_SetNormalLookAtObject, "Clear Look At (Normal)");
+					}
+
 					if (obj1->GetComponent("View", "Skeleton"))
 					{
 						menu.Append(EVT_SaveBones, "Save Bone Config");
@@ -1327,17 +1333,19 @@ void Edit::OnTriggerMover( wxCommandEvent& WXUNUSED(event) /*= wxCommandEvent()*
 
 void Edit::OnSetLookAtObject( wxCommandEvent& WXUNUSED(event) /*= wxCommandEvent()*/ )
 {
-	if (mSelectedObjects.size() != 2) return;
+	if (mSelectedObjects.size() < 1) return;
 	Ice::GOCMover *mover = mSelectedObjects.front().mObject->GetComponent<Ice::GOCMover>();
-	if (!mover) return;
-	mover->SetLookAtObject(mSelectedObjects.back().mObject);
+	IceAssert(mover);
+	if (mSelectedObjects.size() == 1) mover->SetLookAtObject(nullptr);
+	else if (mSelectedObjects.size() == 2) mover->SetLookAtObject(mSelectedObjects.back().mObject);
 }
 void Edit::OnSetNormalLookAtObject( wxCommandEvent& WXUNUSED(event) /*= wxCommandEvent()*/ )
 {
-	if (mSelectedObjects.size() != 2) return;
+	if (mSelectedObjects.size() < 1) return;
 	Ice::GOCMover *mover = mSelectedObjects.front().mObject->GetComponent<Ice::GOCMover>();
-	if (!mover) return;
-	mover->SetNormalLookAtObject(mSelectedObjects.back().mObject);
+	IceAssert(mover);
+	if (mSelectedObjects.size() == 1) mover->SetNormalLookAtObject(nullptr);
+	else if (mSelectedObjects.size() == 2) mover->SetNormalLookAtObject(mSelectedObjects.back().mObject);
 }
 
 Ogre::Vector3 Edit::GetInsertPosition()
