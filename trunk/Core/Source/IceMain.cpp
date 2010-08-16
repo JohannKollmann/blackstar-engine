@@ -281,6 +281,8 @@ void Main::initScene()
 	//initialize scripts
 	ScriptSystem::GetInstance().CreateInstance("InitEngine.lua");
 
+	SceneManager::Instance().PostInit();
+
 
 };
 
