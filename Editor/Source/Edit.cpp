@@ -226,7 +226,7 @@ void Edit::PlayGame()
 	if (mSelectedObjects.size () != 1) return;
 
 	Ice::GameObject* obj = (*mSelectedObjects.begin()).mObject;
-	Ice::GOCCameraController *cam = (Ice::GOCCameraController*)obj->GetComponent("Camera", "CameraController");
+	Ice::GOCSimpleCameraController *cam = (Ice::GOCSimpleCameraController*)obj->GetComponent("Camera");
 	Ice::GOCPlayerInput *input = (Ice::GOCPlayerInput*)obj->GetComponent("CharacterInput", "PlayerInput");
 	if (cam && input)
 	{
