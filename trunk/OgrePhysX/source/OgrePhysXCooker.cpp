@@ -219,59 +219,83 @@ namespace OgrePhysX
 			if (vertex_data) index_offset += vertex_data->vertexCount;
 
 		}
-
-		//mergeVertices(outInfo);
+		mergeVertices(outInfo);
 	}
+
+	struct OctreeNode
+	{
+		OctreeNode::OctreeNode(){vPos.x=0.0f;vPos.y=0.0f;vPos.z=0.0f;
+			aSubNodes[0]=0;aSubNodes[1]=0;aSubNodes[2]=0;aSubNodes[3]=0;aSubNodes[4]=0;aSubNodes[5]=0;aSubNodes[6]=0;aSubNodes[7]=0;}
+		NxVec3 vPos;
+		OctreeNode* aSubNodes[8];
+		std::list<int> liIndices;
+	};
+
+	//returns current vertex count
+	int ExtractOctree(OctreeNode* pNode, int iVertexCount, int* aiIndexTable, NxVec3* aNewVertices)
+	{
+		for(std::list<int>::const_iterator it=pNode->liIndices.begin();
+			it!=pNode->liIndices.end(); it++)
+			aiIndexTable[*it]=iVertexCount;
+		aNewVertices[iVertexCount++]=pNode->vPos;
+		for(int iSubNode=0; iSubNode<8; iSubNode++)
+			if(pNode->aSubNodes[iSubNode])
+				iVertexCount=ExtractOctree(pNode->aSubNodes[iSubNode], iVertexCount, aiIndexTable, aNewVertices);
+		return iVertexCount;
+	}
+
+
+#define IS_IN_BOX(v1,v2,d) ((v1.x<=v2.x+d) && (v1.x>=v2.x-d) && (v1.y<=v2.y+d) && (v1.y>=v2.y-d) && (v1.z<=v2.z+d) && (v1.z>=v2.z-d))
+
+#define EIGHTH_SPACE_INDEX(v1,v2) (((v1.x>v2.x)?4:0)+((v1.y>v2.y)?2:0)+((v1.z>v2.z)?1:0))
 
 	void Cooker::mergeVertices(MeshInfo &meshInfo)
 	{
-		//copy vertices into new array and check all already copied vertices for identity
-		const float fMergeDistance=1e-6f;
+		const float fMergeDist=1e-4f;
 
-		//NxArray<NxVec3> aCopiedVertices;
-		std::vector<NxVec3> aCopiedVertices;
-		aCopiedVertices.resize(meshInfo.numVertices);
-		int nVerticesCopied=0;
-		std::map<int, int> mReplacedIndices;
-		int nReplacedIndices=0;
+		OctreeNode root;
+		root.vPos=meshInfo.vertices[0];
 		int iVertex=0;
+		
 		for(;iVertex<(int)meshInfo.numVertices; iVertex++)
 		{
-			bool bMerged=false;
-			for(int iCopiedVertex=0; iCopiedVertex<nVerticesCopied; iCopiedVertex++)
+			OctreeNode* pCurrNode=&root;
+			while(true)
 			{
-				if(aCopiedVertices[iCopiedVertex].x>meshInfo.vertices[iVertex].x-fMergeDistance &&
-					aCopiedVertices[iCopiedVertex].x<meshInfo.vertices[iVertex].x+fMergeDistance &&
-					aCopiedVertices[iCopiedVertex].y>meshInfo.vertices[iVertex].y-fMergeDistance &&
-					aCopiedVertices[iCopiedVertex].y<meshInfo.vertices[iVertex].y+fMergeDistance &&
-					aCopiedVertices[iCopiedVertex].z>meshInfo.vertices[iVertex].z-fMergeDistance &&
-					aCopiedVertices[iCopiedVertex].z<meshInfo.vertices[iVertex].z+fMergeDistance)
+				if(IS_IN_BOX(meshInfo.vertices[iVertex], pCurrNode->vPos, fMergeDist))
 				{
-					//the vertex is inside the merge volume. we won't copy it
-					mReplacedIndices[iVertex]=iCopiedVertex;
-					bMerged=true;
+					pCurrNode->liIndices.push_back(iVertex);
+					break;
 				}
-			}
-			if(!bMerged)
-			{
-				//could not merge. just copy
-				aCopiedVertices[nVerticesCopied]=meshInfo.vertices[iVertex];
-				nVerticesCopied++;
+				else
+				{//vertex is not in merge distance to this node
+					int iSubNode=EIGHTH_SPACE_INDEX(pCurrNode->vPos, meshInfo.vertices[iVertex]);
+					if(pCurrNode->aSubNodes[iSubNode])
+						//proceed deeper into the tree
+						pCurrNode=pCurrNode->aSubNodes[iSubNode];
+					else
+					{//there is no branch so make one
+						pCurrNode->aSubNodes[iSubNode]=new OctreeNode;
+						pCurrNode=pCurrNode->aSubNodes[iSubNode];
+						pCurrNode->vPos=meshInfo.vertices[iVertex];
+					}
+				}//pCurrNode is now one level lower in the tree
 			}
 		}
-		//now look up the replaced indices and change them
-		std::map<int, int>::const_iterator it;
+		int* aiIndexTable=new int[meshInfo.numTriangles*3];
+		NxVec3* aNewVertices=new NxVec3[meshInfo.numVertices];
+		//extract indextable and vertex list
+		int nNewVertices=ExtractOctree(&root, 0, aiIndexTable, aNewVertices);
 		for(int iIndex=0; iIndex<(int)meshInfo.numTriangles*3; iIndex++)
-		{
-			if((it=mReplacedIndices.find(meshInfo.indices[iIndex]))!=mReplacedIndices.end())
-				meshInfo.indices[iIndex]=it->second;
-		}
-		meshInfo.numVertices=nVerticesCopied;
-		/*aCopiedVertices.resize(nVerticesCopied);
-		meshInfo.vertices=aCopiedVertices;*/
-		meshInfo.vertices.resize(nVerticesCopied);
-		for(iVertex=0; iVertex<nVerticesCopied; iVertex++)
-			meshInfo.vertices[iVertex]=aCopiedVertices[iVertex];
+			meshInfo.indices[iIndex]=aiIndexTable[meshInfo.indices[iIndex]];
+		
+		meshInfo.numVertices=nNewVertices;
+		meshInfo.vertices.resize(nNewVertices);
+		for(iVertex=0; iVertex<nNewVertices; iVertex++)
+			meshInfo.vertices[iVertex]=aNewVertices[iVertex];
+		
+		delete aiIndexTable;
+		delete aNewVertices;
 	}
 
 
