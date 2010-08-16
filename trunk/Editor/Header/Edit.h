@@ -159,7 +159,7 @@ private:
 
 	bool mPlaying;
 	bool mFreezeCamera;
-	Ice::GOCCameraController *mPlayerCamera;
+	Ice::GOCSimpleCameraController *mPlayerCamera;
 	Ice::GOCPlayerInput *mPlayerInput;
 	void PlayGame();
 	void PauseGame();
