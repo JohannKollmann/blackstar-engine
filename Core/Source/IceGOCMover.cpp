@@ -152,9 +152,13 @@ namespace Ice
 				Ogre::Vector3 lookAtDir = mLookAtObject->GetGlobalPosition() - GetOwner()->GetGlobalPosition();
 				lookAtDir.normalise();
 
-				//if (!mMoving) SetKeyIgnoreParent(true);
-				SetOwnerOrientation(Utils::ZDirToQuat(lookAtDir, upVector), false);
-				//if (!mMoving) SetKeyIgnoreParent(false);
+				if (!mMoving) SetKeyIgnoreParent(true);
+				if (mLookAtObject) mLookAtObject->SetIgnoreParent(true);
+				if (mNormalLookAtObject) mNormalLookAtObject->SetIgnoreParent(true);
+				SetOwnerOrientation(Utils::ZDirToQuat(lookAtDir, upVector));
+				if (!mMoving) SetKeyIgnoreParent(false);
+				if (mLookAtObject) mLookAtObject->SetIgnoreParent(false);
+				if (mNormalLookAtObject) mNormalLookAtObject->SetIgnoreParent(false);
 			}
 			if (mMoving)
 			{

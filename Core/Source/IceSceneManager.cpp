@@ -255,6 +255,7 @@ namespace Ice
 		ScriptSystem::GetInstance().ShareCFunction("Object_GetName", &GameObject::Lua_GetObjectName);
 		ScriptSystem::GetInstance().ShareCFunction("Object_HasScriptListener", &GameObject::Lua_HasScriptListener);
 		ScriptSystem::GetInstance().ShareCFunction("Object_GetChild", &GameObject::Lua_GetChildObjectByName);
+		ScriptSystem::GetInstance().ShareCFunction("Object_GetParent", &GameObject::Lua_GetParent);
 		ScriptSystem::GetInstance().ShareCFunction("Object_IsNpc", &GameObject::Lua_IsNpc);
 
 		ScriptSystem::GetInstance().ShareCFunction("Object_ReceiveMessage", &GameObject::Lua_ReceiveObjectMessage);
