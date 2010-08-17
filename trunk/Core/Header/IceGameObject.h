@@ -202,6 +202,7 @@ namespace Ice
 		std::vector<ScriptParam> SendObjectMessage(Script& caller, std::vector<ScriptParam> &vParams);
 		std::vector<ScriptParam> ReceiveObjectMessage(Script& caller, std::vector<ScriptParam> &vParams);
 		std::vector<ScriptParam> GetChildObjectByName(Script& caller, std::vector<ScriptParam> &vParams);
+		std::vector<ScriptParam> GetParent(Script& caller, std::vector<ScriptParam> &vParams);
 		std::vector<ScriptParam> HasScriptListener(Script& caller, std::vector<ScriptParam> &vParams);
 		std::vector<ScriptParam> IsNpc(Script& caller, std::vector<ScriptParam> &vParams);
 
@@ -214,6 +215,7 @@ namespace Ice
 		DEFINE_GOLUAMETHOD_H(SendObjectMessage)
 		DEFINE_GOLUAMETHOD_H(ReceiveObjectMessage)
 		DEFINE_GOLUAMETHOD_H(GetChildObjectByName)
+		DEFINE_GOLUAMETHOD_H(GetParent)
 		DEFINE_GOLUAMETHOD_H(HasScriptListener)
 		DEFINE_GOLUAMETHOD_H(IsNpc)
 

@@ -468,6 +468,14 @@ namespace Ice
 		out.push_back(ScriptParam(id));
 		return out;
 	}
+	std::vector<ScriptParam> GameObject::GetParent(Script& caller, std::vector<ScriptParam> &vParams)
+	{
+		std::vector<ScriptParam> out;
+		int id = -1;
+		if (mParent) id = mParent->GetID();
+		out.push_back(ScriptParam(id));
+		return out;
+	}
 	std::vector<ScriptParam> GameObject::IsNpc(Script& caller, std::vector<ScriptParam> &vParams)
 	{
 		std::vector<ScriptParam> out;
@@ -486,5 +494,6 @@ namespace Ice
 	DEFINE_TYPEDGOLUAMETHOD_CPP(GetChildObjectByName, "string")
 	DEFINE_TYPEDGOLUAMETHOD_CPP(HasScriptListener, "string")
 	DEFINE_GOLUAMETHOD_CPP(IsNpc)
+	DEFINE_GOLUAMETHOD_CPP(GetParent)
 
 };
