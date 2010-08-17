@@ -116,7 +116,7 @@ namespace Ice
 	{
 		_updateLookAtLine();
 		_updateNormalLookAtLine();
-		UpdateKeys();
+		if (!mMoving) UpdateKeys();
 	}
 
 	void GOCMover::Trigger()
