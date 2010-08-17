@@ -37,10 +37,10 @@ namespace Ice
 		virtual ~GOComponent() {}
 
 		///Sets the position of the component's owner object.
-		void SetOwnerPosition(const Ogre::Vector3 &position);
+		void SetOwnerPosition(const Ogre::Vector3 &position, bool updateChildren = true);
 
 		///Sets the orientation of the component's owner object.
-		void SetOwnerOrientation(const Ogre::Quaternion &orientation);
+		void SetOwnerOrientation(const Ogre::Quaternion &orientation, bool updateChildren = true);
 
 		///Retrieves the component type identifier.
 		virtual goc_id_type& GetComponentID() const = 0;
