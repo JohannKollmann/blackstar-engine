@@ -59,6 +59,7 @@ namespace Ice
 	{
 		mMover = this;
 		mMoving = false;
+		mPaused=false;
 		mSplineObject = nullptr;
 		mIsClosed = false;
 		mLookAtObject = nullptr;
@@ -123,6 +124,10 @@ namespace Ice
 
 	void GOCMover::Trigger()
 	{
+		if(mPaused)
+			mPaused=false;
+		if(mMoving)
+			return;
 		mMoving = true;
 		//SetKeyIgnoreParent(true);
 		mfLastPos=0;
@@ -142,6 +147,21 @@ namespace Ice
 		SetKeyIgnoreParent(prepare);
 		if (mLookAtObject) mLookAtObject->SetIgnoreParent(prepare);
 		if (mNormalLookAtObject) mNormalLookAtObject->SetIgnoreParent(prepare);
+	}
+
+	void GOCMover::Pause()
+	{
+		mPaused=true;
+	}
+
+	void GOCMover::Stop()
+	{
+		SetKeyIgnoreParent(false);
+		mMoving = false;
+		mfLastPos=0;
+		Ice::Msg msg; msg.type = "MOVER_END";
+		mOwnerGO->SendInstantMessage(msg);
+		mLastKeyIndex = -1;
 	}
 
 	void GOCMover::ReceiveMessage( Msg &msg )
@@ -165,7 +185,7 @@ namespace Ice
 				SetOwnerOrientation(Utils::ZDirToQuat(lookAtDir, upVector));
 				_prepareMovement(false);
 			}
-			if (mMoving)
+			if (mMoving && !mPaused)
 			{
 				float time = msg.params.GetFloat("TIME");
 
