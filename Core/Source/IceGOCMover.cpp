@@ -397,17 +397,20 @@ namespace Ice
 
 	void GOCMover::notifyKeyDelete(GOCAnimKey *key)
 	{
-		for (auto i = mAnimKeys.begin(); i != mAnimKeys.end(); i++)
+		for (int i = 0; i < mAnimKeys.size(); i++)
 		{
-			if ((*i) == key->GetOwner())
+			auto iter = mAnimKeys.begin() + i;
+			if (mAnimKeys[i] == key->GetOwner())
 			{
-				if ((i+1) != mAnimKeys.end())
+				GameObject *succ = mAnimKeys[i+1];
+				if (!succ->GetComponent<GOCAnimKey>()) return;
+				if ((i+1) < mAnimKeys.size())
 				{
-					if (i == mAnimKeys.begin())
-						(*(i+1))->GetComponent<GOCAnimKey>()->mPredecessor = this;
-					else (*(i+1))->GetComponent<GOCAnimKey>()->mPredecessor = (*(i-1))->GetComponent<AnimKey>();
+					if (i == 0)
+						succ->GetComponent<GOCAnimKey>()->mPredecessor = this;
+					else succ->GetComponent<GOCAnimKey>()->mPredecessor = mAnimKeys[i-1]->GetComponent<AnimKey>();
 				}
-				mAnimKeys.erase(i);
+				mAnimKeys.erase(iter);
 				break;
 			}
 		}
@@ -417,6 +420,7 @@ namespace Ice
 
 	void GOCMover::InsertKey(GameObject *key, AnimKey *pred)
 	{
+		IceAssert(std::find(mAnimKeys.begin(), mAnimKeys.end(), key) == mAnimKeys.end())
 		if (pred == this)
 		{
 			if (!mAnimKeys.empty())
