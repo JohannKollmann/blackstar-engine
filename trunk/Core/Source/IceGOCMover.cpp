@@ -41,11 +41,13 @@ namespace Ice
 	void GOCAnimKey::Save(LoadSave::SaveSystem& mgr)
 	{
 		mgr.SaveAtom("float", &mTimeToNextKey, "TimeToNextKey");
+		mgr.SaveObject(dynamic_cast<LoadSave::Saveable*>(mPredecessor), "Mover");	//hack
 		mgr.SaveObject(mMover, "Mover");
 	}
 	void GOCAnimKey::Load(LoadSave::LoadSystem& mgr)
 	{
 		mgr.LoadAtom("float",  &mTimeToNextKey);
+		mPredecessor = dynamic_cast<AnimKey*>(mgr.LoadObject());
 		mMover = (GOCMover*)mgr.LoadObject();
 	}
 	void GOCAnimKey::UpdatePosition(Ogre::Vector3 position)
@@ -94,7 +96,7 @@ namespace Ice
 		mgr.SaveAtom("bool", &mIsClosed, "Closed");
 		mgr.SaveAtom("bool", &mStaticMode, "StaticMode");
 		mgr.SaveAtom("Ogre::String", &mKeyCallback, "KeyCallback");
-		mgr.SaveAtom("std::vector<Saveable*>", &mAnimKeys, "AnimKeys");
+		//mgr.SaveAtom("std::vector<Saveable*>", &mAnimKeys, "AnimKeys");
 		mgr.SaveObject(mLookAtObject, "mLookAtObject", true);
 		mgr.SaveObject(mNormalLookAtObject, "mNormalLookAtObject", true);
 	}
@@ -105,7 +107,7 @@ namespace Ice
 		mgr.LoadAtom("bool", &mIsClosed);
 		mgr.LoadAtom("bool", &mStaticMode);
 		mgr.LoadAtom("Ogre::String", &mKeyCallback);
-		mgr.LoadAtom("std::vector<Saveable*>", &mAnimKeys);
+		//mgr.LoadAtom("std::vector<Saveable*>", &mAnimKeys);
 		mLookAtObject=(Ice::GameObject*)mgr.LoadObject();
 		if (mLookAtObject) SetLookAtObject(mLookAtObject);
 		mNormalLookAtObject=(Ice::GameObject*)mgr.LoadObject();
@@ -116,13 +118,13 @@ namespace Ice
 	{
 		_updateLookAtLine();
 		_updateNormalLookAtLine();
-		if (!mMoving) UpdateKeys();
+		UpdateKeys();
 	}
 
 	void GOCMover::Trigger()
 	{
 		mMoving = true;
-		SetKeyIgnoreParent(true);
+		//SetKeyIgnoreParent(true);
 		mfLastPos=0;
 		Ice::Msg msg; msg.type = "MOVER_START";
 		mOwnerGO->SendInstantMessage(msg);
@@ -131,8 +133,15 @@ namespace Ice
 			Ice::Msg msg; msg.type = "MOVER_END";
 			mOwnerGO->SendInstantMessage(msg);
 			mMoving = false;
-			SetKeyIgnoreParent(false);
+			//SetKeyIgnoreParent(false);
 		}
+	}
+
+	void GOCMover::_prepareMovement(bool prepare)
+	{
+		SetKeyIgnoreParent(prepare);
+		if (mLookAtObject) mLookAtObject->SetIgnoreParent(prepare);
+		if (mNormalLookAtObject) mNormalLookAtObject->SetIgnoreParent(prepare);
 	}
 
 	void GOCMover::ReceiveMessage( Msg &msg )
@@ -152,13 +161,9 @@ namespace Ice
 				Ogre::Vector3 lookAtDir = mLookAtObject->GetGlobalPosition() - GetOwner()->GetGlobalPosition();
 				lookAtDir.normalise();
 
-				if (!mMoving) SetKeyIgnoreParent(true);
-				if (mLookAtObject) mLookAtObject->SetIgnoreParent(true);
-				if (mNormalLookAtObject) mNormalLookAtObject->SetIgnoreParent(true);
+				_prepareMovement(true);
 				SetOwnerOrientation(Utils::ZDirToQuat(lookAtDir, upVector));
-				if (!mMoving) SetKeyIgnoreParent(false);
-				if (mLookAtObject) mLookAtObject->SetIgnoreParent(false);
-				if (mNormalLookAtObject) mNormalLookAtObject->SetIgnoreParent(false);
+				_prepareMovement(false);
 			}
 			if (mMoving)
 			{
@@ -189,7 +194,9 @@ namespace Ice
 				else
 				{
 					int keyIndex = 0;
+					_prepareMovement(true);
 					SetOwnerPosition(mSpline.Sample(mfLastPos, &keyIndex));
+					_prepareMovement(false);
 					keyIndex--;
 					if (keyIndex != mLastKeyIndex)
 					{
@@ -204,13 +211,15 @@ namespace Ice
 				if (!mLookAtObject)		//look towards current target direction
 				{
 					Ogre::Vector3 lookAtDir = (mOwnerGO->GetGlobalPosition() - oldPos).normalisedCopy();
+					_prepareMovement(true);
 					SetOwnerOrientation(Utils::ZDirToQuat(lookAtDir, upVector));
+					_prepareMovement(false);
 				}
 
 				mfLastPos+=time;
 				if(mfLastPos>=(mStaticMode ? mKeyTiming[mKeyTiming.size()-1] : mSpline.GetLength()))
 				{
-					SetKeyIgnoreParent(false);
+					//SetKeyIgnoreParent(false);
 					mMoving = false;
 					mfLastPos=0;
 					Ice::Msg msg; msg.type = "MOVER_END";
@@ -232,6 +241,7 @@ namespace Ice
 	void GOCMover::UpdateKeys()
 	{
 		if (!mOwnerGO) return;
+		if (mMoving && !mOwnerGO->GetUpdatingFromParent()) return;
 		mSplineObject->clear();
 		if(mAnimKeys.size()<1)
 			return;
@@ -402,10 +412,10 @@ namespace Ice
 			auto iter = mAnimKeys.begin() + i;
 			if (mAnimKeys[i] == key->GetOwner())
 			{
-				GameObject *succ = mAnimKeys[i+1];
-				if (!succ->GetComponent<GOCAnimKey>()) return;
 				if ((i+1) < mAnimKeys.size())
 				{
+					GameObject *succ = mAnimKeys[i+1];
+					if (!succ->GetComponent<GOCAnimKey>()) return;
 					if (i == 0)
 						succ->GetComponent<GOCAnimKey>()->mPredecessor = this;
 					else succ->GetComponent<GOCAnimKey>()->mPredecessor = mAnimKeys[i-1]->GetComponent<AnimKey>();

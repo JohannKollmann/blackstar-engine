@@ -888,6 +888,7 @@ void Edit::OnInsertObjectAsChild( wxCommandEvent& WXUNUSED(event) )
 
 void Edit::OnDeleteObject( wxCommandEvent& WXUNUSED(event) )
 {
+	wxEdit::Instance().GetMainNotebook()->GetOgreWindow()->SetPaused(true);
 	bool skip = false;
 	bool one = false;
 	if (mSelectedObjects.size() == 1)
@@ -897,11 +898,9 @@ void Edit::OnDeleteObject( wxCommandEvent& WXUNUSED(event) )
 		if (object->GetNumChildren() > 0)
 		{
 			skip = true;
-			wxEdit::Instance().GetMainNotebook()->GetOgreWindow()->SetPaused(true);
 			wxMessageDialog dialog( NULL, _T("Delete Children?"),
 				_T("Deleting root object..."), wxYES_DEFAULT|wxYES_NO|wxCANCEL|wxICON_QUESTION);
 			int input = dialog.ShowModal();
-			wxEdit::Instance().GetMainNotebook()->GetOgreWindow()->SetPaused(false);
 			if (input == wxID_YES)
 			{
 				delete object;
@@ -931,6 +930,7 @@ void Edit::OnDeleteObject( wxCommandEvent& WXUNUSED(event) )
 	wxEdit::Instance().GetpropertyWindow()->SetPage("None");
 	wxEdit::Instance().GetWorldExplorer()->GetSceneTree()->Update();
 	wxEdit::Instance().GetWorldExplorer()->GetMaterialTree()->Update();
+	wxEdit::Instance().GetMainNotebook()->GetOgreWindow()->SetPaused(false);
 }
 
 void Edit::OnCreateObjectGroup( wxCommandEvent& WXUNUSED(event) )

@@ -92,6 +92,8 @@ namespace Ice
 		void _destroyNormalLookAtLine();
 		void _destroyLookAtLine();
 
+		void _prepareMovement(bool prepare);
+
 	public:
 		GOCMover(void);
 		~GOCMover(void);
