@@ -290,6 +290,8 @@ namespace Ice
 		Triggers a mover.
 		*/
 		ScriptSystem::GetInstance().ShareCFunction("TriggerMover", &GOCMover::Lua_TriggerMover);
+		ScriptSystem::GetInstance().ShareCFunction("PauseMover", &GOCMover::Lua_PauseMover);
+		ScriptSystem::GetInstance().ShareCFunction("StopMover", &GOCMover::Lua_StopMover);
 
 		//Time get/set methods
 		ScriptSystem::GetInstance().ShareCFunction("GetGameTimeHour", &SceneManager::Lua_GetGameTimeHour);

@@ -70,6 +70,7 @@ namespace Ice
 		std::vector<GameObject*> mAnimKeys;
 		Ogre::String mKeyCallback;
 		bool mMoving;
+		bool mPaused;
 		bool mLoop;
 		bool mIsClosed;
 		bool mStaticMode;
@@ -101,6 +102,8 @@ namespace Ice
 		void Init();
 
 		void Trigger();
+		void Pause();
+		void Stop();
 		void UpdateKeys();
 
 		void ReceiveMessage(Msg &msg);
@@ -137,7 +140,11 @@ namespace Ice
 
 		//Scripting
 		std::vector<ScriptParam> TriggerMover(Script &caller, std::vector<ScriptParam> &params) { Trigger();  return std::vector<ScriptParam>(); };
+		std::vector<ScriptParam> PauseMover(Script &caller, std::vector<ScriptParam> &params) { Pause();  return std::vector<ScriptParam>(); };
+		std::vector<ScriptParam> StopMover(Script &caller, std::vector<ScriptParam> &params) { Stop();  return std::vector<ScriptParam>(); };
 		DEFINE_GOCLUAMETHOD(GOCMover, TriggerMover)
+		DEFINE_GOCLUAMETHOD(GOCMover, PauseMover)
+		DEFINE_GOCLUAMETHOD(GOCMover, StopMover)
 
 		//Load Save
 		void Save(LoadSave::SaveSystem& mgr);
