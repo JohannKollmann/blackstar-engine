@@ -247,6 +247,20 @@ namespace OgrePhysX
 
 		return forceField;
 	}
+	NxForceField* Scene::createForceField(RTConvexMeshShape &shape, NxForceFieldDesc &fieldDesc, NxForceFieldLinearKernelDesc &linearKernelDesc)
+	{
+		NxForceFieldLinearKernel* linearKernel = mNxScene->createForceFieldLinearKernel(linearKernelDesc);
+		fieldDesc.kernel = linearKernel;
+		NxForceField *forceField = mNxScene->createForceField(fieldDesc);
+
+		NxConvexForceFieldShapeDesc convexDesc;
+		NxConvexShapeDesc *desc = (NxConvexShapeDesc*)shape.getDesc();
+		convexDesc.meshData = desc->meshData;
+		convexDesc.pose = desc->localPose;
+		forceField->getIncludeShapeGroup().createShape(convexDesc);
+
+		return forceField;
+	}
 	void Scene::destroyForcefield(NxForceField *forceField)
 	{
 		NxForceFieldLinearKernel *kernel = (NxForceFieldLinearKernel*)forceField->getForceFieldKernel();

@@ -270,6 +270,9 @@
     <ClCompile Include="Source\IceGOCScript.cpp">
       <Filter>Components</Filter>
     </ClCompile>
+    <ClCompile Include="Source\IceGOCForceField.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header\IceMessageListener.h">
@@ -586,6 +589,9 @@
     </ClInclude>
     <ClInclude Include="Header\IceCameraController.h">
       <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceGOCForceField.h">
+      <Filter>Components</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

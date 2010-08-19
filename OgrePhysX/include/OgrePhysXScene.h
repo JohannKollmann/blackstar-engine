@@ -115,6 +115,7 @@ namespace OgrePhysX
 		NxForceField* createForceField(BoxShape &shape, NxForceFieldDesc &fieldDesc, NxForceFieldLinearKernelDesc &linearKernelDesc);
 		NxForceField* createForceField(SphereShape &shape, NxForceFieldDesc &fieldDesc, NxForceFieldLinearKernelDesc &linearKernelDesc);
 		NxForceField* createForceField(CapsuleShape &shape, NxForceFieldDesc &fieldDesc, NxForceFieldLinearKernelDesc &linearKernelDesc);
+		NxForceField* createForceField(RTConvexMeshShape &shape, NxForceFieldDesc &fieldDesc, NxForceFieldLinearKernelDesc &linearKernelDesc);
 		void destroyForcefield(NxForceField *forceField);
 
 		void syncRenderables();

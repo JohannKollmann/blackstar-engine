@@ -26,6 +26,7 @@ namespace Ice
 		virtual ~AnimKey() {}
 
 		virtual void SetMover(GOCMover *mover) {};
+		GOCMover* GetMover() { return mMover; }
 
 		float GetTimeToNextKey() { return mTimeToNextKey; }
 
@@ -68,7 +69,6 @@ namespace Ice
 
 	private:
 		std::vector<GameObject*> mAnimKeys;
-		GameObject *mRootAnimKey;
 		Ogre::String mKeyCallback;
 		bool mMoving;
 		bool mPaused;
@@ -95,13 +95,13 @@ namespace Ice
 		void _destroyNormalLookAtLine();
 		void _destroyLookAtLine();
 
-		void _prepareMovement(bool prepare);
-
 	public:
 		GOCMover(void);
 		~GOCMover(void);
 
 		void Init();
+
+		void PrepareMovement(bool prepare);
 
 		void Trigger();
 		void Pause();
