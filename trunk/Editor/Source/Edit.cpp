@@ -895,7 +895,18 @@ void Edit::OnDeleteObject( wxCommandEvent& WXUNUSED(event) )
 	{
 		one = true;
 		Ice::GameObject *object = (*mSelectedObjects.begin()).mObject;
-		if (object->GetNumChildren() > 0)
+
+		//check if the object has managed children
+		bool hasChildren = false;
+		for (unsigned short i = 0; i < object->GetNumChildren(); i++)
+		{
+			if (object->GetChild(i)->IsManagedByParent())
+			{
+				hasChildren = true;
+				break;
+			}
+		}
+		if (hasChildren)
 		{
 			skip = true;
 			wxMessageDialog dialog( NULL, _T("Delete Children?"),
