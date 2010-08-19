@@ -62,6 +62,7 @@ namespace Ice
 		mPaused=false;
 		mSplineObject = nullptr;
 		mIsClosed = false;
+		mIgnoreOrientation=false;
 		mLookAtObject = nullptr;
 		mNormalLookAtObject = nullptr;
 		mLookAtLine = nullptr;
@@ -110,7 +111,7 @@ namespace Ice
 		mgr.SaveAtom("float", &mTimeToNextKey, "TimeToNextKey");
 		mgr.SaveAtom("bool", &mIsClosed, "Closed");
 		mgr.SaveAtom("bool", &mStaticMode, "StaticMode");
-		mgr.SaveAtom("Ogre::String", &mKeyCallback, "KeyCallback");
+		mgr.SaveAtom("bool", &mIgnoreOrientation, "IgnoreOrientation");
 		//mgr.SaveAtom("std::vector<Saveable*>", &mAnimKeys, "AnimKeys");
 		mgr.SaveObject(mLookAtObject, "mLookAtObject", true);
 		mgr.SaveObject(mNormalLookAtObject, "mNormalLookAtObject", true);
@@ -121,7 +122,7 @@ namespace Ice
 		mgr.LoadAtom("float", &mTimeToNextKey);
 		mgr.LoadAtom("bool", &mIsClosed);
 		mgr.LoadAtom("bool", &mStaticMode);
-		mgr.LoadAtom("Ogre::String", &mKeyCallback);
+		mgr.LoadAtom("bool", &mIgnoreOrientation);
 		//mgr.LoadAtom("std::vector<Saveable*>", &mAnimKeys);
 		mLookAtObject=(Ice::GameObject*)mgr.LoadObject();
 		if (mLookAtObject) SetLookAtObject(mLookAtObject);
@@ -150,7 +151,7 @@ namespace Ice
 		if(mAnimKeys.size()<1)
 		{
 			Ice::Msg msg; msg.type = "MOVER_END";
-			mOwnerGO->SendInstantMessage(msg);
+			mOwnerGO->SendMessage(msg);
 			mMoving = false;
 			//SetKeyIgnoreParent(false);
 		}
@@ -243,7 +244,7 @@ namespace Ice
 					}
 				}
 
-				if (!mLookAtObject)		//look towards current target direction
+				if (!(mLookAtObject || mIgnoreOrientation))		//look towards current target direction
 				{
 					Ogre::Vector3 lookAtDir = (mOwnerGO->GetGlobalPosition() - oldPos).normalisedCopy();
 					_prepareMovement(true);
@@ -258,7 +259,7 @@ namespace Ice
 					mMoving = false;
 					mfLastPos=0;
 					Ice::Msg msg; msg.type = "MOVER_END";
-					mOwnerGO->SendInstantMessage(msg);
+					mOwnerGO->SendMessage(msg);
 					mLastKeyIndex = -1;
 				}
 			}
@@ -444,7 +445,7 @@ namespace Ice
 
 	void GOCMover::notifyKeyDelete(GOCAnimKey *key)
 	{
-		for (int i = 0; i < mAnimKeys.size(); i++)
+		for (unsigned int i = 0; i < mAnimKeys.size(); i++)
 		{
 			auto iter = mAnimKeys.begin() + i;
 			if (mAnimKeys[i] == key->GetOwner())

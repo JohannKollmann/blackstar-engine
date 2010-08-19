@@ -75,6 +75,7 @@ namespace Ice
 		bool mLoop;
 		bool mIsClosed;
 		bool mStaticMode;
+		bool mIgnoreOrientation;
 		float mfLastPos;
 		int mLastKeyIndex;
 		Spline mSpline;
@@ -134,6 +135,7 @@ namespace Ice
 			PROPERTY_FLOAT(mTimeToNextKey, "TimeToNextKey", 1.0f);
 			PROPERTY_BOOL(mIsClosed, "Closed", false);
 			PROPERTY_BOOL(mStaticMode, "Static Mode", false);
+			PROPERTY_BOOL(mIgnoreOrientation, "Ignore Orientation", false);
 			PROPERTY_STRING(mKeyCallback, "Key Callback", "");
 		END_GOCEDITORINTERFACE
 

@@ -29,6 +29,8 @@ enum
 	EVT_CreateWayTriangle,
 	EVT_InsertAnimKey,
 	EVT_TriggerMover,
+	EVT_PauseMover,
+	EVT_StopMover,
 	EVT_SetLookAtObject,
 	EVT_SetNormalLookAtObject
 };
@@ -51,6 +53,8 @@ BEGIN_EVENT_TABLE(Edit, wxOgre)
 	EVT_MENU(EVT_CreateWayTriangle, Edit::OnCreateWayTriangle)
 	EVT_MENU(EVT_InsertAnimKey, Edit::OnInsertAnimKey)
 	EVT_MENU(EVT_TriggerMover, Edit::OnTriggerMover)
+	EVT_MENU(EVT_PauseMover, Edit::OnPauseMover)
+	EVT_MENU(EVT_StopMover, Edit::OnStopMover)
 	EVT_MENU(EVT_SetLookAtObject, Edit::OnSetLookAtObject)
 	EVT_MENU(EVT_SetNormalLookAtObject, Edit::OnSetNormalLookAtObject)
 
@@ -383,6 +387,10 @@ void Edit::OnMouseEvent(wxMouseEvent &ev)
 						menu.Append(EVT_InsertAnimKey, "New Anim Key");
 					if (obj1->GetComponent<Ice::GOCMover>())
 						menu.Append(EVT_TriggerMover, "Test Mover");
+					if (obj1->GetComponent<Ice::GOCMover>())
+						menu.Append(EVT_PauseMover, "Pause Mover");
+					if (obj1->GetComponent<Ice::GOCMover>())
+						menu.Append(EVT_StopMover, "Stop Mover");
 				}
 
 				if (mSelectedObjects.size() >= 1) menu.Append(EVT_DeleteObject, "Delete");
@@ -1324,24 +1332,37 @@ void Edit::OnInsertAnimKey( wxCommandEvent& WXUNUSED(event) /*= wxCommandEvent()
 	wxEdit::Instance().GetWorldExplorer()->GetSceneTree()->NotifyObject(animKey);
 }
 
+#define CALL_MOVER_FUNCTION(fct)\
+if (mSelectedObjects.size() != 1) return;\
+	\
+	Ice::GOCMover *mover = mSelectedObjects.front().mObject->GetComponent<Ice::GOCMover>();\
+	if (!mover) return;\
+		\
+	mMoverReset.mover = mover->GetOwner();\
+	mMoverReset.resetPos = mover->GetOwner()->GetGlobalPosition();\
+	mMoverReset.resetQuat = mover->GetOwner()->GetGlobalOrientation();\
+	\
+	if (mSelectedObjects.front().mObject->GetComponent<Ice::GOCSimpleCameraController>())\
+	{\
+		mFreezeCamera = true;\
+		mSelectedObjects.front().mObject->GetComponent<Ice::GOCOgreNode>()->GetNode()->showBoundingBox(false);\
+	}\
+	\
+	mover->fct();
+
 void Edit::OnTriggerMover( wxCommandEvent& WXUNUSED(event) /*= wxCommandEvent()*/ )
 {
-	if (mSelectedObjects.size() != 1) return;
+	CALL_MOVER_FUNCTION(Trigger)
+}
 
-	Ice::GOCMover *mover = mSelectedObjects.front().mObject->GetComponent<Ice::GOCMover>();
-	if (!mover) return;
+void Edit::OnPauseMover( wxCommandEvent& WXUNUSED(event) /*= wxCommandEvent()*/ )
+{
+	CALL_MOVER_FUNCTION(Pause)
+}
 
-	mMoverReset.mover = mover->GetOwner();
-	mMoverReset.resetPos = mover->GetOwner()->GetGlobalPosition();
-	mMoverReset.resetQuat = mover->GetOwner()->GetGlobalOrientation();
-
-	if (mSelectedObjects.front().mObject->GetComponent<Ice::GOCSimpleCameraController>())
-	{
-		mFreezeCamera = true;
-		mSelectedObjects.front().mObject->GetComponent<Ice::GOCOgreNode>()->GetNode()->showBoundingBox(false);
-	}
-
-	mover->Trigger();
+void Edit::OnStopMover( wxCommandEvent& WXUNUSED(event) /*= wxCommandEvent()*/ )
+{
+	CALL_MOVER_FUNCTION(Stop)
 }
 
 void Edit::OnSetLookAtObject( wxCommandEvent& WXUNUSED(event) /*= wxCommandEvent()*/ )

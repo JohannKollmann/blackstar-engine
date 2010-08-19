@@ -52,6 +52,7 @@ namespace Ice
 
 	void GOCCharacterController::Create(Ogre::Vector3 dimensions)
 	{
+		MessageSystem::Instance().QuitAllNewsgroups(this);
 		MessageSystem::Instance().JoinNewsgroup(this, "START_PHYSICS");
 		MessageSystem::Instance().JoinNewsgroup(this, "END_PHYSICS");
 
