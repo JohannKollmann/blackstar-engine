@@ -72,6 +72,8 @@ namespace Ice
 
 		void Freeze(bool freeze);
 
+		OgrePhysX::RenderedActor* GetActor() { return mActor; }
+
 		void SetOwner(GameObject *go);
 		bool IsStatic() { return false; }
 

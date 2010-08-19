@@ -59,6 +59,7 @@ namespace Ice
 	{
 		mMover = this;
 		mMoving = false;
+		mPerformingMovement = false;
 		mPaused=false;
 		mSplineObject = nullptr;
 		mIsClosed = false;
@@ -127,7 +128,7 @@ namespace Ice
 	{
 		_updateLookAtLine();
 		_updateNormalLookAtLine();
-		if (!mMoving || mOwnerGO->GetUpdatingFromParent()) UpdateKeys();
+		UpdateKeys();
 	}
 
 	void GOCMover::Trigger()
@@ -152,6 +153,7 @@ namespace Ice
 
 	void GOCMover::PrepareMovement(bool prepare)
 	{
+		mPerformingMovement = prepare;
 		SetKeyIgnoreParent(prepare);
 		if (mLookAtObject) mLookAtObject->SetIgnoreParent(prepare);
 		if (mNormalLookAtObject) mNormalLookAtObject->SetIgnoreParent(prepare);
@@ -269,6 +271,14 @@ namespace Ice
 	void GOCMover::UpdateKeys()
 	{
 		if (!mOwnerGO) return;
+		if (mPerformingMovement) return;
+		if (mAnimKeys.size() > 0)
+		{
+			PrepareMovement(true);
+			SetOwnerPosition(mAnimKeys[0]->GetGlobalPosition());
+			SetOwnerOrientation(mAnimKeys[0]->GetGlobalOrientation());
+			PrepareMovement(false);
+		}
 		//if (mMoving && !mOwnerGO->GetUpdatingFromParent()) return;
 		mSplineObject->clear();
 		if(mAnimKeys.size()<2)
@@ -409,6 +419,7 @@ namespace Ice
 
 	void GOCMover::SetLookAtObject(GameObject *target)
 	{
+		_destroyLookAtLine();
 		if (mLookAtObject && mNormalLookAtObject != mLookAtObject) mLookAtObject->removeListener(this);
 		mLookAtObject = target;
 		if (mLookAtObject && mLookAtObject != mNormalLookAtObject) mLookAtObject->addDeleteListener(this);
@@ -416,6 +427,7 @@ namespace Ice
 	}
 	void GOCMover::SetNormalLookAtObject(GameObject *target)
 	{
+		_destroyNormalLookAtLine();
 		if (mNormalLookAtObject && mNormalLookAtObject != mLookAtObject) mNormalLookAtObject->removeListener(this);
 		mNormalLookAtObject = target;
 		if (mNormalLookAtObject && mLookAtObject != mNormalLookAtObject) mNormalLookAtObject->addDeleteListener(this);
