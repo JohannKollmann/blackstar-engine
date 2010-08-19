@@ -263,7 +263,7 @@ namespace Ice
 		if (!mOwnerGO) return;
 		if (mMoving && !mOwnerGO->GetUpdatingFromParent()) return;
 		mSplineObject->clear();
-		if(mAnimKeys.size()<1)
+		if(mAnimKeys.size()<2)
 			return;
 		int keyCounter = 0;
 		
@@ -272,7 +272,7 @@ namespace Ice
 
 		double fCurrTime=0.0;
 
-		if(mStaticMode)
+		/*if(mStaticMode)
 		{
 			vUntimedKeys.push_back(mOwnerGO->GetGlobalPosition());
 			mKeyTiming.push_back(fCurrTime);
@@ -281,7 +281,7 @@ namespace Ice
 		}
 		else
 			vKeys.push_back(Ogre::Vector4(mOwnerGO->GetGlobalPosition().x, mOwnerGO->GetGlobalPosition().y, mOwnerGO->GetGlobalPosition().z, GetTimeToNextKey()));
-
+		*/
 
 		for(int iKey=0; iKey<(int)mAnimKeys.size(); iKey++)
 		{
