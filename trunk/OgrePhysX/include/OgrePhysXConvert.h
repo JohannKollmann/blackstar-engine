@@ -1,6 +1,8 @@
 #pragma once
 
 #include "NxQuat.h"
+#include "NxMat34.h"
+#include "NxMat33.h"
 #include "NxVec3.h"
 #include "NxBounds3.h"
 #include "Ogre.h"
@@ -39,6 +41,10 @@ namespace OgrePhysX
 			nxb.min = toNx(b.getMinimum());
 			nxb.max = toNx(b.getMaximum());
 			return nxb;
+		}
+		static NxMat34 toNx(const Ogre::Vector3 &pos, const Ogre::Quaternion &rot)
+		{
+			return NxMat34(NxMat33(toNx(rot)), toNx(pos));
 		}
 	};
 }

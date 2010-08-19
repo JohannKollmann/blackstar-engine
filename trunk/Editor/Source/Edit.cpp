@@ -738,6 +738,7 @@ void Edit::OnLoadWorld(Ogre::String fileName)
 	STOP_MAINLOOP
 	DeselectAllObjects();
 	wxEdit::Instance().GetpropertyWindow()->SetPage("None");
+	mMoverReset.mover = nullptr;
 	Ice::SceneManager::Instance().LoadLevel(fileName);
 	wxEdit::Instance().GetWorldExplorer()->GetSceneTree()->Update();
 	wxEdit::Instance().GetWorldExplorer()->GetMaterialTree()->Update();
@@ -924,6 +925,7 @@ void Edit::OnDeleteObject( wxCommandEvent& WXUNUSED(event) )
 			int input = dialog.ShowModal();
 			if (input == wxID_YES)
 			{
+				if (object == mMoverReset.mover) mMoverReset.mover = nullptr;
 				delete object;
 			}
 			else if (input == wxID_NO)
@@ -932,6 +934,7 @@ void Edit::OnDeleteObject( wxCommandEvent& WXUNUSED(event) )
 				{
 					object->GetChild(0)->SetParent(object->GetParent());
 				}
+				if (object == mMoverReset.mover) mMoverReset.mover = nullptr;
 				delete object;
 			}
 			else if (input == wxID_CANCEL) return;
@@ -1296,10 +1299,10 @@ void Edit::ReceiveMessage(Ice::Msg &msg)
 					mFreezeCamera = false;
 					mSelectedObjects.front().mObject->GetComponent<Ice::GOCOgreNode>()->GetNode()->showBoundingBox(true);
 				}
-				mMoverReset.mover->GetComponent<Ice::GOCMover>()->SetKeyIgnoreParent(true);
+				mMoverReset.mover->GetComponent<Ice::GOCMover>()->PrepareMovement(true);
 				mMoverReset.mover->SetGlobalPosition(mMoverReset.resetPos);
 				mMoverReset.mover->SetGlobalOrientation(mMoverReset.resetQuat);
-				mMoverReset.mover->GetComponent<Ice::GOCMover>()->SetKeyIgnoreParent(false);
+				mMoverReset.mover->GetComponent<Ice::GOCMover>()->PrepareMovement(false);
 				mMoverReset.mover = nullptr;
 			}
 		}
@@ -1320,6 +1323,7 @@ void Edit::ReceiveMessage(Ice::Msg &msg)
 
 void Edit::OnInsertAnimKey( wxCommandEvent& WXUNUSED(event) /*= wxCommandEvent()*/ )
 {
+	STOP_MAINLOOP
 	if (mSelectedObjects.size() != 1) return;
 
 	Ice::AnimKey *key = mSelectedObjects.front().mObject->GetComponent<Ice::AnimKey>();
@@ -1330,6 +1334,7 @@ void Edit::OnInsertAnimKey( wxCommandEvent& WXUNUSED(event) /*= wxCommandEvent()
 
 	SelectObject(animKey);
 	wxEdit::Instance().GetWorldExplorer()->GetSceneTree()->NotifyObject(animKey);
+	RESUME_MAINLOOP
 }
 
 #define CALL_MOVER_FUNCTION(fct)\

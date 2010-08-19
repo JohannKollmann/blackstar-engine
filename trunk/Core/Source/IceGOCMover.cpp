@@ -68,7 +68,6 @@ namespace Ice
 		mLookAtLine = nullptr;
 		mNormalLookAtLine = nullptr;
 		mLastKeyIndex = -1;
-		mRootAnimKey = nullptr;
 	}
 	void GOCMover::Init()
 	{
@@ -87,7 +86,6 @@ namespace Ice
 			Ice::Main::Instance().GetOgreSceneMgr()->getRootSceneNode()->detachObject(mSplineObject);
 			Ice::Main::Instance().GetOgreSceneMgr()->destroyManualObject(mSplineObject);
 		}
-		if (mRootAnimKey) delete mRootAnimKey;
 	}
 	void GOCMover::OnSetParameters()
 	{
@@ -99,11 +97,6 @@ namespace Ice
 		mOwnerGO = owner;
 		UpdatePosition(mOwnerGO->GetGlobalPosition());
 		UpdateOrientation(mOwnerGO->GetGlobalOrientation());
-		mRootAnimKey = new GameObject();
-		mRootAnimKey->SetParent(mOwnerGO);
-		mRootAnimKey->SetManagedByParent(false);
-		mRootAnimKey->SetGlobalPosition(mOwnerGO->GetGlobalPosition());
-		mRootAnimKey->SetGlobalOrientation(mOwnerGO->GetGlobalOrientation());
 	}
 
 	void GOCMover::Save(LoadSave::SaveSystem& mgr)
@@ -134,7 +127,7 @@ namespace Ice
 	{
 		_updateLookAtLine();
 		_updateNormalLookAtLine();
-		UpdateKeys();
+		if (!mMoving || mOwnerGO->GetUpdatingFromParent()) UpdateKeys();
 	}
 
 	void GOCMover::Trigger()
@@ -157,10 +150,9 @@ namespace Ice
 		}
 	}
 
-	void GOCMover::_prepareMovement(bool prepare)
+	void GOCMover::PrepareMovement(bool prepare)
 	{
 		SetKeyIgnoreParent(prepare);
-		mRootAnimKey->SetIgnoreParent(prepare);
 		if (mLookAtObject) mLookAtObject->SetIgnoreParent(prepare);
 		if (mNormalLookAtObject) mNormalLookAtObject->SetIgnoreParent(prepare);
 	}
@@ -197,9 +189,9 @@ namespace Ice
 				Ogre::Vector3 lookAtDir = mLookAtObject->GetGlobalPosition() - GetOwner()->GetGlobalPosition();
 				lookAtDir.normalise();
 
-				_prepareMovement(true);
+				PrepareMovement(true);
 				SetOwnerOrientation(Utils::ZDirToQuat(lookAtDir, upVector));
-				_prepareMovement(false);
+				PrepareMovement(false);
 			}
 			if (mMoving && !mPaused)
 			{
@@ -230,9 +222,9 @@ namespace Ice
 				else
 				{
 					int keyIndex = 0;
-					_prepareMovement(true);
+					PrepareMovement(true);
 					SetOwnerPosition(mSpline.Sample(mfLastPos, &keyIndex));
-					_prepareMovement(false);
+					PrepareMovement(false);
 					keyIndex--;
 					if (keyIndex != mLastKeyIndex)
 					{
@@ -247,9 +239,9 @@ namespace Ice
 				if (!(mLookAtObject || mIgnoreOrientation))		//look towards current target direction
 				{
 					Ogre::Vector3 lookAtDir = (mOwnerGO->GetGlobalPosition() - oldPos).normalisedCopy();
-					_prepareMovement(true);
+					PrepareMovement(true);
 					SetOwnerOrientation(Utils::ZDirToQuat(lookAtDir, upVector));
-					_prepareMovement(false);
+					PrepareMovement(false);
 				}
 
 				mfLastPos+=time;
@@ -277,9 +269,9 @@ namespace Ice
 	void GOCMover::UpdateKeys()
 	{
 		if (!mOwnerGO) return;
-		if (mMoving && !mOwnerGO->GetUpdatingFromParent()) return;
+		//if (mMoving && !mOwnerGO->GetUpdatingFromParent()) return;
 		mSplineObject->clear();
-		if(mAnimKeys.size()<1)
+		if(mAnimKeys.size()<2)
 			return;
 		int keyCounter = 0;
 		
@@ -287,19 +279,6 @@ namespace Ice
 		std::vector<Ogre::Vector3> vUntimedKeys;
 
 		double fCurrTime=0.0;
-
-		vKeys.push_back(Ogre::Vector4(mRootAnimKey->GetGlobalPosition().x, mRootAnimKey->GetGlobalPosition().y, mRootAnimKey->GetGlobalPosition().z, GetTimeToNextKey()));
-
-		/*if(mStaticMode)
-		{
-			vUntimedKeys.push_back(mOwnerGO->GetGlobalPosition());
-			mKeyTiming.push_back(fCurrTime);
-			fCurrTime+=GetTimeToNextKey();
-			mKeyTiming.push_back(fCurrTime);
-		}
-		else
-			vKeys.push_back(Ogre::Vector4(mOwnerGO->GetGlobalPosition().x, mOwnerGO->GetGlobalPosition().y, mOwnerGO->GetGlobalPosition().z, GetTimeToNextKey()));
-		*/
 
 		for(int iKey=0; iKey<(int)mAnimKeys.size(); iKey++)
 		{

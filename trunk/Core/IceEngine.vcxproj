@@ -112,6 +112,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\IceGOCForceField.cpp" />
     <ClCompile Include="Source\IceGOCEditorInterface.cpp" />
     <ClCompile Include="Source\IceGOCOgreNode.cpp" />
     <ClCompile Include="Source\IceGOCMover.cpp" />
@@ -197,6 +198,7 @@
     <ClCompile Include="Source\LoadSaveable.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Header\IceGOCForceField.h" />
     <ClInclude Include="Header\IceGOCOgreNode.h" />
     <ClInclude Include="Header\IceGOCMover.h" />
     <ClInclude Include="Header\IceGOCScript.h" />

@@ -22,6 +22,7 @@ namespace OgrePhysX
 	class BaseMeshShape;
 	class CookedMeshShape;
 	class RTMeshShape;
+	class RTConvexMeshShape;
 	class PrimitiveShape;
 	class PlaneShape;
 	class BoxShape;
