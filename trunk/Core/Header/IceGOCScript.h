@@ -27,6 +27,9 @@ namespace Ice
 
 		void SetOwner(GameObject *go);
 
+		std::vector<ScriptParam> RunFunction(Script& caller, std::vector<ScriptParam> &vParams);
+		DEFINE_TYPEDGOCLUAMETHOD(GOCScript, RunFunction, "string");
+
 		std::string& TellName() { static std::string name = "Script"; return name; };
 		static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "Script"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };
 		static LoadSave::Saveable* NewInstance() { return new GOCScript; };

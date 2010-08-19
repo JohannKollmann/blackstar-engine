@@ -182,17 +182,22 @@ namespace Ice
 
 				//saturate and convert to image space
 				//calc climb rate
-				float fSlope;
+				float fSlope,fInverseSlope;
 				if(sunUV.x!=0)
 					fSlope=sunUV.y/sunUV.x;
-				if (sunUV.x < -1){sunUV.x = -1;sunUV.y = -fSlope;}
-				if (sunUV.x > 1){sunUV.x = 1;sunUV.y = -fSlope;}
-				//calc inverse climb rate
 				if(sunUV.y!=0)
-					fSlope=sunUV.x/sunUV.y;
-				if (sunUV.y < -1){ sunUV.y = -1;sunUV.x=-fSlope;}
-				if (sunUV.y > 1){ sunUV.y = -1;sunUV.x=fSlope;}
-				//sunUV.y *= -1;
+					fInverseSlope=sunUV.x/sunUV.y;
+				if(sunUV.x>sunUV.y)
+				{
+					if (sunUV.x < -1){sunUV.x = -1;sunUV.y = -fSlope;}
+					if (sunUV.x > 1){sunUV.x = 1;sunUV.y = fSlope;}
+				}
+				else
+				{
+					if (sunUV.y < -1){ sunUV.y = -1;sunUV.x=-fInverseSlope;}
+					if (sunUV.y > 1){ sunUV.y = 1;sunUV.x=fInverseSlope;}
+				}
+				sunUV.y *= -1;
 				sunUV += Ogre::Vector3(1, 1, 0);
 				sunUV *= 0.5;
 

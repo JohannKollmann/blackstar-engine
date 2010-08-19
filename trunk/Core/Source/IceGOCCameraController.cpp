@@ -96,9 +96,7 @@ namespace Ice
 	{
 		if (!mCamera) return;
 		mCameraNode->detachObject(mCamera);
-		MessageSystem::Instance().QuitNewsgroup(this, "MOUSE_MOVE");
-		MessageSystem::Instance().QuitNewsgroup(this, "UPDATE_PER_FRAME");
-		MessageSystem::Instance().QuitNewsgroup(this, "KEY_DOWN");
+		MessageSystem::Instance().QuitAllNewsgroups(this);
 		mCamera = nullptr;
 	}	
 

@@ -15,6 +15,9 @@
 #include "wxOgre.h"
 #include "wx/msw/winundef.h"
 
+#define STOP_MAINLOOP wxEdit::Instance().GetMainNotebook()->GetOgreWindow()->SetPaused(true);
+#define RESUME_MAINLOOP wxEdit::Instance().GetMainNotebook()->GetOgreWindow()->SetPaused(false);
+
 class IEditorSelection
 {
 	virtual void SetGlobalPosition(Ogre::Vector3 pos) = 0;

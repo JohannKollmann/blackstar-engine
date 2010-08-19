@@ -346,7 +346,6 @@ void GOCAnimatedCharacter::_clear()
 	if (mEntity) Main::Instance().GetOgreSceneMgr()->destroyEntity(mEntity);
 	if (mRagdoll)
 	{
-		MessageSystem::Instance().QuitNewsgroup(this, "UPDATE_PER_FRAME");
 		Main::Instance().GetPhysXScene()->destroyRagdoll(mRagdoll);
 		mRagdoll = 0;
 	}
@@ -360,6 +359,7 @@ GOCAnimatedCharacter::GOCAnimatedCharacter()
 	mSetControlToActorsTemp = false;
 	mEditorMode = false;
 	mAnimationState = nullptr;
+	MessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
 }
 
 GOCAnimatedCharacter::GOCAnimatedCharacter(Ogre::String meshname, Ogre::Vector3 scale)
@@ -368,6 +368,7 @@ GOCAnimatedCharacter::GOCAnimatedCharacter(Ogre::String meshname, Ogre::Vector3 
 	mEditorMode = false;
 	mAnimationState = 0;
 	Create(meshname, scale);
+	MessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
 }
 
 void GOCAnimatedCharacter::Create(Ogre::String meshname, Ogre::Vector3 scale)
@@ -390,7 +391,6 @@ void GOCAnimatedCharacter::Create(Ogre::String meshname, Ogre::Vector3 scale)
 	{
 		GetMovementAnis(mEntity->getMesh()->getName() + ".anis");
 	}
-	MessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
 }
 
 void GOCAnimatedCharacter::SetAnimationState(Ogre::String statename)
@@ -536,6 +536,7 @@ void GOCAnimatedCharacter::SetOwner(GameObject *go)
 	if (mMeshName == "") return;
 	Create(mMeshName, mOwnerGO->GetGlobalScale());
 	if (!mEntity) return;
+	mEntity->setCastShadows(mShadowCaster);
 	mEntity->setUserAny(Ogre::Any(mOwnerGO));
 	UpdatePosition(go->GetGlobalPosition());
 	UpdateOrientation(go->GetGlobalOrientation());
@@ -555,7 +556,7 @@ void GOCAnimatedCharacter::SetParameters(DataMap *parameters)
 {
 	mMeshName = parameters->GetOgreString("MeshName");
 	mAnimationStateStr = parameters->GetOgreString("AnimState");
-	bool shadowcaster = parameters->GetBool("ShadowCaster");
+	mShadowCaster = parameters->GetBool("ShadowCaster");
 	mSetControlToActorsTemp = parameters->GetBool("Ragdoll");
 	Ogre::Vector3 scale = Ogre::Vector3(1,1,1);
 	scale = parameters->GetOgreVec3("Scale");
@@ -586,7 +587,6 @@ void GOCAnimatedCharacter::GetDefaultParameters(DataMap *parameters)
 void GOCAnimatedCharacter::Save(LoadSave::SaveSystem& mgr)
 {
 	mgr.SaveAtom("Ogre::String", (void*)&mEntity->getMesh()->getName(), "MeshName");
-	mgr.SaveAtom("Ogre::Vector3", &mOwnerGO->GetGlobalScale(), "Scale");
 	mgr.SaveAtom("Ogre::String", &mAnimationStateStr, "AnimState");
 	bool ragdoll = mRagdoll->isControlledByActors();
 	mgr.SaveAtom("bool", &ragdoll, "Ragdoll");
@@ -600,16 +600,10 @@ void GOCAnimatedCharacter::Load(LoadSave::LoadSystem& mgr)
 	Ogre::String animstate;
 	bool shadowcaster = true;
 	bool ragdoll = false;
-	mgr.LoadAtom("Ogre::String", &meshname);
-	mgr.LoadAtom("Ogre::Vector3", &scale);
-	mgr.LoadAtom("Ogre::String", &animstate);
-	mgr.LoadAtom("bool", &ragdoll);
-	mgr.LoadAtom("bool", &shadowcaster);
-	Create(meshname, scale);
-	mEntity->setCastShadows(shadowcaster);
-	if (!mRagdoll) return;
-	if (animstate != "") SetAnimationState(animstate);
-	if (ragdoll) mRagdoll->setControlToActors();
+	mgr.LoadAtom("Ogre::String", &mMeshName);
+	mgr.LoadAtom("Ogre::String", &mAnimationStateStr);
+	mgr.LoadAtom("bool", &mSetControlToActorsTemp);
+	mgr.LoadAtom("bool", &mShadowCaster);
 }
 
 };

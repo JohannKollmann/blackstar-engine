@@ -727,6 +727,7 @@ void Edit::CreatePreviewObject()
 
 void Edit::OnLoadWorld(Ogre::String fileName)
 {
+	STOP_MAINLOOP
 	DeselectAllObjects();
 	wxEdit::Instance().GetpropertyWindow()->SetPage("None");
 	Ice::SceneManager::Instance().LoadLevel(fileName);
@@ -735,6 +736,7 @@ void Edit::OnLoadWorld(Ogre::String fileName)
 	wxEdit::Instance().GetOgrePane()->SetFocus();
 
 	NavMeshEditorNode::FromMesh(Ice::AIManager::Instance().GetNavigationMesh());
+	RESUME_MAINLOOP
 };
 
 void Edit::OnSaveWorld(Ogre::String fileName)

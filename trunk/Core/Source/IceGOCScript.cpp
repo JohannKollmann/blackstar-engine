@@ -14,6 +14,12 @@ namespace Ice
 		if (mScriptFileName != "") InitScript(mScriptFileName);
 	}
 
+	std::vector<ScriptParam> GOCScript::RunFunction(Script& caller, std::vector<ScriptParam> &vParams)
+	{
+		std::string strFnName=vParams[0].getString();
+		vParams.erase(vParams.begin());
+		return mScript.CallFunction(strFnName, vParams);
+	}
 
 	GOCScriptMessageCallback::GOCScriptMessageCallback()
 	{
