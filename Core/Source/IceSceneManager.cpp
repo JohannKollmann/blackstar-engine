@@ -284,7 +284,7 @@ namespace Ice
 		Tells the npc to go to a certain waypoint.
 		*/
 		ScriptSystem::GetInstance().ShareCFunction("Npc_GotoWP", &GOCAI::Lua_Npc_GotoWP);
-		ScriptSystem::GetInstance().ShareCFunction("Npc_OpenDialog", &GOCAI::Lua_Npc_OpenDialog);
+		//ScriptSystem::GetInstance().ShareCFunction("Npc_OpenDialog", &GOCAI::Lua_Npc_OpenDialog);
 
 		/**
 		Triggers a mover.

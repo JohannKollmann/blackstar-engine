@@ -85,6 +85,7 @@ namespace Ice
 		}
 
 		std::list<MessageListener*>::iterator li = (*ni).mListeners.begin();
+		IceAssert(std::find((*ni).mListeners.begin(), (*ni).mListeners.end(), listener) == (*ni).mListeners.end())
 		for (; li != (*ni).mListeners.end(); li++)
 		{
 			if ((*li)->GetListenerPriority() < listener->GetListenerPriority())
@@ -100,7 +101,7 @@ namespace Ice
 
 	void MessageSystem::QuitNewsgroup(MessageListener *listener, Ogre::String groupname)
 	{
-		/*std::list<Newsgroup>::iterator ni = mNewsgroups.begin();
+		std::list<Newsgroup>::iterator ni = mNewsgroups.begin();
 		bool found = false;
 		for (; ni != mNewsgroups.end(); ni++)
 		{
@@ -124,7 +125,7 @@ namespace Ice
 				(*ni).mListeners.erase(x);
 				break;
 			}
-		}*/
+		}
 		//Ogre::LogManager::getSingleton().logMessage("MessageSystem::QuitNewsgroup: Quitted listener to Newsgroup '" + groupname + "'.");
 	};
 

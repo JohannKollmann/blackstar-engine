@@ -38,13 +38,13 @@ namespace Ice
 		std::vector<ScriptParam> Npc_ClearQueue(Script& caller, std::vector<ScriptParam> &vParams);
 		std::vector<ScriptParam> Npc_AddTA(Script& caller, std::vector<ScriptParam> &vParams);
 		std::vector<ScriptParam> Npc_GotoWP(Script& caller, std::vector<ScriptParam> &vParams);
-		std::vector<ScriptParam> Npc_OpenDialog(Script& caller, std::vector<ScriptParam> &vParams);
+		//std::vector<ScriptParam> Npc_OpenDialog(Script& caller, std::vector<ScriptParam> &vParams);
 		DEFINE_TYPEDGOCLUAMETHOD(GOCAI, Npc_AddState, "string")
 		DEFINE_GOCLUAMETHOD(GOCAI, Npc_KillActiveState)
 		DEFINE_GOCLUAMETHOD(GOCAI, Npc_ClearQueue)
 		DEFINE_TYPEDGOCLUAMETHOD(GOCAI, Npc_AddTA, "string float float")
 		DEFINE_TYPEDGOCLUAMETHOD(GOCAI, Npc_GotoWP, "string")
-		DEFINE_GOCLUAMETHOD(GOCAI, Npc_OpenDialog)
+		//DEFINE_GOCLUAMETHOD(GOCAI, Npc_OpenDialog)
 
 		void AddState(AIState *state);
 		void AddDayCycleState(DayCycle *state);

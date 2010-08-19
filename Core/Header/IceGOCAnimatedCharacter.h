@@ -94,6 +94,7 @@ private:
 	bool mEditorMode;
 	Ogre::String mAnimationStateStr;
 	Ogre::String mMeshName;
+	bool mShadowCaster;
 	std::map<AnimationID, Ogre::String> mMovementAnimations;
 	int mMovementState;
 
