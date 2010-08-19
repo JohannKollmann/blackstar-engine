@@ -65,11 +65,13 @@ namespace OgrePhysX
 	}
 	void Actor::setGlobalPosition(Ogre::Vector3 position)
 	{
-		mNxActor->setGlobalPosition(Convert::toNx(position));
+		if (mNxActor->isDynamic() && mNxActor->readBodyFlag(NxBodyFlag::NX_BF_KINEMATIC)) mNxActor->moveGlobalPosition(Convert::toNx(position));
+		else mNxActor->setGlobalPosition(Convert::toNx(position));
 	}
 	void Actor::setGlobalOrientation(Ogre::Quaternion rotation)
 	{
-		mNxActor->setGlobalOrientation(Convert::toNx(rotation));
+		if (mNxActor->isDynamic() && mNxActor->readBodyFlag(NxBodyFlag::NX_BF_KINEMATIC)) mNxActor->moveGlobalOrientation(Convert::toNx(rotation));
+		else mNxActor->setGlobalOrientation(Convert::toNx(rotation));
 	}
 
 }

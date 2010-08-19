@@ -68,6 +68,7 @@ namespace Ice
 
 	private:
 		std::vector<GameObject*> mAnimKeys;
+		GameObject *mRootAnimKey;
 		Ogre::String mKeyCallback;
 		bool mMoving;
 		bool mPaused;
@@ -137,6 +138,7 @@ namespace Ice
 		END_GOCEDITORINTERFACE
 
 		void OnSetParameters();
+		void SetOwner(GameObject *owner);
 
 		//Scripting
 		std::vector<ScriptParam> TriggerMover(Script &caller, std::vector<ScriptParam> &params) { Trigger();  return std::vector<ScriptParam>(); };

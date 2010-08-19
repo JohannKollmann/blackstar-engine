@@ -31,7 +31,7 @@ namespace Ice
 		//Name
 		Ogre::String mName;
 
-		bool mLoadSaveByParent;
+		bool mManagedByParent;
 
 		bool mSelectable;
 		bool mFreezed;
@@ -186,6 +186,8 @@ namespace Ice
 		void Rescale(Ogre::Vector3 scaleoffset) { SetGlobalScale(mScale + scaleoffset); }
 		bool GetTransformingChildren() { return mTransformingChildren; }
 		bool GetUpdatingFromParent() { return mUpdatingFromParent; }
+		void SetManagedByParent(bool set) { mManagedByParent = set; }
+		bool IsManagedByParent() { return mManagedByParent; }
 
 		/**
 		Returns whether the object is movable and should be included in a save file.

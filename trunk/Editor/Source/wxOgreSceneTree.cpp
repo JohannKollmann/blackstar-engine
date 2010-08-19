@@ -118,7 +118,7 @@ void wxOgreSceneTree::ScanFromNode(OgreTreeItemBase *item, Ice::GameObject *scan
 		for (unsigned short i = 0; i < scanFrom->GetNumChildren(); i++)
 		{
 			currentNode = scanFrom->GetChild(i);
-			AppendGameObject(item->GetId(), currentNode);
+			if (currentNode->IsManagedByParent()) AppendGameObject(item->GetId(), currentNode);
 		}
 	}
 };

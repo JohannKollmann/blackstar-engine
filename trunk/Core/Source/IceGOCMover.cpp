@@ -67,6 +67,7 @@ namespace Ice
 		mLookAtLine = nullptr;
 		mNormalLookAtLine = nullptr;
 		mLastKeyIndex = -1;
+		mRootAnimKey = nullptr;
 	}
 	void GOCMover::Init()
 	{
@@ -85,10 +86,23 @@ namespace Ice
 			Ice::Main::Instance().GetOgreSceneMgr()->getRootSceneNode()->detachObject(mSplineObject);
 			Ice::Main::Instance().GetOgreSceneMgr()->destroyManualObject(mSplineObject);
 		}
+		if (mRootAnimKey) delete mRootAnimKey;
 	}
 	void GOCMover::OnSetParameters()
 	{
 		Init();
+	}
+
+	void GOCMover::SetOwner(GameObject *owner)
+	{
+		mOwnerGO = owner;
+		UpdatePosition(mOwnerGO->GetGlobalPosition());
+		UpdateOrientation(mOwnerGO->GetGlobalOrientation());
+		mRootAnimKey = new GameObject();
+		mRootAnimKey->SetParent(mOwnerGO);
+		mRootAnimKey->SetManagedByParent(false);
+		mRootAnimKey->SetGlobalPosition(mOwnerGO->GetGlobalPosition());
+		mRootAnimKey->SetGlobalOrientation(mOwnerGO->GetGlobalOrientation());
 	}
 
 	void GOCMover::Save(LoadSave::SaveSystem& mgr)
@@ -145,6 +159,7 @@ namespace Ice
 	void GOCMover::_prepareMovement(bool prepare)
 	{
 		SetKeyIgnoreParent(prepare);
+		mRootAnimKey->SetIgnoreParent(prepare);
 		if (mLookAtObject) mLookAtObject->SetIgnoreParent(prepare);
 		if (mNormalLookAtObject) mNormalLookAtObject->SetIgnoreParent(prepare);
 	}
@@ -263,7 +278,7 @@ namespace Ice
 		if (!mOwnerGO) return;
 		if (mMoving && !mOwnerGO->GetUpdatingFromParent()) return;
 		mSplineObject->clear();
-		if(mAnimKeys.size()<2)
+		if(mAnimKeys.size()<1)
 			return;
 		int keyCounter = 0;
 		
@@ -271,6 +286,8 @@ namespace Ice
 		std::vector<Ogre::Vector3> vUntimedKeys;
 
 		double fCurrTime=0.0;
+
+		vKeys.push_back(Ogre::Vector4(mRootAnimKey->GetGlobalPosition().x, mRootAnimKey->GetGlobalPosition().y, mRootAnimKey->GetGlobalPosition().z, GetTimeToNextKey()));
 
 		/*if(mStaticMode)
 		{
