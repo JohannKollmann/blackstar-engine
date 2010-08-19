@@ -12,7 +12,7 @@ namespace Ice
 	{
 		mSelectable = true;
 		mParent = nullptr;
-		mLoadSaveByParent = true;
+		mManagedByParent = true;
 		mID = SceneManager::Instance().RegisterObject(this);
 		mName = "GameObject";
 		mScale = Ogre::Vector3(1,1,1);
@@ -39,7 +39,7 @@ namespace Ice
 	{
 		mSelectable = true;
 		mParent = nullptr;
-		mLoadSaveByParent = true;
+		mManagedByParent = true;
 		mID = SceneManager::Instance().RequestID();
 		mName = "GameObject";
 		mScale = Ogre::Vector3(1,1,1);
@@ -218,7 +218,8 @@ namespace Ice
 		while (mChildren.size() > 0)
 		{
 			GameObject *child = (*i);
-			delete child;	//Children rufen im Destruktor mParent->UnregisterChild(this) auf
+			if (child->mManagedByParent) delete child;	//Children rufen im Destruktor mParent->UnregisterChild(this) auf
+			else UnregisterChild(child);
 			i = mChildren.begin();
 		}
 	}
@@ -340,7 +341,7 @@ namespace Ice
 
 		std::vector<GameObject*> managed_children;
 		for (auto i = mChildren.begin(); i != mChildren.end(); i++)
-			if ((*i)->mLoadSaveByParent) managed_children.push_back(*i);
+			if ((*i)->mManagedByParent) managed_children.push_back(*i);
 		mgr.SaveAtom("std::vector<Saveable*>", (void*)(&managed_children), "mChildren");
 	}
 
