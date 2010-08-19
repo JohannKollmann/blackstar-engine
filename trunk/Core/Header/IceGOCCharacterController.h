@@ -4,6 +4,7 @@
 #include "NxControllerManager.h"
 #include "IceMessageListener.h"
 #include "IceGOCPhysics.h"
+#include <NxController.h> 
 
 namespace Ice
 {
@@ -17,6 +18,19 @@ namespace Ice
 		JUMP = 16,
 		RUN = 32,
 		CROUCH = 64,
+	};
+
+	class GOCCharacterController;
+
+	class DllExport CharacterHitReport : public NxUserControllerHitReport
+	{
+	private:
+		GOCCharacterController *mController;
+
+	public:
+		CharacterHitReport(GOCCharacterController *controller) : mController(controller) {}
+		NxControllerAction onShapeHit (const NxControllerShapeHit &hit);
+		NxControllerAction onControllerHit (const NxControllersHit &hit);
 	};
 
 	class DllExport CharacterJump
@@ -72,6 +86,7 @@ namespace Ice
 		CharacterJump mJump;
 		Ogre::Vector3 mDirection;
 		Ogre::Vector3 mDimensions;
+		Ogre::Vector3 mVelocityOffset;
 		float mStepOffset;
 		bool mFreezed;
 
@@ -86,6 +101,8 @@ namespace Ice
 		~GOCCharacterController(void);
 
 		GOComponent::goc_id_type& GetComponentID() const { static std::string name = "CharacterController"; return name; }
+
+		void AddVelocity(const Ogre::Vector3 &velocity) { mVelocityOffset += velocity; }
 
 		void UpdatePosition(Ogre::Vector3 position);
 		void UpdateOrientation(Ogre::Quaternion orientation);
