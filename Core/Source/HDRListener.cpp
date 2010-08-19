@@ -181,11 +181,18 @@ namespace Ice
 				Ogre::Vector3 sunUV = viewproj * sunPos;
 
 				//saturate and convert to image space
-				if (sunUV.x < -1) sunUV.x = -1;
-				if (sunUV.y < -1) sunUV.y = -1;
-				if (sunUV.x > 1) sunUV.x = 1;
-				if (sunUV.y > 1) sunUV.y = 1;
-				sunUV.y *= -1;
+				//calc climb rate
+				float fSlope;
+				if(sunUV.x!=0)
+					fSlope=sunUV.y/sunUV.x;
+				if (sunUV.x < -1){sunUV.x = -1;sunUV.y = -fSlope;}
+				if (sunUV.x > 1){sunUV.x = 1;sunUV.y = -fSlope;}
+				//calc inverse climb rate
+				if(sunUV.y!=0)
+					fSlope=sunUV.x/sunUV.y;
+				if (sunUV.y < -1){ sunUV.y = -1;sunUV.x=-fSlope;}
+				if (sunUV.y > 1){ sunUV.y = -1;sunUV.x=fSlope;}
+				//sunUV.y *= -1;
 				sunUV += Ogre::Vector3(1, 1, 0);
 				sunUV *= 0.5;
 
