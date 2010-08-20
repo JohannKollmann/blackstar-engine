@@ -84,6 +84,7 @@ public:
 	void OnSaveBones(wxCommandEvent& WXUNUSED(event) = wxCommandEvent());
 	void OnCreateWayTriangle(wxCommandEvent& WXUNUSED(event) = wxCommandEvent());
 	void OnInsertAnimKey(wxCommandEvent& WXUNUSED(event) = wxCommandEvent());
+	void OnMoverInsertKey(wxCommandEvent& WXUNUSED(event) = wxCommandEvent());
 	void OnTriggerMover(wxCommandEvent& WXUNUSED(event) = wxCommandEvent());
 	void OnPauseMover(wxCommandEvent& WXUNUSED(event) = wxCommandEvent());
 	void OnStopMover(wxCommandEvent& WXUNUSED(event) = wxCommandEvent());

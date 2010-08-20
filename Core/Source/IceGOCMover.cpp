@@ -57,7 +57,7 @@ namespace Ice
 
 	GOCMover::GOCMover()
 	{
-		mMover = this;
+		//mMover = this;
 		mMoving = false;
 		mPerformingMovement = false;
 		mPaused=false;
@@ -102,7 +102,7 @@ namespace Ice
 
 	void GOCMover::Save(LoadSave::SaveSystem& mgr)
 	{
-		mgr.SaveAtom("float", &mTimeToNextKey, "TimeToNextKey");
+		//mgr.SaveAtom("float", &mTimeToNextKey, "TimeToNextKey");
 		mgr.SaveAtom("bool", &mIsClosed, "Closed");
 		mgr.SaveAtom("bool", &mStaticMode, "StaticMode");
 		mgr.SaveAtom("bool", &mIgnoreOrientation, "IgnoreOrientation");
@@ -113,7 +113,7 @@ namespace Ice
 	void GOCMover::Load(LoadSave::LoadSystem& mgr)
 	{
 		Init();
-		mgr.LoadAtom("float", &mTimeToNextKey);
+		//mgr.LoadAtom("float", &mTimeToNextKey);
 		mgr.LoadAtom("bool", &mIsClosed);
 		mgr.LoadAtom("bool", &mStaticMode);
 		mgr.LoadAtom("bool", &mIgnoreOrientation);
@@ -231,7 +231,7 @@ namespace Ice
 					if (keyIndex != mLastKeyIndex)
 					{
 						Ice::Msg msg; msg.type = "MOVER_KEY";
-						IceAssert(keyIndex < mAnimKeys.size());
+						IceAssert(keyIndex < (int)mAnimKeys.size());
 						msg.params.AddOgreString("Keyname", mAnimKeys[keyIndex]->GetName());
 						mOwnerGO->SendInstantMessage(msg);
 						mLastKeyIndex = keyIndex;
@@ -446,7 +446,7 @@ namespace Ice
 					GameObject *succ = mAnimKeys[i+1];
 					if (!succ->GetComponent<GOCAnimKey>()) return;
 					if (i == 0)
-						succ->GetComponent<GOCAnimKey>()->mPredecessor = this;
+						;//succ->GetComponent<GOCAnimKey>()->mPredecessor = this;
 					else succ->GetComponent<GOCAnimKey>()->mPredecessor = mAnimKeys[i-1]->GetComponent<AnimKey>();
 				}
 				mAnimKeys.erase(iter);
@@ -460,13 +460,23 @@ namespace Ice
 	void GOCMover::InsertKey(GameObject *key, AnimKey *pred)
 	{
 		IceAssert(std::find(mAnimKeys.begin(), mAnimKeys.end(), key) == mAnimKeys.end())
-		if (pred == this)
+		/*if (pred == this)
 		{
 			if (!mAnimKeys.empty())
 				(*(mAnimKeys.begin()))->GetComponent<GOCAnimKey>()->mPredecessor = key->GetComponent<AnimKey>();
 			mAnimKeys.insert(mAnimKeys.begin(), key);
 		}
-		else
+		else*/
+		if(pred==nullptr)//insert first key
+		{
+			mAnimKeys.insert(mAnimKeys.begin(), key);
+			if(mAnimKeys.size()>1)
+				mAnimKeys[1]->GetComponent<GOCAnimKey>()->mPredecessor = mAnimKeys[0]->GetComponent<AnimKey>();
+			UpdateKeys();
+			return;
+		}
+
+
 		{
 			for (auto i = mAnimKeys.begin(); i != mAnimKeys.end(); i++)
 			{

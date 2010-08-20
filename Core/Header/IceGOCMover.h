@@ -40,7 +40,7 @@ namespace Ice
 		AnimKey *mPredecessor;
 
 	public:
-		GOCAnimKey() {}
+		GOCAnimKey() {mTimeToNextKey = 1;}
 		GOCAnimKey(AnimKey *pred);
 		~GOCAnimKey(void);
 
@@ -63,7 +63,7 @@ namespace Ice
 		static LoadSave::Saveable* NewInstance() { return new GOCAnimKey; }
 	};
 
-	class DllExport GOCMover : public AnimKey, public GOCEditorVisualised, public GOCStaticEditorInterface, public MessageListener, public Utils::DeleteListener
+	class DllExport GOCMover : /*public AnimKey, */public GOCEditorVisualised, public GOCStaticEditorInterface, public MessageListener, public Utils::DeleteListener
 	{
 		friend class GOCAnimKey;
 
@@ -133,11 +133,10 @@ namespace Ice
 
 		//Editor interface
 		BEGIN_GOCEDITORINTERFACE(GOCMover, "Mover")
-			PROPERTY_FLOAT(mTimeToNextKey, "TimeToNextKey", 1.0f);
+			//PROPERTY_FLOAT(mTimeToNextKey, "TimeToNextKey", 1.0f);
 			PROPERTY_BOOL(mIsClosed, "Closed", false);
 			PROPERTY_BOOL(mStaticMode, "Static Mode", false);
 			PROPERTY_BOOL(mIgnoreOrientation, "Ignore Orientation", false);
-			PROPERTY_STRING(mKeyCallback, "Key Callback", "");
 		END_GOCEDITORINTERFACE
 
 		void OnSetParameters();

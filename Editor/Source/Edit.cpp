@@ -28,6 +28,7 @@ enum
 	EVT_SaveBones,
 	EVT_CreateWayTriangle,
 	EVT_InsertAnimKey,
+	EVT_MoverInserKey,
 	EVT_TriggerMover,
 	EVT_PauseMover,
 	EVT_StopMover,
@@ -52,6 +53,7 @@ BEGIN_EVENT_TABLE(Edit, wxOgre)
 	EVT_MENU(EVT_SaveBones, Edit::OnSaveBones)
 	EVT_MENU(EVT_CreateWayTriangle, Edit::OnCreateWayTriangle)
 	EVT_MENU(EVT_InsertAnimKey, Edit::OnInsertAnimKey)
+	EVT_MENU(EVT_MoverInserKey, Edit::OnMoverInsertKey)
 	EVT_MENU(EVT_TriggerMover, Edit::OnTriggerMover)
 	EVT_MENU(EVT_PauseMover, Edit::OnPauseMover)
 	EVT_MENU(EVT_StopMover, Edit::OnStopMover)
@@ -385,6 +387,8 @@ void Edit::OnMouseEvent(wxMouseEvent &ev)
 					}
 					if (obj1->GetComponent<Ice::AnimKey>())
 						menu.Append(EVT_InsertAnimKey, "New Anim Key");
+					if (obj1->GetComponent<Ice::GOCMover>())
+						menu.Append(EVT_MoverInserKey, "New Anim Key");
 					if (obj1->GetComponent<Ice::GOCMover>())
 						menu.Append(EVT_TriggerMover, "Test Mover");
 					if (obj1->GetComponent<Ice::GOCMover>())
@@ -1337,15 +1341,39 @@ void Edit::OnInsertAnimKey( wxCommandEvent& WXUNUSED(event) /*= wxCommandEvent()
 	RESUME_MAINLOOP
 }
 
+void Edit::OnMoverInsertKey( wxCommandEvent& WXUNUSED(event)) /*= wxCommandEvent()*/
+{
+
+	if (mSelectedObjects.size() != 1) return;
+	
+	Ice::GOCMover *mover = mSelectedObjects.front().mObject->GetComponent<Ice::GOCMover>();
+	if (!mover) return;
+		
+	/*mMoverReset.mover = mover->GetOwner();
+	mMoverReset.resetPos = mover->GetOwner()->GetGlobalPosition();
+	mMoverReset.resetQuat = mover->GetOwner()->GetGlobalOrientation();*/
+
+	Ice::GameObject *go = new Ice::GameObject();
+	Ice::GOCAnimKey *key = new Ice::GOCAnimKey();
+	go->AddComponent(key);
+	go->SetParent(mover->GetOwner());
+
+	go->SetGlobalPosition(GetInsertPosition());
+	SelectObject(go);
+	wxEdit::Instance().GetWorldExplorer()->GetSceneTree()->NotifyObject(go);
+
+	mover->InsertKey(go, nullptr);
+}
+
 #define CALL_MOVER_FUNCTION(fct)\
 if (mSelectedObjects.size() != 1) return;\
 	\
 	Ice::GOCMover *mover = mSelectedObjects.front().mObject->GetComponent<Ice::GOCMover>();\
 	if (!mover) return;\
 		\
-	mMoverReset.mover = mover->GetOwner();\
-	mMoverReset.resetPos = mover->GetOwner()->GetGlobalPosition();\
-	mMoverReset.resetQuat = mover->GetOwner()->GetGlobalOrientation();\
+	/*mMoverReset.mover = mover->GetOwner();*/\
+	/*mMoverReset.resetPos = mover->GetOwner()->GetGlobalPosition();*/\
+	/*mMoverReset.resetQuat = mover->GetOwner()->GetGlobalOrientation();*/\
 	\
 	if (mSelectedObjects.front().mObject->GetComponent<Ice::GOCSimpleCameraController>())\
 	{\

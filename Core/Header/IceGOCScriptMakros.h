@@ -23,7 +23,10 @@ namespace Ice
 			GameObject *obj = SceneManager::Instance().GetObjectByInternID(id); \
 			if (!obj) \
 			{ \
-				return std::vector<ScriptParam>(); \
+				std::vector<ScriptParam> errout;\
+				errout.push_back(Ice::ScriptParam());\
+				errout.push_back("could not find object for given ID!");\
+				return errout;\
 			} \
 			gocClassName *component = obj->GetComponent<##gocClassName##>(); \
 			if (!component) \
@@ -51,12 +54,18 @@ namespace Ice
 			GameObject *obj = SceneManager::Instance().GetObjectByInternID(id); \
 			if (!obj) \
 			{ \
-				return std::vector<ScriptParam>(); \
+				std::vector<ScriptParam> errout;\
+				errout.push_back(Ice::ScriptParam());\
+				errout.push_back("could not find object for given ID!");\
+				return errout;\
 			} \
 			gocClassName *component = obj->GetComponent<##gocClassName##>(); \
 			if (!component) \
 			{ \
-				return std::vector<ScriptParam>(); \
+				std::vector<ScriptParam> errout;\
+				errout.push_back(Ice::ScriptParam());\
+				errout.push_back("could not find component in given object!");\
+				return errout;\
 			} \
 			std::vector<ScriptParam> vObjParams; \
 			for (unsigned int i = 1; i < vParams.size(); i++) vObjParams.push_back(vParams[i]);	/*pop the script id*/	\
@@ -81,10 +90,14 @@ namespace Ice
 			GameObject *obj = SceneManager::Instance().GetObjectByInternID(id); \
 			if (!obj) \
 			{ \
-				std::vector<ScriptParam> errout; \
+				std::vector<ScriptParam> errout;\
+				errout.push_back(Ice::ScriptParam());\
+				errout.push_back("could not find object for given ID!");\
+				return errout;\
+				/*std::vector<ScriptParam> errout; \
 				bool b = false; \
 				errout.push_back(ScriptParam(b)); \
-				return errout; \
+				return errout; */ \
 			} \
 			std::vector<ScriptParam> vObjParams; \
 			for (unsigned int i = 1; i < vParams.size(); i++) vObjParams.push_back(vParams[i]);	/*pop the script id*/	\
@@ -107,10 +120,14 @@ namespace Ice
 			GameObject *obj = SceneManager::Instance().GetObjectByInternID(id); \
 			if (!obj) \
 			{ \
-				std::vector<ScriptParam> errout; \
+				std::vector<ScriptParam> errout;\
+				errout.push_back(Ice::ScriptParam());\
+				errout.push_back("could not find object for given ID!");\
+				return errout;\
+				/*std::vector<ScriptParam> errout; \
 				bool b = false; \
 				errout.push_back(ScriptParam(b)); \
-				return errout; \
+				return errout; */ \
 			} \
 			std::vector<ScriptParam> vObjParams; \
 			for (unsigned int i = 1; i < vParams.size(); i++) vObjParams.push_back(vParams[i]);	/*pop the script id*/	\
