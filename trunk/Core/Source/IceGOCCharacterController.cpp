@@ -12,27 +12,6 @@
 namespace Ice
 {
 
-	NxControllerAction CharacterHitReport::onShapeHit (const NxControllerShapeHit &hit)
-	{
-		//IceNote("wah")
-		if (hit.shape->getActor().userData)
-		{
-			GameObject *object = (GameObject*)hit.shape->getActor().userData;
-			GOCRigidBody *body = object->GetComponent<GOCRigidBody>();
-			if (body)
-			{
-				//NxExtendedVec3 charPos = mController->GetNxController()->getFilteredPosition();
-				Ogre::Vector3 velocity = OgrePhysX::Convert::toOgre(body->GetActor()->getNxActor()->getLinearVelocity());
-				mController->AddVelocity(velocity);
-			}
-		}
-		return NxControllerAction::NX_ACTION_NONE;
-	}
-	NxControllerAction CharacterHitReport::onControllerHit (const NxControllersHit &hit)
-	{
-		return NxControllerAction::NX_ACTION_NONE;
-	}
-
 	void CharacterControllerInput::BroadcastMovementState()
 	{
 		Msg objmsg;
@@ -59,14 +38,14 @@ namespace Ice
 
 	void GOCCharacterController::_clear()
 	{
-		if (mCharacterController)
+		if (mActor)
 		{
 			Msg msg;
 			msg.type = "ACOTR_ONWAKE";
-			msg.rawData = mCharacterController->getActor();
+			msg.rawData = mActor;
 			MessageSystem::Instance().SendInstantMessage(msg);
-			OgrePhysX::World::getSingleton().getControllerManager()->releaseController(*mCharacterController);
-			mCharacterController = nullptr;
+			Main::Instance().GetPhysXScene()->destroyActor(mActor);
+			mActor = nullptr;
 		}
 	}
 
@@ -83,20 +62,16 @@ namespace Ice
 		mMovementSpeed = 2.0f;
 		mSpeedFactor = 1;
 		mDirection = Ogre::Vector3(0,0,0);
-		mVelocityOffset = Ogre::Vector3(0,0,0);
 		mDimensions = dimensions;
-		NxBoxControllerDesc desc;
-		desc.skinWidth		= 0.1f;
-		desc.callback = new CharacterHitReport(this);
-		desc.extents.set(dimensions.x * 0.5 - desc.skinWidth, dimensions.y * 0.5 - desc.skinWidth, dimensions.z * 0.5 - desc.skinWidth);
-		desc.upDirection	= NX_Y;
-		desc.slopeLimit		= cosf(NxMath::degToRad(45.0f));
-		mStepOffset			= 0.8;
-		desc.stepOffset		= mStepOffset;
-		bool test = desc.isValid();
-		mCharacterController = OgrePhysX::World::getSingleton().getControllerManager()->createController(Main::Instance().GetPhysXScene()->getNxScene(), desc);
-		mCharacterController->getActor()->getShapes()[0]->setGroup(CollisionGroups::CHARACTER);
-		mCharacterController->setCollision(true);
+
+		float capsule_radius = mDimensions.x > mDimensions.z ? mDimensions.x : mDimensions.z;
+		float offset = 0.0f;
+		if (mDimensions.y - capsule_radius > 0.0f) offset = (mDimensions.y / capsule_radius) * 0.1f;
+		mActor = Main::Instance().GetPhysXScene()->createActor(
+			OgrePhysX::CapsuleShape(capsule_radius * 0.5f, mDimensions.y * 0.5f + offset).density(10).group(CollisionGroups::CHARACTER).localPose(Ogre::Vector3(0, mDimensions.y * 0.5f, 0)));
+		//mActor->getNxActor()->raiseBodyFlag(NxBodyFlag::NX_BF_DISABLE_GRAVITY);
+		mActor->getNxActor()->setMassSpaceInertiaTensor(NxVec3(0,1,0));
+
 	}
 
 	void GOCCharacterController::SetSpeedFactor(float factor)
@@ -106,7 +81,7 @@ namespace Ice
 
 	void GOCCharacterController::UpdatePosition(Ogre::Vector3 position)
 	{
-		mCharacterController->setPosition(NxExtendedVec3(position.x, position.y + mDimensions.y * 0.5, position.z));
+		mActor->setGlobalPosition(position);//Ogre::Vector3(position.x, position.y + mDimensions.y * 0.5, position.z));
 	}
 	void GOCCharacterController::UpdateOrientation(Ogre::Quaternion orientation)
 	{
@@ -122,30 +97,28 @@ namespace Ice
 			float time = msg.params.GetFloat("TIME");
 			float jumpDelta = 0.0f;
 			if (mJump.mJumping) jumpDelta = mJump.GetHeight(time);
-			Ogre::Vector3 dir_rotated = mOwnerGO->GetGlobalOrientation() * (mDirection + Ogre::Vector3(0, jumpDelta, 0));
-			dir_rotated += mVelocityOffset;
-			mVelocityOffset = Ogre::Vector3(0,0,0);
-			Ogre::Vector3 dir = (dir_rotated + Ogre::Vector3(0.0f, -9.81f, 0.0f)) * time;
-			NxU32 collisionFlags;
-			float minDist = 0.005f;
-			mCharacterController->move(NxVec3(dir.x, dir.y, dir.z), 1<<CollisionGroups::DEFAULT | 1<<CollisionGroups::LEVELMESH, minDist, collisionFlags, 1);
-			if(collisionFlags &  NxControllerFlag::NXCC_COLLISION_DOWN && mJump.mJumping && mJump.GetHeight(0) <= 0.0f)
+			Ogre::Vector3 dir = mOwnerGO->GetGlobalOrientation() * (mDirection + Ogre::Vector3(0, jumpDelta, 0));
+
+			Freeze(true);
+			mActor->setGlobalPosition(mActor->getGlobalPosition() + dir*time);
+			Freeze(false);
+
+			if(mJump.mJumping && mJump.GetHeight(0) <= 0.0f)
 			{
-				mCharacterController->setStepOffset(mStepOffset);
 				mJump.StopJump();
 				Msg jump_response;
 				jump_response.type = "CharacterJumpEnded";
 				mOwnerGO->SendInstantMessage(jump_response);
 			}
-			Msg collision_response;
+			/*Msg collision_response;
 			collision_response.type = "CharacterCollisionReport";
 			collision_response.params.AddInt("collisionFlags", collisionFlags);
-			mOwnerGO->SendMessage(collision_response);
+			mOwnerGO->SendMessage(collision_response);*/
 		}
 		if (msg.type == "END_PHYSICS" && !mFreezed)
 		{
-			NxExtendedVec3 nxPos = mCharacterController->getFilteredPosition();
-			SetOwnerPosition(Ogre::Vector3(nxPos.x, nxPos.y - mDimensions.y * 0.5, nxPos.z));
+			Ogre::Vector3 pos = mActor->getGlobalPosition();
+			SetOwnerPosition(Ogre::Vector3(pos.x, pos.y, pos.z));
 		}
 	}
 
@@ -164,7 +137,6 @@ namespace Ice
 			{
 				if (!mJump.mJumping)
 				{
-					mCharacterController->setStepOffset(0.0f);
 					mJump.StartJump(1.0f);
 				}
 			}
@@ -178,9 +150,9 @@ namespace Ice
 	void GOCCharacterController::SetOwner(GameObject *go)
 	{
 		mOwnerGO = go;
-		if (mCharacterController)
+		if (mActor)
 		{
-			mCharacterController->getActor()->userData = mOwnerGO;
+			mActor->getNxActor()->userData = mOwnerGO;
 			UpdatePosition(mOwnerGO->GetGlobalPosition());
 		}
 	}
@@ -190,14 +162,12 @@ namespace Ice
 		mFreezed = freeze;
 		if (mFreezed)
 		{
-			mCharacterController->getActor()->raiseBodyFlag(NX_BF_DISABLE_GRAVITY);	
-			mCharacterController->getActor()->raiseBodyFlag(NX_BF_FROZEN);	
+			mActor->getNxActor()->raiseBodyFlag(NX_BF_FROZEN);	
 		}
 		else
 		{
-			mCharacterController->getActor()->clearBodyFlag(NX_BF_DISABLE_GRAVITY);	
-			mCharacterController->getActor()->clearBodyFlag(NX_BF_FROZEN);	
-			mCharacterController->getActor()->wakeUp();
+			mActor->getNxActor()->clearBodyFlag(NX_BF_FROZEN);	
+			mActor->getNxActor()->wakeUp();
 		}
 	}
 
@@ -206,7 +176,7 @@ namespace Ice
 		_clear();
 		mDimensions = parameters->GetValue("Dimensions", Ogre::Vector3(1,1,1));
 		Create(mDimensions);
-		if (mOwnerGO) mCharacterController->getActor()->userData = mOwnerGO;
+		if (mOwnerGO) mActor->getNxActor()->userData = mOwnerGO;
 		mMovementSpeed = parameters->GetFloat("MaxSpeed");
 	}
 	void GOCCharacterController::GetParameters(DataMap *parameters)

@@ -20,19 +20,6 @@ namespace Ice
 		CROUCH = 64,
 	};
 
-	class GOCCharacterController;
-
-	class DllExport CharacterHitReport : public NxUserControllerHitReport
-	{
-	private:
-		GOCCharacterController *mController;
-
-	public:
-		CharacterHitReport(GOCCharacterController *controller) : mController(controller) {}
-		NxControllerAction onShapeHit (const NxControllerShapeHit &hit);
-		NxControllerAction onControllerHit (const NxControllersHit &hit);
-	};
-
 	class DllExport CharacterJump
 	{
 	private:
@@ -81,28 +68,27 @@ namespace Ice
 	class DllExport GOCCharacterController : public GOCPhysics, public MessageListener, public GOCEditorInterface
 	{
 	private:
-		NxController *mCharacterController;
+		OgrePhysX::Actor *mActor;
 		void Create(Ogre::Vector3 dimensions);
 		CharacterJump mJump;
 		Ogre::Vector3 mDirection;
 		Ogre::Vector3 mDimensions;
-		Ogre::Vector3 mVelocityOffset;
 		float mStepOffset;
 		bool mFreezed;
 
 		float mMovementSpeed;
 		float mSpeedFactor;
 
+
+
 		void _clear();
 
 	public:
-		GOCCharacterController() : mCharacterController(0) {}
+		GOCCharacterController() : mActor(0) {}
 		GOCCharacterController(Ogre::Vector3 dimensions);
 		~GOCCharacterController(void);
 
 		GOComponent::goc_id_type& GetComponentID() const { static std::string name = "CharacterController"; return name; }
-
-		void AddVelocity(const Ogre::Vector3 &velocity) { mVelocityOffset += velocity; }
 
 		void UpdatePosition(Ogre::Vector3 position);
 		void UpdateOrientation(Ogre::Quaternion orientation);
@@ -110,7 +96,7 @@ namespace Ice
 
 		void SetSpeedFactor(float factor);
 
-		NxController* GetNxController() { return mCharacterController; }
+		OgrePhysX::Actor* GetActor() { return mActor; }
 
 		void ReceiveObjectMessage(Msg &msg);
 		void ReceiveMessage(Msg &msg);

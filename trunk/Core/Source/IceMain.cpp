@@ -155,6 +155,7 @@ void Main::initScene()
 	mPhysXScene->setTriggerReport(new TriggerCallback());
 
 	mPhysXScene->getNxScene()->setGroupCollisionFlag(CollisionGroups::CHARACTER, CollisionGroups::BONE, false);
+	mPhysXScene->getNxScene()->setGroupCollisionFlag(CollisionGroups::BONE, CollisionGroups::CHARACTER, false);
 
 	mPhysXScene->getNxScene()->setGroupCollisionFlag(CollisionGroups::AI, CollisionGroups::BONE, false);
 	mPhysXScene->getNxScene()->setGroupCollisionFlag(CollisionGroups::AI, CollisionGroups::CHARACTER, false);
