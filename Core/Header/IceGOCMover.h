@@ -40,7 +40,7 @@ namespace Ice
 		AnimKey *mPredecessor;
 
 	public:
-		GOCAnimKey() {mTimeToNextKey = 1;}
+		GOCAnimKey() { mTimeToNextKey = 1; mPredecessor = nullptr; }
 		GOCAnimKey(AnimKey *pred);
 		~GOCAnimKey(void);
 

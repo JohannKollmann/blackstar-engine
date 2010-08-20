@@ -41,7 +41,7 @@ namespace Ice
 	void GOCAnimKey::Save(LoadSave::SaveSystem& mgr)
 	{
 		mgr.SaveAtom("float", &mTimeToNextKey, "TimeToNextKey");
-		mgr.SaveObject(dynamic_cast<LoadSave::Saveable*>(mPredecessor), "Mover");	//hack
+		mgr.SaveObject(dynamic_cast<LoadSave::Saveable*>(mPredecessor), "Mover", true);	//hack
 		mgr.SaveObject(mMover, "Mover");
 	}
 	void GOCAnimKey::Load(LoadSave::LoadSystem& mgr)
