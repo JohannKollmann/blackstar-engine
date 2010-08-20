@@ -63,7 +63,7 @@ namespace Ice
 	{
 		GOCCharacterController *character = (GOCCharacterController*)mAIObject->GetOwner()->GetComponent("Physics", "CharacterController");
 		mSweepActor = 0;
-		if (character) mSweepActor = character->GetNxController()->getActor();
+		if (character) mSweepActor = character->GetActor()->getNxActor();
 
 		computePath();
 	}
