@@ -889,6 +889,8 @@ void Edit::OnKillFocus( wxFocusEvent& event )
 	if (mPlaying)
 		PauseGame();
 	Ice::Main::Instance().GetInputManager()->SetEnabled(false);
+	if (wxEdit::Instance().GetpropertyWindow()->GetCurrentPage())
+		wxEdit::Instance().GetpropertyWindow()->GetCurrentPage()->OnUpdate();
 }
 
 void Edit::OnSetFocus( wxFocusEvent& event )
@@ -1303,10 +1305,7 @@ void Edit::ReceiveMessage(Ice::Msg &msg)
 					mFreezeCamera = false;
 					mSelectedObjects.front().mObject->GetComponent<Ice::GOCOgreNode>()->GetNode()->showBoundingBox(true);
 				}
-				mMoverReset.mover->GetComponent<Ice::GOCMover>()->PrepareMovement(true);
-				mMoverReset.mover->SetGlobalPosition(mMoverReset.resetPos);
-				mMoverReset.mover->SetGlobalOrientation(mMoverReset.resetQuat);
-				mMoverReset.mover->GetComponent<Ice::GOCMover>()->PrepareMovement(false);
+				mMoverReset.mover->GetComponent<Ice::GOCMover>()->Reset();
 				mMoverReset.mover = nullptr;
 			}
 		}
@@ -1358,7 +1357,7 @@ void Edit::OnMoverInsertKey( wxCommandEvent& WXUNUSED(event)) /*= wxCommandEvent
 	go->AddComponent(key);
 	go->SetParent(mover->GetOwner());
 
-	go->SetGlobalPosition(GetInsertPosition());
+	go->SetGlobalPosition(mover->GetOwner()->GetGlobalPosition());
 	SelectObject(go);
 	wxEdit::Instance().GetWorldExplorer()->GetSceneTree()->NotifyObject(go);
 
@@ -1370,10 +1369,6 @@ if (mSelectedObjects.size() != 1) return;\
 	\
 	Ice::GOCMover *mover = mSelectedObjects.front().mObject->GetComponent<Ice::GOCMover>();\
 	if (!mover) return;\
-		\
-	/*mMoverReset.mover = mover->GetOwner();*/\
-	/*mMoverReset.resetPos = mover->GetOwner()->GetGlobalPosition();*/\
-	/*mMoverReset.resetQuat = mover->GetOwner()->GetGlobalOrientation();*/\
 	\
 	if (mSelectedObjects.front().mObject->GetComponent<Ice::GOCSimpleCameraController>())\
 	{\
@@ -1385,6 +1380,8 @@ if (mSelectedObjects.size() != 1) return;\
 
 void Edit::OnTriggerMover( wxCommandEvent& WXUNUSED(event) /*= wxCommandEvent()*/ )
 {
+	Ice::GOCMover *m = mSelectedObjects.front().mObject->GetComponent<Ice::GOCMover>();
+	if (m) mMoverReset.mover = m->GetOwner();
 	CALL_MOVER_FUNCTION(Trigger)
 }
 

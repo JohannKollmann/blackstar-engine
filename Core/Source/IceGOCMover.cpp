@@ -131,6 +131,14 @@ namespace Ice
 		UpdateKeys();
 	}
 
+	void GOCMover::Reset()
+	{
+		PrepareMovement(true);
+		SetOwnerPosition(mAnimKeys[0]->GetGlobalPosition());
+		SetOwnerOrientation(mAnimKeys[0]->GetGlobalOrientation());
+		PrepareMovement(false);
+	}
+
 	void GOCMover::Trigger()
 	{
 		if(mPaused)
@@ -166,12 +174,13 @@ namespace Ice
 
 	void GOCMover::Stop()
 	{
-		SetKeyIgnoreParent(false);
 		mMoving = false;
 		mfLastPos=0;
 		Ice::Msg msg; msg.type = "MOVER_END";
 		mOwnerGO->SendInstantMessage(msg);
 		mLastKeyIndex = -1;
+		//reset mover to first key
+		Reset();
 	}
 
 	void GOCMover::ReceiveMessage( Msg &msg )
@@ -249,7 +258,6 @@ namespace Ice
 				mfLastPos+=time;
 				if(mfLastPos>=(mStaticMode ? mKeyTiming[mKeyTiming.size()-1] : mSpline.GetLength()))
 				{
-					//SetKeyIgnoreParent(false);
 					mMoving = false;
 					mfLastPos=0;
 					Ice::Msg msg; msg.type = "MOVER_END";

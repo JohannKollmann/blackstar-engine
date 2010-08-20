@@ -33,6 +33,7 @@ namespace Ice
 
 		//Editor interface
 		BEGIN_GOCEDITORINTERFACE(GOCForceField, "ForceField")
+			PROPERTY_STRING(mCollisionMeshName, "Volume mesh", ".mesh")
 			PROPERTY_FLOAT(mForceMultiplier, "Force Multiplier", 1.0f)
 			PROPERTY_FLOAT(mFalloff, "Falloff", 1.0f)
 		END_GOCEDITORINTERFACE

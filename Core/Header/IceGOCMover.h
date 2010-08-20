@@ -109,6 +109,9 @@ namespace Ice
 		void Stop();
 		void UpdateKeys();
 
+		///Resets the mover to the the first key
+		void Reset();
+
 		void ReceiveMessage(Msg &msg);
 
 		goc_id_type& GetComponentID() const { static std::string name = "Mover"; return name; }
