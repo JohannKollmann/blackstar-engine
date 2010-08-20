@@ -272,13 +272,13 @@ namespace Ice
 	{
 		if (!mOwnerGO) return;
 		if (mPerformingMovement) return;
-		if (mAnimKeys.size() > 0)
+		/*if (mAnimKeys.size() > 0)
 		{
 			PrepareMovement(true);
 			SetOwnerPosition(mAnimKeys[0]->GetGlobalPosition());
 			SetOwnerOrientation(mAnimKeys[0]->GetGlobalOrientation());
 			PrepareMovement(false);
-		}
+		}*/
 		//if (mMoving && !mOwnerGO->GetUpdatingFromParent()) return;
 		mSplineObject->clear();
 		if(mAnimKeys.size()<2)

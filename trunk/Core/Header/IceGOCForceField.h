@@ -8,12 +8,13 @@
 
 namespace Ice
 {
-	class GOCForceField : public GOComponent
+	class GOCForceField : public GOComponent, public GOCStaticEditorInterface
 	{
 	private:
 		Ogre::String mCollisionMeshName;
 		int mShapeType;
 		NxForceField *mForceField;
+		NxForceFieldLinearKernelDesc mFieldLinearKernelDesc;
 
 		void _clear();
 		void _create();
@@ -27,6 +28,12 @@ namespace Ice
 		void UpdatePosition(Ogre::Vector3 position);
 		void UpdateOrientation(Ogre::Quaternion orientation);
 		void UpdateScale(Ogre::Vector3 scale);
+
+		//Editor interface
+		BEGIN_GOCEDITORINTERFACE(GOCForceField, "ForceField")
+		END_GOCEDITORINTERFACE
+
+		void OnSetParameters();
 
 		void Save(LoadSave::SaveSystem& mgr);
 		void Load(LoadSave::LoadSystem& mgr);
