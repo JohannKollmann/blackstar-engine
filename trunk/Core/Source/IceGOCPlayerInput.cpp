@@ -3,7 +3,9 @@
 #include "OIS/OIS.h"
 #include "IceMessageSystem.h"
 #include "IceGameObject.h"
+
 #include "IceMain.h"
+
 #include "IceCameraController.h"
 #include "IceSceneManager.h"
 
@@ -25,8 +27,8 @@ void GOCPlayerInput::SetActive(bool active)
 	if (active)
 	{
 		MessageSystem::Instance().QuitAllNewsgroups(this);
-		MessageSystem::Instance().JoinNewsgroup(this, "KEY_DOWN");
-		MessageSystem::Instance().JoinNewsgroup(this, "KEY_UP");
+		//MessageSystem::Instance().JoinNewsgroup(this, "KEY_DOWN");
+		//MessageSystem::Instance().JoinNewsgroup(this, "KEY_UP");
 		MessageSystem::Instance().JoinNewsgroup(this, "MOUSE_MOVE");
 		MessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
 	}
@@ -98,6 +100,21 @@ void GOCPlayerInput::ReceiveMessage(Msg &msg)
 	}
 	if (msg.type == "UPDATE_PER_FRAME")
 	{
+		mCharacterMovementState=0;
+		if (Main::Instance().GetInputManager()->isKeyDown(OIS::KC_W))
+			mCharacterMovementState |= CharacterMovement::FORWARD;
+
+		if (Main::Instance().GetInputManager()->isKeyDown(OIS::KC_S))
+			mCharacterMovementState |= CharacterMovement::BACKWARD;
+
+		if (Main::Instance().GetInputManager()->isKeyDown(OIS::KC_A))
+			mCharacterMovementState |= CharacterMovement::LEFT;
+
+		if (Main::Instance().GetInputManager()->isKeyDown(OIS::KC_D))
+			mCharacterMovementState |= CharacterMovement::RIGHT;
+
+		if (Main::Instance().GetInputManager()->isKeyDown(OIS::KC_SPACE))
+			mCharacterMovementState |= CharacterMovement::JUMP;
 	}
 }
 

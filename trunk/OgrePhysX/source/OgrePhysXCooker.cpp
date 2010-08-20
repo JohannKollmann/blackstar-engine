@@ -234,8 +234,15 @@ namespace OgrePhysX
 	struct STri
 	{
 		STri(){i1=-1;i2=-1;i3=-1;}
-		STri(int iIndex1, int iIndex2, int iIndex3, NxMaterialIndex materialIndex)
+		STri(int iIndex1, int iIndex2, int iIndex3, NxMaterialIndex materialIndex, bool bSort=true)
 		{
+			if(!bSort)
+			{
+				i1=iIndex1;
+				i2=iIndex2;
+				i3=iIndex3;
+				return;
+			}
 			//rotate indices
 			if(iIndex2<iIndex1)
 			{
@@ -378,6 +385,50 @@ namespace OgrePhysX
 		meshInfo.numTriangles=nTrisCopied;
 	}
 
+	//function to generate ccd mesh
+	void Cooker::insetMesh(MeshInfo &meshInfo, float fAmount)
+	{
+		//STri* tris= new STri[meshInfo.numTriangles];
+		std::vector<STri> vTris;
+		vTris.resize(meshInfo.numTriangles*3);//create rotated tris
+		int iTri=0;
+		for(; iTri<(int)meshInfo.numTriangles; iTri++)
+		{
+			vTris[iTri*3]=STri(meshInfo.indices[iTri*3], meshInfo.indices[iTri*3+1], meshInfo.indices[iTri*3+2], 0, false);//no mat indices this time!
+			vTris[iTri*3+1]=STri(meshInfo.indices[iTri*3+2], meshInfo.indices[iTri*3], meshInfo.indices[iTri*3+1], 0, false);
+			vTris[iTri*3+2]=STri(meshInfo.indices[iTri*3+1], meshInfo.indices[iTri*3+2], meshInfo.indices[iTri*3], 0, false);
+		}
+		std::sort(vTris.begin(), vTris.end());
+		int iLastIndex=-1;
+		int nVertices;
+		NxVec3 vAccNomals;
+		NxVec3 vPos;
+		std::vector<NxVec3> vNewVertices;
+		vNewVertices.resize(meshInfo.numVertices);
+		for(iTri=0; iTri<(int)vTris.size(); iTri++)
+		{
+			if(vTris[iTri].i1!=iLastIndex)
+			{
+				if(iLastIndex!=-1)
+				{
+					vAccNomals.normalize();
+					vNewVertices[iLastIndex]=meshInfo.vertices[iLastIndex]-fAmount*vAccNomals;
+				}
+				nVertices=0;
+				vAccNomals=NxVec3(0,0,0);
+				iLastIndex=vTris[iTri].i1;
+				vPos=meshInfo.vertices[iLastIndex];
+			}
+			NxVec3 v=(meshInfo.vertices[vTris[iTri].i2]-vPos).cross(meshInfo.vertices[vTris[iTri].i3]-vPos);
+			v.normalize();
+			vAccNomals+=v;
+			nVertices++;
+		}
+		vAccNomals.normalize();
+		vNewVertices[iLastIndex]=meshInfo.vertices[iLastIndex]+fAmount*vAccNomals;
+		for(unsigned int iVertex=0; iVertex<meshInfo.numVertices; iVertex++)
+			meshInfo.vertices[iVertex]=vNewVertices[iVertex];
+	}
 
 	void Cooker::cookNxTriangleMesh(Ogre::MeshPtr mesh, NxStream& outputStream, CookerParams &params)		//Ogre::Vector3 scale, std::map<Ogre::String, NxMaterialIndex> &materialBindings)
 	{

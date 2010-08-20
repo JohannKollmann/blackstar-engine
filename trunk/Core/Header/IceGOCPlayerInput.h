@@ -2,6 +2,7 @@
 
 #include "IceGOComponent.h"
 #include "IceIncludes.h"
+#include "IceInput.h"
 #include "IceMessageListener.h"
 #include "IceGOCCharacterController.h"
 

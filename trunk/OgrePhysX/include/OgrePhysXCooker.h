@@ -41,6 +41,7 @@ namespace OgrePhysX
 
 		void getMeshInfo(Ogre::MeshPtr mesh, CookerParams &params, MeshInfo &outInfo);
 		void mergeVertices(MeshInfo &outInfo);
+		void insetMesh(MeshInfo &outInfo, float fAmount);
 
 	public:
 		Cooker(void);
