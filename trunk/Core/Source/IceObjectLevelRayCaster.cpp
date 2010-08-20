@@ -60,6 +60,7 @@ GameObject* ObjectLevelRayCaster::GetNextHit(bool include_all)
 
 bool ObjectLevelRayCaster::HasMoreHits()
 {
+	if (mResultsIterator == mResults.end()) return false;
 	mResultsIterator++;
 	if (mResultsIterator != mResults.end())
 	{
