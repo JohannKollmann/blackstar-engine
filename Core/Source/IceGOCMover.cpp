@@ -300,7 +300,6 @@ namespace Ice
 
 		for(int iKey=0; iKey<(int)mAnimKeys.size(); iKey++)
 		{
-			mAnimKeys[iKey]->SetName("Key_" + Ogre::StringConverter::toString(++keyCounter));
 			Ogre::Vector3 keyPos = mAnimKeys[iKey]->GetGlobalPosition();
 
 			if(mStaticMode)

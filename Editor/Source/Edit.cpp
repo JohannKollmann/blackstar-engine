@@ -1084,10 +1084,27 @@ void Edit::DeselectMaterial()
 void Edit::OnSelectObject(float MouseX, float MouseY)
 {
 	//Ogre::LogManager::getSingleton().logMessage("OnSelectObject");
-	if (!mMultiSelect) DeselectAllObjects();
 	Ice::ObjectLevelRayCaster rc(Ice::Main::Instance().GetCamera()->getCameraToViewportRay(MouseX, MouseY));
 	Ice::GameObject *object = rc.GetFirstHit();
-	if (object != NULL)
+	//the user is capable to iterate through the ray direction array
+	bool found = false;
+	while (object)
+	{
+		for (auto i = mSelectedObjects.begin(); i != mSelectedObjects.end(); i++)
+		{
+			if (i->mObject == object)
+			{
+				found = true;
+				break;
+			}
+		}
+		object = rc.GetNextHit();
+		if (found) break;
+	}
+	if (!found || !object) object = rc.GetFirstHit();
+	
+	if (!mMultiSelect) DeselectAllObjects();
+	if (object)
 	{
 		SelectObject(object);
 		wxEdit::Instance().GetOgrePane()->SetFocus();
