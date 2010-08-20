@@ -237,14 +237,19 @@ namespace Ice
 					SetOwnerPosition(mSpline.Sample(mfLastPos, &keyIndex));
 					PrepareMovement(false);
 					keyIndex--;
-					if (keyIndex != mLastKeyIndex)
+					if(keyIndex!=-1)
 					{
-						Ice::Msg msg; msg.type = "MOVER_KEY";
-						IceAssert(keyIndex < (int)mAnimKeys.size());
-						msg.params.AddOgreString("Keyname", mAnimKeys[keyIndex]->GetName());
-						mOwnerGO->SendInstantMessage(msg);
-						mLastKeyIndex = keyIndex;
+						if (keyIndex != mLastKeyIndex)
+						{
+							Ice::Msg msg; msg.type = "MOVER_KEY";
+							IceAssert(keyIndex < (int)mAnimKeys.size());
+							msg.params.AddOgreString("Keyname", mAnimKeys[keyIndex]->GetName());
+							mOwnerGO->SendInstantMessage(msg);
+							mLastKeyIndex = keyIndex;
+						}
 					}
+					else
+						mLastKeyIndex = keyIndex;
 				}
 
 				if (!(mLookAtObject || mIgnoreOrientation))		//look towards current target direction
