@@ -20,6 +20,7 @@
 #include "IceLevelMesh.h"
 #include "IceGOCMover.h"
 #include "IceGOCScript.h"
+#include "IceGOCForceField.h"
 
 #include "boost/filesystem/operations.hpp"
 #include "boost/filesystem/path.hpp"
@@ -189,6 +190,7 @@ namespace Ice
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCScript::Register);
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCScriptMessageCallback::Register);
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCAI::Register);
+		LoadSave::LoadSave::Instance().RegisterObject(&GOCForceField::Register);
 
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCMover::Register);
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCAnimKey::Register);
@@ -214,6 +216,7 @@ namespace Ice
 
 		RegisterGOCPrototype("E", new GOCMover());
 		RegisterGOCPrototype("E", new GOCScript());
+		RegisterGOCPrototype("E", new GOCForceField());
 		RegisterGOCPrototype(new GOCAnimKey());
 
 		//Shared Lua functions

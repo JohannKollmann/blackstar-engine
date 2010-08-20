@@ -1362,7 +1362,7 @@ void Edit::OnMoverInsertKey( wxCommandEvent& WXUNUSED(event)) /*= wxCommandEvent
 	SelectObject(go);
 	wxEdit::Instance().GetWorldExplorer()->GetSceneTree()->NotifyObject(go);
 
-	mover->InsertKey(go, nullptr);
+	//mover->InsertKey(go, nullptr);	is called in OnAddChild handler
 }
 
 #define CALL_MOVER_FUNCTION(fct)\

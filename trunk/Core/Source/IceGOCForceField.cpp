@@ -9,6 +9,7 @@ namespace Ice
 	GOCForceField::GOCForceField(void)
 	{
 		mForceField = nullptr;
+		mFieldLinearKernelDesc.setToDefault();
 	}
 
 	GOCForceField::~GOCForceField(void)
@@ -33,6 +34,8 @@ namespace Ice
 		Ogre::Vector3 scale = Ogre::Vector3(1,1,1);
 		NxForceFieldDesc fieldDesc;
 		fieldDesc.setToDefault();
+		mFieldLinearKernelDesc.falloffLinear = NxVec3(mFalloff, mFalloff, mFalloff);
+		mFieldLinearKernelDesc.constant = NxVec3(0, 1, 0) * mForceMultiplier;
 		if (mOwnerGO) scale = mOwnerGO->GetGlobalScale();
 		if (mShapeType ==  Shapes::SHAPE_SPHERE)
 		{
@@ -83,6 +86,7 @@ namespace Ice
 	void GOCForceField::UpdateOrientation(Ogre::Quaternion orientation)
 	{
 		mForceField->setPose(OgrePhysX::Convert::toNx(mOwnerGO->GetGlobalPosition(), orientation));
+		((NxForceFieldLinearKernel*)mForceField->getForceFieldKernel())->setConstant(OgrePhysX::Convert::toNx(orientation * Ogre::Vector3::UNIT_Z) * mForceMultiplier);
 	}
 	void GOCForceField::UpdateScale(Ogre::Vector3 scale)
 	{
@@ -91,9 +95,13 @@ namespace Ice
 
 	void GOCForceField::Save(LoadSave::SaveSystem& mgr)
 	{
+		mgr.SaveAtom("float", &mForceMultiplier, "ForceMultipler");
+		mgr.SaveAtom("float", &mFalloff, "Falloff");
 	}
 	void GOCForceField::Load(LoadSave::LoadSystem& mgr)
 	{
+		mgr.LoadAtom("float", &mForceMultiplier);
+		mgr.LoadAtom("float", &mFalloff);
 	}
 
 }

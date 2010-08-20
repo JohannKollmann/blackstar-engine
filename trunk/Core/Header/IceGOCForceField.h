@@ -15,6 +15,8 @@ namespace Ice
 		int mShapeType;
 		NxForceField *mForceField;
 		NxForceFieldLinearKernelDesc mFieldLinearKernelDesc;
+		float mForceMultiplier;
+		float mFalloff;
 
 		void _clear();
 		void _create();
@@ -31,6 +33,8 @@ namespace Ice
 
 		//Editor interface
 		BEGIN_GOCEDITORINTERFACE(GOCForceField, "ForceField")
+			PROPERTY_FLOAT(mForceMultiplier, "Force Multiplier", 1.0f)
+			PROPERTY_FLOAT(mFalloff, "Falloff", 1.0f)
 		END_GOCEDITORINTERFACE
 
 		void OnSetParameters();
