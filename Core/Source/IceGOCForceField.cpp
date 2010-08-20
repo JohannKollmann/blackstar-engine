@@ -33,8 +33,6 @@ namespace Ice
 		Ogre::Vector3 scale = Ogre::Vector3(1,1,1);
 		NxForceFieldDesc fieldDesc;
 		fieldDesc.setToDefault();
-		NxForceFieldLinearKernelDesc linearKernelDesc;
-		linearKernelDesc.setToDefault();
 		if (mOwnerGO) scale = mOwnerGO->GetGlobalScale();
 		if (mShapeType ==  Shapes::SHAPE_SPHERE)
 		{
@@ -42,7 +40,7 @@ namespace Ice
 			OgrePhysX::SphereShape shape(sphereShapeRadius * ((scale.x + scale.y + scale.z) / 3));
 			shape.group(CollisionGroups::DEFAULT);
 			mForceField = Main::Instance().GetPhysXScene()->createForceField(
-				shape, fieldDesc, linearKernelDesc);
+				shape, fieldDesc, mFieldLinearKernelDesc);
 		}
 		else if (mShapeType == Shapes::SHAPE_CAPSULE)
 		{
@@ -54,7 +52,7 @@ namespace Ice
 			shape.group(CollisionGroups::DEFAULT);
 			if (cubeShapeSize.y - capsule_radius > 0.0f) offset = (cubeShapeSize.y / capsule_radius) * 0.1f;
 			mForceField = Main::Instance().GetPhysXScene()->createForceField(
-				shape, fieldDesc, linearKernelDesc);
+				shape, fieldDesc, mFieldLinearKernelDesc);
 		}
 		else if (mShapeType == Shapes::SHAPE_CONVEX)
 		{
@@ -62,16 +60,20 @@ namespace Ice
 			shape.group(CollisionGroups::DEFAULT);
 			shape.scale(scale);
 			mForceField = Main::Instance().GetPhysXScene()->createForceField(
-				shape, fieldDesc, linearKernelDesc);
+				shape, fieldDesc, mFieldLinearKernelDesc);
 		}
 		else		//Default: Box
 		{
 			OgrePhysX::BoxShape shape(entity, scale);
 			shape.group(CollisionGroups::DEFAULT);
 			mForceField = Main::Instance().GetPhysXScene()->createForceField(
-				shape, fieldDesc, linearKernelDesc);
+				shape, fieldDesc, mFieldLinearKernelDesc);
 		}
 		Main::Instance().GetOgreSceneMgr()->destroyEntity(entity);
+	}
+
+	void GOCForceField::OnSetParameters()
+	{
 	}
 
 	void GOCForceField::UpdatePosition(Ogre::Vector3 position)
