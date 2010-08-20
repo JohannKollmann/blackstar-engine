@@ -32,6 +32,7 @@ namespace Ice
 		}
 		Ogre::Entity *entity = Main::Instance().GetOgreSceneMgr()->createEntity("tmpCollisionEnt", mCollisionMeshName);
 		Ogre::Vector3 scale = Ogre::Vector3(1,1,1);
+		if (mOwnerGO) scale = mOwnerGO->GetGlobalScale();
 		NxForceFieldDesc fieldDesc;
 		fieldDesc.setToDefault();
 		mFieldLinearKernelDesc.falloffLinear = NxVec3(mFalloff, mFalloff, mFalloff);
@@ -77,6 +78,7 @@ namespace Ice
 
 	void GOCForceField::OnSetParameters()
 	{
+		_create();
 	}
 
 	void GOCForceField::UpdatePosition(Ogre::Vector3 position)
