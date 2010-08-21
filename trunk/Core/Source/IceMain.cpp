@@ -218,7 +218,7 @@ void Main::initScene()
 	mSoundManager->setDistanceModel(AL_LINEAR_DISTANCE);
 	//mCamera->getParentSceneNode()->attachObject(mSoundManager->getListener());
 
-	/*Ogre::CompositorManager::getSingleton().addCompositor(Main::Instance().GetViewport(), "RenderDepth");
+	Ogre::CompositorManager::getSingleton().addCompositor(Main::Instance().GetViewport(), "RenderDepth");
 	Ogre::CompositorManager::getSingleton().setCompositorEnabled(Main::Instance().GetViewport(), "RenderDepth", true);
 	//Ogre::CompositorManager::getSingleton().addCompositor(Main::Instance().GetViewport(), "VolumetricLightFilter");
 	Ogre::CompositorInstance *hdrinstance = Ogre::CompositorManager::getSingleton().addCompositor(Main::Instance().GetViewport(), "HDRTest");
@@ -227,7 +227,7 @@ void Main::initScene()
 	hdrListener->notifyViewportSize(mViewport->getActualWidth(), mViewport->getActualHeight());
 	hdrListener->notifyCompositor(hdrinstance);
 	Ogre::CompositorManager::getSingleton().setCompositorEnabled(Main::Instance().GetViewport(), "HDRTest", true);
-	*/
+	
 	mPhysXScene->getNxScene()->setUserContactReport(new ActorContactReport());
 
 	/*mCollisionCallback = new ScriptedCollisionCallback();
