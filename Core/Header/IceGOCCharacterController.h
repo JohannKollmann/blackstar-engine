@@ -80,6 +80,10 @@ namespace Ice
 		Ogre::Vector3 mDimensions;
 		float mStepOffset;
 		bool mFreezed;
+		bool mTouchesGround;
+		bool mJumping;
+		unsigned long mJumpStartTime;
+		unsigned long mTakeoffTime;
 
 		float mMovementSpeed;
 		float mSpeedFactor;
