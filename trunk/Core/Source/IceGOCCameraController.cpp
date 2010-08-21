@@ -129,6 +129,7 @@ namespace Ice
 		}
 		if (msg.type == "MOUSE_MOVE")
 		{
+			float oldZoom = mfZoom;
 			mfZoom -= (mfZoom+0.1f)*(msg.params.GetInt("ROT_Z_REL")*0.001f);
 
 			if(mfZoom>1.5f)
@@ -144,11 +145,23 @@ namespace Ice
 				sfAbsRefPitch=-Ogre::Math::PI*0.4f;
 			if(mfZoom>0.0f)
 			{
+				if (oldZoom == 0.0f)
+				{
+					Msg msg;
+					msg.type = "LEAVE_FPS_MODE";
+					mOwnerGO->SendInstantMessage(msg);
+				}
 				mCameraNode->setPosition(Ogre::Vector3(0.0f,0.0f,-6.0f)*static_cast<float>(sfActualZoom));
 				mCameraNode->setAutoTracking(true, mTargetNode);
 			}
 			else
 			{
+				if (oldZoom != 0.0f)
+				{
+					Msg msg;
+					msg.type = "ENTER_FPS_MODE";
+					mOwnerGO->SendInstantMessage(msg);
+				}
 				sfActualZoom=0.0f;
 				mCameraNode->setPosition(0,0,0);
 				mCameraNode->setAutoTracking(false);

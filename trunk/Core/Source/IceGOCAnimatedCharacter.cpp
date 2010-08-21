@@ -501,6 +501,8 @@ void GOCAnimatedCharacter::ReceiveMessage(Msg &msg)
 
 void GOCAnimatedCharacter::ReceiveObjectMessage(Msg &msg)
 {
+	if (msg.type == "ENTER_FPS_MODE") mEntity->setVisible(false);
+	if (msg.type == "LEAVE_FPS_MODE") mEntity->setVisible(true);
 	if (msg.type == "UpdateCharacterMovementState")
 	{
 		mMovementState = msg.params.GetInt("CharacterMovementState");
