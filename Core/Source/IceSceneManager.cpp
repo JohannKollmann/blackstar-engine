@@ -824,7 +824,7 @@ namespace Ice
 		}
 		NxMaterialDesc desc;
 		desc.setToDefault();
-		desc.frictionCombineMode=NxCombineMode::NX_CM_MAX;
+		desc.frictionCombineMode=NxCombineMode::NX_CM_AVERAGE;
 		NxMaterial* material = Main::Instance().GetPhysXScene()->getNxScene()->createMaterial(desc);
 		material->setRestitution(0.1f);
 		material->setStaticFriction(0.5f);
