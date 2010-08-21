@@ -178,7 +178,7 @@ namespace Ice
 				{
 					//dir+=Ogre::Vector3(0,0.4,0);
 					mActor->getNxActor()->setLinearDamping(5.0);
-					mActor->getNxActor()->addForce(30*OgrePhysX::Convert::toNx(dir*time), NxForceMode::NX_VELOCITY_CHANGE);//NX_SMOOTH_VELOCITY_CHANGE
+					mActor->getNxActor()->addForce(15*OgrePhysX::Convert::toNx(dir*time), NxForceMode::NX_VELOCITY_CHANGE);//NX_SMOOTH_VELOCITY_CHANGE
 					
 				}
 			}
