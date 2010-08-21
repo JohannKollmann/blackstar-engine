@@ -64,6 +64,7 @@ namespace Ice
 		if (dimensions.x == 0 || dimensions.y == 0 || dimensions.z == 0) dimensions = Ogre::Vector3(1,1,1);
 
 		mFreezed = false;
+		mJumping = false;
 
 		mMovementSpeed = 2.0f;
 		mSpeedFactor = 1;
@@ -77,7 +78,7 @@ namespace Ice
 		mHeight = mDimensions.y * 0.5f + offset;
 		mRadius *= 0.5f;
 		mActor = Main::Instance().GetPhysXScene()->createActor(
-			OgrePhysX::CapsuleShape(capsule_radius * 0.5f, mDimensions.y * 0.5f + offset).density(10).group(CollisionGroups::CHARACTER).localPose(Ogre::Vector3(0, mDimensions.y * 0.5f, 0)).material(nxID));
+			OgrePhysX::CapsuleShape(mRadius, mHeight).density(10).group(CollisionGroups::CHARACTER).localPose(Ogre::Vector3(0, mDimensions.y * 0.5f, 0)).material(nxID));
 		//mActor->getNxActor()->raiseBodyFlag(NxBodyFlag::NX_BF_DISABLE_GRAVITY);
 		mActor->getNxActor()->setMassSpaceInertiaTensor(NxVec3(0,1,0));
 
@@ -119,40 +120,49 @@ namespace Ice
 			float maxStepHeight = 0.6f;
 			NxVec3 currPos = OgrePhysX::Convert::toNx(mOwnerGO->GetGlobalPosition());
 			//feet capsule
-			NxBox feetBox;
-			feetBox.center = currPos + NxVec3(0, maxStepHeight*0.5f - mRadius + 0.2f, 0);
-			feetBox.extents = NxVec3(mRadius, maxStepHeight*0.5f, mRadius);
-			feetBox.rot.fromQuat(OgrePhysX::Convert::toNx(Ogre::Quaternion()));
+			NxCapsule feetVolume;
+			feetVolume.radius = mRadius*1.1f;
+			feetVolume.p0 = currPos + NxVec3(0, feetVolume.radius, 0);
+			feetVolume.p1 = currPos + NxVec3(0, maxStepHeight, 0);
+			/*feetVolume.center = currPos + NxVec3(0, maxStepHeight*0.5f - mRadius + 0.2f, 0);
+			feetVolume.extents = NxVec3(mRadius, maxStepHeight*0.5f, mRadius);
+			feetVolume.rot.fromQuat(OgrePhysX::Convert::toNx(Ogre::Quaternion()));*/
 
 			//body capsule
-			NxBox bodyBox;
+			NxCapsule bodyVolume;
 			float bodyHeight = mDimensions.y-maxStepHeight;
-			bodyBox.center = currPos + NxVec3(0, maxStepHeight+(bodyHeight*0.5f), 0);
-			bodyBox.extents = NxVec3(mRadius, bodyHeight*0.5f, mRadius);
-			bodyBox.rot.fromQuat(OgrePhysX::Convert::toNx(Ogre::Quaternion()));
+			bodyVolume.radius = mRadius*1.1f;
+			bodyVolume.p0 = currPos + NxVec3(0, maxStepHeight+bodyVolume.radius, 0);
+			bodyVolume.p1 = currPos + NxVec3(0, bodyHeight, 0);
+			/*bodyVolume.center = currPos + NxVec3(0, maxStepHeight+(bodyHeight*0.5f), 0);
+			bodyVolume.extents = NxVec3(mRadius, bodyHeight*0.5f, mRadius);
+			bodyVolume.rot.fromQuat(OgrePhysX::Convert::toNx(Ogre::Quaternion()));*/
 			NxSweepQueryHit sqh_result[1];
 
-			NxU32 numHits = Main::Instance().GetPhysXScene()->getNxScene()->linearOBBSweep(bodyBox, OgrePhysX::Convert::toNx(Ogre::Vector3(dir*time)), NX_SF_STATICS, 0, 1, sqh_result, 0);//1<<CollisionGroups::DEFAULT | 1<<CollisionGroups::LEVELMESH, mSweepCache);
+			NxU32 numHits = Main::Instance().GetPhysXScene()->getNxScene()->linearCapsuleSweep(bodyVolume, OgrePhysX::Convert::toNx(Ogre::Vector3(dir*time)), NX_SF_STATICS, 0, 1, sqh_result, 0);//1<<CollisionGroups::DEFAULT | 1<<CollisionGroups::LEVELMESH, mSweepCache);
  			bool bodyHit = (numHits > 0);
-			Ogre::LogManager::getSingleton().logMessage("Body hit: " + Ogre::StringConverter::toString(bodyHit));
-			numHits = Main::Instance().GetPhysXScene()->getNxScene()->linearOBBSweep(feetBox, OgrePhysX::Convert::toNx(Ogre::Vector3(dir*time)), NX_SF_STATICS, 0, 1, sqh_result, 0);//, mSweepCache);
+			//Ogre::LogManager::getSingleton().logMessage("Body hit: " + Ogre::StringConverter::toString(bodyHit));
+			numHits = Main::Instance().GetPhysXScene()->getNxScene()->linearCapsuleSweep(feetVolume, OgrePhysX::Convert::toNx(Ogre::Vector3(dir*time)), NX_SF_STATICS, 0, 1, sqh_result, 0);//, mSweepCache);
  			bool feetHit = (numHits > 0);
-			Ogre::LogManager::getSingleton().logMessage("Feet hit: " + Ogre::StringConverter::toString(feetHit));
+			//Ogre::LogManager::getSingleton().logMessage("Feet hit: " + Ogre::StringConverter::toString(feetHit));
 
 			if (!bodyHit && !feetHit)
 			{
 				Freeze(true);
 				mActor->setGlobalPosition(mActor->getGlobalPosition() + dir*time);
 				Freeze(false);
+				//mActor->getNxActor()->addForce(OgrePhysX::Convert::toNx(dir*time), NxForceMode::NX_VELOCITY_CHANGE);
 			}
 			else if (!bodyHit && feetHit)
 			{
-				Freeze(true);
 				dir+=Ogre::Vector3(0,1,0);
+				Freeze(true);
 				mActor->setGlobalPosition(mActor->getGlobalPosition() + dir*time);
 				Freeze(false);
+				//mActor->getNxActor()->addForce(OgrePhysX::Convert::toNx(dir*time), NxForceMode::NX_VELOCITY_CHANGE);
 				float forceFactor = 1 - NxVec3(0,1,0).dot(sqh_result[0].normal);
-				if (forceFactor > 0.9)
+				Ogre::LogManager::getSingleton().logMessage(Ogre::StringConverter::toString(forceFactor));
+				//if (forceFactor > 0.8)
 					mActor->getNxActor()->addForce(NxVec3(0, 500*forceFactor,0));
 			}
 
@@ -188,9 +198,11 @@ namespace Ice
 
 			if (movementFlags & CharacterMovement::JUMP)
 			{
-				if (!mJump.mJumping)
+				NxSweepQueryHit sqh_result[1];
+				if (mActor->getNxActor()->linearSweep(NxVec3(0, -0.05f, 0), NX_SF_STATICS|NX_SF_DYNAMICS, nullptr, 1, sqh_result, nullptr) == 0)
 				{
-					mJump.StartJump(1.0f);
+					mActor->getNxActor()->addForce(NxVec3(0, 50, 0), NxForceMode::NX_IMPULSE);
+					//mJump.StartJump(1.0f);
 				}
 			}
 		}
