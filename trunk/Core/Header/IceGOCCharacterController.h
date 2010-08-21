@@ -70,9 +70,13 @@ namespace Ice
 	{
 	private:
 		OgrePhysX::Actor *mActor;
+		OgrePhysX::Actor *mSweepActor;
+		NxSweepCache *mSweepCache;
 		void Create(Ogre::Vector3 dimensions);
 		CharacterJump mJump;
 		Ogre::Vector3 mDirection;
+		float mRadius;
+		float mHeight;
 		Ogre::Vector3 mDimensions;
 		float mStepOffset;
 		bool mFreezed;

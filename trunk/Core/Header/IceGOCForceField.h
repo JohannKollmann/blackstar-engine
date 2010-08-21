@@ -5,10 +5,11 @@
 #include "IceGOCEditorInterface.h"
 #include "OgrePhysX.h"
 #include "IceGOCPhysics.h"
+#include "IceGOCOgreNode.h"
 
 namespace Ice
 {
-	class GOCForceField : public GOComponent, public GOCStaticEditorInterface
+	class GOCForceField : public GOCOgreNodeUser, public GOCStaticEditorInterface
 	{
 	private:
 		Ogre::String mCollisionMeshName;
@@ -17,6 +18,8 @@ namespace Ice
 		NxForceFieldLinearKernelDesc mFieldLinearKernelDesc;
 		float mForceMultiplier;
 		float mFalloff;
+		Ogre::Entity *mEditorVisual;	//Volume
+		Ogre::Entity *mEditorVisual2;	//Arrow
 
 		void _clear();
 		void _create();
@@ -30,6 +33,8 @@ namespace Ice
 		void UpdatePosition(Ogre::Vector3 position);
 		void UpdateOrientation(Ogre::Quaternion orientation);
 		void UpdateScale(Ogre::Vector3 scale);
+
+		void ShowEditorVisual(bool show);
 
 		//Editor interface
 		BEGIN_GOCEDITORINTERFACE(GOCForceField, "ForceField")
