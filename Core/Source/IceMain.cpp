@@ -218,7 +218,7 @@ void Main::initScene()
 	mSoundManager->setDistanceModel(AL_LINEAR_DISTANCE);
 	//mCamera->getParentSceneNode()->attachObject(mSoundManager->getListener());
 
-	Ogre::CompositorManager::getSingleton().addCompositor(Main::Instance().GetViewport(), "RenderDepth");
+	/*Ogre::CompositorManager::getSingleton().addCompositor(Main::Instance().GetViewport(), "RenderDepth");
 	Ogre::CompositorManager::getSingleton().setCompositorEnabled(Main::Instance().GetViewport(), "RenderDepth", true);
 	//Ogre::CompositorManager::getSingleton().addCompositor(Main::Instance().GetViewport(), "VolumetricLightFilter");
 	Ogre::CompositorInstance *hdrinstance = Ogre::CompositorManager::getSingleton().addCompositor(Main::Instance().GetViewport(), "HDRTest");
@@ -227,7 +227,7 @@ void Main::initScene()
 	hdrListener->notifyViewportSize(mViewport->getActualWidth(), mViewport->getActualHeight());
 	hdrListener->notifyCompositor(hdrinstance);
 	Ogre::CompositorManager::getSingleton().setCompositorEnabled(Main::Instance().GetViewport(), "HDRTest", true);
-
+	*/
 	mPhysXScene->getNxScene()->setUserContactReport(new ActorContactReport());
 
 	/*mCollisionCallback = new ScriptedCollisionCallback();
@@ -236,7 +236,7 @@ void Main::initScene()
 	dynamicbodies->((NxOgre::GroupCallback::InheritedCallback*)(mCollisionCallback));
 	dynamicbodies->setCollisionCallback(dynamicbodies, NX_NOTIFY_ALL, false);*/
 
-	mSceneMgr->setShadowTechnique(Ogre::SHADOWTYPE_TEXTURE_ADDITIVE_INTEGRATED);
+	/*mSceneMgr->setShadowTechnique(Ogre::SHADOWTYPE_TEXTURE_ADDITIVE_INTEGRATED);
 
 	mSceneMgr->setShadowTextureCountPerLightType(Ogre::Light::LT_DIRECTIONAL, 3);
 	mSceneMgr->setShadowTextureCountPerLightType(Ogre::Light::LT_SPOTLIGHT, 1);
@@ -249,7 +249,7 @@ void Main::initScene()
 	mSceneMgr->setShadowTextureConfig(5, 1024, 1024, Ogre::PF_FLOAT32_R);
 	mSceneMgr->setShadowTextureConfig(6, 1024, 1024, Ogre::PF_FLOAT32_R);
 	mSceneMgr->setShadowTextureConfig(7, 1024, 1024, Ogre::PF_FLOAT32_R);*/
-	mSceneMgr->setShadowTextureSelfShadow(true);
+	/*mSceneMgr->setShadowTextureSelfShadow(true);
 	mSceneMgr->setShadowTextureCasterMaterial("shadow_caster");
 
 	mSceneMgr->setShadowCasterRenderBackFaces(false);
@@ -273,7 +273,7 @@ void Main::initScene()
 		PSSMSplitPoints[i] = splitPointList[i];
 	}
 
-	IceNote("PSSMSplitPoints: " + Ogre::StringConverter::toString(PSSMSplitPoints));
+	IceNote("PSSMSplitPoints: " + Ogre::StringConverter::toString(PSSMSplitPoints));*/
 
 	SceneManager::Instance().Init();
 

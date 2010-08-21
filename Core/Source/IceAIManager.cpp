@@ -15,6 +15,7 @@ namespace Ice
 	AIManager::~AIManager(void)
 	{
 		MessageSystem::Instance().QuitNewsgroup(this, "REPARSE_SCRIPTS_POST");
+		delete mNavigationMesh;
 	}
 
 	void AIManager::RegisterWaypoint(GOCWaypoint *waypoint)

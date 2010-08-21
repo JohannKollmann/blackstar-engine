@@ -1,6 +1,7 @@
 
 #pragma once
 
+
 #include "NxControllerManager.h"
 #include "IceMessageListener.h"
 #include "IceGOCPhysics.h"
@@ -79,6 +80,7 @@ namespace Ice
 		float mMovementSpeed;
 		float mSpeedFactor;
 
+		Ogre::String mMaterialName;
 
 
 		void _clear();

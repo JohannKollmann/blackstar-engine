@@ -9,6 +9,8 @@
 #include "OgrePhysX.h"
 #include "IceGOCPhysics.h"
 
+#include "IceSceneManager.h"
+
 namespace Ice
 {
 
@@ -63,12 +65,13 @@ namespace Ice
 		mSpeedFactor = 1;
 		mDirection = Ogre::Vector3(0,0,0);
 		mDimensions = dimensions;
+		NxMaterialIndex nxID = SceneManager::Instance().GetSoundMaterialTable().GetMaterialID(mMaterialName);
 
 		float capsule_radius = mDimensions.x > mDimensions.z ? mDimensions.x : mDimensions.z;
 		float offset = 0.0f;
 		if (mDimensions.y - capsule_radius > 0.0f) offset = (mDimensions.y / capsule_radius) * 0.1f;
 		mActor = Main::Instance().GetPhysXScene()->createActor(
-			OgrePhysX::CapsuleShape(capsule_radius * 0.5f, mDimensions.y * 0.5f + offset).density(10).group(CollisionGroups::CHARACTER).localPose(Ogre::Vector3(0, mDimensions.y * 0.5f, 0)));
+			OgrePhysX::CapsuleShape(capsule_radius * 0.5f, mDimensions.y * 0.5f + offset).density(10).group(CollisionGroups::CHARACTER).localPose(Ogre::Vector3(0, mDimensions.y * 0.5f, 0)).material(nxID));
 		//mActor->getNxActor()->raiseBodyFlag(NxBodyFlag::NX_BF_DISABLE_GRAVITY);
 		mActor->getNxActor()->setMassSpaceInertiaTensor(NxVec3(0,1,0));
 
@@ -178,28 +181,33 @@ namespace Ice
 		Create(mDimensions);
 		if (mOwnerGO) mActor->getNxActor()->userData = mOwnerGO;
 		mMovementSpeed = parameters->GetFloat("MaxSpeed");
+		mMaterialName = parameters->GetValue<Ogre::String>("mMaterialName", "Wood");
 	}
 	void GOCCharacterController::GetParameters(DataMap *parameters)
 	{
 		parameters->AddOgreVec3("Dimensions", mDimensions);
 		parameters->AddFloat("MaxSpeed", mMovementSpeed);
+		parameters->AddOgreString("mMaterialName", mMaterialName);
 	}
 	void GOCCharacterController::GetDefaultParameters(DataMap *parameters)
 	{
 		parameters->AddOgreVec3("Dimensions", Ogre::Vector3(0.5, 1.8, 0.5));
 		parameters->AddFloat("MaxSpeed", 2.0f);
+		parameters->AddOgreString("mMaterialName", "Wood");
 	}
 
 	void GOCCharacterController::Save(LoadSave::SaveSystem& mgr)
 	{
 		mgr.SaveAtom("Ogre::Vector3", &mDimensions, "Dimensions");
 		mgr.SaveAtom("float", &mMovementSpeed, "MaxSpeed");
+		mgr.SaveAtom("Ogre::String", &mMaterialName, "mMaterialName");
 	}
 	void GOCCharacterController::Load(LoadSave::LoadSystem& mgr)
 	{
 		mgr.LoadAtom("Ogre::Vector3", &mDimensions);
 		Create(mDimensions);
 		mgr.LoadAtom("float", &mMovementSpeed);		//Load Save: Todo!
+		mgr.LoadAtom("Ogre::String", &mMaterialName);
 	}
 
 };

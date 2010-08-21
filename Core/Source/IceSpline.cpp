@@ -87,6 +87,10 @@ namespace Ice
 			ppfResults[iCoordinate]=new double[iMatrixSize];
 			SolveLinearSystem(ppfMatrix, ppfResults[iCoordinate], iMatrixSize);
 		}
+		for(int iCol=0; iCol<iMatrixSize+1; iCol++)
+			delete ppfMatrix[iCol];
+		delete ppfMatrix;
+
 		CSplineSector sector;
 		for(int iSector=0; iSector<(int)vPoints.size()-1; iSector++)
 		{
@@ -101,6 +105,9 @@ namespace Ice
 			m_Sectors.push_back(sector);
 		}
 		m_bIsTimedSpline=false;
+		delete ppfCoordinates[0];
+		delete ppfCoordinates[1];
+		delete ppfCoordinates[2];
 	}
 
 	bool CompVectorByW(Ogre::Vector4 v1, Ogre::Vector4 v2) {return v1.w<v2.w;}
@@ -192,6 +199,11 @@ namespace Ice
 			ppfResults[iCoordinate]=new double[iMatrixSize];
 			SolveLinearSystem(ppfMatrix, ppfResults[iCoordinate], iMatrixSize);
 		}
+
+		for(int iCol=0; iCol<iMatrixSize+1; iCol++)
+			delete ppfMatrix[iCol];
+		delete ppfMatrix;
+
 		CSplineSector sector;
 		double fTime=0.0;
 		for(int iSector=0; iSector<(int)vPoints.size()-1; iSector++)
@@ -209,6 +221,11 @@ namespace Ice
 			fTime+=vPoints[iSector].w;
 		}
 		m_SectorLengths.push_back(fTime);
+
+		delete ppfCoordinates[0];
+		delete ppfCoordinates[1];
+		delete ppfCoordinates[2];
+
 		m_bIsTimedSpline=true;
 	}
 
