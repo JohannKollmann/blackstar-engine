@@ -11,6 +11,7 @@ namespace Ice
 		mForceField = nullptr;
 		mEditorVisual = nullptr;
 		mEditorVisual2 = nullptr;
+		mActive = false;
 		mFieldLinearKernelDesc.setToDefault();
 	}
 
@@ -28,6 +29,7 @@ namespace Ice
 	void GOCForceField::_create()
 	{
 		_clear();
+		if (!mActive) return;
 		if (!Ogre::ResourceGroupManager::getSingleton().resourceExists("General", mCollisionMeshName))
 		{
 			Ogre::LogManager::getSingleton().logMessage("Error: Resource \"" + mCollisionMeshName + "\" does not exist. Loading dummy Resource...");
@@ -107,6 +109,13 @@ namespace Ice
 		bool show = (mEditorVisual != nullptr);
 		_create();
 		if (show) ShowEditorVisual(show);
+	}
+
+	std::vector<ScriptParam> GOCForceField::Forcefield_Activate(Script& caller, std::vector<ScriptParam> &vParams)
+	{
+		mActive = vParams[0].getBool();
+		_create();
+		return std::vector<ScriptParam>();
 	}
 
 	void GOCForceField::ShowEditorVisual(bool show)

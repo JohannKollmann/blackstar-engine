@@ -6,6 +6,7 @@
 #include "OgrePhysX.h"
 #include "IceGOCPhysics.h"
 #include "IceGOCOgreNode.h"
+#include "IceGOCScriptMakros.h"
 
 namespace Ice
 {
@@ -19,6 +20,7 @@ namespace Ice
 		NxForceFieldLinearKernelDesc mFieldLinearKernelDesc;
 		float mForceMultiplier;
 		float mFalloff;
+		bool mActive;
 		Ogre::Entity *mEditorVisual;	//Volume
 		Ogre::Entity *mEditorVisual2;	//Arrow
 		Ogre::SceneNode *mArrowNode;
@@ -44,9 +46,13 @@ namespace Ice
 			PROPERTY_STRING(mCollisionMeshName, "Volume mesh", ".mesh")
 			PROPERTY_FLOAT(mForceMultiplier, "Force Multiplier", 1.0f)
 			PROPERTY_FLOAT(mFalloff, "Falloff", 1.0f)
+			PROPERTY_BOOL(mActive, "Active", true)
 		END_GOCEDITORINTERFACE
 
 		void OnSetParameters();
+
+		std::vector<ScriptParam> Forcefield_Activate(Script& caller, std::vector<ScriptParam> &vParams);
+		DEFINE_TYPEDGOCLUAMETHOD(GOCForceField, Forcefield_Activate, "bool")
 
 		void Save(LoadSave::SaveSystem& mgr);
 		void Load(LoadSave::LoadSystem& mgr);

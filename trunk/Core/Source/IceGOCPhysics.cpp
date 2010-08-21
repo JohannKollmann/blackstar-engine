@@ -49,7 +49,11 @@ namespace Ice
 
 	void GOCRigidBody::Create(Ogre::String collision_mesh, float density, int shapetype, Ogre::Vector3 scale)
 	{
-		if (!mRenderable) mRenderable = new GOPhysXRenderable(this);
+		if (!mRenderable)
+		{
+			if (!mIsKinematic) mRenderable = new GOPhysXRenderable(this);
+			else mRenderable = new GOPhysXRenderable(nullptr);
+		}
 
 		Ogre::String internname = "RigidBody" + Ogre::StringConverter::toString(SceneManager::Instance().RequestID());
 		mCollisionMeshName = collision_mesh;
