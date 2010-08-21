@@ -194,6 +194,9 @@ namespace Ice
 		*/
 		bool IsStatic();
 
+		///Tells als components to change to an inactive state, where say don't use any resources.
+		void FreeResources(bool free);
+
 		//Scripting
 		std::vector<ScriptParam> SetObjectProperty(Script& caller, std::vector<ScriptParam> &vParams);
 		std::vector<ScriptParam> GetObjectProperty(Script& caller, std::vector<ScriptParam> &vParams);
@@ -207,6 +210,7 @@ namespace Ice
 		std::vector<ScriptParam> GetParent(Script& caller, std::vector<ScriptParam> &vParams);
 		std::vector<ScriptParam> HasScriptListener(Script& caller, std::vector<ScriptParam> &vParams);
 		std::vector<ScriptParam> IsNpc(Script& caller, std::vector<ScriptParam> &vParams);
+		std::vector<ScriptParam> FreeResources(Script& caller, std::vector<ScriptParam> &vParams);
 
 		DEFINE_GOLUAMETHOD_H(SetObjectProperty)
 		DEFINE_GOLUAMETHOD_H(GetObjectProperty)
@@ -220,6 +224,7 @@ namespace Ice
 		DEFINE_GOLUAMETHOD_H(GetParent)
 		DEFINE_GOLUAMETHOD_H(HasScriptListener)
 		DEFINE_GOLUAMETHOD_H(IsNpc)
+		DEFINE_GOLUAMETHOD_H(FreeResources)
 
 		//Editor stuff
 		void Freeze(bool freeze);

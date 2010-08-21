@@ -314,7 +314,7 @@ namespace Ice
 
 		ScriptSystem::GetInstance().ShareCFunction("GetFocusObject", &SceneManager::Lua_GetFocusObject);
 
-		ScriptSystem::GetInstance().ShareCFunction("SetVisible", &GOCMeshRenderable::Lua_SetVisible);
+		ScriptSystem::GetInstance().ShareCFunction("Mesh_SetVisible", &GOCMeshRenderable::Lua_SetVisible);
 
 	}
 

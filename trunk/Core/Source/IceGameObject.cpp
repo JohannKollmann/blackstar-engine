@@ -289,6 +289,13 @@ namespace Ice
 			(*i)->Freeze(freeze);
 		}
 	}
+	void GameObject::FreeResources(bool free)
+	{
+		for (unsigned int i = 0; i < mComponents.size(); i++)
+		{
+			mComponents[i]->FreeResources(free);
+		}
+	}
 	void GameObject::ShowEditorVisuals(bool show)
 	{
 		for (unsigned int i = 0; i < mComponents.size(); i++)
@@ -483,6 +490,12 @@ namespace Ice
 		out.push_back(ScriptParam(GetComponent<GOCAI>() != nullptr));
 		return out;
 	}
+	std::vector<ScriptParam> GameObject::FreeResources(Script& caller, std::vector<ScriptParam> &vParams)
+	{
+		std::vector<ScriptParam> out;
+		FreeResources(vParams[0].getBool());
+		return out;
+	}
 
 	DEFINE_TYPEDGOLUAMETHOD_CPP(SetObjectProperty, "string")
 	DEFINE_TYPEDGOLUAMETHOD_CPP(GetObjectProperty, "string")
@@ -494,6 +507,7 @@ namespace Ice
 	DEFINE_TYPEDGOLUAMETHOD_CPP(ReceiveObjectMessage, "string function")
 	DEFINE_TYPEDGOLUAMETHOD_CPP(GetChildObjectByName, "string")
 	DEFINE_TYPEDGOLUAMETHOD_CPP(HasScriptListener, "string")
+	DEFINE_TYPEDGOLUAMETHOD_CPP(FreeResources, "bool")
 	DEFINE_GOLUAMETHOD_CPP(IsNpc)
 	DEFINE_GOLUAMETHOD_CPP(GetParent)
 
