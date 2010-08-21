@@ -6,7 +6,7 @@
 namespace Ice
 {
 
-	class Dialog : public AIState
+	class DllExport Dialog : public AIState
 	{
 	private:
 		DirectionYawBlender mDirectionBlender;
