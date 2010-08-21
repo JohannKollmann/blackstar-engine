@@ -90,11 +90,12 @@ namespace Ice
 
 	void SceneManager::UpdateGameObjects()
 	{
-		for (std::vector<GameObject*>::iterator i = mObjectMessageQueue.begin(); i != mObjectMessageQueue.end(); i++)
-		{
-			(*i)->ProcessMessages();
-		}
+		auto cpy = mObjectMessageQueue;
 		mObjectMessageQueue.clear();
+		for (unsigned int i = 0; i < cpy.size(); i++)
+		{
+			cpy[i]->ProcessMessages();
+		}
 	}
 
 	void SceneManager::RegisterComponentDefaultParams(Ogre::String editFamily, Ogre::String type, DataMap &params)
@@ -287,7 +288,7 @@ namespace Ice
 		Tells the npc to go to a certain waypoint.
 		*/
 		ScriptSystem::GetInstance().ShareCFunction("Npc_GotoWP", &GOCAI::Lua_Npc_GotoWP);
-		//ScriptSystem::GetInstance().ShareCFunction("Npc_OpenDialog", &GOCAI::Lua_Npc_OpenDialog);
+		ScriptSystem::GetInstance().ShareCFunction("Npc_OpenDialog", &GOCAI::Lua_Npc_OpenDialog);
 
 		ScriptSystem::GetInstance().ShareCFunction("Npc_GotoWP", &GOCAI::Lua_Npc_GotoWP);
 

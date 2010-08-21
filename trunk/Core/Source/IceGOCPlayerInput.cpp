@@ -42,6 +42,11 @@ void GOCPlayerInput::SetActive(bool active)
 void GOCPlayerInput::Pause(bool pause)
 {
 	mActive = !pause;
+	if (pause)
+	{
+		mCharacterMovementState = 0;
+		BroadcastMovementState();
+	}
 }
 
 void GOCPlayerInput::ReceiveMessage(Msg &msg)
