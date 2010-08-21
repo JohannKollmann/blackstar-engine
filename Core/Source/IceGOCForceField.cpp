@@ -43,7 +43,7 @@ namespace Ice
 		if (mOwnerGO)
 			fieldDesc.pose = OgrePhysX::Convert::toNx(mOwnerGO->GetGlobalPosition(), mOwnerGO->GetGlobalOrientation());
 		mFieldLinearKernelDesc.falloffLinear = NxVec3(mFalloff, mFalloff, mFalloff);
-		mFieldLinearKernelDesc.constant = NxVec3(0, 1, 0) * mForceMultiplier;
+		mFieldLinearKernelDesc.constant = OgrePhysX::Convert::toNx(mForceDirection * mForceMultiplier);
 		if (mOwnerGO) scale = mOwnerGO->GetGlobalScale();
 		if (mShapeType ==  Shapes::SHAPE_SPHERE)
 		{
@@ -101,7 +101,6 @@ namespace Ice
 		_create();
 		if (show) ShowEditorVisual(show);
 		//mForceField->setPose(OgrePhysX::Convert::toNx(mOwnerGO->GetGlobalPosition(), orientation));
-		//((NxForceFieldLinearKernel*)mForceField->getForceFieldKernel())->setConstant(OgrePhysX::Convert::toNx(orientation * Ogre::Vector3::UNIT_Y) * mForceMultiplier);
 	}
 	void GOCForceField::UpdateScale(Ogre::Vector3 scale)
 	{
@@ -121,9 +120,12 @@ namespace Ice
 				for (unsigned int i = 0; i < mEditorVisual->getNumSubEntities(); i++)
 					mEditorVisual->getSubEntity(i)->setMaterialName("Editor_TransparentBlue");
 
-				mEditorVisual2 = Main::Instance().GetOgreSceneMgr()->createEntity("JointVisual.mesh");
+				mEditorVisual2 = Main::Instance().GetOgreSceneMgr()->createEntity("blockpfeil.mesh");
 				mEditorVisual2->setUserAny(Ogre::Any(mOwnerGO));
-				GetNode()->attachObject(mEditorVisual2);
+				mArrowNode = GetNode()->createChildSceneNode();
+				//mArrowNode->setInheritOrientation(false);
+				mArrowNode->setOrientation(Ogre::Vector3::UNIT_X.getRotationTo(mForceDirection));
+				mArrowNode->attachObject(mEditorVisual2);
 			}
 		}
 		else
@@ -131,12 +133,14 @@ namespace Ice
 			if (mEditorVisual)
 			{
 				GetNode()->detachObject(mEditorVisual);
-				GetNode()->detachObject(mEditorVisual2);
+				mArrowNode->detachObject(mEditorVisual2);
+				Main::Instance().GetOgreSceneMgr()->destroySceneNode(mArrowNode);
 				Main::Instance().GetOgreSceneMgr()->destroyEntity(mEditorVisual);
 				Main::Instance().GetOgreSceneMgr()->destroyEntity(mEditorVisual2);
 			}
 			mEditorVisual = nullptr;
 			mEditorVisual2 = nullptr;
+			mArrowNode = nullptr;
 		}
 	}
 

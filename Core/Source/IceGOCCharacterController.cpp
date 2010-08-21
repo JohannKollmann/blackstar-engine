@@ -64,7 +64,7 @@ namespace Ice
 		if (dimensions.x == 0 || dimensions.y == 0 || dimensions.z == 0) dimensions = Ogre::Vector3(1,1,1);
 
 		mFreezed = false;
-		mJumping = false;
+		mJump.mJumping = false;
 
 		mMovementSpeed = 2.0f;
 		mSpeedFactor = 1;
@@ -81,6 +81,7 @@ namespace Ice
 			OgrePhysX::CapsuleShape(mRadius, mHeight).density(10).group(CollisionGroups::CHARACTER).localPose(Ogre::Vector3(0, mDimensions.y * 0.5f, 0)).material(nxID));
 		//mActor->getNxActor()->raiseBodyFlag(NxBodyFlag::NX_BF_DISABLE_GRAVITY);
 		mActor->getNxActor()->setMassSpaceInertiaTensor(NxVec3(0,1,0));
+		//mActor->getNxActor()->setLinearDamping(5.0);
 
 		float maxStepHeight = 0.3f;
 		mSweepActor = Main::Instance().GetPhysXScene()->createActor(
@@ -151,7 +152,7 @@ namespace Ice
 				Freeze(true);
 				mActor->setGlobalPosition(mActor->getGlobalPosition() + dir*time);
 				Freeze(false);
-				//mActor->getNxActor()->addForce(OgrePhysX::Convert::toNx(dir*time), NxForceMode::NX_VELOCITY_CHANGE);
+				//mActor->getNxActor()->addForce(OgrePhysX::Convert::toNx(dir*time), NxForceMode::NX_VELOCITY_CHANGE);//NX_SMOOTH_VELOCITY_CHANGE
 			}
 			else if (!bodyHit && feetHit)
 			{
@@ -161,7 +162,7 @@ namespace Ice
 				Freeze(false);
 				//mActor->getNxActor()->addForce(OgrePhysX::Convert::toNx(dir*time), NxForceMode::NX_VELOCITY_CHANGE);
 				float forceFactor = 1 - NxVec3(0,1,0).dot(sqh_result[0].normal);
-				Ogre::LogManager::getSingleton().logMessage(Ogre::StringConverter::toString(forceFactor));
+				//Ogre::LogManager::getSingleton().logMessage(Ogre::StringConverter::toString(forceFactor));
 				//if (forceFactor > 0.8)
 					mActor->getNxActor()->addForce(NxVec3(0, 500*forceFactor,0));
 			}

@@ -13,6 +13,7 @@ namespace Ice
 	{
 	private:
 		Ogre::String mCollisionMeshName;
+		Ogre::Vector3 mForceDirection;
 		int mShapeType;
 		NxForceField *mForceField;
 		NxForceFieldLinearKernelDesc mFieldLinearKernelDesc;
@@ -20,6 +21,7 @@ namespace Ice
 		float mFalloff;
 		Ogre::Entity *mEditorVisual;	//Volume
 		Ogre::Entity *mEditorVisual2;	//Arrow
+		Ogre::SceneNode *mArrowNode;
 
 		void _clear();
 		void _create();
@@ -38,6 +40,7 @@ namespace Ice
 
 		//Editor interface
 		BEGIN_GOCEDITORINTERFACE(GOCForceField, "ForceField")
+			PROPERTY_VECTOR3(mForceDirection, "Force Direction", Ogre::Vector3(0,1,0))
 			PROPERTY_STRING(mCollisionMeshName, "Volume mesh", ".mesh")
 			PROPERTY_FLOAT(mForceMultiplier, "Force Multiplier", 1.0f)
 			PROPERTY_FLOAT(mFalloff, "Falloff", 1.0f)
