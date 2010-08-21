@@ -45,6 +45,8 @@ namespace Ice
 		///Retrieves the component type identifier.
 		virtual goc_id_type& GetComponentID() const = 0;
 
+		virtual void FreeResources(bool free) {};
+
 		/**
 		Retrieves the component family type identifier.
 		@return the family name of the component.

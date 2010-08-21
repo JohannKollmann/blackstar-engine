@@ -94,6 +94,9 @@ namespace Ice
 	}
 	void GOCCameraController::DetachCamera()
 	{
+		Msg msg;
+		msg.type = "LEAVE_FPS_MODE";
+		if (mOwnerGO) mOwnerGO->SendInstantMessage(msg);
 		if (!mCamera) return;
 		mCameraNode->detachObject(mCamera);
 		MessageSystem::Instance().QuitAllNewsgroups(this);
