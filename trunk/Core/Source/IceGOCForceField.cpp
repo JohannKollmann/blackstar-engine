@@ -155,13 +155,19 @@ namespace Ice
 
 	void GOCForceField::Save(LoadSave::SaveSystem& mgr)
 	{
+		mgr.SaveAtom("Ogre::Vector3", &mForceDirection, "ForceDirection");
+		mgr.SaveAtom("Ogre::String", &mCollisionMeshName, "CollisionMeshName");
 		mgr.SaveAtom("float", &mForceMultiplier, "ForceMultipler");
 		mgr.SaveAtom("float", &mFalloff, "Falloff");
+		mgr.SaveAtom("bool", &mActive, "Active");
 	}
 	void GOCForceField::Load(LoadSave::LoadSystem& mgr)
 	{
+		mgr.LoadAtom("Ogre::Vector3", &mForceDirection);
+		mgr.LoadAtom("Ogre::String", &mCollisionMeshName);
 		mgr.LoadAtom("float", &mForceMultiplier);
 		mgr.LoadAtom("float", &mFalloff);
+		mgr.LoadAtom("bool", &mActive);
 	}
 
 }
