@@ -8,6 +8,7 @@
 #include "IceGameObject.h"
 #include "OgrePhysX.h"
 #include "IceGOCPhysics.h"
+#include "mmsystem.h"
 
 #include "IceSceneManager.h"
 
@@ -115,15 +116,15 @@ namespace Ice
 		{
 			float time = msg.params.GetFloat("TIME");
 			float jumpDelta = 0.0f;
-			if (mJump.mJumping) jumpDelta = mJump.GetHeight(time);
-			Ogre::Vector3 dir = mOwnerGO->GetGlobalOrientation() * (mDirection + Ogre::Vector3(0, jumpDelta, 0));
+			//if (mJump.mJumping) jumpDelta = mJump.GetHeight(time);
+			Ogre::Vector3 dir = mOwnerGO->GetGlobalOrientation() * (mDirection);// + Ogre::Vector3(0, jumpDelta, 0));
 
 			float maxStepHeight = 0.6f;
 			NxVec3 currPos = OgrePhysX::Convert::toNx(mOwnerGO->GetGlobalPosition());
 			//feet capsule
 			NxCapsule feetVolume;
 			feetVolume.radius = mRadius*1.1f;
-			feetVolume.p0 = currPos + NxVec3(0, feetVolume.radius, 0);
+			feetVolume.p0 = currPos + NxVec3(0, mRadius*1.5f + 0.1f, 0);
 			feetVolume.p1 = currPos + NxVec3(0, maxStepHeight, 0);
 			/*feetVolume.center = currPos + NxVec3(0, maxStepHeight*0.5f - mRadius + 0.2f, 0);
 			feetVolume.extents = NxVec3(mRadius, maxStepHeight*0.5f, mRadius);
@@ -132,7 +133,7 @@ namespace Ice
 			//body capsule
 			NxCapsule bodyVolume;
 			float bodyHeight = mDimensions.y-maxStepHeight;
-			bodyVolume.radius = mRadius*1.1f;
+			bodyVolume.radius = mRadius*1.2f;
 			bodyVolume.p0 = currPos + NxVec3(0, maxStepHeight+bodyVolume.radius, 0);
 			bodyVolume.p1 = currPos + NxVec3(0, bodyHeight, 0);
 			/*bodyVolume.center = currPos + NxVec3(0, maxStepHeight+(bodyHeight*0.5f), 0);
@@ -140,36 +141,72 @@ namespace Ice
 			bodyVolume.rot.fromQuat(OgrePhysX::Convert::toNx(Ogre::Quaternion()));*/
 			NxSweepQueryHit sqh_result[1];
 
-			NxU32 numHits = Main::Instance().GetPhysXScene()->getNxScene()->linearCapsuleSweep(bodyVolume, OgrePhysX::Convert::toNx(Ogre::Vector3(dir*time)), NX_SF_STATICS, 0, 1, sqh_result, 0);//1<<CollisionGroups::DEFAULT | 1<<CollisionGroups::LEVELMESH, mSweepCache);
+			NxU32 numHits = Main::Instance().GetPhysXScene()->getNxScene()->linearCapsuleSweep(bodyVolume, OgrePhysX::Convert::toNx(Ogre::Vector3(dir*time*2)), NX_SF_STATICS|NX_SF_DYNAMICS, 0, 1, sqh_result, nullptr, 1<<CollisionGroups::DEFAULT | 1<<CollisionGroups::LEVELMESH);
  			bool bodyHit = (numHits > 0);
 			//Ogre::LogManager::getSingleton().logMessage("Body hit: " + Ogre::StringConverter::toString(bodyHit));
-			numHits = Main::Instance().GetPhysXScene()->getNxScene()->linearCapsuleSweep(feetVolume, OgrePhysX::Convert::toNx(Ogre::Vector3(dir*time)), NX_SF_STATICS, 0, 1, sqh_result, 0);//, mSweepCache);
+			numHits = Main::Instance().GetPhysXScene()->getNxScene()->linearCapsuleSweep(feetVolume, OgrePhysX::Convert::toNx(Ogre::Vector3(dir*time*2)), NX_SF_STATICS|NX_SF_DYNAMICS, 0, 1, sqh_result, nullptr, 1<<CollisionGroups::DEFAULT | 1<<CollisionGroups::LEVELMESH);//, mSweepCache);
  			bool feetHit = (numHits > 0);
 			//Ogre::LogManager::getSingleton().logMessage("Feet hit: " + Ogre::StringConverter::toString(feetHit));
 
+			NxCapsule playerCapsule;
+			playerCapsule.radius = mRadius;
+			playerCapsule.p0 = currPos;
+			playerCapsule.p1 = currPos + NxVec3(0, mHeight, 0);
+			mTouchesGround = Main::Instance().GetPhysXScene()->getNxScene()->checkOverlapCapsule(playerCapsule, NX_ALL_SHAPES, 1<<CollisionGroups::DEFAULT | 1<<CollisionGroups::LEVELMESH);
+
+			mActor->getNxActor()->setLinearDamping(0);
+			
+			mActor->getNxActor()->wakeUp();
+
+			if(!mTouchesGround)
+				Ogre::LogManager::getSingleton().logMessage("in the air!");
+
+			if(mTouchesGround)
+				mTakeoffTime=timeGetTime();
+
 			if (!bodyHit && !feetHit)
 			{
-				Freeze(true);
-				mActor->setGlobalPosition(mActor->getGlobalPosition() + dir*time);
-				Freeze(false);
-				//mActor->getNxActor()->addForce(OgrePhysX::Convert::toNx(dir*time), NxForceMode::NX_VELOCITY_CHANGE);//NX_SMOOTH_VELOCITY_CHANGE
+				if(!mTouchesGround)
+				{
+					float fSetPosFactor=(float)(timeGetTime()-mTakeoffTime)/1000.0f;
+					fSetPosFactor=fSetPosFactor>1.0f ? 1.0f : fSetPosFactor;
+					Freeze(true);
+					mActor->setGlobalPosition(mActor->getGlobalPosition() + dir*time*fSetPosFactor);
+					Freeze(false);
+				}
+				else
+				{
+					//dir+=Ogre::Vector3(0,0.4,0);
+					mActor->getNxActor()->setLinearDamping(5.0);
+					mActor->getNxActor()->addForce(10*OgrePhysX::Convert::toNx(dir*time), NxForceMode::NX_VELOCITY_CHANGE);//NX_SMOOTH_VELOCITY_CHANGE
+					
+				}
 			}
-			else if (!bodyHit && feetHit)
+			else if (!bodyHit && feetHit && dir!=Ogre::Vector3(0,0,0))
 			{
-				dir+=Ogre::Vector3(0,1,0);
+				dir += Ogre::Vector3(0,2,0);
 				Freeze(true);
-				mActor->setGlobalPosition(mActor->getGlobalPosition() + dir*time);
+				mActor->getNxActor()->setGlobalPosition(mActor->getNxActor()->getGlobalPosition()+OgrePhysX::Convert::toNx(dir*time));
 				Freeze(false);
+				/*if(!mTouchesGround)
+				{*/
+				//dir+=Ogre::Vector3(0,3,0);
+				/*Freeze(true);
+				mActor->setGlobalPosition(mActor->getGlobalPosition() + dir*time);
+				Freeze(false);*/
 				//mActor->getNxActor()->addForce(OgrePhysX::Convert::toNx(dir*time), NxForceMode::NX_VELOCITY_CHANGE);
-				float forceFactor = 1 - NxVec3(0,1,0).dot(sqh_result[0].normal);
+				//float forceFactor = 1 - NxVec3(0,1,0).dot(sqh_result[0].normal);
 				//Ogre::LogManager::getSingleton().logMessage(Ogre::StringConverter::toString(forceFactor));
 				//if (forceFactor > 0.8)
-					mActor->getNxActor()->addForce(NxVec3(0, 500*forceFactor,0));
+				Ogre::LogManager::getSingleton().logMessage(Ogre::StringConverter::toString(OgrePhysX::Convert::toOgre(sqh_result[0].normal)));
+				/*mActor->getNxActor()->setLinearDamping(5.0);
+				mActor->getNxActor()->addForce(10*OgrePhysX::Convert::toNx(dir*time), NxForceMode::NX_VELOCITY_CHANGE);*/
 			}
 
-			if(mJump.mJumping && mJump.GetHeight(0) <= 0.0f)
+			//Ogre::LogManager::getSingleton().logMessage(Ogre::StringConverter::toString(mTouchesGround));
+			if (mJumping && mTouchesGround && (timeGetTime() - mJumpStartTime > 400))
 			{
-				mJump.StopJump();
+				mJumping = false;
 				Msg jump_response;
 				jump_response.type = "CharacterJumpEnded";
 				mOwnerGO->SendInstantMessage(jump_response);
@@ -199,11 +236,11 @@ namespace Ice
 
 			if (movementFlags & CharacterMovement::JUMP)
 			{
-				NxSweepQueryHit sqh_result[1];
-				if (mActor->getNxActor()->linearSweep(NxVec3(0, -0.05f, 0), NX_SF_STATICS|NX_SF_DYNAMICS, nullptr, 1, sqh_result, nullptr) == 0)
+				if (mTouchesGround && !mJumping)
 				{
-					mActor->getNxActor()->addForce(NxVec3(0, 50, 0), NxForceMode::NX_IMPULSE);
-					//mJump.StartJump(1.0f);
+					mJumping = true;
+					mJumpStartTime = timeGetTime();
+					mActor->getNxActor()->addForce(NxVec3(0, 300, 0), NxForceMode::NX_IMPULSE);
 				}
 			}
 		}
