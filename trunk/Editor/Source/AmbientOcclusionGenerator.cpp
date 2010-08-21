@@ -146,6 +146,7 @@ void AmbientOcclusionGenerator::processVertexData(Ogre::VertexData *targetData, 
 			Ogre::VertexElement::getTypeSize(Ogre::VertexElementType::VET_COLOUR), targetData->vertexCount, Ogre::HardwareBuffer::HBU_STATIC_WRITE_ONLY);
 	vAOBuf->writeData(0, vAOBuf->getSizeInBytes(), aoBuffer, true);
 	targetData->vertexBufferBinding->setBinding(aoBufferSource, vAOBuf);
+	delete aoBuffer;
 }
 
 void AmbientOcclusionGenerator::computeAO( Ogre::Vector3 position, Ogre::Vector3 normal, Ogre::ColourValue &target )

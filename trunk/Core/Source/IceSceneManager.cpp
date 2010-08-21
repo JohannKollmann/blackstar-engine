@@ -806,10 +806,11 @@ namespace Ice
 
 	std::vector<ScriptParam> SceneManager::Lua_CreateMaterialProfile(Script& caller, std::vector<ScriptParam> vParams)
 	{
+		//CreateMaterialProfile(string name, float restitution = 0.1f, float staticFriction = 0.5f, float dynamicFriction = 0.5f
 		std::vector<ScriptParam> ret;
 		std::vector<Ice::ScriptParam> vRef;
 		vRef.push_back(ScriptParam(std::string()));	//Name
-		std::string strErrString=Ice::Utils::TestParameters(vParams, vRef);
+		std::string strErrString=Ice::Utils::TestParameters(vParams, vRef, true);
 		if (strErrString != "")
 		{
 			Utils::LogParameterErrors(caller, strErrString);
@@ -818,10 +819,27 @@ namespace Ice
 		}
 		NxMaterialDesc desc;
 		desc.setToDefault();
+		desc.frictionCombineMode=NxCombineMode::NX_CM_MAX;
 		NxMaterial* material = Main::Instance().GetPhysXScene()->getNxScene()->createMaterial(desc);
 		material->setRestitution(0.1f);
 		material->setStaticFriction(0.5f);
 		material->setDynamicFriction(0.5f);
+		if(vParams.size()!=1)
+		{
+			vRef.push_back(ScriptParam(1.0));	//restitution
+			vRef.push_back(ScriptParam(1.0));	//staticFriction
+			vRef.push_back(ScriptParam(1.0));	//dynamicFriction
+			std::string strErrString=Ice::Utils::TestParameters(vParams, vRef);
+			if (strErrString != "")
+			{
+				Utils::LogParameterErrors(caller, strErrString);
+				ret.push_back(ScriptParam(0));
+				return ret;
+			}
+			material->setRestitution(vParams[1].getFloat());
+			material->setStaticFriction(vParams[2].getFloat());
+			material->setDynamicFriction(vParams[3].getFloat());
+		}
 		Instance().mSoundMaterialTable.AddMaterialProfile(vParams[0].getString().c_str(), material->getMaterialIndex());
 		ret.push_back(ScriptParam((int)material->getMaterialIndex()));
 		return ret;
