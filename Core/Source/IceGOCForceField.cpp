@@ -9,6 +9,8 @@ namespace Ice
 	GOCForceField::GOCForceField(void)
 	{
 		mForceField = nullptr;
+		mEditorVisual = nullptr;
+		mEditorVisual2 = nullptr;
 		mFieldLinearKernelDesc.setToDefault();
 	}
 
@@ -19,6 +21,7 @@ namespace Ice
 
 	void GOCForceField::_clear()
 	{
+		ShowEditorVisual(false);
 		if (mForceField) Main::Instance().GetPhysXScene()->destroyForcefield(mForceField);
 		mForceField = nullptr;
 	}
@@ -35,6 +38,10 @@ namespace Ice
 		if (mOwnerGO) scale = mOwnerGO->GetGlobalScale();
 		NxForceFieldDesc fieldDesc;
 		fieldDesc.setToDefault();
+		fieldDesc.actor = nullptr;
+		fieldDesc.coordinates = NX_FFC_CARTESIAN;
+		if (mOwnerGO)
+			fieldDesc.pose = OgrePhysX::Convert::toNx(mOwnerGO->GetGlobalPosition(), mOwnerGO->GetGlobalOrientation());
 		mFieldLinearKernelDesc.falloffLinear = NxVec3(mFalloff, mFalloff, mFalloff);
 		mFieldLinearKernelDesc.constant = NxVec3(0, 1, 0) * mForceMultiplier;
 		if (mOwnerGO) scale = mOwnerGO->GetGlobalScale();
@@ -83,16 +90,54 @@ namespace Ice
 
 	void GOCForceField::UpdatePosition(Ogre::Vector3 position)
 	{
-		mForceField->setPose(OgrePhysX::Convert::toNx(position, mOwnerGO->GetGlobalOrientation()));
+		bool show = (mEditorVisual != nullptr);
+		_create();
+		if (show) ShowEditorVisual(show);
+		//mForceField->setPose(OgrePhysX::Convert::toNx(position, mOwnerGO->GetGlobalOrientation()));
 	}
 	void GOCForceField::UpdateOrientation(Ogre::Quaternion orientation)
 	{
-		mForceField->setPose(OgrePhysX::Convert::toNx(mOwnerGO->GetGlobalPosition(), orientation));
-		((NxForceFieldLinearKernel*)mForceField->getForceFieldKernel())->setConstant(OgrePhysX::Convert::toNx(orientation * Ogre::Vector3::UNIT_Z) * mForceMultiplier);
+		bool show = (mEditorVisual != nullptr);
+		_create();
+		if (show) ShowEditorVisual(show);
+		//mForceField->setPose(OgrePhysX::Convert::toNx(mOwnerGO->GetGlobalPosition(), orientation));
+		//((NxForceFieldLinearKernel*)mForceField->getForceFieldKernel())->setConstant(OgrePhysX::Convert::toNx(orientation * Ogre::Vector3::UNIT_Y) * mForceMultiplier);
 	}
 	void GOCForceField::UpdateScale(Ogre::Vector3 scale)
 	{
+		bool show = (mEditorVisual != nullptr);
 		_create();
+		if (show) ShowEditorVisual(show);
+	}
+
+	void GOCForceField::ShowEditorVisual(bool show)
+	{
+		if (show)
+		{
+			if (!mEditorVisual && mCollisionMeshName != "")
+			{
+				mEditorVisual = Main::Instance().GetOgreSceneMgr()->createEntity(mCollisionMeshName);
+				GetNode()->attachObject(mEditorVisual);
+				for (unsigned int i = 0; i < mEditorVisual->getNumSubEntities(); i++)
+					mEditorVisual->getSubEntity(i)->setMaterialName("Editor_TransparentBlue");
+
+				mEditorVisual2 = Main::Instance().GetOgreSceneMgr()->createEntity("JointVisual.mesh");
+				mEditorVisual2->setUserAny(Ogre::Any(mOwnerGO));
+				GetNode()->attachObject(mEditorVisual2);
+			}
+		}
+		else
+		{
+			if (mEditorVisual)
+			{
+				GetNode()->detachObject(mEditorVisual);
+				GetNode()->detachObject(mEditorVisual2);
+				Main::Instance().GetOgreSceneMgr()->destroyEntity(mEditorVisual);
+				Main::Instance().GetOgreSceneMgr()->destroyEntity(mEditorVisual2);
+			}
+			mEditorVisual = nullptr;
+			mEditorVisual2 = nullptr;
+		}
 	}
 
 	void GOCForceField::Save(LoadSave::SaveSystem& mgr)
