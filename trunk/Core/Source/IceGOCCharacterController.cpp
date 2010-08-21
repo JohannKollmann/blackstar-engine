@@ -158,8 +158,8 @@ namespace Ice
 			
 			mActor->getNxActor()->wakeUp();
 
-			if(!mTouchesGround)
-				Ogre::LogManager::getSingleton().logMessage("in the air!");
+			/*if(!mTouchesGround)
+				Ogre::LogManager::getSingleton().logMessage("in the air!");*/
 
 			if(mTouchesGround)
 				mTakeoffTime=timeGetTime();
@@ -178,7 +178,7 @@ namespace Ice
 				{
 					//dir+=Ogre::Vector3(0,0.4,0);
 					mActor->getNxActor()->setLinearDamping(5.0);
-					mActor->getNxActor()->addForce(10*OgrePhysX::Convert::toNx(dir*time), NxForceMode::NX_VELOCITY_CHANGE);//NX_SMOOTH_VELOCITY_CHANGE
+					mActor->getNxActor()->addForce(30*OgrePhysX::Convert::toNx(dir*time), NxForceMode::NX_VELOCITY_CHANGE);//NX_SMOOTH_VELOCITY_CHANGE
 					
 				}
 			}
@@ -229,10 +229,13 @@ namespace Ice
 		{
 			mDirection = Ogre::Vector3(0,0,0);
 			int movementFlags = msg.params.GetInt("CharacterMovementState");
-			if (movementFlags & CharacterMovement::FORWARD) mDirection.z += (mMovementSpeed*mSpeedFactor);
-			if (movementFlags & CharacterMovement::BACKWARD) mDirection.z -= (mMovementSpeed*mSpeedFactor);
-			if (movementFlags & CharacterMovement::LEFT) mDirection.x += (mMovementSpeed*mSpeedFactor);
-			if (movementFlags & CharacterMovement::RIGHT) mDirection.x -= (mMovementSpeed*mSpeedFactor);
+			if (movementFlags & CharacterMovement::FORWARD) mDirection.z += 1;
+			if (movementFlags & CharacterMovement::BACKWARD) mDirection.z -= 1;
+			if (movementFlags & CharacterMovement::LEFT) mDirection.x += 1;
+			if (movementFlags & CharacterMovement::RIGHT) mDirection.x -= 1;
+
+			mDirection.normalise();
+			mDirection*=(mMovementSpeed*mSpeedFactor);
 
 			if (movementFlags & CharacterMovement::JUMP)
 			{
@@ -305,9 +308,9 @@ namespace Ice
 	void GOCCharacterController::Load(LoadSave::LoadSystem& mgr)
 	{
 		mgr.LoadAtom("Ogre::Vector3", &mDimensions);
-		Create(mDimensions);
 		mgr.LoadAtom("float", &mMovementSpeed);		//Load Save: Todo!
 		mgr.LoadAtom("Ogre::String", &mMaterialName);
+		Create(mDimensions);
 	}
 
 };
