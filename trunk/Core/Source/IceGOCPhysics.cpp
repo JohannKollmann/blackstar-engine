@@ -97,7 +97,12 @@ namespace Ice
 		}
 		mActor->getNxActor()->userData = mOwnerGO;
 		mActor->getNxActor()->setGroup(CollisionGroups::DEFAULT);
+
 		if (mIsKinematic) mActor->getNxActor()->raiseBodyFlag(NxBodyFlag::NX_BF_KINEMATIC);
+
+		/*mActor->getNxActor()->getShapes()[0]->setFlag(NxShapeFlag::NX_SF_DYNAMIC_DYNAMIC_CCD, true);
+		OgrePhysX::World::getSingleton().getSDK()->createCCDSkeleton();*/
+
 		Main::Instance().GetOgreSceneMgr()->destroyEntity(entity);
 	}
 
