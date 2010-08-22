@@ -49,8 +49,6 @@ namespace Ice
 			MessageSystem::Instance().SendInstantMessage(msg);
 			Main::Instance().GetPhysXScene()->destroyActor(mActor);
 			mActor = nullptr;
-			Main::Instance().GetPhysXScene()->destroyActor(mSweepActor);
-			mSweepActor = nullptr;
 			Main::Instance().GetPhysXScene()->getNxScene()->releaseSweepCache(mSweepCache);
 			mSweepCache = nullptr;
 		}
@@ -82,13 +80,9 @@ namespace Ice
 			OgrePhysX::CapsuleShape(mRadius, mHeight).density(10).group(CollisionGroups::CHARACTER).localPose(Ogre::Vector3(0, mDimensions.y * 0.5f, 0)).material(nxID));
 		//mActor->getNxActor()->raiseBodyFlag(NxBodyFlag::NX_BF_DISABLE_GRAVITY);
 		mActor->getNxActor()->setMassSpaceInertiaTensor(NxVec3(0,1,0));
+		mActor->getNxActor()->setSolverIterationCount(8);
 		//mActor->getNxActor()->setLinearDamping(5.0);
 
-		float maxStepHeight = 0.3f;
-		mSweepActor = Main::Instance().GetPhysXScene()->createActor(
-			OgrePhysX::CapsuleShape(mRadius, mDimensions.y * 0.5f + offset - maxStepHeight).group(CollisionGroups::AI).localPose(Ogre::Vector3(0, (mDimensions.y * 0.5f) + maxStepHeight, 0)));
-		mSweepActor->getNxActor()->raiseBodyFlag(NxBodyFlag::NX_BF_KINEMATIC);
-		mSweepActor->getNxActor()->setMassSpaceInertiaTensor(NxVec3(0,1,0));
 		mSweepCache = Main::Instance().GetPhysXScene()->getNxScene()->createSweepCache();
 
 	}
@@ -101,7 +95,6 @@ namespace Ice
 	void GOCCharacterController::UpdatePosition(Ogre::Vector3 position)
 	{
 		mActor->setGlobalPosition(position);//Ogre::Vector3(position.x, position.y + mDimensions.y * 0.5, position.z));
-		mSweepActor->setGlobalPosition(position);
 	}
 	void GOCCharacterController::UpdateOrientation(Ogre::Quaternion orientation)
 	{
@@ -115,9 +108,9 @@ namespace Ice
 		if (msg.type == "START_PHYSICS" && !mFreezed)
 		{
 			float time = msg.params.GetFloat("TIME");
-			float jumpDelta = 0.0f;
 			//if (mJump.mJumping) jumpDelta = mJump.GetHeight(time);
-			Ogre::Vector3 dir = mOwnerGO->GetGlobalOrientation() * (mDirection);// + Ogre::Vector3(0, jumpDelta, 0));
+			Ogre::Vector3 finalDir = Ogre::Vector3(0,0,0);
+			Ogre::Vector3 userDir = mOwnerGO->GetGlobalOrientation() * (mDirection);
 
 			float maxStepHeight = 0.6f;
 			NxVec3 currPos = OgrePhysX::Convert::toNx(mOwnerGO->GetGlobalPosition());
@@ -141,10 +134,10 @@ namespace Ice
 			bodyVolume.rot.fromQuat(OgrePhysX::Convert::toNx(Ogre::Quaternion()));*/
 			NxSweepQueryHit sqh_result[1];
 
-			NxU32 numHits = Main::Instance().GetPhysXScene()->getNxScene()->linearCapsuleSweep(bodyVolume, OgrePhysX::Convert::toNx(Ogre::Vector3(dir*time*2)), NX_SF_STATICS|NX_SF_DYNAMICS, 0, 1, sqh_result, nullptr, 1<<CollisionGroups::DEFAULT | 1<<CollisionGroups::LEVELMESH);
+			NxU32 numHits = Main::Instance().GetPhysXScene()->getNxScene()->linearCapsuleSweep(bodyVolume, OgrePhysX::Convert::toNx(Ogre::Vector3(userDir*time*2)), NX_SF_STATICS|NX_SF_DYNAMICS, 0, 1, sqh_result, nullptr, 1<<CollisionGroups::DEFAULT | 1<<CollisionGroups::LEVELMESH);
  			bool bodyHit = (numHits > 0);
 			//Ogre::LogManager::getSingleton().logMessage("Body hit: " + Ogre::StringConverter::toString(bodyHit));
-			numHits = Main::Instance().GetPhysXScene()->getNxScene()->linearCapsuleSweep(feetVolume, OgrePhysX::Convert::toNx(Ogre::Vector3(dir*time*2)), NX_SF_STATICS|NX_SF_DYNAMICS, 0, 1, sqh_result, nullptr, 1<<CollisionGroups::DEFAULT | 1<<CollisionGroups::LEVELMESH);//, mSweepCache);
+			numHits = Main::Instance().GetPhysXScene()->getNxScene()->linearCapsuleSweep(feetVolume, OgrePhysX::Convert::toNx(Ogre::Vector3(userDir*time*2)), NX_SF_STATICS|NX_SF_DYNAMICS, 0, 1, sqh_result, nullptr, 1<<CollisionGroups::DEFAULT | 1<<CollisionGroups::LEVELMESH);//, mSweepCache);
  			bool feetHit = (numHits > 0);
 			//Ogre::LogManager::getSingleton().logMessage("Feet hit: " + Ogre::StringConverter::toString(feetHit));
 
@@ -154,54 +147,26 @@ namespace Ice
 			playerCapsule.p1 = currPos + NxVec3(0, mHeight, 0);
 			mTouchesGround = Main::Instance().GetPhysXScene()->getNxScene()->checkOverlapCapsule(playerCapsule, NX_ALL_SHAPES, 1<<CollisionGroups::DEFAULT | 1<<CollisionGroups::LEVELMESH);
 
-			mActor->getNxActor()->setLinearDamping(0);
-			
-			mActor->getNxActor()->wakeUp();
+			//if (!mTouchesGround) finalDir += Ogre::Vector3(0, -9.81f, 0);	//add gravity
 
 			/*if(!mTouchesGround)
 				Ogre::LogManager::getSingleton().logMessage("in the air!");*/
 
-			if(mTouchesGround)
-				mTakeoffTime=timeGetTime();
 
-			if (!bodyHit && !feetHit)
+			if (!bodyHit)
 			{
-				if(!mTouchesGround)
-				{
-					float fSetPosFactor=(float)(timeGetTime()-mTakeoffTime)/1000.0f;
-					fSetPosFactor=fSetPosFactor>1.0f ? 1.0f : fSetPosFactor;
-					Freeze(true);
-					mActor->setGlobalPosition(mActor->getGlobalPosition() + dir*time*fSetPosFactor);
-					Freeze(false);
-				}
-				else
-				{
-					//dir+=Ogre::Vector3(0,0.4,0);
-					mActor->getNxActor()->setLinearDamping(5.0);
-					mActor->getNxActor()->addForce(15*OgrePhysX::Convert::toNx(dir*time), NxForceMode::NX_VELOCITY_CHANGE);//NX_SMOOTH_VELOCITY_CHANGE
-					
-				}
+				finalDir += userDir;	//add player movement
 			}
-			else if (!bodyHit && feetHit && dir!=Ogre::Vector3(0,0,0))
+			if (!bodyHit && feetHit)
 			{
-				dir += Ogre::Vector3(0,2,0);
-				Freeze(true);
-				mActor->getNxActor()->setGlobalPosition(mActor->getNxActor()->getGlobalPosition()+OgrePhysX::Convert::toNx(dir*time));
-				Freeze(false);
-				/*if(!mTouchesGround)
-				{*/
-				//dir+=Ogre::Vector3(0,3,0);
-				/*Freeze(true);
-				mActor->setGlobalPosition(mActor->getGlobalPosition() + dir*time);
-				Freeze(false);*/
-				//mActor->getNxActor()->addForce(OgrePhysX::Convert::toNx(dir*time), NxForceMode::NX_VELOCITY_CHANGE);
-				//float forceFactor = 1 - NxVec3(0,1,0).dot(sqh_result[0].normal);
-				//Ogre::LogManager::getSingleton().logMessage(Ogre::StringConverter::toString(forceFactor));
-				//if (forceFactor > 0.8)
-				Ogre::LogManager::getSingleton().logMessage(Ogre::StringConverter::toString(OgrePhysX::Convert::toOgre(sqh_result[0].normal)));
-				/*mActor->getNxActor()->setLinearDamping(5.0);
-				mActor->getNxActor()->addForce(10*OgrePhysX::Convert::toNx(dir*time), NxForceMode::NX_VELOCITY_CHANGE);*/
+				//finalDir += Ogre::Vector3(0,3,0); //climb stairs
 			}
+
+			//mActor->getNxActor()->setLinearVelocity(OgrePhysX::Convert::toNx(finalDir));
+			if (finalDir != Ogre::Vector3(0,0,0))
+				mActor->getNxActor()->setGlobalPosition(currPos + OgrePhysX::Convert::toNx(finalDir*time));
+
+			mActor->getNxActor()->wakeUp();
 
 			//Ogre::LogManager::getSingleton().logMessage(Ogre::StringConverter::toString(mTouchesGround));
 			if (mJumping && mTouchesGround && (timeGetTime() - mJumpStartTime > 400))

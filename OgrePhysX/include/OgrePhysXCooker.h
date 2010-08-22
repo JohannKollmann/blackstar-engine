@@ -74,6 +74,8 @@ namespace OgrePhysX
 
 		void cookNxConvexMesh(Ogre::MeshPtr mesh, NxStream& outputStream, CookerParams &params = CookerParams());
 
+		void cookNxCCDSkeleton(Ogre::MeshPtr mesh, NxStream& outputStream, CookerParams &params = CookerParams());
+
 		/*
 		createNxTriangleMesh
 		Cooks an nx mesh from an ogre mesh and returns it, does not save to file.

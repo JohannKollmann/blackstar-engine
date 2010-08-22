@@ -147,6 +147,7 @@ void Main::initScene()
 	desc.simType = NX_SIMULATION_SW;
 	desc.userNotify = new PhysXUserCallback();
 	mPhysXScene = OgrePhysX::World::getSingleton().addScene("Main", desc);
+	OgrePhysX::World::getSingleton().getSDK()->setParameter(NxParameter::NX_CONTINUOUS_CD));
 
 	//Ground
 	mPhysXScene->createActor(OgrePhysX::PlaneShape(Ogre::Vector3(0, 1, 0), -500));
