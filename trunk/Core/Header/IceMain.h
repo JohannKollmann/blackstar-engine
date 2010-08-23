@@ -3,7 +3,7 @@
 
 /*
 Main
-Initialisiert Ogre und das Inputsystem.
+Initialisiert alle Subsysteme.
 */
 
 #include "IceIncludes.h"
@@ -88,6 +88,8 @@ namespace Ice
 		void createInputSystem(size_t windowHnd, bool freeCursor = false);
 
 		void Shutdown();
+
+		void StartMainLoop();
 		
 		Ogre::RenderWindow* GetWindow() { return mWindow; };
 		OgrePhysX::Scene* GetPhysXScene() { return mPhysXScene; };

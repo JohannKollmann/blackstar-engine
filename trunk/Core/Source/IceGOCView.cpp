@@ -142,8 +142,16 @@ namespace Ice
 		_clear();
 		mParticleResource = pfxresname;
 		int id = SceneManager::Instance().RequestID();
-		mParticleSystem = Main::Instance().GetOgreSceneMgr()->createParticleSystem(Ogre::StringConverter::toString(id), pfxresname);
-		NotifyOwnerGO();
+		if (!Ogre::ParticleSystemManager::getSingleton().getTemplate(mParticleResource))
+		{
+			Ogre::LogManager::getSingleton().logMessage("Error: Resource \"" + mParticleResource + "\" does not exist. Loading dummy Resource...");
+			mParticleResource = "DummyParticle";
+		}
+		else
+		{
+			mParticleSystem = Main::Instance().GetOgreSceneMgr()->createParticleSystem(Ogre::StringConverter::toString(id), pfxresname);
+			NotifyOwnerGO();
+		}
 	}
 
 	void GOCPfxRenderable::NotifyOwnerGO()

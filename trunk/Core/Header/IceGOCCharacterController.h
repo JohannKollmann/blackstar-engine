@@ -94,7 +94,7 @@ namespace Ice
 		void _clear();
 
 	public:
-		GOCCharacterController() : mActor(0) {}
+		GOCCharacterController() : mActor(0), mMovementSpeed(2.0f) {}
 		GOCCharacterController(Ogre::Vector3 dimensions);
 		~GOCCharacterController(void);
 

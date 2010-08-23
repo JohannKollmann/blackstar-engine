@@ -73,7 +73,7 @@ namespace Ice
 	void GOCMover::Init()
 	{
 		if (mSplineObject) return;
-		MessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
+		MessageSystem::Instance().JoinNewsgroup(this, "START_PHYSICS");
 		mSplineObject = Ice::Main::Instance().GetOgreSceneMgr()->createManualObject("Spline_" + SceneManager::Instance().RequestIDStr());
 		Ice::Main::Instance().GetOgreSceneMgr()->getRootSceneNode()->attachObject(mSplineObject);
 		mSplineObject->setVisible(SceneManager::Instance().GetShowEditorVisuals());
@@ -185,7 +185,7 @@ namespace Ice
 
 	void GOCMover::ReceiveMessage( Msg &msg )
 	{
-		if (msg.type == "UPDATE_PER_FRAME" && mOwnerGO)
+		if (msg.type == "START_PHYSICS" && mOwnerGO)
 		{
 			if (mLookAtLine) _updateLookAtLine();
 			if (mNormalLookAtLine) _updateNormalLookAtLine();

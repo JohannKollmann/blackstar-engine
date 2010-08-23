@@ -119,7 +119,7 @@ void wxOgre::toggleTimerRendering()
 	// Toggle Start/Stop
 	if (mTimer.IsRunning())
 		mTimer.Stop();
-	mTimer.Start(30);
+	mTimer.Start(10);
 }
 
 wxOgre::~wxOgre()

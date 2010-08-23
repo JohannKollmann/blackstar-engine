@@ -127,25 +127,12 @@ namespace OgrePhysX
 		if (mSimulating)
 		{
 			Ogre::LogManager::getSingleton().logMessage("[OgrePhysX] Warning: startSimulate called while simulation is in progress!");
-			fetchSimulate();
 		}
 
 		mSimulating = true;
 		for (std::map<Ogre::String, Scene*>::iterator i = mScenes.begin(); i != mScenes.end(); i++)
 		{
-			i->second->getNxScene()->simulate(time);
-		}
-	}
-	void World::fetchSimulate()
-	{
-		if (mSimulating)
-		{
-			for (std::map<Ogre::String, Scene*>::iterator i = mScenes.begin(); i != mScenes.end(); i++)
-			{
-				i->second->getNxScene()->flushStream();
-				i->second->getNxScene()->fetchResults(NX_RIGID_BODY_FINISHED, true);
-			}
-			mControllerManager->updateControllers();
+			i->second->simulate(time);
 		}
 		mSimulating = false;
 	}

@@ -21,7 +21,6 @@ namespace OgrePhysX
 			bool frameStarted (const Ogre::FrameEvent &evt)
 			{
 				mWorld->startSimulate(evt.timeSinceLastFrame);
-				mWorld->fetchSimulate();
 				mWorld->syncRenderables();
 				return true;
 			}
@@ -57,7 +56,6 @@ namespace OgrePhysX
 		void clearScenes();
 
 		void startSimulate(float time);
-		void fetchSimulate();
 		void syncRenderables(); 
 
 		//Singleton

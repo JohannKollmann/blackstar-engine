@@ -31,6 +31,7 @@ namespace Ice
 
 	GOCCharacterController::GOCCharacterController(Ogre::Vector3 dimensions)
 	{
+		mMovementSpeed = 2.0f;
 		Create(dimensions);
 	}
 
@@ -65,7 +66,6 @@ namespace Ice
 		mFreezed = false;
 		mJump.mJumping = false;
 
-		mMovementSpeed = 2.0f;
 		mSpeedFactor = 1;
 		mDirection = Ogre::Vector3(0,0,0);
 		mDimensions = dimensions;
@@ -246,10 +246,10 @@ namespace Ice
 	{
 		_clear();
 		mDimensions = parameters->GetValue("Dimensions", Ogre::Vector3(1,1,1));
-		Create(mDimensions);
-		if (mOwnerGO) mActor->getNxActor()->userData = mOwnerGO;
 		mMovementSpeed = parameters->GetFloat("MaxSpeed");
 		mMaterialName = parameters->GetValue<Ogre::String>("mMaterialName", "Wood");
+		Create(mDimensions);
+		if (mOwnerGO) mActor->getNxActor()->userData = mOwnerGO;
 	}
 	void GOCCharacterController::GetParameters(DataMap *parameters)
 	{

@@ -33,8 +33,9 @@ namespace OgrePhysX
 		Ogre::Vector3 getGlobalPosition();
 		Ogre::Quaternion getGlobalOrientation();
 
-		void setGlobalPosition(Ogre::Vector3 position);
+		void setGlobalPosition(Ogre::Vector3 position, bool moveKinematic = true);
 		void setGlobalOrientation(Ogre::Quaternion rotation);
+		void setGlobalPose(Ogre::Vector3 position, Ogre::Quaternion rotation, bool moveKinematic = true);
 	};
 
 }

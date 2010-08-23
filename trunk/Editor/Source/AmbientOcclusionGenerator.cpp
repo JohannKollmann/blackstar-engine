@@ -35,8 +35,7 @@ void AmbientOcclusionGenerator::bakeAmbientOcclusion(Ogre::MeshPtr mesh, Ogre::S
 	OgrePhysX::Actor *actor = Ice::Main::Instance().GetPhysXScene()->createActor(
 		OgrePhysX::RTMeshShape(mesh).backfaces(true).group(Ice::CollisionGroups::TMP));
 
-	OgrePhysX::World::getSingleton().startSimulate(0);
-	OgrePhysX::World::getSingleton().fetchSimulate();
+	OgrePhysX::World::getSingleton().startSimulate(0.1f);
 
 	wxEdit::Instance().GetProgressBar()->SetProgress(0.4f);
 
