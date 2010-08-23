@@ -42,6 +42,7 @@ namespace OgrePhysX
 		void getMeshInfo(Ogre::MeshPtr mesh, CookerParams &params, MeshInfo &outInfo);
 		void mergeVertices(MeshInfo &outInfo);
 		void insetMesh(MeshInfo &outInfo, float fAmount);
+		void cutMesh(MeshInfo &outInfo, NxVec3 vPlanePos, NxVec3 vPlaneDir);
 
 	public:
 		Cooker(void);
