@@ -1,5 +1,7 @@
 
 #include "IceMainLoop.h"
+#include "IceMain.h"
+#include "IceMessageSystem.h"
 
 namespace Ice
 {
@@ -16,6 +18,7 @@ MainLoop::MainLoop()
 	AddState((GameState*)new Game());
 	AddState((GameState*)new DefaultMenu());
 	AddState((GameState*)new Editor());
+	Main::Instance().GetPhysXScene()->setSimulationListener(&mPhysicsListener);
 };
 
 void MainLoop::AddState(GameState* state)
@@ -92,5 +95,27 @@ MainLoop& MainLoop::Instance()
 	static MainLoop TheOneAndOnly;
 	return TheOneAndOnly;
 };
+
+	void MainLoop::PhysicsListener::onBeginSimulate(float time)
+	{
+		Msg msg;
+		msg.params.AddFloat("TIME", time);
+		msg.type = "START_PHYSICS";
+		MessageSystem::Instance().SendInstantMessage(msg);
+	}
+	void MainLoop::PhysicsListener::onSimulate(float time)
+	{
+		Msg msg;
+		msg.params.AddFloat("TIME", time);
+		msg.type = "SIMULATING_PHYSICS";
+		MessageSystem::Instance().SendInstantMessage(msg);
+	}
+	void MainLoop::PhysicsListener::onEndSimulate(float time)
+	{
+		Msg msg;
+		msg.params.AddFloat("TIME", time);
+		msg.type = "END_PHYSICS";
+		MessageSystem::Instance().SendInstantMessage(msg);
+	}
 
 };

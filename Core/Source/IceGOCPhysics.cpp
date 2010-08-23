@@ -100,6 +100,8 @@ namespace Ice
 
 		if (mIsKinematic) mActor->getNxActor()->raiseBodyFlag(NxBodyFlag::NX_BF_KINEMATIC);
 
+		mActor->getNxActor()->setSolverIterationCount(8);
+
 		/*mActor->getNxActor()->getShapes()[0]->setFlag(NxShapeFlag::NX_SF_DYNAMIC_DYNAMIC_CCD, true);
 		OgrePhysX::World::getSingleton().getSDK()->createCCDSkeleton();*/
 
@@ -127,7 +129,7 @@ namespace Ice
 	}
 	void GOCRigidBody::UpdateOrientation(Ogre::Quaternion orientation)
 	{
-		mActor->setGlobalOrientation(orientation);
+		mActor->setGlobalPose(mOwnerGO->GetGlobalPosition(), orientation);
 	}
 	void GOCRigidBody::UpdateScale(Ogre::Vector3 scale)
 	{

@@ -63,15 +63,21 @@ namespace OgrePhysX
 	{
 		return Convert::toOgre(mNxActor->getGlobalOrientationQuat());
 	}
-	void Actor::setGlobalPosition(Ogre::Vector3 position)
+	void Actor::setGlobalPosition(Ogre::Vector3 position, bool moveKinematic)
 	{
-		if (mNxActor->isDynamic() && mNxActor->readBodyFlag(NxBodyFlag::NX_BF_KINEMATIC)) mNxActor->moveGlobalPosition(Convert::toNx(position));
+		if (moveKinematic && mNxActor->isDynamic() && mNxActor->readBodyFlag(NxBodyFlag::NX_BF_KINEMATIC)) mNxActor->moveGlobalPosition(Convert::toNx(position));
 		else mNxActor->setGlobalPosition(Convert::toNx(position));
 	}
 	void Actor::setGlobalOrientation(Ogre::Quaternion rotation)
 	{
-		if (mNxActor->isDynamic() && mNxActor->readBodyFlag(NxBodyFlag::NX_BF_KINEMATIC)) mNxActor->moveGlobalOrientation(Convert::toNx(rotation));
-		else mNxActor->setGlobalOrientation(Convert::toNx(rotation));
+		mNxActor->setGlobalOrientation(Convert::toNx(rotation));
+	}
+	void Actor::setGlobalPose(Ogre::Vector3 position, Ogre::Quaternion rotation, bool moveKinematic)
+	{
+		if (moveKinematic && mNxActor->isDynamic() && mNxActor->readBodyFlag(NxBodyFlag::NX_BF_KINEMATIC))
+			mNxActor->moveGlobalPose(NxMat34(NxMat33(OgrePhysX::Convert::toNx(rotation)), OgrePhysX::Convert::toNx(position)));
+		else
+			mNxActor->setGlobalPose(NxMat34(NxMat33(OgrePhysX::Convert::toNx(rotation)), OgrePhysX::Convert::toNx(position)));
 	}
 
 }

@@ -13,12 +13,26 @@ namespace OgrePhysX
 	{
 		friend class World;
 
+	public:
+		class SimulationListener
+		{
+		public:
+			virtual void onBeginSimulate(float time) {}
+			virtual void onSimulate(float time) {}
+			virtual void onEndSimulate(float time) {}
+		};
+
 	private:
 		NxScene *mNxScene;
+
+		float mTimeAccu;
+		float mFrameTime;
 
 		std::list<RenderableBinding*> mOgrePhysXBindings;
 
 		std::list<Actor*> mActors;
+
+		SimulationListener *mSimulationListener;
 
 		std::map<Ogre::String, NxMaterialIndex> mMaterialBindings;
 
@@ -78,6 +92,8 @@ namespace OgrePhysX
 		void setContactReport(ContactReportListener *crl);
 		void setTriggerReport(TriggerReportListener *trl);
 
+		void setSimulationListener(SimulationListener *listener) { mSimulationListener = listener; }
+
 		/*
 		Experimental. Do not use this!
 		*/
@@ -119,6 +135,8 @@ namespace OgrePhysX
 		void destroyForcefield(NxForceField *forceField);
 
 		void syncRenderables();
+
+		void simulate(float time);
 	};
 
 }

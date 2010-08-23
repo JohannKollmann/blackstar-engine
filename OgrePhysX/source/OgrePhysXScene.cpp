@@ -34,6 +34,10 @@ namespace OgrePhysX
 			return;
 		}
 		mNxScene = World::getSingleton().getSDK()->createScene(desc);
+		mNxScene->setTiming(1/60.0f, 8, NX_TIMESTEP_VARIABLE);
+		mTimeAccu = 0.0f;
+		mFrameTime = 1/60.0f;
+		mSimulationListener = nullptr;
 
 		NxMaterial* defaultMaterial = mNxScene->getMaterialFromIndex(0);
 		defaultMaterial->setRestitution(0.1f);
@@ -271,6 +275,21 @@ namespace OgrePhysX
 	NxScene* Scene::getNxScene()
 	{
 		return mNxScene;
+	}
+
+	void Scene::simulate(float time)
+	{
+		mTimeAccu += time;
+		while (mTimeAccu >= mFrameTime)
+		{
+			if (mSimulationListener) mSimulationListener->onBeginSimulate(mFrameTime);
+			mNxScene->simulate(mFrameTime);
+			if (mSimulationListener) mSimulationListener->onSimulate(mFrameTime);
+			mNxScene->flushStream();
+			mNxScene->fetchResults(NX_RIGID_BODY_FINISHED, true);
+			mTimeAccu -= mFrameTime;
+			if (mSimulationListener) mSimulationListener->onEndSimulate(mFrameTime);
+		}
 	}
 
 }

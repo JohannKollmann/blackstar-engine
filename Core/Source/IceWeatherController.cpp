@@ -112,7 +112,7 @@ namespace Ice
 	{
 		mSpeedFactor = speed;
 	    mCaelumSystem->getUniversalClock ()->setTimeScale (mPaused ? 0 : mSpeedFactor);
-	    Ogre::ControllerManager::getSingleton().setTimeFactor (mPaused ? 0 : mSpeedFactor);
+	    //Ogre::ControllerManager::getSingleton().setTimeFactor (mPaused ? 0 : mSpeedFactor);
 	}
 
 	void WeatherController::SetTime(int hour, int minutes)

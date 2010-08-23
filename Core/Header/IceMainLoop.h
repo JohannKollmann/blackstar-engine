@@ -5,7 +5,7 @@
 #include "windows.h"
 #include "Ogre.h"
 #include "IceGameState.h"
-
+#include "OgrePhysX.h"
 
 namespace Ice
 {
@@ -23,6 +23,14 @@ protected:
 
 	std::vector<GameState*> mStates;
 	GameState* mCurrentState;
+
+	class DllExport PhysicsListener : public OgrePhysX::Scene::SimulationListener
+	{
+		void onBeginSimulate(float time);
+		void onSimulate(float time);
+		void onEndSimulate(float time);
+	};
+	PhysicsListener mPhysicsListener;
 
 public:
 
