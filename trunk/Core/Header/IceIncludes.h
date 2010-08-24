@@ -22,6 +22,8 @@ class NxControllerManager;
 
 #define STRINGIFY(param) #param
 
+#define ICE_SAFEDELETE(object) if (object) { delete object; object = nullptr; }
+
 #define ICE_NOASSERRTS 0
 #define ICE_NOWARNINGS 0
 #define ICE_NONOTES 0
