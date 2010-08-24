@@ -102,6 +102,7 @@ namespace Ice
 	#define PROPERTY_STRING(memberVariable, key, defaultValue) rp.target = &##memberVariable; rp.keyname = key; rp.defaultVal.Set<Ogre::String>(defaultValue); mRefParams.push_back(rp);
 	#define PROPERTY_VECTOR3(memberVariable, key, defaultValue) rp.target = &##memberVariable; rp.keyname = key; rp.defaultVal.Set<Ogre::Vector3>(defaultValue); mRefParams.push_back(rp);
 	#define PROPERTY_QUATERNION(memberVariable, key, defaultValue) rp.target = &##memberVariable; rp.keyname = key; rp.defaultVal.Set<Ogre::Quaternion>(defaultValue); mRefParams.push_back(rp);
+	#define PROPERTY_ENUM(memberVariable, key, defaultValue) rp.target = &##memberVariable; rp.keyname = key; rp.defaultVal.Set<Ice::DataMap::Enum>(defaultValue); mRefParams.push_back(rp);
 
 	#define END_GOCEDITORINTERFACE } \
 	public:

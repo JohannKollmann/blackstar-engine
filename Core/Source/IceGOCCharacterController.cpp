@@ -159,7 +159,7 @@ namespace Ice
 			}
 			if (!bodyHit && feetHit)
 			{
-				//finalDir += Ogre::Vector3(0,3,0); //climb stairs
+				finalDir += Ogre::Vector3(0,3,0); //climb stairs
 			}
 
 			//mActor->getNxActor()->setLinearVelocity(OgrePhysX::Convert::toNx(finalDir));

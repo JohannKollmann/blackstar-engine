@@ -8,6 +8,7 @@
 #include "GUISystem.h"
 #include "ScriptableInstances.h"
 #include "TextureDebugger.h"
+#include "GOCHydrax.h"
 
 #include "IceMessageSystem.h"
 
@@ -60,6 +61,8 @@ ScriptExtensions::initialise()
 
 	TextureDebugger::Instance();
 	Ice::MessageSystem::Instance().JoinNewsgroup(this, "REPARSE_SCRIPTS");
+
+	GOCHydrax::InstallPlugin();
 }
 
 
