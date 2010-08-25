@@ -273,6 +273,9 @@
     <ClCompile Include="Source\IceGOCForceField.cpp">
       <Filter>Components</Filter>
     </ClCompile>
+    <ClCompile Include="Source\IceLeakWatch.cpp">
+      <Filter>System</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header\IceMessageListener.h">
@@ -592,6 +595,9 @@
     </ClInclude>
     <ClInclude Include="Header\IceGOCForceField.h">
       <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceLeakWatch.h">
+      <Filter>System</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
