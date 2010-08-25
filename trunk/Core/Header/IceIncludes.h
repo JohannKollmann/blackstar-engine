@@ -9,6 +9,8 @@
 
 //#define BOOST_ALL_DYN_LINK
 
+#include "IceLeakWatch.h"
+
 namespace OgrePhysX
 {
 	class World;
@@ -20,13 +22,13 @@ namespace OgreOggSound
 };
 class NxControllerManager;
 
-#define STRINGIFY(param) #param
-
-#define ICE_SAFEDELETE(object) if (object) { delete object; object = nullptr; }
+#define ICE_SAFEDELETE(object) if (object) { ICE_DELETE object; object = nullptr; }
 
 #define ICE_NOASSERRTS 0
 #define ICE_NOWARNINGS 0
 #define ICE_NONOTES 0
+
+#define STRINGIFY(param) #param
 
 #ifdef _DEBUG
 	#define IceAssert(expression) \

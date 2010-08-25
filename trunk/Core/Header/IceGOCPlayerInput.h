@@ -28,7 +28,7 @@ public:
 
 	std::string& TellName() { static std::string name = "PlayerInput"; return name; };
 	static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "PlayerInput"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };
-	static LoadSave::Saveable* NewInstance() { return new GOCPlayerInput; };
+	static LoadSave::Saveable* NewInstance() { return ICE_NEW GOCPlayerInput; };
 	virtual void Save(LoadSave::SaveSystem& mgr) {};
 	virtual void Load(LoadSave::LoadSystem& mgr) {};
 
@@ -36,7 +36,7 @@ public:
 	void SetParameters(DataMap *parameters) {};
 	void GetParameters(DataMap *parameters) {};
 	void GetDefaultParameters(DataMap *parameters) {};
-	GOCEditorInterface* New() { return new GOCPlayerInput(); }
+	GOCEditorInterface* New() { return ICE_NEW GOCPlayerInput(); }
 	Ogre::String GetLabel() { return "Player Input"; }
 	GOComponent* GetGOComponent() { return this; }
 };

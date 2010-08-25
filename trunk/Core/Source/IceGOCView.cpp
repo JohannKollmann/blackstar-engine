@@ -112,7 +112,7 @@ namespace Ice
 
 	LoadSave::Saveable* GOCMeshRenderable::NewInstance()
 	{
-		GOCMeshRenderable *meshr = new GOCMeshRenderable();
+		GOCMeshRenderable *meshr = ICE_NEW GOCMeshRenderable();
 		return meshr;
 	}
 

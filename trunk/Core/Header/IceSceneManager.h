@@ -65,7 +65,7 @@ namespace Ice
 
 		/** Acquires control over the main camera. GOCSimpleCameraController::AttachCamera will be called.
 		The old active camera controller gets pushed on a stack an will be informed when this camera controller calls FreeCamera.
-		@param cam The new camera controller.
+		@param cam The ICE_NEW camera controller.
 		*/
 		void AcquireCamera(CameraController *cam);
 

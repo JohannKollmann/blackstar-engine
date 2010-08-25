@@ -77,7 +77,7 @@ public:
 	ReflectionTextureListener(Ogre::Camera *Camera)
 	{
 		mCamera = Camera;
-		mReflectionPlane = new Ogre::MovablePlane("ReflectionPlane");
+		mReflectionPlane = ICE_NEW Ogre::MovablePlane("ReflectionPlane");
 		mReflectionPlane->normal = Ogre::Vector3::UNIT_Y;
         mReflectionPlane->d = 0;
 

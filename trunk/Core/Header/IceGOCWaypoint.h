@@ -25,7 +25,7 @@ namespace Ice
 		void Load(LoadSave::LoadSystem& mgr);
 		std::string& TellName() { static std::string name = "Waypoint"; return name; };
 		static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "Waypoint"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };
-		static LoadSave::Saveable* NewInstance() { return new GOCWaypoint; };
+		static LoadSave::Saveable* NewInstance() { return ICE_NEW GOCWaypoint; };
 	};
 
 };

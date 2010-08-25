@@ -34,7 +34,7 @@ namespace Ice
 		if (!mSweepActor) return 0;
 
 		int maxNumResult  = 10;
-		NxSweepQueryHit *sqh_result = new NxSweepQueryHit[maxNumResult];
+		NxSweepQueryHit *sqh_result = ICE_NEW NxSweepQueryHit[maxNumResult];
 		NxU32 numHits = mSweepActor->linearSweep(OgrePhysX::Convert::toNx(motion), NX_SF_DYNAMICS|NX_SF_ALL_HITS, 0, maxNumResult, sqh_result, 0, mSweepCache);
 		bool obstacleHit = false;
 		for (NxU32 i = 0; i < numHits; i++)
@@ -45,7 +45,7 @@ namespace Ice
 				return &hit.hitShape->getActor();
 			}
 		}
-		delete sqh_result;
+		ICE_DELETE sqh_result;
 
 		return 0;
 	}

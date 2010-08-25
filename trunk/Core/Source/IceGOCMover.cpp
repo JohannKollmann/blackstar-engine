@@ -16,8 +16,8 @@ namespace Ice
 			Ogre::LogManager::getSingleton().logMessage("Error in AnimKey::CreateSuccessor: mMover = 0 !");
 			return 0;
 		}
-		GameObject *go = new GameObject();
-		GOCAnimKey *key = new GOCAnimKey(this);
+		GameObject *go = ICE_NEW GameObject();
+		GOCAnimKey *key = ICE_NEW GOCAnimKey(this);
 		go->AddComponent(key);
 		go->SetParent(mMover->GetOwner());
 		return go;

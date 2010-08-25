@@ -21,7 +21,7 @@ namespace Ice
 			vPoints.push_back(vPoints[0]);
 
 		m_Sectors.clear();
-		double* ppfCoordinates[3]={new double[vPoints.size()], new double[vPoints.size()], new double[vPoints.size()]};
+		double* ppfCoordinates[3]={ICE_NEW double[vPoints.size()], ICE_NEW double[vPoints.size()], ICE_NEW double[vPoints.size()]};
 
 		for(int iPoint=0; iPoint<(int)vPoints.size(); iPoint++)
 		{
@@ -32,9 +32,9 @@ namespace Ice
 
 		int iMatrixSize=(vPoints.size()-1)*3;
 
-		double** ppfMatrix=new double*[iMatrixSize+1];
+		double** ppfMatrix=ICE_NEW double*[iMatrixSize+1];
 		for(int iCol=0; iCol<iMatrixSize+1; iCol++)
-			ppfMatrix[iCol]=new double[iMatrixSize];
+			ppfMatrix[iCol]=ICE_NEW double[iMatrixSize];
 
 		double* ppfResults[3];
 
@@ -85,12 +85,12 @@ namespace Ice
 				ppfMatrix[iMatrixSize-3][iMatrixSize-2]=3.0;
 			}
 			
-			ppfResults[iCoordinate]=new double[iMatrixSize];
+			ppfResults[iCoordinate]=ICE_NEW double[iMatrixSize];
 			SolveLinearSystem(ppfMatrix, ppfResults[iCoordinate], iMatrixSize);
 		}
 		for(int iCol=0; iCol<iMatrixSize+1; iCol++)
-			delete ppfMatrix[iCol];
-		delete ppfMatrix;
+			ICE_DELETE ppfMatrix[iCol];
+		ICE_DELETE ppfMatrix;
 
 		CSplineSector sector;
 		for(int iSector=0; iSector<(int)vPoints.size()-1; iSector++)
@@ -106,9 +106,9 @@ namespace Ice
 			m_Sectors.push_back(sector);
 		}
 		m_bIsTimedSpline=false;
-		delete ppfCoordinates[0];
-		delete ppfCoordinates[1];
-		delete ppfCoordinates[2];
+		ICE_DELETE ppfCoordinates[0];
+		ICE_DELETE ppfCoordinates[1];
+		ICE_DELETE ppfCoordinates[2];
 	}
 
 	bool CompVectorByW(Ogre::Vector4 v1, Ogre::Vector4 v2) {return v1.w<v2.w;}
@@ -139,9 +139,9 @@ namespace Ice
 
 		int iMatrixSize=(vPoints.size()-1)*3;
 
-		double** ppfMatrix=new double*[iMatrixSize+1];
+		double** ppfMatrix=ICE_NEW double*[iMatrixSize+1];
 		for(int iCol=0; iCol<iMatrixSize+1; iCol++)
-			ppfMatrix[iCol]=new double[iMatrixSize];
+			ppfMatrix[iCol]=ICE_NEW double[iMatrixSize];
 
 		double* ppfResults[3];
 
@@ -197,13 +197,13 @@ namespace Ice
 				ppfMatrix[iMatrixSize-3][iMatrixSize-2]=3.0*td*td;
 			}
 			
-			ppfResults[iCoordinate]=new double[iMatrixSize];
+			ppfResults[iCoordinate]=ICE_NEW double[iMatrixSize];
 			SolveLinearSystem(ppfMatrix, ppfResults[iCoordinate], iMatrixSize);
 		}
 
 		for(int iCol=0; iCol<iMatrixSize+1; iCol++)
-			delete ppfMatrix[iCol];
-		delete ppfMatrix;
+			ICE_DELETE ppfMatrix[iCol];
+		ICE_DELETE ppfMatrix;
 
 		CSplineSector sector;
 		double fTime=0.0;

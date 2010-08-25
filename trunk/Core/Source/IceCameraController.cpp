@@ -80,8 +80,8 @@ namespace Ice
 				Ogre::SceneNode *rnode = Main::Instance().GetOgreSceneMgr()->getRootSceneNode()->createChildSceneNode("ragdolltest" + Ogre::StringConverter::toString(SceneManager::Instance().RequestID()), mCamera->getDerivedPosition() + (mCamera->getDerivedOrientation() * offset));
 				rnode->attachObject(jaiqua);
 				rnode->scale(0.1,0.1,0.1);
-				GameObject *object = new GameObject();
-				GOCAnimatedCharacter *ragdoll = new GOCAnimatedCharacter("robot.mesh", Ogre::Vector3(0.1f,0.1f,0.1f));
+				GameObject *object = ICE_NEW GameObject();
+				GOCAnimatedCharacter *ragdoll = ICE_NEW GOCAnimatedCharacter("robot.mesh", Ogre::Vector3(0.1f,0.1f,0.1f));
 				//ragdoll->SetAnimationState("Walk");
 				object->AddComponent(ragdoll);
 				object->SetGlobalPosition(mCamera->getDerivedPosition());

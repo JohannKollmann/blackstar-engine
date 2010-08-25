@@ -28,9 +28,9 @@ namespace Ice
 		virtual GOComponent::goc_id_type& GetComponentID() const { static std::string name = "SimpleCamera"; return name; }
 
 		static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "SimpleCamera"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };
-		static LoadSave::Saveable* NewInstance() { return new GOCSimpleCameraController; };
+		static LoadSave::Saveable* NewInstance() { return ICE_NEW GOCSimpleCameraController; };
 
-		GOCEditorInterface* New() { return new GOCSimpleCameraController(); }
+		GOCEditorInterface* New() { return ICE_NEW GOCSimpleCameraController(); }
 		Ogre::String GetLabel() { return "Simple Camera"; }
 	};
 	
@@ -66,12 +66,12 @@ namespace Ice
 		GOComponent::goc_id_type& GetComponentID() const { static std::string name = "CameraController"; return name; }
 
 		static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "CameraController"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };
-		static LoadSave::Saveable* NewInstance() { return new GOCCameraController; };
+		static LoadSave::Saveable* NewInstance() { return ICE_NEW GOCCameraController; };
 
 		//Editor
 		void SetParameters(DataMap *parameters) { };
 		void GetDefaultParameters(DataMap *parameters) {};
-		GOCEditorInterface* New() { return new GOCCameraController(); }
+		GOCEditorInterface* New() { return ICE_NEW GOCCameraController(); }
 		Ogre::String GetLabel() { return "Camera Contoller"; }
 	};
 

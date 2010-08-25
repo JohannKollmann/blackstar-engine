@@ -63,8 +63,8 @@ public:
 	void Load(LoadSave::LoadSystem& mgr) {};
 	std::string& TellName() { static std::string name = "AnimatedCharacterBone"; return name; };
 	static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "AnimatedCharacterBone"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };
-	static LoadSave::Saveable* NewInstance() { return new GOCAnimatedCharacterBone; };
-	GOCEditorInterface* New() { return new GOCAnimatedCharacterBone(); }
+	static LoadSave::Saveable* NewInstance() { return ICE_NEW GOCAnimatedCharacterBone; };
+	GOCEditorInterface* New() { return ICE_NEW GOCAnimatedCharacterBone(); }
 	Ogre::String GetLabel() { return ""; }
 	GOComponent* GetGOComponent() { return this; }
 };
@@ -132,8 +132,8 @@ public:
 	void Load(LoadSave::LoadSystem& mgr);
 	virtual std::string& TellName() { static std::string name = "Skeleton"; return name; };
 	static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "Skeleton"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };
-	static LoadSave::Saveable* NewInstance() { return new GOCAnimatedCharacter(); };
-	GOCEditorInterface* New() { return new GOCAnimatedCharacter(); }
+	static LoadSave::Saveable* NewInstance() { return ICE_NEW GOCAnimatedCharacter(); };
+	GOCEditorInterface* New() { return ICE_NEW GOCAnimatedCharacter(); }
 	Ogre::String GetLabel() { return "Skeleton"; }
 	GOComponent* GetGOComponent() { return this; }
 };

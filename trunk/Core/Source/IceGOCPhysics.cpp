@@ -51,8 +51,8 @@ namespace Ice
 	{
 		if (!mRenderable)
 		{
-			if (!mIsKinematic) mRenderable = new GOPhysXRenderable(this);
-			else mRenderable = new GOPhysXRenderable(nullptr);
+			if (!mIsKinematic) mRenderable = ICE_NEW GOPhysXRenderable(this);
+			else mRenderable = ICE_NEW GOPhysXRenderable(nullptr);
 		}
 
 		Ogre::String internname = "RigidBody" + Ogre::StringConverter::toString(SceneManager::Instance().RequestID());
