@@ -52,7 +52,7 @@ namespace Ice
 		virtual void Load(LoadSave::LoadSystem& mgr);
 		static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "GOCMeshRenderable"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };
 		static LoadSave::Saveable* NewInstance();
-		GOCEditorInterface* New() { return ICE_NEW GOCMeshRenderable(); }
+		GOCEditorInterface* New() { return new GOCMeshRenderable(); }
 
 
 		std::vector<ScriptParam> SetVisible(Script &caller, std::vector<ScriptParam> &params) { mEntity->setVisible(params[0].getBool());  return std::vector<ScriptParam>(); };
@@ -85,8 +85,8 @@ namespace Ice
 		void Save(LoadSave::SaveSystem& mgr);
 		void Load(LoadSave::LoadSystem& mgr);
 		static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "ParticleSystem"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };
-		static LoadSave::Saveable* NewInstance() { return ICE_NEW GOCPfxRenderable; };
-		GOCEditorInterface* New() { return ICE_NEW GOCPfxRenderable(); }
+		static LoadSave::Saveable* NewInstance() { return new GOCPfxRenderable; };
+		GOCEditorInterface* New() { return new GOCPfxRenderable(); }
 		Ogre::String GetLabel() { return "PFX"; }
 		GOComponent* GetGOComponent() { return this; }
 	};
@@ -123,8 +123,8 @@ namespace Ice
 		void Save(LoadSave::SaveSystem& mgr);
 		void Load(LoadSave::LoadSystem& mgr);
 		static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "GOCSound3D"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };
-		static LoadSave::Saveable* NewInstance() { return ICE_NEW GOCSound3D; };
-		GOCEditorInterface* New() { return ICE_NEW GOCSound3D(); }
+		static LoadSave::Saveable* NewInstance() { return new GOCSound3D; };
+		GOCEditorInterface* New() { return new GOCSound3D(); }
 		Ogre::String GetLabel() { return "Sound3D"; }
 		GOComponent* GetGOComponent() { return this; }
 	};
@@ -160,8 +160,8 @@ namespace Ice
 		void Save(LoadSave::SaveSystem& mgr);
 		void Load(LoadSave::LoadSystem& mgr);
 		static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "LocalLight"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };
-		static LoadSave::Saveable* NewInstance() { return ICE_NEW GOCLocalLightRenderable; };
-		GOCEditorInterface* New() { return ICE_NEW GOCLocalLightRenderable(); }
+		static LoadSave::Saveable* NewInstance() { return new GOCLocalLightRenderable; };
+		GOCEditorInterface* New() { return new GOCLocalLightRenderable(); }
 		GOComponent* GetGOComponent() { return this; }
 		Ogre::String GetLabel() { return "Light"; }
 	};

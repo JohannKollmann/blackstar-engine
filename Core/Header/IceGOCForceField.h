@@ -57,7 +57,7 @@ namespace Ice
 		void Save(LoadSave::SaveSystem& mgr);
 		void Load(LoadSave::LoadSystem& mgr);
 		static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "ForceField"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };
-		static LoadSave::Saveable* NewInstance() { return ICE_NEW GOCForceField; };
+		static LoadSave::Saveable* NewInstance() { return new GOCForceField; };
 	};
 }
 

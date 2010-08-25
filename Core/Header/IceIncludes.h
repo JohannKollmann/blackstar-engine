@@ -22,7 +22,7 @@ namespace OgreOggSound
 };
 class NxControllerManager;
 
-#define ICE_SAFEDELETE(object) if (object) { ICE_DELETE object; object = nullptr; }
+#define ICE_SAFEDELETE(object) if (object) { Ice::LeakManager::getInstance()= object; object = nullptr; }
 
 #define ICE_NOASSERRTS 0
 #define ICE_NOWARNINGS 0

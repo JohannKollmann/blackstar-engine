@@ -68,16 +68,16 @@ namespace Ice
 				delete it->second;
 				m_Pointers.erase(it);
 			}
-			else DebugBreak();
+			//else DebugBreak();
 		}
 
 		LeakManager::~LeakManager()
 		{
-			for(std::map<void*, LeakWatch*>::iterator it=m_Pointers.begin(); it!=m_Pointers.end(); it++)
+			/*for(std::map<void*, LeakWatch*>::iterator it=m_Pointers.begin(); it!=m_Pointers.end(); it++)
 			{
 				delete it->first;
 				delete it->second;
-			}
+			}*/
 		}
 	
 		static LeakManager& getInstance();

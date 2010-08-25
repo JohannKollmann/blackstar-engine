@@ -3,6 +3,7 @@
 
 #include "IceDataMap.h"
 #include "IceIncludes.h"
+#include "OgreSharedPtr.h"
 
 namespace Ice
 {
@@ -51,6 +52,8 @@ namespace Ice
 		virtual GOComponent* GetGOComponent() = 0;
 	};
 
+	typedef Ogre::SharedPtr<GOCEditorInterface> GOCEditorInterfacePtr;
+
 	/**
 	This class allows components to declare member variables as modifiable using macros.
 	*/
@@ -91,7 +94,7 @@ namespace Ice
 
 	#define BEGIN_GOCEDITORINTERFACE(className, labelName) public: \
 	GOComponent* GetGOComponent() { return this; } \
-	GOCEditorInterface* New() { return ICE_NEW className##(); } \
+	GOCEditorInterface* New() { return new className##(); } \
 	Ogre::String GetLabel() { return labelName; } \
 	protected: \
 	void _initRefParams() { mRefParams.clear(); GOCStaticEditorInterface::RefParam rp;

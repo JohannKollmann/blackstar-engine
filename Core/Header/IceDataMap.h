@@ -62,7 +62,7 @@ namespace Ice
 		void Save(LoadSave::SaveSystem& myManager);
 		void Load(LoadSave::LoadSystem& mgr); 
 		static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "GenericProperty"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };
-		static LoadSave::Saveable* NewInstance() { return ICE_NEW GenericProperty; };
+		static LoadSave::Saveable* NewInstance() { return new GenericProperty; };
 		std::string& TellName() { static std::string name = "GenericProperty"; return name; }
 	};
 
@@ -82,7 +82,7 @@ namespace Ice
 			void Save(LoadSave::SaveSystem& myManager);
 			void Load(LoadSave::LoadSystem& mgr); 
 			static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "DataMapItem"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };
-			static LoadSave::Saveable* NewInstance() { return ICE_NEW Item; };
+			static LoadSave::Saveable* NewInstance() { return new Item; };
 			std::string& TellName() { static std::string name = "DataMapItem"; return name; };
 		};
 
@@ -146,7 +146,7 @@ namespace Ice
 		};
 		DataMap::Enum GetEnum(const Ogre::String &keyname)			const;
 
-		///Inserts a ICE_NEW item into the DataMap.
+		///Inserts a new item into the DataMap.
 		template <class templateType>
 		void AddItem(const Ogre::String &keyname, const templateType &var)
 		{
@@ -156,7 +156,7 @@ namespace Ice
 			mData.push_back(item);
 			mIterator = mData.begin();
 		};
-		///Inserts a ICE_NEW item into the DataMap, the data is passed using a GenericProperty.
+		///Inserts a new item into the DataMap, the data is passed using a GenericProperty.
 		void AddItem(const Ogre::String &keyname, const GenericProperty &prop)
 		{
 			Item item;
@@ -166,7 +166,7 @@ namespace Ice
 			mIterator = mData.begin();
 		}
 
-		///Inserts a ICE_NEW item into the DataMap, the data is passed using a void buffer.
+		///Inserts a new item into the DataMap, the data is passed using a void buffer.
 		void AddItem(const Ogre::String &keyname, void *data, const GenericProperty::PropertyTypes &type)
 		{
 			Item item;
@@ -190,7 +190,7 @@ namespace Ice
 		void Save(LoadSave::SaveSystem& myManager);
 		void Load(LoadSave::LoadSystem& mgr); 
 		static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "DataMap"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };
-		static LoadSave::Saveable* NewInstance() { return ICE_NEW DataMap; };
+		static LoadSave::Saveable* NewInstance() { return new DataMap; };
 		std::string& TellName() { static std::string name = "DataMap"; return name; };
 	};
 

@@ -465,8 +465,8 @@ void Main::Shutdown()
 		Ogre::LogManager::getSingleton().logMessage("Memory leaks: " + Ogre::StringConverter::toString(report.size()));
 		for (auto i = report.begin(); i != report.end(); i++)
 			Ogre::LogManager::getSingleton().logMessage(*i);
-		ICE_DELETE mRoot;
-		mRoot = 0;
+		delete mRoot;
+		mRoot = nullptr;
 		MainLoop::Instance().quitLoop();
 	}
 }

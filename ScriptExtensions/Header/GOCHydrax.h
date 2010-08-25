@@ -115,7 +115,7 @@ public:
 	{
 		Ogre::ResourceGroupManager::getSingleton().addResourceLocation("Data/Hydrax/", "FileSystem", HYDRAX_RESOURCE_GROUP);
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCHydrax::Register);
-		Ice::SceneManager::Instance().RegisterGOCPrototype("E", new GOCHydrax());
+		Ice::SceneManager::Instance().RegisterGOCPrototype("E", Ogre::SharedPtr<GOCEditorInterface>(new GOCHydrax()));
 	}
 
 	GOCHydrax(void)
