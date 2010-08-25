@@ -150,7 +150,7 @@ namespace Ice
 		void Save(LoadSave::SaveSystem& mgr);
 		void Load(LoadSave::LoadSystem& mgr);
 		static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "NavigationMesh"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; }
-		static LoadSave::Saveable* NewInstance() { return ICE_NEW NavigationMesh; }
+		static LoadSave::Saveable* NewInstance() { return new NavigationMesh; }
 
 	};
 }

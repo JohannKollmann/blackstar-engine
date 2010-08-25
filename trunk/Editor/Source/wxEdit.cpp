@@ -173,7 +173,10 @@ wxEdit& wxEdit::Instance()
 wxEdit::~wxEdit()
 {
 	std::cout << "~wxEdit" << std::endl;
-	//m_mgr.UnInit();
+	Ice::SceneManager::Instance().Reset();	//Reset scene
+	wxEdit::Instance().GetWorldExplorer()->GetSceneTree()->Update();
+	wxEdit::Instance().GetWorldExplorer()->GetMaterialTree()->Update();
+	m_mgr.UnInit();
 	Ice::Main::Instance().Shutdown();
 
 };

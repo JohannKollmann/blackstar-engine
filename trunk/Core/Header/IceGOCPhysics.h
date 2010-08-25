@@ -87,8 +87,8 @@ namespace Ice
 		void Load(LoadSave::LoadSystem& mgr);
 		std::string& TellName() { static std::string name = "RigidBody"; return name; };
 		static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "RigidBody"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };
-		static LoadSave::Saveable* NewInstance() { return ICE_NEW GOCRigidBody; };
-		GOCEditorInterface* New() { return ICE_NEW GOCRigidBody(); }
+		static LoadSave::Saveable* NewInstance() { return new GOCRigidBody; };
+		GOCEditorInterface* New() { return new GOCRigidBody(); }
 	};
 
 
@@ -124,8 +124,8 @@ namespace Ice
 		void Load(LoadSave::LoadSystem& mgr);
 		std::string& TellName() { static std::string name = "StaticBody"; return name; };
 		static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "StaticBody"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };
-		static LoadSave::Saveable* NewInstance() { return ICE_NEW GOCStaticBody; };
-		GOCEditorInterface* New() { return ICE_NEW GOCStaticBody(); }
+		static LoadSave::Saveable* NewInstance() { return new GOCStaticBody; };
+		GOCEditorInterface* New() { return new GOCStaticBody(); }
 	};
 
 	class DllExport GOCTrigger : public GOCEditorInterface, public GOCPhysics
@@ -171,8 +171,8 @@ namespace Ice
 		void Load(LoadSave::LoadSystem& mgr);
 		std::string& TellName() { static std::string name = "Trigger"; return name; };
 		static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "Trigger"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };
-		static LoadSave::Saveable* NewInstance() { return ICE_NEW GOCTrigger; };
-		GOCEditorInterface* New() { return ICE_NEW GOCTrigger(); }
+		static LoadSave::Saveable* NewInstance() { return new GOCTrigger; };
+		GOCEditorInterface* New() { return new GOCTrigger(); }
 	};
 
 };

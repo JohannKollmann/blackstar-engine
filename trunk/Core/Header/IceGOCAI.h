@@ -68,7 +68,7 @@ namespace Ice
 		void SetParameters(DataMap *parameters);
 		void GetParameters(DataMap *parameters);
 		void GetDefaultParameters(DataMap *parameters);
-		GOCEditorInterface* New() { return ICE_NEW GOCAI(); }
+		GOCEditorInterface* New() { return new GOCAI(); }
 		Ogre::String GetLabel() { return "AI"; }
 		GOComponent* GetGOComponent() { return this; }
 
@@ -76,7 +76,7 @@ namespace Ice
 
 		std::string& TellName() { static std::string name = "AI"; return name; };
 		static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "AI"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };
-		static LoadSave::Saveable* NewInstance() { return ICE_NEW GOCAI; };
+		static LoadSave::Saveable* NewInstance() { return new GOCAI; };
 		void Save(LoadSave::SaveSystem& mgr);
 		void Load(LoadSave::LoadSystem& mgr);
 	};

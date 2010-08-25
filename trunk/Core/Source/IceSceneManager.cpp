@@ -108,13 +108,13 @@ namespace Ice
 		}
 	}
 
-	void SceneManager::RegisterGOCPrototype(GOCEditorInterface *prototype)
+	void SceneManager::RegisterGOCPrototype(GOCEditorInterfacePtr prototype)
 	{
-		mGOCPrototypes.insert(std::make_pair<Ogre::String, GOCEditorInterface*>(prototype->GetLabel(), prototype));
+		mGOCPrototypes.insert(std::make_pair(prototype->GetLabel(), prototype));
 	}
-	void SceneManager::RegisterGOCPrototype(Ogre::String editFamily, GOCEditorInterface *prototype)
+	void SceneManager::RegisterGOCPrototype(Ogre::String editFamily, GOCEditorInterfacePtr prototype)
 	{
-		mGOCPrototypes.insert(std::make_pair<Ogre::String, GOCEditorInterface*>(prototype->GetLabel(), prototype));
+		mGOCPrototypes.insert(std::make_pair(prototype->GetLabel(), prototype));
 		DataMap params;
 		prototype->GetDefaultParameters(&params);
 		RegisterComponentDefaultParams(editFamily, prototype->GetLabel(), params);
@@ -131,15 +131,15 @@ namespace Ice
 
 	GOCEditorInterface* SceneManager::GetGOCPrototype(Ogre::String type)
 	{
-		std::map<Ogre::String, GOCEditorInterface*>::iterator i = mGOCPrototypes.find(type);
+		auto i = mGOCPrototypes.find(type);
 		if (i != mGOCPrototypes.end())
-			return i->second;
+			return i->second.getPointer();
 		return nullptr;
 	}
 
 	GOCEditorInterface* SceneManager::NewGOC(Ogre::String type)
 	{
-		std::map<Ogre::String, GOCEditorInterface*>::iterator i = mGOCPrototypes.find(type);
+		auto i = mGOCPrototypes.find(type);
 		if (i != mGOCPrototypes.end())
 		{
 			GOCEditorInterface *goc = (*i).second->New();
@@ -193,27 +193,27 @@ namespace Ice
 
 		LoadSave::LoadSave::Instance().RegisterObject(&NavigationMesh::Register);
 
-		RegisterGOCPrototype("A", ICE_NEW GOCMeshRenderable());
-		RegisterGOCPrototype("A", ICE_NEW GOCPfxRenderable());
-		RegisterGOCPrototype("A", ICE_NEW GOCLocalLightRenderable());
-		RegisterGOCPrototype("A", ICE_NEW GOCSound3D());
-		RegisterGOCPrototype("A", (ICE_NEW GOCAnimatedCharacter()));
-		RegisterGOCPrototype(ICE_NEW GOCAnimatedCharacterBone());
+		RegisterGOCPrototype("A", GOCEditorInterfacePtr(new GOCMeshRenderable()));
+		RegisterGOCPrototype("A", GOCEditorInterfacePtr(new GOCPfxRenderable()));
+		RegisterGOCPrototype("A", GOCEditorInterfacePtr(new GOCLocalLightRenderable()));
+		RegisterGOCPrototype("A", GOCEditorInterfacePtr(new GOCSound3D()));
+		RegisterGOCPrototype("A", GOCEditorInterfacePtr(new GOCAnimatedCharacter()));
+		RegisterGOCPrototype(GOCEditorInterfacePtr(new GOCAnimatedCharacterBone()));
 
-		RegisterGOCPrototype("B_x", ICE_NEW GOCRigidBody());
-		RegisterGOCPrototype("B_x", ICE_NEW GOCStaticBody());
-		RegisterGOCPrototype("B_x", ICE_NEW GOCCharacterController());
+		RegisterGOCPrototype("B_x", GOCEditorInterfacePtr(new GOCRigidBody()));
+		RegisterGOCPrototype("B_x", GOCEditorInterfacePtr(new GOCStaticBody()));
+		RegisterGOCPrototype("B_x", GOCEditorInterfacePtr(new GOCCharacterController()));
 
-		RegisterGOCPrototype("C_x", ICE_NEW GOCAI());
-		RegisterGOCPrototype("C_x", ICE_NEW GOCPlayerInput());
+		RegisterGOCPrototype("C_x", GOCEditorInterfacePtr(new GOCAI()));
+		RegisterGOCPrototype("C_x", GOCEditorInterfacePtr(new GOCPlayerInput()));
 
-		RegisterGOCPrototype("D_x", ICE_NEW GOCSimpleCameraController());
-		RegisterGOCPrototype("D_x", ICE_NEW GOCCameraController());
+		RegisterGOCPrototype("D_x", GOCEditorInterfacePtr(new GOCSimpleCameraController()));
+		RegisterGOCPrototype("D_x", GOCEditorInterfacePtr(new GOCCameraController()));
 
-		RegisterGOCPrototype("E", ICE_NEW GOCMover());
-		RegisterGOCPrototype("E", ICE_NEW GOCScript());
-		RegisterGOCPrototype("E", ICE_NEW GOCForceField());
-		RegisterGOCPrototype(ICE_NEW GOCAnimKey());
+		RegisterGOCPrototype("E", GOCEditorInterfacePtr(new GOCMover()));
+		RegisterGOCPrototype("E", GOCEditorInterfacePtr(new GOCScript()));
+		RegisterGOCPrototype("E", GOCEditorInterfacePtr(new GOCForceField()));
+		RegisterGOCPrototype(GOCEditorInterfacePtr(new GOCAnimKey()));
 
 		//Shared Lua functions
 
@@ -323,7 +323,7 @@ namespace Ice
 		std::map<int, ManagedGameObject*>::iterator i = mGameObjects.begin();
 		while (i != mGameObjects.end())
 		{
-			ICE_DELETE i->second;
+			delete i->second;
 			i = mGameObjects.begin();
 		}
 		mGameObjects.clear();
@@ -331,6 +331,7 @@ namespace Ice
 
 	void SceneManager::Reset()
 	{
+		ClearGameObjects();
 		SetToOutdoor();
 	}
 
@@ -338,11 +339,6 @@ namespace Ice
 	{
 		SetToIndoor();
 
-		//TODO: Proper cleanup
-		for (auto i = mGOCPrototypes.begin(); i != mGOCPrototypes.end(); i++)
-		{
-			ICE_DELETE i->second;
-		}
 		mGOCPrototypes.clear();
 
 		mGOCDefaultParameters.clear();

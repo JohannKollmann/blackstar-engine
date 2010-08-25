@@ -43,7 +43,7 @@ namespace Ice
 		std::vector<GameObject*> mObjectMessageQueue;
 		std::map<int, ManagedGameObject*> mGameObjects;
 
-		std::map<Ogre::String, GOCEditorInterface*> mGOCPrototypes;
+		std::map<Ogre::String, GOCEditorInterfacePtr> mGOCPrototypes;
 
 		std::stack<CameraController*> mCameraStack;
 
@@ -65,7 +65,7 @@ namespace Ice
 
 		/** Acquires control over the main camera. GOCSimpleCameraController::AttachCamera will be called.
 		The old active camera controller gets pushed on a stack an will be informed when this camera controller calls FreeCamera.
-		@param cam The ICE_NEW camera controller.
+		@param cam The new camera controller.
 		*/
 		void AcquireCamera(CameraController *cam);
 
@@ -124,8 +124,8 @@ namespace Ice
 
 		void RegisterComponentDefaultParams(Ogre::String editFamily, Ogre::String type, DataMap &params);
 
-		void RegisterGOCPrototype(GOCEditorInterface *prototype);
-		void RegisterGOCPrototype(Ogre::String editFamily, GOCEditorInterface *prototype);
+		void RegisterGOCPrototype(GOCEditorInterfacePtr prototype);
+		void RegisterGOCPrototype(Ogre::String editFamily, GOCEditorInterfacePtr prototype);
 
 		void ShowEditorMeshes(bool show);
 		bool GetShowEditorVisuals() { return mShowEditorVisuals; }

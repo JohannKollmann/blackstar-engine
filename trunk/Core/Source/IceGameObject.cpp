@@ -194,7 +194,7 @@ namespace Ice
 			{
 				GOComponent *component = (*i);
 				mComponents.erase(i);
-				ICE_DELETE component;
+				delete component;
 				return;
 			}
 		}
@@ -207,7 +207,7 @@ namespace Ice
 		{
 			GOComponent *component = (*i);
 			mComponents.erase(i);
-			ICE_DELETE component;
+			delete component;
 			i = mComponents.begin();
 		}
 	}

@@ -60,7 +60,7 @@ namespace Ice
 		void Save(LoadSave::SaveSystem& mgr);
 		void Load(LoadSave::LoadSystem& mgr);
 		static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "MoverAnimKey"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };
-		static LoadSave::Saveable* NewInstance() { return ICE_NEW GOCAnimKey; }
+		static LoadSave::Saveable* NewInstance() { return new GOCAnimKey; }
 	};
 
 	class DllExport GOCMover : /*public AnimKey, */public GOCEditorVisualised, public GOCStaticEditorInterface, public MessageListener, public Utils::DeleteListener
@@ -157,7 +157,7 @@ namespace Ice
 		void Save(LoadSave::SaveSystem& mgr);
 		void Load(LoadSave::LoadSystem& mgr);
 		static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "Mover"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };
-		static LoadSave::Saveable* NewInstance() { return ICE_NEW GOCMover; }
+		static LoadSave::Saveable* NewInstance() { return new GOCMover; }
 	};
 
 }
