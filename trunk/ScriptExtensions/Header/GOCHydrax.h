@@ -14,6 +14,7 @@
 #include "IceSceneManager.h"
 #include "IceDataMap.h"
 #include "IceMessageListener.h"
+#include "IceWeatherController.h"
 
 class GOCHydrax : public Ice::GOComponent, public Ice::GOCStaticEditorInterface, public Ice::MessageListener
 {
@@ -42,7 +43,6 @@ private:
 	void _create()
 	{
 		_clear();
-
 		mHydrax = new Hydrax::Hydrax(Ice::Main::Instance().GetOgreSceneMgr(), Ice::Main::Instance().GetCamera(), Ice::Main::Instance().GetViewport());
 
 		if (mModuleTypeEnum.selection == ModuleType::INF)
@@ -72,9 +72,23 @@ private:
 		}
 
 		mHydrax->setModule(mModule);
+
 		std::vector<Ogre::RenderQueueGroupID> disabled_renderqueues;
+		disabled_renderqueues.push_back((Ogre::RenderQueueGroupID)(Ogre::RENDER_QUEUE_SKIES_EARLY));
+		disabled_renderqueues.push_back((Ogre::RenderQueueGroupID)(Ogre::RENDER_QUEUE_SKIES_LATE));
 		disabled_renderqueues.push_back((Ogre::RenderQueueGroupID)(Ogre::RENDER_QUEUE_SKIES_EARLY + 2));
+		disabled_renderqueues.push_back((Ogre::RenderQueueGroupID)(Ogre::RENDER_QUEUE_SKIES_EARLY + 3));
+		disabled_renderqueues.push_back((Ogre::RenderQueueGroupID)(Ogre::RENDER_QUEUE_SKIES_EARLY + 4));
+		disabled_renderqueues.push_back((Ogre::RenderQueueGroupID)(Ogre::RENDER_QUEUE_SKIES_EARLY + 5));
+		disabled_renderqueues.push_back((Ogre::RenderQueueGroupID)(Ogre::RENDER_QUEUE_SKIES_EARLY + 6));
 		mHydrax->getRttManager()->setDisableReflectionCustomNearCliplPlaneRenderQueues(disabled_renderqueues);
+		mHydrax->getRttManager()->setBitsPerChannel(Hydrax::RttManager::RttType::RTT_REFLECTION, Hydrax::RttManager::BitsPerChannel::BPC_16);
+		mHydrax->getRttManager()->setBitsPerChannel(Hydrax::RttManager::RttType::RTT_REFRACTION, Hydrax::RttManager::BitsPerChannel::BPC_16);
+		mHydrax->getRttManager()->setBitsPerChannel(Hydrax::RttManager::RttType::RTT_DEPTH, Hydrax::RttManager::BitsPerChannel::BPC_16);
+		mHydrax->getRttManager()->setBitsPerChannel(Hydrax::RttManager::RttType::RTT_DEPTH_REFLECTION, Hydrax::RttManager::BitsPerChannel::BPC_16);
+		mHydrax->getRttManager()->setBitsPerChannel(Hydrax::RttManager::RttType::RTT_DEPTH_AIP, Hydrax::RttManager::BitsPerChannel::BPC_16);
+		mHydrax->getRttManager()->setBitsPerChannel(Hydrax::RttManager::RttType::RTT_GPU_NORMAL_MAP, Hydrax::RttManager::BitsPerChannel::BPC_16);
+
 		mHydrax->loadCfg(mHdxFile);
 
 		if (mModuleTypeEnum.selection == ModuleType::RECT)
@@ -91,6 +105,8 @@ private:
 		}
 
 		mHydrax->create();
+		mHydrax->getRttManager()->getTexture(Hydrax::RttManager::RttType::RTT_REFRACTION)->getBuffer()->getRenderTarget()->getViewport(0)->setMaterialScheme("LowQuality");
+		mHydrax->getRttManager()->getTexture(Hydrax::RttManager::RttType::RTT_REFLECTION)->getBuffer()->getRenderTarget()->getViewport(0)->setMaterialScheme("LowQuality");
 	}
 
 public:
@@ -150,7 +166,16 @@ public:
 
 	void ReceiveMessage(Ice::Msg &msg)
 	{
-		if (mHydrax && msg.type == "START_RENDERING") mHydrax->update(msg.params.GetFloat("TIME"));
+		if (mHydrax && msg.type == "START_RENDERING")
+		{
+			if (Ice::SceneManager::Instance().GetWeatherController())
+			{
+				mHydrax->setSunPosition(Ice::SceneManager::Instance().GetWeatherController()->GetSunLightPosition());
+				Ogre::ColourValue c = Ice::SceneManager::Instance().GetWeatherController()->GetSunLightColour();
+				mHydrax->setSunColor(Ogre::Vector3(c.r, c.g, c.b));
+			}
+			mHydrax->update(msg.params.GetFloat("TIME"));
+		}
 	}
 
 	void Save(LoadSave::SaveSystem& mgr)

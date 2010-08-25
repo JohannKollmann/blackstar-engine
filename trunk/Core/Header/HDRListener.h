@@ -10,6 +10,8 @@ namespace Ice
 		class LumListener : public Ogre::RenderTargetListener
 		{
 		public:
+			float mUpdateTimeInterval;
+			float mLastTimeUpdated;
 			float avgLuminence;
 			void postRenderTargetUpdate(const Ogre::RenderTargetEvent &evt);
 		};

@@ -1,9 +1,13 @@
 #pragma once
 
-#include "Caelum.h"
 #include "IceIncludes.h"
 #include "IceMessageListener.h"
 #include "IceMessageSystem.h"
+
+namespace Caelum
+{
+	class CaelumSystem;
+}
 
 namespace Ice
 {
@@ -30,6 +34,9 @@ public:
 	void SetGroundFogEnabled (bool enable);
 	bool GetGroundFogEnabled ();
 	void UpdateViewport();
+
+	Ogre::Vector3 GetSunLightPosition() const;
+	Ogre::ColourValue GetSunLightColour() const;
 };
 
 };

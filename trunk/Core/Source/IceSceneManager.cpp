@@ -29,6 +29,8 @@
 
 #include "mmsystem.h"
 
+#include "Caelum.h"
+
 namespace Ice
 {
 

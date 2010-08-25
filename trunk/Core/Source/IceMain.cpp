@@ -179,7 +179,7 @@ void Main::initScene()
 	mCamera = mSceneMgr->createCamera("MainCamera");
 	mCamera->lookAt(Ogre::Vector3(0,0,1));
 	mCamera->setNearClipDistance(0.5f);
-	mCamera->setFarClipDistance(50000);
+	mCamera->setFarClipDistance(9999*6);
 
 	mViewport = mWindow->addViewport(mCamera);
 	mViewport->setBackgroundColour(Ogre::ColourValue::Black);
@@ -224,12 +224,12 @@ void Main::initScene()
 	Ogre::CompositorManager::getSingleton().addCompositor(Main::Instance().GetViewport(), "RenderDepth");
 	Ogre::CompositorManager::getSingleton().setCompositorEnabled(Main::Instance().GetViewport(), "RenderDepth", true);
 	//Ogre::CompositorManager::getSingleton().addCompositor(Main::Instance().GetViewport(), "VolumetricLightFilter");
-	Ogre::CompositorInstance *hdrinstance = Ogre::CompositorManager::getSingleton().addCompositor(Main::Instance().GetViewport(), "HDRTest");
+	Ogre::CompositorInstance *hdrinstance = Ogre::CompositorManager::getSingleton().addCompositor(Main::Instance().GetViewport(), "HDRWorking");
 	HDRListener *hdrListener = new HDRListener(); 
 	hdrinstance->addListener(hdrListener);
 	hdrListener->notifyViewportSize(mViewport->getActualWidth(), mViewport->getActualHeight());
 	hdrListener->notifyCompositor(hdrinstance);
-	Ogre::CompositorManager::getSingleton().setCompositorEnabled(Main::Instance().GetViewport(), "HDRTest", true);
+	Ogre::CompositorManager::getSingleton().setCompositorEnabled(Main::Instance().GetViewport(), "HDRWorking", true);
 	
 	mPhysXScene->getNxScene()->setUserContactReport(new ActorContactReport());
 
