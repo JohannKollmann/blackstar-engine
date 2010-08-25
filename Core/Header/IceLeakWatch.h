@@ -3,19 +3,19 @@
 #include <vector>
 #include <string>
 #include <sstream>
-#include "IceIncludes.h"
 
-namespace Ice
-{
 #ifdef _DEBUG
-	#define ICE_NEW *(LeakManager::newWatch()->setFile(__FILE__)->setFunction(__FUNCTION__)->setLine(__LINE__))= new
-	#define ICE_DELETE LeakManager::getInstance()=
+	#define ICE_NEW *(Ice::LeakManager::newWatch()->setFile(__FILE__)->setFunction(__FUNCTION__)->setLine(__LINE__))= new
+	#define ICE_DELETE Ice::LeakManager::getInstance()=
 #else
 	#define ICE_NEW new
 	#define ICE_DELETE delete
 #endif
+
+namespace Ice
+{
 	
-	class DllExport LeakWatch
+	class __declspec(dllexport) LeakWatch
 	{
 	public:
 		template<class T> inline T* operator =(T* pPointer)
@@ -56,7 +56,7 @@ namespace Ice
 	};
 
 
-	class DllExport LeakManager
+	class __declspec(dllexport) LeakManager
 	{
 	public:
 		template<class T> void operator =(T* pPointer)
@@ -68,6 +68,7 @@ namespace Ice
 				delete it->second;
 				m_Pointers.erase(it);
 			}
+			else DebugBreak();
 		}
 
 		LeakManager::~LeakManager()

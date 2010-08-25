@@ -25,6 +25,8 @@
 
 #include "IceGOCPhysics.h"
 
+#include "IceLeakWatch.h"
+
 #define USE_REMOTEDEBUGGER 1
 
 namespace Ice
@@ -37,16 +39,16 @@ OgreFileLoader(lua_State* pState, std::string strFile)
 	if(!Ogre::ResourceGroupManager::getSingleton().resourceExists(Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, strFile))
 		return std::string("file not found");
 	Ogre::DataStreamPtr ds = Ogre::ResourceGroupManager::getSingleton().openResource(strFile);
-	char *buffer = new char[ds->size()];
+	char *buffer = ICE_NEW char[ds->size()];
 	ds->read(buffer, ds->size());
 	ds->close();
 
 	if(luaL_loadbuffer(pState, buffer, ds->size(), strFile.c_str()) || lua_pcall(pState, 0, 0, 0))
 	{
-		delete buffer;
+		ICE_DELETE buffer;
 		return std::string(lua_tostring(pState, -1));
 	}
-	delete buffer;
+	ICE_DELETE buffer;
 	return std::string();
 }
 
@@ -72,9 +74,9 @@ bool Main::Run()
 	GetConfig();
 
 #if		_DEBUG
-		mRoot = new Ogre::Root("","","ogre.graphics.log");
+		mRoot = ICE_NEW Ogre::Root("","","ogre.graphics.log");
 #else
-		mRoot = new Ogre::Root("","","ogre.graphics.log");
+		mRoot = ICE_NEW Ogre::Root("","","ogre.graphics.log");
 #endif
 
 	setupRenderSystem();
@@ -145,7 +147,7 @@ void Main::initScene()
 	NxSceneDesc desc;
 	desc.gravity = NxVec3(0, -9.81f, 0);
 	desc.simType = NX_SIMULATION_SW;
-	desc.userNotify = new PhysXUserCallback();
+	desc.userNotify = ICE_NEW PhysXUserCallback();
 	mPhysXScene = OgrePhysX::World::getSingleton().addScene("Main", desc);
 	OgrePhysX::World::getSingleton().getSDK()->setParameter(NxParameter::NX_BOUNCE_THRESHOLD, -1);
 	//OgrePhysX::World::getSingleton().getSDK()->setParameter(NxParameter::NX_ADAPTIVE_FORCE, 0.1f);
@@ -155,7 +157,7 @@ void Main::initScene()
 	mPhysXScene->createActor(OgrePhysX::PlaneShape(Ogre::Vector3(0, 1, 0), -500));
 
 	//Collision Callback
-	mPhysXScene->setTriggerReport(new TriggerCallback());
+	mPhysXScene->setTriggerReport(ICE_NEW TriggerCallback());
 
 	mPhysXScene->getNxScene()->setGroupCollisionFlag(CollisionGroups::CHARACTER, CollisionGroups::BONE, false);
 	mPhysXScene->getNxScene()->setGroupCollisionFlag(CollisionGroups::BONE, CollisionGroups::CHARACTER, false);
@@ -203,7 +205,7 @@ void Main::initScene()
 	mSceneMgr->setAmbientLight(Ogre::ColourValue(0.2f,0.2f,0.2f));
 	//mSceneMgr->setFog(Ogre::FOG_LINEAR, Ogre::ColourValue::Blue, 0.015);
 
-	mCameraController = new FreeFlightCameraController();
+	mCameraController = ICE_NEW FreeFlightCameraController();
 	SceneManager::Instance().AcquireCamera(mCameraController);
 
 	//init scripting stuff
@@ -225,15 +227,15 @@ void Main::initScene()
 	Ogre::CompositorManager::getSingleton().setCompositorEnabled(Main::Instance().GetViewport(), "RenderDepth", true);
 	//Ogre::CompositorManager::getSingleton().addCompositor(Main::Instance().GetViewport(), "VolumetricLightFilter");
 	Ogre::CompositorInstance *hdrinstance = Ogre::CompositorManager::getSingleton().addCompositor(Main::Instance().GetViewport(), "HDRWorking");
-	HDRListener *hdrListener = new HDRListener(); 
+	HDRListener *hdrListener = ICE_NEW HDRListener(); 
 	hdrinstance->addListener(hdrListener);
 	hdrListener->notifyViewportSize(mViewport->getActualWidth(), mViewport->getActualHeight());
 	hdrListener->notifyCompositor(hdrinstance);
 	Ogre::CompositorManager::getSingleton().setCompositorEnabled(Main::Instance().GetViewport(), "HDRWorking", true);
 	
-	mPhysXScene->getNxScene()->setUserContactReport(new ActorContactReport());
+	mPhysXScene->getNxScene()->setUserContactReport(ICE_NEW ActorContactReport());
 
-	/*mCollisionCallback = new ScriptedCollisionCallback();
+	/*mCollisionCallback = ICE_NEW ScriptedCollisionCallback();
 	NxOgre::ActorGroup *dynamicbodies = mScene->createActorGroup("DynamicBody");
 	mScene->addMaterialPair(
 	dynamicbodies->((NxOgre::GroupCallback::InheritedCallback*)(mCollisionCallback));
@@ -258,10 +260,10 @@ void Main::initScene()
 	mSceneMgr->setShadowCasterRenderBackFaces(false);
 
 	// shadow camera setup
-	Ogre::FocusedShadowCameraSetup* spotSetup = new Ogre::FocusedShadowCameraSetup();
+	Ogre::FocusedShadowCameraSetup* spotSetup = ICE_NEW Ogre::FocusedShadowCameraSetup();
 	mSpotShadowCameraSetup = Ogre::ShadowCameraSetupPtr(spotSetup);
 
-	Ogre::PSSMShadowCameraSetup* pssmSetup = new Ogre::PSSMShadowCameraSetup();
+	Ogre::PSSMShadowCameraSetup* pssmSetup = ICE_NEW Ogre::PSSMShadowCameraSetup();
 	pssmSetup->calculateSplitPoints(3, 1, 300, 0.95f);
 	pssmSetup->setSplitPadding(1);
 	pssmSetup->setOptimalAdjustFactor(0, 5);
@@ -443,7 +445,7 @@ void Main::createInputSystem(size_t windowHnd, bool freeCursor)
 		if (i->Key == "ResolutionWidth") width = i->Val;
 		if (i->Key == "ResolutionHeight") height = i->Val;
 	}
-	mInputSystem = new Input(windowHnd, Ogre::StringConverter::parseInt(width), Ogre::StringConverter::parseInt(height), freeCursor);
+	mInputSystem = ICE_NEW Input(windowHnd, Ogre::StringConverter::parseInt(width), Ogre::StringConverter::parseInt(height), freeCursor);
 }
 
 void Main::Shutdown()
@@ -457,9 +459,13 @@ void Main::Shutdown()
 		//Console::Instance().Shutdown();
 		SceneManager::Instance().Shutdown();
 		ClearPlugins();
-		delete mCameraController;
+		ICE_DELETE mCameraController;
 		OgrePhysX::World::getSingleton().shutdown();
-		delete mRoot;
+		auto report = LeakManager::getInstance().reportLeaks();
+		Ogre::LogManager::getSingleton().logMessage("Memory leaks: " + Ogre::StringConverter::toString(report.size()));
+		for (auto i = report.begin(); i != report.end(); i++)
+			Ogre::LogManager::getSingleton().logMessage(*i);
+		ICE_DELETE mRoot;
 		mRoot = 0;
 		MainLoop::Instance().quitLoop();
 	}

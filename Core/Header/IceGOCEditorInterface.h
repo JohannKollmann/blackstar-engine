@@ -91,7 +91,7 @@ namespace Ice
 
 	#define BEGIN_GOCEDITORINTERFACE(className, labelName) public: \
 	GOComponent* GetGOComponent() { return this; } \
-	GOCEditorInterface* New() { return new className##(); } \
+	GOCEditorInterface* New() { return ICE_NEW className##(); } \
 	Ogre::String GetLabel() { return labelName; } \
 	protected: \
 	void _initRefParams() { mRefParams.clear(); GOCStaticEditorInterface::RefParam rp;

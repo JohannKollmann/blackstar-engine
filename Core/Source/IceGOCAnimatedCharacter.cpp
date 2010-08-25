@@ -314,7 +314,7 @@ void GOCAnimatedCharacterBone::SetBone(Ogre::SceneNode *meshnode, GOCAnimatedCha
 	float scale_factor = ((mMeshNode->_getDerivedScale().x + mMeshNode->_getDerivedScale().y + mMeshNode->_getDerivedScale().z) / 3);
 	mGlobalBindPosition = mOwnerGO->GetGlobalPosition() - (mBoneConfig.mBoneOffset*scale_factor);
 
-	mRagBoneRef = new RagBoneRef();
+	mRagBoneRef = ICE_NEW RagBoneRef();
 	mRagBoneRef->mBone = mBone;
 	mRagBoneRef->mMeshNode = mMeshNode;
 	mRagBoneRef->mGOCRagdoll = ragdoll;
@@ -340,7 +340,7 @@ void GOCAnimatedCharacter::_clear()
 	std::list<GameObject*>::iterator i = mBoneObjects.begin();
 	while (i != mBoneObjects.end())
 	{
-		delete (*i);
+		ICE_DELETE (*i);
 		i = mBoneObjects.begin();
 	}
 	if (mEntity) Main::Instance().GetOgreSceneMgr()->destroyEntity(mEntity);
@@ -430,8 +430,8 @@ void GOCAnimatedCharacter::CreateBoneObjects()
 	std::vector<OgrePhysX::sBoneActorBind> skeleton = mRagdoll->getSkeleton();
 	for (std::vector<OgrePhysX::sBoneActorBind>::iterator i = skeleton.begin(); i != skeleton.end(); i++)
 	{
-		GameObject *go = new GameObject();
-		GOCAnimatedCharacterBone *bone = new GOCAnimatedCharacterBone();
+		GameObject *go = ICE_NEW GameObject();
+		GOCAnimatedCharacterBone *bone = ICE_NEW GOCAnimatedCharacterBone();
 		go->AddComponent(bone);
 		go->SetGlobalPosition((*i).mActor->getGlobalPosition());
 		//Ogre::Quaternion q = Ogre::Vector3(1,0,0).getRotationTo(Ogre::Vector3(0,1,0));

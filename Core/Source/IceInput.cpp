@@ -202,7 +202,7 @@ Input::SetControl(Ogre::String strName, std::vector<std::pair<OIS::KeyCode, OIS:
 {
 	if(m_mControls.find(strName)!=m_mControls.end())
 	{
-		//delete old bindings
+		//ICE_DELETE old bindings
 		std::vector<std::pair<OIS::KeyCode, OIS::MouseButtonID>> oldcontrols=m_mControls[strName];
 		for(unsigned int iButton=0; iButton<oldcontrols.size(); iButton++)
 		{

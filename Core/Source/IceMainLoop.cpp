@@ -15,9 +15,9 @@ MainLoop::MainLoop()
 	mPaused = false;
 	mRunPhysics = true;
 	mCurrentState = 0;
-	AddState((GameState*)new Game());
-	AddState((GameState*)new DefaultMenu());
-	AddState((GameState*)new Editor());
+	AddState((GameState*)(ICE_NEW Game()));
+	AddState((GameState*)(ICE_NEW DefaultMenu()));
+	AddState((GameState*)(ICE_NEW Editor()));
 	Main::Instance().GetPhysXScene()->setSimulationListener(&mPhysicsListener);
 };
 

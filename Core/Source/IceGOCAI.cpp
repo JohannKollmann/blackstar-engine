@@ -61,7 +61,7 @@ namespace Ice
 	{
 		for (std::vector<AIState*>::iterator i = mActionQueue.begin(); i != mActionQueue.end(); i++)
 		{
-			delete (*i);
+			ICE_DELETE (*i);
 		}
 		mActionQueue.clear();
 	}
@@ -73,7 +73,7 @@ namespace Ice
 		AIState *tmp = mActionQueue.back();
 		mActionQueue.pop_back();
 		tmp->Leave();
-		delete tmp;
+		ICE_DELETE tmp;
 
 		if (mActionQueue.size() > 0) mActionQueue[0]->Enter();
 	}
@@ -82,7 +82,7 @@ namespace Ice
 	{
 		for (std::vector<DayCycle*>::iterator i = mIdleQueue.begin(); i != mIdleQueue.end(); i++)
 		{
-			delete (*i);
+			ICE_DELETE (*i);
 		}
 		mIdleQueue.clear();
 	}
@@ -140,20 +140,20 @@ namespace Ice
 			miscparams.push_back((*i));
 		}
 		
-		AddDayCycleState(new DayCycle(this, ta_script, miscparams, end_timeH, end_timeM, time_abs));
+		AddDayCycleState(ICE_NEW DayCycle(this, ta_script, miscparams, end_timeH, end_timeM, time_abs));
 		return out;
 	}
 	std::vector<ScriptParam> GOCAI::Npc_GotoWP(Script& caller, std::vector<ScriptParam> &vParams)
 	{
 		std::vector<ScriptParam> out;
 		Ogre::String wp = vParams[0].getString().c_str();
-		AddState(new FollowPathway(this, wp));
+		AddState(ICE_NEW FollowPathway(this, wp));
 		return out;
 	}
 	std::vector<ScriptParam> GOCAI::Npc_OpenDialog(Script& caller, std::vector<ScriptParam> &vParams)
 	{
 		std::vector<ScriptParam> out;
-		AddState(new Dialog(this));
+		AddState(ICE_NEW Dialog(this));
 		return out;
 	}
 

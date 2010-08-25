@@ -8,14 +8,14 @@ namespace Ice
 	AIManager::AIManager(void)
 	{
 		MessageSystem::Instance().JoinNewsgroup(this, "REPARSE_SCRIPTS_POST");
-		mNavigationMesh = new NavigationMesh();
+		mNavigationMesh = ICE_NEW NavigationMesh();
 		mLoadWayMeshAsObjects = false;
 	}
 
 	AIManager::~AIManager(void)
 	{
 		MessageSystem::Instance().QuitNewsgroup(this, "REPARSE_SCRIPTS_POST");
-		delete mNavigationMesh;
+		ICE_DELETE mNavigationMesh;
 	}
 
 	void AIManager::RegisterWaypoint(GOCWaypoint *waypoint)

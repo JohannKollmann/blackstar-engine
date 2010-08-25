@@ -194,7 +194,7 @@ namespace Ice
 			{
 				GOComponent *component = (*i);
 				mComponents.erase(i);
-				delete component;
+				ICE_DELETE component;
 				return;
 			}
 		}
@@ -207,7 +207,7 @@ namespace Ice
 		{
 			GOComponent *component = (*i);
 			mComponents.erase(i);
-			delete component;
+			ICE_DELETE component;
 			i = mComponents.begin();
 		}
 	}
@@ -218,7 +218,7 @@ namespace Ice
 		while (mChildren.size() > 0)
 		{
 			GameObject *child = (*i);
-			if (child->mManagedByParent) delete child;	//Children rufen im Destruktor mParent->UnregisterChild(this) auf
+			if (child->mManagedByParent) ICE_DELETE child;	//Children rufen im Destruktor mParent->UnregisterChild(this) auf
 			else UnregisterChild(child);
 			i = mChildren.begin();
 		}
@@ -444,7 +444,7 @@ namespace Ice
 		GOCScriptMessageCallback *callback = GetComponent<GOCScriptMessageCallback>();
 		if (!callback)
 		{
-			callback = new GOCScriptMessageCallback();
+			callback = ICE_NEW GOCScriptMessageCallback();
 			AddComponent(callback);
 		}
 		callback->AddListener(vParams[0].getString(), vParams[1]);

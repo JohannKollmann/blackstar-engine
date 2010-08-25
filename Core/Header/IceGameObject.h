@@ -74,7 +74,7 @@ namespace Ice
 
 		/**
 		Sets the name of the object.
-		@param name The new name of the object.
+		@param name The ICE_NEW name of the object.
 		*/
 		void SetName(Ogre::String name) { mName = name; }
 
@@ -241,7 +241,7 @@ namespace Ice
 		void Save(LoadSave::SaveSystem& mgr);
 		void Load(LoadSave::LoadSystem& mgr);
 		static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "GameObject"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; }
-		static LoadSave::Saveable* NewInstance() { return new GameObject(); }
+		static LoadSave::Saveable* NewInstance() { return ICE_NEW GameObject(); }
 	};
 
 	class ManagedGameObject : public GameObject
@@ -255,7 +255,7 @@ namespace Ice
 		{
 			static std::string name = "ManagedGameObject"; return name;
 		};
-		static LoadSave::Saveable* NewInstance() { return new ManagedGameObject(); }
+		static LoadSave::Saveable* NewInstance() { return ICE_NEW ManagedGameObject(); }
 	};
 
 };

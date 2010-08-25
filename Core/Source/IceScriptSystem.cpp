@@ -227,7 +227,7 @@ namespace Ice
 	ScriptSystem::Clear()
 	{
 		for (std::vector<ScriptMessageListener*>::iterator i = mScriptMessageListeners.begin(); i != mScriptMessageListeners.end(); i++)
-			delete *i;
+			ICE_DELETE *i;
 		mScriptMessageListeners.clear();
 
 		for(std::map<std::string, std::vector<int>>::const_iterator it=m_mScriptInstances.begin();
@@ -275,7 +275,7 @@ namespace Ice
 			Utils::LogParameterErrors(caller, "Wrong parameters!");
 			return ret;
 		}
-		ScriptMessageListener *listener = new ScriptMessageListener(params[1]);
+		ScriptMessageListener *listener = ICE_NEW ScriptMessageListener(params[1]);
 		MessageSystem::Instance().JoinNewsgroup(listener, params[0].getString());
 		ScriptSystem::GetInstance().mScriptMessageListeners.push_back(listener);
 		return ret;

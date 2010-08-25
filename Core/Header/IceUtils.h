@@ -34,7 +34,7 @@ namespace Ice
 		{
 			for (auto i = vec.begin(); i != vec.end(); i++)
 			{
-				delete *i;
+				ICE_DELETE *i;
 			}
 			vec.clear();
 		}

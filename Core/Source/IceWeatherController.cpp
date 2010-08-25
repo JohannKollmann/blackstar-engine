@@ -23,17 +23,17 @@ namespace Ice
 			//| Caelum::CaelumSystem::CaelumComponent::CAELUM_COMPONENT_GROUND_FOG);
 
 		// Initialise Caelum
-		mCaelumSystem = new Caelum::CaelumSystem (Ogre::Root::getSingletonPtr(), Main::Instance().GetOgreSceneMgr(), componentMask);//Caelum::CaelumSystem::CAELUM_COMPONENTS_NONE);
-		mCaelumSystem->setSun (new Caelum::SpriteSun(Main::Instance().GetOgreSceneMgr(), mCaelumSystem->getCaelumCameraNode (), "sun_disc.png", Ogre::Degree(10)));
+		mCaelumSystem = ICE_NEW Caelum::CaelumSystem (Ogre::Root::getSingletonPtr(), Main::Instance().GetOgreSceneMgr(), componentMask);//Caelum::CaelumSystem::CAELUM_COMPONENTS_NONE);
+		mCaelumSystem->setSun (ICE_NEW Caelum::SpriteSun(Main::Instance().GetOgreSceneMgr(), mCaelumSystem->getCaelumCameraNode (), "sun_disc.png", Ogre::Degree(10)));
 
-		/*mCaelumSystem->setSkyDome (new Caelum::SkyDome (Main::Instance().GetOgreSceneMgr(), mCaelumSystem->getCaelumCameraNode ()));
-	    mCaelumSystem->setSun (new Caelum::SphereSun(Main::Instance().GetOgreSceneMgr(), mCaelumSystem->getCaelumCameraNode ()));
-	    mCaelumSystem->setMoon (new Caelum::Moon(Main::Instance().GetOgreSceneMgr(), mCaelumSystem->getCaelumCameraNode ()));
-	    mCaelumSystem->setCloudSystem (new Caelum::CloudSystem (Main::Instance().GetOgreSceneMgr(), mCaelumSystem->getCaelumGroundNode ()));
-	    mCaelumSystem->setPointStarfield (new Caelum::PointStarfield (Main::Instance().GetOgreSceneMgr(), mCaelumSystem->getCaelumCameraNode ()));*/
+		/*mCaelumSystem->setSkyDome (ICE_NEW Caelum::SkyDome (Main::Instance().GetOgreSceneMgr(), mCaelumSystem->getCaelumCameraNode ()));
+	    mCaelumSystem->setSun (ICE_NEW Caelum::SphereSun(Main::Instance().GetOgreSceneMgr(), mCaelumSystem->getCaelumCameraNode ()));
+	    mCaelumSystem->setMoon (ICE_NEW Caelum::Moon(Main::Instance().GetOgreSceneMgr(), mCaelumSystem->getCaelumCameraNode ()));
+	    mCaelumSystem->setCloudSystem (ICE_NEW Caelum::CloudSystem (Main::Instance().GetOgreSceneMgr(), mCaelumSystem->getCaelumGroundNode ()));
+	    mCaelumSystem->setPointStarfield (ICE_NEW Caelum::PointStarfield (Main::Instance().GetOgreSceneMgr(), mCaelumSystem->getCaelumCameraNode ()));*/
 
 		mCaelumSystem->attachViewport (Main::Instance().GetViewport());
-		/*mCaelumSystem->setPrecipitationController (new Caelum::PrecipitationController (Main::Instance().GetOgreSceneMgr()));
+		/*mCaelumSystem->setPrecipitationController (ICE_NEW Caelum::PrecipitationController (Main::Instance().GetOgreSceneMgr()));
 		mCaelumSystem->getPrecipitationController ()->createViewportInstance (Main::Instance().GetCamera()->getViewport ());
 
 	    if (mCaelumSystem->getPrecipitationController ()) {
@@ -87,7 +87,7 @@ namespace Ice
 	    }
 	    if (enable)
 		{
-			mCaelumSystem->setGroundFog (new Caelum::GroundFog (Main::Instance().GetOgreSceneMgr(), mCaelumSystem->getCaelumGroundNode ()));
+			mCaelumSystem->setGroundFog (ICE_NEW Caelum::GroundFog (Main::Instance().GetOgreSceneMgr(), mCaelumSystem->getCaelumGroundNode ()));
 	        mCaelumSystem->getGroundFog ()->findFogPassesByName ();
 	    }
 		else

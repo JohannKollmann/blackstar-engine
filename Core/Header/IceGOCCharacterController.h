@@ -118,7 +118,7 @@ namespace Ice
 		void SetParameters(DataMap *parameters);
 		void GetParameters(DataMap *parameters);
 		void GetDefaultParameters(DataMap *parameters);
-		GOCEditorInterface* New() { return new GOCCharacterController(); }
+		GOCEditorInterface* New() { return ICE_NEW GOCCharacterController(); }
 		Ogre::String GetLabel() { return "Character"; }
 		GOComponent* GetGOComponent() { return this; }
 
@@ -126,7 +126,7 @@ namespace Ice
 		void Load(LoadSave::LoadSystem& mgr);
 		std::string& TellName() { static std::string name = "CharacterController"; return name; };
 		static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "CharacterController"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };
-		static LoadSave::Saveable* NewInstance() { return new GOCCharacterController; };
+		static LoadSave::Saveable* NewInstance() { return ICE_NEW GOCCharacterController; };
 	};
 
 

@@ -66,13 +66,6 @@ namespace Ice
 
 	SceneManager::~SceneManager(void)
 	{
-		//TODO: Proper cleanup
-		/*for (auto i = mGOCPrototypes.begin(); i != mGOCPrototypes.end(); i++)
-		{
-			delete i->second;
-		}
-		mGOCPrototypes.clear();*/
-
 	}
 
 	unsigned int SceneManager::RequestID()
@@ -200,27 +193,27 @@ namespace Ice
 
 		LoadSave::LoadSave::Instance().RegisterObject(&NavigationMesh::Register);
 
-		RegisterGOCPrototype("A", new GOCMeshRenderable());
-		RegisterGOCPrototype("A", new GOCPfxRenderable());
-		RegisterGOCPrototype("A", new GOCLocalLightRenderable());
-		RegisterGOCPrototype("A", new GOCSound3D());
-		RegisterGOCPrototype("A", new GOCAnimatedCharacter());
-		RegisterGOCPrototype(new GOCAnimatedCharacterBone());
+		RegisterGOCPrototype("A", ICE_NEW GOCMeshRenderable());
+		RegisterGOCPrototype("A", ICE_NEW GOCPfxRenderable());
+		RegisterGOCPrototype("A", ICE_NEW GOCLocalLightRenderable());
+		RegisterGOCPrototype("A", ICE_NEW GOCSound3D());
+		RegisterGOCPrototype("A", (ICE_NEW GOCAnimatedCharacter()));
+		RegisterGOCPrototype(ICE_NEW GOCAnimatedCharacterBone());
 
-		RegisterGOCPrototype("B_x", new GOCRigidBody());
-		RegisterGOCPrototype("B_x", new GOCStaticBody());
-		RegisterGOCPrototype("B_x", new GOCCharacterController());
+		RegisterGOCPrototype("B_x", ICE_NEW GOCRigidBody());
+		RegisterGOCPrototype("B_x", ICE_NEW GOCStaticBody());
+		RegisterGOCPrototype("B_x", ICE_NEW GOCCharacterController());
 
-		RegisterGOCPrototype("C_x", new GOCAI());
-		RegisterGOCPrototype("C_x", new GOCPlayerInput());
+		RegisterGOCPrototype("C_x", ICE_NEW GOCAI());
+		RegisterGOCPrototype("C_x", ICE_NEW GOCPlayerInput());
 
-		RegisterGOCPrototype("D_x", new GOCSimpleCameraController());
-		RegisterGOCPrototype("D_x", new GOCCameraController());
+		RegisterGOCPrototype("D_x", ICE_NEW GOCSimpleCameraController());
+		RegisterGOCPrototype("D_x", ICE_NEW GOCCameraController());
 
-		RegisterGOCPrototype("E", new GOCMover());
-		RegisterGOCPrototype("E", new GOCScript());
-		RegisterGOCPrototype("E", new GOCForceField());
-		RegisterGOCPrototype(new GOCAnimKey());
+		RegisterGOCPrototype("E", ICE_NEW GOCMover());
+		RegisterGOCPrototype("E", ICE_NEW GOCScript());
+		RegisterGOCPrototype("E", ICE_NEW GOCForceField());
+		RegisterGOCPrototype(ICE_NEW GOCAnimKey());
 
 		//Shared Lua functions
 
@@ -330,7 +323,7 @@ namespace Ice
 		std::map<int, ManagedGameObject*>::iterator i = mGameObjects.begin();
 		while (i != mGameObjects.end())
 		{
-			delete i->second;
+			ICE_DELETE i->second;
 			i = mGameObjects.begin();
 		}
 		mGameObjects.clear();
@@ -344,6 +337,15 @@ namespace Ice
 	void SceneManager::Shutdown()
 	{
 		SetToIndoor();
+
+		//TODO: Proper cleanup
+		for (auto i = mGOCPrototypes.begin(); i != mGOCPrototypes.end(); i++)
+		{
+			ICE_DELETE i->second;
+		}
+		mGOCPrototypes.clear();
+
+		mGOCDefaultParameters.clear();
 	}
 
 
@@ -351,7 +353,7 @@ namespace Ice
 	{
 		if (mWeatherController)
 		{
-			delete mWeatherController;
+			ICE_DELETE mWeatherController;
 			mWeatherController = NULL;
 		}
 		mIndoorRendering = true;
@@ -366,7 +368,7 @@ namespace Ice
 		Light->setDiffuseColour(1, 1, 1);
 		Light->setSpecularColour(Ogre::ColourValue(1, 0.9, 0.6)/5);*/
 		
-		if (!mWeatherController) mWeatherController = new WeatherController();
+		if (!mWeatherController) mWeatherController = ICE_NEW WeatherController();
 		SetTimeScale(mTimeScale);
 		SetTime(11, 0);
 		mIndoorRendering = false;
@@ -390,8 +392,8 @@ namespace Ice
 			if (mLevelMesh->GetMeshFileName() == meshname) return;
 		}
 
-		if (mLevelMesh) delete mLevelMesh;
-		mLevelMesh = new LevelMesh(meshname);
+		if (mLevelMesh) ICE_DELETE mLevelMesh;
+		mLevelMesh = ICE_NEW LevelMesh(meshname);
 	}
 
 	void SceneManager::LoadLevel(Ogre::String levelfile, bool load_dynamic)
@@ -411,12 +413,12 @@ namespace Ice
 		ls->LoadAtom("std::vector<Saveable*>", &objects);
 		//Objects call SceneManager::RegisterObject
 
-		delete AIManager::Instance().mNavigationMesh;
+		ICE_DELETE AIManager::Instance().mNavigationMesh;
 		AIManager::Instance().mNavigationMesh = (NavigationMesh*)ls->LoadObject();
-		if (!AIManager::Instance().mNavigationMesh) AIManager::Instance().mNavigationMesh = new NavigationMesh();
+		if (!AIManager::Instance().mNavigationMesh) AIManager::Instance().mNavigationMesh = ICE_NEW NavigationMesh();
 
 		ls->CloseFile();
-		delete ls;
+		ICE_DELETE ls;
 
 		msg.type = "LOADLEVEL_END";
 		MessageSystem::Instance().SendInstantMessage(msg);
@@ -441,7 +443,7 @@ namespace Ice
 		ss->SaveAtom("std::vector<Saveable*>", &objects, "Objects");
 		ss->SaveObject(AIManager::Instance().GetNavigationMesh(), "WayMesh");
 		ss->CloseFiles();
-		delete ss;
+		ICE_DELETE ss;
 
 		msg.type = "SAVELEVEL_END";
 		MessageSystem::Instance().SendInstantMessage(msg);
@@ -560,11 +562,11 @@ namespace Ice
 	}
 	void SceneManager::RemoveGameObject(ManagedGameObject *object)
 	{
-		delete object;
+		ICE_DELETE object;
 	}
 	ManagedGameObject* SceneManager::CreateGameObject()
 	{
-		return new ManagedGameObject();
+		return ICE_NEW ManagedGameObject();
 	}
 
 	ManagedGameObject* SceneManager::GetObjectByInternID(int id)
@@ -633,14 +635,14 @@ namespace Ice
 		int collision = (int)vParams[2].getFloat();
 
 		GameObject *object = Instance().CreateGameObject();
-		object->AddComponent(new GOCMeshRenderable(mesh, shadows));
+		object->AddComponent(ICE_NEW GOCMeshRenderable(mesh, shadows));
 		if (collision == -1)
 		{
-			object->AddComponent(new GOCStaticBody(mesh));
+			object->AddComponent(ICE_NEW GOCStaticBody(mesh));
 		}
 		else if (collision >= 0 && collision <= 3)
 		{
-			object->AddComponent(new GOCRigidBody(mesh, 10, collision));
+			object->AddComponent(ICE_NEW GOCRigidBody(mesh, 10, collision));
 		}
 		out.push_back(ScriptParam(object->GetID()));
 		return out;
