@@ -2,6 +2,7 @@
 #include "IceWeatherController.h"
 #include "IceMain.h"
 #include "OIS/OIS.h"
+#include "Caelum.h"
 
 namespace Ice
 {
@@ -18,7 +19,7 @@ namespace Ice
 	        | Caelum::CaelumSystem::CaelumComponent::CAELUM_COMPONENT_POINT_STARFIELD
 	        | Caelum::CaelumSystem::CaelumComponent::CAELUM_COMPONENT_CLOUDS
 	        | Caelum::CaelumSystem::CaelumComponent::CAELUM_COMPONENT_PRECIPITATION);
-	        //| Caelum::CaelumSystem::CaelumComponent::CAELUM_COMPONENT_SCREEN_SPACE_FOG);
+	        //| Caelum::CaelumSystem::CaelumComponent::CAELUM_COMPONENT_SCREEN_SPACE_FOG
 			//| Caelum::CaelumSystem::CaelumComponent::CAELUM_COMPONENT_GROUND_FOG);
 
 		// Initialise Caelum
@@ -43,7 +44,7 @@ namespace Ice
 		mCaelumSystem->getUniversalClock ()->setTimeScale (0);
 
 	    mCaelumSystem->setManageSceneFog(false);
-	    //mCaelumSystem->setSceneFogDensityMultiplier(0.0015);
+	    //mCaelumSystem->setSceneFogDensityMultiplier(0.0008f);
 		mCaelumSystem->setMinimumAmbientLight(Ogre::ColourValue(0.1f, 0.1f,0.1f));
 	    mCaelumSystem->setManageAmbientLight (true); 
 
@@ -60,10 +61,15 @@ namespace Ice
 		mCaelumSystem->setEnsureSingleShadowSource(true);
 		mCaelumSystem->setEnsureSingleLightSource(true);
 
+		mCaelumSystem->setAutoMoveCameraNode(false);
+
 		mCaelumSystem->getMoon()->setPhase(1.0f);
 		mCaelumSystem->getMoon()->setDiffuseMultiplier(Ogre::ColourValue (0.6f, 0.6f, 0.8f));
 		mCaelumSystem->getMoon()->setSpecularMultiplier(Ogre::ColourValue (0.5, 0.5, 0.5));
 		mCaelumSystem->getMoon ()->setAmbientMultiplier(Ogre::ColourValue(0.25f, 0.25f, 0.25f));
+
+		mCaelumSystem->getCloudSystem()->getLayer(0)->setHeight(2000);
+		mCaelumSystem->getCloudSystem()->getLayer(0)->setCloudUVFactor(250);
 
 		mPaused = false;
 
@@ -123,6 +129,8 @@ namespace Ice
 
 	void WeatherController::Update(float time)
 	{
+		Ogre::Vector3 offset(0, -500, 0);
+		mCaelumSystem->getCaelumCameraNode()->setPosition(Main::Instance().GetCamera()->getDerivedPosition() + offset);
 		mCaelumSystem->updateSubcomponents(time);
 	};
 
@@ -142,6 +150,17 @@ namespace Ice
 		{
 			mCaelumSystem->notifyCameraChanged(Main::Instance().GetCamera());
 		}
+	}
+
+	Ogre::Vector3 WeatherController::GetSunLightPosition() const
+	{
+		Ogre::Vector3 sunDir = mCaelumSystem->getSun()->getLightDirection();
+		Ogre::Vector3 sunPos = (-sunDir) * 10000;
+		return sunPos;
+	}
+	Ogre::ColourValue WeatherController::GetSunLightColour() const
+	{
+		return mCaelumSystem->getSun()->getBodyColour();
 	}
 
 };

@@ -2,6 +2,8 @@
 #include "IceMain.h"
 #include "IceSceneManager.h"
 #include "IceWeatherController.h"
+#include "Caelum.h"
+#include "mmsystem.h"
 
 namespace Ice
 {
@@ -9,6 +11,8 @@ namespace Ice
 	HDRListener::HDRListener()
 	{
 		mLumListener.avgLuminence = 1;
+		mLumListener.mLastTimeUpdated = 0;
+		mLumListener.mUpdateTimeInterval = 0.05f;	//20 times per second
 	}
 	//---------------------------------------------------------------------------
 	HDRListener::~HDRListener()
@@ -172,49 +176,55 @@ namespace Ice
 				mat->getTechnique(0)->getPass(0)->getFragmentProgramParameters();
 			fparams->setNamedConstant("oldAvgLum", mLumListener.avgLuminence);
 		}
-		if (pass_id == 995)
+		else if (pass_id == 995)
+		{
+			Ogre::Matrix4 viewproj = Ice::Main::Instance().GetCamera()->getProjectionMatrix() * Ice::Main::Instance().GetCamera()->getViewMatrix();
+			Ogre::Vector3 sunDir = SceneManager::Instance().GetWeatherController()->GetCaelumSystem()->getSun()->getLightDirection();
+			float camDotLight = Ice::Main::Instance().GetCamera()->getDerivedDirection().dotProduct(-sunDir);
+			Ogre::Vector3 sunPos = (-sunDir) * 10000;
+			Ogre::Vector3 sunUV = viewproj * sunPos;
+
+			//saturate and convert to image space
+			//calc climb rate
+			float fSlope,fInverseSlope;
+			if(sunUV.x!=0)
+				fSlope=sunUV.y/sunUV.x;
+			if(sunUV.y!=0)
+				fInverseSlope=sunUV.x/sunUV.y;
+			if(sunUV.x>sunUV.y)
 			{
-				Ogre::Matrix4 viewproj = Ice::Main::Instance().GetCamera()->getProjectionMatrix() * Ice::Main::Instance().GetCamera()->getViewMatrix();
-				Ogre::Vector3 sunDir = SceneManager::Instance().GetWeatherController()->GetCaelumSystem()->getSun()->getLightDirection();
-				float camDotLight = Ice::Main::Instance().GetCamera()->getDerivedDirection().dotProduct(-sunDir);
-				Ogre::Vector3 sunPos = (-sunDir) * 1000;
-				Ogre::Vector3 sunUV = viewproj * sunPos;
-
-				//saturate and convert to image space
-				//calc climb rate
-				float fSlope,fInverseSlope;
-				if(sunUV.x!=0)
-					fSlope=sunUV.y/sunUV.x;
-				if(sunUV.y!=0)
-					fInverseSlope=sunUV.x/sunUV.y;
-				if(sunUV.x>sunUV.y)
-				{
-					if (sunUV.x < -1){sunUV.x = -1;sunUV.y = -fSlope;}
-					if (sunUV.x > 1){sunUV.x = 1;sunUV.y = fSlope;}
-				}
-				else
-				{
-					if (sunUV.y < -1){ sunUV.y = -1;sunUV.x=-fInverseSlope;}
-					if (sunUV.y > 1){ sunUV.y = 1;sunUV.x=fInverseSlope;}
-				}
-				sunUV.y *= -1;
-				sunUV += Ogre::Vector3(1, 1, 0);
-				sunUV *= 0.5;
-
-				sunUV.z = camDotLight;
-				//IceNote(Ogre::StringConverter::toString(camDotLight));
-				mat->load();
-				Ogre::GpuProgramParametersSharedPtr fparams =
-				mat->getBestTechnique()->getPass(0)->getFragmentProgramParameters();
-				fparams->setNamedConstant("sunUV", sunUV);
+				if (sunUV.x < -1){sunUV.x = -1;sunUV.y = -fSlope;}
+				if (sunUV.x > 1){sunUV.x = 1;sunUV.y = fSlope;}
 			}
+			else
+			{
+				if (sunUV.y < -1){ sunUV.y = -1;sunUV.x=-fInverseSlope;}
+				if (sunUV.y > 1){ sunUV.y = 1;sunUV.x=fInverseSlope;}
+			}
+
+			sunUV.y *= -1;
+			sunUV += Ogre::Vector3(1, 1, 0);
+			sunUV *= 0.5;
+			sunUV.z = camDotLight;
+
+			//IceNote(Ogre::StringConverter::toString(camDotLight));
+			mat->load();
+			Ogre::GpuProgramParametersSharedPtr fparams =
+			mat->getBestTechnique()->getPass(0)->getFragmentProgramParameters();
+			fparams->setNamedConstant("sunUV", sunUV);
+		}
 	}
 
 
 	void HDRListener::LumListener::postRenderTargetUpdate( const Ogre::RenderTargetEvent &evt )
 	{
-		Ogre::PixelBox pbx(1,1,1,Ogre::PixelFormat::PF_FLOAT32_R, &avgLuminence);
-		evt.source->copyContentsToMemory(pbx);
+		float time = timeGetTime()*0.001f;
+		if (time - mLastTimeUpdated > mUpdateTimeInterval)
+		{
+			Ogre::PixelBox pbx(1,1,1,Ogre::PixelFormat::PF_FLOAT32_R, &avgLuminence);
+			evt.source->copyContentsToMemory(pbx);
+			mLastTimeUpdated = time;
+		}
 		//Ogre::LogManager::getSingleton().logMessage(Ogre::StringConverter::toString(avgLuminence));
 	}
 
