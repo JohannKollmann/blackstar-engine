@@ -117,6 +117,7 @@
     <ClCompile Include="Source\IceGOCOgreNode.cpp" />
     <ClCompile Include="Source\IceGOCMover.cpp" />
     <ClCompile Include="Source\IceGOCScript.cpp" />
+    <ClCompile Include="Source\IceLeakWatch.cpp" />
     <ClCompile Include="Source\IceMessageListener.cpp" />
     <ClCompile Include="Source\IceMessageSystem.cpp" />
     <ClCompile Include="Source\IceGameObject.cpp" />
@@ -202,6 +203,7 @@
     <ClInclude Include="Header\IceGOCOgreNode.h" />
     <ClInclude Include="Header\IceGOCMover.h" />
     <ClInclude Include="Header\IceGOCScript.h" />
+    <ClInclude Include="Header\IceLeakWatch.h" />
     <ClInclude Include="Header\IceMessageListener.h" />
     <ClInclude Include="Header\IceMessageSystem.h" />
     <ClInclude Include="Header\IceMsg.h" />

@@ -1,4 +1,5 @@
 #include "IceSpline.h"
+#include "IceLeakWatch.h"
 
 #include <stdio.h>
 #include <vector>
@@ -127,7 +128,7 @@ namespace Ice
 
 		m_Sectors.clear();
 		m_SectorLengths.clear();
-		double* ppfCoordinates[3]={new double[vPoints.size()], new double[vPoints.size()], new double[vPoints.size()]};
+		double* ppfCoordinates[3]={ICE_NEW double[vPoints.size()], ICE_NEW double[vPoints.size()], ICE_NEW double[vPoints.size()]};
 
 		for(int iPoint=0; iPoint<(int)vPoints.size(); iPoint++)
 		{
@@ -222,9 +223,9 @@ namespace Ice
 		}
 		m_SectorLengths.push_back(fTime);
 
-		delete ppfCoordinates[0];
-		delete ppfCoordinates[1];
-		delete ppfCoordinates[2];
+		ICE_DELETE ppfCoordinates[0];
+		ICE_DELETE ppfCoordinates[1];
+		ICE_DELETE ppfCoordinates[2];
 
 		m_bIsTimedSpline=true;
 	}
