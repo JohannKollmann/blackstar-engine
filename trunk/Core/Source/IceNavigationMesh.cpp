@@ -164,8 +164,8 @@ namespace Ice
 		mPhysXMeshShape = 0;
 		mPathNodeTree = 0;
 
-		MessageSystem::Instance().JoinNewsgroup(this, "ACOTR_ONSLEEP");
-		MessageSystem::Instance().JoinNewsgroup(this, "ACOTR_ONWAKE");
+		MessageSystem::Instance().JoinNewsgroup(this, "ACTOR_ONSLEEP");
+		MessageSystem::Instance().JoinNewsgroup(this, "ACTOR_ONWAKE");
 	}
 	NavigationMesh::~NavigationMesh()
 	{
@@ -565,7 +565,7 @@ namespace Ice
 	void NavigationMesh::ReceiveMessage(Msg &msg)
 	{
 		if (!mPathNodeTree) return;
-		if (msg.type == "ACOTR_ONSLEEP")
+		if (msg.type == "ACTOR_ONSLEEP")
 		{
 			NxActor *a = (NxActor*)msg.rawData;
 			if (!a) return;
@@ -575,7 +575,7 @@ namespace Ice
 			Ogre::AxisAlignedBox box = OgrePhysX::Convert::toOgre(nxBounds);
 			mPathNodeTree->InjectObstacle(a, box);
 		}
-		if (msg.type == "ACOTR_ONWAKE")
+		if (msg.type == "ACTOR_ONWAKE")
 		{
 			NxActor *a = (NxActor*)msg.rawData;
 			if (!a) return;

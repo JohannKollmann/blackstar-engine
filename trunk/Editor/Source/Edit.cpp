@@ -495,7 +495,7 @@ void Edit::AttachAxisObject(Ice::GameObject *object)
 {
 	object->RemoveComponent("AxisObject");
 	AxisComponent* caxis = new AxisComponent();
-	object->AddComponent(caxis);
+	object->AddComponent(Ice::GOComponentPtr(caxis));
 }
 void Edit::DetachAxisObject(Ice::GameObject *object)
 {
@@ -760,7 +760,7 @@ void Edit::OnSaveWorld(Ogre::String fileName)
 Ice::GameObject* Edit::InsertWaypoint(bool align, bool create_only)
 {
 	Ice::GameObject *waypoint = Ice::SceneManager::Instance().CreateGameObject();
-	waypoint->AddComponent(new Ice::GOCWaypoint());
+	waypoint->AddComponent(Ice::GOComponentPtr(new Ice::GOCWaypoint()));
 	waypoint->ShowEditorVisuals(true);
 	waypoint->SetGlobalOrientation(Ogre::Quaternion(Ice::Main::Instance().GetCamera()->getDerivedOrientation().getYaw(), Ogre::Vector3(0,1,0)));
 	if (align) AlignObjectWithMesh(waypoint);
@@ -781,9 +781,9 @@ Ice::GameObject* Edit::InsertWayTriangle(bool align, bool create_only)
 	Ice::GameObject *oNode3 = new Ice::GameObject();
 
 	NavMeshEditorNode *n1 = new NavMeshEditorNode();
-	oNode1->AddComponent(n1);
+	oNode1->AddComponent(Ice::GOComponentPtr(n1));
 	NavMeshEditorNode *n2 = new NavMeshEditorNode();
-	oNode2->AddComponent(n2);
+	oNode2->AddComponent(Ice::GOComponentPtr(n2));
 	NavMeshEditorNode *n3 = new NavMeshEditorNode(oNode3, NavMeshEditorNode::NODE, n1, n2);
 
 	if (align)
@@ -852,7 +852,7 @@ Ice::GameObject* Edit::InsertObject(Ice::GameObject *parent, bool align, bool cr
 
 				Ice::GOCEditorInterface *component = Ice::SceneManager::Instance().NewGOC((*i).mSectionName);
 				component->SetParameters(&(*i).mSectionData);
-				object->AddComponent(component->GetGOComponent());
+				object->AddComponent(Ice::GOComponentPtr(component->GetGOComponent()));
 			}
 
 		}
@@ -906,6 +906,15 @@ void Edit::OnInsertObjectAsChild( wxCommandEvent& WXUNUSED(event) )
 void Edit::OnDeleteObject( wxCommandEvent& WXUNUSED(event) )
 {
 	wxEdit::Instance().GetMainNotebook()->GetOgreWindow()->SetPaused(true);
+
+	wxEditIceGameObject *propgrid_page = dynamic_cast<wxEditIceGameObject*>(wxEdit::Instance().GetpropertyWindow()->GetCurrentPage());
+	if (propgrid_page)
+	{
+		propgrid_page->SetObject(nullptr);
+		wxEdit::Instance().GetpropertyWindow()->Refresh();
+	}
+	wxEdit::Instance().GetpropertyWindow()->SetPage("None");
+
 	bool skip = false;
 	bool one = false;
 	if (mSelectedObjects.size() == 1)
@@ -957,7 +966,6 @@ void Edit::OnDeleteObject( wxCommandEvent& WXUNUSED(event) )
 		}
 	}
 	mSelectedObjects.clear();
-	wxEdit::Instance().GetpropertyWindow()->SetPage("None");
 	wxEdit::Instance().GetWorldExplorer()->GetSceneTree()->Update();
 	wxEdit::Instance().GetWorldExplorer()->GetMaterialTree()->Update();
 	wxEdit::Instance().GetMainNotebook()->GetOgreWindow()->SetPaused(false);
@@ -1371,7 +1379,7 @@ void Edit::OnMoverInsertKey( wxCommandEvent& WXUNUSED(event)) /*= wxCommandEvent
 
 	Ice::GameObject *go = new Ice::GameObject();
 	Ice::GOCAnimKey *key = new Ice::GOCAnimKey();
-	go->AddComponent(key);
+	go->AddComponent(Ice::GOComponentPtr(key));
 	go->SetParent(mover->GetOwner());
 
 	go->SetGlobalPosition(mover->GetOwner()->GetGlobalPosition());

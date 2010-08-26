@@ -47,7 +47,7 @@ namespace Ice
 	{
 		if (mEntity)
 		{
-			if (mOwnerGO) GetNode()->detachObject(mEntity);
+			//if (mOwnerGO) GetNode()->detachObject(mEntity);
 			Main::Instance().GetOgreSceneMgr()->destroyEntity(mEntity);
 		}
 		mEntity = nullptr;

@@ -19,6 +19,8 @@ namespace Ice
 	#define DEFINE_GOLUAMETHOD_H(methodName) \
 	static std::vector<ScriptParam> Lua_##methodName (Script& caller, std::vector<ScriptParam> vParams);
 
+	typedef DllExport std::shared_ptr<GameObject> GameObjectPtr;
+
 	/**
 	Every entity in 3D space is a game object. A game object has a position, rotation and scale (Transformable3D) and provides parent-child support.
 	A game object also consists of a set of components, which provide special functionality like mesh, sound, ai etc.
@@ -49,7 +51,7 @@ namespace Ice
 		Ogre::Vector3 mScale;
 
 		//Components
-		std::vector<GOComponent*> mComponents;
+		std::vector<GOComponentPtr> mComponents;
 
 		//Messaging
 		std::vector<Msg> mCurrentMessages;
@@ -106,7 +108,7 @@ namespace Ice
 		Attaches a component to the object.
 		@param component The component.
 		*/
-		void AddComponent(GOComponent* component);
+		void AddComponent(GOComponentPtr component);
 
 		///Removes the component of family familyID.
 		void RemoveComponent(const GOComponent::goc_id_family& familyID);
@@ -115,9 +117,9 @@ namespace Ice
 		template<class T>
 		T* GetComponent()
 		{
-			for (std::vector<GOComponent*>::iterator i = mComponents.begin(); i != mComponents.end(); i++)
+			for (auto i = mComponents.begin(); i != mComponents.end(); i++)
 			{
-				T *rtti = dynamic_cast<T*>((*i));
+				T *rtti = dynamic_cast<T*>((*i).get());
 				if (rtti) return rtti;
 			}
 			return nullptr;
@@ -130,8 +132,8 @@ namespace Ice
 		GOComponent* GetComponent(const GOComponent::goc_id_family& familyID, GOComponent::goc_id_type typeID);
 
 		//Provides a mechanism to iterate over the components attached to the object.
-		std::vector<GOComponent*>::iterator GetComponentIterator() { return mComponents.begin(); }
-		std::vector<GOComponent*>::iterator GetComponentIteratorEnd() { return mComponents.end(); }
+		std::vector<GOComponentPtr>::iterator GetComponentIterator() { return mComponents.begin(); }
+		std::vector<GOComponentPtr>::iterator GetComponentIteratorEnd() { return mComponents.end(); }
 
 		///Detaches and deletes all attaches components.
 		void ClearGOCs();
@@ -143,10 +145,10 @@ namespace Ice
 		void SetParent(GameObject *parent);
 
 		///Registers an object as child of this object.
-		void RegisterChild(GameObject *child);
+		void RegisterChild(GameObject* child);
 
 		///Unregisters an object as child of this object.
-		void UnregisterChild(GameObject *child);
+		void UnregisterChild(GameObject* child);
 
 		/**
 		Detaches all children.

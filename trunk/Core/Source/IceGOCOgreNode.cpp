@@ -43,8 +43,8 @@ namespace Ice
 		GOCOgreNode *gocNode = mOwnerGO->GetComponent<GOCOgreNode>();
 		if (gocNode) return gocNode->GetNode();
 
-		gocNode = ICE_NEW GOCOgreNode();
-		mOwnerGO->AddComponent(gocNode);
+		gocNode = new GOCOgreNode();
+		mOwnerGO->AddComponent(GOComponentPtr(gocNode));
 		return gocNode->GetNode();
 	}
 }

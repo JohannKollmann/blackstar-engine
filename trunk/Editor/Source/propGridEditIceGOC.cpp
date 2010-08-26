@@ -203,7 +203,7 @@ void wxEditIceGameObject::OnApply()
 	std::list<Ice::GOCEditorInterface*> existingGOCs;
 	for (auto ci = mGameObject->GetComponentIterator(); ci != mGameObject->GetComponentIteratorEnd(); ci++)
 	{
-		Ice::GOCEditorInterface* editor_interface = dynamic_cast<Ice::GOCEditorInterface*>(*ci);
+		Ice::GOCEditorInterface* editor_interface = dynamic_cast<Ice::GOCEditorInterface*>((*ci).get());
 		if (editor_interface)
 			existingGOCs.push_back(editor_interface);
 	}
@@ -238,7 +238,7 @@ void wxEditIceGameObject::OnApply()
 		{
 			Ice::GOCEditorInterface *editor_interface = Ice::SceneManager::Instance().NewGOC((*i).mSectionName);
 			editor_interface->SetParameters(&(*i).mSectionData);
-			mGameObject->AddComponent(editor_interface->GetGOComponent());
+			mGameObject->AddComponent(Ice::GOComponentPtr(editor_interface->GetGOComponent()));
 		}
 	}
 
@@ -277,8 +277,8 @@ void wxEditGOResource::OnApply()
 void wxEditIceGameObject::SetObject(Ice::GameObject *object, bool update_ui)
 {
 	mPropGrid->Clear();
-	if (!object) return;
 	mGameObject = object;
+	if (!mGameObject) return;
 	std::vector<ComponentSection> sections;
 	Ice::DataMap transform_data;
 	transform_data.AddOgreString("Name", mGameObject->GetName());
@@ -286,9 +286,9 @@ void wxEditIceGameObject::SetObject(Ice::GameObject *object, bool update_ui)
 	transform_data.AddOgreQuat("Orientation", mGameObject->GetGlobalOrientation());
 	transform_data.AddOgreVec3("Scale", mGameObject->GetGlobalScale());
 	AddGOCSection("GameObject", transform_data);
-	for (std::vector<Ice::GOComponent*>::iterator i = mGameObject->GetComponentIterator(); i != mGameObject->GetComponentIteratorEnd(); i++)
+	for (auto i = mGameObject->GetComponentIterator(); i != mGameObject->GetComponentIteratorEnd(); i++)
 	{
-		Ice::GOCEditorInterface *editor_interface = dynamic_cast<Ice::GOCEditorInterface*>((*i));
+		Ice::GOCEditorInterface *editor_interface = dynamic_cast<Ice::GOCEditorInterface*>((*i).get());
 		if (editor_interface)
 		{
 			Ice::DataMap data;
