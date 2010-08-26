@@ -74,6 +74,11 @@ namespace Ice
 	{
 		return mNavigationMesh;
 	}
+	void AIManager::SetNavigationMesh(NavigationMesh *mesh)
+	{
+		if (mNavigationMesh) delete mNavigationMesh;
+		mNavigationMesh = mesh;
+	}
 
 	void AIManager::Clear()
 	{

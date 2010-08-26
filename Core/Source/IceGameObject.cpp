@@ -80,7 +80,7 @@ namespace Ice
 	{
 		std::vector<Msg> msgcopy = mCurrentMessages;
 		mCurrentMessages.clear();
-		for (std::vector<GOComponent*>::iterator i = mComponents.begin(); i != mComponents.end(); i++)
+		for (auto i = mComponents.begin(); i != mComponents.end(); i++)
 		{
 			for (std::vector<Msg>::iterator x = msgcopy.begin(); x != msgcopy.end(); x++)
 			{
@@ -126,7 +126,7 @@ namespace Ice
 	{
 		for (auto i = mChildren.begin(); i != mChildren.end(); i++)
 		{
-			if (*i == child)
+			if ((*i) == child)
 			{
 				mChildren.erase(i);
 				return;
@@ -140,20 +140,16 @@ namespace Ice
 
 	std::vector<GameObject*> GameObject::DetachChildren()
 	{
-		std::vector<GameObject*> children_copy = mChildren;
+		auto children_copy = mChildren;
 		mChildren.clear();
 		return children_copy;
 	}
 
-	void GameObject::AddComponent(GOComponent *component)
+	void GameObject::AddComponent(GOComponentPtr component)
 	{
-		for (std::vector<GOComponent*>::iterator i = mComponents.begin(); i != mComponents.end(); i++)
+		for (auto i = mComponents.begin(); i != mComponents.end(); i++)
 		{
-			if ((*i)->GetFamilyID() == component->GetFamilyID())
-			{
-				Ogre::LogManager::getSingleton().logMessage("Error in GameObject::AddComponent: Component already exists.");
-				return;
-			}
+			IceAssert((*i)->GetFamilyID() != component->GetFamilyID());
 		}
 		component->SetOwner(this);
 		component->UpdatePosition(GetGlobalPosition());
@@ -163,38 +159,36 @@ namespace Ice
 
 	GOComponent* GameObject::GetComponent(const GOComponent::goc_id_family &familyID)
 	{
-		for (std::vector<GOComponent*>::iterator i = mComponents.begin(); i != mComponents.end(); i++)
+		for (auto i = mComponents.begin(); i != mComponents.end(); i++)
 		{
 			if ((*i)->GetFamilyID() == familyID)
 			{
-				return (*i);
+				return (*i).get();
 			}
 		}
-		return 0;
+		return nullptr;
 	}
 
 	GOComponent* GameObject::GetComponent(const GOComponent::goc_id_family& familyID, GOComponent::goc_id_type typeID)
 	{
-		for (std::vector<GOComponent*>::iterator i = mComponents.begin(); i != mComponents.end(); i++)
+		for (auto i = mComponents.begin(); i != mComponents.end(); i++)
 		{
 			if ((*i)->GetFamilyID() == familyID)
 			{
-				if ((*i)->GetComponentID() == typeID) return (*i);
-				else return 0;
+				if ((*i)->GetComponentID() == typeID) return (*i).get();
+				else return nullptr;
 			}
 		}
-		return 0;
+		return nullptr;
 	}
 
 	void GameObject::RemoveComponent(const GOComponent::goc_id_family &familyID)
 	{
-		for (std::vector<GOComponent*>::iterator i = mComponents.begin(); i != mComponents.end(); i++)
+		for (auto i = mComponents.begin(); i != mComponents.end(); i++)
 		{
 			if ((*i)->GetFamilyID() == familyID)
 			{
-				GOComponent *component = (*i);
 				mComponents.erase(i);
-				delete component;
 				return;
 			}
 		}
@@ -202,31 +196,20 @@ namespace Ice
 
 	void GameObject::ClearGOCs()
 	{
-		std::vector<GOComponent*>::iterator i = mComponents.begin();
 		while (mComponents.size() > 0)
-		{
-			GOComponent *component = (*i);
-			mComponents.erase(i);
-			delete component;
-			i = mComponents.begin();
-		}
+			mComponents.erase(mComponents.begin());
 	}
 
 	void GameObject::ClearChildren()
 	{
-		std::vector<GameObject*>::iterator i = mChildren.begin();
 		while (mChildren.size() > 0)
-		{
-			GameObject *child = (*i);
-			if (child->mManagedByParent) ICE_DELETE child;	//Children rufen im Destruktor mParent->UnregisterChild(this) auf
-			else UnregisterChild(child);
-			i = mChildren.begin();
-		}
+			delete mChildren[0];
+		mChildren.clear();
 	}
 
 	void GameObject::UpdateChildren(bool move)
 	{
-		for (std::vector<GameObject*>::iterator i = mChildren.begin(); i != mChildren.end(); i++)
+		for (auto i = mChildren.begin(); i != mChildren.end(); i++)
 		{
 			if (move) (*i)->OnParentChanged();
 			else (*i)->UpdateLocalTransform();
@@ -235,16 +218,15 @@ namespace Ice
 
 	GameObject* GameObject::GetChild(unsigned short index)
 	{
-		std::vector<GameObject*>::iterator i = mChildren.begin();
-		for (unsigned short n = 0; n < index; n++) i++;
-		return (*i);
+		IceAssert(mChildren.size() > index && index >= 0);
+		return mChildren[index];
 	}
 
 	void GameObject::SetGlobalPosition(Ogre::Vector3 pos, bool updateChildren)
 	{
 		mTransformingChildren = updateChildren;
 		mPosition = pos;
-		for (std::vector<GOComponent*>::iterator i = mComponents.begin(); i != mComponents.end(); i++)
+		for (auto i = mComponents.begin(); i != mComponents.end(); i++)
 		{
 			(*i)->_updatePosition(pos);
 		}
@@ -260,7 +242,7 @@ namespace Ice
 	{
 		mTransformingChildren = updateChildren;
 		mOrientation = orientation;
-		for (std::vector<GOComponent*>::iterator i = mComponents.begin(); i != mComponents.end(); i++)
+		for (auto i = mComponents.begin(); i != mComponents.end(); i++)
 		{
 			(*i)->_updateOrientation(orientation);
 		}
@@ -275,7 +257,7 @@ namespace Ice
 	void GameObject::SetGlobalScale(Ogre::Vector3 scale)
 	{
 		mScale = scale;
-		for (std::vector<GOComponent*>::iterator i = mComponents.begin(); i != mComponents.end(); i++)
+		for (auto i = mComponents.begin(); i != mComponents.end(); i++)
 		{
 			(*i)->_updateScale(scale);
 		}
@@ -284,7 +266,7 @@ namespace Ice
 	void GameObject::Freeze(bool freeze)
 	{
 		mFreezed = freeze;
-		for (std::vector<GOComponent*>::iterator i = mComponents.begin(); i != mComponents.end(); i++)
+		for (auto i = mComponents.begin(); i != mComponents.end(); i++)
 		{
 			(*i)->Freeze(freeze);
 		}
@@ -315,7 +297,7 @@ namespace Ice
 		mUpdatingFromParent = true;
 		mOrientation = mParent->GetGlobalOrientation() * mLocalOrientation;
 		mPosition = mParent->GetGlobalOrientation() * mLocalPosition + mParent->GetGlobalPosition();
-		for (std::vector<GOComponent*>::iterator i = mComponents.begin(); i != mComponents.end(); i++)
+		for (auto i = mComponents.begin(); i != mComponents.end(); i++)
 		{
 			(*i)->UpdateOrientation(mOrientation);
 			(*i)->UpdatePosition(mPosition);
@@ -326,7 +308,7 @@ namespace Ice
 
 	bool GameObject::IsStatic()
 	{
-		for (std::vector<GOComponent*>::iterator i = mComponents.begin(); i != mComponents.end(); i++)
+		for (auto i = mComponents.begin(); i != mComponents.end(); i++)
 		{
 			if (!(*i)->IsStatic()) return false;
 		}
@@ -343,12 +325,12 @@ namespace Ice
 
 		std::vector<GOComponent*> saveable_components;
 		for (auto i = mComponents.begin(); i != mComponents.end(); i++)
-			if ((*i)->_getIsSaveable()) saveable_components.push_back(*i);
+			if ((*i)->_getIsSaveable()) saveable_components.push_back((*i).get());
 		mgr.SaveAtom("std::vector<Saveable*>", (void*)(&saveable_components), "mComponents");
 
 		std::vector<GameObject*> managed_children;
 		for (auto i = mChildren.begin(); i != mChildren.end(); i++)
-			if ((*i)->mManagedByParent) managed_children.push_back(*i);
+			if ((*i)->mManagedByParent) managed_children.push_back((*i));
 		mgr.SaveAtom("std::vector<Saveable*>", (void*)(&managed_children), "mChildren");
 	}
 
@@ -359,7 +341,10 @@ namespace Ice
 		mgr.LoadAtom("Ogre::Quaternion", &mOrientation);
 		mgr.LoadAtom("Ogre::Vector3", &mScale);
 		mgr.LoadAtom("bool", &mSelectable);
-		mgr.LoadAtom("std::vector<Saveable*>", (void*)(&mComponents));
+		std::vector<GOComponent*> loaded_components;
+		mgr.LoadAtom("std::vector<Saveable*>", (void*)(&loaded_components));
+		for (unsigned int i = 0; i < loaded_components.size(); i++)
+			mComponents.push_back(std::shared_ptr<GOComponent>(loaded_components[i]));
 		for (unsigned int i = 0; i < mComponents.size(); i++)
 		{
 			mComponents[i]->SetOwner(this);
@@ -444,8 +429,8 @@ namespace Ice
 		GOCScriptMessageCallback *callback = GetComponent<GOCScriptMessageCallback>();
 		if (!callback)
 		{
-			callback = ICE_NEW GOCScriptMessageCallback();
-			AddComponent(callback);
+			callback = new GOCScriptMessageCallback();
+			AddComponent(GOComponentPtr(callback));
 		}
 		callback->AddListener(vParams[0].getString(), vParams[1]);
 		return out;

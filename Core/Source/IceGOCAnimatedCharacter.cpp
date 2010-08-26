@@ -432,7 +432,7 @@ void GOCAnimatedCharacter::CreateBoneObjects()
 	{
 		GameObject *go = ICE_NEW GameObject();
 		GOCAnimatedCharacterBone *bone = ICE_NEW GOCAnimatedCharacterBone();
-		go->AddComponent(bone);
+		go->AddComponent(GOComponentPtr(bone));
 		go->SetGlobalPosition((*i).mActor->getGlobalPosition());
 		//Ogre::Quaternion q = Ogre::Vector3(1,0,0).getRotationTo(Ogre::Vector3(0,1,0));
 		go->SetGlobalOrientation((*i).mActor->getGlobalOrientation());// * q);

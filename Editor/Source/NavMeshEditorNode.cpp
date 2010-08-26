@@ -20,7 +20,7 @@
 		Ice::MessageSystem::Instance().JoinNewsgroup(this, "LOADLEVEL_BEGIN");
 		Ice::MessageSystem::Instance().JoinNewsgroup(this, "LOADLEVEL_END");
 		mType = NODE;
-		owner->AddComponent(this);
+		owner->AddComponent(Ice::GOComponentPtr(this));
 		mType = type;
 		if (mType == NODE)
 			AddTriangle(node1, node2);
@@ -329,7 +329,7 @@
 				Ogre::LogManager::getSingleton().logMessage("Error in NavMeshEditorNode::FromMesh: All NavMesh vertices must be GameObjects!");
 				return;
 			}
-			go->AddComponent(new NavMeshEditorNode());
+			go->AddComponent(Ice::GOComponentPtr(new NavMeshEditorNode()));
 		}
 		for (int i = 0; i < ((int)mesh->mIndexBuffer.size()-2); i+=3)
 		{

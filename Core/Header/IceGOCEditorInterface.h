@@ -52,7 +52,7 @@ namespace Ice
 		virtual GOComponent* GetGOComponent() = 0;
 	};
 
-	typedef Ogre::SharedPtr<GOCEditorInterface> GOCEditorInterfacePtr;
+	typedef DllExport std::shared_ptr<GOCEditorInterface> GOCEditorInterfacePtr;
 
 	/**
 	This class allows components to declare member variables as modifiable using macros.

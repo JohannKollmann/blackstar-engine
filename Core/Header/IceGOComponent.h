@@ -93,6 +93,8 @@ namespace Ice
 		void Load(LoadSave::LoadSystem& mgr) {}
 	};
 
+	typedef DllExport std::shared_ptr<GOComponent> GOComponentPtr;
+
 	class DllExport GOComponentEditable : public GOCEditorInterface, public GOComponent
 	{
 	public:

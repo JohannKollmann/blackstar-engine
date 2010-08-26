@@ -45,7 +45,7 @@ namespace Ice
 		if (mActor)
 		{
 			Msg msg;
-			msg.type = "ACOTR_ONWAKE";
+			msg.type = "ACTOR_ONWAKE";
 			msg.rawData = mActor;
 			MessageSystem::Instance().SendInstantMessage(msg);
 			Main::Instance().GetPhysXScene()->destroyActor(mActor);

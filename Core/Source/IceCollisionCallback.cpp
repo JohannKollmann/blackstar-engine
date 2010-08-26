@@ -46,7 +46,7 @@ namespace Ice
 		for (unsigned int i = 0; i < count; i++)
 		{
 			Msg msg;
-			msg.type = "ACOTR_ONSLEEP";
+			msg.type = "ACTOR_ONSLEEP";
 			msg.rawData = actors[i];
 			MessageSystem::Instance().SendInstantMessage(msg);
 		}
@@ -57,7 +57,7 @@ namespace Ice
 		for (unsigned int i = 0; i < count; i++)
 		{
 			Msg msg;
-			msg.type = "ACOTR_ONWAKE";
+			msg.type = "ACTOR_ONWAKE";
 			msg.rawData = actors[i];
 			MessageSystem::Instance().SendInstantMessage(msg);
 		}

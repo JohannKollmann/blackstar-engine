@@ -58,8 +58,8 @@ namespace Ice
 		Ice::MessageSystem::Instance().CreateNewsgroup("SAVELEVEL_BEGIN");
 		Ice::MessageSystem::Instance().CreateNewsgroup("SAVELEVEL_END");
 
-		Ice::MessageSystem::Instance().CreateNewsgroup("ACOTR_ONSLEEP");
-		Ice::MessageSystem::Instance().CreateNewsgroup("ACOTR_ONWAKE");
+		Ice::MessageSystem::Instance().CreateNewsgroup("ACTOR_ONSLEEP");
+		Ice::MessageSystem::Instance().CreateNewsgroup("ACTOR_ONWAKE");
 
 		Ice::MessageSystem::Instance().CreateNewsgroup("MATERIAL_ONCONTACT");
 	}
@@ -133,7 +133,7 @@ namespace Ice
 	{
 		auto i = mGOCPrototypes.find(type);
 		if (i != mGOCPrototypes.end())
-			return i->second.getPointer();
+			return i->second.get();
 		return nullptr;
 	}
 
@@ -214,6 +214,16 @@ namespace Ice
 		RegisterGOCPrototype("E", GOCEditorInterfacePtr(new GOCScript()));
 		RegisterGOCPrototype("E", GOCEditorInterfacePtr(new GOCForceField()));
 		RegisterGOCPrototype(GOCEditorInterfacePtr(new GOCAnimKey()));
+
+		//simple test:
+		/*GameObject *test = new GameObject();
+		auto bla = std::make_shared<GOCMeshRenderable>();
+		Ice::DataMap blaParams;
+		blaParams.AddOgreString("MeshName", "cube.1m.mesh");
+		blaParams.AddBool("ShadowCaster", true);
+		(dynamic_cast<GOCEditorInterface*>(bla.get()))->SetParameters(&blaParams);
+		test->AddComponent(bla);
+		delete test;*/
 
 		//Shared Lua functions
 
@@ -409,9 +419,7 @@ namespace Ice
 		ls->LoadAtom("std::vector<Saveable*>", &objects);
 		//Objects call SceneManager::RegisterObject
 
-		ICE_DELETE AIManager::Instance().mNavigationMesh;
-		AIManager::Instance().mNavigationMesh = (NavigationMesh*)ls->LoadObject();
-		if (!AIManager::Instance().mNavigationMesh) AIManager::Instance().mNavigationMesh = ICE_NEW NavigationMesh();
+		AIManager::Instance().SetNavigationMesh((NavigationMesh*)ls->LoadObject());
 
 		ls->CloseFile();
 		ICE_DELETE ls;
@@ -631,14 +639,14 @@ namespace Ice
 		int collision = (int)vParams[2].getFloat();
 
 		GameObject *object = Instance().CreateGameObject();
-		object->AddComponent(ICE_NEW GOCMeshRenderable(mesh, shadows));
+		object->AddComponent(GOComponentPtr(new GOCMeshRenderable(mesh, shadows)));
 		if (collision == -1)
 		{
-			object->AddComponent(ICE_NEW GOCStaticBody(mesh));
+			object->AddComponent(GOComponentPtr(new GOCStaticBody(mesh)));
 		}
 		else if (collision >= 0 && collision <= 3)
 		{
-			object->AddComponent(ICE_NEW GOCRigidBody(mesh, 10, collision));
+			object->AddComponent(GOComponentPtr(new GOCRigidBody(mesh, 10, collision)));
 		}
 		out.push_back(ScriptParam(object->GetID()));
 		return out;

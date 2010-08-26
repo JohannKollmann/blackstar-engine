@@ -43,6 +43,7 @@ public:
 	bool GetWayMeshLoadingMode() { return mLoadWayMeshAsObjects; }
 
 	NavigationMesh* GetNavigationMesh();
+	void SetNavigationMesh(NavigationMesh *mesh);
 
 	void Clear();
 
