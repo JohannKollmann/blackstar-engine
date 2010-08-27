@@ -8,8 +8,6 @@
 #include "GUISystem.h"
 #include "ScriptableInstances.h"
 #include "TextureDebugger.h"
-#include "GOCHydrax.h"
-
 #include "IceMessageSystem.h"
 
 const Ogre::String ScriptExtensions::m_cstrName=Ogre::String("ScriptExtensions");
@@ -61,8 +59,6 @@ ScriptExtensions::initialise()
 
 	TextureDebugger::Instance();
 	Ice::MessageSystem::Instance().JoinNewsgroup(this, "REPARSE_SCRIPTS");
-
-	GOCHydrax::InstallPlugin();
 }
 
 

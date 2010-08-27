@@ -12,6 +12,7 @@ namespace Ice
 	}
 	void GOComponent::NotifyOwnerGO()
 	{
+		if (!mOwnerGO) return;
 		UpdatePosition(mOwnerGO->GetGlobalPosition());
 		UpdateOrientation(mOwnerGO->GetGlobalOrientation());
 		UpdateScale(mOwnerGO->GetGlobalScale());

@@ -196,8 +196,12 @@ namespace Ice
 
 	void GameObject::ClearGOCs()
 	{
-		while (mComponents.size() > 0)
-			mComponents.erase(mComponents.begin());
+		for (int i = 0; i < mComponents.size(); i++)
+		{
+			mComponents[i]->SetOwner(nullptr);
+		}
+
+		mComponents.clear();
 	}
 
 	void GameObject::ClearChildren()

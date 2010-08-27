@@ -143,6 +143,7 @@ namespace Ice
 	void GOCRigidBody::SetOwner(GameObject *go)
 	{
 		mOwnerGO = go;
+		if (!mOwnerGO) return;
 		if (mActor)
 		{
 			UpdateScale(mOwnerGO->GetGlobalScale());

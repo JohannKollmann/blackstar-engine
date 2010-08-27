@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{3F60D252-8466-4BEF-BA22-F2309DFD1853}</ProjectGuid>
+    <ProjectGuid>{1AE955A3-BF68-4893-AA7F-03A36067C11D}</ProjectGuid>
     <RootNamespace>ScriptExtensions</RootNamespace>
     <Keyword>Win32Proj</Keyword>
   </PropertyGroup>
@@ -98,31 +98,18 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Header\TextureDebugger.h" />
-    <ClInclude Include="Header\LoadSaveMapHandler.h" />
-    <ClInclude Include="Header\ResidentVariables.h" />
-    <ClInclude Include="Header\SGTMusicSystem.h" />
-    <ClInclude Include="Header\ScriptableInstances.h" />
-    <ClInclude Include="Header\FontTextures.h" />
-    <ClInclude Include="Header\GUISystem.h" />
-    <ClInclude Include="Header\ScriptExtensions.h" />
-    <ClInclude Include="Header\MusicSystem.h" />
-    <ClInclude Include="Header\ScriptedControls.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="Source\TextureDebugger.cpp" />
-    <ClCompile Include="Source\ResidentVariables.cpp" />
-    <ClCompile Include="Source\ScriptableInstances.cpp" />
-    <ClCompile Include="Source\FontTextures.cpp" />
-    <ClCompile Include="Source\GUISystem.cpp" />
-    <ClCompile Include="Source\ScriptExtensions.cpp" />
-    <ClCompile Include="Source\MusicSystem.cpp" />
-    <ClCompile Include="Source\ScriptedControls.cpp" />
+    <ClInclude Include="Header\GOCHydrax.h" />
+    <ClInclude Include="Header\GOCSimpleWater.h" />
+    <ClInclude Include="Header\Rtt.h" />
+    <ClInclude Include="Header\WaterPlugin.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\IceEngine.vcxproj">
       <Project>{c20c5958-3e38-47c9-a028-83d7c2a939b5}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\WaterPlugin.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
