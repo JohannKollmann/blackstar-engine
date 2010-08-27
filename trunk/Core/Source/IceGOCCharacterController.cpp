@@ -221,6 +221,7 @@ namespace Ice
 	void GOCCharacterController::SetOwner(GameObject *go)
 	{
 		mOwnerGO = go;
+		if (!mOwnerGO) return;
 		if (mActor)
 		{
 			mActor->getNxActor()->userData = mOwnerGO;

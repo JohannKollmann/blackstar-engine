@@ -535,6 +535,7 @@ void GOCAnimatedCharacter::SetOwner(GameObject *go)
 {
 	mOwnerGO = go;
 	_clear();
+	if (!mOwnerGO) return;
 	if (mMeshName == "") return;
 	Create(mMeshName, mOwnerGO->GetGlobalScale());
 	if (!mEntity) return;

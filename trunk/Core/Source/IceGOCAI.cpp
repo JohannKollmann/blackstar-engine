@@ -34,6 +34,7 @@ namespace Ice
 	void GOCAI::SetOwner(GameObject *go)
 	{
 		mOwnerGO = go;
+		if (!mOwnerGO) return;
 		UpdatePosition(mOwnerGO->GetGlobalPosition());
 		UpdateOrientation(mOwnerGO->GetGlobalOrientation());
 	}

@@ -131,6 +131,7 @@ AxisComponent::~AxisComponent()
 void AxisComponent::SetOwner(Ice::GameObject *go)
 {
 	mOwnerGO = go;
+	if (!mOwnerGO) return;
 	if (mAxisObject)
 	{
 		Ice::Main::Instance().GetOgreSceneMgr()->destroyManualObject(mAxisObject);

@@ -22,9 +22,6 @@
     <Filter Include="TextureDebugger">
       <UniqueIdentifier>{1ad124ac-deb0-4a3d-ac92-2c1746008f92}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Hydrax">
-      <UniqueIdentifier>{6da09cd4-ca87-4052-b75e-62e4a8ccfe65}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header\LoadSaveMapHandler.h">
@@ -56,9 +53,6 @@
     </ClInclude>
     <ClInclude Include="Header\TextureDebugger.h">
       <Filter>TextureDebugger</Filter>
-    </ClInclude>
-    <ClInclude Include="Header\GOCHydrax.h">
-      <Filter>Hydrax</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

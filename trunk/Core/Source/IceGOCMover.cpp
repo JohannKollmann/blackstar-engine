@@ -96,6 +96,7 @@ namespace Ice
 	void GOCMover::SetOwner(GameObject *owner)
 	{
 		mOwnerGO = owner;
+		if (!mOwnerGO) return;
 		UpdatePosition(mOwnerGO->GetGlobalPosition());
 		UpdateOrientation(mOwnerGO->GetGlobalOrientation());
 	}
