@@ -162,12 +162,6 @@ void wxOgreSceneTree::OnSelChanged(wxTreeEvent &event)
 		if (t->IsFile())
 		{
 			mSelectedItem = t;
-			wxEditIceGameObject *propgrid_page = dynamic_cast<wxEditIceGameObject*>(wxEdit::Instance().GetpropertyWindow()->GetCurrentPage());
-			if (propgrid_page)
-			{
-				propgrid_page->SetObject(propgrid_page->GetGameObject());
-				wxEdit::Instance().GetpropertyWindow()->Refresh();
-			}
 		}
 	}
 }

@@ -41,14 +41,19 @@ public:
 	wxPropertyGridListener* GetCurrentPage();
 	Ogre::String GetCurrentPageName();
 
+	void UpdateCurrentPage();
+
 	void SetEmptySpaceColour(wxColour colour);
+
+	void OnSetFocus(wxFocusEvent& event);
+
+	void OnApply(wxCommandEvent& event);
+	void OnResize(wxSizeEvent& event);
+	void OnActivate(wxActivateEvent& event);
+	void OnMouseEnterWindow(wxMouseEvent& event);	
 
 protected:
 	DECLARE_EVENT_TABLE()
-
-	  void OnApply(wxCommandEvent& event);
-	  void OnResize(wxSizeEvent& event);
-	  void OnSetFocus(wxFocusEvent& event);
 
 private:
 

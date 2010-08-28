@@ -16,6 +16,10 @@ private:
 	Ogre::Vector3 mUpVector;
 	WaterPlane mWaterPlane;
 	Ogre::Entity *mEntity;
+	float mWidth;
+	float mHeight;
+	//float mRadius;
+	Ice::DataMap::Enum mBodyTypeEnum;
 
 	void _clear()
 	{
@@ -30,16 +34,34 @@ private:
 	{
 		_clear();
 
-		if (!Ogre::ResourceGroupManager::getSingleton().resourceExists("General", mWaterMesh))
+		Ogre::String id = Ice::SceneManager::Instance().RequestIDStr();
+		Ogre::Plane waterPlane(mUpVector, 0);
+		Ogre::Vector3 upTexVector(0,0,1);
+		if (mUpVector.directionEquals(upTexVector, Ogre::Radian(Ogre::Degree(10)))) upTexVector = Ogre::Vector3::UNIT_Y;
+		upTexVector = waterPlane.projectVector(upTexVector);
+
+		if (mBodyTypeEnum.selection == 0)		//Cycle
+		{
+			mWaterMesh = "WaterSurface_" + id;
+			Ogre::MeshManager::getSingleton().createCurvedPlane(mWaterMesh, "General", waterPlane, mWidth, mHeight, 0.5f, 1, 1, true, 1, 1, 1, upTexVector);
+		}
+		else if (mBodyTypeEnum.selection == 1)		//Plane
+		{
+			mWaterMesh = "WaterSurface_" + id;
+			Ogre::MeshManager::getSingleton().createPlane(mWaterMesh, "General", waterPlane, mWidth, mHeight, 1, 1, true, 1, 1, 1, upTexVector);
+		}
+
+		//create Entity
+		if (!Ogre::MeshManager::getSingleton().resourceExists(mWaterMesh) && !Ogre::ResourceGroupManager::getSingleton().resourceExists("General", mWaterMesh))
 		{
 			Ogre::LogManager::getSingleton().logMessage("Error: Resource \"" + mWaterMesh + "\" does not exist. Loading dummy Resource...");
 			mWaterMesh = "DummyMesh.mesh";
 		}
-		mEntity = Ice::Main::Instance().GetOgreSceneMgr()->createEntity(Ogre::StringConverter::toString(Ice::SceneManager::Instance().RequestID()), mWaterMesh);
+		mEntity = Ice::Main::Instance().GetOgreSceneMgr()->createEntity(id, mWaterMesh);
 		mEntity->setCastShadows(false);
 
 		mWaterPlane.create(mEntity, Ice::Main::Instance().GetCamera());
-		mWaterPlane.setPlane(Ogre::Plane(mUpVector, 0));
+		mWaterPlane.setPlane(waterPlane);
 
 		SetOwner(mOwnerGO);
 
@@ -51,11 +73,15 @@ public:
 	{
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCSimpleWater::Register);
 		Ice::SceneManager::Instance().RegisterGOCPrototype("E", std::make_shared<GOCSimpleWater>());
-		Ogre::Root::getSingleton().createRenderQueueInvocationSequence("WaterSurfacesOnly")->add(Ogre::RENDER_QUEUE_6, "");
+		Ogre::Root::getSingleton().createRenderQueueInvocationSequence("RefractionSurfacesOnly")->add(Ogre::RENDER_QUEUE_7, "");
 	}
 
 	GOCSimpleWater(void) : mEntity(nullptr)
 	{
+		mBodyTypeEnum.choices.push_back("Radial");
+		mBodyTypeEnum.choices.push_back("Rectangle");
+		mBodyTypeEnum.choices.push_back("Mesh");
+		mBodyTypeEnum.selection = 0;
 	}
 	~GOCSimpleWater(void)
 	{
@@ -94,6 +120,10 @@ public:
 
 	//Editor interface
 	BEGIN_GOCEDITORINTERFACE(GOCSimpleWater, "Simple Water")
+		PROPERTY_ENUM(mBodyTypeEnum, "Body Type", mBodyTypeEnum)
+		//PROPERTY_FLOAT(mRadius, "Radius", 1.0f)
+		PROPERTY_FLOAT(mWidth, "Width", 1.0f);
+		PROPERTY_FLOAT(mHeight, "Height", 1.0f);
 		PROPERTY_STRING(mWaterMesh, "Water mesh", ".mesh")
 		PROPERTY_VECTOR3(mUpVector, "Up Vector", Ogre::Vector3(0,1,0));
 	END_GOCEDITORINTERFACE

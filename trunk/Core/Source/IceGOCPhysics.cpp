@@ -110,6 +110,7 @@ namespace Ice
 
 	void GOCRigidBody::Freeze(bool freeze)
 	{
+		if (!mActor) return;
 		if (freeze)
 		{
 			mActor->getNxActor()->raiseBodyFlag(NX_BF_DISABLE_GRAVITY);	
@@ -125,11 +126,11 @@ namespace Ice
 
 	void GOCRigidBody::UpdatePosition(Ogre::Vector3 position)
 	{
-		mActor->setGlobalPosition(position);
+		if (mActor) mActor->setGlobalPosition(position);
 	}
 	void GOCRigidBody::UpdateOrientation(Ogre::Quaternion orientation)
 	{
-		mActor->setGlobalPose(mOwnerGO->GetGlobalPosition(), orientation);
+		if (mActor) mActor->setGlobalPose(mOwnerGO->GetGlobalPosition(), orientation);
 	}
 	void GOCRigidBody::UpdateScale(Ogre::Vector3 scale)
 	{

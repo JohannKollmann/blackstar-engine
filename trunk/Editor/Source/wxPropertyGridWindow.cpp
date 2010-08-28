@@ -5,14 +5,16 @@ enum
 	PropWindow_Apply
 };
 
-BEGIN_EVENT_TABLE(wxPropertyGridWindow, wxControl)
+BEGIN_EVENT_TABLE(wxPropertyGridWindow, wxPanel)
 	EVT_BUTTON(PropWindow_Apply, wxPropertyGridWindow::OnApply)
 	EVT_SIZE(wxPropertyGridWindow::OnResize)
 	EVT_SET_FOCUS(wxPropertyGridWindow::OnSetFocus)
+	EVT_ACTIVATE(wxPropertyGridWindow::OnActivate)
+	EVT_ENTER_WINDOW(wxPropertyGridWindow::OnMouseEnterWindow)
 END_EVENT_TABLE()
 
 // Required for WX
-IMPLEMENT_CLASS(wxPropertyGridWindow, wxControl)
+IMPLEMENT_CLASS(wxPropertyGridWindow, wxPanel)
 
 
 wxPropertyGridWindow::~wxPropertyGridWindow(void)
@@ -37,6 +39,8 @@ wxPropertyGridWindow::wxPropertyGridWindow(wxWindow* parent, wxWindowID id, cons
             wxDefaultPosition, // position
             wxDefaultSize, // size
 			propstyle);
+
+	mPropGrid->GetEventHandler()->Connect(wxEVT_ENTER_WINDOW, wxMouseEventHandler(wxPropertyGridWindow::OnMouseEnterWindow));
 
 	mPropGrid->SetExtraStyle( wxPG_EX_HELP_AS_TOOLTIPS );
 
@@ -105,6 +109,19 @@ Ogre::String wxPropertyGridWindow::GetCurrentPageName()
 }
 
 void wxPropertyGridWindow::OnSetFocus(wxFocusEvent& event)
+{
+	UpdateCurrentPage();
+}
+void wxPropertyGridWindow::OnActivate(wxActivateEvent& event)
+{
+	UpdateCurrentPage();
+}
+void wxPropertyGridWindow::OnMouseEnterWindow(wxMouseEvent& event)
+{
+	UpdateCurrentPage();
+}
+
+void wxPropertyGridWindow::UpdateCurrentPage()
 {
 	if (mCurrentPage) mCurrentPage->OnUpdate();
 }

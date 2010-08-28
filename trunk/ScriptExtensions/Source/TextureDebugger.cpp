@@ -4,8 +4,7 @@
 
 	TextureDebugger::TextureDebugger()
 	{
-		Ice::MessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
-		//ShowTexture("Ogre/ShadowTexture0");
+		Ice::ScriptSystem::GetInstance().ShareCFunction("ShowTexture", &Lua_GetShowTexture);
 	}
 
 
@@ -24,6 +23,8 @@
 			//return;
 		}
 
+		texture->getBuffer()->getRenderTarget()->writeContentsToFile("RTT.bmp");
+
 		Ogre::String matName = textureName + "_mat";
 
 		if (!Ogre::MaterialManager::getSingleton().getByName(matName).isNull())
@@ -39,8 +40,7 @@
 		}
 		Ogre::MaterialPtr mat = baseMat->clone(matName);
 
-		Ogre::TextureUnitState *tus = mat->getTechnique(0)->getPass(0)->createTextureUnitState();
-		tus->setContentType(Ogre::TextureUnitState::ContentType::CONTENT_SHADOW);
+		mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName(textureName);
 
 		mat->compile(true);
 
