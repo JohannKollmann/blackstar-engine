@@ -96,16 +96,127 @@ public:
 
 	void preRenderTargetUpdate(const Ogre::RenderTargetEvent& evt)
 	{
-		mCamera->enableCustomNearClipPlane(mPlane);
+		//mCamera->enableCustomNearClipPlane(mPlane);
 
 		ignoreObjects();
 	}
 
 	void postRenderTargetUpdate(const Ogre::RenderTargetEvent& evt)
 	{
-		mCamera->disableCustomNearClipPlane();
+		//mCamera->disableCustomNearClipPlane();
 
 		resetObjects();
+	}
+};
+
+class RefractionManager
+{
+private:
+	int mUseCounter;
+
+	RefractionListener mRefractionListener;
+	Ogre::TexturePtr mRefractionTexture;		//Rtt for the refraction color map
+	Ogre::TexturePtr mRefractionDepthTexture;	//Refration depth map
+	Ogre::TexturePtr mRefractionOccludersDepthTexture;	//Depth map of refraction occluders
+	Ogre::MultiRenderTarget *mRefractMRT;
+
+	void _clear()
+	{
+		if (!mRefractionTexture.isNull())
+		{
+			mRefractionListener.clearIgnoreObjects();
+			Ogre::TextureManager::getSingleton().remove(mRefractionTexture->getName());
+		}
+		if (!mRefractionDepthTexture.isNull())
+		{
+			Ogre::TextureManager::getSingleton().remove(mRefractionDepthTexture->getName());
+		}
+		if (!mRefractionOccludersDepthTexture.isNull())
+		{
+			mRefractionOccludersDepthTexture->getBuffer()->getRenderTarget()->removeAllViewports();
+			Ogre::TextureManager::getSingleton().remove(mRefractionOccludersDepthTexture->getName());
+		}
+		if (mRefractMRT)
+		{
+			mRefractMRT->removeAllViewports();
+			mRefractMRT->removeAllListeners();
+			Ogre::Root::getSingleton().getRenderSystem()->destroyRenderTarget(mRefractMRT->getName());
+			mRefractMRT = nullptr;
+			mRefractionDepthTexture.setNull();
+		}
+	}
+	void _create()
+	{
+		int width = Ice::Main::Instance().GetViewport()->getActualWidth();
+		int height = Ice::Main::Instance().GetViewport()->getActualHeight();
+		
+		mRefractionOccludersDepthTexture = Ogre::TextureManager::getSingleton().createManual("RefractionOccludersDepth",
+			Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, Ogre::TEX_TYPE_2D, width, height, 0, Ogre::PF_FLOAT16_R, Ogre::TU_RENDERTARGET);
+		mRefractionOccludersDepthTexture->getBuffer()->getRenderTarget()->addViewport(Ice::Main::Instance().GetCamera())->setMaterialScheme("depth");
+		mRefractionOccludersDepthTexture->getBuffer()->getRenderTarget()->getViewport(0)->setBackgroundColour(Ogre::ColourValue::Black);
+		mRefractionOccludersDepthTexture->getBuffer()->getRenderTarget()->getViewport(0)->setClearEveryFrame(true);
+		mRefractionOccludersDepthTexture->getBuffer()->getRenderTarget()->getViewport(0)->setShadowsEnabled(false);
+		mRefractionOccludersDepthTexture->getBuffer()->getRenderTarget()->getViewport(0)->setRenderQueueInvocationSequenceName("RefractionSurfacesOnly");
+
+		auto matIter = Ogre::MaterialManager::getSingleton().getResourceIterator();
+		while (matIter.hasMoreElements())
+		{
+			Ogre::MaterialPtr mat = matIter.getNext();
+			if (mat->getTechnique("Refraction"))
+			{
+				mat->getTechnique("Refraction")->getPass(0)->getTextureUnitState("RefractionOccludersDepth")->setTextureName("RefractionOccludersDepth");
+			}
+		}
+		//setup refraction MRT
+		mRefractionTexture = Ogre::TextureManager::getSingleton().createManual("Refraction",
+			Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, Ogre::TEX_TYPE_2D, width, height, 0, Ogre::PF_FLOAT16_RGBA, Ogre::TU_RENDERTARGET);
+
+		mRefractionDepthTexture = Ogre::TextureManager::getSingleton().createManual("RefractionDepth",
+			Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, Ogre::TEX_TYPE_2D, width, height, 0, Ogre::PF_FLOAT16_R, Ogre::TU_RENDERTARGET);
+
+		mRefractMRT = Ogre::Root::getSingleton().getRenderSystem()->createMultiRenderTarget("RefractionMRT");
+ 
+		mRefractionTexture->getBuffer()->getRenderTarget()->setAutoUpdated(false);
+		mRefractionDepthTexture->getBuffer()->getRenderTarget()->setAutoUpdated(false);
+ 
+		mRefractMRT->bindSurface(0, mRefractionTexture->getBuffer()->getRenderTarget());
+		mRefractMRT->bindSurface(1, mRefractionDepthTexture->getBuffer()->getRenderTarget());
+		mRefractMRT->setAutoUpdated(true);
+ 
+		mRefractMRT->addViewport(Ice::Main::Instance().GetCamera())->setMaterialScheme("Refraction");
+		mRefractMRT->getViewport(0)->setOverlaysEnabled(false);
+		mRefractMRT->getViewport(0)->setShadowsEnabled(false);
+		mRefractMRT->addListener(&mRefractionListener);
+	}
+
+public:
+	RefractionManager() : mUseCounter(0), mRefractMRT(nullptr)
+	{
+	}
+	~RefractionManager()
+	{
+		_clear();
+	}
+	void AddRefractionObject(Ogre::Entity *object)
+	{
+		if (mUseCounter == 0)
+			_create();
+		mRefractionListener.addIgnoreObject(object);
+		mUseCounter++;
+	}
+	void RemoveRefractionObject(Ogre::Entity *object)
+	{
+		IceAssert(mUseCounter > 0);
+		mUseCounter--;
+		mRefractionListener.removeIgnoreObject(object);
+		if (mUseCounter == 0)
+			_clear();
+	}
+
+	static RefractionManager& Instance()
+	{
+		static RefractionManager instance;
+		return instance;
 	}
 };
 
@@ -115,15 +226,12 @@ private:
 	ReflectionListener mReflectionListener;
 	Ogre::TexturePtr mReflectionTexture;
 
-	RefractionListener mRefractionListener;
-	Ogre::TexturePtr mRefractionTexture;
-	Ogre::TexturePtr mRefractionDepthTexture;
-	Ogre::MultiRenderTarget *mRefractMRT;
-
 	Ogre::MaterialPtr mMaterial;
 
+	Ogre::Entity *mEntity;
+
 public:
-	WaterPlane() : mRefractMRT(nullptr)
+	WaterPlane() : mEntity(nullptr)
 	{
 	}
 	~WaterPlane()
@@ -133,6 +241,11 @@ public:
 
 	void unloadResources()
 	{
+		if (mEntity)
+		{
+			RefractionManager::Instance().RemoveRefractionObject(mEntity);
+			mEntity = nullptr;
+		}
 		if (!mMaterial.isNull())
 		{
 			Ogre::MaterialManager::getSingleton().remove(mMaterial->getName());
@@ -146,35 +259,12 @@ public:
 			Ogre::TextureManager::getSingleton().remove(mReflectionTexture->getName());
 			mReflectionTexture.setNull();
 		}
-		if (!mRefractionTexture.isNull())
-		{
-			mRefractionListener.clearIgnoreObjects();
-			mRefractionTexture->getBuffer()->getRenderTarget()->removeAllViewports();
-			mRefractionTexture->getBuffer()->getRenderTarget()->removeAllListeners();
-			Ogre::TextureManager::getSingleton().remove(mRefractionTexture->getName());
-		}
-		if (!mRefractionDepthTexture.isNull())
-		{
-			mRefractionDepthTexture->getBuffer()->getRenderTarget()->removeAllViewports();
-			mRefractionDepthTexture->getBuffer()->getRenderTarget()->removeAllListeners();
-			Ogre::TextureManager::getSingleton().remove(mRefractionDepthTexture->getName());
-		}
-		if (mRefractMRT)
-		{
-			mRefractMRT->removeAllViewports();
-			mRefractMRT->removeAllListeners();
-			Ogre::Root::getSingleton().getRenderSystem()->destroyRenderTarget(mRefractMRT->getName());
-			mRefractMRT = nullptr;
-			mRefractionDepthTexture.setNull();
-		}
 	}
 
 	void setPlane(Ogre::Plane &plane)
 	{
 		plane.normalise();
 		mReflectionListener.setPlane(plane);
-		Ogre::Plane refractPlane(-plane.normal, plane.d);
-		mRefractionListener.setPlane(refractPlane);
 	}
 
 	void create(Ogre::Entity *ent, Ogre::Camera *cam)
@@ -182,17 +272,17 @@ public:
 		Ogre::MaterialPtr baseMat = Ogre::MaterialManager::getSingleton().getByName("WaterReflectionRefraction");
 		IceAssert(!baseMat.isNull());
 
+		mEntity = ent;
+
 		Ogre::String id = Ice::SceneManager::Instance().RequestIDStr();
 		mMaterial = baseMat->clone("WaterMaterial_" + id);
-		ent->setMaterial(mMaterial);
+		mEntity->setMaterial(mMaterial);
 
-		ent->setRenderQueueGroup(Ogre::RENDER_QUEUE_6);	//water surface group
+		mEntity->setRenderQueueGroup(Ogre::RENDER_QUEUE_7);	//water surface group
 
 		//setup rtts
 		mReflectionListener.setCamera(cam);
 		mReflectionListener.addIgnoreObject(ent);
-		mRefractionListener.setCamera(cam);
-		mRefractionListener.addIgnoreObject(ent);
 
 		mReflectionTexture = Ogre::TextureManager::getSingleton().createManual("Reflection_" + id,
 			Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, Ogre::TEX_TYPE_2D, 1024, 1024, 0, Ogre::PF_FLOAT16_RGB, Ogre::TU_RENDERTARGET);
@@ -202,30 +292,11 @@ public:
 		reflection_rtt->getViewport(0)->setMaterialScheme("LowQuality");
 		reflection_rtt->addListener(&mReflectionListener);
 
-		//setup refraction MRT
-		mRefractionTexture = Ogre::TextureManager::getSingleton().createManual("Refraction" + id,
-			Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, Ogre::TEX_TYPE_2D, 512, 512, 0, Ogre::PF_FLOAT16_RGB, Ogre::TU_RENDERTARGET);
-
-		mRefractionDepthTexture = Ogre::TextureManager::getSingleton().createManual("RefractionDepth" + id,
-			Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, Ogre::TEX_TYPE_2D, 512, 512, 0, Ogre::PF_FLOAT16_R, Ogre::TU_RENDERTARGET);
-
-		mRefractMRT = Ogre::Root::getSingleton().getRenderSystem()->createMultiRenderTarget("RefractionMRT" + id);
- 
-		mRefractionTexture->getBuffer()->getRenderTarget()->setAutoUpdated(false);
-		mRefractionDepthTexture->getBuffer()->getRenderTarget()->setAutoUpdated(false);
- 
-		mRefractMRT->bindSurface(0, mRefractionTexture->getBuffer()->getRenderTarget());
-		mRefractMRT->bindSurface(1, mRefractionDepthTexture->getBuffer()->getRenderTarget());
-		mRefractMRT->setAutoUpdated(true);
- 
-		mRefractMRT->addViewport(cam)->setMaterialScheme("Refraction");
-		mRefractMRT->getViewport(0)->setOverlaysEnabled(false);
-		mRefractMRT->getViewport(0)->setShadowsEnabled(false);
-		mRefractMRT->addListener(&mRefractionListener);
-
+		RefractionManager::Instance().AddRefractionObject(mEntity);
 
 		mMaterial->getTechnique(0)->getPass(0)->getTextureUnitState("Reflection")->setTextureName(mReflectionTexture->getName());
-		mMaterial->getTechnique(0)->getPass(0)->getTextureUnitState("Refraction")->setTextureName(mRefractionTexture->getName());
-		mMaterial->getTechnique(0)->getPass(0)->getTextureUnitState("RefractionDepth")->setTextureName(mRefractionDepthTexture->getName());
+		mMaterial->getTechnique(0)->getPass(0)->getTextureUnitState("Refraction")->setTextureName("Refraction");
+		mMaterial->getTechnique(0)->getPass(0)->getTextureUnitState("RefractionDepth")->setTextureName("RefractionDepth");
+		//mMaterial->getTechnique(0)->getPass(0)->getTextureUnitState("RefractionOccludersDepth")->setTextureName("RefractionOccludersDepth");
 	}
 };

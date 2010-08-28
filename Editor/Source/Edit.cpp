@@ -480,12 +480,6 @@ void Edit::OnMouseEvent(wxMouseEvent &ev)
 				AttachAxisObject((*i).mObject);
 			}
 		}
-		wxEditIceGameObject *propgrid_page = dynamic_cast<wxEditIceGameObject*>(wxEdit::Instance().GetpropertyWindow()->GetCurrentPage());
-		if (propgrid_page)
-		{
-			propgrid_page->SetObject(propgrid_page->GetGameObject());
-			wxEdit::Instance().GetpropertyWindow()->Refresh();
-		}
 	}
 
 	ev.Skip();
@@ -565,12 +559,6 @@ void Edit::OnMouseMove(Ogre::Radian RotX,Ogre::Radian RotY)
 					AlignObjectWithMesh(i->mObject);
 				}
 			}
-			wxEditIceGameObject *propgrid_page = dynamic_cast<wxEditIceGameObject*>(wxEdit::Instance().GetpropertyWindow()->GetCurrentPage());
-			if (propgrid_page)
-			{
-				propgrid_page->SetObject(propgrid_page->GetGameObject());
-				wxEdit::Instance().GetpropertyWindow()->Refresh();
-			}
 		}
 	}
 	else if (mRightDown == true)
@@ -606,12 +594,6 @@ void Edit::OnMouseMove(Ogre::Radian RotX,Ogre::Radian RotY)
 					rotaxis.normalise();
 					(*i).mObject->Rotate((*i).mObject->GetGlobalOrientation().Inverse() * rotaxis, RotX * mObjectRotSpeed, mZAxisLock == AxisLock::UNLOCKED);
 				}
-			}
-			wxEditIceGameObject *propgrid_page = dynamic_cast<wxEditIceGameObject*>(wxEdit::Instance().GetpropertyWindow()->GetCurrentPage());
-			if (propgrid_page)
-			{
-				propgrid_page->SetObject(propgrid_page->GetGameObject());
-				wxEdit::Instance().GetpropertyWindow()->Refresh();
 			}
 		}
 	}
