@@ -156,7 +156,6 @@
     <ClCompile Include="Source\IceFollowPathway.cpp" />
     <ClCompile Include="Source\IceNavigationMesh.cpp" />
     <ClCompile Include="Source\IceScriptedAIState.cpp" />
-    <ClCompile Include="Source\HDRListener.cpp" />
     <ClCompile Include="Source\IceSceneListener.cpp" />
     <ClCompile Include="Source\IceWeatherController.cpp" />
     <ClCompile Include="Source\IceCollisionCallback.cpp" />
@@ -197,6 +196,7 @@
     <ClCompile Include="..\..\Dependencies\lua\src\lzio.c" />
     <ClCompile Include="..\..\Dependencies\lua\src\print.c" />
     <ClCompile Include="Source\LoadSaveable.cpp" />
+    <ClCompile Include="Source\HDRListener.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header\IceGOCForceField.h" />

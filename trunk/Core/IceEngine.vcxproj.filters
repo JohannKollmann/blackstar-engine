@@ -99,9 +99,6 @@
     <ClCompile Include="Source\IceScriptedAIState.cpp">
       <Filter>AI</Filter>
     </ClCompile>
-    <ClCompile Include="Source\HDRListener.cpp">
-      <Filter>Graphics</Filter>
-    </ClCompile>
     <ClCompile Include="Source\IceSceneListener.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
@@ -275,6 +272,9 @@
     </ClCompile>
     <ClCompile Include="Source\IceLeakWatch.cpp">
       <Filter>System</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\HDRListener.cpp">
+      <Filter>Graphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

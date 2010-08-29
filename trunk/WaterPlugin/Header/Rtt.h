@@ -90,7 +90,7 @@ public:
 };
 
 
-class __declspec(dllexport) RefractionListener : public BaseRttListener
+/*class __declspec(dllexport) RefractionListener : public BaseRttListener
 {
 public:
 
@@ -218,7 +218,7 @@ public:
 		static RefractionManager instance;
 		return instance;
 	}
-};
+};*/
 
 class __declspec(dllexport) WaterPlane
 {
@@ -243,7 +243,7 @@ public:
 	{
 		if (mEntity)
 		{
-			RefractionManager::Instance().RemoveRefractionObject(mEntity);
+			//RefractionManager::Instance().RemoveRefractionObject(mEntity);
 			mEntity = nullptr;
 		}
 		if (!mMaterial.isNull())
@@ -278,7 +278,7 @@ public:
 		mMaterial = baseMat->clone("WaterMaterial_" + id);
 		mEntity->setMaterial(mMaterial);
 
-		mEntity->setRenderQueueGroup(Ogre::RENDER_QUEUE_7);	//water surface group
+		mEntity->setVisibilityFlags(1);
 
 		//setup rtts
 		mReflectionListener.setCamera(cam);
@@ -292,11 +292,11 @@ public:
 		reflection_rtt->getViewport(0)->setMaterialScheme("LowQuality");
 		reflection_rtt->addListener(&mReflectionListener);
 
-		RefractionManager::Instance().AddRefractionObject(mEntity);
+		//RefractionManager::Instance().AddRefractionObject(mEntity);
 
 		mMaterial->getTechnique(0)->getPass(0)->getTextureUnitState("Reflection")->setTextureName(mReflectionTexture->getName());
-		mMaterial->getTechnique(0)->getPass(0)->getTextureUnitState("Refraction")->setTextureName("Refraction");
-		mMaterial->getTechnique(0)->getPass(0)->getTextureUnitState("RefractionDepth")->setTextureName("RefractionDepth");
-		//mMaterial->getTechnique(0)->getPass(0)->getTextureUnitState("RefractionOccludersDepth")->setTextureName("RefractionOccludersDepth");
+		mMaterial->getTechnique(0)->getPass(0)->getTextureUnitState("Refraction")->setTextureName(Ice::Main::Instance().GetSceneRenderCompositor()->getTextureInstanceName("rt_SceneNoRefractiveObjects", 0));
+		mMaterial->getTechnique(0)->getPass(0)->getTextureUnitState("RefractionMask")->setTextureName(Ice::Main::Instance().GetSceneRenderCompositor()->getTextureInstanceName("rt_DepthBuffer", 0));
+		//mMaterial->getTechnique(0)->getPass(0)->getTextureUnitState("RefractionDepth")->setTextureName(Ice::Main::Instance().GetSceneRenderCompositor()->getTextureInstanceName("rt_DepthNoRefractiveObjects", 0));
 	}
 };

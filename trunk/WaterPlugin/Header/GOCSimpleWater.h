@@ -73,7 +73,7 @@ public:
 	{
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCSimpleWater::Register);
 		Ice::SceneManager::Instance().RegisterGOCPrototype("E", std::make_shared<GOCSimpleWater>());
-		Ogre::Root::getSingleton().createRenderQueueInvocationSequence("RefractionSurfacesOnly")->add(Ogre::RENDER_QUEUE_7, "");
+		//Ogre::Root::getSingleton().createRenderQueueInvocationSequence("RefractionSurfacesOnly")->add(Ogre::RENDER_QUEUE_7, "");
 	}
 
 	GOCSimpleWater(void) : mEntity(nullptr)
