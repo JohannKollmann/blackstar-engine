@@ -47,6 +47,8 @@ namespace Ice
 		Ogre::ShadowCameraSetupPtr mSpotShadowCameraSetup;
 		Ogre::ShadowCameraSetupPtr mPointShadowCameraSetup;
 
+		Ogre::CompositorInstance *mSceneRenderCompositor;
+
 		FreeFlightCameraController* mCameraController;
 
 		OgrePhysX::Scene		*mPhysXScene;
@@ -65,6 +67,8 @@ namespace Ice
 		int winWidth;
 
 	public:
+
+		Ogre::CompositorInstance* GetSceneRenderCompositor() { return mSceneRenderCompositor; }
 
 		Ogre::Entity *mWaterTestEntity;
 
