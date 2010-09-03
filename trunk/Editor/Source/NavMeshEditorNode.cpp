@@ -98,7 +98,7 @@
 		return ((num == 1) ? n->_getExistingNeighbourBind(this) : 0);
 	}
 
-	void NavMeshEditorNode::_ensureEdges()
+	void NavMeshEditorNode::_ensureedges()
 	{
 		for (std::vector<TriangleBind>::iterator i = mTriangles.begin(); i != mTriangles.end(); i++)
 		{
@@ -157,7 +157,7 @@
 						Ice::AIManager::Instance().GetNavigationMesh()->RemoveVertex((*i)->GetOwner());
 						delete (*i)->GetOwner();
 					}
-					else (*i)->_ensureEdges();
+					else (*i)->_ensureedges();
 				}
 			}
 		}

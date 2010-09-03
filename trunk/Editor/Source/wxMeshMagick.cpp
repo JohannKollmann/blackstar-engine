@@ -5,7 +5,7 @@
 #include "OptimiseTool.h"
 #include "wxProgressBar.h"
 #include "wxEdit.h"
-#include "OgreEnvironment.h"
+#include "Ogreenvironment.h"
 
 enum
 {
@@ -74,8 +74,8 @@ wxMeshMagick::wxMeshMagick(wxWindow* parent, wxWindowID id, const wxPoint& pos, 
         SetSizer(cont_sizer);
         GetSizer()->SetSizeHints(this);
 
-		meshmagick::OgreEnvironment* ogreEnv = new meshmagick::OgreEnvironment();
-		ogreEnv->initialize(false, Ogre::LogManager::getSingleton().getLog("ogre.graphics.log"));
+		meshmagick::OgreEnvironment* ogreenv = new meshmagick::OgreEnvironment();
+		ogreenv->initialize(false, Ogre::LogManager::getSingleton().getLog("ogre.graphics.log"));
 }
 
 wxMeshMagick::~wxMeshMagick(void)
@@ -172,7 +172,7 @@ void wxMeshMagick::OnApply(wxCommandEvent& event)
 	}
 
 	wxEdit::Instance().GetProgressBar()->Reset();
-	wxEdit::Instance().GetAuiManager().GetPane(wxT("meshmagick")).Float().Hide();
+	wxEdit::Instance().GetAuiManager().GetPane(("meshmagick")).Float().Hide();
 	wxEdit::Instance().GetAuiManager().Update();
 
 }

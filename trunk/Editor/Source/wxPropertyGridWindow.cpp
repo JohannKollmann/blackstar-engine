@@ -8,7 +8,7 @@ enum
 BEGIN_EVENT_TABLE(wxPropertyGridWindow, wxPanel)
 	EVT_BUTTON(PropWindow_Apply, wxPropertyGridWindow::OnApply)
 	EVT_SIZE(wxPropertyGridWindow::OnResize)
-	EVT_SET_FOCUS(wxPropertyGridWindow::OnSetFocus)
+	//EVT_SET_FOCUS(wxPropertyGridWindow::OnSetFocus)
 	EVT_ACTIVATE(wxPropertyGridWindow::OnActivate)
 	EVT_ENTER_WINDOW(wxPropertyGridWindow::OnMouseEnterWindow)
 END_EVENT_TABLE()
@@ -40,7 +40,7 @@ wxPropertyGridWindow::wxPropertyGridWindow(wxWindow* parent, wxWindowID id, cons
             wxDefaultSize, // size
 			propstyle);
 
-	mPropGrid->GetEventHandler()->Connect(wxEVT_ENTER_WINDOW, wxMouseEventHandler(wxPropertyGridWindow::OnMouseEnterWindow));
+	   //mPropGrid->GetParent()->GetEventHandler()->Connect(wxEVT_SET_FOCUS, wxFocusEventHandler(wxPropertyGridWindow::OnSetFocus));
 
 	mPropGrid->SetExtraStyle( wxPG_EX_HELP_AS_TOOLTIPS );
 
@@ -50,7 +50,7 @@ wxPropertyGridWindow::wxPropertyGridWindow(wxWindow* parent, wxWindowID id, cons
 
 	mPropGrid->GetGrid()->SetVerticalSpacing( 2 );
 
-	mApplyBtn = new wxButton(this,PropWindow_Apply,wxT("Apply"));
+	mApplyBtn = new wxButton(this,PropWindow_Apply,("Apply"));
 
 	wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
 	sizer->Add(mPropGrid);
@@ -111,14 +111,17 @@ Ogre::String wxPropertyGridWindow::GetCurrentPageName()
 void wxPropertyGridWindow::OnSetFocus(wxFocusEvent& event)
 {
 	UpdateCurrentPage();
+	event.Skip();
 }
 void wxPropertyGridWindow::OnActivate(wxActivateEvent& event)
 {
 	UpdateCurrentPage();
+	event.Skip();
 }
 void wxPropertyGridWindow::OnMouseEnterWindow(wxMouseEvent& event)
 {
 	UpdateCurrentPage();
+	event.Skip();
 }
 
 void wxPropertyGridWindow::UpdateCurrentPage()

@@ -31,7 +31,7 @@ wxSettingsWindow::wxSettingsWindow(wxWindow* parent, wxWindowID id, const wxPoin
         mCameraMovementSpeed = new wxSlider(this, ID_SetCameraMovementSpeed, 10, 0, 100, wxDefaultPosition, wxSize(200,30), wxSL_AUTOTICKS);
 		mCameraMovementSpeed->SetTickFreq(10,0);
         s1->Add(1, 1, 1, wxEXPAND);
-        s1->Add(new wxStaticText(this, wxID_ANY, wxT("Camera Movement Speed:")));
+        s1->Add(new wxStaticText(this, wxID_ANY, ("Camera Movement Speed:")));
         s1->Add(mCameraMovementSpeed);
         s1->Add(1, 1, 1, wxEXPAND);
         s1->SetItemMinSize((size_t)1, 150, 30);
@@ -40,7 +40,7 @@ wxSettingsWindow::wxSettingsWindow(wxWindow* parent, wxWindowID id, const wxPoin
         mCameraRotationSpeed = new wxSlider(this, ID_SetCameraRotationSpeed, 20, 0, 100, wxDefaultPosition, wxSize(200,30), wxSL_AUTOTICKS);
 		mCameraRotationSpeed->SetTickFreq(10,0);
         s2->Add(1, 1, 1, wxEXPAND);
-        s2->Add(new wxStaticText(this, wxID_ANY, wxT("Camera Rotation Speed:")));
+        s2->Add(new wxStaticText(this, wxID_ANY, ("Camera Rotation Speed:")));
         s2->Add(mCameraRotationSpeed);
         s2->Add(1, 1, 1, wxEXPAND);
         s2->SetItemMinSize((size_t)1, 150, 30);
@@ -49,7 +49,7 @@ wxSettingsWindow::wxSettingsWindow(wxWindow* parent, wxWindowID id, const wxPoin
         mObjectMovementSpeed = new wxSlider(this, ID_SetObjectMovementSpeed, 20, 0, 100, wxDefaultPosition, wxSize(200,30), wxSL_AUTOTICKS);
 		mObjectMovementSpeed->SetTickFreq(10,0);
         s3->Add(1, 1, 1, wxEXPAND);
-        s3->Add(new wxStaticText(this, wxID_ANY, wxT("Object Movement Speed:")));
+        s3->Add(new wxStaticText(this, wxID_ANY, ("Object Movement Speed:")));
         s3->Add(mObjectMovementSpeed);
         s3->Add(1, 1, 1, wxEXPAND);
         s3->SetItemMinSize((size_t)1, 150, 30);
@@ -58,7 +58,7 @@ wxSettingsWindow::wxSettingsWindow(wxWindow* parent, wxWindowID id, const wxPoin
         mObjectRotationSpeed = new wxSlider(this, ID_SetObjectRotationSpeed, 30, 0, 100, wxDefaultPosition, wxSize(200,30), wxSL_AUTOTICKS);
 		mObjectRotationSpeed->SetTickFreq(10,0);
         s4->Add(1, 1, 1, wxEXPAND);
-        s4->Add(new wxStaticText(this, wxID_ANY, wxT("Object Rotation Speed:")));
+        s4->Add(new wxStaticText(this, wxID_ANY, ("Object Rotation Speed:")));
         s4->Add(mObjectRotationSpeed);
         s4->Add(1, 1, 1, wxEXPAND);
         s4->SetItemMinSize((size_t)1, 150, 30);
@@ -67,7 +67,7 @@ wxSettingsWindow::wxSettingsWindow(wxWindow* parent, wxWindowID id, const wxPoin
         mCaelumTimeScale = new wxSlider(this, ID_SetCaelumTimeScale, 0, -50, 50, wxDefaultPosition, wxSize(200,30), wxSL_AUTOTICKS);
 		mCaelumTimeScale->SetTickFreq(10,0);
         s5->Add(1, 1, 1, wxEXPAND);
-        s5->Add(new wxStaticText(this, wxID_ANY, wxT("Time Scale:")));
+        s5->Add(new wxStaticText(this, wxID_ANY, ("Time Scale:")));
         s5->Add(mCaelumTimeScale);
         s5->Add(1, 1, 1, wxEXPAND);
         s5->SetItemMinSize((size_t)1, 150, 30);

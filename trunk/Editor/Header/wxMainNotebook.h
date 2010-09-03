@@ -5,7 +5,7 @@
 #include "wxOgre.h"
 #include "wxScriptEditor.h"
 #include "EDTIncludes.h"
-#include "wx/treectrl.h"
+#include "wx/Treectrl.h"
 
 struct ScriptEditorCaptionBind
 {

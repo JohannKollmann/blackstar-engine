@@ -19,14 +19,14 @@ wxComponentBar::wxComponentBar(wxWindow* parent, wxWindowID id, const wxPoint& p
 	int idcounter = 1;
 	for (std::map<Ogre::String, std::map<Ogre::String, Ice::DataMap> >::iterator i = Ice::SceneManager::Instance().mGOCDefaultParameters.begin(); i != Ice::SceneManager::Instance().mGOCDefaultParameters.end(); i++)
 	{
-		wxStaticBox *box = new wxStaticBox(this, wxID_ANY, _T(""));
+		wxStaticBox *box = new wxStaticBox(this, wxID_ANY, "");
 		wxSizer *s = new wxStaticBoxSizer(box, wxHORIZONTAL);
 		//wxBoxSizer* s = new wxBoxSizer(wxHORIZONTAL);
 		s->SetSizeHints(this);
 		for (std::map<Ogre::String, Ice::DataMap>::iterator x = (*i).second.begin(); x != (*i).second.end(); x++)
 		{
 			ComponentParameters cp;
-			cp.mCheckBox = new wxCheckBox(this, wxID_HIGHEST + idcounter, wxT((*x).first.c_str()));
+			cp.mCheckBox = new wxCheckBox(this, wxID_HIGHEST + idcounter, ((*x).first.c_str()));
 			cp.mName = (*x).first;
 			cp.mFamily = (*i).first;
 			cp.mParameters = &(*x).second;

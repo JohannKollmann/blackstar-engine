@@ -5,6 +5,7 @@
 #include "IceGOCView.h"
 #include "Edit.h"
 #include "wx/msw/winundef.h"
+#include <atlbase.h>
 
  
 void  
@@ -26,8 +27,8 @@ ComponentSectionVectorHandler ::Save(LoadSave::SaveSystem& ss, void* pData, std:
 	{/*it must be an atom*/ 
 		/*open an atom-array*/ 
 		ss.OpenAtomArray( "ComponentSection" , dims, "_array"); 
-		for(unsigned int i=0; i<pVector->size(); i++) 
-			ss.AddAtom( "ComponentSection" , &((*pVector)[i])); 
+		/*for(unsigned int i=0; i<pVector->size(); i++) 
+			ss.AddAtom("ComponentSection", &((*pVector)[i]));*/		//TODO
 	} 
 }  
  
@@ -66,7 +67,7 @@ ComponentSectionVectorHandler ::Load(LoadSave::LoadSystem& ls, void* pDest)
 void wxEditGOCSections::OnLeave()
 {
 	//wxEdit::Instance().GetAuiManager().GetPane("Properties").Caption("Properties");
-	wxAuiPaneInfo& pane = wxEdit::Instance().GetAuiManager().GetPane(wxT("componentbar")).Show(false);
+	wxAuiPaneInfo& pane = wxEdit::Instance().GetAuiManager().GetPane(("componentbar")).Show(false);
 	wxEdit::Instance().GetAuiManager().Update();
 }
 
@@ -77,7 +78,7 @@ void wxEditGOCSections::RemoveGOCSection(Ogre::String name)
 		wxPGProperty* p = *it;
 		if (p->GetName() == name)
 		{
-			mPropGrid->Delete(p->GetId());
+			mPropGrid->DeleteProperty(p);
 			return;
 		}
 	}
@@ -95,9 +96,8 @@ void wxEditGOCSections::OnActivate()
 
 void wxEditGOCSections::GetGOCSections(std::vector<ComponentSection> &sections)
 {
-	if (mPropGrid->GetChildrenCount() > 0)
-	{
 		wxPropertyGridIterator it = mPropGrid->GetIterator(wxPG_ITERATE_ALL);
+		if (it.AtEnd()) return;
 		it++;
 		Ice::DataMap transformdata;
 		Ogre::String nextSectionname = SectionToDataMap(it, &transformdata);
@@ -115,7 +115,6 @@ void wxEditGOCSections::GetGOCSections(std::vector<ComponentSection> &sections)
 			cs.mSectionData = sd;
 			sections.push_back(cs);
 		}
-	}
 }
 bool wxEditGOCSections::OnDropText(const wxString& text)
 {
@@ -162,7 +161,7 @@ bool wxEditGOCSections::OnDropText(const wxString& text)
 					{
 
 						Ice::DataMap data;
-						data.AddOgreString("MeshName", item->GetName().c_str());
+						data.AddOgreString("MeshName", item->GetName().c_str().AsChar());
 						data.AddBool("ShadowCaster", true);
 						RemoveGOCSection("Mesh");
 						AddGOCSection("Mesh", data, true);
@@ -301,7 +300,7 @@ void wxEditIceGameObject::SetObject(Ice::GameObject *object, bool update_ui)
 	}
 	if (update_ui)
 	{
-		wxAuiPaneInfo& pane = wxEdit::Instance().GetAuiManager().GetPane(wxT("componentbar")).Show();
+		wxAuiPaneInfo& pane = wxEdit::Instance().GetAuiManager().GetPane(("componentbar")).Show();
 		wxEdit::Instance().GetComponentBar()->SetSections(sections);
 		wxEdit::Instance().GetAuiManager().Update();
 	}
@@ -330,7 +329,7 @@ void wxEditGOResource::SetResource(Ogre::String savepath)
 	}
 	ls->CloseFile();
 	delete ls;
-	wxAuiPaneInfo& pane = wxEdit::Instance().GetAuiManager().GetPane(wxT("componentbar")).Show();
+	wxAuiPaneInfo& pane = wxEdit::Instance().GetAuiManager().GetPane(("componentbar")).Show();
 	wxEdit::Instance().GetComponentBar()->SetSections(sections);
 	wxEdit::Instance().GetAuiManager().Update();
 }
@@ -347,7 +346,7 @@ void wxEditGOResource::NewResource(Ogre::String savepath, bool showcomponentbar)
 	AddGOCSection("Object", data);
 	if (showcomponentbar)
 	{
-		wxAuiPaneInfo& pane = wxEdit::Instance().GetAuiManager().GetPane(wxT("componentbar")).Show();
+		wxAuiPaneInfo& pane = wxEdit::Instance().GetAuiManager().GetPane(("componentbar")).Show();
 		wxEdit::Instance().GetComponentBar()->ResetCheckBoxes();
 	}
 	wxEdit::Instance().GetAuiManager().Update();

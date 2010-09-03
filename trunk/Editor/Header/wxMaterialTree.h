@@ -2,11 +2,11 @@
 #pragma once
 
 #include <wx/dynarray.h>
-#include <wx/treectrl.h>
+#include <wx/Treectrl.h>
 #include <wx/filesys.h>
 #include <wx/imaglist.h>
 #include "EDTIncludes.h"
-#include "virtualdirtreectrl.h"
+#include "virtualdirTreectrl.h"
 #include "Ogre.h"
 #include "wxEdit.h"
 #include "EntityTreeNotebookListener.h"
@@ -34,8 +34,8 @@ public:
 	/** Default destructor */
 	~OgreMaterialTreeItemBase()
 	{
-		// NOTE: do not delete the tree item
-		// because the tree item deletes this item data
+		// NOTE: do not delete the Tree item
+		// because the Tree item deletes this item data
 	};
 
 	/** Virtual function to report the caption back to the wxTreeCtrl to be added. If the caption should be

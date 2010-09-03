@@ -39,9 +39,6 @@
     <ClInclude Include="Header\wxLogDisplay.h">
       <Filter>View</Filter>
     </ClInclude>
-    <ClInclude Include="Header\wxMainMenu.h">
-      <Filter>View</Filter>
-    </ClInclude>
     <ClInclude Include="Header\wxMainNotebook.h">
       <Filter>View</Filter>
     </ClInclude>
@@ -144,9 +141,6 @@
       <Filter>View</Filter>
     </ClCompile>
     <ClCompile Include="Source\wxLogDisplay.cpp">
-      <Filter>View</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\wxMainMenu.cpp">
       <Filter>View</Filter>
     </ClCompile>
     <ClCompile Include="Source\wxMainNotebook.cpp">

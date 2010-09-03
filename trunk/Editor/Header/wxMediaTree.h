@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "wxfiletree.h"
+#include "wxfileTree.h"
 #include "wx/dnd.h"
 #include "EntityTreeNotebookListener.h"
 #include "EDTIncludes.h"

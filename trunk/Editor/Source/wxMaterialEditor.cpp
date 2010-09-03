@@ -87,7 +87,7 @@ void wxMaterialEditor::OnApply()
 					wxPGProperty* p = *it;
 					if (p->IsCategory())
 					{
-						if (p->GetName() == wxT("Shader_Params")) shaderParamCategory = true;
+						if (p->GetName() == ("Shader_Params")) shaderParamCategory = true;
 						else shaderParamCategory = false;
 						continue;
 					}
@@ -163,7 +163,7 @@ void wxMaterialEditor::OnApply()
 	{
 		wxPGProperty* p = *it;
 		if (p->IsCategory()) continue;
-		if (p->GetName() == wxT("__MaterialProfile__"))
+		if (p->GetName() == ("__MaterialProfile__"))
 		{
 			for (auto i = mMaterialProfileEnumIds.begin(); i != mMaterialProfileEnumIds.end(); i++)
 			{
@@ -198,7 +198,7 @@ void wxMaterialEditor::SetMaterialTemplate(Ogre::String Name, Ogre::String File)
 	mCurrentTemplate = Name;
 	mCurrentTemplateFile = File;
 
-	wxPGProperty* parameters = mPropGrid->Append( new wxPropertyCategory(wxT("Shader Params"), wxT("Shader_Params")) );
+	wxPGProperty* parameters = mPropGrid->Append( new wxPropertyCategory(("Shader Params"), ("Shader_Params")) );
 	parameters->SetExpanded(true);
 
 	std::fstream f;
@@ -234,8 +234,8 @@ void wxMaterialEditor::SetMaterialTemplate(Ogre::String Name, Ogre::String File)
 							if (!addstop)
 							{
 								added.push_back(prop);
-								if (line.find(" float ") != Ogre::String::npos) mPropGrid->Append( new wxFloatProperty(wxT(prop.c_str()), wxT(prop.c_str()), 1.0f));
-								else mPropGrid->Append( new wxStringProperty(wxT(prop.c_str()), wxT(prop.c_str())) );
+								if (line.find(" float ") != Ogre::String::npos) mPropGrid->Append( new wxFloatProperty((prop.c_str()), (prop.c_str()), 1.0f));
+								else mPropGrid->Append( new wxStringProperty((prop.c_str()), (prop.c_str())) );
 							}
 
 							start = false;
@@ -259,8 +259,8 @@ void wxMaterialEditor::SetMaterialTemplate(Ogre::String Name, Ogre::String File)
 					if (!addstop)
 					{
 						added.push_back(prop);
-						if (line.find(" float ") != Ogre::String::npos) mPropGrid->Append( new wxFloatProperty(wxT(prop.c_str()), wxT(prop.c_str())));
-						else mPropGrid->Append( new wxStringProperty(wxT(prop.c_str()), wxT(prop.c_str())) );
+						if (line.find(" float ") != Ogre::String::npos) mPropGrid->Append( new wxFloatProperty((prop.c_str()), (prop.c_str())));
+						else mPropGrid->Append( new wxStringProperty((prop.c_str()), (prop.c_str())) );
 					}
 				}
 			}
@@ -282,7 +282,7 @@ void wxMaterialEditor::SetMaterialTemplate(Ogre::String Name, Ogre::String File)
 	f.close();
 
 	mMaterialProfileEnumIds.clear();
-	wxPGProperty* soundParams = mPropGrid->Append( new wxPropertyCategory(wxT("Physics")) );
+	wxPGProperty* soundParams = mPropGrid->Append( new wxPropertyCategory(("Physics")) );
 	wxArrayString materialProfiles;
 	std::vector<Ogre::String> mats = Ice::SceneManager::Instance().GetSoundMaterialTable().GetMaterialProfiles();
 	int id = 0;
@@ -291,7 +291,7 @@ void wxMaterialEditor::SetMaterialTemplate(Ogre::String Name, Ogre::String File)
 		mMaterialProfileEnumIds.insert(std::make_pair<Ogre::String, int>(*i, id++));
 		materialProfiles.Add((*i).c_str());
 	}
-	mPropGrid->Append(new wxEnumProperty(wxT("Profile"), wxT("__MaterialProfile__"), materialProfiles));
+	mPropGrid->Append(new wxEnumProperty(("Profile"), ("__MaterialProfile__"), materialProfiles));
 
 	mPropGrid->Refresh();
 }
@@ -364,8 +364,8 @@ void wxMaterialEditor::EditMaterial(Ogre::MaterialPtr material, bool detect_temp
 					{
 						wxPGProperty* p = *it;
 						if (p->IsCategory()) continue;
-						if (p->GetName() == "scale") p->SetValue(wxVariant(wxT("1.0")));
-						if (p->GetName() == "Diffuse") p->SetValue(wxVariant(wxT(line.substr(line.find("texture ") + 8, line.size()))));
+						if (p->GetName() == "scale") p->SetValue(wxVariant(("1.0")));
+						if (p->GetName() == "Diffuse") p->SetValue(wxVariant((line.substr(line.find("texture ") + 8, line.size()))));
 					}
 				}
 			}
@@ -407,7 +407,7 @@ void wxMaterialEditor::EditMaterial(Ogre::MaterialPtr material, bool detect_temp
 	{
 		wxPGProperty* p = *it;
 		if (p->IsCategory()) continue;
-		if (p->GetName() == wxT("__MaterialProfile__"))
+		if (p->GetName() == ("__MaterialProfile__"))
 		{
 			Ogre::String profileName = Ice::SceneManager::Instance().GetSoundMaterialTable().GetMaterialName(mCurrentMaterial->getName());
 			auto matFind = mMaterialProfileEnumIds.find(profileName);
@@ -449,11 +449,11 @@ bool wxMaterialEditor::OnDropText(const wxString& text)
 					wxEdit::Instance().GetMainNotebook()->GetOgreWindow()->SetPaused(true);
 
 					wxArrayString choices;
-					for (std::map<Ogre::String, MaterialTemplate>::iterator i = mMapTemplates.begin(); i != mMapTemplates.end(); i++) choices.Add(wxT(i->first.c_str()));
+					for (std::map<Ogre::String, MaterialTemplate>::iterator i = mMapTemplates.begin(); i != mMapTemplates.end(); i++) choices.Add((i->first.c_str()));
 
 					wxSingleChoiceDialog dialog(&wxEdit::Instance(),//.GetpropertyWindow(),
-						wxT("Please select a map type:"),
-						wxT("What's this?"),
+						("Please select a map type:"),
+						("What's this?"),
 						choices);
 
 					dialog.SetSelection(0);

@@ -6,11 +6,26 @@
 #include "IceSceneManager.h"
 #include "Edit.h"
 #include "propGridEditIceGOC.h"
-
+#include "DotSceneLoader.h"
 
 BEGIN_EVENT_TABLE(wxEdit, wxFrame)
     EVT_ACTIVATE(wxEdit::OnActivate)
 	EVT_CLOSE(wxEdit::OnClose)
+
+	EVT_MENU(wxMainMenu_loadWorld, wxEdit::OnLoadWorld)
+	EVT_MENU(wxMainMenu_saveWorld, wxEdit::OnSaveWorld)
+	EVT_MENU(wxMainMenu_loadMesh, wxEdit::OnLoadMesh)
+	EVT_MENU(wxMainMenu_exit, wxEdit::OnExit)
+	EVT_MENU(wxMainMenu_Mode_Brush, wxEdit::OnEnableBrushMode)
+	EVT_MENU(wxMainMenu_Mode_Material, wxEdit::OnEnableMaterialMode)
+	EVT_MENU(wxMainMenu_Meshes, wxEdit::OnMeshEditor)
+	EVT_MENU(wxMainMenu_Physics, wxEdit::OnEnablePhysics)
+	EVT_MENU(wxMainMenu_ReloadScripts, wxEdit::OnReloadScripts)
+	EVT_MENU(wxMainMenu_EditorMeshes, wxEdit::OnEnableEditorMeshes)
+	EVT_MENU(wxMainMenu_About, wxEdit::OnAbout)
+	EVT_MENU(wxMainMenu_Settings, wxEdit::OnSettings)
+	EVT_MENU(wxMainMenu_PreviewWindow, wxEdit::OnPreviewWindow)
+	EVT_MENU(wxMainMenu_ShowLog, wxEdit::OnShowLog)
 END_EVENT_TABLE() 
 
 
@@ -30,11 +45,11 @@ wxEdit::wxEdit() : wxFrame(nullptr, -1, _("Blackstar Edit"),
 		mExplorerToolbar = new wxEditorToolbar(this);
 
 	m_mgr.AddPane(mMainToolbar, wxAuiPaneInfo().
-                  Name(wxT("maintoolbar")).Caption(wxT("")).
+                  Name(("maintoolbar")).Caption(("")).
 				  Top().Fixed().ToolbarPane().Layer(0));
 
 	m_mgr.AddPane(mExplorerToolbar, wxAuiPaneInfo().
-		Name(wxT("explorertoolbar")).Caption(wxT("")).
+		Name(("explorertoolbar")).Caption(("")).
 		Right().Fixed().ToolbarPane().Position(0).Layer(1));
 
 		// ************************
@@ -43,11 +58,7 @@ wxEdit::wxEdit() : wxFrame(nullptr, -1, _("Blackstar Edit"),
 		mDummy = new wxOgre(this, -1);//, wxDefaultPosition, wxDefaultSize, 0, "dummypane");
 		mDummy->Show(false);
 
-		m_mgr.AddPane(mMainNotebook, wxCENTER, wxT("Main"));
-
-		//Setup Menu
-		mMenuBar = new wxMainMenu();
-		SetMenuBar(mMenuBar);
+		m_mgr.AddPane(mMainNotebook, wxCENTER, ("Main"));
 
 		mPropertyWindow = new wxPropertyGridWindow(this, -1, wxDefaultPosition, wxSize(200,250));
 		mPropertyWindow->AddPage(new wxEditIceGameObject(), "EditGameObject");
@@ -66,13 +77,13 @@ wxEdit::wxEdit() : wxFrame(nullptr, -1, _("Blackstar Edit"),
 		mMeshMagick = new wxMeshMagick(this, wxID_ANY, wxDefaultPosition, wxSize(800,600));
 
 		// add the panes to the manager
-		m_mgr.AddPane(mWorldExplorer, wxAuiPaneInfo().Name(wxT("World")).
+		m_mgr.AddPane(mWorldExplorer, wxAuiPaneInfo().Name(("World")).
 			Right().
 			Position(1).
 			Layer(1).
 			CloseButton(false).
 			Caption("World"));
-		m_mgr.AddPane(mPropertyWindow, wxAuiPaneInfo().Name(wxT("Properties")).
+		m_mgr.AddPane(mPropertyWindow, wxAuiPaneInfo().Name(("Properties")).
 			Right().
 			Position(2).
 			Layer(1).
@@ -80,26 +91,26 @@ wxEdit::wxEdit() : wxFrame(nullptr, -1, _("Blackstar Edit"),
 			Caption("Properties"));
 
     m_mgr.AddPane(mMeshMagick, wxAuiPaneInfo().
-                  Name(wxT("meshmagick")).Caption(wxT("Mesh Magick Params")).
+                  Name(("meshmagick")).Caption(("Mesh Magick Params")).
 				  Dockable(false).Float().Hide());
 
 	mObjectPreviewWindow = new wxSimpleOgreView(this, -1);
     m_mgr.AddPane(mObjectPreviewWindow, wxAuiPaneInfo().
-                  Name(wxT("preview")).Caption(wxT("Preview")).
+                  Name(("preview")).Caption(("Preview")).
 				 Dockable(false).Float().FloatingPosition(wxPoint(GetPosition().x + GetSize().GetWidth(),GetPosition().y)).FloatingSize(256,256));
 
     m_mgr.AddPane(mSettingsWindow, wxAuiPaneInfo().
-                  Name(wxT("settings")).Caption(wxT("Editor Settings")).
+                  Name(("settings")).Caption(("Editor Settings")).
                   Dockable(false).Float().Hide());
 
 	mLogDisplay = new wxLogDisplay(this);
 	m_mgr.AddPane(mLogDisplay, wxAuiPaneInfo().
-					Name(wxT("logdisplay")).
-					Caption(wxT("Log")).Bottom().BestSize(200, 125));
+					Name(("logdisplay")).
+					Caption(("Log")).Bottom().BestSize(200, 125));
 
 	/*mMediaTree = new wxMediaTree(this, wxID_ANY, wxDefaultPosition, wxSize(300,500));
     m_mgr.AddPane(mMediaTree, wxAuiPaneInfo().
-                  Name(wxT("mediatree")).Caption(wxT("Loaded media files - drop new media here.")).
+                  Name(("mediaTree")).Caption(("Loaded media files - drop new media here.")).
 				  Dockable(false).Float().Hide());*/
 
 	m_mgr.Update();
@@ -108,7 +119,38 @@ wxEdit::wxEdit() : wxFrame(nullptr, -1, _("Blackstar Edit"),
 	Ogre::String handle;
 	handle = Ogre::StringConverter::toString((size_t)((HWND)this->GetHandle()));
 
-	PushEventHandler(mMenuBar);
+	//Setup Menu
+	mMenuBar = new wxMenuBar(wxMB_DOCKABLE);
+	SetMenuBar(mMenuBar);
+	mFileMenu = new wxMenu;
+	mFileMenu->Append(wxMainMenu_loadWorld, "Load World");
+	mFileMenu->Append(wxMainMenu_saveWorld, "Save World");
+	mFileMenu->AppendSeparator();
+	mFileMenu->Append(wxMainMenu_loadMesh, "Import world");
+	mFileMenu->AppendSeparator();
+	mFileMenu->Append(wxMainMenu_exit, "Exit");
+	mToolsMenu = new wxMenu;
+	wxMenuItem *meshtool = new wxMenuItem(mToolsMenu, wxMainMenu_Meshes, "MeshMagick (by Haffax)", "Mesh Editor which allows you to perform some basic operations on your meshes such as scaling or center align.");
+	mToolsMenu->Append(meshtool);
+	mSettingsMenu = new wxMenu;
+	wxMenuItem *showeditormeshes = new wxMenuItem(mToolsMenu, wxMainMenu_EditorMeshes, "Show Editor Meshes", "Enables/Disables Editor Meshes.", true);
+	mSettingsMenu->Append(wxMainMenu_Settings, "Settings");
+	mSettingsMenu->AppendSeparator();
+	mSettingsMenu->Append(showeditormeshes);
+	mAboutMenu = new wxMenu;
+	mAboutMenu->Append(wxMainMenu_About, "About");
+	mWindowsMenu = new wxMenu;
+	wxMenuItem *showpreview = new wxMenuItem(mWindowsMenu, wxMainMenu_PreviewWindow, "Preview Window", "Enables/Disables the preview window.", true);
+	mWindowsMenu->Append(showpreview);
+	wxMenuItem *showlog = new wxMenuItem(mWindowsMenu, wxMainMenu_ShowLog, "Log", "Enables/Disables the log.", true);
+	mWindowsMenu->Append(showlog);
+	mMenuBar->Append(mFileMenu, "File");
+	mMenuBar->Append(mToolsMenu, "Tools");
+	mMenuBar->Append(mWindowsMenu, "Windows");
+	mMenuBar->Append(mSettingsMenu, "Settings");
+	mMenuBar->Append(mAboutMenu, "About");
+	mMenuBar->Check(wxMainMenu_EditorMeshes, true);
+	mMenuBar->Check(wxMainMenu_PreviewWindow, true);
 
 	GetOgrePane()->initOgre("MainRenderWindow");
 };
@@ -117,12 +159,12 @@ void wxEdit::RefreshToolbars()
 {
 	m_mgr.DetachPane(mMainToolbar);
 	m_mgr.AddPane(mMainToolbar, wxAuiPaneInfo().
-		Name(wxT("maintoolbar")).Caption(wxT("")).
+		Name(("maintoolbar")).Caption(("")).
 		Top().Fixed().ToolbarPane().Layer(0));
 
 	m_mgr.DetachPane(mExplorerToolbar);
 	m_mgr.AddPane(mExplorerToolbar, wxAuiPaneInfo().
-		Name(wxT("explorertoolbar")).Caption(wxT("")).
+		Name(("explorertoolbar")).Caption(("")).
 		Right().Fixed().ToolbarPane().Layer(1).Position(0));
 
 	m_mgr.Update();
@@ -132,8 +174,8 @@ void wxEdit::PostCreate()
 {
 	mComponentBar = new wxComponentBar(this, -1, wxDefaultPosition, wxSize(100,100));
 	m_mgr.AddPane(	mComponentBar, wxAuiPaneInfo().
-					Name(wxT("componentbar")).
-					Caption(wxT("Components")).
+					Name(("componentbar")).
+					Caption(("Components")).
 					Fixed().
 					Right().
 					Position(3).
@@ -200,4 +242,201 @@ void wxEdit::OnClose(wxCloseEvent &event)
 	//delete mMainNotebook;
 	//Ice::Main::Instance().Shutdown();
 	Destroy();
+}
+
+void wxEdit::OnLoadWorld(wxCommandEvent& WXUNUSED(event))
+{
+	//Ogre::LogManager::getSingleton().logMessage("OnLoadWorld");
+    wxFileDialog dialog
+                 (
+                    this,
+                    "Load World",
+                    wxEmptyString,
+                    wxEmptyString,
+                    "Blackstar Engine World files (*.eew)|*.eew"
+                 );
+
+    dialog.CentreOnParent();
+	dialog.SetPath("Data/Editor/Worlds/");
+
+    if (dialog.ShowModal() == wxID_OK)
+    {
+		GetOgrePane()->OnLoadWorld(dialog.GetPath().c_str().AsChar());
+	}
+	wxEdit::Instance().GetProgressBar()->Reset();
+	Ice::SceneManager::Instance().ShowEditorMeshes(mMenuBar->IsChecked(wxMainMenu_EditorMeshes));
+};
+
+void wxEdit::OnSaveWorld(wxCommandEvent& WXUNUSED(event))
+{
+	wxEdit::Instance().GetOgrePane()->DeselectAllObjects();
+
+	//Ogre::LogManager::getSingleton().logMessage("OnSaveWorld");
+    wxFileDialog dialog
+                 (
+                    this,
+                    "Save World",
+                    wxEmptyString,
+                    wxEmptyString,
+                    "Blackstar Engine World files (*.eew)|*.eew",
+					wxFD_SAVE|wxFD_OVERWRITE_PROMPT
+                 );
+
+    dialog.CentreOnParent();
+	dialog.SetPath("Data/Editor/Worlds/");
+
+	dialog.SetFilterIndex(1);
+
+    if (dialog.ShowModal() == wxID_OK)
+    {
+		GetOgrePane()->OnSaveWorld(dialog.GetPath().c_str().AsChar());
+	}
+	wxEdit::Instance().GetProgressBar()->Reset();
+	Ice::SceneManager::Instance().ShowEditorMeshes(mMenuBar->IsChecked(wxMainMenu_EditorMeshes));
+};
+
+void wxEdit::OnLoadMesh(wxCommandEvent& WXUNUSED(event))
+{
+	//Ogre::LogManager::getSingleton().logMessage("OnLoadMesh");
+    wxFileDialog dialog
+                 (
+                    this,
+                    "Import World",
+                    wxEmptyString,
+                    wxEmptyString,
+                    "Mesh and scene files (*.mesh;*.scene)|*.mesh;*.scene"
+                 );
+
+    dialog.CentreOnParent();
+	dialog.SetPath("Data/Media/Meshes/");
+
+    if (dialog.ShowModal() == wxID_OK)
+    {
+		Ogre::String sFile = dialog.GetFilename().c_str();
+		Ogre::String sPath = dialog.GetPath().c_str();
+		wxEdit::Instance().GetProgressBar()->SetStatusMessage("Importing world...");
+		wxEdit::Instance().GetProgressBar()->SetProgress(0.1);
+		Ogre::String extension = sFile.substr(sFile.find_last_of("."), sFile.size());
+		if (extension == ".mesh")
+		{
+			Ice::SceneManager::Instance().LoadLevelMesh(sFile);
+		}
+		else DotSceneLoader::Instance().ImportScene(sFile);
+
+		wxEdit::Instance().GetpropertyWindow()->SetPage("None");
+		//Ice::Main::Instance().GetCamera()->setPosition(Ogre::Vector3(0,0,0));
+		wxEdit::Instance().GetProgressBar()->SetStatusMessage("Updating material Tree...");
+		wxEdit::Instance().GetProgressBar()->SetProgress(0.8);
+		wxEdit::Instance().GetWorldExplorer()->GetMaterialTree()->Update();
+    }
+	wxEdit::Instance().GetProgressBar()->Reset();
+};
+
+void wxEdit::OnExit(wxCommandEvent& WXUNUSED(event))
+{
+	Ogre::LogManager::getSingleton().logMessage("wxEdit::OnExit");
+	Close();
+};
+
+void wxEdit::OnMeshEditor(wxCommandEvent& WXUNUSED(event))
+{
+    wxFileDialog dialog(this, "Select meshes",
+                        wxEmptyString, wxEmptyString, "Ogre binary Mesh files (*.mesh)|*.mesh",
+                        wxFD_OPEN|wxFD_MULTIPLE);
+
+    if (dialog.ShowModal() == wxID_OK)
+    {
+        wxArrayString paths;
+
+        dialog.GetPaths(paths);
+
+		wxEdit::Instance().GetMeshMagick()->SetPaths(paths);
+
+		wxAuiPaneInfo& floating_pane = wxEdit::Instance().GetAuiManager().GetPane(("meshmagick")).Float().Show();
+
+		if (floating_pane.floating_pos == wxDefaultPosition)
+			floating_pane.FloatingPosition(wxEdit::Instance().GetStartPosition());
+
+		wxEdit::Instance().GetAuiManager().Update();
+	}
+}
+
+void wxEdit::OnReloadScripts(wxCommandEvent& WXUNUSED(event))
+{
+	Ice::Msg msg;
+	msg.type = "REPARSE_SCRIPTS";
+	Ice::MessageSystem::Instance().SendInstantMessage(msg);
+	Ice::ScriptSystem::GetInstance().Clear();
+	//Call init script
+	Ice::Script script = Ice::ScriptSystem::GetInstance().CreateInstance("InitEngine.lua");
+	msg.type = "REPARSE_SCRIPTS_POST";
+	Ice::MessageSystem::Instance().SendInstantMessage(msg);
+}
+
+void wxEdit::OnEnableBrushMode(wxCommandEvent& WXUNUSED(event))
+{
+	wxEdit::Instance().GetOgrePane()->mBrushMode = (wxEdit::Instance().GetOgrePane()->mBrushMode ? false : true);
+	if (wxEdit::Instance().GetOgrePane()->mBrushMode)
+	{
+		wxEdit::Instance().GetOgrePane()->mMaterialMode = false;
+		mMenuBar->Check(wxMainMenu_Mode_Material, false);
+		wxEdit::Instance().GetOgrePane()->OnSelectResource();
+	}
+	else wxEdit::Instance().GetOgrePane()->ClearPreviewObject();
+	wxEdit::Instance().GetOgrePane()->DeselectMaterial();
+	wxEdit::Instance().GetProgressBar()->Reset();
+};
+
+void wxEdit::OnEnableMaterialMode(wxCommandEvent& WXUNUSED(event))
+{
+	wxEdit::Instance().GetOgrePane()->mMaterialMode = (wxEdit::Instance().GetOgrePane()->mMaterialMode ? false : true);
+	if (wxEdit::Instance().GetOgrePane()->mMaterialMode)
+	{
+		wxEdit::Instance().GetOgrePane()->mBrushMode = false;
+		mMenuBar->Check(wxMainMenu_Mode_Brush, false);
+	}
+	wxEdit::Instance().GetOgrePane()->DeselectMaterial();
+	wxEdit::Instance().GetProgressBar()->Reset();
+};
+
+void wxEdit::OnEnablePhysics(wxCommandEvent& WXUNUSED(event))
+{
+	Ice::MainLoop::Instance().SetPhysics(mMenuBar->IsChecked(wxMainMenu_Physics));
+	wxEdit::Instance().GetProgressBar()->Reset();
+}
+
+void wxEdit::OnEnableEditorMeshes(wxCommandEvent& WXUNUSED(event))
+{
+	Ice::SceneManager::Instance().ShowEditorMeshes(mMenuBar->IsChecked(wxMainMenu_EditorMeshes));
+}
+
+void wxEdit::OnSettings(wxCommandEvent& WXUNUSED(event))
+{
+	wxAuiPaneInfo& floating_pane = wxEdit::Instance().GetAuiManager().GetPane(("settings")).Float().Show();
+
+    if (floating_pane.floating_pos == wxDefaultPosition)
+        floating_pane.FloatingPosition(wxEdit::Instance().GetStartPosition());
+
+	wxEdit::Instance().GetProgressBar()->Reset();
+    wxEdit::Instance().GetAuiManager().Update();
+}
+
+void wxEdit::OnPreviewWindow(wxCommandEvent& WXUNUSED(event))
+{
+	wxEdit::Instance().GetAuiManager().GetPane(("preview")).Show(mMenuBar->IsChecked(wxMainMenu_PreviewWindow));
+	wxEdit::Instance().GetAuiManager().Update();
+}
+
+void wxEdit::OnShowLog(wxCommandEvent& WXUNUSED(event))
+{
+	wxEdit::Instance().GetAuiManager().GetPane(("logdisplay")).Show(mMenuBar->IsChecked(wxMainMenu_ShowLog));
+	wxEdit::Instance().GetAuiManager().Update();
+}
+
+void wxEdit::OnAbout(wxCommandEvent& WXUNUSED(event))
+{
+	wxMessageBox("Blackstar Editor (C) 2009 Andreas Henne (Caphalor)\nBlackstar Engine (C) 2009 Benedikt (1nsane) / Andreas Henne\n\nDependencies: Ogre 1.6, PhysX 2.8, wxWidgets 2.87, Caelum, OpenAL, OgreOggSound, boost, Lua, MeshMagick\n\nContact: heandreas@live.de\nJOIN US! ;)",
+                       "About Blackstar Editor 'Weathertop' PRE ALPHA",
+                       wxICON_INFORMATION);
+	wxEdit::Instance().GetProgressBar()->Reset();
 }

@@ -6,6 +6,8 @@
 #include "wx/checkbox.h"
 #include "EDTIncludes.h"
 
+class wxTreeCtrl;
+
 class wxMeshMagick : public wxPanel
 {
 

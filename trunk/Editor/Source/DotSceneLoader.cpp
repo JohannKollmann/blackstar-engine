@@ -62,7 +62,7 @@ Ogre::Quaternion DotSceneLoader::LoadRotation(TiXmlElement* objectElement)
     }
     else if (objectElement->Attribute("angleX") != 0)
     {
-        //Assume the rotation is specified as three Euler angles
+        //Assume the rotation is specified as thwxTree Euler angles
 		Ogre::Vector3 euler;
         euler.x = GetRealAttribute(objectElement, "angleX", 0);
         euler.y = GetRealAttribute(objectElement, "angleY", 0);

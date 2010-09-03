@@ -917,8 +917,8 @@ void Edit::OnDeleteObject( wxCommandEvent& WXUNUSED(event) )
 		if (hasChildren)
 		{
 			skip = true;
-			wxMessageDialog dialog( NULL, _T("Delete Children?"),
-				_T("Deleting root object..."), wxYES_DEFAULT|wxYES_NO|wxCANCEL|wxICON_QUESTION);
+			wxMessageDialog dialog( NULL, "Delete Children?",
+				"Deleting root object...", wxYES_DEFAULT|wxYES_NO|wxCANCEL|wxICON_QUESTION);
 			int input = dialog.ShowModal();
 			if (input == wxID_YES)
 			{
@@ -988,7 +988,7 @@ void Edit::OnSaveObjectGroup( wxCommandEvent& WXUNUSED(event) )
 		wxEdit::Instance().GetMainNotebook()->GetOgreWindow()->SetPaused(true);
 		if (dialog.ShowModal() == wxID_OK)
 		{
-			LoadSave::SaveSystem *ss=LoadSave::LoadSave::Instance().CreateSaveFile(dialog.GetPath().c_str(), Ogre::String(dialog.GetPath().c_str()) + ".xml");
+			LoadSave::SaveSystem *ss=LoadSave::LoadSave::Instance().CreateSaveFile(dialog.GetPath().c_str().AsChar(), Ogre::String(dialog.GetPath().c_str()) + ".xml");
 			Ice::GameObject *go = (*mSelectedObjects.begin()).mObject;
 			DeselectAllObjects();
 			Ogre::Vector3 position = go->GetGlobalPosition();
