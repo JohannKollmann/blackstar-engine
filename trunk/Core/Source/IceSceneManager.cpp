@@ -342,6 +342,11 @@ namespace Ice
 	void SceneManager::Reset()
 	{
 		ClearGameObjects();
+		if (mLevelMesh)
+		{
+			ICE_DELETE mLevelMesh;
+			mLevelMesh = nullptr;
+		}
 		SetToOutdoor();
 	}
 
@@ -382,7 +387,7 @@ namespace Ice
 
 	bool SceneManager::HasLevelMesh()
 	{
-		return (mLevelMesh == NULL ? false : true);
+		return (mLevelMesh == nullptr ? false : true);
 	}
 
 	LevelMesh* SceneManager::GetLevelMesh()
