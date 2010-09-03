@@ -223,24 +223,24 @@ void Main::initScene()
 	mSoundManager->setDistanceModel(AL_LINEAR_DISTANCE);
 	//mCamera->getParentSceneNode()->attachObject(mSoundManager->getListener());
 
-	/*Ogre::CompositorManager::getSingleton().addCompositor(GetViewport(), "RenderDepth");
+	Ogre::CompositorManager::getSingleton().addCompositor(GetViewport(), "RenderDepth");
 	Ogre::CompositorManager::getSingleton().setCompositorEnabled(GetViewport(), "RenderDepth", true);
 	Ogre::CompositorInstance *hdrinstance = Ogre::CompositorManager::getSingleton().addCompositor(Main::Instance().GetViewport(), "HDRWorking");
 	HDRListener *hdrListener = new HDRListener(); 
 	hdrinstance->addListener(hdrListener);
 	hdrListener->notifyViewportSize(mViewport->getActualWidth(), mViewport->getActualHeight());
 	hdrListener->notifyCompositor(hdrinstance);
-	Ogre::CompositorManager::getSingleton().setCompositorEnabled(GetViewport(), "HDRWorking", true);*/
+	Ogre::CompositorManager::getSingleton().setCompositorEnabled(GetViewport(), "HDRWorking", true);
 
 
-	mSceneRenderCompositor = Ogre::CompositorManager::getSingleton().addCompositor(GetViewport(), "RenderHDRScene");
+	/*mSceneRenderCompositor = Ogre::CompositorManager::getSingleton().addCompositor(GetViewport(), "RenderHDRScene");
 	Ogre::CompositorManager::getSingleton().setCompositorEnabled(GetViewport(), "RenderHDRScene", true);
 	Ogre::CompositorInstance *hdrinstance = Ogre::CompositorManager::getSingleton().addCompositor(Main::Instance().GetViewport(), "DownsampleHDR1");
 	HDRListener *hdrListener = new HDRListener(); 
 	hdrinstance->addListener(hdrListener);
 	hdrListener->notifyViewportSize(mViewport->getActualWidth(), mViewport->getActualHeight());
 	hdrListener->notifyCompositor(hdrinstance);
-	Ogre::CompositorManager::getSingleton().setCompositorEnabled(GetViewport(), "DownsampleHDR1", true);
+	Ogre::CompositorManager::getSingleton().setCompositorEnabled(GetViewport(), "DownsampleHDR1", true);*/
 
 	Ogre::MovableObject::setDefaultVisibilityFlags(~1);
 	
