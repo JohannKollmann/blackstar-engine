@@ -15,9 +15,6 @@
 
 #include "IceSceneManager.h"
 
-#include <atlbase.h>
-
-
 BEGIN_EVENT_TABLE(wxMaterialTree, wxTreeCtrl)
 	EVT_TREE_ITEM_MENU(-1, wxMaterialTree::OnItemMenu)
 	EVT_TREE_SEL_CHANGED(-1, wxMaterialTree::OnSelChanged)
