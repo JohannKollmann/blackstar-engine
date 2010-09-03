@@ -4,7 +4,6 @@
 #include "Saveable.h"
 
 #include "..\LowLevelLibs\LoadSave_dll.h"
-//#include <atlbase.h>
 
 namespace LoadSave
 {

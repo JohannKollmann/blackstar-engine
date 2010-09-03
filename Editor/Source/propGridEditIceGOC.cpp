@@ -5,7 +5,6 @@
 #include "IceGOCView.h"
 #include "Edit.h"
 #include "wx/msw/winundef.h"
-#include <atlbase.h>
 
  
 void  

@@ -308,8 +308,8 @@ void wxMaterialTree::UpdateTemplates()
 		{
 			wxMenu *submenu = new wxMenu("");
 
-			USES_CONVERSION;
-			Ogre::String filename = Ogre::String("Data/Scripts/materials/scripts/Templates/") + Ogre::String(W2A(wfd.cFileName));
+			wxString wxFileName(wfd.cFileName);
+			Ogre::String filename = Ogre::String("Data/Scripts/materials/scripts/Templates/") + Ogre::String(wxFileName.c_str().AsChar());
 			Ogre::String tmpMapName = "";
 			std::fstream f;
 			char cstring[256];
@@ -359,8 +359,8 @@ void wxMaterialTree::ShowMenu(OgreMaterialTreeItemBase *item, const wxPoint& pt)
 		{
 			wxMenu *submenu = new wxMenu("");
 
-			USES_CONVERSION;
-			Ogre::String filename = Ogre::String("Data/Scripts/materials/scripts/Templates/") + Ogre::String(W2A(wfd.cFileName));
+			wxString wxFileName(wfd.cFileName);
+			Ogre::String filename = Ogre::String("Data/Scripts/materials/scripts/Templates/") + Ogre::String(wxFileName.c_str().AsChar());
 			std::fstream f;
 			char cstring[256];
 			f.open(filename.c_str(), std::ios::in);
@@ -377,7 +377,8 @@ void wxMaterialTree::ShowMenu(OgreMaterialTreeItemBase *item, const wxPoint& pt)
 			}
 			f.close();
 
-			menu->AppendSubMenu(submenu, (Ogre::String(W2A(wfd.cFileName)).substr(0, Ogre::String(W2A(wfd.cFileName)).find(".material"))));
+			wxFileName = wfd.cFileName;
+			menu->AppendSubMenu(submenu, (Ogre::String(wxFileName.c_str().AsChar()).substr(0, Ogre::String(wxFileName.c_str().AsChar()).find(".material"))));
 		}
 		while (FindNextFile(fHandle,&wfd));
 		FindClose(fHandle);
