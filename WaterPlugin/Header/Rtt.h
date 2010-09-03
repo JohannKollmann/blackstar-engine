@@ -279,6 +279,7 @@ public:
 		mEntity->setMaterial(mMaterial);
 
 		mEntity->setVisibilityFlags(1);
+		mEntity->setCastShadows(false);
 
 		//setup rtts
 		mReflectionListener.setCamera(cam);

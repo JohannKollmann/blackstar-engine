@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "wx/wx.h"
 #include "wx/propgrid/propgrid.h"
 
 class wxPropertyGridListener

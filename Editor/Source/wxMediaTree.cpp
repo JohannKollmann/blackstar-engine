@@ -4,11 +4,12 @@
 #include "boost/filesystem/operations.hpp"
 #include "boost/filesystem/path.hpp"
 #include "TransformTool.h"
-#include "OgreEnvironment.h"
+#include "Ogreenvironment.h"
 #include "OgreScriptCompiler.h"
 #include "IceSceneManager.h"
 #include "OgreOggSound.h"
 #include "AmbientOcclusionGenerator.h"
+#include "IceMain.h"
 
 enum
 {
@@ -94,8 +95,8 @@ void wxMediaTree::OnMenuCallback(int id)
 {
 	if (id == AssetTree_bakeAO)
 	{
-		Ogre::Entity *ent = Ice::Main::Instance().GetOgreSceneMgr()->createEntity(mCurrentItem->GetName().c_str());
-		Ogre::String path = GetFullPath(mCurrentItem->GetId()).GetFullPath().c_str();
+		Ogre::Entity *ent = Ice::Main::Instance().GetOgreSceneMgr()->createEntity(mCurrentItem->GetName().c_str().AsChar());
+		Ogre::String path = GetFullPath(mCurrentItem->GetId()).GetFullPath().c_str().AsChar();
 		Ogre::LogManager::getSingleton().logMessage(path);
 		AmbientOcclusionGenerator::Instance().bakeAmbientOcclusion(ent->getMesh(), path);
 	}
@@ -145,7 +146,7 @@ void wxMediaTree::OnRemoveItemCallback()
 	{
 		if (IsMesh(mCurrentItem->GetName()))
 		{
-			Ogre::ResourcePtr rp = Ogre::MeshManager::getSingleton().getByName(mCurrentItem->GetName().c_str());
+			Ogre::ResourcePtr rp = Ogre::MeshManager::getSingleton().getByName(mCurrentItem->GetName().c_str().AsChar());
 			if (!rp.isNull())
 				Ogre::MeshManager::getSingleton().unload(rp->getHandle());
 		}
@@ -159,11 +160,11 @@ void wxMediaTree::OnSelectItemCallback()
 		Ice::SceneManager::Instance().DestroyPreviewRender("EditorPreview");
 		if (IsMesh(mCurrentItem->GetName()))
 		{
-			wxEdit::Instance().GetPreviewWindow()->ShowMesh(mCurrentItem->GetName().c_str());
+			wxEdit::Instance().GetPreviewWindow()->ShowMesh(mCurrentItem->GetName().c_str().AsChar());
 		}
 		else if	(IsTexture(mCurrentItem->GetName()))
 		{
-			wxEdit::Instance().GetPreviewWindow()->ShowTexture(mCurrentItem->GetName().c_str());
+			wxEdit::Instance().GetPreviewWindow()->ShowTexture(mCurrentItem->GetName().c_str().AsChar());
 		}
 		else if (IsAudio(mCurrentItem->GetName()))
 		{
@@ -227,8 +228,8 @@ void wxMediaTree::OnDropExternFilesCallback(const wxArrayString& filenames)
 			Ogre::ResourcePtr rp = Ogre::MeshManager::getSingleton().getByName(target.leaf().c_str());
 			if (!rp.isNull() && !removed)
 			{
-				wxMessageDialog dialog( 0, _T(target.leaf() + " already exists somewehere else!\nRename and try again."),
-					_T("Error"), wxOK);
+				wxMessageDialog dialog( 0, target.leaf() + " already exists somewehere else!\nRename and try again.",
+					"Error", wxOK);
 				dialog.ShowModal();
 				boost::filesystem::remove(target);
 				return;
@@ -238,12 +239,11 @@ void wxMediaTree::OnDropExternFilesCallback(const wxArrayString& filenames)
 			float scale_factor = 1.0f;
 			if (height < 0.3f)
 			{
-				const wxString choices[] = { _T(Ogre::StringConverter::toString(height) + "m [Original]"), _T(Ogre::StringConverter::toString(height*10.0f)+"m"), _T(Ogre::StringConverter::toString(height*100.0f)+"m"), _T(Ogre::StringConverter::toString(height*39.3700787f)+"m")} ;
+				const wxString choices[] = { (Ogre::StringConverter::toString(height) + "m [Original]"), (Ogre::StringConverter::toString(height*10.0f)+"m"), (Ogre::StringConverter::toString(height*100.0f)+"m"), (Ogre::StringConverter::toString(height*39.3700787f)+"m")} ;
 
 				wxSingleChoiceDialog dialog(this,
-											_T(meshpt->getName() + " is really small!\n")
-											_T("Which height sounds realistic to you?"),
-											_T("Epic exporter fail - Rescale?"),
+											(meshpt->getName() + " is really small!\nWhich height sounds realistic to you?"),
+											("Epic exporter fail - Rescale?"),
 											WXSIZEOF(choices), choices);
 
 				dialog.SetSelection(1);
@@ -257,12 +257,11 @@ void wxMediaTree::OnDropExternFilesCallback(const wxArrayString& filenames)
 			}
 			else if (height > 10.0f)
 			{
-				const wxString choices[] = { _T(Ogre::StringConverter::toString(height) + "m [Original]"), _T(Ogre::StringConverter::toString(height/10.0f)+"m"), _T(Ogre::StringConverter::toString(height/100.0f)+"m"), _T(Ogre::StringConverter::toString(height*0.0254f)+"m")} ;
+				const wxString choices[] = { Ogre::StringConverter::toString(height) + "m [Original]", Ogre::StringConverter::toString(height/10.0f)+"m", Ogre::StringConverter::toString(height/100.0f)+"m", Ogre::StringConverter::toString(height*0.0254f)+"m"} ;
 
 				wxSingleChoiceDialog dialog(this,
-					_T(meshpt->getName() + " is really big!\n")
-											_T("Which height sounds realistic to you?"),
-											_T("Epic exporter fail - Rescale?"),
+					meshpt->getName() + " is really big!\nWhich height sounds realistic to you?",
+											"Epic exporter fail - Rescale?",
 											WXSIZEOF(choices), choices);
 
 				dialog.SetSelection(1);
@@ -295,8 +294,8 @@ void wxMediaTree::OnDropExternFilesCallback(const wxArrayString& filenames)
 			Ogre::ResourcePtr rp = Ogre::TextureManager::getSingleton().getByName(target.leaf().c_str());
 			if (!rp.isNull() && !removed)
 			{
-				wxMessageDialog dialog( 0, _T(target.leaf() + " already exists somewehere else!\nRename and try again."),
-					_T("Error"), wxOK);
+				wxMessageDialog dialog( 0, (target.leaf() + " already exists somewehere else!\nRename and try again."),
+					("Error"), wxOK);
 				dialog.ShowModal();
 				boost::filesystem::remove(target);
 				continue;
@@ -319,8 +318,8 @@ void wxMediaTree::OnDropExternFilesCallback(const wxArrayString& filenames)
 						Ogre::String name = line.substr(line.find("material") + 9);
 						if (!Ogre::MaterialManager::getSingleton().getByName(name).isNull())
 						{
-							wxMessageDialog dialog( 0, _T(name + " already exists!\nRename and try again."),
-							_T("Error"), wxOK);
+							wxMessageDialog dialog( 0, (name + " already exists!\nRename and try again."),
+							("Error"), wxOK);
 							dialog.ShowModal();
 							f.close();
 							boost::filesystem::remove(target);

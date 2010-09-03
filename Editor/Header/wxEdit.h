@@ -8,7 +8,6 @@
 #include "wxMaterialTree.h"
 #include "EDTIncludes.h"
 #include "propGridEditIceEditorInterface.h"
-#include "wxMainMenu.h"
 #include "wxPropertyGridWindow.h"
 #include "wxEntityTreeNotebook.h"
 #include "wxSettingsWindow.h"
@@ -21,6 +20,8 @@
 #include "wxLogDisplay.h"
 #include "EDTIncludes.h"
 #include "wxSimpleOgreView.h"
+
+
 
 class wxEdit : public wxFrame, public Ogre::Singleton<wxEdit>
 {
@@ -44,10 +45,25 @@ private:
 	wxSimpleOgreView *mObjectPreviewWindow;
 	wxLogDisplay *mLogDisplay;
 
-	//Menu
-	wxMainMenu* mMenuBar;
-
 public:
+
+	enum
+	{
+		wxMainMenu_loadWorld,
+		wxMainMenu_saveWorld,
+		wxMainMenu_exit,
+		wxMainMenu_loadMesh,
+		wxMainMenu_Mode_Brush,
+		wxMainMenu_Mode_Material,
+		wxMainMenu_Meshes,
+		wxMainMenu_Physics,
+		wxMainMenu_ReloadScripts,
+		wxMainMenu_EditorMeshes,
+		wxMainMenu_About,
+		wxMainMenu_Settings,
+		wxMainMenu_PreviewWindow,
+		wxMainMenu_ShowLog
+	};
 
 	wxEdit();
 
@@ -56,7 +72,7 @@ public:
 	void PostCreate();
 
 	wxMainNotebook* GetMainNotebook() { return mMainNotebook; };
-	wxMainMenu* GetMainMenu() { return mMenuBar; };
+	wxMenuBar* GetMainMenu() { return mMenuBar; };
 	Edit* GetOgrePane();
 	wxEntityTreeNotebook* GetWorldExplorer() { return mWorldExplorer; };
 	wxPropertyGridWindow* GetpropertyWindow() { return mPropertyWindow; };
@@ -82,6 +98,37 @@ public:
 
 	//Singleton
 	static wxEdit& Instance();
+
+
+protected:
+	//menu stuff
+	wxMenuBar* mMenuBar;
+	wxMenu* mFileMenu;
+	wxMenu* mToolsMenu;
+	wxMenu* mWindowsMenu;
+	wxMenu* mSettingsMenu;
+	wxMenu* mAboutMenu;
+
+	void OnLoadWorld(wxCommandEvent& WXUNUSED(event));
+	void OnSaveWorld(wxCommandEvent& WXUNUSED(event));
+	void OnLoadMesh(wxCommandEvent& WXUNUSED(event));
+	void OnExit(wxCommandEvent& WXUNUSED(event));
+
+	void OnEnableBrushMode(wxCommandEvent& WXUNUSED(event));
+	void OnEnableMaterialMode(wxCommandEvent& WXUNUSED(event));
+	void OnReloadScripts(wxCommandEvent& WXUNUSED(event));
+
+	void OnEnablePhysics(wxCommandEvent& WXUNUSED(event));
+	void OnEnableEditorMeshes(wxCommandEvent& WXUNUSED(event));
+
+	void OnMeshEditor(wxCommandEvent& WXUNUSED(event));
+
+	void OnSettings(wxCommandEvent& WXUNUSED(event));
+
+	void OnPreviewWindow(wxCommandEvent& WXUNUSED(event));
+	void OnShowLog(wxCommandEvent& WXUNUSED(event));
+
+	void OnAbout(wxCommandEvent& WXUNUSED(event));
 };
 
 #endif

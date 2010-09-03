@@ -18,7 +18,7 @@
 
 #include <wx/dir.h>
 #include <wx/busyinfo.h>
-#include "../Header/virtualdirtreectrl.h"
+#include "../Header/virtualdirTreectrl.h"
 
 // default images
 
@@ -44,7 +44,7 @@ wxVirtualDirTreeCtrl::wxVirtualDirTreeCtrl(wxWindow* parent, wxWindowID id, cons
 	: wxTreeCtrl(parent, id, pos, size, style, validator, name)
 	, _flags(wxVDTC_DEFAULT)
 {
-	// create an icon list for the tree ctrl
+	// create an icon list for the Tree ctrl
 	_iconList = new wxImageList(16,16);
 
 	// reset to default extension list
@@ -99,7 +99,7 @@ bool wxVirtualDirTreeCtrl::SetRootPath(const wxString &root, int flags)
 
 			if(OnAddRoot(*start, path))
 			{
-				// add this item to the tree, with info of the developer
+				// add this item to the Tree, with info of the developer
 				wxTreeItemId id = AddRoot(start->GetCaption(), start->GetIconId(), start->GetSelectedIconId(), start);
 
 				// show a busy dialog
@@ -137,7 +137,7 @@ int wxVirtualDirTreeCtrl::ScanFromDir(VdtcTreeItemBase *item, const wxFileName &
 	if(level == -1 || level > 0)
 	{
 		// TODO: Maybe when a reload is issued, delete all items that are no longer present
-		// in the tree (on disk) and check if all new items are present, else add them
+		// in the Tree (on disk) and check if all new items are present, else add them
 
 		// if no items, then go iterate and get everything in this branch
 		if(GetChildrenCount(item->GetId()) == 0)
@@ -164,7 +164,7 @@ int wxVirtualDirTreeCtrl::ScanFromDir(VdtcTreeItemBase *item, const wxFileName &
 
 				AddItemsToTreeCtrl(item, addedItems);
 
-				// call handler to tell that the items are on the tree ctrl
+				// call handler to tell that the items are on the Tree ctrl
 				OnAddedItems(item);
 			}
 		}
@@ -336,7 +336,7 @@ void wxVirtualDirTreeCtrl::AddItemsToTreeCtrl(VdtcTreeItemBase *item, VdtcTreeIt
 	wxCHECK2(item, return);
 
 	// now loop through all elements on this level and add them
-	// to the tree ctrl pointed out by 'id'
+	// to the Tree ctrl pointed out by 'id'
 
 	VdtcTreeItemBase *t;
 	wxTreeItemId id = item->GetId();
@@ -575,7 +575,7 @@ VdtcTreeItemBase *wxVirtualDirTreeCtrl::AddDirItem(const wxString &name)
 void wxVirtualDirTreeCtrl::OnAssignIcons(wxImageList &icons)
 {
 	wxBitmap *bmp;
-	// default behaviour, assign three bitmaps
+	// default behaviour, assign thwxTree bitmaps
 
 	bmp = CreateRootBitmap();
 	icons.Add(*bmp);
@@ -625,7 +625,7 @@ bool wxVirtualDirTreeCtrl::OnAddDirectory(VdtcTreeItemBase &item, const wxFileNa
 void wxVirtualDirTreeCtrl::OnSetRootPath(const wxString &root)
 {
 	// do nothing here, but it can be used to start initialisation
-	// based upon the setting of the root (which means a renewal from the tree)
+	// based upon the setting of the root (which means a renewal from the Tree)
 }
 
 void wxVirtualDirTreeCtrl::OnAddedItems(const wxTreeItemId &parent)

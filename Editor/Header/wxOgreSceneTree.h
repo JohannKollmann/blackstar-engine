@@ -7,10 +7,10 @@ Zeigt ein Ice::GameObject mit allen children geordnet nach Typ (Licht, Geometrie
 */
 
 #include <wx/dynarray.h>
-#include <wx/treectrl.h>
+#include <wx/Treectrl.h>
 #include <wx/filesys.h>
 #include <wx/imaglist.h>
-#include "virtualdirtreectrl.h"
+#include "virtualdirTreectrl.h"
 #include "Ogre.h"
 #include "wxEdit.h"
 #include "IceGameObject.h"

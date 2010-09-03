@@ -35,11 +35,11 @@ wxScriptEditor::wxScriptEditor(wxWindow *parent, wxWindowID id,
     StyleSetForeground (wxSTC_STYLE_DEFAULT, *wxBLACK);
     StyleSetBackground (wxSTC_STYLE_DEFAULT, *wxWHITE);
 
-    StyleSetForeground (wxSTC_STYLE_LINENUMBER, wxColour (_T("DARK GREY")));
+    StyleSetForeground (wxSTC_STYLE_LINENUMBER, wxColour("DARK GREY"));
     StyleSetBackground (wxSTC_STYLE_LINENUMBER, *wxWHITE);
-    StyleSetForeground (wxSTC_STYLE_INDENTGUIDE, wxColour (_T("DARK GREY")));
+    StyleSetForeground (wxSTC_STYLE_INDENTGUIDE, wxColour("DARK GREY"));
 
-    SetMarginWidth (0, TextWidth (wxSTC_STYLE_LINENUMBER, _T("_99999")));
+    SetMarginWidth(0, TextWidth(wxSTC_STYLE_LINENUMBER, "_99999"));
 
 	StyleClearAll();
 	SetLexer(wxSTC_LEX_LUA);
@@ -57,7 +57,7 @@ wxScriptEditor::wxScriptEditor(wxWindow *parent, wxWindowID id,
 	//Keywords
 	StyleSetBold(5, true);
 	StyleSetForeground(5, wxColour("blue"));
-	SetKeyWords(0, wxT("and break do else elseif end for function if local nil not or repeat return then until while true false"));
+	SetKeyWords(0, ("and break do else elseif end for function if local nil not or repeat return then until while true false"));
 
 	//Strings
 	StyleSetForeground(6, wxColour("brown"));

@@ -15,6 +15,8 @@
 
 #include "IceSceneManager.h"
 
+#include <atlbase.h>
+
 
 BEGIN_EVENT_TABLE(wxMaterialTree, wxTreeCtrl)
 	EVT_TREE_ITEM_MENU(-1, wxMaterialTree::OnItemMenu)
@@ -26,7 +28,7 @@ wxMaterialTree::wxMaterialTree(wxWindow* parent, wxWindowID id, const wxPoint& p
 	: wxTreeCtrl(parent, id, pos, size, style, validator, name)
 	, _flags(wxVDTC_DEFAULT)
 {
-	// create an icon list for the tree ctrl
+	// create an icon list for the Tree ctrl
 	_iconList = new wxImageList(16,16);
 	
 	mCallbackIDCounter = 10500;
@@ -85,7 +87,7 @@ void wxMaterialTree::Update()
 
 	if(start)
 	{
-		// add this item to the tree, with info of the developer
+		// add this item to the Tree, with info of the developer
 		wxTreeItemId id = AddRoot(start->GetCaption(), start->GetIconId(), start->GetSelectedIconId(), start);
 
 		OgreMaterialTreeItemBase *othermaterials = OnCreateTreeFolder("Other");
@@ -179,7 +181,7 @@ void wxMaterialTree::AddItemsToTreeCtrl(OgreMaterialTreeItemBase *item, OgreMate
 	wxCHECK2(item, return);
 
 	// now loop through all elements on this level and add them
-	// to the tree ctrl pointed out by 'id'
+	// to the Tree ctrl pointed out by 'id'
 
 	OgreMaterialTreeItemBase *t;
 	wxTreeItemId id = item->GetId();
@@ -214,7 +216,7 @@ wxBitmap *wxMaterialTree::CreateNodeBitmap()
 void wxMaterialTree::OnAssignIcons(wxImageList &icons)
 {
 	wxBitmap *bmp;
-	// default behaviour, assign three bitmaps
+	// default behaviour, assign thwxTree bitmaps
 
 	bmp = CreateRootBitmap();
 	icons.Add(*bmp);
@@ -301,12 +303,13 @@ void wxMaterialTree::UpdateTemplates()
 		mMaterialOptions.clear();
 		HANDLE fHandle;
 		WIN32_FIND_DATA wfd;
-		fHandle=FindFirstFile("Data/Scripts/materials/scripts/Templates/*.material",&wfd);
+		fHandle=FindFirstFile(L"Data/Scripts/materials/scripts/Templates/*.material",&wfd);
 		do
 		{
 			wxMenu *submenu = new wxMenu("");
 
-			Ogre::String filename = Ogre::String("Data/Scripts/materials/scripts/Templates/") + Ogre::String(wfd.cFileName);
+			USES_CONVERSION;
+			Ogre::String filename = Ogre::String("Data/Scripts/materials/scripts/Templates/") + Ogre::String(W2A(wfd.cFileName));
 			Ogre::String tmpMapName = "";
 			std::fstream f;
 			char cstring[256];
@@ -322,7 +325,7 @@ void wxMaterialTree::UpdateTemplates()
 				if (line.find("abstract material") != Ogre::String::npos)
 				{
 					Ogre::String name = line.substr(line.find("abstract material") + 18, line.size());
-					submenu->Append(mCallbackIDCounter, wxT(name.c_str()));
+					submenu->Append(mCallbackIDCounter, (name.c_str()));
 					AddOption(filename, name);
 					if (tmpMapName != "")
 					{
@@ -351,12 +354,13 @@ void wxMaterialTree::ShowMenu(OgreMaterialTreeItemBase *item, const wxPoint& pt)
 
 		HANDLE fHandle;
 		WIN32_FIND_DATA wfd;
-		fHandle=FindFirstFile("Data/Scripts/materials/scripts/Templates/*.material",&wfd);
+		fHandle=FindFirstFile(L"Data/Scripts/materials/scripts/Templates/*.material",&wfd);
 		do
 		{
 			wxMenu *submenu = new wxMenu("");
 
-			Ogre::String filename = Ogre::String("Data/Scripts/materials/scripts/Templates/") + Ogre::String(wfd.cFileName);
+			USES_CONVERSION;
+			Ogre::String filename = Ogre::String("Data/Scripts/materials/scripts/Templates/") + Ogre::String(W2A(wfd.cFileName));
 			std::fstream f;
 			char cstring[256];
 			f.open(filename.c_str(), std::ios::in);
@@ -367,14 +371,13 @@ void wxMaterialTree::ShowMenu(OgreMaterialTreeItemBase *item, const wxPoint& pt)
 				if (line.find("abstract material") != Ogre::String::npos)
 				{
 					Ogre::String name = line.substr(line.find("abstract material") + 18, line.size());
-					submenu->Append(mCallbackIDCounter, wxT(name.c_str()));
+					submenu->Append(mCallbackIDCounter, (name.c_str()));
 					AddOption(filename, name);
 				}
 			}
 			f.close();
 
-
-			menu->AppendSubMenu(submenu, wxT(Ogre::String(wfd.cFileName).substr(0, Ogre::String(wfd.cFileName).find(".material"))));
+			menu->AppendSubMenu(submenu, (Ogre::String(W2A(wfd.cFileName)).substr(0, Ogre::String(W2A(wfd.cFileName)).find(".material"))));
 		}
 		while (FindNextFile(fHandle,&wfd));
 		FindClose(fHandle);

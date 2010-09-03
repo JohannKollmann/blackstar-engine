@@ -139,7 +139,7 @@ void wxFileTree::OnMenuEvent(wxCommandEvent& event)
 	int id = event.GetId();
 	if (id == ResTree_rename)
 	{
-		/*wxTreeEvent renameevent(wxEVT_COMMAND_TREE_BEGIN_LABEL_EDIT, this, mCurrentItem->GetId());
+		/*wxTreeEvent renameevent(wxEVT_COMMAND_Tree_BEGIN_LABEL_EDIT, this, mCurrentItem->GetId());
 		ProcessEvent(renameevent);*/
 	}
 	if (id == ResTree_addDir)
@@ -148,9 +148,9 @@ void wxFileTree::OnMenuEvent(wxCommandEvent& event)
 		Ogre::String BasePath = Ogre::String(this->GetRelativePath(mCurrentItem->GetId()).GetPath().c_str());
 		Ogre::String Path = mRootPath + PATH_SEPERATOR + BasePath;
 		wxTextEntryDialog dialog(this,
-			_T("Enter folder name:"),
-			_T("Please enter a string"),
-			_T(""),
+			"Enter folder name:",
+			"Please enter a string",
+			"",
 			wxOK | wxCANCEL);
 
 		Ogre::String Folder = "";
@@ -208,9 +208,9 @@ Ogre::String wxFileTree::GetInsertPath()
 Ogre::String wxFileTree::DoCreateFileDialog()
 {
 	wxTextEntryDialog dialog(this,
-		_T("Enter file name:"),
-		_T("Please enter a string"),
-		_T(""),
+		"Enter file name:",
+		"Please enter a string",
+		"",
 		wxOK | wxCANCEL);
 
 	Ogre::String File = "";

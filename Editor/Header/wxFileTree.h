@@ -2,7 +2,7 @@
 #pragma once
 
 #include "EDTIncludes.h"
-#include "virtualdirtreectrl.h"
+#include "virtualdirTreectrl.h"
 #include "Ogre.h"
 #include <wx/dnd.h>
 

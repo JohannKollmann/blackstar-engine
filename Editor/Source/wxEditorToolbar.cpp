@@ -10,7 +10,7 @@ END_EVENT_TABLE()
 
 wxEditorToolbar::wxEditorToolbar(wxWindow *parent)
 : 	wxToolBar(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize,
-		wxTB_FLAT | wxTB_NODIVIDER)// | wxTB_VERTICAL)
+		wxTB_FLAT | wxTB_NODIVIDER)// | B_VERTICAL)
 {
 	SetToolBitmapSize(wxSize(30,25));
 	mCurrentID = 101;

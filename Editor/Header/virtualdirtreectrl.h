@@ -5,11 +5,11 @@
 // Copyright:   XX
 /////////////////////////////////////////////////////////////////////////////
 
-#ifndef __WXVIRTUALDIRTREECTRL_H__
-#define __WXVIRTUALDIRTREECTRL_H__
+#ifndef __WXVIRTUALDIRTreeCTRL_H__
+#define __WXVIRTUALDIRTreeCTRL_H__
 
 //#ifdef __GNUG__
-//    #pragma interface "virtualdirtreectrl.cpp"
+//    #pragma interface "virtualdirTreectrl.cpp"
 //#endif
 
 #ifndef WX_PRECOMP
@@ -17,7 +17,7 @@
 #endif
 
 #include <wx/dynarray.h>
-#include <wx/treectrl.h>
+#include <wx/Treectrl.h>
 #include <wx/filesys.h>
 #include <wx/imaglist.h>
 
@@ -83,7 +83,7 @@ protected:
 public:
 	/** Default constructor. Pass the parent of this node as a VdtcTreeItemBase object, the type
 	    of this object (VDTC_TI_ROOT,VDTC_TI_DIR, VDTC_TI_FILE or added types but leave these
-		three in place), and the name of the object (i.e. filename or dir name). When deriving this
+		thwxTree in place), and the name of the object (i.e. filename or dir name). When deriving this
 		class make sure you call the constructor propertly. The types are of essence for some
 		internal functions. For example:
 
@@ -109,8 +109,8 @@ public:
 	/** Default destructor */
 	virtual ~VdtcTreeItemBase()
 	{
-		// NOTE: do not delete the tree item
-		// because the tree item deletes this item data
+		// NOTE: do not delete the Tree item
+		// because the Tree item deletes this item data
 	};
 
 	/** Virtual function to report the caption back to the wxTreeCtrl to be added. If the caption should be
@@ -177,14 +177,14 @@ public:
 
 };
 
-// the formal definition of the array of pointers for tree item base
+// the formal definition of the array of pointers for Tree item base
 WX_DEFINE_ARRAY(VdtcTreeItemBase *, VdtcTreeItemBaseArray);
 
 /**
 	\class wxVirtualDirTreeCtrl
-	A class which allows the user to browse through a 'virtual' treectrl, fully customizable when it's derived.
+	A class which allows the user to browse through a 'virtual' Treectrl, fully customizable when it's derived.
 
-	The wxVirtualDirTreeCtrl can be used for displaying the directory structure in a tree ctrl just like the
+	The wxVirtualDirTreeCtrl can be used for displaying the directory structure in a Tree ctrl just like the
 	wxDirCtrl, but has much more advantages and flexibility for the developer. A list of some of the functionality
 	embedded:
 
@@ -202,7 +202,7 @@ protected:
 	int _flags;
 
 	/** Scans from given dir, for 'level' depth and with present extensions. This will
-	    reload the directory on that level. If there are tree items associated with the 'reloaded'
+	    reload the directory on that level. If there are Tree items associated with the 'reloaded'
 		items they will be deleted first. */
 	int ScanFromDir(VdtcTreeItemBase *item, const wxFileName &path, int level);
 
@@ -274,7 +274,7 @@ public:
 	bool SetRootPath(const wxString &root, int flags = wxVDTC_DEFAULT);
 
 	/** Resets the extensions to "*.*" as default (or "*" under linux). The extension will be used
-		upon next reload of the directory tree. In between extensions can be changed but will have
+		upon next reload of the directory Tree. In between extensions can be changed but will have
 		no effect upon the directory scanning mechanism until the next SetRootPath */
 	void ResetExtensions() {
 		_extensions.Clear();
@@ -291,12 +291,12 @@ public:
 	    root node. This can be used in ExpandToPath(). A check is made if the object belonging to this
 		wxTreeItemId is of the type directory or file. In both cases the relative path (plus filename if
 		it is a file) is returned. When the object pointed out by wxTreeItemId is of the type root, an
-		empty wxFileName is returned. Be warned, these functions can take some time because the whole tree
+		empty wxFileName is returned. Be warned, these functions can take some time because the whole Tree
 		structure is iterated from the top node down to the root */
 	wxFileName GetRelativePath(const wxTreeItemId &id);
 
 	/** Return full path of given node. This can also include the name of the file. This will be returned as
-	    a wxFileName (with path and possible name) to be used further. Be warned, these functions can take some time because the whole tree
+	    a wxFileName (with path and possible name) to be used further. Be warned, these functions can take some time because the whole Tree
 		structure is iterated from the top node down to the root. */
 	wxFileName GetFullPath(const wxTreeItemId &id);
 
@@ -319,9 +319,9 @@ public:
 
 	/** Expands from root, to the given path. Every path in the wxFileName is looked up and expanded. When
 	    a path section is not found, this method aborts and returns a wxTreeItemId with value 0. When it succeeds
-		the wxTreeItemId is returned of the last tree item that was expanded.
+		the wxTreeItemId is returned of the last Tree item that was expanded.
 
-		<b>A special note:</b> Don't include the root path of the current tree in the filename. This part of the path
+		<b>A special note:</b> Don't include the root path of the current Tree in the filename. This part of the path
 		is not used to scan. Use GetRelativePath to get the path up until a specific node. This method is useful
 		to expand earlier paths after restoring the window state.
 		\sa GetRelativePath */
@@ -354,7 +354,7 @@ public:
 	    the wxVirtualDirTreeCtrl. It can be useful to initialise the class that derived this class as well. The
 		root is passed as parameter to inform which root is going to be set. NOTE: When this method is called,
 		the following criteria is true:
-		- The tree is completely empty
+		- The Tree is completely empty
 		- The path parameter is valid. When it's not valid this call is not made */
 	virtual void OnSetRootPath(const wxString &root);
 
@@ -417,7 +417,7 @@ public:
 	*/
 	virtual bool OnAddRoot(VdtcTreeItemBase &item, const wxFileName &name);
 
-	/** This handler is called before a file VdtcTreeItemBase item is added to the tree. For every file added in the tree this
+	/** This handler is called before a file VdtcTreeItemBase item is added to the Tree. For every file added in the Tree this
 		handler is called. It allows you to change the name or caption of the item, and also gain more information
 		or change the contents of the associated VdtcTreeItemBase class. The wxFileName contains the full path
 		of the item to be added, so it can be easily inspected, and tested for specific extensions, parts of the
@@ -427,7 +427,7 @@ public:
 	*/
 	virtual bool OnAddFile(VdtcTreeItemBase &item, const wxFileName &name);
 
-	/** This handler is called before a directory item is added to the tree. For every dir added in the tree this
+	/** This handler is called before a directory item is added to the Tree. For every dir added in the Tree this
 		handler is called. It allows you to change the name of the item or the caption, and also gain more information of the
 		directory, and check if specific files are present. The wxFileName contains the full path of the directory
 		to be added, so it can be easily inspected, and tested for specific criteria, parts of the name and what else.
@@ -453,13 +453,13 @@ public:
 		
 	virtual void OnDirectoryScanEnd(VdtcTreeItemBaseArray &items, const wxFileName &path);
 
-	/** This handler is called the very moment after all items are added to the tree control. The parent parameter
-	    contains the tree node to which the items are added. They are already sorted and ready. E.g. when you don't
+	/** This handler is called the very moment after all items are added to the Tree control. The parent parameter
+	    contains the Tree node to which the items are added. They are already sorted and ready. E.g. when you don't
 		want to use the internal sort algoritm this is a nice place to call SortChildren on the parent node */
 
 	virtual void OnAddedItems(const wxTreeItemId &parent);
 
-	/** This handler is called during the sorting of the tree control items. Return < 0 when a < b, > 0 when a > b
+	/** This handler is called during the sorting of the Tree control items. Return < 0 when a < b, > 0 when a > b
 	    and 0 when a == b.
 	*/
 	virtual int OnCompareItems(const VdtcTreeItemBase *a, const VdtcTreeItemBase *b);

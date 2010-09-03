@@ -43,9 +43,9 @@ Ogre::String wxEditIceDataMap::SectionToDataMap(wxPropertyGridIterator &it, Ice:
 			Ice::DataMap::Enum enu;
 			for (unsigned int ci = 0; ci < choices.GetCount(); ci++)
 			{
-				enu.choices.push_back(choices.Item(ci).GetText().c_str());
+				enu.choices.push_back(choices.Item(ci).GetText().c_str().AsChar());
 			}
-			enu.selection = enumProp->GetCurrentChoice()->GetValue();
+			enu.selection = enumProp->GetValue().GetInteger();		//todo??
 			data->AddEnum(key, enu.choices, enu.selection);
 		}
 		if (prop_type == Ice::GenericProperty::PropertyTypes::VECTOR3)
@@ -119,23 +119,23 @@ Ogre::String wxEditIceDataMap::SectionToDataMap(wxPropertyGridIterator &it, Ice:
 
 void wxEditIceDataMap::AddDataMapSection(Ogre::String name, Ice::DataMap &map, bool expand)
 {
-	wxPGProperty* csprop = mPropGrid->Append( new wxPropertyCategory(wxT(name.c_str()), wxT(name.c_str())));
+	wxPGProperty* csprop = mPropGrid->Append( new wxPropertyCategory((name.c_str()), (name.c_str())));
 	while (map.HasNext())
 	{
 		Ice::DataMap::Item entry = map.GetNext();
 		Ogre::String key = entry.key;
 		Ice::GenericProperty::PropertyTypes prop_type = entry.data.getType();
 		Ogre::String internname = Ogre::StringConverter::toString(static_cast<int>(prop_type)) + "|" + key + "--" + name;
-		if (prop_type == Ice::GenericProperty::PropertyTypes::INT) mPropGrid->AppendIn(csprop, new wxIntProperty(wxT(key.c_str()), wxT(internname.c_str()), entry.data.Get<int>() ));
-		if (prop_type == Ice::GenericProperty::PropertyTypes::FLOAT) mPropGrid->AppendIn(csprop, new wxFloatProperty(wxT(key.c_str()), wxT(internname.c_str()), entry.data.Get<float>() ));
-		if (prop_type == Ice::GenericProperty::PropertyTypes::BOOL) mPropGrid->AppendIn(csprop, new wxBoolProperty(wxT(key.c_str()), wxT(internname.c_str()), entry.data.Get<bool>() ));
+		if (prop_type == Ice::GenericProperty::PropertyTypes::INT) mPropGrid->AppendIn(csprop, new wxIntProperty((key.c_str()), (internname.c_str()), entry.data.Get<int>() ));
+		if (prop_type == Ice::GenericProperty::PropertyTypes::FLOAT) mPropGrid->AppendIn(csprop, new wxFloatProperty((key.c_str()), (internname.c_str()), entry.data.Get<float>() ));
+		if (prop_type == Ice::GenericProperty::PropertyTypes::BOOL) mPropGrid->AppendIn(csprop, new wxBoolProperty((key.c_str()), (internname.c_str()), entry.data.Get<bool>() ));
 		if (prop_type == Ice::GenericProperty::PropertyTypes::VECTOR3)
 		{
 			Ogre::Vector3 vec = entry.data.Get<Ogre::Vector3>();
-			wxPGProperty* vecprop = mPropGrid->AppendIn(csprop, new wxStringProperty(wxT(key.c_str()), wxT(internname.c_str())));
-			mPropGrid->AppendIn(vecprop, new wxFloatProperty(wxT("X"), wxT((internname + "__X").c_str()), vec.x) );
-			mPropGrid->AppendIn(vecprop, new wxFloatProperty(wxT("Y"), wxT((internname + "__Y").c_str()), vec.y) );
-			mPropGrid->AppendIn(vecprop, new wxFloatProperty(wxT("Z"), wxT((internname + "__Z").c_str()), vec.z) );
+			wxPGProperty* vecprop = mPropGrid->AppendIn(csprop, new wxStringProperty((key.c_str()), (internname.c_str())));
+			mPropGrid->AppendIn(vecprop, new wxFloatProperty(("X"), ((internname + "__X").c_str()), vec.x) );
+			mPropGrid->AppendIn(vecprop, new wxFloatProperty(("Y"), ((internname + "__Y").c_str()), vec.y) );
+			mPropGrid->AppendIn(vecprop, new wxFloatProperty(("Z"), ((internname + "__Z").c_str()), vec.z) );
 			vecprop->SetExpanded(false);
 		}
 		if (prop_type == Ice::GenericProperty::PropertyTypes::QUATERNION)
@@ -145,24 +145,24 @@ void wxEditIceDataMap::AddDataMapSection(Ogre::String name, Ice::DataMap &map, b
 			quat.ToRotationMatrix(mat3);
 			Ogre::Radian yRad, pRad, rRad;
 			mat3.ToEulerAnglesYXZ(yRad, pRad, rRad);
-			wxPGProperty* quatprop = mPropGrid->AppendIn(csprop, new wxStringProperty(wxT(key.c_str()), wxT(internname.c_str())));
-			mPropGrid->AppendIn(quatprop, new wxFloatProperty(wxT("Pitch"), wxT((internname + "__Pitch").c_str()), pRad.valueDegrees()) );
-			mPropGrid->AppendIn(quatprop, new wxFloatProperty(wxT("Yaw"), wxT((internname + "__Yaw").c_str()), yRad.valueDegrees()) );
-			mPropGrid->AppendIn(quatprop, new wxFloatProperty(wxT("Roll"), wxT((internname + "__Roll").c_str()), rRad.valueDegrees()) );
+			wxPGProperty* quatprop = mPropGrid->AppendIn(csprop, new wxStringProperty((key.c_str()), (internname.c_str())));
+			mPropGrid->AppendIn(quatprop, new wxFloatProperty(("Pitch"), ((internname + "__Pitch").c_str()), pRad.valueDegrees()) );
+			mPropGrid->AppendIn(quatprop, new wxFloatProperty(("Yaw"), ((internname + "__Yaw").c_str()), yRad.valueDegrees()) );
+			mPropGrid->AppendIn(quatprop, new wxFloatProperty(("Roll"), ((internname + "__Roll").c_str()), rRad.valueDegrees()) );
 			quatprop->SetExpanded(false);
 		}
 		if (prop_type == Ice::GenericProperty::PropertyTypes::STRING)
 		{
 			Ogre::String str = entry.data.Get<Ogre::String>();
-			mPropGrid->AppendIn(csprop, new wxStringProperty(wxT(key.c_str()), wxT(internname.c_str()), wxT(str.c_str())) );
+			mPropGrid->AppendIn(csprop, new wxStringProperty((key.c_str()), (internname.c_str()), (str.c_str())) );
 		}
 		if (prop_type == Ice::GenericProperty::PropertyTypes::ENUM)
 		{
 			Ice::DataMap::Enum enu = entry.data.Get<Ice::DataMap::Enum>();
 			wxPGChoices choices;
 			for (unsigned int choiceIter = 0; choiceIter < enu.choices.size(); choiceIter++)
-				choices.Add(wxT(enu.choices[choiceIter].c_str()), choiceIter);
-			mPropGrid->AppendIn(csprop, new wxEnumProperty(wxT(key.c_str()), wxT(internname.c_str()), choices, enu.selection));
+				choices.Add((enu.choices[choiceIter].c_str()), choiceIter);
+			mPropGrid->AppendIn(csprop, new wxEnumProperty((key.c_str()), (internname.c_str()), choices, enu.selection));
 		}
 	}
 	csprop->SetExpanded(expand);

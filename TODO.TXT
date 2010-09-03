@@ -8,7 +8,6 @@
 
 
 [Shader]
-- Volumetric lighting (compositor)
 - Automatischer Texturübergang
 - Kombinieren von 2 verschieden skalierten normalmaps (r und g channels adden)
 - Point Lights mit Schatten und volumetric lighting
@@ -18,19 +17,11 @@
 
 [DEMO]
 Jump'nRun
-- bewegende Plattformen
-- Gravity Effekte
-- Dialoge mit den Entwicklern
 - Quests: Orte erreichen, Sachen aufheben (Trigger)
-- Hebel / Schalter
 
 Features
 
 - "Matrix-Effekt": Mover-Kamera
-- "Normale" Mover
-    - target
-    - Up-Vektor
-- Force Fields
 - Partikeleffekte
 - Räumliche Trigger
 - Collision Callbacks

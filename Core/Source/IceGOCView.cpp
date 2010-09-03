@@ -9,7 +9,7 @@ namespace Ice
 
 	GOCEditorVisualised::~GOCEditorVisualised()
 	{
-		if (mEditorVisual)
+		if (mEditorVisual && mOwnerGO)
 		{
 			GetNode()->detachObject(mEditorVisual);
 			Main::Instance().GetOgreSceneMgr()->destroyEntity(mEditorVisual);

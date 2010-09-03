@@ -4,6 +4,7 @@
 #include "Saveable.h"
 
 #include "..\LowLevelLibs\LoadSave_dll.h"
+//#include <atlbase.h>
 
 namespace LoadSave
 {
@@ -26,6 +27,7 @@ namespace LoadSave
 		void OpenAtomArray(std::string strType, std::vector<int> dimSizes, std::string varName);
 		void AddAtom(std::string strType, void* pData);
 		void AddAtomA(std::string strType, void* pData){this->AddAtom(strType, pData);}
+		//void AddAtomW(std::wstring strType, void* pData){USES_CONVERSION; this->AddAtom(W2A(strType.c_str()), pData);}
 		void OpenObjectArray(std::string strType, std::vector<int> dimSizes, std::string varName);
 		void AddObject(Saveable* pObj);
 

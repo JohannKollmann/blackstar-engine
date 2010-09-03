@@ -8,7 +8,7 @@ damages arising from the use of this software.
 
 Permission is granted to anyone to use this software for any
 purpose, including commercial applications, and to alter it and
-redistribute it freely, subject to the following restrictions:
+redistribute it Freely, subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must
 not claim that you wrote the original software. If you use this
@@ -187,11 +187,11 @@ const TiXmlEncoding TIXML_DEFAULT_ENCODING = TIXML_ENCODING_UNKNOWN;
 
 	An Element can contain:	Element (container or leaf)
 							Text	(leaf)
-							Attributes (not on tree)
+							Attributes (not on Tree)
 							Comment (leaf)
 							Unknown (leaf)
 
-	A Decleration contains: Attributes (not on tree)
+	A Decleration contains: Attributes (not on Tree)
 	@endverbatim
 */
 class TiXmlBase
@@ -717,7 +717,7 @@ public:
 	virtual TiXmlNode* Clone() const = 0;
 
 	/** Accept a hierchical visit the nodes in the TinyXML DOM. Every node in the 
-		XML tree will be conditionally visited and the host will be called back
+		XML Tree will be conditionally visited and the host will be called back
 		via the TiXmlVisitor interface.
 
 		This is essentially a SAX interface for TinyXML. (Note however it doesn't re-parse
@@ -1126,7 +1126,7 @@ public:
 	virtual const TiXmlElement*     ToElement()     const { return this; } ///< Cast to a more defined type. Will return null not of the requested type.
 	virtual TiXmlElement*           ToElement()	          { return this; } ///< Cast to a more defined type. Will return null not of the requested type.
 
-	/** Walk the XML tree visiting this node and all of its children. 
+	/** Walk the XML Tree visiting this node and all of its children. 
 	*/
 	virtual bool Accept( TiXmlVisitor* visitor ) const;
 
@@ -1180,7 +1180,7 @@ public:
 	virtual const TiXmlComment*  ToComment() const { return this; } ///< Cast to a more defined type. Will return null not of the requested type.
 	virtual TiXmlComment*  ToComment() { return this; } ///< Cast to a more defined type. Will return null not of the requested type.
 
-	/** Walk the XML tree visiting this node and all of its children. 
+	/** Walk the XML Tree visiting this node and all of its children. 
 	*/
 	virtual bool Accept( TiXmlVisitor* visitor ) const;
 
@@ -1243,7 +1243,7 @@ public:
 	virtual const TiXmlText* ToText() const { return this; } ///< Cast to a more defined type. Will return null not of the requested type.
 	virtual TiXmlText*       ToText()       { return this; } ///< Cast to a more defined type. Will return null not of the requested type.
 
-	/** Walk the XML tree visiting this node and all of its children. 
+	/** Walk the XML Tree visiting this node and all of its children. 
 	*/
 	virtual bool Accept( TiXmlVisitor* content ) const;
 
@@ -1319,7 +1319,7 @@ public:
 	virtual const TiXmlDeclaration* ToDeclaration() const { return this; } ///< Cast to a more defined type. Will return null not of the requested type.
 	virtual TiXmlDeclaration*       ToDeclaration()       { return this; } ///< Cast to a more defined type. Will return null not of the requested type.
 
-	/** Walk the XML tree visiting this node and all of its children. 
+	/** Walk the XML Tree visiting this node and all of its children. 
 	*/
 	virtual bool Accept( TiXmlVisitor* visitor ) const;
 
@@ -1364,7 +1364,7 @@ public:
 	virtual const TiXmlUnknown*     ToUnknown()     const { return this; } ///< Cast to a more defined type. Will return null not of the requested type.
 	virtual TiXmlUnknown*           ToUnknown()	    { return this; } ///< Cast to a more defined type. Will return null not of the requested type.
 
-	/** Walk the XML tree visiting this node and all of its children. 
+	/** Walk the XML Tree visiting this node and all of its children. 
 	*/
 	virtual bool Accept( TiXmlVisitor* content ) const;
 
@@ -1530,7 +1530,7 @@ public:
 	virtual const TiXmlDocument*    ToDocument()    const { return this; } ///< Cast to a more defined type. Will return null not of the requested type.
 	virtual TiXmlDocument*          ToDocument()          { return this; } ///< Cast to a more defined type. Will return null not of the requested type.
 
-	/** Walk the XML tree visiting this node and all of its children. 
+	/** Walk the XML Tree visiting this node and all of its children. 
 	*/
 	virtual bool Accept( TiXmlVisitor* content ) const;
 
@@ -1636,7 +1636,7 @@ private:
 class TiXmlHandle
 {
 public:
-	/// Create a handle from any node (at any depth of the tree.) This can be a null pointer.
+	/// Create a handle from any node (at any depth of the Tree.) This can be a null pointer.
 	TiXmlHandle( TiXmlNode* _node )					{ this->node = _node; }
 	/// Copy constructor
 	TiXmlHandle( const TiXmlHandle& ref )			{ this->node = ref.node; }

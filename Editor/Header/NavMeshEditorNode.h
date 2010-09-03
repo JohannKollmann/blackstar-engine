@@ -46,7 +46,7 @@ protected:
 		void _destroyEdge(NeighbourBind bind);
 		NeighbourBind* _getExistingNeighbourBind(NavMeshEditorNodePtr n);
 		void _connect(NeighbourBind &bind);
-		void _ensureEdges();
+		void _ensureedges();
 		NeighbourBind* _getBorderEdge(NavMeshEditorNodePtr n);
 
 	public:
