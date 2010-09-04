@@ -1,4 +1,4 @@
-#Einführung in die Benutzoberfläche des Editors.
+#summary Einführung in die Benutzoberfläche des Editors.
 
 = Überblick =
 
