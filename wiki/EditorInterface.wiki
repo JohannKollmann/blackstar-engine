@@ -2,46 +2,33 @@
 
 === Einleitung ===
 Mit dem Editor lassen sich Objekte platzieren - Lichter, Meshes, Npcs, Waypoints usw.
-Damit man nicht für jede neue Komponentenklasse, die im Editor benutzbar sein soll, den Gui-Code verändern muss, wurde das Editor Interface geschaffen. Klassen, die das Editor Interface bereitstellen wollen, müssen die Klasse EditorInterface implementieren.
+Damit man nicht für jede neue Komponentenklasse, die im Editor benutzbar sein soll, den Gui-Code verändern muss, wurde das Editor Interface geschaffen. Klassen, die das Editor Interface bereitstellen wollen, müssen die Klasse EditorInterface implementieren. Komponenten müssen die Klasse GOCEditorInterface implementieren.
 
 === Funktionsweise ===
 Klassen, die das Editor Interface implementieren, müssen gewisse Methoden bereitstellen, die vom Editor benutzt werden:
 
-{{{void CreateFromDataMap(SGTDataMap *parameters)}}}
-Diese Methode initialisiert das Objekt, die Parameter werden in einer "Datamap" übergeben. Eine Datamap ist ein Set von Parametern, die vom Typ bool, int, float String, Vector3, Quaternion oder ColourValue sein können. Jedem Parameter ist außerdem ein Name zugeordnet. Man könnte den Typen auch so schreiben: {{{map<String, GenericBaseType>}}}
+{{{void SetParameters(DataMap *parameters)}}}
+Diese setzt eine Menge von Parametern, die in einer Datamap übergeben werden. Eine Datamap speichert eine Map von Parametern, die vom Typ bool, int, float String, Vector3, Quaternion oder ColourValue sein können. Jeder Parameter kann über einen String-Key angesprochen werden.
 Der Editor kann die Datamap in einer übersichtlichen PropertyGrid anzeigen.
 
-{{{void GetParameters(SGTDataMap *parameters)}}}
+{{{void GetParameters(DataMap *parameters)}}}
 In dieser Methode muss das Objekt seine aktuellen Zustandsparameter in die übergebene Datamap schreiben.
 
-{{{static SGTGOCEditorInterface* NewEditorInterfaceInstance()}}} Erstellt ein neues Objekt der Klasse.
+{{{void GetDefaultParameters(DataMap *parameters)}}}
+In dieser Methode muss das Objekt seine Standardparameter in die übergebene Datamap schreiben.
 
-{{{void AttachToGO(SGTGameObject *go)}}} Im Regelfall wird diese Methode so implementiert:
-{{{
-void SGTGOCAI::AttachToGO(SGTGameObject *go)
-{
-	go->RemoveComponent(GetFamilyID());
-	go->AddComponent(this);        
-}
-}}}
-Relevant ist dies in erster Linie für Containerkomponenten, siehe {{{SGTGOCViewComponentEDT::AttachToGO}}}
+{{{GOComponent* GetGOComponent()}}} Liefert die mit dem Editor Interface assoziierte Komponente zurück, in der Regel this.
+
+Des weiteren muss das Cloneable Interface implementiert werden, bzw. die Methode New, die eine neue Instan der eigenen Klasse erstellt.
 
 === Registrierung ===
 Damit die Klasse, die das Editor Interface bereitstellt, auch wirklich im Editor sichtbar ist, muss das Interface registriert werden.
 {{{
-void SGTSceneManager::Init()
+void SceneManager::Init()
 {
 ...
-	RegisterEditorInterface("A", "MeshRenderable", (EDTCreatorFn)&SGTMeshRenderable::NewEditorInterfaceInstance, SGTMeshRenderable::GetDefaultParameters);
+   RegisterGOCPrototype("A", GOCEditorInterfacePtr(new GOCMeshRenderable()));
 ...
 }
 }}}
 "A" gibt die interne Gruppe an, wobei diese alphabetisch sortiert werden. Dies hat Einfluss auf die Gui-Darstellung im Editor.
-{{{GetDefaultParameters}}} ist bei MeshRenderable wie folgt implementiert:
-{{{
-void SGTMeshRenderable::GetDefaultParameters(SGTDataMap *parameters)
-{
-	parameters->AddOgreString("MeshName", "");
-	parameters->AddBool("ShadowCaster", true);
-}
-}}}
