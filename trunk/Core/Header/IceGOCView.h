@@ -149,7 +149,7 @@ namespace Ice
 
 		void NotifyOwnerGO();
 
-		Ogre::String& GetComponentID() const { static Ogre::String name = "GOCSound3D"; return name; };
+		Ogre::String& GetComponentID() const { static Ogre::String name = "LocalLight"; return name; };
 
 		void SetParameters(DataMap *parameters);
 		void GetParameters(DataMap *parameters);

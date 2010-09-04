@@ -23,11 +23,8 @@ ComponentSectionVectorHandler ::Save(LoadSave::SaveSystem& ss, void* pData, std:
 			ss.AddObject((LoadSave::Saveable*)&((*pVector)[i])); 
 	} 
 	else 
-	{/*it must be an atom*/ 
-		/*open an atom-array*/ 
-		ss.OpenAtomArray( "ComponentSection" , dims, "_array"); 
-		/*for(unsigned int i=0; i<pVector->size(); i++) 
-			ss.AddAtom("ComponentSection", &((*pVector)[i]));*/		//TODO
+	{
+		IceAssert(false)
 	} 
 }  
  
@@ -44,8 +41,8 @@ ComponentSectionVectorHandler ::Load(LoadSave::LoadSystem& ls, void* pDest)
 			return; 
 	} 
 	else 
-	{/*it must be an atom*/ 
-		dims=ls.LoadAtomArray("ComponentSection"); 
+	{
+		IceAssert(false)
 	} 
 	for(int i=0; i<dims[0]; i++) 
 	{ 
@@ -55,9 +52,7 @@ ComponentSectionVectorHandler ::Load(LoadSave::LoadSystem& ls, void* pDest)
 		} 
 		else 
 		{/*it must be an atom*/ 
-			ComponentSection atom; 
-			ls.LoadArrayAtom("ComponentSection", &atom); 
-			pVector->push_back(atom); 
+			IceAssert(false)
 		} 
 	} 
 }
