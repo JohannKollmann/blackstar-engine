@@ -406,6 +406,7 @@ void Edit::OnMouseEvent(wxMouseEvent &ev)
 		else
 		{
 			mPerformingObjRot = false;
+			wxEdit::Instance().GetpropertyWindow()->UpdateCurrentPage();
 			FreeAndShowMouse();
 		}
 
@@ -430,6 +431,7 @@ void Edit::OnMouseEvent(wxMouseEvent &ev)
 		else
 		{
 			mPerformingObjMov = false;
+			wxEdit::Instance().GetpropertyWindow()->UpdateCurrentPage();
 			FreeAndShowMouse();
 		}
 		mPerformedLDClick = false;
@@ -871,8 +873,6 @@ void Edit::OnKillFocus( wxFocusEvent& event )
 	if (mPlaying)
 		PauseGame();
 	Ice::Main::Instance().GetInputManager()->SetEnabled(false);
-	if (wxEdit::Instance().GetpropertyWindow()->GetCurrentPage())
-		wxEdit::Instance().GetpropertyWindow()->GetCurrentPage()->OnUpdate();
 }
 
 void Edit::OnSetFocus( wxFocusEvent& event )

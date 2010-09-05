@@ -8,9 +8,6 @@ enum
 BEGIN_EVENT_TABLE(wxPropertyGridWindow, wxPanel)
 	EVT_BUTTON(PropWindow_Apply, wxPropertyGridWindow::OnApply)
 	EVT_SIZE(wxPropertyGridWindow::OnResize)
-	//EVT_SET_FOCUS(wxPropertyGridWindow::OnSetFocus)
-	EVT_ACTIVATE(wxPropertyGridWindow::OnActivate)
-	EVT_ENTER_WINDOW(wxPropertyGridWindow::OnMouseEnterWindow)
 END_EVENT_TABLE()
 
 // Required for WX
@@ -40,7 +37,6 @@ wxPropertyGridWindow::wxPropertyGridWindow(wxWindow* parent, wxWindowID id, cons
             wxDefaultSize, // size
 			propstyle);
 
-	   //mPropGrid->GetParent()->GetEventHandler()->Connect(wxEVT_SET_FOCUS, wxFocusEventHandler(wxPropertyGridWindow::OnSetFocus));
 
 	mPropGrid->SetExtraStyle( wxPG_EX_HELP_AS_TOOLTIPS );
 
@@ -108,22 +104,6 @@ Ogre::String wxPropertyGridWindow::GetCurrentPageName()
 	return mCurrentPageName;
 }
 
-void wxPropertyGridWindow::OnSetFocus(wxFocusEvent& event)
-{
-	UpdateCurrentPage();
-	event.Skip();
-}
-void wxPropertyGridWindow::OnActivate(wxActivateEvent& event)
-{
-	UpdateCurrentPage();
-	event.Skip();
-}
-void wxPropertyGridWindow::OnMouseEnterWindow(wxMouseEvent& event)
-{
-	UpdateCurrentPage();
-	event.Skip();
-}
-
 void wxPropertyGridWindow::UpdateCurrentPage()
 {
 	if (mCurrentPage) mCurrentPage->OnUpdate();
@@ -143,8 +123,9 @@ void wxPropertyGridWindow::OnResize(wxSizeEvent& event)
 
 void wxPropertyGridWindow::OnApply(wxCommandEvent& event)
 {
-	if (mCurrentPage != 0)
+	if (mCurrentPage != nullptr)
 	{
+		mPropGrid->CommitChangesFromEditor();
 		mCurrentPage->OnApply();
 	}
 }
