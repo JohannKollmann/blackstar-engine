@@ -40,12 +40,7 @@ private:
 		if (mUpVector.directionEquals(upTexVector, Ogre::Radian(Ogre::Degree(10)))) upTexVector = Ogre::Vector3::UNIT_Y;
 		upTexVector = waterPlane.projectVector(upTexVector);
 
-		if (mBodyTypeEnum.selection == 0)		//Cycle
-		{
-			mWaterMesh = "WaterSurface_" + id;
-			Ogre::MeshManager::getSingleton().createCurvedPlane(mWaterMesh, "General", waterPlane, mWidth, mHeight, 0.5f, 1, 1, true, 1, 1, 1, upTexVector);
-		}
-		else if (mBodyTypeEnum.selection == 1)		//Plane
+		if (mBodyTypeEnum.selection == 0)		//Plane
 		{
 			mWaterMesh = "WaterSurface_" + id;
 			Ogre::MeshManager::getSingleton().createPlane(mWaterMesh, "General", waterPlane, mWidth, mHeight, 1, 1, true, 1, 1, 1, upTexVector);
@@ -78,7 +73,6 @@ public:
 
 	GOCSimpleWater(void) : mEntity(nullptr)
 	{
-		mBodyTypeEnum.choices.push_back("Radial");
 		mBodyTypeEnum.choices.push_back("Rectangle");
 		mBodyTypeEnum.choices.push_back("Mesh");
 		mBodyTypeEnum.selection = 0;
@@ -121,7 +115,6 @@ public:
 	//Editor interface
 	BEGIN_GOCEDITORINTERFACE(GOCSimpleWater, "Simple Water")
 		PROPERTY_ENUM(mBodyTypeEnum, "Body Type", mBodyTypeEnum)
-		//PROPERTY_FLOAT(mRadius, "Radius", 1.0f)
 		PROPERTY_FLOAT(mWidth, "Width", 1.0f);
 		PROPERTY_FLOAT(mHeight, "Height", 1.0f);
 		PROPERTY_STRING(mWaterMesh, "Water mesh", ".mesh")
