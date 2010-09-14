@@ -3,11 +3,12 @@
 
 #include "IceIncludes.h"
 #include "IceGOComponent.h"
+#include "IceGOCView.h"
 
 namespace Ice
 {
 
-	class DllExport GOCWaypoint : public GOComponent
+	class DllExport GOCWaypoint : public GOCEditorVisualised
 	{
 
 	public:
@@ -17,9 +18,9 @@ namespace Ice
 		goc_id_family& GetFamilyID() const { static std::string name = "Waypoint"; return name; }
 		GOComponent::goc_id_type& GetComponentID() const { static std::string name = "Waypoint"; return name; }
 
-		void ShowEditorVisual(bool show);
-
 		void UpdatePosition(Ogre::Vector3 position);
+
+		Ogre::String GetEditorVisualMeshName() { return "Editor_Waypoint.mesh"; }
 
 		void Save(LoadSave::SaveSystem& mgr);
 		void Load(LoadSave::LoadSystem& mgr);

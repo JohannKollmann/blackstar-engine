@@ -120,6 +120,7 @@ namespace Ice
 
 	void GOCForceField::ShowEditorVisual(bool show)
 	{
+		if (!mOwnerGO) return;
 		if (show)
 		{
 			if (!mEditorVisual && mCollisionMeshName != "")

@@ -11,6 +11,7 @@ namespace Ice
 	void GOCScript::SetOwner(GameObject *go)
 	{
 		mOwnerGO = go;
+		if (!mOwnerGO) return;
 		if (mScriptFileName != "") InitScript(mScriptFileName);
 	}
 

@@ -7,6 +7,9 @@
 #include "Edit.h"
 #include "propGridEditIceGOC.h"
 #include "DotSceneLoader.h"
+#include "IceAIManager.h"
+#include "IceLevelMesh.h"
+#include "NavMeshEditorNode.h"
 
 BEGIN_EVENT_TABLE(wxEdit, wxFrame)
     EVT_ACTIVATE(wxEdit::OnActivate)
@@ -328,6 +331,9 @@ void wxEdit::OnLoadMesh(wxCommandEvent& WXUNUSED(event))
 		wxEdit::Instance().GetProgressBar()->SetStatusMessage("Updating material Tree...");
 		wxEdit::Instance().GetProgressBar()->SetProgress(0.8);
 		wxEdit::Instance().GetWorldExplorer()->GetMaterialTree()->Update();
+
+		Ice::AIManager::Instance().GetNavigationMesh()->ImportOgreMesh(Ice::SceneManager::Instance().GetLevelMesh()->GetEntity()->getMesh());
+		NavMeshEditorNode::FromMesh(Ice::AIManager::Instance().GetNavigationMesh());
     }
 	wxEdit::Instance().GetProgressBar()->Reset();
 };

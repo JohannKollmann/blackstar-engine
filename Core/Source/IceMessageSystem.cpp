@@ -88,7 +88,7 @@ namespace Ice
 		IceAssert(std::find((*ni).mListeners.begin(), (*ni).mListeners.end(), listener) == (*ni).mListeners.end())
 		for (; li != (*ni).mListeners.end(); li++)
 		{
-			if ((*li)->GetListenerPriority() < listener->GetListenerPriority())
+			if ((*li)->GetListenerPriority() <= listener->GetListenerPriority())
 			{
 				(*ni).mListeners.insert(li, listener);
 				return;

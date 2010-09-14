@@ -10,15 +10,15 @@
 	{
 		mType = Type::NODE;
 		mClearingScene = false;
-		Ice::MessageSystem::Instance().JoinNewsgroup(this, "LOADLEVEL_BEGIN");
-		Ice::MessageSystem::Instance().JoinNewsgroup(this, "LOADLEVEL_END");
+		/*Ice::MessageSystem::Instance().JoinNewsgroup(this, "LOADLEVEL_BEGIN");
+		Ice::MessageSystem::Instance().JoinNewsgroup(this, "LOADLEVEL_END");*/
 	}
 
 	NavMeshEditorNode::NavMeshEditorNode(Ice::GameObject *owner, Type type, NavMeshEditorNodePtr node1, NavMeshEditorNodePtr node2)
 	{
 		mClearingScene = false;
-		Ice::MessageSystem::Instance().JoinNewsgroup(this, "LOADLEVEL_BEGIN");
-		Ice::MessageSystem::Instance().JoinNewsgroup(this, "LOADLEVEL_END");
+		/*Ice::MessageSystem::Instance().JoinNewsgroup(this, "LOADLEVEL_BEGIN");
+		Ice::MessageSystem::Instance().JoinNewsgroup(this, "LOADLEVEL_END");*/
 		mType = NODE;
 		owner->AddComponent(Ice::GOComponentPtr(this));
 		mType = type;
@@ -72,19 +72,19 @@
 		NeighbourBind *pExists = _getExistingNeighbourBind(bind.neighbour);
 		if (pExists)
 		{
-			if (pExists->edge)
+			/*if (pExists->edge)
 			{
 				pExists->neighbour->_notifyEdgeDestruction(pExists->edge);
 				delete pExists->edge->GetOwner();
 				pExists->edge = 0;
-			}
-			bind.edge = pExists->edge;
-			bind.line = pExists->line;
+			}*/
+			bind.edge = nullptr;//pExists->edge;
+			bind.line = nullptr;//pExists->line;
 		}
 		else
 		{
-			bind.edge = new NavMeshEditorNode(new Ice::GameObject(), EDGE, this, bind.neighbour);
-			bind.line = CreateLine(bind.neighbour);
+			bind.edge = new NavMeshEditorNode(Ice::SceneManager::Instance().CreateGameObject(), EDGE, this, bind.neighbour);
+			bind.line = nullptr;//CreateLine(bind.neighbour);
 		}
 	}
 
@@ -106,13 +106,13 @@
 			if (!i->n1.edge && border)
 			{
 				if (border->edge) i->n1.edge = border->edge;
-				else i->n1.edge = new NavMeshEditorNode(new Ice::GameObject(), EDGE, this, i->n1.neighbour);
+				else i->n1.edge = new NavMeshEditorNode(Ice::SceneManager::Instance().CreateGameObject(), EDGE, this, i->n1.neighbour);
 			}
 			border = _getBorderEdge(i->n2.neighbour);
 			if (!i->n2.edge && border)
 			{
 				if (border->edge) i->n2.edge = border->edge;
-				else i->n2.edge = new NavMeshEditorNode(new Ice::GameObject(), EDGE, this, i->n2.neighbour);
+				else i->n2.edge = new NavMeshEditorNode(Ice::SceneManager::Instance().CreateGameObject(), EDGE, this, i->n2.neighbour);
 			}
 		}
 		UpdatePosition(mOwnerGO->GetGlobalPosition());
@@ -120,11 +120,11 @@
 
 	NavMeshEditorNode::~NavMeshEditorNode(void)
 	{
-		Ice::MessageSystem::Instance().QuitNewsgroup(this, "LOADLEVEL_BEGIN");
-		Ice::MessageSystem::Instance().QuitNewsgroup(this, "LOADLEVEL_END");
+		//Ice::MessageSystem::Instance().QuitNewsgroup(this, "LOADLEVEL_BEGIN");
+		//Ice::MessageSystem::Instance().QuitNewsgroup(this, "LOADLEVEL_END");
 		if (mType == NODE)
 		{
-			if (!mClearingScene) Ice::AIManager::Instance().GetNavigationMesh()->RemoveVertex(this->GetOwner());
+			if (!Ice::SceneManager::Instance().GetClearingScene()) Ice::AIManager::Instance().GetNavigationMesh()->RemoveVertex(this->GetOwner());
 			std::vector<NavMeshEditorNodePtr> uniqueNeighbours;
 			std::vector<TriangleBind>::iterator i = mTriangles.begin();
 			while (i != mTriangles.end())
@@ -147,7 +147,7 @@
 				i = mTriangles.begin();
 			}
 
-			if (!mClearingScene)
+			if (!Ice::SceneManager::Instance().GetClearingScene())
 			{
 				for (std::vector<NavMeshEditorNodePtr>::iterator i = uniqueNeighbours.begin(); i != uniqueNeighbours.end(); i++)
 				{
@@ -290,13 +290,13 @@
 	Ogre::ManualObject* NavMeshEditorNode::CreateLine(NavMeshEditorNode *other)
 	{
 		Ogre::ManualObject* line = Ice::Main::Instance().GetOgreSceneMgr()->createManualObject("WaynetLine_" + Ice::SceneManager::Instance().RequestIDStr());
-		Ogre::SceneNode* lineNode = Ice::Main::Instance().GetOgreSceneMgr()->getRootSceneNode();//->createChildSceneNode("WaynetLine_" + mOwnerGO->GetIDStr() + other->GetOwner()->GetIDStr());
+		/*Ogre::SceneNode* lineNode = Ice::Main::Instance().GetOgreSceneMgr()->getRootSceneNode();//->createChildSceneNode("WaynetLine_" + mOwnerGO->GetIDStr() + other->GetOwner()->GetIDStr());
 		line->begin("RedLine", Ogre::RenderOperation::OT_LINE_LIST);
 		line->position(GetOwner()->GetGlobalPosition() + Ogre::Vector3(0,0.2f,0));
 		line->position(other->GetOwner()->GetGlobalPosition() + Ogre::Vector3(0,0.2f,0));
 		line->end();
 		line->setCastShadows(false);
-		lineNode->attachObject(line);
+		lineNode->attachObject(line);*/
 		return line;
 	}
 
@@ -321,7 +321,7 @@
 
 	void NavMeshEditorNode::FromMesh(Ice::NavigationMesh *mesh)
 	{
-		for (std::vector<Ice::Point3D*>::iterator i = mesh->mVertexBuffer.begin(); i != mesh->mVertexBuffer.end(); i++)
+		/*for (std::vector<Ice::Point3D*>::iterator i = mesh->mVertexBuffer.begin(); i != mesh->mVertexBuffer.end(); i++)
 		{
 			Ice::GameObject *go = dynamic_cast<Ice::GameObject*>(*i);
 			if (!go)
@@ -340,5 +340,5 @@
 			n1->SetGlobalPosition(n1->GetGlobalPosition());
 			n2->SetGlobalPosition(n2->GetGlobalPosition());
 			n3->SetGlobalPosition(n3->GetGlobalPosition());
-		}
+		}*/
 	}

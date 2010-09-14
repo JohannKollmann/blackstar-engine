@@ -16,9 +16,10 @@
 namespace Ice
 {
 
-	const float NavigationMesh::NODE_DIST = 1.5f;
-	const float NavigationMesh::NODE_EXTENT = 0.8f;
+	const float NavigationMesh::NODE_DIST = 1.0f;
+	const float NavigationMesh::NODE_EXTENT = 0.5f;
 	const float NavigationMesh::NODE_BORDER = 0.4f;
+	const float NavigationMesh::MAX_HEIGHT_DIST_BETWEEN_NODES = 0.75f;
 
 	const float NavigationMesh::PathNodeTree::BOXSIZE_MIN = 10.0f;
 
@@ -160,9 +161,10 @@ namespace Ice
 	{
 		mNeedsUpdate = true;
 		mDestroyingNavMesh = false;
-		mPhysXActor = 0;
-		mPhysXMeshShape = 0;
-		mPathNodeTree = 0;
+		mPhysXActor = nullptr;
+		mPhysXMeshShape = nullptr;
+		mPathNodeTree = nullptr;
+		mDebugVisual = nullptr;
 
 		MessageSystem::Instance().JoinNewsgroup(this, "ACTOR_ONSLEEP");
 		MessageSystem::Instance().JoinNewsgroup(this, "ACTOR_ONWAKE");
@@ -190,7 +192,7 @@ namespace Ice
 		if (mPhysXActor)
 		{
 			Main::Instance().GetPhysXScene()->destroyActor(mPhysXActor);
-			mPhysXActor = 0;
+			mPhysXActor = nullptr;
 		}
 		if (mPathNodeTree)
 		{
@@ -358,7 +360,7 @@ namespace Ice
 		mPhysXMeshShape = (NxTriangleMeshShape*)mPhysXActor->getNxActor()->getShapes()[0];
 	}
 
-	bool NavigationMesh::quadTest(Ogre::Vector3 center, float size, float rayDist)
+	bool NavigationMesh::borderTest(Ogre::Vector3 center, float size, float rayDist)
 	{
 		OgrePhysX::Scene::QueryHit dummyQuery;
 		if (!Ice::Main::Instance().GetPhysXScene()->raycastClosestShape(dummyQuery, Ogre::Ray(center + Ogre::Vector3(size, 0, 0), Ogre::Vector3(0,-1,0)), NX_STATIC_SHAPES, 1<<CollisionGroups::AI, rayDist)) return false;
@@ -368,31 +370,42 @@ namespace Ice
 		return true;
 	}
 
-	AStarNode3D* NavigationMesh::quadTestCreate(Ogre::Vector3 center, float size, float rayDist)
+	AStarNode3D* NavigationMesh::borderTestCreate(Ogre::Vector3 center, float size, float rayDist)
 	{
 		OgrePhysX::Scene::QueryHit query;
-		if (!Ice::Main::Instance().GetPhysXScene()->raycastClosestShape(query, Ogre::Ray(center, Ogre::Vector3(0,-1,0)), NX_STATIC_SHAPES, 1<<CollisionGroups::AI, rayDist)) return 0;
-		if (!quadTest(center, size, rayDist)) return 0;
-		AStarNode3D *node = ICE_NEW AStarNode3D(query.point);
+		if (!Ice::Main::Instance().GetPhysXScene()->raycastClosestShape(query, Ogre::Ray(center, Ogre::Vector3(0,-1,0)), NX_STATIC_SHAPES, 1<<CollisionGroups::AI, rayDist))
+			return nullptr;
+		float borderTestRayDist = 10;//1 + (MAX_HEIGHT_DIST_BETWEEN_NODES);
+		Ogre::Vector3 borderTestOrigin = query.point + Ogre::Vector3(0, 1, 0);
+		if (!borderTest(borderTestOrigin, size, borderTestRayDist)) return nullptr;
+
+		//check if the node volume intersetcs with the levelmesh
 		float height = 1.8f;
-		node->volume = Ogre::AxisAlignedBox(node->GetGlobalPosition() + Ogre::Vector3(-NODE_EXTENT, -height, -NODE_EXTENT), 
-			node->GetGlobalPosition() + Ogre::Vector3(NODE_EXTENT, height, NODE_EXTENT));
+		Ogre::AxisAlignedBox testVolume = Ogre::AxisAlignedBox(query.point + Ogre::Vector3(-NODE_EXTENT, 0.6f, -NODE_EXTENT), 
+			query.point + Ogre::Vector3(NODE_EXTENT, height, NODE_EXTENT));
+		if (Main::Instance().GetPhysXScene()->getNxScene()->checkOverlapAABB(OgrePhysX::Convert::toNx(testVolume), NX_STATIC_SHAPES, 1<<CollisionGroups::LEVELMESH))
+			return nullptr;
+
+		//create node
+		AStarNode3D *node = ICE_NEW AStarNode3D(query.point);
+		node->volume = Ogre::AxisAlignedBox(query.point + Ogre::Vector3(-NODE_EXTENT, -height, -NODE_EXTENT), 
+			query.point + Ogre::Vector3(NODE_EXTENT, height, NODE_EXTENT));
 		return node;
 	}
 
 	AStarNode3D* NavigationMesh::rasterNode(Ogre::Vector3 rayOrigin, float subTest, float rayDist)
 	{
 		AStarNode3D *node = 0;
-		if (node = quadTestCreate(rayOrigin, NODE_BORDER, rayDist))
+		if (node = borderTestCreate(rayOrigin, NODE_BORDER, rayDist))
 			return node;
 
-		if (node = quadTestCreate(rayOrigin + Ogre::Vector3(subTest, 0, subTest), NODE_BORDER, rayDist))
+		if (node = borderTestCreate(rayOrigin + Ogre::Vector3(subTest, 0, subTest), NODE_BORDER, rayDist))
 			return node;
-		if (node = quadTestCreate(rayOrigin + Ogre::Vector3(subTest, 0, -subTest), NODE_BORDER, rayDist))
+		if (node = borderTestCreate(rayOrigin + Ogre::Vector3(subTest, 0, -subTest), NODE_BORDER, rayDist))
 			return node;
-		if (node = quadTestCreate(rayOrigin + Ogre::Vector3(-subTest, 0, subTest), NODE_BORDER, rayDist))
+		if (node = borderTestCreate(rayOrigin + Ogre::Vector3(-subTest, 0, subTest), NODE_BORDER, rayDist))
 			return node;
-		if (node = quadTestCreate(rayOrigin + Ogre::Vector3(-subTest, 0, -subTest), NODE_BORDER, rayDist))
+		if (node = borderTestCreate(rayOrigin + Ogre::Vector3(-subTest, 0, -subTest), NODE_BORDER, rayDist))
 			return node;
 		return 0;
 	}
@@ -402,9 +415,9 @@ namespace Ice
 		while (AStarNode3D *node = rasterNode(rayOrigin, subTest, rayDist))
 		{
 			mPathNodeTree->AddPathNode(node);
-			/*GameObject *go = ICE_NEW GameObject();
-			go->AddComponent(ICE_NEW MeshDebugRenderable("sphere.25cm.mesh"));
-			go->SetGlobalPosition(node->GetGlobalPosition());*/
+			GameObject *go = ICE_NEW GameObject();
+			go->AddComponent(GOComponentPtr(new GOCMeshRenderable("sphere.25cm.mesh", false)));
+			go->SetGlobalPosition(node->GetGlobalPosition());
 			result.push_back(node);
 			rayOrigin.y = node->GetGlobalPosition().y - 1;
 		}
@@ -418,7 +431,7 @@ namespace Ice
 			{
 				float heightDist = (*i)->GetGlobalPosition().y - (*x)->GetGlobalPosition().y;
 				if (heightDist < 0) heightDist *= (-1);
-				if (heightDist < 1)
+				if (heightDist < MAX_HEIGHT_DIST_BETWEEN_NODES)
 				{
 					if (checkNodeConnection(*i, *x))
 						(*i)->AddNeighbour(*x);
@@ -491,11 +504,27 @@ namespace Ice
 	bool NavigationMesh::checkNodeConnection(AStarNode3D *n1, AStarNode3D *n2)
 	{
 		Ogre::Vector3 mid = ((n1->GetGlobalPosition() - n2->GetGlobalPosition()) * 0.5f) + n2->GetGlobalPosition();
-		mid.y += 0.5f;
-		bool test = quadTest(mid, NODE_BORDER, 2.0f);
-		if (!test)
+
+		//obstacle check
+		Ogre::Vector3 volumeFeet = mid;
+		volumeFeet.y = (n1->GetGlobalPosition().y < n2->GetGlobalPosition().y) ? n1->GetGlobalPosition().y : n2->GetGlobalPosition().y;
+		volumeFeet.y += MAX_HEIGHT_DIST_BETWEEN_NODES;
+		Ogre::Vector3 boxExtents(NODE_BORDER, 0, NODE_BORDER);
+		Ogre::AxisAlignedBox box(volumeFeet-boxExtents, volumeFeet+boxExtents+Ogre::Vector3(0,1,0));
+		if (Ice::Main::Instance().GetPhysXScene()->getNxScene()->checkOverlapAABB(OgrePhysX::Convert::toNx(box), NX_STATIC_SHAPES, 1<<CollisionGroups::LEVELMESH))
 			return false;
-		return test;
+		/*NxCapsule capsule;
+		capsule.p0 = OgrePhysX::Convert::toNx(capsuleMid + Ogre::Vector3(0, MAX_HEIGHT_DIST_BETWEEN_NODES, 0));
+		capsule.p1 = OgrePhysX::Convert::toNx(capsuleMid + Ogre::Vector3(0, MAX_HEIGHT_DIST_BETWEEN_NODES+1,0));
+		capsule.radius = NODE_DIST/2;
+		if (Ice::Main::Instance().GetPhysXScene()->getNxScene()->checkOverlapCapsule(capsule, NX_STATIC_SHAPES, 1<<CollisionGroups::LEVELMESH))
+			return false;*/
+
+		//check if connection is above waymesh
+		mid.y += 0.5f;
+		bool test = borderTest(mid, NODE_BORDER, 2.0f);
+		if (!test) return false;
+		return true;
 	}
 
 	void NavigationMesh::rasterNodes()
@@ -620,6 +649,149 @@ namespace Ice
 		mgr.LoadAtom("std::vector<int>", &mIndexBuffer);
 
 		Update();
+	}
+
+	void NavigationMesh::ImportOgreMesh(Ogre::MeshPtr mesh)
+	{
+		Reset();
+		OgrePhysX::CookerParams cp;
+		cp.backfaces(false);
+		OgrePhysX::Cooker::MeshInfo meshInfo;
+		OgrePhysX::Cooker::getSingleton().getMeshInfo(mesh, cp, meshInfo);
+		OgrePhysX::Cooker::getSingleton().mergeVertices(meshInfo);
+		_cutBadPolys(meshInfo);
+		OgrePhysX::Cooker::getSingleton().mergeVertices(meshInfo);
+		for (unsigned int i = 0; i < meshInfo.numVertices; i++)
+		{
+			Point3D *v = new SimplePoint3D();/*SceneManager::Instance().CreateGameObject();*/v->SetGlobalPosition(OgrePhysX::Convert::toOgre(meshInfo.vertices[i]));
+			mVertexBuffer.push_back(v);
+		}
+		for (unsigned int i = 0; i < meshInfo.numTriangles*3; i+=3)
+		{
+			mIndexBuffer.push_back(meshInfo.indices[i]);
+			mIndexBuffer.push_back(meshInfo.indices[i+1]);
+			mIndexBuffer.push_back(meshInfo.indices[i+2]);
+		}
+		mNeedsUpdate = true;
+	}
+
+	void NavigationMesh::_cutBadPolys(OgrePhysX::Cooker::MeshInfo &meshInfo)
+	{
+		NxArray<bool> neededVertices;
+		neededVertices.resize(meshInfo.numVertices, false);
+		NxArray<NxVec3> newVertices(meshInfo.numVertices);
+		int newVertexCount = 0;
+		NxArray<NxU32> newIndices(meshInfo.numTriangles*3);
+		int newTriCount = 0;
+		for (unsigned int i = 0; i < meshInfo.numTriangles*3; i+=3)
+		{
+			NxVec3 normal = (meshInfo.vertices[meshInfo.indices[i+1]]-meshInfo.vertices[meshInfo.indices[i]]).cross(meshInfo.vertices[meshInfo.indices[i+2]]-meshInfo.vertices[meshInfo.indices[i]]);
+			normal.normalize();
+			if (normal.dot(NxVec3(0,1,0)) > 0.75f)
+			{
+				int indexOffset = newTriCount*3;
+				newIndices[indexOffset] = meshInfo.indices[i];		neededVertices[meshInfo.indices[i]] = true;
+				newIndices[indexOffset+1] = meshInfo.indices[i+1];	neededVertices[meshInfo.indices[i+1]] = true;
+				newIndices[indexOffset+2] = meshInfo.indices[i+2];	neededVertices[meshInfo.indices[i+2]] = true;
+				newTriCount++;
+			}
+		}
+		/*for (unsigned int i = 0; i < meshInfo.numVertices; i++)
+		{
+			if (neededVertices[i])
+			{
+				newVertices[newVertexCount] = meshInfo.vertices[i];
+				newVertexCount++;
+			}
+			else		//decrement indices above the deletes vertex
+			{
+				for (unsigned int x = 0; x < newTriCount*3; x++)
+					if (newIndices[x] >= i) newIndices[x]--;
+			}
+		}
+		meshInfo.numVertices = newVertexCount;
+		meshInfo.vertices = newVertices;*/
+		meshInfo.numTriangles = newTriCount;
+		meshInfo.indices = newIndices;
+	}
+
+	Ogre::MeshPtr NavigationMesh::_createOgreMesh(const Ogre::String &resourceName)
+	{
+		//create wire material if necessary
+		if (!Ogre::MaterialManager::getSingleton().resourceExists("DebugBlueWireframe"))
+		{
+			Ogre::MaterialPtr wireMat = Ogre::MaterialManager::getSingleton().create("DebugBlueWireframe", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+			wireMat->setAmbient(Ogre::ColourValue(0,0,1));
+			wireMat->setDiffuse(Ogre::ColourValue(0,0,1));
+			//wireMat->getTechnique(0)->getPass(0)->setPolygonMode(Ogre::PM_WIREFRAME);
+		}
+
+		Ogre::MeshPtr mesh = Ogre::MeshManager::getSingleton().createManual(resourceName, "General");
+		mesh.get()->createSubMesh("main");
+
+		Ogre::VertexData* data = new Ogre::VertexData();
+		mesh.get()->sharedVertexData = data;
+		data->vertexCount = mVertexBuffer.size();
+		Ogre::VertexDeclaration* decl = data->vertexDeclaration;
+		decl->addElement(0, 0, Ogre::VET_FLOAT3, Ogre::VES_POSITION);
+		Ogre::HardwareVertexBufferSharedPtr vBuf = Ogre::HardwareBufferManager::getSingleton().createVertexBuffer(
+		decl->getVertexSize(0), data->vertexCount, Ogre::HardwareBuffer::HBU_STATIC_WRITE_ONLY);
+
+		float* afVertexData=(float*)vBuf->lock(Ogre::HardwareBuffer::HBL_DISCARD);
+		int index = 0;
+		for (unsigned int i = 0; i < mVertexBuffer.size(); i++)
+		{
+			afVertexData[index++] = mVertexBuffer[i]->GetGlobalPosition().x;
+			afVertexData[index++] = mVertexBuffer[i]->GetGlobalPosition().y;
+			afVertexData[index++] = mVertexBuffer[i]->GetGlobalPosition().z;
+		}
+		vBuf->unlock();
+
+		Ogre::VertexBufferBinding* bind = data->vertexBufferBinding;
+		bind->setBinding(0, vBuf);
+
+		Ogre::HardwareIndexBufferSharedPtr iBuf = Ogre::HardwareBufferManager::getSingleton().createIndexBuffer(
+			Ogre::HardwareIndexBuffer::IT_32BIT, mIndexBuffer.size(), Ogre::HardwareBuffer::HBU_STATIC_WRITE_ONLY);
+
+		unsigned int* aiIndexBuf=(unsigned int*)iBuf->lock(Ogre::HardwareBuffer::HBL_DISCARD);
+		for (unsigned int i = 0; i < mIndexBuffer.size(); i++)
+		{
+			aiIndexBuf[i] = mIndexBuffer[i];
+		}
+		iBuf->unlock();
+
+		mesh->getSubMesh(0)->indexData->indexStart = 0;
+		mesh->getSubMesh(0)->indexData->indexCount = mIndexBuffer.size();
+		mesh->getSubMesh(0)->indexData->indexBuffer = iBuf;
+		mesh->getSubMesh(0)->setMaterialName("DebugBlueWireframe");
+
+		Ogre::AxisAlignedBox bounds(Ogre::Vector3(-1000,-1000,-1000), Ogre::Vector3(1000,1000,1000));
+		mesh->_setBounds(bounds);
+
+		return mesh;
+	}
+
+	void NavigationMesh::_destroyDebugVisual()
+	{
+		if (mDebugVisual)
+		{
+			Main::Instance().GetOgreSceneMgr()->destroyEntity(mDebugVisual);
+			mDebugVisual = nullptr;
+		}
+		if (Ogre::MeshManager::getSingleton().resourceExists("NavMeshVisual"))
+			Ogre::MeshManager::getSingleton().remove("NavMeshVisual");
+	}
+
+	void NavigationMesh::Visualise(bool show)
+	{
+		_destroyDebugVisual();
+		if (show)
+		{
+			_createOgreMesh("NavMeshVisual");
+			mDebugVisual = Main::Instance().GetOgreSceneMgr()->createEntity("NavMeshVisual");
+			mDebugVisual->setCastShadows(false);
+			Main::Instance().GetOgreSceneMgr()->getRootSceneNode()->createChildSceneNode(Ogre::Vector3(0,0.2f, 0))->attachObject(mDebugVisual);
+		}
 	}
 
 }

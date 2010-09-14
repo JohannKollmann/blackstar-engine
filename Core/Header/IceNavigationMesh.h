@@ -17,6 +17,7 @@ namespace Ice
 		static const float NODE_DIST;
 		static const float NODE_EXTENT;
 		static const float NODE_BORDER;
+		static const float MAX_HEIGHT_DIST_BETWEEN_NODES;
 
 	private:
 
@@ -81,6 +82,10 @@ namespace Ice
 		OgrePhysX::Actor *mPhysXActor;
 		NxTriangleMeshShape *mPhysXMeshShape;
 		PathNodeTree *mPathNodeTree;
+		Ogre::Entity *mDebugVisual;
+		Ogre::MeshPtr _createOgreMesh(const Ogre::String &resourceName);
+		void _destroyDebugVisual();
+		void _cutBadPolys(OgrePhysX::Cooker::MeshInfo &meshInfo);
 
 		struct MinMax
 		{
@@ -90,8 +95,8 @@ namespace Ice
 		MinMax getMinMax(const std::vector<float> &vals);
 
 		void rasterNodes();
-		bool quadTest(Ogre::Vector3 center, float size, float rayDist);
-		AStarNode3D* quadTestCreate(Ogre::Vector3 center, float size, float rayDist);
+		bool borderTest(Ogre::Vector3 center, float size, float rayDist);
+		AStarNode3D* borderTestCreate(Ogre::Vector3 center, float size, float rayDist);
 		void rasterNodeRow(std::vector<AStarNode3D*> &result, Ogre::Vector3 rayOrigin, float subTest, float rayDist);
 		bool checkNodeConnection(AStarNode3D *n1, AStarNode3D *n2);
 		void addMatchingNeighbours(std::vector<AStarNode3D*> base, std::vector<AStarNode3D*> add);
@@ -114,8 +119,13 @@ namespace Ice
 		NavigationMesh();
 		~NavigationMesh();
 
+		void Visualise(bool show);
+
+		///Destroys the physx navmesh and the navmesh octree.
 		void Clear();
+		///Calls Clear and resets index and vertex buffer.
 		void Reset();
+		///Rebuilds the physx mnavesh and the navmesh octree, if necessary.
 		void Update();
 
 		/*
@@ -130,6 +140,11 @@ namespace Ice
 
 		bool TestLinearPath(Ogre::Vector3 from, Ogre::Vector3 to, float pathBorder = NODE_BORDER);
 		
+		/*
+		Adds an ogre mesh to the nav mesh.
+		*/
+		void ImportOgreMesh(Ogre::MeshPtr mesh);
+
 		/*
 		Adds the vertices to the vertex buffer if needed and adds the triangle to the indexbuffer
 		*/

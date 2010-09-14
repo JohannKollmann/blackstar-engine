@@ -112,7 +112,7 @@ namespace Ice
 			Ogre::Vector3 finalDir = Ogre::Vector3(0,0,0);
 			Ogre::Vector3 userDir = mOwnerGO->GetGlobalOrientation() * (mDirection);
 
-			float maxStepHeight = 0.6f;
+			float maxStepHeight = 0.8f;
 			NxVec3 currPos = OgrePhysX::Convert::toNx(mOwnerGO->GetGlobalPosition());
 			//feet capsule
 			NxCapsule feetVolume;

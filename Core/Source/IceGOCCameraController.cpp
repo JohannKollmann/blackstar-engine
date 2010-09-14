@@ -106,6 +106,7 @@ namespace Ice
 	void GOCCameraController::SetOwner(GameObject *go)
 	{
 		mOwnerGO = go;
+		if (!mOwnerGO) return;
 		CreateNodes();
 		UpdatePosition(go->GetGlobalPosition());
 		UpdateOrientation(go->GetGlobalOrientation());

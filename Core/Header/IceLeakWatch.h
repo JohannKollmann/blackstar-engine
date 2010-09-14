@@ -64,11 +64,12 @@ namespace Ice
 			std::map<void*, LeakWatch*>::iterator it=m_Pointers.find((void*)pPointer);
 			if(it!=m_Pointers.end())
 			{
-				delete it->first;
+				//delete it->first;
 				delete it->second;
 				m_Pointers.erase(it);
 			}
-			//else DebugBreak();
+			//else IceWarning("Could not find pointer address")
+			delete pPointer;
 		}
 
 		LeakManager::~LeakManager()

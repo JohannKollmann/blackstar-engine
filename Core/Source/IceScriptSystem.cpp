@@ -227,7 +227,7 @@ namespace Ice
 	ScriptSystem::Clear()
 	{
 		for (std::vector<ScriptMessageListener*>::iterator i = mScriptMessageListeners.begin(); i != mScriptMessageListeners.end(); i++)
-			ICE_DELETE *i;
+			delete *i;
 		mScriptMessageListeners.clear();
 
 		for(std::map<std::string, std::vector<int>>::const_iterator it=m_mScriptInstances.begin();
