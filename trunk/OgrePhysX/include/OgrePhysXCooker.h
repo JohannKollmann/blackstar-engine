@@ -28,6 +28,7 @@ namespace OgrePhysX
 	private:
 		Ogre::String mOgreResourceGroup;
 
+	public:
 		struct MeshInfo
 		{
 			unsigned int numVertices;
@@ -40,11 +41,10 @@ namespace OgrePhysX
 		};
 
 		void getMeshInfo(Ogre::MeshPtr mesh, CookerParams &params, MeshInfo &outInfo);
-		void mergeVertices(MeshInfo &outInfo);
+		void mergeVertices(MeshInfo &outInfo, float fMergeDist = 1e-3f);
 		void insetMesh(MeshInfo &outInfo, float fAmount);
 		void cutMesh(MeshInfo &outInfo, NxVec3 vPlanePos, NxVec3 vPlaneDir);
 
-	public:
 		Cooker(void);
 		~Cooker(void);
 

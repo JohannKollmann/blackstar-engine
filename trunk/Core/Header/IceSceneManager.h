@@ -54,9 +54,13 @@ namespace Ice
 
 		bool mShowEditorVisuals;
 
+		bool mClearingScene;
+
 		SoundMaterialTable mSoundMaterialTable;
 
 	public:
+
+		bool GetClearingScene() { return mClearingScene; }
 
 		SoundMaterialTable& GetSoundMaterialTable() { return mSoundMaterialTable; }
 

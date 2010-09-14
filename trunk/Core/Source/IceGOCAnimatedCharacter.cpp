@@ -343,11 +343,15 @@ void GOCAnimatedCharacter::_clear()
 		ICE_DELETE (*i);
 		i = mBoneObjects.begin();
 	}
-	if (mEntity) Main::Instance().GetOgreSceneMgr()->destroyEntity(mEntity);
+	if (mEntity)
+	{
+		Main::Instance().GetOgreSceneMgr()->destroyEntity(mEntity);
+		mEntity = nullptr;
+	}
 	if (mRagdoll)
 	{
 		Main::Instance().GetPhysXScene()->destroyRagdoll(mRagdoll);
-		mRagdoll = 0;
+		mRagdoll = nullptr;
 	}
 }
 

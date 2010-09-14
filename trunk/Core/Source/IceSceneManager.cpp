@@ -50,6 +50,8 @@ namespace Ice
 
 		mShowEditorVisuals = false;
 
+		mClearingScene = false;
+
 		MessageSystem::Instance().CreateNewsgroup("ENABLE_GAME_CLOCK");
 		MessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
 
@@ -127,6 +129,7 @@ namespace Ice
 		{
 			i->second->ShowEditorVisuals(show);
 		}
+		AIManager::Instance().GetNavigationMesh()->Visualise(show);
 	}
 
 	GOCEditorInterface* SceneManager::GetGOCPrototype(Ogre::String type)
@@ -295,8 +298,6 @@ namespace Ice
 		ScriptSystem::GetInstance().ShareCFunction("Npc_GotoWP", &GOCAI::Lua_Npc_GotoWP);
 		ScriptSystem::GetInstance().ShareCFunction("Npc_OpenDialog", &GOCAI::Lua_Npc_OpenDialog);
 
-		ScriptSystem::GetInstance().ShareCFunction("Npc_GotoWP", &GOCAI::Lua_Npc_GotoWP);
-
 		ScriptSystem::GetInstance().ShareCFunction("Forcefield_SetActive", &GOCForceField::Lua_Forcefield_Activate);
 
 		ScriptSystem::GetInstance().ShareCFunction("Object_RunFunction", &GOCScript::Lua_RunFunction);
@@ -330,6 +331,7 @@ namespace Ice
 
 	void SceneManager::ClearGameObjects()
 	{
+		mClearingScene = true;
 		std::map<int, ManagedGameObject*>::iterator i = mGameObjects.begin();
 		while (i != mGameObjects.end())
 		{
@@ -337,6 +339,7 @@ namespace Ice
 			i = mGameObjects.begin();
 		}
 		mGameObjects.clear();
+		mClearingScene = false;
 	}
 
 	void SceneManager::Reset()

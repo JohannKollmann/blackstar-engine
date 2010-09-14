@@ -134,7 +134,7 @@ void Edit::PostInit()
 	wxEdit::Instance().GetMainToolbar()->RegisterTool("StopGame", "Game", "Data/Editor/Intern/Icon_Stop.png", Edit::OnToolbarEvent, "Reset everything to the state before you started playing.");
 	wxEdit::Instance().GetMainToolbar()->SetGroupStatus("Game", false);
 
-	Ice::AIManager::Instance().SetWayMeshLoadingMode(true);
+	Ice::AIManager::Instance().SetWayMeshLoadingMode(false);
 
 	SetCameraMoveSpeed(mMovSpeed);
 	SetCameraRotationSpeed(mRotSpeed);

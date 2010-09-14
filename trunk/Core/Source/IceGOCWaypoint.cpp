@@ -21,10 +21,6 @@ namespace Ice
 	{
 	}
 
-	void GOCWaypoint::ShowEditorVisual(bool show)
-	{
-	}
-
 	void GOCWaypoint::Save(LoadSave::SaveSystem& mgr)
 	{
 	}

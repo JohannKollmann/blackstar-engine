@@ -76,7 +76,7 @@ namespace Ice
 	}
 	void AIManager::SetNavigationMesh(NavigationMesh *mesh)
 	{
-		if (mNavigationMesh) delete mNavigationMesh;
+		if (mNavigationMesh) ICE_DELETE mNavigationMesh;
 		mNavigationMesh = mesh;
 	}
 

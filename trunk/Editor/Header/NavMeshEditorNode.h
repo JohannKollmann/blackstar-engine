@@ -10,7 +10,7 @@
 class NavMeshEditorNode : public Ice::GOCEditorVisualised, public Ice::MessageListener
 {
 protected:
-	Ogre::String GetEditorVisualMeshName() { return "sphere.25cm.mesh"; }
+	Ogre::String GetEditorVisualMeshName() { return "Editor_AnimKey.mesh"; }		//Todo
 
 	public:
 		enum Type

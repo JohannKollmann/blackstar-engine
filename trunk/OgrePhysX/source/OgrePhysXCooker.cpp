@@ -300,9 +300,9 @@ namespace OgrePhysX
 
 #define EIGHTH_SPACE_INDEX(v1,v2) (((v1.x>v2.x)?4:0)+((v1.y>v2.y)?2:0)+((v1.z>v2.z)?1:0))
 
-	void Cooker::mergeVertices(MeshInfo &meshInfo)
+	void Cooker::mergeVertices(MeshInfo &meshInfo, float fMergeDist)
 	{
-		const float fMergeDist=1e-3f;
+		//const float fMergeDist=1e-3f;
 
 		OctreeNode root;
 		root.vPos=meshInfo.vertices[0];
