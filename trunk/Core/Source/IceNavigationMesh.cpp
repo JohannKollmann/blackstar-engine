@@ -18,6 +18,7 @@ namespace Ice
 
 	const float NavigationMesh::NODE_DIST = 1.0f;
 	const float NavigationMesh::NODE_EXTENT = 0.5f;
+	const float NavigationMesh::NODE_HEIGHT = 1.8f;
 	const float NavigationMesh::NODE_BORDER = 0.4f;
 	const float NavigationMesh::MAX_HEIGHT_DIST_BETWEEN_NODES = 0.75f;
 
@@ -360,66 +361,78 @@ namespace Ice
 		mPhysXMeshShape = (NxTriangleMeshShape*)mPhysXActor->getNxActor()->getShapes()[0];
 	}
 
-	bool NavigationMesh::borderTest(Ogre::Vector3 center, float size, float rayDist)
+	bool NavigationMesh::borderTest(Ogre::Vector3 targetPoint, float size, float maxHeightDif)
 	{
+		targetPoint.y += maxHeightDif;
+		float rayDist = maxHeightDif*2;
 		OgrePhysX::Scene::QueryHit dummyQuery;
-		if (!Ice::Main::Instance().GetPhysXScene()->raycastClosestShape(dummyQuery, Ogre::Ray(center + Ogre::Vector3(size, 0, 0), Ogre::Vector3(0,-1,0)), NX_STATIC_SHAPES, 1<<CollisionGroups::AI, rayDist)) return false;
-		if (!Ice::Main::Instance().GetPhysXScene()->raycastClosestShape(dummyQuery, Ogre::Ray(center + Ogre::Vector3(-size, 0, 0), Ogre::Vector3(0,-1,0)), NX_STATIC_SHAPES, 1<<CollisionGroups::AI, rayDist)) return false;
-		if (!Ice::Main::Instance().GetPhysXScene()->raycastClosestShape(dummyQuery, Ogre::Ray(center + Ogre::Vector3(0, 0, size), Ogre::Vector3(0,-1,0)), NX_STATIC_SHAPES, 1<<CollisionGroups::AI, rayDist)) return false;
-		if (!Ice::Main::Instance().GetPhysXScene()->raycastClosestShape(dummyQuery, Ogre::Ray(center + Ogre::Vector3(0, 0, -size), Ogre::Vector3(0,-1,0)), NX_STATIC_SHAPES, 1<<CollisionGroups::AI, rayDist)) return false;
+		if (!Ice::Main::Instance().GetPhysXScene()->raycastClosestShape(dummyQuery, Ogre::Ray(targetPoint + Ogre::Vector3(size, 0, 0), Ogre::Vector3(0,-1,0)), NX_STATIC_SHAPES, 1<<CollisionGroups::AI, rayDist)) return false;
+		if (!Ice::Main::Instance().GetPhysXScene()->raycastClosestShape(dummyQuery, Ogre::Ray(targetPoint + Ogre::Vector3(-size, 0, 0), Ogre::Vector3(0,-1,0)), NX_STATIC_SHAPES, 1<<CollisionGroups::AI, rayDist)) return false;
+		if (!Ice::Main::Instance().GetPhysXScene()->raycastClosestShape(dummyQuery, Ogre::Ray(targetPoint + Ogre::Vector3(0, 0, size), Ogre::Vector3(0,-1,0)), NX_STATIC_SHAPES, 1<<CollisionGroups::AI, rayDist)) return false;
+		if (!Ice::Main::Instance().GetPhysXScene()->raycastClosestShape(dummyQuery, Ogre::Ray(targetPoint + Ogre::Vector3(0, 0, -size), Ogre::Vector3(0,-1,0)), NX_STATIC_SHAPES, 1<<CollisionGroups::AI, rayDist)) return false;
 		return true;
 	}
 
-	AStarNode3D* NavigationMesh::borderTestCreate(Ogre::Vector3 center, float size, float rayDist)
+	bool NavigationMesh::checkAgainstLevelMesh(Ogre::Vector3 targetPoint, float extent, float heightOffset)
 	{
-		OgrePhysX::Scene::QueryHit query;
-		if (!Ice::Main::Instance().GetPhysXScene()->raycastClosestShape(query, Ogre::Ray(center, Ogre::Vector3(0,-1,0)), NX_STATIC_SHAPES, 1<<CollisionGroups::AI, rayDist))
-			return nullptr;
-		float borderTestRayDist = 10;//1 + (MAX_HEIGHT_DIST_BETWEEN_NODES);
-		Ogre::Vector3 borderTestOrigin = query.point + Ogre::Vector3(0, 1, 0);
-		if (!borderTest(borderTestOrigin, size, borderTestRayDist)) return nullptr;
-
 		//check if the node volume intersetcs with the levelmesh
-		float height = 1.8f;
-		Ogre::AxisAlignedBox testVolume = Ogre::AxisAlignedBox(query.point + Ogre::Vector3(-NODE_EXTENT, 0.6f, -NODE_EXTENT), 
-			query.point + Ogre::Vector3(NODE_EXTENT, height, NODE_EXTENT));
+		Ogre::AxisAlignedBox testVolume = Ogre::AxisAlignedBox(targetPoint + Ogre::Vector3(-extent, heightOffset, -extent), 
+			targetPoint + Ogre::Vector3(extent, heightOffset+extent, extent));
 		if (Main::Instance().GetPhysXScene()->getNxScene()->checkOverlapAABB(OgrePhysX::Convert::toNx(testVolume), NX_STATIC_SHAPES, 1<<CollisionGroups::LEVELMESH))
-			return nullptr;
+			return false;
+		testVolume = Ogre::AxisAlignedBox(targetPoint + Ogre::Vector3(-extent/2, heightOffset/2, -NODE_EXTENT/2), 
+			targetPoint + Ogre::Vector3(extent/2, heightOffset/2 + extent/2, extent/2));
+		if (Main::Instance().GetPhysXScene()->getNxScene()->checkOverlapAABB(OgrePhysX::Convert::toNx(testVolume), NX_STATIC_SHAPES, 1<<CollisionGroups::LEVELMESH))
+			return false;
+
+		return true;
+	}
+
+	AStarNode3D* NavigationMesh::borderTestCreate(Ogre::Vector3 targetPoint, float size)
+	{
+		if (!borderTest(targetPoint, size, MAX_HEIGHT_DIST_BETWEEN_NODES)) return nullptr;
+
+		if (!checkAgainstLevelMesh(targetPoint, NODE_EXTENT, 0.5f)) return nullptr;
 
 		//create node
-		AStarNode3D *node = ICE_NEW AStarNode3D(query.point);
-		node->volume = Ogre::AxisAlignedBox(query.point + Ogre::Vector3(-NODE_EXTENT, -height, -NODE_EXTENT), 
-			query.point + Ogre::Vector3(NODE_EXTENT, height, NODE_EXTENT));
+		AStarNode3D *node = ICE_NEW AStarNode3D(targetPoint);
+		node->volume = Ogre::AxisAlignedBox(targetPoint + Ogre::Vector3(-NODE_EXTENT, 0, -NODE_EXTENT), 
+			targetPoint + Ogre::Vector3(NODE_EXTENT, NODE_HEIGHT, NODE_EXTENT));
 		return node;
 	}
 
-	AStarNode3D* NavigationMesh::rasterNode(Ogre::Vector3 rayOrigin, float subTest, float rayDist)
+	AStarNode3D* NavigationMesh::rasterNode(Ogre::Vector3 targetPoint, float subTest)
 	{
 		AStarNode3D *node = 0;
-		if (node = borderTestCreate(rayOrigin, NODE_BORDER, rayDist))
+		if (node = borderTestCreate(targetPoint, NODE_BORDER))
 			return node;
 
-		if (node = borderTestCreate(rayOrigin + Ogre::Vector3(subTest, 0, subTest), NODE_BORDER, rayDist))
+		if (node = borderTestCreate(targetPoint + Ogre::Vector3(subTest, 0, subTest), NODE_BORDER))
 			return node;
-		if (node = borderTestCreate(rayOrigin + Ogre::Vector3(subTest, 0, -subTest), NODE_BORDER, rayDist))
+		if (node = borderTestCreate(targetPoint + Ogre::Vector3(subTest, 0, -subTest), NODE_BORDER))
 			return node;
-		if (node = borderTestCreate(rayOrigin + Ogre::Vector3(-subTest, 0, subTest), NODE_BORDER, rayDist))
+		if (node = borderTestCreate(targetPoint + Ogre::Vector3(-subTest, 0, subTest), NODE_BORDER))
 			return node;
-		if (node = borderTestCreate(rayOrigin + Ogre::Vector3(-subTest, 0, -subTest), NODE_BORDER, rayDist))
+		if (node = borderTestCreate(targetPoint + Ogre::Vector3(-subTest, 0, -subTest), NODE_BORDER))
 			return node;
-		return 0;
+		return nullptr;
 	}
 
 	void NavigationMesh::rasterNodeRow(std::vector<AStarNode3D*> &result, Ogre::Vector3 rayOrigin, float subTest, float rayDist)
 	{
-		while (AStarNode3D *node = rasterNode(rayOrigin, subTest, rayDist))
+		OgrePhysX::Scene::QueryHit query;
+		while (Ice::Main::Instance().GetPhysXScene()->raycastClosestShape(query, Ogre::Ray(rayOrigin, Ogre::Vector3(0,-1,0)), NX_STATIC_SHAPES, 1<<CollisionGroups::AI, rayDist))
 		{
-			mPathNodeTree->AddPathNode(node);
-			GameObject *go = ICE_NEW GameObject();
-			go->AddComponent(GOComponentPtr(new GOCMeshRenderable("sphere.25cm.mesh", false)));
-			go->SetGlobalPosition(node->GetGlobalPosition());
-			result.push_back(node);
-			rayOrigin.y = node->GetGlobalPosition().y - 1;
+			AStarNode3D* node = rasterNode(query.point, subTest);
+			if (node)
+			{
+				mPathNodeTree->AddPathNode(node);
+				/*GameObject *go = ICE_NEW GameObject();
+				go->AddComponent(GOComponentPtr(new GOCMeshRenderable("sphere.25cm.mesh", false)));
+				go->SetGlobalPosition(node->GetGlobalPosition());*/
+				result.push_back(node);
+			}
+			rayOrigin.y = query.point.y - 1;
 		}
 	}
 
@@ -503,27 +516,29 @@ namespace Ice
 
 	bool NavigationMesh::checkNodeConnection(AStarNode3D *n1, AStarNode3D *n2)
 	{
+		//if (n1->GetGlobalPosition().distance(n2->GetGlobalPosition()) > 1.8f) return false;
 		Ogre::Vector3 mid = ((n1->GetGlobalPosition() - n2->GetGlobalPosition()) * 0.5f) + n2->GetGlobalPosition();
 
-		//obstacle check
-		Ogre::Vector3 volumeFeet = mid;
-		volumeFeet.y = (n1->GetGlobalPosition().y < n2->GetGlobalPosition().y) ? n1->GetGlobalPosition().y : n2->GetGlobalPosition().y;
-		volumeFeet.y += MAX_HEIGHT_DIST_BETWEEN_NODES;
-		Ogre::Vector3 boxExtents(NODE_BORDER, 0, NODE_BORDER);
-		Ogre::AxisAlignedBox box(volumeFeet-boxExtents, volumeFeet+boxExtents+Ogre::Vector3(0,1,0));
-		if (Ice::Main::Instance().GetPhysXScene()->getNxScene()->checkOverlapAABB(OgrePhysX::Convert::toNx(box), NX_STATIC_SHAPES, 1<<CollisionGroups::LEVELMESH))
-			return false;
-		/*NxCapsule capsule;
-		capsule.p0 = OgrePhysX::Convert::toNx(capsuleMid + Ogre::Vector3(0, MAX_HEIGHT_DIST_BETWEEN_NODES, 0));
-		capsule.p1 = OgrePhysX::Convert::toNx(capsuleMid + Ogre::Vector3(0, MAX_HEIGHT_DIST_BETWEEN_NODES+1,0));
-		capsule.radius = NODE_DIST/2;
-		if (Ice::Main::Instance().GetPhysXScene()->getNxScene()->checkOverlapCapsule(capsule, NX_STATIC_SHAPES, 1<<CollisionGroups::LEVELMESH))
-			return false;*/
-
 		//check if connection is above waymesh
-		mid.y += 0.5f;
-		bool test = borderTest(mid, NODE_BORDER, 2.0f);
-		if (!test) return false;
+		if (!borderTest(mid, NODE_BORDER, MAX_HEIGHT_DIST_BETWEEN_NODES)) return false;
+
+		//obstacle check
+		//first a simple raycast
+		OgrePhysX::Scene::QueryHit dummyQuery;
+		Ogre::Vector3 rayOrigin = n1->GetGlobalPosition();
+		Ogre::Vector3 rayTarget = n2->GetGlobalPosition();
+		if (n2->GetGlobalPosition().y < n1->GetGlobalPosition().y)
+		{
+			rayOrigin = n2->GetGlobalPosition();
+			rayTarget = n1->GetGlobalPosition();
+		}
+		rayOrigin += Ogre::Vector3(0, MAX_HEIGHT_DIST_BETWEEN_NODES, 0);
+		Ogre::Vector3 rayDir = rayTarget - rayOrigin;
+		float rayDist = rayDir.normalise(); rayDist-=0.05f;
+		//IceNote(Ogre::StringConverter::toString(rayDist))
+		if (Ice::Main::Instance().GetPhysXScene()->raycastClosestShape(dummyQuery, Ogre::Ray(rayOrigin, rayDir), NX_STATIC_SHAPES, 1<<CollisionGroups::LEVELMESH, rayDist))
+			return false;
+		if (!checkAgainstLevelMesh(mid, NODE_EXTENT, 0.5f)) return false;
 		return true;
 	}
 

@@ -129,7 +129,6 @@ namespace Ice
 		{
 			i->second->ShowEditorVisuals(show);
 		}
-		AIManager::Instance().GetNavigationMesh()->Visualise(show);
 	}
 
 	GOCEditorInterface* SceneManager::GetGOCPrototype(Ogre::String type)

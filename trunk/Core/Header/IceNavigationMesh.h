@@ -16,6 +16,7 @@ namespace Ice
 	private:
 		static const float NODE_DIST;
 		static const float NODE_EXTENT;
+		static const float NODE_HEIGHT;
 		static const float NODE_BORDER;
 		static const float MAX_HEIGHT_DIST_BETWEEN_NODES;
 
@@ -95,12 +96,13 @@ namespace Ice
 		MinMax getMinMax(const std::vector<float> &vals);
 
 		void rasterNodes();
-		bool borderTest(Ogre::Vector3 center, float size, float rayDist);
-		AStarNode3D* borderTestCreate(Ogre::Vector3 center, float size, float rayDist);
+		bool borderTest(Ogre::Vector3 targetPoint, float size, float maxHeightDif);
+		bool checkAgainstLevelMesh(Ogre::Vector3 targetPoint, float extent, float heightOffset);
+		AStarNode3D* borderTestCreate(Ogre::Vector3 targetPoint, float size);
 		void rasterNodeRow(std::vector<AStarNode3D*> &result, Ogre::Vector3 rayOrigin, float subTest, float rayDist);
 		bool checkNodeConnection(AStarNode3D *n1, AStarNode3D *n2);
 		void addMatchingNeighbours(std::vector<AStarNode3D*> base, std::vector<AStarNode3D*> add);
-		AStarNode3D* rasterNode(Ogre::Vector3 rayOrigin, float subTest, float rayDist);
+		AStarNode3D* rasterNode(Ogre::Vector3 targetPoint, float subTest);
 		void bakePhysXMesh();
 
 		class NxUserIntReport : public NxUserEntityReport<NxU32>

@@ -116,8 +116,8 @@ namespace Ice
 			NxVec3 currPos = OgrePhysX::Convert::toNx(mOwnerGO->GetGlobalPosition());
 			//feet capsule
 			NxCapsule feetVolume;
-			feetVolume.radius = mRadius*1.1f;
-			feetVolume.p0 = currPos + NxVec3(0, mRadius*1.5f + 0.1f, 0);
+			feetVolume.radius = mRadius*1.2f;
+			feetVolume.p0 = currPos + NxVec3(0, 0.1f, 0);
 			feetVolume.p1 = currPos + NxVec3(0, maxStepHeight, 0);
 			/*feetVolume.center = currPos + NxVec3(0, maxStepHeight*0.5f - mRadius + 0.2f, 0);
 			feetVolume.extents = NxVec3(mRadius, maxStepHeight*0.5f, mRadius);
