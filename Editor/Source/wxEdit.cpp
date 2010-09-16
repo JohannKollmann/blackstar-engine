@@ -25,6 +25,7 @@ BEGIN_EVENT_TABLE(wxEdit, wxFrame)
 	EVT_MENU(wxMainMenu_Physics, wxEdit::OnEnablePhysics)
 	EVT_MENU(wxMainMenu_ReloadScripts, wxEdit::OnReloadScripts)
 	EVT_MENU(wxMainMenu_EditorMeshes, wxEdit::OnEnableEditorMeshes)
+	EVT_MENU(wxMainMenu_ShowWayMesh, wxEdit::OnShowWayMesh)
 	EVT_MENU(wxMainMenu_About, wxEdit::OnAbout)
 	EVT_MENU(wxMainMenu_Settings, wxEdit::OnSettings)
 	EVT_MENU(wxMainMenu_PreviewWindow, wxEdit::OnPreviewWindow)
@@ -414,6 +415,11 @@ void wxEdit::OnEnablePhysics(wxCommandEvent& WXUNUSED(event))
 void wxEdit::OnEnableEditorMeshes(wxCommandEvent& WXUNUSED(event))
 {
 	Ice::SceneManager::Instance().ShowEditorMeshes(mMenuBar->IsChecked(wxMainMenu_EditorMeshes));
+}
+
+void wxEdit::OnShowWayMesh(wxCommandEvent& WXUNUSED(event))
+{
+	Ice::AIManager::Instance().GetNavigationMesh()->Visualise(mMenuBar->IsChecked(wxMainMenu_ShowWayMesh));
 }
 
 void wxEdit::OnSettings(wxCommandEvent& WXUNUSED(event))

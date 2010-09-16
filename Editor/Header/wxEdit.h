@@ -59,6 +59,7 @@ public:
 		wxMainMenu_Physics,
 		wxMainMenu_ReloadScripts,
 		wxMainMenu_EditorMeshes,
+		wxMainMenu_ShowWayMesh,
 		wxMainMenu_About,
 		wxMainMenu_Settings,
 		wxMainMenu_PreviewWindow,
@@ -120,6 +121,7 @@ protected:
 
 	void OnEnablePhysics(wxCommandEvent& WXUNUSED(event));
 	void OnEnableEditorMeshes(wxCommandEvent& WXUNUSED(event));
+	void OnShowWayMesh(wxCommandEvent& WXUNUSED(event));
 
 	void OnMeshEditor(wxCommandEvent& WXUNUSED(event));
 
