@@ -15,10 +15,10 @@ namespace Ice
 		{
 			if ((*i)->IsBlocked()) continue;
 			AStarEdge edge;
-			edge.mCost = mPosition.squaredDistance((*i)->mPosition);
+			edge.mCost = mPosition.distance((*i)->mPosition);
 			edge.mFrom = this;
 			edge.mNeighbor = (*i);
-			edge.mCostOffset = (*i)->mPosition.squaredDistance(targetPos);
+			edge.mCostOffset = (*i)->mPosition.distance(targetPos);
 			edges.push_back(edge);
 		}
 	}

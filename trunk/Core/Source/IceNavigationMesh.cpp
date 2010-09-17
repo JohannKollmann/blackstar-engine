@@ -167,6 +167,7 @@ namespace Ice
 		mPhysXMeshShape = nullptr;
 		mPathNodeTree = nullptr;
 		mDebugVisual = nullptr;
+		mConnectionLinesDebugVisual = nullptr;
 
 		MessageSystem::Instance().JoinNewsgroup(this, "ACTOR_ONSLEEP");
 		MessageSystem::Instance().JoinNewsgroup(this, "ACTOR_ONWAKE");
@@ -200,6 +201,16 @@ namespace Ice
 		{
 			ICE_DELETE mPathNodeTree;
 			mPathNodeTree = 0;
+		}
+		if (mConnectionLinesDebugVisual)
+		{
+			Main::Instance().GetOgreSceneMgr()->destroyManualObject(mConnectionLinesDebugVisual);
+			mConnectionLinesDebugVisual = nullptr;
+		}
+		if (mDebugVisual)
+		{
+			Main::Instance().GetOgreSceneMgr()->destroyEntity(mDebugVisual);
+			mDebugVisual = nullptr;
 		}
 		mNeedsUpdate = true;
 	}
@@ -533,14 +544,14 @@ namespace Ice
 			rayOrigin = n2->GetGlobalPosition();
 			rayTarget = n1->GetGlobalPosition();
 		}
-		float rayDist = 0.2f;	//stair width
+		float rayDist = 0.3f;	//stair width
 		float rayDist_total = 0;
 		Ogre::Vector3 rayDir = rayTarget - rayOrigin;
 		float dist = rayDir.normalise(); dist-=0.05f;
 		//height test to find out whether stair sampling is neceessary
 		if (rayTarget.y - rayOrigin.y > MAX_STEP_HEIGHT)
 		{
-			int numSteps = Ogre::Math::Floor(dist/rayDist);
+			int numSteps = Ogre::Math::Ceil(dist/rayDist);
 			for (int i = 0; i < numSteps; i++)
 			{
 				rayDist_total += rayDist;	
@@ -568,7 +579,7 @@ namespace Ice
 	{
 		if (!mPhysXMeshShape) return;
 
-		mConnectionLinesDebugVisual = Main::Instance().GetOgreSceneMgr()->createManualObject();
+		if (!mConnectionLinesDebugVisual) mConnectionLinesDebugVisual = Main::Instance().GetOgreSceneMgr()->createManualObject();
 		mConnectionLinesDebugVisual->begin("BlueLine", Ogre::RenderOperation::OT_LINE_LIST);
 
 		if (mPathNodeTree)
@@ -631,7 +642,6 @@ namespace Ice
 			}
 
 			mConnectionLinesDebugVisual->end();
-			Main::Instance().GetOgreSceneMgr()->getRootSceneNode()->createChildSceneNode(Ogre::Vector3(0, 0.1f, 0))->attachObject(mConnectionLinesDebugVisual);
 	}
 
 	void NavigationMesh::ReceiveMessage(Msg &msg)
@@ -826,15 +836,24 @@ namespace Ice
 			Ogre::MeshManager::getSingleton().remove("NavMeshVisual");
 	}
 
-	void NavigationMesh::Visualise(bool show)
+	void NavigationMesh::VisualiseWalkableAreas(bool show)
 	{
 		_destroyDebugVisual();
+		if (Main::Instance().GetOgreSceneMgr()->hasSceneNode("Navmesh_Walkables")) Main::Instance().GetOgreSceneMgr()->destroySceneNode("Navmesh_Walkables");
 		if (show)
 		{
 			_createOgreMesh("NavMeshVisual");
 			mDebugVisual = Main::Instance().GetOgreSceneMgr()->createEntity("NavMeshVisual");
 			mDebugVisual->setCastShadows(false);
-			Main::Instance().GetOgreSceneMgr()->getRootSceneNode()->createChildSceneNode(Ogre::Vector3(0,0.2f, 0))->attachObject(mDebugVisual);
+			Main::Instance().GetOgreSceneMgr()->getRootSceneNode()->createChildSceneNode("Navmesh_Walkables", Ogre::Vector3(0,0.05f, 0))->attachObject(mDebugVisual);
+		}
+	}
+	void NavigationMesh::VisualiseWaymesh(bool show)
+	{
+		if (Main::Instance().GetOgreSceneMgr()->hasSceneNode("Navmesh_Waymesh")) Main::Instance().GetOgreSceneMgr()->destroySceneNode("Navmesh_Waymesh");
+		if (show && mConnectionLinesDebugVisual)
+		{
+			Main::Instance().GetOgreSceneMgr()->getRootSceneNode()->createChildSceneNode("Navmesh_Waymesh", Ogre::Vector3(0,0.1f, 0))->attachObject(mConnectionLinesDebugVisual);
 		}
 	}
 

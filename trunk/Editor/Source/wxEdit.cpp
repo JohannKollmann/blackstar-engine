@@ -26,6 +26,7 @@ BEGIN_EVENT_TABLE(wxEdit, wxFrame)
 	EVT_MENU(wxMainMenu_ReloadScripts, wxEdit::OnReloadScripts)
 	EVT_MENU(wxMainMenu_EditorMeshes, wxEdit::OnEnableEditorMeshes)
 	EVT_MENU(wxMainMenu_ShowWayMesh, wxEdit::OnShowWayMesh)
+	EVT_MENU(wxMainMenu_ShowWalkableAreas, wxEdit::OnShowWalkableAreas)
 	EVT_MENU(wxMainMenu_About, wxEdit::OnAbout)
 	EVT_MENU(wxMainMenu_Settings, wxEdit::OnSettings)
 	EVT_MENU(wxMainMenu_PreviewWindow, wxEdit::OnPreviewWindow)
@@ -143,6 +144,8 @@ wxEdit::wxEdit() : wxFrame(nullptr, -1, _("Blackstar Edit"),
 	mSettingsMenu->Append(showeditormeshes);
 	wxMenuItem *showwaymesh = new wxMenuItem(mSettingsMenu, wxMainMenu_ShowWayMesh, "Show Waymesh", "Displays/Hides the waymesh.", true);
 	mSettingsMenu->Append(showwaymesh);
+	wxMenuItem *showwalkables = new wxMenuItem(mSettingsMenu, wxMainMenu_ShowWalkableAreas, "Show Walkable Areas", "Displays/Hides walkable areas.", true);
+	mSettingsMenu->Append(showwalkables);
 	mAboutMenu = new wxMenu;
 	mAboutMenu->Append(wxMainMenu_About, "About");
 	mWindowsMenu = new wxMenu;
@@ -419,9 +422,13 @@ void wxEdit::OnEnableEditorMeshes(wxCommandEvent& WXUNUSED(event))
 	Ice::SceneManager::Instance().ShowEditorMeshes(mMenuBar->IsChecked(wxMainMenu_EditorMeshes));
 }
 
+void wxEdit::OnShowWalkableAreas(wxCommandEvent& WXUNUSED(event))
+{
+	Ice::AIManager::Instance().GetNavigationMesh()->VisualiseWalkableAreas(mMenuBar->IsChecked(wxMainMenu_ShowWalkableAreas));
+}
 void wxEdit::OnShowWayMesh(wxCommandEvent& WXUNUSED(event))
 {
-	Ice::AIManager::Instance().GetNavigationMesh()->Visualise(mMenuBar->IsChecked(wxMainMenu_ShowWayMesh));
+	Ice::AIManager::Instance().GetNavigationMesh()->VisualiseWaymesh(mMenuBar->IsChecked(wxMainMenu_ShowWayMesh));
 }
 
 void wxEdit::OnSettings(wxCommandEvent& WXUNUSED(event))

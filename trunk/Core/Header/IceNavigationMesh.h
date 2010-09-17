@@ -123,7 +123,8 @@ namespace Ice
 		NavigationMesh();
 		~NavigationMesh();
 
-		void Visualise(bool show);
+		void VisualiseWaymesh(bool show);
+		void VisualiseWalkableAreas(bool show);
 
 		///Destroys the physx navmesh and the navmesh octree.
 		void Clear();
