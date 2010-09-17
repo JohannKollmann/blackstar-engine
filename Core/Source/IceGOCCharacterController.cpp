@@ -117,7 +117,7 @@ namespace Ice
 			//feet capsule
 			NxCapsule feetVolume;
 			feetVolume.radius = mRadius*1.2f;
-			feetVolume.p0 = currPos + NxVec3(0, 0.1f, 0);
+			feetVolume.p0 = currPos + NxVec3(0, feetVolume.radius+0.01f, 0);
 			feetVolume.p1 = currPos + NxVec3(0, maxStepHeight, 0);
 			/*feetVolume.center = currPos + NxVec3(0, maxStepHeight*0.5f - mRadius + 0.2f, 0);
 			feetVolume.extents = NxVec3(mRadius, maxStepHeight*0.5f, mRadius);
@@ -127,7 +127,7 @@ namespace Ice
 			NxCapsule bodyVolume;
 			float bodyHeight = mDimensions.y-maxStepHeight;
 			bodyVolume.radius = mRadius*1.2f;
-			bodyVolume.p0 = currPos + NxVec3(0, maxStepHeight+bodyVolume.radius, 0);
+			bodyVolume.p0 = currPos + NxVec3(0, maxStepHeight, 0);
 			bodyVolume.p1 = currPos + NxVec3(0, bodyHeight, 0);
 			/*bodyVolume.center = currPos + NxVec3(0, maxStepHeight+(bodyHeight*0.5f), 0);
 			bodyVolume.extents = NxVec3(mRadius, bodyHeight*0.5f, mRadius);

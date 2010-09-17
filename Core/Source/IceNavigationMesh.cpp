@@ -20,7 +20,8 @@ namespace Ice
 	const float NavigationMesh::NODE_EXTENT = 0.5f;
 	const float NavigationMesh::NODE_HEIGHT = 1.8f;
 	const float NavigationMesh::NODE_BORDER = 0.4f;
-	const float NavigationMesh::MAX_HEIGHT_DIST_BETWEEN_NODES = 0.75f;
+	const float NavigationMesh::MAX_HEIGHT_DIST_BETWEEN_NODES = 0.8f;
+	const float NavigationMesh::MAX_STEP_HEIGHT = 0.35f;
 
 	const float NavigationMesh::PathNodeTree::BOXSIZE_MIN = 10.0f;
 
@@ -390,9 +391,9 @@ namespace Ice
 
 	AStarNode3D* NavigationMesh::borderTestCreate(Ogre::Vector3 targetPoint, float size)
 	{
-		if (!borderTest(targetPoint, size, MAX_HEIGHT_DIST_BETWEEN_NODES)) return nullptr;
+		if (!borderTest(targetPoint, size, ((size*2)/NODE_DIST) * MAX_HEIGHT_DIST_BETWEEN_NODES)) return nullptr;
 
-		if (!checkAgainstLevelMesh(targetPoint, NODE_EXTENT, 0.5f)) return nullptr;
+		if (!checkAgainstLevelMesh(targetPoint, NODE_EXTENT, MAX_HEIGHT_DIST_BETWEEN_NODES)) return nullptr;
 
 		//create node
 		AStarNode3D *node = ICE_NEW AStarNode3D(targetPoint);
@@ -516,14 +517,14 @@ namespace Ice
 
 	bool NavigationMesh::checkNodeConnection(AStarNode3D *n1, AStarNode3D *n2)
 	{
-		//if (n1->GetGlobalPosition().distance(n2->GetGlobalPosition()) > 1.8f) return false;
+		if (n1->GetGlobalPosition().squaredDistance(n2->GetGlobalPosition()) > 5) return false;
 		Ogre::Vector3 mid = ((n1->GetGlobalPosition() - n2->GetGlobalPosition()) * 0.5f) + n2->GetGlobalPosition();
 
 		//check if connection is above waymesh
-		if (!borderTest(mid, NODE_BORDER, MAX_HEIGHT_DIST_BETWEEN_NODES)) return false;
+		if (!borderTest(mid, NODE_BORDER, ((NODE_BORDER*2)/NODE_DIST) * MAX_HEIGHT_DIST_BETWEEN_NODES)) return false;
 
 		//obstacle check
-		//first a simple raycast
+		//stair sampling via raycasting
 		OgrePhysX::Scene::QueryHit dummyQuery;
 		Ogre::Vector3 rayOrigin = n1->GetGlobalPosition();
 		Ogre::Vector3 rayTarget = n2->GetGlobalPosition();
@@ -532,13 +533,34 @@ namespace Ice
 			rayOrigin = n2->GetGlobalPosition();
 			rayTarget = n1->GetGlobalPosition();
 		}
-		rayOrigin += Ogre::Vector3(0, MAX_HEIGHT_DIST_BETWEEN_NODES, 0);
+		float rayDist = 0.2f;	//stair width
+		float rayDist_total = 0;
 		Ogre::Vector3 rayDir = rayTarget - rayOrigin;
-		float rayDist = rayDir.normalise(); rayDist-=0.05f;
+		float dist = rayDir.normalise(); dist-=0.05f;
+		//height test to find out whether stair sampling is neceessary
+		if (rayTarget.y - rayOrigin.y > MAX_STEP_HEIGHT)
+		{
+			int numSteps = Ogre::Math::Floor(dist/rayDist);
+			for (int i = 0; i < numSteps; i++)
+			{
+				rayDist_total += rayDist;	
+				rayOrigin += Ogre::Vector3(0, MAX_STEP_HEIGHT, 0);
+				rayDir = (rayTarget - rayOrigin);
+				rayDir.y = 0;
+				rayDir.normalise();
+				if (Ice::Main::Instance().GetPhysXScene()->raycastClosestShape(dummyQuery, Ogre::Ray(rayOrigin, rayDir), NX_STATIC_SHAPES, 1<<CollisionGroups::LEVELMESH, rayDist))
+					return false;
+				if (!Ice::Main::Instance().GetPhysXScene()->raycastClosestShape(dummyQuery, Ogre::Ray(rayOrigin+(rayDir*rayDist), Ogre::Vector3::NEGATIVE_UNIT_Y), NX_STATIC_SHAPES, 1<<CollisionGroups::LEVELMESH, 2))
+					return false;	
+				rayOrigin = dummyQuery.point;
+			}
+		}
+
 		//IceNote(Ogre::StringConverter::toString(rayDist))
-		if (Ice::Main::Instance().GetPhysXScene()->raycastClosestShape(dummyQuery, Ogre::Ray(rayOrigin, rayDir), NX_STATIC_SHAPES, 1<<CollisionGroups::LEVELMESH, rayDist))
-			return false;
-		if (!checkAgainstLevelMesh(mid, NODE_EXTENT, 0.5f)) return false;
+
+		if (!checkAgainstLevelMesh(mid, NODE_BORDER, ((NODE_BORDER*2)/NODE_DIST) * MAX_HEIGHT_DIST_BETWEEN_NODES)) return false;
+		mConnectionLinesDebugVisual->position(n1->GetGlobalPosition());
+		mConnectionLinesDebugVisual->position(n2->GetGlobalPosition());
 		return true;
 	}
 
@@ -546,10 +568,13 @@ namespace Ice
 	{
 		if (!mPhysXMeshShape) return;
 
+		mConnectionLinesDebugVisual = Main::Instance().GetOgreSceneMgr()->createManualObject();
+		mConnectionLinesDebugVisual->begin("BlueLine", Ogre::RenderOperation::OT_LINE_LIST);
+
 		if (mPathNodeTree)
 		{
 			ICE_DELETE mPathNodeTree;
-			mPathNodeTree = 0;
+			mPathNodeTree = nullptr;
 		}
 
 		NxBounds3 aabb;
@@ -604,6 +629,9 @@ namespace Ice
 					rowIndex++;
 				}
 			}
+
+			mConnectionLinesDebugVisual->end();
+			Main::Instance().GetOgreSceneMgr()->getRootSceneNode()->createChildSceneNode(Ogre::Vector3(0, 0.1f, 0))->attachObject(mConnectionLinesDebugVisual);
 	}
 
 	void NavigationMesh::ReceiveMessage(Msg &msg)
@@ -688,6 +716,7 @@ namespace Ice
 			mIndexBuffer.push_back(meshInfo.indices[i+2]);
 		}
 		mNeedsUpdate = true;
+		Update();
 	}
 
 	void NavigationMesh::_cutBadPolys(OgrePhysX::Cooker::MeshInfo &meshInfo)

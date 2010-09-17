@@ -378,7 +378,7 @@ GOCAnimatedCharacter::GOCAnimatedCharacter(Ogre::String meshname, Ogre::Vector3 
 void GOCAnimatedCharacter::Create(Ogre::String meshname, Ogre::Vector3 scale)
 {
 	mMovementState = 0;
-	GetNode()->scale(scale);
+	GetNode()->setScale(scale);
 	if (!Ogre::ResourceGroupManager::getSingleton().resourceExists("General", meshname))
 	{
 		Ogre::LogManager::getSingleton().logMessage("Error: Resource \"" + meshname + "\" does not exist. Loading dummy Resource...");

@@ -19,6 +19,7 @@ namespace Ice
 		static const float NODE_HEIGHT;
 		static const float NODE_BORDER;
 		static const float MAX_HEIGHT_DIST_BETWEEN_NODES;
+		static const float MAX_STEP_HEIGHT;
 
 	private:
 
@@ -84,6 +85,7 @@ namespace Ice
 		NxTriangleMeshShape *mPhysXMeshShape;
 		PathNodeTree *mPathNodeTree;
 		Ogre::Entity *mDebugVisual;
+		Ogre::ManualObject *mConnectionLinesDebugVisual;
 		Ogre::MeshPtr _createOgreMesh(const Ogre::String &resourceName);
 		void _destroyDebugVisual();
 		void _cutBadPolys(OgrePhysX::Cooker::MeshInfo &meshInfo);

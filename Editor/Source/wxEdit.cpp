@@ -137,10 +137,12 @@ wxEdit::wxEdit() : wxFrame(nullptr, -1, _("Blackstar Edit"),
 	wxMenuItem *meshtool = new wxMenuItem(mToolsMenu, wxMainMenu_Meshes, "MeshMagick (by Haffax)", "Mesh Editor which allows you to perform some basic operations on your meshes such as scaling or center align.");
 	mToolsMenu->Append(meshtool);
 	mSettingsMenu = new wxMenu;
-	wxMenuItem *showeditormeshes = new wxMenuItem(mToolsMenu, wxMainMenu_EditorMeshes, "Show Editor Meshes", "Enables/Disables Editor Meshes.", true);
+	wxMenuItem *showeditormeshes = new wxMenuItem(mSettingsMenu, wxMainMenu_EditorMeshes, "Show Editor Meshes", "Enables/Disables Editor Meshes.", true);
 	mSettingsMenu->Append(wxMainMenu_Settings, "Settings");
 	mSettingsMenu->AppendSeparator();
 	mSettingsMenu->Append(showeditormeshes);
+	wxMenuItem *showwaymesh = new wxMenuItem(mSettingsMenu, wxMainMenu_ShowWayMesh, "Show Waymesh", "Displays/Hides the waymesh.", true);
+	mSettingsMenu->Append(showwaymesh);
 	mAboutMenu = new wxMenu;
 	mAboutMenu->Append(wxMainMenu_About, "About");
 	mWindowsMenu = new wxMenu;
@@ -348,7 +350,7 @@ void wxEdit::OnExit(wxCommandEvent& WXUNUSED(event))
 void wxEdit::OnMeshEditor(wxCommandEvent& WXUNUSED(event))
 {
     wxFileDialog dialog(this, "Select meshes",
-                        wxEmptyString, wxEmptyString, "Ogre binary Mesh files (*.mesh)|*.mesh",
+                        wxEmptyString, wxEmptyString, "Ogre binary Mesh files (*.mesh;*.skeleton)|*.mesh;*.skeleton",
                         wxFD_OPEN|wxFD_MULTIPLE);
 
     if (dialog.ShowModal() == wxID_OK)

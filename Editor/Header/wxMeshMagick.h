@@ -22,9 +22,11 @@ protected:
 
 	wxCheckBox *mOptimise;
 	wxCheckBox *mScale;
+	wxCheckBox *mTranslate;
 	wxCheckBox *mRotate;
 	wxCheckBox *mCenter;
 	wxTextCtrl *mScaleEdt;
+	wxTextCtrl *mTranslateEdt;
 	wxTextCtrl *mRotateEdt;
 	wxButton *mApplyBtn;
 

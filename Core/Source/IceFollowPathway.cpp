@@ -141,7 +141,7 @@ namespace Ice
 				mAIObject->BroadcastMovementState(0);
 				return true;
 			}
-			optimizePath();
+			//optimizePath();
 			Ogre::Vector3 targetDir = mPath[0]->GetGlobalPosition()-currPos;
 			mDirectionBlender.StartBlend(myDirection, targetDir, 0.2f);
 		}
