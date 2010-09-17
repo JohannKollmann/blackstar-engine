@@ -64,7 +64,8 @@ namespace Ice
 
 	void GOCCameraController::CreateNodes()
 	{
-		mCameraCenterNode = GetNode()->createChildSceneNode(Ogre::Vector3(0, 2, 0));
+		mCameraCenterNode = GetNode()->createChildSceneNode(Ogre::Vector3(0, 4.0f, 0));
+		mCameraCenterNode->setInheritScale(false);
 		mCameraCenterNode->setInheritOrientation(false);
 		mTargetNode = mCameraCenterNode->createChildSceneNode(Ogre::Vector3(0,0,10));
 		mCameraNode = mCameraCenterNode->createChildSceneNode(Ogre::Vector3(0,0,0));
@@ -136,7 +137,7 @@ namespace Ice
 			float oldZoom = mfZoom;
 			mfZoom -= (mfZoom+0.1f)*(msg.params.GetInt("ROT_Z_REL")*0.001f);
 
-			if(mfZoom>1.5f)
+			if(mfZoom>1.5)
 				mfZoom=1.5f;
 			if(mfZoom<0.0f)
 				mfZoom=0.0f;

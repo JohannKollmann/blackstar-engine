@@ -44,6 +44,15 @@ wxMeshMagick::wxMeshMagick(wxWindow* parent, wxWindowID id, const wxPoint& pos, 
         s3->Add(1, 1, 1, wxEXPAND);
         s3->SetItemMinSize((size_t)1, 75, 25);
 
+        wxBoxSizer* s6 = new wxBoxSizer(wxHORIZONTAL);
+        mTranslate = new wxCheckBox(this, -1, "Translate");
+		mTranslateEdt = new wxTextCtrl(this, -1, "0.0/0.0/0.0", wxDefaultPosition, wxSize(150,20));
+        s6->Add(1, 1, 1, wxEXPAND);
+        s6->Add(mTranslate);
+		s6->Add(mTranslateEdt);
+        s6->Add(1, 1, 1, wxEXPAND);
+        s6->SetItemMinSize((size_t)1, 75, 25);
+
         wxBoxSizer* s4 = new wxBoxSizer(wxHORIZONTAL);
         mRotate = new wxCheckBox(this, -1, "Rotate");
 		mRotateEdt = new wxTextCtrl(this, -1, "90/1/0/0", wxDefaultPosition, wxSize(150,20));
@@ -65,6 +74,7 @@ wxMeshMagick::wxMeshMagick(wxWindow* parent, wxWindowID id, const wxPoint& pos, 
         grid_sizer->Add(s1);
 		grid_sizer->Add(s2);
 		grid_sizer->Add(s3);
+		grid_sizer->Add(s6);
 		grid_sizer->Add(s4);
 
         wxBoxSizer* cont_sizer = new wxBoxSizer(wxVERTICAL);
@@ -135,6 +145,16 @@ void wxMeshMagick::OnApply(wxCommandEvent& event)
 			transformOptions.push_back(meshmagick::Option("xalign", Ogre::Any(Ogre::String("center"))));
 			transformOptions.push_back(meshmagick::Option("yalign", Ogre::Any(Ogre::String("center"))));
 			transformOptions.push_back(meshmagick::Option("zalign", Ogre::Any(Ogre::String("center"))));
+		}
+		if (mTranslate->IsChecked())
+		{
+			transform = true;
+			Ogre::StringVector components = Ogre::StringUtil::split(Ogre::String(mTranslateEdt->GetLineText(0).c_str()), "/");
+			Ogre::Any value = Ogre::Any(Ogre::Vector3(
+								Ogre::StringConverter::parseReal(components[0]),
+								Ogre::StringConverter::parseReal(components[1]),
+								Ogre::StringConverter::parseReal(components[2])));
+			transformOptions.push_back(meshmagick::Option("translate", value));
 		}
 		if (mRotate->IsChecked())
 		{
