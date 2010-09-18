@@ -22,7 +22,6 @@
 #include "wxSimpleOgreView.h"
 
 
-
 class wxEdit : public wxFrame, public Ogre::Singleton<wxEdit>
 {
 	DECLARE_EVENT_TABLE() 

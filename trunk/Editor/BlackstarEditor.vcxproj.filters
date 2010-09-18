@@ -225,4 +225,7 @@
       <Filter>View</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Misc\ForWx.rc" />
+  </ItemGroup>
 </Project>
