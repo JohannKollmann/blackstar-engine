@@ -110,6 +110,9 @@
     <PostBuildEvent>
       <Command>copy $(OutDir)$(TargetFileName) ..\..\bin\</Command>
     </PostBuildEvent>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>..\..\Dependencies\wxWidgets\include\</AdditionalIncludeDirectories>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Header\AmbientOcclusionGenerator.h" />
@@ -191,6 +194,11 @@
     <ProjectReference Include="..\ScriptExtensions\ScriptExtensions.vcxproj">
       <Project>{3f60d252-8466-4bef-ba22-f2309dfd1853}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Misc\ForWx.rc">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\Dependencies\wxWidgets\include\</AdditionalIncludeDirectories>
+    </ResourceCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
