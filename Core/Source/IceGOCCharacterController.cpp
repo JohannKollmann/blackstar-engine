@@ -18,12 +18,34 @@ namespace Ice
 	void CharacterControllerInput::BroadcastMovementState()
 	{
 		Msg objmsg;
-		objmsg.type = "UpdateCharacterMovementState";
+		objmsg.type = "UPDATE_CHARACTER_MOVEMENTSTATE";
 		objmsg.params.AddInt("CharacterMovementState", mCharacterMovementState);
 		mOwnerGO->SendInstantMessage(objmsg);
 	}
+
+#define BROADCAST_MOVEMENTCHANGE(movementType, newState) \
+{ \
+	int dif = mCharacterMovementState ^ newState; \
+	if (dif & movementType) \
+	{ \
+		Msg objmsg; \
+		objmsg.type = ((newState & movementType) ? "ENTER_MOVEMENT_STATE" : "LEAVE_MOVEMENT_STATE"); \
+		objmsg.params.AddOgreString("state", #movementType); \
+		mOwnerGO->SendInstantMessage(objmsg); \
+	} \
+} \
+
 	void CharacterControllerInput::BroadcastMovementState(int state)
 	{
+		if (mCharacterMovementState != state)
+		{
+			BROADCAST_MOVEMENTCHANGE(FORWARD, state)
+			BROADCAST_MOVEMENTCHANGE(BACKWARD, state)
+			BROADCAST_MOVEMENTCHANGE(LEFT, state)
+			BROADCAST_MOVEMENTCHANGE(RIGHT, state)
+			BROADCAST_MOVEMENTCHANGE(RUN, state)
+			BROADCAST_MOVEMENTCHANGE(CROUCH, state)
+		}
 		mCharacterMovementState = state;
 		BroadcastMovementState();
 	}
@@ -46,7 +68,7 @@ namespace Ice
 		{
 			Msg msg;
 			msg.type = "ACTOR_ONWAKE";
-			msg.rawData = mActor;
+			msg.rawData = mActor->getNxActor();
 			MessageSystem::Instance().SendInstantMessage(msg);
 			Main::Instance().GetPhysXScene()->destroyActor(mActor);
 			mActor = nullptr;
@@ -173,7 +195,7 @@ namespace Ice
 			{
 				mJumping = false;
 				Msg jump_response;
-				jump_response.type = "CharacterJumpEnded";
+				jump_response.type = "END_JUMP";
 				mOwnerGO->SendInstantMessage(jump_response);
 			}
 			/*Msg collision_response;
@@ -190,7 +212,7 @@ namespace Ice
 
 	void GOCCharacterController::ReceiveObjectMessage(Msg &msg)
 	{
-		if (msg.type == "UpdateCharacterMovementState")
+		if (msg.type == "UPDATE_CHARACTER_MOVEMENTSTATE")
 		{
 			mDirection = Ogre::Vector3(0,0,0);
 			int movementFlags = msg.params.GetInt("CharacterMovementState");
@@ -201,15 +223,17 @@ namespace Ice
 
 			mDirection.normalise();
 			mDirection*=(mMovementSpeed*mSpeedFactor);
-
-			if (movementFlags & CharacterMovement::JUMP)
+		}
+		if (msg.type == "INPUT_START_JUMP")
+		{
+			if (mTouchesGround && !mJumping)
 			{
-				if (mTouchesGround && !mJumping)
-				{
-					mJumping = true;
-					mJumpStartTime = timeGetTime();
-					mActor->getNxActor()->addForce(NxVec3(0, 300, 0), NxForceMode::NX_IMPULSE);
-				}
+				mJumping = true;
+				mJumpStartTime = timeGetTime();
+				mActor->getNxActor()->addForce(NxVec3(0, 300, 0), NxForceMode::NX_IMPULSE);
+				Msg msg;
+				msg.type = "START_JUMP";
+				mOwnerGO->SendInstantMessage(msg);
 			}
 		}
 		if (msg.type == "KillCharacter")

@@ -16,7 +16,6 @@ namespace Ice
 		BACKWARD = 2,
 		LEFT = 4,
 		RIGHT = 8,
-		JUMP = 16,
 		RUN = 32,
 		CROUCH = 64,
 	};

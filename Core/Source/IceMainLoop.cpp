@@ -59,7 +59,7 @@ bool MainLoop::doLoop()
 	{
 		DWORD time = timeGetTime();
 		DWORD difference = time - mTotalLastFrameTime;
-		difference = difference < 250 ? difference : 250;	//Max frame time: 250ms
+		difference = difference < 100 ? difference : 100;	//Max frame time: 100 ms
 		mTotalLastFrameTime = time;
 		mTimeSinceLastFrame = static_cast<float>(difference * 0.001f);
 		mTotalTimeElapsed += mTimeSinceLastFrame;

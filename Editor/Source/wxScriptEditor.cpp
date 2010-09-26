@@ -24,6 +24,7 @@ wxScriptEditor::wxScriptEditor(wxWindow *parent, wxWindowID id,
 
     // default font for all styles
     SetViewEOL (false);
+	SetEOLMode(2);
     SetIndentationGuides (false);
     SetEdgeMode (wxSTC_EDGE_NONE);
     SetViewWhiteSpace (wxSTC_WS_INVISIBLE);

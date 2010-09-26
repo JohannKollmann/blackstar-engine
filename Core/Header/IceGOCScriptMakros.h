@@ -69,8 +69,8 @@ namespace Ice
 			} \
 			std::vector<ScriptParam> vObjParams; \
 			for (unsigned int i = 1; i < vParams.size(); i++) vObjParams.push_back(vParams[i]);	/*pop the script id*/	\
-			Ogre::String param_test2 = Ice::Utils::TestParameters(vParams, sRefParams, true); \
-			if (param_test == "") return component->##methodName##(caller, vObjParams); \
+			Ogre::String param_test2 = Ice::Utils::TestParameters(vObjParams, sRefParams, true); \
+			if (param_test2 == "") return component->##methodName##(caller, vObjParams); \
 			else Ice::Utils::LogParameterErrors(caller, param_test2); \
 		} \
 		else Ice::Utils::LogParameterErrors(caller, param_test); \
@@ -131,8 +131,8 @@ namespace Ice
 			} \
 			std::vector<ScriptParam> vObjParams; \
 			for (unsigned int i = 1; i < vParams.size(); i++) vObjParams.push_back(vParams[i]);	/*pop the script id*/	\
-			Ogre::String param_test2 = Ice::Utils::TestParameters(vParams, sRefParams, true); \
-			if (param_test == "") return obj->##methodName##(caller, vObjParams); \
+			Ogre::String param_test2 = Ice::Utils::TestParameters(vObjParams, sRefParams, true); \
+			if (param_test2 == "") return obj->##methodName##(caller, vObjParams); \
 			else Ice::Utils::LogParameterErrors(caller, param_test2); \
 		} \
 		else Ice::Utils::LogParameterErrors(caller, param_test); \

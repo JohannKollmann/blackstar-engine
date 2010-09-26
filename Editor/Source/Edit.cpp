@@ -872,6 +872,9 @@ void Edit::OnKillFocus( wxFocusEvent& event )
 {
 	if (mPlaying)
 		PauseGame();
+	if (!mShowMouse) ShowCursor(true);
+	mMouseLocked = false;
+	mShowMouse = true;
 	Ice::Main::Instance().GetInputManager()->SetEnabled(false);
 }
 

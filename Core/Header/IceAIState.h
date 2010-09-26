@@ -47,7 +47,7 @@ public:
 	virtual void OnContinue() {};
 
 	/*
-	@return true wenn finished
+	@return true when finished
 	*/
 	virtual bool Update(float time) = 0;
 

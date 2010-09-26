@@ -64,7 +64,7 @@ namespace Ice
 
 	void GOCCameraController::CreateNodes()
 	{
-		mCameraCenterNode = GetNode()->createChildSceneNode(Ogre::Vector3(0, 4.0f, 0));
+		mCameraCenterNode = GetNode()->createChildSceneNode(Ogre::Vector3(0, 2.0f, 0) / GetNode()->_getDerivedScale());
 		mCameraCenterNode->setInheritScale(false);
 		mCameraCenterNode->setInheritOrientation(false);
 		mTargetNode = mCameraCenterNode->createChildSceneNode(Ogre::Vector3(0,0,10));
