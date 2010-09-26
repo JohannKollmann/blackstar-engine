@@ -122,9 +122,9 @@ namespace Ice
 
 	void SoundMaterialTable::Clear()
 	{
-		for (auto i = mNxMatBinds.begin(); i != mNxMatBinds.end(); i++)
+		for (int i = mNxMatBinds.size(); i > 0; i--)
 		{
-			unsigned index = i->first;
+			unsigned int index = i;
 			Main::Instance().GetPhysXScene()->getNxScene()->releaseMaterial(
 				*Main::Instance().GetPhysXScene()->getNxScene()->getMaterialFromIndex(index));
 		}

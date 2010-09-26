@@ -127,7 +127,7 @@ namespace Ice
 					}
 					if (meshShape)
 					{
-						Ogre::Entity *ent = 0;
+						Ogre::Entity *ent = nullptr;
 						if (!meshShape->getActor().userData)
 						{
 							ent = SceneManager::Instance().GetLevelMesh()->GetEntity();

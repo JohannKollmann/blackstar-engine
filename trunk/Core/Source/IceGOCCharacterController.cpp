@@ -303,4 +303,17 @@ namespace Ice
 		Create(mDimensions);
 	}
 
+	std::vector<ScriptParam> GOCCharacterController::Character_GetGroundMaterial(Script& caller, std::vector<ScriptParam> &vParams)
+	{
+		std::string mat = "None";
+		NxRaycastHit hit;
+		if (Main::Instance().GetPhysXScene()->getNxScene()->raycastClosestShape(NxRay(OgrePhysX::Convert::toNx(mOwnerGO->GetGlobalPosition() + Ogre::Vector3(0,1,0)), NxVec3(0,-1,0)), NX_STATIC_SHAPES, hit, 1<<CollisionGroups::LEVELMESH, 1.5f, NX_RAYCAST_MATERIAL))
+		{
+			mat = SceneManager::Instance().GetSoundMaterialTable().GetMaterialName(hit.materialIndex);
+		}
+		std::vector<ScriptParam> out;
+		out.push_back(mat);
+		return out;
+	}
+
 };

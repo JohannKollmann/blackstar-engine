@@ -268,6 +268,7 @@ namespace Ice
 		ScriptSystem::GetInstance().ShareCFunction("Object_GetChild", &GameObject::Lua_GetChildObjectByName);
 		ScriptSystem::GetInstance().ShareCFunction("Object_GetParent", &GameObject::Lua_GetParent);
 		ScriptSystem::GetInstance().ShareCFunction("Object_IsNpc", &GameObject::Lua_IsNpc);
+		ScriptSystem::GetInstance().ShareCFunction("Object_Play3DSound", &GameObject::Lua_Object_Play3DSound);
 
 		ScriptSystem::GetInstance().ShareCFunction("Object_ReceiveMessage", &GameObject::Lua_ReceiveObjectMessage);
 		ScriptSystem::GetInstance().ShareCFunction("Object_SendMessage", &GameObject::Lua_SendObjectMessage);
@@ -304,6 +305,8 @@ namespace Ice
 		ScriptSystem::GetInstance().ShareCFunction("AnimState_EnqueueAnimation", &GOCAnimatedCharacter::Lua_AnimState_EnqueueAnimation);
 		ScriptSystem::GetInstance().ShareCFunction("AnimState_Push", &GOCAnimatedCharacter::Lua_AnimState_Push);
 		ScriptSystem::GetInstance().ShareCFunction("AnimState_Pop", &GOCAnimatedCharacter::Lua_AnimState_Pop);
+
+		ScriptSystem::GetInstance().ShareCFunction("Character_GetGroundMaterial", &GOCCharacterController::Lua_Character_GetGroundMaterial);
 
 		ScriptSystem::GetInstance().ShareCFunction("Object_RunFunction", &GOCScript::Lua_RunFunction);
 
@@ -349,6 +352,7 @@ namespace Ice
 
 	void SceneManager::Reset()
 	{
+		DestroyStoppedSounds();
 		ClearGameObjects();
 		if (mLevelMesh)
 		{
@@ -360,6 +364,8 @@ namespace Ice
 
 	void SceneManager::Shutdown()
 	{
+		DestroyStoppedSounds();
+
 		SetToIndoor();
 
 		mGOCPrototypes.clear();
@@ -680,7 +686,7 @@ namespace Ice
 				if (mWeatherController) mWeatherController->Update(time);
 			}
 
-			DestroyStoppedSounds();
+			//DestroyStoppedSounds();
 		}
 	}
 
@@ -875,6 +881,8 @@ namespace Ice
 
 	std::vector<ScriptParam> SceneManager::Lua_Play3DSound(Script& caller, std::vector<ScriptParam> vParams)
 	{
+		Instance().DestroyStoppedSounds();
+
 		std::vector<Ice::ScriptParam> vRef;
 		vRef.push_back(ScriptParam(0.0f));	//x pos
 		vRef.push_back(ScriptParam(0.0f));	//y pos
@@ -895,7 +903,7 @@ namespace Ice
 		std::string soundFile = vParams[3].getString();
 		float range = vParams[4].getFloat();
 		float loudness = vParams[5].getFloat();
-		if (loudness > 1) loudness = 1;
+		//if (loudness > 1) loudness = 1;
 		if (Ogre::ResourceGroupManager::getSingleton().resourceExists("General", soundFile))
 		{
 			int id = Ice::SceneManager::Instance().RequestID();
@@ -957,8 +965,8 @@ namespace Ice
 	void SceneManager::DestroyStoppedSounds()
 	{
 		float time = (float)(timeGetTime() / 1000);
-		if (time - mDestroyStoppedSoundsLast < mDestroyStoppedSoundsDelay)
-			return;
+		/*if (time - mDestroyStoppedSoundsLast < mDestroyStoppedSoundsDelay)
+			return;*/
 		auto iter = mPlayingSounds.begin();
 		for (unsigned int i = 0; i < mPlayingSounds.size(); i++)
 		{
