@@ -528,7 +528,6 @@ namespace Ice
 
 	bool NavigationMesh::checkNodeConnection(AStarNode3D *n1, AStarNode3D *n2)
 	{
-		if (n1->GetGlobalPosition().squaredDistance(n2->GetGlobalPosition()) > 5) return false;
 		Ogre::Vector3 mid = ((n1->GetGlobalPosition() - n2->GetGlobalPosition()) * 0.5f) + n2->GetGlobalPosition();
 
 		//check if connection is above waymesh
@@ -621,7 +620,7 @@ namespace Ice
 				for (int i = 0; i < xNumSamples; i++) currRow[i].clear();
 				rowIndex = 0;
 
-				Ogre::Vector3 origin = Ogre::Vector3(x, maxY, 0);
+				Ogre::Vector3 origin = Ogre::Vector3(x, maxY+0.1f, 0);
 				for (float z = minZ; z < maxZ; z+=NODE_DIST)
 				{
 					origin.z = z;
@@ -650,7 +649,7 @@ namespace Ice
 		if (msg.type == "ACTOR_ONSLEEP")
 		{
 			NxActor *a = (NxActor*)msg.rawData;
-			if (!a) return;
+			if (!a || a->getNbShapes() == 0) return;
 			//if (a->getGroup() != Ice::CollisionGroups::DEFAULT) return;
 			NxBounds3 nxBounds;
 			a->getShapes()[0]->getWorldBounds(nxBounds);
@@ -660,7 +659,7 @@ namespace Ice
 		if (msg.type == "ACTOR_ONWAKE")
 		{
 			NxActor *a = (NxActor*)msg.rawData;
-			if (!a) return;
+			if (!a || a->getNbShapes() == 0) return;
 			//if (a->getGroup() != Ice::CollisionGroups::DEFAULT) return;
 			NxBounds3 nxBounds;
 			a->getShapes()[0]->getWorldBounds(nxBounds);

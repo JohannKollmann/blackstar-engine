@@ -151,10 +151,10 @@ namespace Ice
 		{
 			IceAssert((*i)->GetFamilyID() != component->GetFamilyID());
 		}
+		mComponents.push_back(component);
 		component->SetOwner(this);
 		component->UpdatePosition(GetGlobalPosition());
 		component->UpdateOrientation(GetGlobalOrientation());
-		mComponents.push_back(component);
 	}
 
 	GOComponent* GameObject::GetComponent(const GOComponent::goc_id_family &familyID)

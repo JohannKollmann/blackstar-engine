@@ -46,6 +46,7 @@ public:
 	void SetNavigationMesh(NavigationMesh *mesh);
 
 	void Clear();
+	void Shutdown();
 
 	void ReceiveMessage(Msg &msg);
 	void Update(float time);

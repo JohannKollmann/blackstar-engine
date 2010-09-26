@@ -30,6 +30,8 @@ class NxControllerManager;
 
 #define STRINGIFY(param) #param
 
+#define ITERATE(iter, container) for (auto iter = container.begin(); iter != container.end(); iter++)
+
 #ifdef _DEBUG
 	#define IceAssert(expression) \
 	if (!(expression)) \

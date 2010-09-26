@@ -299,6 +299,12 @@ namespace Ice
 
 		ScriptSystem::GetInstance().ShareCFunction("Forcefield_SetActive", &GOCForceField::Lua_Forcefield_Activate);
 
+		ScriptSystem::GetInstance().ShareCFunction("Anim_Play", &GOCAnimatedCharacter::Lua_Anim_Play);
+		ScriptSystem::GetInstance().ShareCFunction("AnimState_Create", &GOCAnimatedCharacter::Lua_AnimState_Create);
+		ScriptSystem::GetInstance().ShareCFunction("AnimState_EnqueueAnimation", &GOCAnimatedCharacter::Lua_AnimState_EnqueueAnimation);
+		ScriptSystem::GetInstance().ShareCFunction("AnimState_Push", &GOCAnimatedCharacter::Lua_AnimState_Push);
+		ScriptSystem::GetInstance().ShareCFunction("AnimState_Pop", &GOCAnimatedCharacter::Lua_AnimState_Pop);
+
 		ScriptSystem::GetInstance().ShareCFunction("Object_RunFunction", &GOCScript::Lua_RunFunction);
 
 		/**
@@ -359,6 +365,8 @@ namespace Ice
 		mGOCPrototypes.clear();
 
 		mGOCDefaultParameters.clear();
+
+		AIManager::Instance().Shutdown();
 	}
 
 

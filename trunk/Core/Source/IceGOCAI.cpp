@@ -160,11 +160,6 @@ namespace Ice
 
 	void GOCAI::ReceiveObjectMessage(Msg &msg)
 	{
-		if (msg.type == "CharacterJumpEnded")
-		{
-			mCharacterMovementState = mCharacterMovementState & ~CharacterMovement::JUMP;
-			BroadcastMovementState();
-		}
 		if (msg.type == "CharacterCollisionReport")
 		{
 			NxU32 collisionFlags = msg.params.GetInt("collisionFlags");
