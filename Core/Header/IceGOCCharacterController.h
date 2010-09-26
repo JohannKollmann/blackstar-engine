@@ -6,6 +6,7 @@
 #include "IceMessageListener.h"
 #include "IceGOCPhysics.h"
 #include <NxController.h> 
+#include "IceGOCScriptMakros.h"
 
 namespace Ice
 {
@@ -126,6 +127,12 @@ namespace Ice
 		std::string& TellName() { static std::string name = "CharacterController"; return name; };
 		static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "CharacterController"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };
 		static LoadSave::Saveable* NewInstance() { return new GOCCharacterController; };
+
+		//Scripting
+		std::vector<ScriptParam> Character_GetGroundMaterial(Script& caller, std::vector<ScriptParam> &vParams);
+
+		//Methods to setup states the time
+		DEFINE_GOCLUAMETHOD(GOCCharacterController, Character_GetGroundMaterial)
 	};
 
 

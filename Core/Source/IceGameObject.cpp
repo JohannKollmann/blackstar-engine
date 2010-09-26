@@ -485,6 +485,19 @@ namespace Ice
 		FreeResources(vParams[0].getBool());
 		return out;
 	}
+	std::vector<ScriptParam> GameObject::Object_Play3DSound(Script& caller, std::vector<ScriptParam> &vParams)
+	{
+		std::vector<ScriptParam> delegateParams;
+		delegateParams.push_back(ScriptParam(mPosition.x));
+		delegateParams.push_back(ScriptParam(mPosition.y));
+		delegateParams.push_back(ScriptParam(mPosition.z));
+		delegateParams.push_back(vParams[0]);
+		delegateParams.push_back(vParams[1]);
+		delegateParams.push_back(vParams[2]);
+		SceneManager::Lua_Play3DSound(caller, delegateParams);
+		std::vector<ScriptParam> out;
+		return out;
+	}
 
 	DEFINE_TYPEDGOLUAMETHOD_CPP(SetObjectProperty, "string")
 	DEFINE_TYPEDGOLUAMETHOD_CPP(GetObjectProperty, "string")
@@ -499,5 +512,6 @@ namespace Ice
 	DEFINE_TYPEDGOLUAMETHOD_CPP(FreeResources, "bool")
 	DEFINE_GOLUAMETHOD_CPP(IsNpc)
 	DEFINE_GOLUAMETHOD_CPP(GetParent)
+	DEFINE_TYPEDGOLUAMETHOD_CPP(Object_Play3DSound, "string float float")		//audio file range loudness
 
 };

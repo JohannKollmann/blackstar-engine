@@ -54,7 +54,7 @@ namespace OgrePhysX
 					}
 				}
 			}
-			//The last contact point is returned, not for any particular reason, but in most cases there is only ohne contact point
+			//The last contact point is returned, not for any particular reason, but in most cases there is only one contact point
 			mListener->onMaterialContact(material1, material2, contactPoint, summed_force);
 
 			//Simple actor-based callback
