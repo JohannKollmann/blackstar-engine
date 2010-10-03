@@ -498,6 +498,12 @@ namespace Ice
 		std::vector<ScriptParam> out;
 		return out;
 	}
+	std::vector<ScriptParam> GameObject::Object_GetDistToObject(Script& caller, std::vector<ScriptParam> &vParams)
+	{
+		if (GameObject *object = SceneManager::Instance().GetObjectByInternID(vParams[0].getInt()))
+			SCRIPT_RETURNVALUE(GetGlobalPosition().distance(object->GetGlobalPosition()))
+		else SCRIPT_RETURNERROR("invalid object id")
+	}
 
 	DEFINE_TYPEDGOLUAMETHOD_CPP(SetObjectProperty, "string")
 	DEFINE_TYPEDGOLUAMETHOD_CPP(GetObjectProperty, "string")
@@ -513,5 +519,6 @@ namespace Ice
 	DEFINE_GOLUAMETHOD_CPP(IsNpc)
 	DEFINE_GOLUAMETHOD_CPP(GetParent)
 	DEFINE_TYPEDGOLUAMETHOD_CPP(Object_Play3DSound, "string float float")		//audio file range loudness
+	DEFINE_TYPEDGOLUAMETHOD_CPP(Object_GetDistToObject, "int")
 
 };

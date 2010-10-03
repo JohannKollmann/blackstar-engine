@@ -19,13 +19,13 @@ namespace Ice
 	const float NavigationMesh::NODE_DIST = 1.0f;
 	const float NavigationMesh::NODE_EXTENT = 0.5f;
 	const float NavigationMesh::NODE_HEIGHT = 1.8f;
-	const float NavigationMesh::NODE_BORDER = 0.4f;
-	const float NavigationMesh::MAX_HEIGHT_DIST_BETWEEN_NODES = 0.8f;
+	const float NavigationMesh::NODE_BORDER = 0.45f;
+	const float NavigationMesh::MAX_HEIGHT_DIST_BETWEEN_NODES = 0.75f;
 	const float NavigationMesh::MAX_STEP_HEIGHT = 0.35f;
 
 	const float NavigationMesh::PathNodeTree::BOXSIZE_MIN = 10.0f;
 
-	NavigationMesh::PathNodeTree::PathNodeTree(Ogre::AxisAlignedBox box) : mBox(box), mBorderBox(box.getMinimum() + Ogre::Vector3(-NODE_EXTENT,-NODE_EXTENT,-NODE_EXTENT), box.getMaximum() + Ogre::Vector3(NODE_EXTENT,NODE_EXTENT,NODE_EXTENT))
+	NavigationMesh::PathNodeTree::PathNodeTree(Ogre::AxisAlignedBox box) : mNodeCount(0), mBox(box), mBorderBox(box.getMinimum() + Ogre::Vector3(-NODE_EXTENT,-NODE_EXTENT,-NODE_EXTENT), box.getMaximum() + Ogre::Vector3(NODE_EXTENT,NODE_EXTENT,NODE_EXTENT))
 	{
 	}
 
@@ -69,6 +69,7 @@ namespace Ice
 	}
 	void NavigationMesh::PathNodeTreeNode::AddPathNode(AStarNode3D *node)
 	{
+		mNodeCount++;
 		if (mEmpty)
 		{
 			mEmpty = false;
@@ -122,6 +123,22 @@ namespace Ice
 				mChildren[i]->RemoveObstacle(identifier, box);
 		}
 	}
+	void NavigationMesh::PathNodeTreeNode::Save(LoadSave::SaveSystem& mgr)
+	{
+		mgr.SaveAtom("Ogre::Vector3", &mBox.getMinimum(), "Box Minimum");
+		mgr.SaveAtom("Ogre::Vector3", &mBox.getMaximum(), "Box Maximum");
+		for (int i = 0; i < 8; i++) mgr.SaveObject(mChildren[i], "Child", true);
+	}
+	void NavigationMesh::PathNodeTreeNode::Load(LoadSave::LoadSystem& mgr)
+	{
+		Ogre::Vector3 boxMin; Ogre::Vector3 boxMax;
+		mgr.LoadAtom("Ogre::Vector3", &boxMin);
+		mgr.LoadAtom("Ogre::Vector3", &boxMax);
+		mBox = Ogre::AxisAlignedBox(boxMin, boxMax);
+		mBorderBox = Ogre::AxisAlignedBox(mBox.getMinimum() + Ogre::Vector3(-NODE_EXTENT,-NODE_EXTENT,-NODE_EXTENT), mBox.getMaximum() + Ogre::Vector3(NODE_EXTENT,NODE_EXTENT,NODE_EXTENT));
+		for (int i = 0; i < 8; i++) mChildren[i] = (PathNodeTree*)mgr.LoadObject();
+	}
+
 
 	NavigationMesh::PathNodeTreeLeaf::PathNodeTreeLeaf(Ogre::AxisAlignedBox box) : PathNodeTree(box)
 	{
@@ -133,6 +150,7 @@ namespace Ice
 	}
 	void NavigationMesh::PathNodeTreeLeaf::AddPathNode(AStarNode3D *node)
 	{
+		mNodeCount++;
 		mPathNodes.push_back(node);
 	}
 	void NavigationMesh::PathNodeTreeLeaf::GetPathNodes(const Ogre::AxisAlignedBox &box, std::vector<AStarNode3D*> &oResult, bool getBlocked)
@@ -157,6 +175,21 @@ namespace Ice
 			//if ((*i)->volume.intersects(box))
 				(*i)->RemoveBlocker(identifier);
 		}
+	}
+	void NavigationMesh::PathNodeTreeLeaf::Save(LoadSave::SaveSystem& mgr)
+	{
+		mgr.SaveAtom("Ogre::Vector3", &mBox.getMinimum(), "Box Minimum");
+		mgr.SaveAtom("Ogre::Vector3", &mBox.getMaximum(), "Box Maximum");
+		mgr.SaveAtom("std::vector<Saveable*>", (void*)&mPathNodes, "PathNodes");
+	}
+	void NavigationMesh::PathNodeTreeLeaf::Load(LoadSave::LoadSystem& mgr)
+	{
+		Ogre::Vector3 boxMin; Ogre::Vector3 boxMax;
+		mgr.LoadAtom("Ogre::Vector3", &boxMin);
+		mgr.LoadAtom("Ogre::Vector3", &boxMax);
+		mBox = Ogre::AxisAlignedBox(boxMin, boxMax);
+		mBorderBox = Ogre::AxisAlignedBox(mBox.getMinimum() + Ogre::Vector3(-NODE_EXTENT,-NODE_EXTENT,-NODE_EXTENT), mBox.getMaximum() + Ogre::Vector3(NODE_EXTENT,NODE_EXTENT,NODE_EXTENT));
+		mgr.LoadAtom("std::vector<Saveable*>", (void*)&mPathNodes);
 	}
 
 	NavigationMesh::NavigationMesh()
@@ -234,8 +267,8 @@ namespace Ice
 			return;
 		}
 
-		Ogre::Vector3 minOffset(-2, -2, -2);
-		Ogre::Vector3 maxOffset(2, 2, 2);
+		Ogre::Vector3 minOffset(-1.5f, -1.5f, -1.5f);
+		Ogre::Vector3 maxOffset(1.5f, 1.5f, 1.5f);
 		Ogre::AxisAlignedBox boxFrom(from + minOffset, from + maxOffset);
 		Ogre::AxisAlignedBox boxTo(to + minOffset, to + maxOffset);
 		std::vector<AStarNode3D*> fromNodes;
@@ -247,18 +280,30 @@ namespace Ice
 			Ogre::LogManager::getSingleton().logMessage("Error in NavigationMesh::ShortestPath: No start/end path nodes found!");
 			return;
 		}
-		AStarNode3D *fromNode = fromNodes[0];
-		AStarNode3D *toNode = toNodes[0];
-		for (unsigned int i = 1; i < fromNodes.size(); i++)
+		AStarNode3D *fromNode = nullptr;
+		float shortestFromNodeDist = 99999;
+		AStarNode3D *toNode = nullptr;
+		float shortestToNodeDist = 99999;
+		for (unsigned int i = 0; i < fromNodes.size(); i++)
 		{
-			if (fromNodes[i]->GetGlobalPosition().distance(to) < fromNode->GetGlobalPosition().distance(to))
+			float dist = fromNodes[i]->GetGlobalPosition().distance(from);
+			if (!fromNodes[i]->IsBlocked() && dist < shortestFromNodeDist)
+			{
+				shortestFromNodeDist = dist;
 				fromNode = fromNodes[i];
+			}
 		}
-		for (unsigned int i = 1; i < toNodes.size(); i++)
+		if (!fromNode) IceWarning("Origin is blocked")
+		for (unsigned int i = 0; i < toNodes.size(); i++)
 		{
-			if (toNodes[i]->GetGlobalPosition().distance(to) < toNode->GetGlobalPosition().distance(to))
+			float dist = toNodes[i]->GetGlobalPosition().distance(to);
+			if (!toNodes[i]->IsBlocked() && dist < shortestToNodeDist)
+			{
+				shortestToNodeDist = dist;
 				toNode = toNodes[i];
+			}
 		}
+		if (!toNode) IceWarning("Target is blocked")
 		AStar::FindPath(fromNode, toNode, oPath);
 	}
 
@@ -643,6 +688,10 @@ namespace Ice
 			mConnectionLinesDebugVisual->end();
 	}
 
+	unsigned int NavigationMesh::GetNodeCount()
+	{
+		if (mPathNodeTree) return mPathNodeTree->mNodeCount; else return 0;
+	}
 	void NavigationMesh::ReceiveMessage(Msg &msg)
 	{
 		if (!mPathNodeTree) return;

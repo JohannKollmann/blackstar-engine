@@ -16,7 +16,7 @@
 	{
 		mCurrTextureName = textureName;
 
-		Ogre::TexturePtr texture = Ogre::TextureManager::getSingleton().getByName(textureName);
+		/*Ogre::TexturePtr texture = Ogre::TextureManager::getSingleton().getByName(textureName);
 		if (texture.isNull())
 		{
 			IceWarning("Texture " + textureName + " does not exist");
@@ -42,11 +42,11 @@
 
 		mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName(textureName);
 
-		mat->compile(true);
+		mat->compile(true);*/
 
 		mWindow = GUISystem::GetInstance().MakeWindow(0.25f, 0.25f, 0.5f, 0.5f);
 		mWindow.Bake();
-		mWindow.SetMaterial(matName);
+		mWindow.SetMaterial("gui/debugShadow");
 
 	}
 

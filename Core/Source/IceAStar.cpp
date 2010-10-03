@@ -5,6 +5,7 @@
 #include "IceMain.h"
 #include "IceGOCPhysics.h"
 #include "IceNavigationMesh.h"
+#include "IceAIManager.h"
 
 namespace Ice
 {
@@ -52,35 +53,33 @@ namespace Ice
 	}
 
 	//Methoden für A*
-	bool AStar::UpdateEdgeList(AStarEdge &e, std::vector<AStarEdge> &edges)
+	bool AStar::UpdateEdgeList(AStarEdge &e, std::map<AStarNode3D*, AStarEdge*> &edgeNeighborLookup)
 	{
-		for (std::vector<AStarEdge>::iterator i = edges.begin(); i != edges.end(); i++)
+		auto find = edgeNeighborLookup.find(e.mNeighbor);
+		if (find != edgeNeighborLookup.end())
 		{
-			if (i->mNeighbor == e.mNeighbor)
+			if (e.mCost < find->second->mCost)
 			{
-				if (e.mCost < i->mCost)
-				{
-					i->mFrom = e.mFrom;
-					i->mCost = e.mCost;
-				}
-				return true;
+				find->second->mFrom = e.mFrom;
+				find->second->mCost = e.mCost;
 			}
+			return true;
 		}
 		return false;
 	}
 
-	bool AStar::ExtractPath(std::vector<AStarEdge> paths, AStarNode3D *start, AStarNode3D *target, std::vector<AStarNode3D*> &returnpath)
+	bool AStar::ExtractPath(std::vector<AStarEdge*> paths, AStarNode3D *start, AStarNode3D *target, std::vector<AStarNode3D*> &returnpath)
 	{
 		AStarNode3D *current = start;
 		while (current != target)
 		{
 			bool found = false;
-			for (std::vector<AStarEdge>::iterator i = paths.begin(); i != paths.end(); i++)
+			for (auto i = paths.begin(); i != paths.end(); i++)
 			{
-				if (i->mNeighbor == current)
+				if ((*i)->mNeighbor == current)
 				{
 					returnpath.push_back(current);
-					current = (AStarNode3D*)i->mFrom;
+					current = (AStarNode3D*)(*i)->mFrom;
 					found = true;
 					break;
 				}
@@ -97,40 +96,53 @@ namespace Ice
 
 	bool AStar::FindPath(AStarNode3D *start, AStarNode3D *target, std::vector<AStarNode3D*> &path)
 	{
-		std::vector<AStarEdge> eventList;
-		std::vector<AStarEdge> shortestPaths;
-		target->GetEdgesAStar(eventList, start->GetGlobalPosition());		//Wir suchen vom Ziel aus nach dem Startknoten
+		int allEdgesMax = AIManager::Instance().GetNavigationMesh()->GetNodeCount()*8;
+		std::vector<AStarEdge> allEdges; allEdges.reserve(allEdgesMax);
+		std::map<AStarNode3D*, AStarEdge*> eventListNeighborLookup;
+		std::vector<AStarEdge*> eventList;
+		std::vector<AStarEdge*> shortestPaths;
+		target->GetEdgesAStar(allEdges, start->GetGlobalPosition());		//Wir suchen vom Ziel aus nach dem Startknoten
+		for (int ni = 0; ni < allEdges.size(); ni++) eventListNeighborLookup.insert(std::make_pair<AStarNode3D*, AStarEdge*>(allEdges[ni].mNeighbor, &allEdges[ni]));
+		for (int ni = 0; ni < allEdges.size(); ni++) eventList.push_back(&allEdges[ni]);
 		target->closed = true;
-		std::make_heap(eventList.begin(), eventList.end(), std::greater<AStarEdge>());
+		std::make_heap(eventList.begin(), eventList.end(), std::greater<AStarEdge*>());
 		while (!eventList.empty())
 		{
-			std::pop_heap(eventList.begin(), eventList.end(), std::greater<AStarEdge>());
-			AStarEdge current = eventList.back();
+			std::pop_heap(eventList.begin(), eventList.end(), std::greater<AStarEdge*>());
+			AStarEdge *current = eventList.back();
+			std::map<AStarNode3D*, AStarEdge*>::iterator iPop = eventListNeighborLookup.find(current->mNeighbor);
+			IceAssert(iPop != eventListNeighborLookup.end())
+			eventListNeighborLookup.erase(iPop);
 			eventList.pop_back();
-			std::vector<AStarEdge> neighbors;
-			current.mNeighbor->GetEdgesAStar(neighbors, start->GetGlobalPosition());
-			for (std::vector<AStarEdge>::iterator i = neighbors.begin(); i != neighbors.end(); i++)
+
+			int neighborStart = allEdges.size();
+			current->mNeighbor->GetEdgesAStar(allEdges, start->GetGlobalPosition());
+			IceAssert(allEdges.size() < allEdgesMax)
+			for (int i = neighborStart; i < allEdges.size(); i++)
 			{
-				if (i->mNeighbor->closed) continue;
-				(*i).mCost += current.mCost;
-				if (!(UpdateEdgeList((*i), eventList)))// || UpdateEdgeList((*i), &shortestPaths)))
+				if (allEdges[i].mNeighbor->closed) continue;
+				allEdges[i].mCost += current->mCost;
+				if (!(UpdateEdgeList(allEdges[i], eventListNeighborLookup)))// || UpdateEdgeList((*i), &shortestPaths)))
 				{
-					eventList.push_back((*i));
-					std::push_heap(eventList.begin(), eventList.end(), std::greater<AStarEdge>());
+					eventList.push_back(&allEdges[i]);
+					IceAssert(eventList.back()->mNeighbor != nullptr)
+					//IceAssert(eventListNeighborLookup.find(eventList.back()->mNeighbor) == eventListNeighborLookup.end())
+					eventListNeighborLookup.insert(std::make_pair<AStarNode3D*, AStarEdge*>(eventList.back()->mNeighbor, eventList.back()));
+					std::push_heap(eventList.begin(), eventList.end(), std::greater<AStarEdge*>());
 				}
 				else
-					std::make_heap(eventList.begin(), eventList.end(), std::greater<AStarEdge>());
+					std::make_heap(eventList.begin(), eventList.end(), std::greater<AStarEdge*>());
 			}
-			current.mNeighbor->closed = true;
+			current->mNeighbor->closed = true;
 			shortestPaths.push_back(current);
-			if (current.mNeighbor == start)
+			if (current->mNeighbor == start)
 				break;
 		}
 
 		target->closed = false;
-		for (std::vector<AStarEdge>::iterator i = shortestPaths.begin(); i != shortestPaths.end(); i++)
+		for (auto i = shortestPaths.begin(); i != shortestPaths.end(); i++)
 		{
-			i->mNeighbor->closed = false;
+			(*i)->mNeighbor->closed = false;
 		}
 
 		return ExtractPath(shortestPaths, start, target, path);

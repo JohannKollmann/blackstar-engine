@@ -128,13 +128,20 @@ public:
 
 	void Save(LoadSave::SaveSystem& mgr)
 	{
+		mgr.SaveAtom("int", &mBodyTypeEnum.selection, "Body Type");
+		mgr.SaveAtom("float", &mWidth, "Width");
+		mgr.SaveAtom("float", &mHeight, "Height");
 		mgr.SaveAtom("Ogre::String", &mWaterMesh, "Water Mesh");
 		mgr.SaveAtom("Ogre::Vector3", &mUpVector, "Up Vector");
 	}
 	void Load(LoadSave::LoadSystem& mgr)
 	{
+		mgr.LoadAtom("int", &mBodyTypeEnum.selection);
+		mgr.LoadAtom("float", &mWidth);
+		mgr.LoadAtom("float", &mHeight);
 		mgr.LoadAtom("Ogre::String", &mWaterMesh);
 		mgr.LoadAtom("Ogre::Vector3", &mUpVector);
+		_create();
 	}
 	static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "SimpleWater"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };
 	static LoadSave::Saveable* NewInstance() { return new GOCSimpleWater; };

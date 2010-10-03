@@ -260,6 +260,9 @@ namespace Ice
 		Object get/set methods.
 		Example usage: SetPosition(id, 1.0, 2.5, 3.1)
 		*/
+		ScriptSystem::GetInstance().ShareCFunction("Object_SetProperty", &GameObject::Lua_SetObjectProperty);
+		ScriptSystem::GetInstance().ShareCFunction("Object_GetProperty", &GameObject::Lua_GetObjectProperty);
+
 		ScriptSystem::GetInstance().ShareCFunction("Object_SetPosition", &GameObject::Lua_SetObjectPosition);
 		ScriptSystem::GetInstance().ShareCFunction("Object_SetOrientation", &GameObject::Lua_SetObjectOrientation);
 		ScriptSystem::GetInstance().ShareCFunction("Object_SetScale", &GameObject::Lua_SetObjectScale);
@@ -269,6 +272,7 @@ namespace Ice
 		ScriptSystem::GetInstance().ShareCFunction("Object_GetParent", &GameObject::Lua_GetParent);
 		ScriptSystem::GetInstance().ShareCFunction("Object_IsNpc", &GameObject::Lua_IsNpc);
 		ScriptSystem::GetInstance().ShareCFunction("Object_Play3DSound", &GameObject::Lua_Object_Play3DSound);
+		ScriptSystem::GetInstance().ShareCFunction("Object_GetDistToObject", &GameObject::Lua_Object_GetDistToObject);
 
 		ScriptSystem::GetInstance().ShareCFunction("Object_ReceiveMessage", &GameObject::Lua_ReceiveObjectMessage);
 		ScriptSystem::GetInstance().ShareCFunction("Object_SendMessage", &GameObject::Lua_SendObjectMessage);
@@ -313,9 +317,9 @@ namespace Ice
 		/**
 		Triggers a mover.
 		*/
-		ScriptSystem::GetInstance().ShareCFunction("TriggerMover", &GOCMover::Lua_TriggerMover);
-		ScriptSystem::GetInstance().ShareCFunction("PauseMover", &GOCMover::Lua_PauseMover);
-		ScriptSystem::GetInstance().ShareCFunction("StopMover", &GOCMover::Lua_StopMover);
+		ScriptSystem::GetInstance().ShareCFunction("Mover_Trigger", &GOCMover::Lua_TriggerMover);
+		ScriptSystem::GetInstance().ShareCFunction("Mover_Pause", &GOCMover::Lua_PauseMover);
+		ScriptSystem::GetInstance().ShareCFunction("Mover_Stop", &GOCMover::Lua_StopMover);
 
 		//Time get/set methods
 		ScriptSystem::GetInstance().ShareCFunction("GetGameTimeHour", &SceneManager::Lua_GetGameTimeHour);
@@ -329,6 +333,10 @@ namespace Ice
 		ScriptSystem::GetInstance().ShareCFunction("GetFocusObject", &SceneManager::Lua_GetFocusObject);
 
 		ScriptSystem::GetInstance().ShareCFunction("Mesh_SetVisible", &GOCMeshRenderable::Lua_SetVisible);
+
+		ScriptSystem::GetInstance().ShareCFunction("ConcatToString", &SceneManager::Lua_ConcatToString);
+
+		ScriptSystem::GetInstance().ShareCFunction("GetRandomNumber", &SceneManager::Lua_GetRandomNumber);
 
 	}
 
@@ -440,7 +448,8 @@ namespace Ice
 		ls->LoadAtom("std::vector<Saveable*>", &objects);
 		//Objects call SceneManager::RegisterObject
 
-		AIManager::Instance().SetNavigationMesh((NavigationMesh*)ls->LoadObject());
+		//AIManager::Instance().SetNavigationMesh((NavigationMesh*)ls->LoadObject());
+		Ice::AIManager::Instance().GetNavigationMesh()->ImportOgreMesh(Ice::SceneManager::Instance().GetLevelMesh()->GetEntity()->getMesh());
 
 		ls->CloseFile();
 		ICE_DELETE ls;
@@ -466,7 +475,7 @@ namespace Ice
 			objects.push_back(i->second);
 		}
 		ss->SaveAtom("std::vector<Saveable*>", &objects, "Objects");
-		ss->SaveObject(AIManager::Instance().GetNavigationMesh(), "WayMesh");
+		//ss->SaveObject(AIManager::Instance().GetNavigationMesh(), "WayMesh");
 		ss->CloseFiles();
 		ICE_DELETE ss;
 
@@ -629,23 +638,40 @@ namespace Ice
 	std::vector<ScriptParam>
 	SceneManager::Lua_LogMessage(Script& caller, std::vector<ScriptParam> vParams)
 	{
-		Ogre::String msg = "";
+		Ogre::String msg = Lua_ConcatToString(caller, vParams)[0].getString();
+		LogMessage(msg);
+		return std::vector<ScriptParam>();
+	}
+
+	std::vector<ScriptParam> SceneManager::Lua_ConcatToString(Script& caller, std::vector<ScriptParam> vParams)
+	{
+		Ogre::String str = "";
 		for(unsigned int iArg=0; iArg<vParams.size(); iArg++)
 		{
 			if(vParams[iArg].getType()==ScriptParam::PARM_TYPE_STRING)
-				msg = msg + vParams[iArg].getString().c_str();
+				str = str + vParams[iArg].getString().c_str();
 			else if(vParams[iArg].getType()==ScriptParam::PARM_TYPE_BOOL)
-				msg = msg + Ogre::StringConverter::toString(vParams[iArg].getBool());
+				str = str + Ogre::StringConverter::toString(vParams[iArg].getBool());
 			else if(vParams[iArg].getType()==ScriptParam::PARM_TYPE_FLOAT)
 			{
 				float val = static_cast<float>(vParams[iArg].getFloat());
-				msg = msg + Ogre::StringConverter::toString(val);
+				str = str + Ogre::StringConverter::toString(val);
 			}
 			else if(vParams[iArg].getType()==ScriptParam::PARM_TYPE_INT)
-				msg = msg + Ogre::StringConverter::toString(vParams[iArg].getInt());
+				str = str + Ogre::StringConverter::toString(vParams[iArg].getInt());
 		}
-		LogMessage(msg);
-		return std::vector<ScriptParam>();
+		SCRIPT_RETURNVALUE(str)
+	}
+
+	std::vector<ScriptParam> SceneManager::Lua_GetRandomNumber(Script& caller, std::vector<ScriptParam> vParams)
+	{
+		int random = 0;
+		if (Utils::TestParameters(caller, vParams, "int int"))
+		{
+			random = static_cast<int>(Ogre::Math::RangeRandom(vParams[0].getInt(), vParams[1].getInt()));
+			SCRIPT_RETURNVALUE(random)
+		}
+		else SCRIPT_RETURNERROR("wrong parameters")
 	}
 
 	std::vector<ScriptParam> SceneManager::Lua_InsertMesh(Script& caller, std::vector<ScriptParam> vParams)

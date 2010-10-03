@@ -214,6 +214,7 @@ namespace Ice
 		std::vector<ScriptParam> IsNpc(Script& caller, std::vector<ScriptParam> &vParams);
 		std::vector<ScriptParam> FreeResources(Script& caller, std::vector<ScriptParam> &vParams);
 		std::vector<ScriptParam> Object_Play3DSound(Script& caller, std::vector<ScriptParam> &vParams);
+		std::vector<ScriptParam> Object_GetDistToObject(Script& caller, std::vector<ScriptParam> &vParams);
 
 		DEFINE_GOLUAMETHOD_H(SetObjectProperty)
 		DEFINE_GOLUAMETHOD_H(GetObjectProperty)
@@ -229,6 +230,7 @@ namespace Ice
 		DEFINE_GOLUAMETHOD_H(IsNpc)
 		DEFINE_GOLUAMETHOD_H(FreeResources)
 		DEFINE_GOLUAMETHOD_H(Object_Play3DSound)
+		DEFINE_GOLUAMETHOD_H(Object_GetDistToObject)
 
 		//Editor stuff
 		void Freeze(bool freeze);

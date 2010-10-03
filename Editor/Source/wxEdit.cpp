@@ -339,7 +339,7 @@ void wxEdit::OnLoadMesh(wxCommandEvent& WXUNUSED(event))
 		wxEdit::Instance().GetWorldExplorer()->GetMaterialTree()->Update();
 
 		Ice::AIManager::Instance().GetNavigationMesh()->ImportOgreMesh(Ice::SceneManager::Instance().GetLevelMesh()->GetEntity()->getMesh());
-		NavMeshEditorNode::FromMesh(Ice::AIManager::Instance().GetNavigationMesh());
+		//NavMeshEditorNode::FromMesh(Ice::AIManager::Instance().GetNavigationMesh());
     }
 	wxEdit::Instance().GetProgressBar()->Reset();
 };

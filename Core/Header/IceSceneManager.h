@@ -176,6 +176,10 @@ namespace Ice
 		static std::vector<ScriptParam> Lua_SetGameTime(Script& caller, std::vector<ScriptParam> vParams);
 		static std::vector<ScriptParam> Lua_SetGameTimeScale(Script& caller, std::vector<ScriptParam> vParams);
 
+		static std::vector<ScriptParam> Lua_ConcatToString(Script& caller, std::vector<ScriptParam> vParams);
+
+		static std::vector<ScriptParam> Lua_GetRandomNumber(Script& caller, std::vector<ScriptParam> vParams);
+
 		/*
 		Liefert die ID des aktuell fokussierten Objekts zurück.
 		Liefert -1, falls kein Objekt fokussiert ist.

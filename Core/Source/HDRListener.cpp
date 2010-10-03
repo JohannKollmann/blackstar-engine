@@ -176,7 +176,11 @@ namespace Ice
 				mat->getTechnique(0)->getPass(0)->getFragmentProgramParameters();
 			fparams->setNamedConstant("oldAvgLum", mLumListener.avgLuminence);
 		}
-		else if (pass_id == 995)
+	}
+
+	void VolumetricLightListener::notifyMaterialRender(Ogre::uint32 pass_id, Ogre::MaterialPtr &mat)
+	{
+		if (pass_id == 995)
 		{
 			Ogre::Matrix4 viewproj = Ice::Main::Instance().GetCamera()->getProjectionMatrix() * Ice::Main::Instance().GetCamera()->getViewMatrix();
 			Ogre::Vector3 sunDir = SceneManager::Instance().GetWeatherController()->GetCaelumSystem()->getSun()->getLightDirection();
