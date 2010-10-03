@@ -23,12 +23,13 @@ namespace Ice
 
 	private:
 
-		class PathNodeTree
+		class PathNodeTree : public Saveable
 		{
 		protected:
 			Ogre::AxisAlignedBox mBox;
 			Ogre::AxisAlignedBox mBorderBox;
 			PathNodeTree(Ogre::AxisAlignedBox box);
+			PathNodeTree() : mNodeCount(0) {}
 
 			static const float BOXSIZE_MIN;
 			static const float BOX_BORDER;
@@ -48,12 +49,15 @@ namespace Ice
 
 			virtual void InjectObstacle(void *identifier, const Ogre::AxisAlignedBox &box) = 0;
 			virtual void RemoveObstacle(void *identifier, const Ogre::AxisAlignedBox &box) = 0;
+
+			unsigned int mNodeCount;
 		};
 		class PathNodeTreeNode : public PathNodeTree
 		{
 		private:
 			PathNodeTree *mChildren[8];
 			bool mEmpty;
+			PathNodeTreeNode() {}
 
 		public:
 			PathNodeTreeNode(Ogre::AxisAlignedBox box);
@@ -63,11 +67,19 @@ namespace Ice
 
 			void InjectObstacle(void *identifier, const Ogre::AxisAlignedBox &box);
 			void RemoveObstacle(void *identifier, const Ogre::AxisAlignedBox &box);
+
+			//Load / Save
+			std::string& TellName() { static std::string name = "PathNodeTreeNode"; return name; };
+			void Save(LoadSave::SaveSystem& mgr);
+			void Load(LoadSave::LoadSystem& mgr);
+			static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "PathNodeTreeNode"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; }
+			static LoadSave::Saveable* NewInstance() { return new PathNodeTreeNode; }
 		};
 		class PathNodeTreeLeaf : public PathNodeTree
 		{
 		private:
 			std::vector<AStarNode3D*> mPathNodes;
+			PathNodeTreeLeaf() {}
 		public:
 			PathNodeTreeLeaf(Ogre::AxisAlignedBox box);
 			~PathNodeTreeLeaf();
@@ -77,6 +89,13 @@ namespace Ice
 
 			void InjectObstacle(void *identifier, const Ogre::AxisAlignedBox &box);
 			void RemoveObstacle(void *identifier, const Ogre::AxisAlignedBox &box);
+
+			//Load / Save
+			std::string& TellName() { static std::string name = "PathNodeTreeLeaf"; return name; };
+			void Save(LoadSave::SaveSystem& mgr);
+			void Load(LoadSave::LoadSystem& mgr);
+			static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "PathNodeTreeLeaf"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; }
+			static LoadSave::Saveable* NewInstance() { return new PathNodeTreeLeaf; }
 		};
 
 		bool mNeedsUpdate;
@@ -122,6 +141,8 @@ namespace Ice
 
 		NavigationMesh();
 		~NavigationMesh();
+
+		unsigned int GetNodeCount();
 
 		void VisualiseWaymesh(bool show);
 		void VisualiseWalkableAreas(bool show);

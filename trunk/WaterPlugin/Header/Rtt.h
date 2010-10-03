@@ -286,7 +286,7 @@ public:
 		mReflectionListener.addIgnoreObject(ent);
 
 		mReflectionTexture = Ogre::TextureManager::getSingleton().createManual("Reflection_" + id,
-			Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, Ogre::TEX_TYPE_2D, 1024, 1024, 0, Ogre::PF_FLOAT16_RGB, Ogre::TU_RENDERTARGET);
+			Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, Ogre::TEX_TYPE_2D, 512, 512, 0, Ogre::PF_FLOAT16_RGB, Ogre::TU_RENDERTARGET);
 		Ogre::RenderTarget* reflection_rtt = mReflectionTexture->getBuffer()->getRenderTarget();
 		reflection_rtt->addViewport(cam)->setOverlaysEnabled(false);
 		reflection_rtt->getViewport(0)->setShadowsEnabled(false);

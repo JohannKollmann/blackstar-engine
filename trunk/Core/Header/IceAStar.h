@@ -54,8 +54,8 @@ namespace Ice
 	{
 	private:
 
-		static bool UpdateEdgeList(AStarEdge &e, std::vector<AStarEdge> &edges);
-		static bool ExtractPath(std::vector<AStarEdge> paths, AStarNode3D *start, AStarNode3D *target, std::vector<AStarNode3D*> &returnpath);
+		static bool UpdateEdgeList(AStarEdge &e, std::map<AStarNode3D*, AStarEdge*> &edgeNeighborLookup);
+		static bool ExtractPath(std::vector<AStarEdge*> paths, AStarNode3D *start, AStarNode3D *target, std::vector<AStarNode3D*> &returnpath);
 
 	public:
 

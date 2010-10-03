@@ -5,7 +5,7 @@
 namespace Ice
 {
 
-	class HDRListener: public Ogre::CompositorInstance::Listener
+	class HDRListener : public Ogre::CompositorInstance::Listener
 	{
 		class LumListener : public Ogre::RenderTargetListener
 		{
@@ -37,5 +37,10 @@ namespace Ice
 		virtual void notifyMaterialSetup(Ogre::uint32 pass_id, Ogre::MaterialPtr &mat);
 		void notifyResourcesCreated(bool forResizeOnly);
 		virtual void notifyMaterialRender(Ogre::uint32 pass_id, Ogre::MaterialPtr &mat);
+	};
+
+	class VolumetricLightListener : public Ogre::CompositorInstance::Listener
+	{
+		void notifyMaterialRender(Ogre::uint32 pass_id, Ogre::MaterialPtr &mat);
 	};
 };

@@ -180,8 +180,8 @@ void Main::initScene()
 	mSceneMgr = mRoot->createSceneManager(Ogre::ST_GENERIC, "Esgaroth");
 	mCamera = mSceneMgr->createCamera("MainCamera");
 	mCamera->lookAt(Ogre::Vector3(0,0,1));
-	mCamera->setNearClipDistance(0.5f);
-	mCamera->setFarClipDistance(9999*6);
+	mCamera->setNearClipDistance(0.4f);
+	mCamera->setFarClipDistance(50000);
 
 	mViewport = mWindow->addViewport(mCamera);
 	mViewport->setBackgroundColour(Ogre::ColourValue::Black);
@@ -202,7 +202,7 @@ void Main::initScene()
 	ambientlight->setDiffuseColour(Ogre::ColourValue(1,1,1));
 	ambientlight->setSpecularColour(Ogre::ColourValue(1,1,1));
 
-	mSceneMgr->setAmbientLight(Ogre::ColourValue(0.2f,0.2f,0.2f));
+	mSceneMgr->setAmbientLight(Ogre::ColourValue(0.3f,0.2f,0.2f));
 	//mSceneMgr->setFog(Ogre::FOG_LINEAR, Ogre::ColourValue::Blue, 0.015);
 
 	mCameraController = ICE_NEW FreeFlightCameraController();
@@ -234,6 +234,7 @@ void Main::initScene()
 
 
 	mSceneRenderCompositor = Ogre::CompositorManager::getSingleton().addCompositor(GetViewport(), "RenderHDRScene");
+	mSceneRenderCompositor->addListener(new VolumetricLightListener());
 	Ogre::CompositorManager::getSingleton().setCompositorEnabled(GetViewport(), "RenderHDRScene", true);
 	Ogre::CompositorInstance *hdrinstance = Ogre::CompositorManager::getSingleton().addCompositor(Main::Instance().GetViewport(), "DownsampleHDR1");
 	HDRListener *hdrListener = new HDRListener(); 
@@ -268,6 +269,13 @@ void Main::initScene()
 	/*mSceneMgr->setShadowTextureSelfShadow(true);*/
 	mSceneMgr->setShadowTextureCasterMaterial("shadow_caster");
 
+	mSceneMgr->getShadowTexture(0)->getBuffer()->getRenderTarget()->getViewport(0)->setBackgroundColour(Ogre::ColourValue::White);
+	mSceneMgr->getShadowTexture(0)->getBuffer()->getRenderTarget()->getViewport(0)->setClearEveryFrame(true);
+	mSceneMgr->getShadowTexture(1)->getBuffer()->getRenderTarget()->getViewport(0)->setBackgroundColour(Ogre::ColourValue::White);
+	mSceneMgr->getShadowTexture(1)->getBuffer()->getRenderTarget()->getViewport(0)->setClearEveryFrame(true);
+	mSceneMgr->getShadowTexture(2)->getBuffer()->getRenderTarget()->getViewport(0)->setBackgroundColour(Ogre::ColourValue::White);
+	mSceneMgr->getShadowTexture(2)->getBuffer()->getRenderTarget()->getViewport(0)->setClearEveryFrame(true);
+
 	mSceneMgr->setShadowCasterRenderBackFaces(false);
 
 	// shadow camera setup
@@ -275,11 +283,11 @@ void Main::initScene()
 	mSpotShadowCameraSetup = Ogre::ShadowCameraSetupPtr(spotSetup);
 
 	Ogre::PSSMShadowCameraSetup* pssmSetup = ICE_NEW Ogre::PSSMShadowCameraSetup();
-	pssmSetup->calculateSplitPoints(3, 1, 300, 0.95f);
+	pssmSetup->calculateSplitPoints(3, 0.4f, 150, 0.95f);
 	pssmSetup->setSplitPadding(1);
-	pssmSetup->setOptimalAdjustFactor(0, 5);
-	pssmSetup->setOptimalAdjustFactor(1, 1);
-	pssmSetup->setOptimalAdjustFactor(2, 0.4f);//2, 0.5);
+	pssmSetup->setOptimalAdjustFactor(0, 2);
+	pssmSetup->setOptimalAdjustFactor(1, 0.6f);
+	pssmSetup->setOptimalAdjustFactor(2, 0.3f);//0.4f);//2, 0.5);
 	mDirectionalShadowCameraSetup = Ogre::ShadowCameraSetupPtr(pssmSetup);
 	mSceneMgr->setShadowCameraSetup(mDirectionalShadowCameraSetup);
 	const Ogre::PSSMShadowCameraSetup::SplitPointList& splitPointList = pssmSetup->getSplitPoints();

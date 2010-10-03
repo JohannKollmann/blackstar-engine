@@ -27,7 +27,7 @@ namespace Ice
 	bool ScriptedAIState::Update(float time)
 	{
 		if (OnSimulate(time)) return true;
-		if (timeGetTime() - mLastUpdateCall > 0.1f)
+		if (timeGetTime() - mLastUpdateCall > 0.2f)
 		{
 			mLastUpdateCall = (float)timeGetTime();
 			std::vector<ScriptParam> params;

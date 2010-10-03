@@ -186,6 +186,8 @@ namespace Ice
 
 	void GOCAI::SetParameters(DataMap *parameters)
 	{
+		ClearActionQueue();
+		ClearIdleQueue();
 	}
 	void GOCAI::GetParameters(DataMap *parameters)
 	{

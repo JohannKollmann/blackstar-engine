@@ -230,7 +230,7 @@ namespace Ice
 			{
 				mJumping = true;
 				mJumpStartTime = timeGetTime();
-				mActor->getNxActor()->addForce(NxVec3(0, 300, 0), NxForceMode::NX_IMPULSE);
+				mActor->getNxActor()->addForce(NxVec3(0, 250, 0), NxForceMode::NX_IMPULSE);
 				Msg msg;
 				msg.type = "START_JUMP";
 				mOwnerGO->SendInstantMessage(msg);
