@@ -276,6 +276,9 @@
     <ClCompile Include="Source\HDRListener.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="Source\IceAnimationStateSystem.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header\IceMessageListener.h">
@@ -598,6 +601,9 @@
     </ClInclude>
     <ClInclude Include="Header\IceLeakWatch.h">
       <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceAnimationStateSystem.h">
+      <Filter>Graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -112,6 +112,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\IceAnimationStateSystem.cpp" />
     <ClCompile Include="Source\IceGOCForceField.cpp" />
     <ClCompile Include="Source\IceGOCEditorInterface.cpp" />
     <ClCompile Include="Source\IceGOCOgreNode.cpp" />
@@ -199,6 +200,7 @@
     <ClCompile Include="Source\HDRListener.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Header\IceAnimationStateSystem.h" />
     <ClInclude Include="Header\IceGOCForceField.h" />
     <ClInclude Include="Header\IceGOCOgreNode.h" />
     <ClInclude Include="Header\IceGOCMover.h" />
