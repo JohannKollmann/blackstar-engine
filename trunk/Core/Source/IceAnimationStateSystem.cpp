@@ -79,6 +79,7 @@ namespace Ice
 	{
 		if (mCurrentState.get())
 		{
+			if (mOutBlendState) mOutBlendState->BlendOut(0.0f);
 			mOutBlendState = mCurrentState;
 			//IceNote("reset current (" + mCurrentState->GetName() + "), use count: " + Ogre::StringConverter::toString(mCurrentState.use_count()))
 			mCurrentState.reset();
