@@ -20,6 +20,7 @@ public:
 	void Clear();
 private:
 	static std::vector<Ice::ScriptParam> Lua_CreateSound(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
+	static std::vector<Ice::ScriptParam> Lua_DeleteSound(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
 	static std::vector<Ice::ScriptParam> Lua_PlaySound(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
 	static std::vector<Ice::ScriptParam> Lua_SetVolume(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
 	static std::vector<Ice::ScriptParam> Lua_PlayAt(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);

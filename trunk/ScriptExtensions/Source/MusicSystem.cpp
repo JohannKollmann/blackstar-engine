@@ -6,6 +6,7 @@ MusicSystem::MusicSystem()
 {
 	Ice::ScriptSystem::GetInstance().ShareCFunction("music_play", Lua_PlaySound);
 	Ice::ScriptSystem::GetInstance().ShareCFunction("music_create_sound", Lua_CreateSound);
+	Ice::ScriptSystem::GetInstance().ShareCFunction("music_delete_sound", Lua_DeleteSound);
 	Ice::ScriptSystem::GetInstance().ShareCFunction("music_set_volume", Lua_SetVolume);
 	Ice::ScriptSystem::GetInstance().ShareCFunction("music_play_at", Lua_PlayAt);
 	Ice::ScriptSystem::GetInstance().ShareCFunction("music_stop_at", Lua_StopAt);
@@ -149,6 +150,30 @@ MusicSystem::Lua_CreateSound(Ice::Script& caller, std::vector<Ice::ScriptParam> 
 	GetInstance().m_mProperties[strID]=sp;
 
 	return std::vector<Ice::ScriptParam>(1, Ice::ScriptParam(strID));
+}
+
+
+std::vector<Ice::ScriptParam>
+MusicSystem::Lua_DeleteSound(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams)
+{
+	std::vector<Ice::ScriptParam> errout(1, Ice::ScriptParam());
+	std::vector<Ice::ScriptParam> vRef=std::vector<Ice::ScriptParam>(1, Ice::ScriptParam(std::string()));
+	std::string strErrString=Ice::Utils::TestParameters(vParams, vRef);
+	if(strErrString.length())
+	{
+		errout.push_back(strErrString);
+		return errout;
+	}
+	OgreOggSound::OgreOggISound* pSound;
+	if((pSound=OgreOggSound::OgreOggSoundManager::getSingleton().getSound(vParams[0].getString()))==NULL)
+	{
+		errout.push_back(std::string("found no sound for the given ID"));
+		return errout;
+	}
+	OgreOggSound::OgreOggSoundManager::getSingleton().destroySound(pSound);
+	GetInstance().m_mProperties.erase(GetInstance().m_mProperties.find(vParams[0].getString()));
+	//Ogre::LogManager::getSingleton().logMessage("Successfully deleted sound object " + vParams[0].getString()  + " !");
+	return std::vector<Ice::ScriptParam>();
 }
 
 std::vector<Ice::ScriptParam>
@@ -468,6 +493,9 @@ MusicSystem::Clear()
 	m_lTasks.clear();
 	m_mMoods.clear();
 	//OgreOggSound::OgreOggSoundManager::getSingleton().destroyAllSounds();
+	for(auto it=GetInstance().m_mProperties.begin(); it!=GetInstance().m_mProperties.end(); it++)
+		Lua_DeleteSound(Ice::Script(), std::vector<Ice::ScriptParam>(1, Ice::ScriptParam(it->first)));
+		
 	m_mProperties.clear();
 }
 
