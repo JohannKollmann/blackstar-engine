@@ -48,6 +48,7 @@ LuaScript::LoadScript(std::string strFile)
 	m_pState=luaL_newstate();
 	luaopen_base(m_pState);
 	luaopen_string(m_pState);
+	luaopen_table(m_pState);
 
 	std::string strErr=m_pfLoader(m_pState, strFile);
 	if(strErr.length())
