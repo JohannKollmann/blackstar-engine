@@ -21,6 +21,7 @@ MusicSystem::MusicSystem()
 	Ice::ScriptSystem::GetInstance().ShareCFunction("music_delete_timer", Lua_DeleteTimer);
 	Ice::ScriptSystem::GetInstance().ShareCFunction("music_get_beat_counter", Lua_GetBeatCounter);
 	Ice::ScriptSystem::GetInstance().ShareCFunction("music_get_mood", Lua_GetMood);
+	Ice::ScriptSystem::GetInstance().ShareCFunction("music_set_sound_callback", Lua_SetSoundCallback);
 	Ice::ScriptSystem::GetInstance().ShareCFunction("music_set_mood", Lua_SetMood);
 	Ice::ScriptSystem::GetInstance().ShareCFunction("music_post_event", Lua_PostEvent);
 
@@ -485,6 +486,29 @@ MusicSystem::Lua_PostEvent(Ice::Script& caller, std::vector<Ice::ScriptParam> vP
 		return errout;
 	}
 	GetInstance().PostEvent(vParams[0].getString());
+	return std::vector<Ice::ScriptParam>();
+}
+
+std::vector<Ice::ScriptParam>
+MusicSystem::Lua_SetSoundCallback(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams)
+{
+	std::vector<Ice::ScriptParam> errout(1, Ice::ScriptParam());
+	std::vector<Ice::ScriptParam> vRef=std::vector<Ice::ScriptParam>(1, Ice::ScriptParam(std::string()));
+	vRef.push_back(Ice::ScriptParam(std::string(), caller));
+	std::string strErrString=Ice::Utils::TestParameters(vParams, vRef);
+	if(strErrString.length())
+	{
+		errout.push_back(strErrString);
+		return errout;
+	}
+	OgreOggSound::OgreOggISound* pSound=OgreOggSound::OgreOggSoundManager::getSingleton().getSound(vParams[0].getString());
+	if(pSound==NULL)
+	{
+		errout.push_back(std::string("found no sound for the given ID"));
+		return errout;
+	}
+	GetInstance().m_mProperties[vParams[0].getString()].callback=vParams[1];
+	pSound->setListener(&GetInstance().m_Listener);
 	return std::vector<Ice::ScriptParam>();
 }
 
