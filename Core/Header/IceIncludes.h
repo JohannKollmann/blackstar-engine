@@ -10,6 +10,9 @@
 //#define BOOST_ALL_DYN_LINK
 
 #include "IceLeakWatch.h"
+#include "OgreString.h"
+#include "OgreStringConverter.h"
+#include "OgreLogManager.h"
 
 namespace OgrePhysX
 {
@@ -37,7 +40,7 @@ class NxControllerManager;
 	if (!(expression)) \
 	{ \
 		Ogre::LogManager::getSingleton().logMessage(Ogre::String("Assertion failed: ") + #expression + Ogre::String(", function ") + __FUNCTION__ + Ogre::String(", file ") + __FILE__ +  Ogre::String(", line ") + Ogre::StringConverter::toString(__LINE__)); \
-		DebugBreak();	\
+		__debugbreak();	\
 	}
 #else
 	#define IceAssert(expression) \
