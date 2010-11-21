@@ -34,6 +34,9 @@
     <Filter Include="Components">
       <UniqueIdentifier>{5324ea6c-c577-4c7d-8406-af1e6e44ffd9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ProcessNodeSystem">
+      <UniqueIdentifier>{689cb2c9-954f-4ac9-87f4-67405b7748f0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\IceMessageListener.cpp">
@@ -278,6 +281,15 @@
     </ClCompile>
     <ClCompile Include="Source\IceAnimationStateSystem.cpp">
       <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\IceProcessNodeManager.cpp">
+      <Filter>ProcessNodeSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\IceProcessNodeQueue.cpp">
+      <Filter>ProcessNodeSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\IceProcessNode.cpp">
+      <Filter>ProcessNodeSystem</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -604,6 +616,15 @@
     </ClInclude>
     <ClInclude Include="Header\IceAnimationStateSystem.h">
       <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceProcessNodeManager.h">
+      <Filter>ProcessNodeSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceProcessNodeQueue.h">
+      <Filter>ProcessNodeSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceProcessNode.h">
+      <Filter>ProcessNodeSystem</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -132,6 +132,9 @@
     <ClCompile Include="Source\IceGOCPlayerInput.cpp" />
     <ClCompile Include="Source\IceGOCView.cpp" />
     <ClCompile Include="Source\IceObjectLevelRayCaster.cpp" />
+    <ClCompile Include="Source\IceProcessNode.cpp" />
+    <ClCompile Include="Source\IceProcessNodeManager.cpp" />
+    <ClCompile Include="Source\IceProcessNodeQueue.cpp" />
     <ClCompile Include="Source\IceSceneManager.cpp" />
     <ClCompile Include="Source\IceCameraController.cpp" />
     <ClCompile Include="Source\IceConsole.cpp" />
@@ -221,6 +224,9 @@
     <ClInclude Include="Header\IceGOCPlayerInput.h" />
     <ClInclude Include="Header\IceGOCView.h" />
     <ClInclude Include="Header\IceObjectLevelRayCaster.h" />
+    <ClInclude Include="Header\IceProcessNode.h" />
+    <ClInclude Include="Header\IceProcessNodeManager.h" />
+    <ClInclude Include="Header\IceProcessNodeQueue.h" />
     <ClInclude Include="Header\IceSceneManager.h" />
     <ClInclude Include="Header\Ice3D.h" />
     <ClInclude Include="Header\IceCameraController.h" />

@@ -2,6 +2,7 @@
 #pragma once
 
 #include "IceIncludes.h"
+#define NOMINMAX
 #include "windows.h"
 #include "Ogre.h"
 #include "IceGameState.h"
