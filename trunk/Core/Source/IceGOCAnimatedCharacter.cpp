@@ -4,28 +4,10 @@
 #include "IceMain.h"
 #include "IceGOCCharacterController.h"
 #include "IceUtils.h"
+#include "IceProcessNodeManager.h"
 
 namespace Ice
 {
-
-	/*		//fire callbacks
-		ITERATE(i, mScriptCallbacks)
-		{
-			if (i->timePos < 0)
-			{
-				ScriptSystem::GetInstance().RunCallbackFunction(i->callback, std::vector<ScriptParam>());
-			}
-		}
-	void AnimationQueue::AnimState::AddCallback(ScriptParam callback, float timePos)
-	{
-		ITERATE(i, mScriptCallbacks)
-			if (i->timePos == timePos) return;
-		Callback c;
-		c.timePos = timePos;
-		c.callback = callback;
-		mScriptCallbacks.push_back(c);
-	}*/
-
 
 	GOCAnimatedCharacter::~GOCAnimatedCharacter(void)
 	{
@@ -34,8 +16,6 @@ namespace Ice
 
 	void GOCAnimatedCharacter::_clear()
 	{
-		mHighLevelAnimationStates.clear();
-		mAnimationQueue.Clear();
 		std::list<GameObject*>::iterator i = mBoneObjects.begin();
 		while (i != mBoneObjects.end())
 		{
@@ -148,12 +128,6 @@ namespace Ice
 		if (msg.type == "UPDATE_PER_FRAME")
 		{
 			float time = msg.params.GetFloat("TIME");
-			mAnimationQueue.Update(time);
-		}
-		if (msg.type == "REPARSE_SCRIPTS")
-		{
-			mAnimationQueue.Clear();
-			mHighLevelAnimationStates.clear();
 		}
 	}
 
@@ -242,84 +216,37 @@ namespace Ice
 		mgr.LoadAtom("bool", &mShadowCaster);
 	}
 
-	std::vector<ScriptParam> GOCAnimatedCharacter::AnimState_EnqueueAnimation(Script& caller, std::vector<ScriptParam> &vParams)
+	std::vector<ScriptParam> GOCAnimatedCharacter::AnimProcess_Create(Script& caller, std::vector<ScriptParam> &vParams)
 	{
-		Ogre::String stateName = vParams[0].getString();
-		Ogre::String animName = vParams[1].getString();
-		int queueID = vParams[2].getInt();
+		std::vector<ScriptParam> out;
+		Ogre::String animName = vParams[0].getString();
 		if (mEntity->getSkeleton()->hasAnimation(animName))
 		{
 			Ogre::AnimationState *ogreAnimState = mEntity->getAnimationState(animName);
 		
 			bool looped = false;
-			if (vParams.size() > 3 && vParams[3].getType() == ScriptParam::PARM_TYPE_BOOL) looped = vParams[3].getBool();
+			if (vParams.size() > 1 && vParams[1].getType() == ScriptParam::PARM_TYPE_BOOL) looped = vParams[1].getBool();
 			ogreAnimState->setLoop(looped);
 
 			float blendTime = 0.2f;
-			if (vParams.size() > 4 && vParams[4].getType() == ScriptParam::PARM_TYPE_FLOAT) blendTime = vParams[4].getFloat();
+			if (vParams.size() >= 2 && vParams[2].getType() == ScriptParam::PARM_TYPE_FLOAT) blendTime = vParams[2].getFloat();
 			float timeScale = 1.0f;
-			if (vParams.size() > 5 && vParams[5].getType() == ScriptParam::PARM_TYPE_FLOAT) timeScale = vParams[5].getFloat();
+			if (vParams.size() > 3 && vParams[3].getType() == ScriptParam::PARM_TYPE_FLOAT) timeScale = vParams[3].getFloat();
 
-			if (mHighLevelAnimationStates.find(stateName) != mHighLevelAnimationStates.end())
+			std::shared_ptr<PlayAnimationProcess> process = ProcessNodeManager::Instance().CreatePlayAnimationProcess(ogreAnimState);
+			process->SetLooped(looped);
+			process->SetInBlendDuration(blendTime);
+			process->SetOutBlendDuration(blendTime);
+			process->SetTimeScale(timeScale);
+			for (int i = 4; vParams.size() > i+1; i+=2)
 			{
-				std::shared_ptr<OgreAnimationState> anim(new OgreAnimationState(ogreAnimState, blendTime, timeScale));
-				for (int i = 6; vParams.size() > i+1; i+=2)
-				{
-					if (vParams[i].getType() == ScriptParam::PARM_TYPE_FLOAT && vParams[i+1].getType() == ScriptParam::PARM_TYPE_FUNCTION)
-						anim->AddCallback(vParams[i].getFloat(), vParams[i+1]);
-				}
-				mHighLevelAnimationStates[stateName]->AnimPushBack(queueID, anim);
+				if (vParams[i].getType() == ScriptParam::PARM_TYPE_FLOAT && vParams[i+1].getType() == ScriptParam::PARM_TYPE_FUNCTION)
+					process->AddCallback(vParams[i].getFloat(), vParams[i+1]);
 			}
-			else IceWarning("Animation state " + stateName + " does not exist.")
+			out.push_back(ScriptParam(process->GetProcessID()));
+			
 		}
 		else IceWarning("Animation does not exist: " + animName)
-		std::vector<ScriptParam> out;
-		return out;
-	}
-	std::vector<ScriptParam> GOCAnimatedCharacter::AnimState_Create(Script& caller, std::vector<ScriptParam> &vParams)
-	{
-		Ogre::String stateName = vParams[0].getString();
-		float blendTime = 0.2f;
-		if (vParams.size() > 1 && vParams[1].getType() == ScriptParam::PARM_TYPE_FLOAT) blendTime = vParams[1].getFloat();
-		if (mHighLevelAnimationStates.find(stateName) == mHighLevelAnimationStates.end()) mHighLevelAnimationStates.insert(std::make_pair(stateName, std::shared_ptr<AnimState>(new AnimState(stateName,blendTime))));
-		else IceWarning("Animation state " + stateName + " already exists.")
-		std::vector<ScriptParam> out;
-		out.push_back(stateName);
-		return out;
-	}
-	std::vector<ScriptParam> GOCAnimatedCharacter::AnimState_Push(Script& caller, std::vector<ScriptParam> &vParams)
-	{
-		Ogre::String stateName = vParams[0].getString();
-		if (mHighLevelAnimationStates.find(stateName) != mHighLevelAnimationStates.end())
-		{
-			mAnimationQueue.PushFront(std::shared_ptr<AnimState>(new AnimState(*mHighLevelAnimationStates[stateName])));
-		}
-		else IceWarning("Animation state " + stateName + " does not exists.")
-		std::vector<ScriptParam> out;
-		return out;
-	}
-	std::vector<ScriptParam> GOCAnimatedCharacter::AnimState_Pop(Script& caller, std::vector<ScriptParam> &vParams)
-	{
-		Ogre::String stateName = vParams[0].getString();
-		if (mHighLevelAnimationStates.find(stateName) != mHighLevelAnimationStates.end())
-		{
-			mAnimationQueue.Pop(stateName);
-		}
-		else IceWarning("Animation state " + stateName + " does not exists.")
-		std::vector<ScriptParam> out;
-		return out;
-	}
-	std::vector<ScriptParam> GOCAnimatedCharacter::Anim_Play(Script& caller, std::vector<ScriptParam> &vParams)
-	{
-		Ogre::String animName = vParams[0].getString();
-		int queueID = vParams[1].getInt();
-		if (mEntity->getSkeleton()->hasAnimation(animName))
-		{
-			Ogre::AnimationState *ogreAnimState = mEntity->getAnimationState(animName);
-			//Todo
-		}
-		else IceWarning("Animation does not exist: " + animName)
-		std::vector<ScriptParam> out;
 		return out;
 	}
 

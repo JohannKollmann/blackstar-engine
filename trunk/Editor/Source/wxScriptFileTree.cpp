@@ -6,6 +6,7 @@
 #include "boost/filesystem/operations.hpp"
 #include "boost/filesystem/path.hpp"
 #include "IceAIManager.h"
+#include "Edit.h"
 
 enum
 {
@@ -71,14 +72,9 @@ void wxScriptFileTree::OnToolbarEvent(int toolID, Ogre::String toolname)
 {
 	if (toolname == "ReloadScripts")
 	{
-		Ice::Msg msg;
-		msg.type = "REPARSE_SCRIPTS";
-		Ice::MessageSystem::Instance().SendInstantMessage(msg);
-		Ice::ScriptSystem::GetInstance().Clear();
-		//Call init script
-		Ice::Script script = Ice::ScriptSystem::GetInstance().CreateInstance("InitEngine.lua");
-		msg.type = "REPARSE_SCRIPTS_POST";
-		Ice::MessageSystem::Instance().SendInstantMessage(msg);
+		STOP_MAINLOOP
+		Ice::ScriptSystem::GetInstance().ReparseAllScripts();				
+		RESUME_MAINLOOP
 	}
 	if (toolname == "NewScript" || toolname == "NewNpcScript" || toolname == "NewStateScript")
 	{

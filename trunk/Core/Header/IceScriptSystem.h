@@ -48,6 +48,8 @@ public:
 	void RegisterScriptUser(ScriptUser *script, int scriptID);
 	void UnregisterScriptUser(int scriptID);
 
+	void ReparseAllScripts();
+
 private:
 	friend class ScriptParam;//needs these maps for callbacks
 

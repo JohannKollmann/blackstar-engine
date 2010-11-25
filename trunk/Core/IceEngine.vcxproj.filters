@@ -279,9 +279,6 @@
     <ClCompile Include="Source\HDRListener.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Source\IceAnimationStateSystem.cpp">
-      <Filter>Graphics</Filter>
-    </ClCompile>
     <ClCompile Include="Source\IceProcessNodeManager.cpp">
       <Filter>ProcessNodeSystem</Filter>
     </ClCompile>
@@ -290,6 +287,9 @@
     </ClCompile>
     <ClCompile Include="Source\IceProcessNode.cpp">
       <Filter>ProcessNodeSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\IcePlayAnimationProcess.cpp">
+      <Filter>Graphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -614,9 +614,6 @@
     <ClInclude Include="Header\IceLeakWatch.h">
       <Filter>System</Filter>
     </ClInclude>
-    <ClInclude Include="Header\IceAnimationStateSystem.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="Header\IceProcessNodeManager.h">
       <Filter>ProcessNodeSystem</Filter>
     </ClInclude>
@@ -625,6 +622,9 @@
     </ClInclude>
     <ClInclude Include="Header\IceProcessNode.h">
       <Filter>ProcessNodeSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IcePlayAnimationProcess.h">
+      <Filter>Graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

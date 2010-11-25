@@ -8,6 +8,8 @@
 
 namespace Ice
 {
+	class PlayAnimationProcess;
+	class ProcessNodeQueue;
 
 	class DllExport ProcessNodeManager
 	{
@@ -19,15 +21,10 @@ namespace Ice
 
 	public:
 		ProcessNodeManager() : mIDCounter(0) {}
-		~ProcessNodeManager() {}
+		virtual ~ProcessNodeManager() {}
 
-		template <class T>
-		std::shared_ptr<T> CreateProcessNode()
-		{
-			std::shared_ptr<T> pNode = std::make_shared<T>(mProcessID);
-			mProcessNodes.insert<int, std::shared_ptr<ProcessNode>>(mProcessID++, std::static_pointer_cast<ProcessNode, T>(pNode));
-			return pNode;
-		}
+		std::shared_ptr<PlayAnimationProcess> CreatePlayAnimationProcess(Ogre::AnimationState *state);
+		std::shared_ptr<ProcessNodeQueue> CreateProcessNodeQueue();
 		void RemoveProcessNode(int processID);
 		std::shared_ptr<ProcessNode> GetProcessNode(int processID);
 

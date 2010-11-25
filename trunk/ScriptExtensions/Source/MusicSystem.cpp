@@ -171,7 +171,6 @@ MusicSystem::Lua_DeleteSound(Ice::Script& caller, std::vector<Ice::ScriptParam> 
 		errout.push_back(std::string("found no sound for the given ID"));
 		return errout;
 	}
-	pSound->stop();
 	OgreOggSound::OgreOggSoundManager::getSingleton().destroySound(pSound);
 	GetInstance().m_mProperties.erase(GetInstance().m_mProperties.find(vParams[0].getString()));
 	//Ogre::LogManager::getSingleton().logMessage("Successfully deleted sound object " + vParams[0].getString()  + " !");
@@ -519,7 +518,15 @@ MusicSystem::Clear()
 	m_mMoods.clear();
 	//OgreOggSound::OgreOggSoundManager::getSingleton().destroyAllSounds();
 	for(auto it=GetInstance().m_mProperties.begin(); it!=GetInstance().m_mProperties.end(); it++)
-		Lua_DeleteSound(Ice::Script(), std::vector<Ice::ScriptParam>(1, Ice::ScriptParam(it->first)));
+	{
+		OgreOggSound::OgreOggISound* pSound;
+		if((pSound=OgreOggSound::OgreOggSoundManager::getSingleton().getSound(it->first)) == nullptr)
+		{
+			IceWarning("found no sound for the given ID")
+			continue;
+		}
+		OgreOggSound::OgreOggSoundManager::getSingleton().destroySound(pSound);
+	}
 		
 	m_mProperties.clear();
 }
