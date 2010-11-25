@@ -2,27 +2,52 @@
 
 #include "IceProcessNode.h"
 #include "IceProcessNodeManager.h"
+#include "IceUtils.h"
 
 namespace Ice
 {
+	ProcessNode::~ProcessNode()
+	{
+		SetActive(false);
+		TriggerDependencies();
+	}
 
 	void ProcessNode::AddTriggerOnFinish(std::shared_ptr<ProcessNode> pNode)
 	{
 		mTriggerOnFinish.push_back(std::weak_ptr<ProcessNode>(pNode));
-		pNode->mDependencies.push_back(mProcessID);
-		pNode->SetActive(false);
+		pNode->_addDependency(mProcessID);
 	}
-
+	void ProcessNode::_addDependency(int pID)
+	{
+		mDependencies.push_back(pID);
+		SetActive(false);
+	}
 	void ProcessNode::_notifyFinish(int pID)
 	{
 		mDependencies.remove(pID);
 		if (mDependencies.empty())
 			SetActive(true);
 	}
+	void ProcessNode::TriggerDependencies()
+	{
+		ITERATE(i, mTriggerOnFinish)
+		{
+			if (!(*i).expired())
+				(*i).lock()->_notifyFinish(GetProcessID());
+		}
+		mTriggerOnFinish.clear();
+	}
+
+	void ProcessNode::Init(int id)
+	{
+		mProcessID = id;
+		SetActive(mDependencies.empty());
+	}
 
 	void ProcessNode::Terminate()
 	{
 		SetActive(false);
+		TriggerDependencies();
 		ProcessNodeManager::Instance().RemoveProcessNode(mProcessID);
 	}
 
@@ -38,6 +63,28 @@ namespace Ice
 	int ProcessNode::GetProcessID() const
 	{
 		return mProcessID;
+	}
+
+	std::vector<ScriptParam> ProcessNode::Lua_AddDependency(Script& caller, std::vector<ScriptParam> vParams)
+	{
+		if (Ice::Utils::TestParameters(caller, vParams, "int int"))
+		{
+			std::shared_ptr<ProcessNode> node = ProcessNodeManager::Instance().GetProcessNode(vParams[0].getInt());
+			std::shared_ptr<ProcessNode> dependency = ProcessNodeManager::Instance().GetProcessNode(vParams[1].getInt());
+			if (node.get() && dependency.get()) dependency->AddTriggerOnFinish(node);
+		}
+		std::vector<ScriptParam> out;
+		return out;
+	}
+	std::vector<ScriptParam> ProcessNode::Lua_KillProcess(Script& caller, std::vector<ScriptParam> vParams)
+	{
+		if (Ice::Utils::TestParameters(caller, vParams, "int"))
+		{
+			std::shared_ptr<ProcessNode> node = ProcessNodeManager::Instance().GetProcessNode(vParams[0].getInt());
+			if (node.get()) node->Terminate();
+		}
+		std::vector<ScriptParam> out;
+		return out;
 	}
 
 }

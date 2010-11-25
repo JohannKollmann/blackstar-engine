@@ -21,6 +21,8 @@
 #include "IceGOCMover.h"
 #include "IceGOCScript.h"
 #include "IceGOCForceField.h"
+#include "IceProcessNode.h"
+#include "IceProcessNodeQueue.h"
 
 #include "boost/filesystem/operations.hpp"
 #include "boost/filesystem/path.hpp"
@@ -304,15 +306,16 @@ namespace Ice
 
 		ScriptSystem::GetInstance().ShareCFunction("Forcefield_SetActive", &GOCForceField::Lua_Forcefield_Activate);
 
-		ScriptSystem::GetInstance().ShareCFunction("Anim_Play", &GOCAnimatedCharacter::Lua_Anim_Play);
-		ScriptSystem::GetInstance().ShareCFunction("AnimState_Create", &GOCAnimatedCharacter::Lua_AnimState_Create);
-		ScriptSystem::GetInstance().ShareCFunction("AnimState_EnqueueAnimation", &GOCAnimatedCharacter::Lua_AnimState_EnqueueAnimation);
-		ScriptSystem::GetInstance().ShareCFunction("AnimState_Push", &GOCAnimatedCharacter::Lua_AnimState_Push);
-		ScriptSystem::GetInstance().ShareCFunction("AnimState_Pop", &GOCAnimatedCharacter::Lua_AnimState_Pop);
-
 		ScriptSystem::GetInstance().ShareCFunction("Character_GetGroundMaterial", &GOCCharacterController::Lua_Character_GetGroundMaterial);
 
 		ScriptSystem::GetInstance().ShareCFunction("Object_RunFunction", &GOCScript::Lua_RunFunction);
+
+		ScriptSystem::GetInstance().ShareCFunction("AnimProcess_Create", &GOCAnimatedCharacter::Lua_AnimProcess_Create);
+		ScriptSystem::GetInstance().ShareCFunction("Process_AddDependency", &ProcessNode::Lua_AddDependency);
+		ScriptSystem::GetInstance().ShareCFunction("Process_Kill", &ProcessNode::Lua_KillProcess);
+		ScriptSystem::GetInstance().ShareCFunction("ProcessQueue_Create", &ProcessNodeQueue::Lua_ProcessQueue_Create);
+		ScriptSystem::GetInstance().ShareCFunction("ProcessQueue_Enqueue", &ProcessNodeQueue::Lua_ProcessQueue_Enqueue);
+		ScriptSystem::GetInstance().ShareCFunction("ProcessQueue_Push", &ProcessNodeQueue::Lua_ProcessQueue_PushFront);
 
 		/**
 		Triggers a mover.

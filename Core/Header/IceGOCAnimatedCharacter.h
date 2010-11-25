@@ -5,7 +5,7 @@
 #include "IceGOCOgreNode.h"
 #include "IceMessageSystem.h"
 #include "IceGOCScriptMakros.h"
-#include "IceAnimationStateSystem.h"
+#include "IcePlayAnimationProcess.h"
 
 namespace Ice
 {
@@ -22,9 +22,6 @@ namespace Ice
 	private:
 		Ogre::Entity *mEntity;
 		OgrePhysX::Ragdoll *mRagdoll;
-
-		BlendStateQueue mAnimationQueue;
-		std::map<Ogre::String, std::shared_ptr<AnimState>> mHighLevelAnimationStates;
 
 		bool mSetControlToActorsTemp;
 		bool mEditorMode;
@@ -71,22 +68,11 @@ namespace Ice
 		//Scripting
 		int GetThisID() { IceAssert(mOwnerGO); return mOwnerGO->GetID(); }
 
-		std::vector<ScriptParam> Anim_Play(Script& caller, std::vector<ScriptParam> &vParams);
-		std::vector<ScriptParam> AnimState_Create(Script& caller, std::vector<ScriptParam> &vParams);
-		std::vector<ScriptParam> AnimState_EnqueueAnimation(Script& caller, std::vector<ScriptParam> &vParams);
-		std::vector<ScriptParam> AnimState_Push(Script& caller, std::vector<ScriptParam> &vParams);
-		std::vector<ScriptParam> AnimState_Pop(Script& caller, std::vector<ScriptParam> &vParams);
+		std::vector<ScriptParam> AnimProcess_Create(Script& caller, std::vector<ScriptParam> &vParams);
+		std::vector<ScriptParam> AnimProcess_GetBinding(Script& caller, std::vector<ScriptParam> &vParams);
 
 		//Methods to setup states the time
-		DEFINE_TYPEDGOCLUAMETHOD(GOCAnimatedCharacter, AnimState_Create, "string")	//state name
-		DEFINE_TYPEDGOCLUAMETHOD(GOCAnimatedCharacter, AnimState_EnqueueAnimation, "string string int")		//state name, animation name, queue ID
-
-		//Methods to control state flow
-		DEFINE_TYPEDGOCLUAMETHOD(GOCAnimatedCharacter, AnimState_Push, "string")
-		DEFINE_TYPEDGOCLUAMETHOD(GOCAnimatedCharacter, AnimState_Pop, "string")
-
-		//Plays an animation at runtime, useful for things like a hit feedback
-		DEFINE_TYPEDGOCLUAMETHOD(GOCAnimatedCharacter, Anim_Play, "string int")	//animation name, queueID
+		DEFINE_TYPEDGOCLUAMETHOD(GOCAnimatedCharacter, AnimProcess_Create, "string")	//anim state name, looped, blendTime, timeScale, callbacks
 	};
 
 	class DllExport GOCAnimatedCharacterBone : public GOCOgreNodeUser, public GOCEditorInterface
