@@ -8,17 +8,35 @@ namespace Ice
 
 	void ProcessNodeQueue::PushFront(std::shared_ptr<ProcessNode> processNode)
 	{
-		if (!mDependencies.empty()) processNode->AddTriggerOnFinish(ProcessNodeManager::Instance().GetProcessNode(mDependencies.front()));
-		processNode->AddTriggerOnFinish(ProcessNodeManager::Instance().GetProcessNode(GetProcessID()));
+		if (!mQueue.empty()) processNode->AddTriggerOnFinish(ProcessNodeManager::Instance().GetProcessNode(mQueue.front()));
+		if (!mIsActive) processNode->_addDependency(GetProcessID());
 	}
 	void ProcessNodeQueue::Enqueue(std::shared_ptr<ProcessNode> processNode)
 	{
-		if (!mDependencies.empty()) ProcessNodeManager::Instance().GetProcessNode(mDependencies.back())->AddTriggerOnFinish(processNode);
-		processNode->AddTriggerOnFinish(ProcessNodeManager::Instance().GetProcessNode(GetProcessID()));
+		if (!mQueue.empty()) ProcessNodeManager::Instance().GetProcessNode(mQueue.front())->AddTriggerOnFinish(processNode);
+		if (!mIsActive) processNode->_addDependency(GetProcessID());
+	}
+	void ProcessNodeQueue::_notifyFinish(int pID)
+	{
+		ITERATE(i, mQueue)
+		{
+			if (*i == pID)
+			{
+				mQueue.erase(i);
+				if (mQueue.empty()) TriggerDependencies();
+				return;
+			}
+		}
+		ProcessNode::_notifyFinish(pID);	//pID is a regular dependency, invoke parent method
+
 	}
 	void ProcessNodeQueue::OnSetActive(bool active)
 	{
-		if (active) TriggerDependencies();		//Trigger dependencies when queue is empty
+		if (active)
+		{
+			ITERATE(i, mQueue)
+				ProcessNodeManager::Instance().GetProcessNode(*i)->_notifyFinish(GetProcessID());
+		}
 	}
 
 

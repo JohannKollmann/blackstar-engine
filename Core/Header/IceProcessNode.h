@@ -20,17 +20,18 @@ namespace Ice
 
 		int mProcessID;
 
-		virtual void _notifyFinish(int pID);
-		virtual void _addDependency(int pID);
-
 		void Init(int id);
 
 		void Terminate();
-		virtual void TriggerDependencies();
 
 	public:
 		ProcessNode() : mProcessID(0) {}
 		virtual ~ProcessNode();
+
+		virtual void _notifyFinish(int pID);
+		virtual void _addDependency(int pID);
+
+		virtual void TriggerDependencies();
 
 		virtual void AddTriggerOnFinish(std::shared_ptr<ProcessNode> pNode);
 

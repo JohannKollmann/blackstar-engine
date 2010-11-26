@@ -11,6 +11,12 @@ namespace Ice
 
 	class ProcessNodeQueue : public ProcessNode
 	{
+	private:
+		std::list<int> mQueue;
+
+	protected:
+		void _notifyFinish(int pID) override;
+
 	public:
 
 		void PushFront(std::shared_ptr<ProcessNode> processNode);
