@@ -15,9 +15,11 @@ namespace Ice
 		mBlendingOut = false;
 		mWeight = 0;
 		mTimeScale = 1;
+		MessageSystem::Instance().JoinNewsgroup(this, "REPARSE_SCRIPTS");
 	}
 	PlayAnimationProcess::~PlayAnimationProcess()
 	{
+		OnSetActive(false);
 	}
 	void PlayAnimationProcess::OnSetActive(bool active)
 	{
@@ -43,46 +45,53 @@ namespace Ice
 	}
 	void PlayAnimationProcess::ReceiveMessage(Msg &msg)
 	{
-		float timeDelta = msg.params.GetFloat("TIME");
-		timeDelta *= mTimeScale;
-
-		if (mBlendingIn)
+		if (msg.type == "UPDATE_PER_FRAME")
 		{
-			if (mInBlendDuration > 0) mWeight += timeDelta / mInBlendDuration;
-			else mWeight = 1;
-			if (mWeight >= 1)
+			float timeDelta = msg.params.GetFloat("TIME");
+			timeDelta *= mTimeScale;
+
+			if (mBlendingIn)
 			{
-				mWeight = 1;
-				mBlendingIn = false;
+				if (mInBlendDuration > 0) mWeight += timeDelta / mInBlendDuration;
+				else mWeight = 1;
+				if (mWeight >= 1)
+				{
+					mWeight = 1;
+					mBlendingIn = false;
+				}
+			}
+			else if (mBlendingOut)
+			{
+				if (mOutBlendDuration > 0)  mWeight -= (timeDelta / mOutBlendDuration);
+				else mWeight = 0;
+				if (mWeight <= 0)
+				{
+					mWeight = 0;
+					mBlendingOut = false;
+					Terminate();
+					return;
+				}
+			}
+
+			ITERATE(i, mScriptCallbacks)
+				if (mAnimationState->getTimePosition()/mTimeScale <= i->timePos && (mAnimationState->getTimePosition()/mTimeScale)+timeDelta > i->timePos)
+					ScriptSystem::GetInstance().RunCallbackFunction(i->callback, std::vector<ScriptParam>());
+
+			mAnimationState->setWeight(mWeight);
+			mAnimationState->addTime(timeDelta);
+			if (!mLooped)
+			{
+				float remaining = (mAnimationState->getLength() - mAnimationState->getTimePosition())/mTimeScale;
+				if (remaining < mOutBlendDuration)
+				{
+					mBlendingIn = false;
+					mBlendingOut = true;
+				}
 			}
 		}
-		else if (mBlendingOut)
+		else if (msg.type == "REPARSE_SCRIPTS")
 		{
-			if (mOutBlendDuration > 0)  mWeight -= (timeDelta / mOutBlendDuration);
-			else mWeight = 0;
-			if (mWeight <= 0)
-			{
-				mWeight = 0;
-				mBlendingOut = false;
-				Terminate();
-				return;
-			}
-		}
-
-		ITERATE(i, mScriptCallbacks)
-			if (mAnimationState->getTimePosition()/mTimeScale <= i->timePos && (mAnimationState->getTimePosition()/mTimeScale)+timeDelta > i->timePos)
-				ScriptSystem::GetInstance().RunCallbackFunction(i->callback, std::vector<ScriptParam>());
-
-		mAnimationState->setWeight(mWeight);
-		mAnimationState->addTime(timeDelta);
-		if (!mLooped)
-		{
-			float remaining = (mAnimationState->getLength() - mAnimationState->getTimePosition())/mTimeScale;
-			if (remaining < mOutBlendDuration)
-			{
-				mBlendingIn = false;
-				mBlendingOut = true;
-			}
+			mScriptCallbacks.clear();
 		}
 	}
 }

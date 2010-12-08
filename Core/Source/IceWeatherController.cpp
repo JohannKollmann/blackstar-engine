@@ -75,7 +75,7 @@ namespace Ice
 
 		SetSpeedFactor(mCaelumSystem->getUniversalClock ()->getTimeScale ());
 
-		mCaelumSystem->forceSubcomponentVisibilityFlags(~1);
+		mCaelumSystem->forceSubcomponentVisibilityFlags(8);
 
 		MessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
 		MessageSystem::Instance().JoinNewsgroup(this, "KEY_UP");

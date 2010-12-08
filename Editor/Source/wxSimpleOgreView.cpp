@@ -31,6 +31,7 @@ void wxSimpleOgreView::OnInit()
 	mCamera->setFarClipDistance(100);
 
 	mViewport = mRenderWindow->addViewport(mCamera);
+	mViewport->setMaterialScheme("LowQuality");
 	mViewport->setBackgroundColour(Ogre::ColourValue::Black);
 	mCamera->setAspectRatio(Ogre::Real(mViewport->getActualWidth()) / Ogre::Real(mViewport->getActualHeight()));
 

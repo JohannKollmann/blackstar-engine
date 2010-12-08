@@ -28,6 +28,10 @@ namespace Ice
 		Ogre::String mMeshName;
 		bool mShadowCaster;
 
+		//We need this list because we have to shut down the processes when the entity ist destroyed
+		std::vector<int> mCreatedProcesses;
+		void _destroyCreatedProcesses();
+
 		void _clear();
 
 		void Create(Ogre::String meshname, Ogre::Vector3 scale);

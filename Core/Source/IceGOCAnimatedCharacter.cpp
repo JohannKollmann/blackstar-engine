@@ -16,6 +16,7 @@ namespace Ice
 
 	void GOCAnimatedCharacter::_clear()
 	{
+		_destroyCreatedProcesses();
 		std::list<GameObject*>::iterator i = mBoneObjects.begin();
 		while (i != mBoneObjects.end())
 		{
@@ -216,6 +217,13 @@ namespace Ice
 		mgr.LoadAtom("bool", &mShadowCaster);
 	}
 
+	void GOCAnimatedCharacter::_destroyCreatedProcesses()
+	{
+		ITERATE(i, mCreatedProcesses)
+			ProcessNodeManager::Instance().RemoveProcessNode(*i);
+		mCreatedProcesses.clear();
+	}
+
 	std::vector<ScriptParam> GOCAnimatedCharacter::AnimProcess_Create(Script& caller, std::vector<ScriptParam> &vParams)
 	{
 		std::vector<ScriptParam> out;
@@ -229,11 +237,12 @@ namespace Ice
 			ogreAnimState->setLoop(looped);
 
 			float blendTime = 0.2f;
-			if (vParams.size() >= 2 && vParams[2].getType() == ScriptParam::PARM_TYPE_FLOAT) blendTime = vParams[2].getFloat();
+			if (vParams.size() > 2 && vParams[2].getType() == ScriptParam::PARM_TYPE_FLOAT) blendTime = vParams[2].getFloat();
 			float timeScale = 1.0f;
 			if (vParams.size() > 3 && vParams[3].getType() == ScriptParam::PARM_TYPE_FLOAT) timeScale = vParams[3].getFloat();
 
 			std::shared_ptr<PlayAnimationProcess> process = ProcessNodeManager::Instance().CreatePlayAnimationProcess(ogreAnimState);
+			mCreatedProcesses.push_back(process->GetProcessID());
 			process->SetLooped(looped);
 			process->SetInBlendDuration(blendTime);
 			process->SetOutBlendDuration(blendTime);

@@ -8,7 +8,6 @@ namespace Ice
 {
 	ProcessNode::~ProcessNode()
 	{
-		SetActive(false);
 		TriggerDependencies();
 	}
 

@@ -243,7 +243,7 @@ void Main::initScene()
 	hdrListener->notifyCompositor(hdrinstance);
 	Ogre::CompositorManager::getSingleton().setCompositorEnabled(GetViewport(), "DownsampleHDR1", true);
 
-	Ogre::MovableObject::setDefaultVisibilityFlags(~1);
+	Ogre::MovableObject::setDefaultVisibilityFlags(~3);
 	
 	mPhysXScene->getNxScene()->setUserContactReport(ICE_NEW ActorContactReport());
 
@@ -307,6 +307,27 @@ void Main::initScene()
 	ScriptSystem::GetInstance().CreateInstance("InitEngine.lua");
 
 	SceneManager::Instance().PostInit();
+
+	/*Ogre::TexturePtr t_depth = Ogre::TextureManager::getSingleton().createManual("rt_SceneDepth",
+		Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, Ogre::TEX_TYPE_2D, 512, 512, 0, Ogre::PF_FLOAT16_RGB, Ogre::TU_RENDERTARGET);
+	Ogre::RenderTarget* depth_rtt = t_depth->getBuffer()->getRenderTarget();
+	depth_rtt->addViewport(mCamera)->setOverlaysEnabled(false);
+	depth_rtt->getViewport(0)->setShadowsEnabled(false);
+	depth_rtt->getViewport(0)->setAutoUpdated(true);
+	depth_rtt->getViewport(0)->setBackgroundColour(Ogre::ColourValue::Black);
+	depth_rtt->getViewport(0)->setClearEveryFrame(true);
+	depth_rtt->getViewport(0)->setVisibilityMask(4294967281);
+	depth_rtt->getViewport(0)->setMaterialScheme("depth");
+
+	Ogre::TexturePtr t_volumetrics = Ogre::TextureManager::getSingleton().createManual("rt_VolumetricObjects",
+		Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, Ogre::TEX_TYPE_2D, 512, 512, 0, Ogre::PF_FLOAT16_RGB, Ogre::TU_RENDERTARGET);
+	Ogre::RenderTarget* volumetrics_rtt = t_volumetrics->getBuffer()->getRenderTarget();
+	volumetrics_rtt->addViewport(mCamera)->setOverlaysEnabled(false);
+	volumetrics_rtt->getViewport(0)->setAutoUpdated(true);
+	volumetrics_rtt->getViewport(0)->setShadowsEnabled(false);
+	volumetrics_rtt->getViewport(0)->setClearEveryFrame(true);
+	volumetrics_rtt->getViewport(0)->setVisibilityMask(2);
+	volumetrics_rtt->getViewport(0)->setMaterialScheme("Volumetrics");*/
 
 
 };

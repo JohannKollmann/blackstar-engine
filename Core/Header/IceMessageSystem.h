@@ -13,7 +13,7 @@ namespace Ice
 	struct DllExport Newsgroup
 	{
 		float mPriority;
-		std::list<MessageListener*> mListeners;
+		std::vector<MessageListener*> mListeners;
 		Ogre::String mName;
 
 		std::vector<Msg> mCurrentMessages;
