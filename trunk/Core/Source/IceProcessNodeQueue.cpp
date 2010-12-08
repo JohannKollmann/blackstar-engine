@@ -39,7 +39,6 @@ namespace Ice
 		}
 	}
 
-
 	std::vector<ScriptParam> ProcessNodeQueue::Lua_ProcessQueue_Create(Script& caller, std::vector<ScriptParam> vParams)
 	{
 		std::vector<ScriptParam> out;

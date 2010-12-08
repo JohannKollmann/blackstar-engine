@@ -59,6 +59,45 @@ namespace Ice
 		DEFINE_TYPEDGOCLUAMETHOD(GOCMeshRenderable, SetVisible, "bool")
 	};
 
+	class DllExport GOCBillboard : public GOCOgreNodeUser, public GOCStaticEditorInterface
+	{
+	private:
+		Ogre::BillboardSet *mBillboardSet;
+		Ogre::MaterialPtr mMaterial;
+		Ogre::String mMaterialName;
+		Ogre::Vector3 mDimensions;
+		float mRadius;
+		float mDensity;
+		Ogre::String mTextureName;
+		void _create();
+		void _clear();
+
+	public:
+		GOCBillboard() : mBillboardSet(nullptr) {}
+		GOCBillboard(Ogre::String materialName) : mMaterialName(materialName) { _create(); }
+		virtual ~GOCBillboard() { _clear(); }
+
+		void NotifyOwnerGO();
+
+		Ogre::BillboardSet* GetBillboardSet() { return mBillboardSet; }
+
+		BEGIN_GOCEDITORINTERFACE(GOCBillboard, "Billboard")
+			PROPERTY_STRING(mMaterialName, "Material", "")
+			PROPERTY_STRING(mTextureName, "Texture", "")
+			PROPERTY_VECTOR3(mDimensions, "Dimensions", Ogre::Vector3(1,1,1))
+			PROPERTY_FLOAT(mRadius, "Radius", 1.0)
+			PROPERTY_FLOAT(mDensity, "Density", 1.0)
+		END_GOCEDITORINTERFACE
+		void OnSetParameters() { _create(); }
+
+		Ogre::String& GetComponentID() const { static Ogre::String name = "GOCBillboard"; return name; };
+
+		virtual void Save(LoadSave::SaveSystem& mgr);
+		virtual void Load(LoadSave::LoadSystem& mgr);
+		static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "GOCBillboard"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };
+		static LoadSave::Saveable* NewInstance();
+	};
+
 	class DllExport GOCPfxRenderable : public GOCEditorVisualised, public GOCEditorInterface
 	{
 	private:

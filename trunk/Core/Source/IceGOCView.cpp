@@ -80,25 +80,31 @@ namespace Ice
 		Ogre::String meshname = parameters->GetOgreString("MeshName");
 		bool shacowcaster = parameters->GetBool("ShadowCaster");
 		Create(meshname, shacowcaster);
+		int visibilityMask = parameters->GetValue<int>("Visibility mask", ~3);
+		mEntity->setVisibilityFlags(visibilityMask);
 	}
 
 	void GOCMeshRenderable::GetParameters(DataMap *parameters)
 	{
 		parameters->AddOgreString("MeshName", mEntity->getMesh()->getName());
 		parameters->AddBool("ShadowCaster", mEntity->getCastShadows());
+		parameters->AddInt("Visibility mask", mEntity->getVisibilityFlags());
 	}
 
 	void GOCMeshRenderable::GetDefaultParameters(DataMap *parameters)
 	{
 		parameters->AddOgreString("MeshName", "");
 		parameters->AddBool("ShadowCaster", true);
+		parameters->AddInt("Visibility mask", ~3);
 	}
 
 	void GOCMeshRenderable::Save(LoadSave::SaveSystem& mgr)
 	{
 		mgr.SaveAtom("Ogre::String", (void*)&mEntity->getMesh()->getName(), "MeshName");
 		bool shadow = mEntity->getCastShadows();
-		mgr.SaveAtom("bool", (void*)&shadow, "ShadowCaster");
+		mgr.SaveAtom("bool", &shadow, "ShadowCaster");
+		int flags = mEntity->getVisibilityFlags();
+		mgr.SaveAtom("int", &flags, "Visibility mask");
 	}
 
 	void GOCMeshRenderable::Load(LoadSave::LoadSystem& mgr)
@@ -108,12 +114,75 @@ namespace Ice
 		mgr.LoadAtom("Ogre::String", &meshname);
 		mgr.LoadAtom("bool", &shadow);
 		Create(meshname, shadow);
+		int visibilityMask = ~3;
+		mgr.LoadAtom("int", &visibilityMask);
+		mEntity->setVisibilityFlags(visibilityMask);
 	}
 
 	LoadSave::Saveable* GOCMeshRenderable::NewInstance()
 	{
 		GOCMeshRenderable *meshr = ICE_NEW GOCMeshRenderable();
 		return meshr;
+	}
+
+	//Billboard
+	void GOCBillboard::NotifyOwnerGO()
+	{
+		if (mBillboardSet && mOwnerGO)
+		{
+			((Ogre::MovableObject*)mBillboardSet)->setUserAny(Ogre::Any(mOwnerGO));
+			GetNode()->attachObject(mBillboardSet);
+		}
+	}
+	void GOCBillboard::_clear()
+	{
+		if (mBillboardSet)
+		{
+			Main::Instance().GetOgreSceneMgr()->destroyBillboardSet(mBillboardSet);
+			if (!mMaterial.isNull()) Ogre::MaterialManager::getSingleton().remove(mMaterial->getName());
+			mMaterial.setNull();
+		}
+		mBillboardSet = nullptr;
+	}
+	void GOCBillboard::_create()
+	{
+		_clear();
+		mBillboardSet = Main::Instance().GetOgreSceneMgr()->createBillboardSet();
+		Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().getByName(mMaterialName);
+		if (!mat.isNull())
+		{
+			mMaterial = mat->clone(mat->getName() + SceneManager::Instance().RequestIDStr());
+			Ogre::Technique *t = mMaterial->getTechnique("SphericalBillboard");
+			if (t)
+			{
+				t->getPass(0)->getFragmentProgramParameters()->setNamedConstant("particleRadius", mRadius);
+				t->getPass(0)->getFragmentProgramParameters()->setNamedConstant("particleDensity", mDensity);
+			}
+		}
+		else IceWarning("Material " + mMaterialName + " not found!")
+
+		mBillboardSet->setMaterialName(mMaterial->getName());
+		mBillboardSet->setUseAccurateFacing(true);
+		//if (mRadius > 0) mDimensions = Ogre::Vector3(mRadius*2, mRadius*2, mRadius*2);
+		mBillboardSet->setDefaultDimensions(mDimensions.x, mDimensions.y);
+		mBillboardSet->createBillboard(0,0,0);
+		mBillboardSet->setVisibilityFlags(2);
+		NotifyOwnerGO();
+	}
+	void GOCBillboard::Save(LoadSave::SaveSystem& mgr)
+	{
+		mgr.SaveAtom("Ogre::String", &mMaterialName, "Material Name");
+		mgr.SaveAtom("Ogre::Vector3", &mDimensions, "Dimensions");
+	}
+	void GOCBillboard::Load(LoadSave::LoadSystem& mgr)
+	{
+		mgr.LoadAtom("Ogre::String", &mMaterialName);
+		mgr.LoadAtom("Ogre::Vector3", &mDimensions);
+	}
+	LoadSave::Saveable* GOCBillboard::NewInstance()
+	{
+		GOCBillboard *billboard = ICE_NEW GOCBillboard();
+		return billboard;
 	}
 
 	//PFX

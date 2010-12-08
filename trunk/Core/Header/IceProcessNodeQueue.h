@@ -18,7 +18,6 @@ namespace Ice
 		void _notifyFinish(int pID) override;
 
 	public:
-
 		void PushFront(std::shared_ptr<ProcessNode> processNode);
 		void Enqueue(std::shared_ptr<ProcessNode> processNode);
 		void OnSetActive(bool active) override;

@@ -84,7 +84,7 @@ namespace Ice
 			return;
 		}
 
-		std::list<MessageListener*>::iterator li = (*ni).mListeners.begin();
+		auto li = (*ni).mListeners.begin();
 		IceAssert(std::find((*ni).mListeners.begin(), (*ni).mListeners.end(), listener) == (*ni).mListeners.end())
 		for (; li != (*ni).mListeners.end(); li++)
 		{
@@ -118,7 +118,7 @@ namespace Ice
 		}
 
 		//(*i).second->remove(listener);
-		for (std::list<MessageListener*>::iterator x = (*ni).mListeners.begin(); x != (*ni).mListeners.end(); x++)
+		for (auto x = (*ni).mListeners.begin(); x != (*ni).mListeners.end(); x++)
 		{
 			if ((*x) == listener)
 			{
@@ -133,7 +133,7 @@ namespace Ice
 	{
 		for (std::list<Newsgroup>::iterator ni = mNewsgroups.begin(); ni != mNewsgroups.end(); ++ni)
 		{
-			for (std::list<MessageListener*>::iterator li = (*ni).mListeners.begin(); li != (*ni).mListeners.end(); ++li)
+			for (auto li = (*ni).mListeners.begin(); li != (*ni).mListeners.end(); ++li)
 			{
 				if ((*li) == listener)
 				{
@@ -150,12 +150,11 @@ namespace Ice
 		{
 			std::vector<Msg> tempMessages = (*ni).mCurrentMessages;	//Damit, falls Listener dieser Message diese Message senden, es nicht zum rekursiven Chaos kommt.
 			(*ni).mCurrentMessages.clear();
-			for (std::vector<Msg>::iterator MsgIter = tempMessages.begin(); MsgIter != tempMessages.end(); MsgIter++)
+			for (std::vector<Msg>::iterator msgIter = tempMessages.begin(); msgIter != tempMessages.end(); msgIter++)
 			{
-				for (std::list<MessageListener*>::iterator li = (*ni).mListeners.begin(); li != (*ni).mListeners.end(); li++)
+				for (int li = 0; li < (*ni).mListeners.size(); li++)
 				{
-					//Ogre::LogManager::getSingleton().logMessage((*MsgIter).type);
-					(*li)->ReceiveMessage((*MsgIter));
+					(*ni).mListeners[li]->ReceiveMessage(*msgIter);
 				}
 			}
 		}
@@ -167,9 +166,9 @@ namespace Ice
 		{
 			if ((*ni).mName == msg.type)
 			{
-				for (std::list<MessageListener*>::iterator li = (*ni).mListeners.begin(); li != (*ni).mListeners.end(); li++)
+				for (int li = 0; li < (*ni).mListeners.size(); li++)
 				{
-					(*li)->ReceiveMessage(msg);
+					(*ni).mListeners[li]->ReceiveMessage(msg);
 				}
 			}
 		}

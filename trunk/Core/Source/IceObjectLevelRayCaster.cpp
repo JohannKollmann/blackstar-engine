@@ -22,7 +22,7 @@ GameObject* ObjectLevelRayCaster::GetFirstHit(bool include_all)
 	if (mResultsIterator != mResults.end())
 	{
 		//Ogre::LogManager::getSingleton().logMessage("GetFirstHit: " + (*mResultsIterator).movable->getParentNode()->getName() + " "  + (*mResultsIterator).movable->getMovableType());
-		if ((*mResultsIterator).movable->getMovableType() == "Entity")
+		if ((*mResultsIterator).movable->getMovableType() == "Entity" || (*mResultsIterator).movable->getMovableType() == "BillboardSet")
 		{
 			if (!(*mResultsIterator).movable->getUserAny().isEmpty())
 			{

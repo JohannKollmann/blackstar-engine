@@ -191,6 +191,7 @@ namespace Ice
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCScriptMessageCallback::Register);
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCAI::Register);
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCForceField::Register);
+		LoadSave::LoadSave::Instance().RegisterObject(&GOCBillboard::Register);
 
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCMover::Register);
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCAnimKey::Register);
@@ -203,6 +204,7 @@ namespace Ice
 		RegisterGOCPrototype("A", GOCEditorInterfacePtr(new GOCSound3D()));
 		RegisterGOCPrototype("A", GOCEditorInterfacePtr(new GOCAnimatedCharacter()));
 		RegisterGOCPrototype(GOCEditorInterfacePtr(new GOCAnimatedCharacterBone()));
+		RegisterGOCPrototype("A", GOCEditorInterfacePtr(new GOCBillboard()));
 
 		RegisterGOCPrototype("B_x", GOCEditorInterfacePtr(new GOCRigidBody()));
 		RegisterGOCPrototype("B_x", GOCEditorInterfacePtr(new GOCStaticBody()));
@@ -1001,7 +1003,7 @@ namespace Ice
 		{
 			if ((*iter)->isStopped())
 			{
-				Main::Instance().GetOgreSceneMgr()->destroySceneNode((*iter)->getParentSceneNode());
+				//Main::Instance().GetOgreSceneMgr()->destroySceneNode((*iter)->getParentSceneNode());
 				Main::Instance().GetSoundManager()->destroySound(*iter);
 				iter = mPlayingSounds.erase(iter);
 			}

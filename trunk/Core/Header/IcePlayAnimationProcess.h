@@ -31,7 +31,7 @@ namespace Ice
 	public:
 		PlayAnimationProcess(Ogre::AnimationState *state);
 		~PlayAnimationProcess();
-		void ReceiveMessage(Msg &msg);
+		void ReceiveMessage(Msg &msg) override;
 
 		void SetLooped(bool looped) { mLooped = looped; }
 		void SetInBlendDuration(float duration) { mInBlendDuration = duration; }
