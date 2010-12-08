@@ -48,7 +48,8 @@ namespace Ice
 	}
 	std::vector<ScriptParam> ProcessNodeQueue::Lua_ProcessQueue_PushFront(Script& caller, std::vector<ScriptParam> vParams)
 	{
-		if (Ice::Utils::TestParameters(caller, vParams, "int int"))
+		auto err = Utils::TestParameters(vParams, "int int");
+		if (err == "")
 		{
 			std::shared_ptr<ProcessNode> queueNode = ProcessNodeManager::Instance().GetProcessNode(vParams[0].getInt());
 			std::shared_ptr<ProcessNode> node = ProcessNodeManager::Instance().GetProcessNode(vParams[1].getInt());
@@ -60,12 +61,14 @@ namespace Ice
 			}
 			else IceWarning("Invalid id!")
 		}
+		else SCRIPT_RETURNERROR(err)
 		std::vector<ScriptParam> out;
 		return out;
 	}
 	std::vector<ScriptParam> ProcessNodeQueue::Lua_ProcessQueue_Enqueue(Script& caller, std::vector<ScriptParam> vParams)
 	{
-		if (Ice::Utils::TestParameters(caller, vParams, "int int"))
+		auto err = Utils::TestParameters(vParams, "int int");
+		if (err == "")
 		{
 			std::shared_ptr<ProcessNode> queueNode = ProcessNodeManager::Instance().GetProcessNode(vParams[0].getInt());
 			std::shared_ptr<ProcessNode> node = ProcessNodeManager::Instance().GetProcessNode(vParams[1].getInt());
@@ -77,6 +80,7 @@ namespace Ice
 			}
 			else IceWarning("Invalid id!")
 		}
+		else SCRIPT_RETURNERROR(err)
 		std::vector<ScriptParam> out;
 		return out;
 	}

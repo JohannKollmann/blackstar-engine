@@ -66,22 +66,26 @@ namespace Ice
 
 	std::vector<ScriptParam> ProcessNode::Lua_AddDependency(Script& caller, std::vector<ScriptParam> vParams)
 	{
-		if (Ice::Utils::TestParameters(caller, vParams, "int int"))
+		auto err = Utils::TestParameters(vParams, "int int");
+		if (err == "")
 		{
 			std::shared_ptr<ProcessNode> node = ProcessNodeManager::Instance().GetProcessNode(vParams[0].getInt());
 			std::shared_ptr<ProcessNode> dependency = ProcessNodeManager::Instance().GetProcessNode(vParams[1].getInt());
 			if (node.get() && dependency.get()) dependency->AddTriggerOnFinish(node);
 		}
+		else SCRIPT_RETURNERROR(err)
 		std::vector<ScriptParam> out;
 		return out;
 	}
 	std::vector<ScriptParam> ProcessNode::Lua_KillProcess(Script& caller, std::vector<ScriptParam> vParams)
 	{
-		if (Ice::Utils::TestParameters(caller, vParams, "int"))
+		auto err = Utils::TestParameters(vParams, "int");
+		if (err == "")
 		{
 			std::shared_ptr<ProcessNode> node = ProcessNodeManager::Instance().GetProcessNode(vParams[0].getInt());
 			if (node.get()) node->Terminate();
 		}
+		else SCRIPT_RETURNERROR(err) 
 		std::vector<ScriptParam> out;
 		return out;
 	}

@@ -130,16 +130,6 @@ namespace Ice
 		return TestParameters(testparams, vRefParams, bAllowMore);
 	}
 
-	bool Utils::TestParameters(Script& caller, std::vector<ScriptParam> testparams, std::string refParams, bool bAllowMore)
-	{
-		std::string param_test = TestParameters(testparams, refParams, bAllowMore);
-		if (param_test != "")
-		{
-			LogParameterErrors(caller, param_test);
-			return false;
-		}
-		return true;
-	}
 
 	void Utils::LogParameterErrors(const Script& caller, Ogre::String msg, int line)
 	{
