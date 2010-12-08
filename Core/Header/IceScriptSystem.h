@@ -8,7 +8,7 @@ namespace Ice
 {
 	class ScriptMessageListener;
 
-#define SCRIPT_RETURN() return std::vector<ScriptParam>()
+#define SCRIPT_RETURN() return std::vector<ScriptParam>();
 #define SCRIPT_RETURNVALUE(val) \
 	{ std::vector<ScriptParam> macro_out; \
 	macro_out.push_back(ScriptParam(val)); \

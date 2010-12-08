@@ -671,12 +671,13 @@ namespace Ice
 	std::vector<ScriptParam> SceneManager::Lua_GetRandomNumber(Script& caller, std::vector<ScriptParam> vParams)
 	{
 		int random = 0;
-		if (Utils::TestParameters(caller, vParams, "int int"))
+		auto err = Utils::TestParameters(vParams, "int int");
+		if (err == "")
 		{
 			random = static_cast<int>(Ogre::Math::RangeRandom(vParams[0].getInt(), vParams[1].getInt()));
 			SCRIPT_RETURNVALUE(random)
 		}
-		else SCRIPT_RETURNERROR("wrong parameters")
+		else SCRIPT_RETURNERROR(err)
 	}
 
 	std::vector<ScriptParam> SceneManager::Lua_InsertMesh(Script& caller, std::vector<ScriptParam> vParams)
@@ -821,7 +822,8 @@ namespace Ice
 	std::vector<ScriptParam> SceneManager::Lua_GetObjectByName(Script& caller, std::vector<ScriptParam> vParams)
 	{
 		int returnID = -1;
-		if (Utils::TestParameters(caller, vParams, "string"))
+		auto err = Utils::TestParameters(vParams, "string");
+		if (err == "")
 		{
 			Ogre::String name = vParams[0].getString();
 			for (auto i = Instance().mGameObjects.begin(); i != Instance().mGameObjects.end(); i++)
@@ -833,6 +835,7 @@ namespace Ice
 				}
 			}
 		}
+		else SCRIPT_RETURNERROR(err)
 		std::vector<ScriptParam> out;
 		out.push_back(returnID);
 		return out;
@@ -964,24 +967,25 @@ namespace Ice
 	}
 	std::vector<ScriptParam> SceneManager::Lua_SetGameTime(Script& caller, std::vector<ScriptParam> vParams)
 	{
-		std::vector<ScriptParam> out;
-		if (Utils::TestParameters(caller, vParams, "int int"))
+		auto err = Utils::TestParameters(vParams, "int int");
+		if (err == "")
 		{
 			int hour = vParams[0].getInt();
 			int minutes = vParams[1].getInt();
 			Instance().SetTime(hour, minutes);
 		}
-		return out;
+		else SCRIPT_RETURNERROR(err)
+		SCRIPT_RETURN()
 	}
 	std::vector<ScriptParam> SceneManager::Lua_SetGameTimeScale(Script& caller, std::vector<ScriptParam> vParams)
 	{
-		std::vector<ScriptParam> out;
-		if (Utils::TestParameters(caller, vParams, "float"))
+		auto err = Utils::TestParameters(vParams, "float");
+		if (err == "")
 		{
 			float scale = vParams[0].getFloat();
 			Instance().SetTimeScale(scale);
 		}
-		return out;
+		SCRIPT_RETURN()
 	}
 
 

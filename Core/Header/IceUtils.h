@@ -9,7 +9,6 @@
 
 namespace Ice
 {
-
 	namespace Utils
 	{
 		class DllExport DeleteListener
@@ -47,7 +46,6 @@ namespace Ice
 		DllExport std::string GetTypeName(ScriptParam param);
 		DllExport std::string TestParameters(std::vector<ScriptParam> testparams, std::vector<ScriptParam> refparams, bool bAllowMore=false);
 		DllExport std::string TestParameters(std::vector<ScriptParam> testparams, std::string refParams, bool bAllowMore=false);
-		DllExport bool TestParameters(Script& caller, std::vector<ScriptParam> testparams, std::string refParams, bool bAllowMore=false);
 
 		DllExport void LogParameterErrors(const Script& caller, Ogre::String msg, int line = -1);
 
