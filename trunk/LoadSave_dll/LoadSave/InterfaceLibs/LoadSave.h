@@ -1,5 +1,12 @@
 //this is the central header for the  load and save library
 
+#ifdef _MSC_VER
+	#define LS_EXPORT __declspec( dllexport )
+#else
+	#define LS_EXPORT
+	#define nullptr 0
+#endif
+
 #pragma once
 
 #include <string>
@@ -12,10 +19,12 @@
 #include "AtomHandler.h"
 #include "RecordReference.h"
 
+
+
 namespace LoadSave
 {
 
-class __declspec( dllexport ) LoadSave
+class LS_EXPORT LoadSave
 {
 public:
 	static LoadSave& Instance();

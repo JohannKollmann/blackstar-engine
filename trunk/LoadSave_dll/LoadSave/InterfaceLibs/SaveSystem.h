@@ -3,12 +3,12 @@
 #include "LoadSave.h"
 #include "Saveable.h"
 
-#include "..\LowLevelLibs\LoadSave_dll.h"
+#include "../LowLevelLibs/LoadSave_dll.h"
 
 namespace LoadSave
 {
 
-	class __declspec( dllexport ) SaveSystem
+	class LS_EXPORT SaveSystem
 	{
 	public:
 		SaveSystem(std::string strBinaryFile, std::string strXMLFile);

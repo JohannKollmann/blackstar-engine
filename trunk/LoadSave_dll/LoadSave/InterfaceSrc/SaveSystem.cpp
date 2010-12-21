@@ -1,5 +1,5 @@
-#include "..\InterfaceLibs\LoadSave.h"
-#include "..\InterfaceLibs\SaveSystem.h"
+#include "../InterfaceLibs/LoadSave.h"
+#include "../InterfaceLibs/SaveSystem.h"
 
 namespace LoadSave
 {
@@ -47,7 +47,7 @@ SaveSystem::CloseFiles()
 void StringReplace(std::string &strSource, std::string strToReplace, std::string strReplacement)
 {
 	int iPos=0;
-	while((iPos = strSource.find(strToReplace, iPos)) != std::string::npos)
+	while((iPos = strSource.find(strToReplace, iPos)) != (int)std::string::npos)
 	{
 		strSource.replace(iPos, strToReplace.length(), strReplacement);
 		iPos += strReplacement.length();

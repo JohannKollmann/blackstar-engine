@@ -1,4 +1,4 @@
-#include "..\LowLevelLibs\CMemFile.h"
+#include "../LowLevelLibs/CMemFile.h"
 
 namespace LoadSave
 {
@@ -25,12 +25,12 @@ CMemFile::CloseForWrite(void *pData)
 	while(m_Data.size()>1)
 	{
 		memcpy(((char*)pData) + i*BUFSIZE, *(m_Data.begin()), BUFSIZE);
-		delete *(m_Data.begin());
+		delete (char*)*(m_Data.begin());
 		m_Data.pop_front();
 		i++;
 	}
 	memcpy(((char*)pData) + i*BUFSIZE, *(m_Data.begin()), m_nCurrBytes%BUFSIZE);
-	delete *(m_Data.begin());
+	delete (char*)*(m_Data.begin());
 	m_Data.pop_front();
 }
 
@@ -264,6 +264,8 @@ CHybridInFile::seekg(int nBytes, std::ios::seekdir dir)
 			break;
 		case std::ios_base::end:
 			m_pInMem->Seek(nBytes, POS_END);
+			break;
+		default:
 			break;
 		}
 	}

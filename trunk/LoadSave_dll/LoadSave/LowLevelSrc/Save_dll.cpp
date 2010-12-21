@@ -1,6 +1,6 @@
-#include "..\LowLevelLibs\LoadSave_dll.h"
-#include "..\LowLevelLibs\LoadSave_dll_intl.h"
-#include "..\LowLevelLibs\save_helpers.h"
+#include "../LowLevelLibs/LoadSave_dll.h"
+#include "../LowLevelLibs/LoadSave_dll_intl.h"
+#include "../LowLevelLibs/save_helpers.h"
 #include <memory.h>
 
 namespace LoadSave
@@ -57,7 +57,7 @@ CSaveManager::CSaveManager(std::string strFileName, std::string strXMLFileName)
 				  std::string("<?xml-stylesheet type=\"text/xsl\" href=\"treetransform.xsl\"?>\n") +
 				  std::string("<save>") +
 				  std::string("<save_name>") +
-				  (strFileName.find_last_of('\\')!=-1 ? strFileName.substr(strFileName.find_last_of('\\')) : strFileName) +
+				  ((int)strFileName.find_last_of('\\')!=-1 ? strFileName.substr(strFileName.find_last_of('\\')) : strFileName) +
 				  std::string("</save_name>");
 
 	m_bUsesXML=false;

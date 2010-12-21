@@ -26,7 +26,7 @@ static void WriteAtomArrayEntry(std::stack<CSaveFileLevel>* levels, CHybridOutFi
 {
 	//go to the least level of the array
 	CSaveFileLevel currLevel=levels->top();
-	if(currLevel.iArrayLevel!=currLevel.levelSizes.size()-1)
+	if(currLevel.iArrayLevel!=(int)currLevel.levelSizes.size()-1)
 		for(unsigned int iLevel=currLevel.iArrayLevel+1; iLevel<currLevel.levelSizes.size(); iLevel++)
 		{
 			CSaveFileLevel newLevel=currLevel;
@@ -115,7 +115,7 @@ static void WriteObjectArrayEntry(std::stack<CSaveFileLevel>* levels, CHybridOut
 {//the xml part is just a copy of the routine for atoms, except the write is missing
 	//go to the least level of the array
 	CSaveFileLevel currLevel=levels->top();
-	if(currLevel.iArrayLevel!=currLevel.levelSizes.size()-1)
+	if(currLevel.iArrayLevel!=(int)currLevel.levelSizes.size()-1)
 		for(unsigned int iLevel=currLevel.iArrayLevel+1; iLevel<currLevel.levelSizes.size(); iLevel++)
 		{
 			CSaveFileLevel newLevel=currLevel;
@@ -328,6 +328,8 @@ static void WriteElementClose(std::stack<CSaveFileLevel>* levels, CHybridOutFile
 			levels->top().bArrayEntryClosed=true;
 			return;
 		}
+	default:
+		break;
 	}
 	levels->pop();
 }

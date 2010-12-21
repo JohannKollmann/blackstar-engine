@@ -1,5 +1,5 @@
-#include "..\InterfaceLibs\LoadSave.h"
-#include "..\InterfaceLibs\LoadSystem.h"
+#include "../InterfaceLibs/LoadSave.h"
+#include "../InterfaceLibs/LoadSystem.h"
 
 namespace LoadSave
 {

@@ -1,6 +1,7 @@
 #include <list>
 #include <fstream>
 #include <string>
+#include <string.h>
 
 namespace LoadSave
 {
