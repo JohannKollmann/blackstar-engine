@@ -1,5 +1,5 @@
-#include "..\LowLevelLibs\LoadSave_dll.h"
-#include "..\LowLevelLibs\LoadSave_dll_intl.h"
+#include "../LowLevelLibs/LoadSave_dll.h"
+#include "../LowLevelLibs/LoadSave_dll_intl.h"
 
 namespace LoadSave
 {
@@ -176,6 +176,7 @@ CLoadManager::ExitChunk()
 			//increase the array position.
 			IncreaseArrayPosition(m_TreeLevels->top().levelPos, m_TreeLevels->top().levelSizes);
 		}
+	return true;
 }
 
 void

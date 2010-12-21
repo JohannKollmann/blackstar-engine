@@ -377,6 +377,8 @@ private:
 const int BIT_ONE_SET=0x80000000;
 #define NEGATIVE_ZERO *((float*)&BIT_ONE_SET)
 
+#ifdef _MSC_VER
+
 class OgreVec3Handler : LoadSave::AtomHandler
 {
 public:
@@ -501,6 +503,8 @@ void OgreStringHandler::Load(LoadSave::LoadSystem &ls, void *pDest)
 	}
 }
 
+#endif
+
 class SaveableListHandler : LoadSave::AtomHandler
 {
 public:
@@ -590,17 +594,21 @@ CREATEMAPHANDLER(std::string, "std::string", int, "int", StringIntMapHandler)
 
 CREATELISTHANDLER(float, "float", FloatListHandler);
 
+CREATEVECTORHANDLER(int, "int", IntVectorHandler)
+
 //CREATEMAPHANDLER(std::string, "std::string", ResidentVariables::LoadSave::SaveableScriptParam, "ResidentVariables::LoadSave::SaveableScriptParam", StringScriptParamMapHandler)
 
 //CREATEMAPHANDLER(std::string, "std::string", ResidentManager::ResidentVariables::ScriptVar, "ResidentManager::ResidentVariables::ScriptVar", ResidentVariablesMapHandler)
+
+#ifdef _MSC_VER
 
 CREATEMAPHANDLER(Ogre::String, "Ogre::String", GenericProperty, "GenericProperty", GenericPropertyMapHandler)
 
 CREATEVECTORHANDLER(DataMap::Item, "DataMapItem", DataMapItemVectorHandler)
 
-CREATEVECTORHANDLER(int, "int", IntVectorHandler)
-
 CREATEVECTORHANDLER(Ogre::Vector3, "Ogre::Vector3", OgreVec3VectorHandler)
+
+#endif
 
 void
 RegisterStandardAtoms()
@@ -616,15 +624,20 @@ RegisterStandardAtoms()
 	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new FloatListHandler());
 	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new SaveableListHandler());
 	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new SaveableVectorHandler());
+
+	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new NullObjectHandler());
+
+#ifdef _MSC_VER
+
 	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new GenericPropertyMapHandler());
 	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new DataMapItemVectorHandler());
-	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new NullObjectHandler());
 	//Ogre
 	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new OgreVec3Handler());
 	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new OgreQuaternionHandler());
 	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new OgreStringHandler());
 	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new IntVectorHandler());
 	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new OgreVec3VectorHandler());
+#endif
 	//Lua
 	//ResidentVariables
 	//LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new StringScriptParamMapHandler);
