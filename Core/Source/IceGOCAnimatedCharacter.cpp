@@ -5,6 +5,7 @@
 #include "IceGOCCharacterController.h"
 #include "IceUtils.h"
 #include "IceProcessNodeManager.h"
+#include "IceGOCScript.h"
 
 namespace Ice
 {
@@ -17,6 +18,11 @@ namespace Ice
 	void GOCAnimatedCharacter::_clear()
 	{
 		_destroyCreatedProcesses();
+		if (GOCScriptMessageCallback *c = mOwnerGO->GetComponent<GOCScriptMessageCallback>())
+		{
+			Msg msg; msg.type = "REPARSE_SCRIPTS";
+			c->ReceiveMessage(msg);		//HACK - damit script objekt message listener gelöscht werden
+		}
 		std::list<GameObject*>::iterator i = mBoneObjects.begin();
 		while (i != mBoneObjects.end())
 		{
@@ -126,10 +132,8 @@ namespace Ice
 	void GOCAnimatedCharacter::OnReceiveMessage(Msg &msg)
 	{
 		if (!mOwnerGO) return;
-		if (msg.type == "UPDATE_PER_FRAME")
-		{
-			float time = msg.params.GetFloat("TIME");
-		}
+		if (msg.type == "REPARSE_SCRIPTS")
+			_destroyCreatedProcesses();
 	}
 
 	void GOCAnimatedCharacter::ReceiveObjectMessage(Msg &msg)

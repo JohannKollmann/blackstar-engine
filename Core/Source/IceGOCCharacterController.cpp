@@ -305,6 +305,7 @@ namespace Ice
 
 	std::vector<ScriptParam> GOCCharacterController::Character_GetGroundMaterial(Script& caller, std::vector<ScriptParam> &vParams)
 	{
+		//TODO: Use code from IceCollisionCallback.cpp for per-triangle materials!
 		std::string mat = "None";
 		NxRaycastHit hit;
 		if (Main::Instance().GetPhysXScene()->getNxScene()->raycastClosestShape(NxRay(OgrePhysX::Convert::toNx(mOwnerGO->GetGlobalPosition() + Ogre::Vector3(0,1,0)), NxVec3(0,-1,0)), NX_STATIC_SHAPES, hit, 1<<CollisionGroups::LEVELMESH, 1.5f, NX_RAYCAST_MATERIAL))

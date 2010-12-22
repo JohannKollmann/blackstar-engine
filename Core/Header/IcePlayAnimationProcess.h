@@ -15,6 +15,7 @@ namespace Ice
 	private:
 		Ogre::AnimationState *mAnimationState;
 		bool mLooped;
+		bool mFinished;
 		float mInBlendDuration;
 		float mOutBlendDuration;
 		float mTimeScale;
@@ -33,11 +34,15 @@ namespace Ice
 		~PlayAnimationProcess();
 		void ReceiveMessage(Msg &msg) override;
 
+		void TerminateProcess();
+
 		void SetLooped(bool looped) { mLooped = looped; }
 		void SetInBlendDuration(float duration) { mInBlendDuration = duration; }
 		void SetOutBlendDuration(float duration) { mOutBlendDuration = duration; }
 		void SetTimeScale(float scale) { mTimeScale = scale; }
 
 		void AddCallback(float timePos, ScriptParam callback);
+
+		//static std::vector<ScriptParam> Lua_PlayAnimationProcess_BlendOut(Script& caller, std::vector<ScriptParam> vParams);
 	};
 }

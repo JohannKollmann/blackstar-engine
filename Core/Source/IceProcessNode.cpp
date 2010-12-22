@@ -8,13 +8,17 @@ namespace Ice
 {
 	ProcessNode::~ProcessNode()
 	{
-		TriggerDependencies();
+		TriggerWaitingProcesses();
 	}
 
-	void ProcessNode::AddTriggerOnFinish(std::shared_ptr<ProcessNode> pNode)
+	void ProcessNode::AddDependencyConnection(ProcessNode *node)
 	{
-		mTriggerOnFinish.push_back(std::weak_ptr<ProcessNode>(pNode));
-		pNode->_addDependency(mProcessID);
+		node->_addTriggerOnFinish(mProcessID);
+		_addDependency(node->mProcessID);
+	}
+	void ProcessNode::_addTriggerOnFinish(int pID)
+	{
+		mTriggerOnFinish.push_back(pID);
 	}
 	void ProcessNode::_addDependency(int pID)
 	{
@@ -27,12 +31,12 @@ namespace Ice
 		if (mDependencies.empty())
 			SetActive(true);
 	}
-	void ProcessNode::TriggerDependencies()
+	void ProcessNode::TriggerWaitingProcesses()
 	{
 		ITERATE(i, mTriggerOnFinish)
 		{
-			if (!(*i).expired())
-				(*i).lock()->_notifyFinish(GetProcessID());
+			std::shared_ptr<ProcessNode> node = ProcessNodeManager::Instance().GetProcessNode(*i);
+			if (node.get()) node->_notifyFinish(GetProcessID());
 		}
 		mTriggerOnFinish.clear();
 	}
@@ -43,11 +47,10 @@ namespace Ice
 		SetActive(mDependencies.empty());
 	}
 
-	void ProcessNode::Terminate()
+	void ProcessNode::TerminateProcess()
 	{
-		SetActive(false);
-		TriggerDependencies();
-		ProcessNodeManager::Instance().RemoveProcessNode(mProcessID);
+		TriggerWaitingProcesses();
+		ProcessNodeManager::Instance().RemoveProcessNode(GetProcessID());
 	}
 
 	void ProcessNode::SetActive(bool active)
@@ -71,7 +74,7 @@ namespace Ice
 		{
 			std::shared_ptr<ProcessNode> node = ProcessNodeManager::Instance().GetProcessNode(vParams[0].getInt());
 			std::shared_ptr<ProcessNode> dependency = ProcessNodeManager::Instance().GetProcessNode(vParams[1].getInt());
-			if (node.get() && dependency.get()) dependency->AddTriggerOnFinish(node);
+			if (node.get() && dependency.get()) node->AddDependencyConnection(dependency.get());
 		}
 		else SCRIPT_RETURNERROR(err)
 		std::vector<ScriptParam> out;
@@ -82,8 +85,33 @@ namespace Ice
 		auto err = Utils::TestParameters(vParams, "int");
 		if (err == "")
 		{
-			std::shared_ptr<ProcessNode> node = ProcessNodeManager::Instance().GetProcessNode(vParams[0].getInt());
-			if (node.get()) node->Terminate();
+			auto node = ProcessNodeManager::Instance().GetProcessNode(vParams[0].getInt());
+			if (node) node->TerminateProcess();
+		}
+		else SCRIPT_RETURNERROR(err) 
+		std::vector<ScriptParam> out;
+		return out;
+	}
+
+	std::vector<ScriptParam> ProcessNode::Lua_SetActive(Script& caller, std::vector<ScriptParam> vParams)
+	{
+		auto err = Utils::TestParameters(vParams, "int bool");
+		if (err == "")
+		{
+			auto node = ProcessNodeManager::Instance().GetProcessNode(vParams[0].getInt());
+			if (node) node->SetActive(vParams[1].getBool());
+		}
+		else SCRIPT_RETURNERROR(err) 
+		std::vector<ScriptParam> out;
+		return out;
+	}
+	std::vector<ScriptParam> ProcessNode::Lua_TriggerWaiting(Script& caller, std::vector<ScriptParam> vParams)
+	{
+		auto err = Utils::TestParameters(vParams, "int");
+		if (err == "")
+		{
+			auto node = ProcessNodeManager::Instance().GetProcessNode(vParams[0].getInt());
+			if (node) node->TriggerWaitingProcesses();
 		}
 		else SCRIPT_RETURNERROR(err) 
 		std::vector<ScriptParam> out;

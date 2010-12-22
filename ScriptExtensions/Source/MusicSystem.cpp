@@ -25,7 +25,7 @@ MusicSystem::MusicSystem()
 	Ice::ScriptSystem::GetInstance().ShareCFunction("music_set_mood", Lua_SetMood);
 	Ice::ScriptSystem::GetInstance().ShareCFunction("music_post_event", Lua_PostEvent);
 
-	Ice::MessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
+	//Ice::MessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
 }
 
 MusicSystem&

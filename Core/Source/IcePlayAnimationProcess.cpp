@@ -1,5 +1,6 @@
 
 #include "IcePlayAnimationProcess.h"
+#include "IceProcessNodeManager.h"
 
 namespace Ice
 {
@@ -8,18 +9,23 @@ namespace Ice
 	PlayAnimationProcess::PlayAnimationProcess(Ogre::AnimationState *state)
 	{
 		mAnimationState = state;
+		mAnimationState->setEnabled(true);
+		mAnimationState->setWeight(0);
+		mAnimationState->setTimePosition(0);
 		mLooped = false;
 		mInBlendDuration = 0.1f;
 		mOutBlendDuration = 0.1f;
 		mBlendingIn = true;
 		mBlendingOut = false;
+		mFinished = false;
 		mWeight = 0;
 		mTimeScale = 1;
 		MessageSystem::Instance().JoinNewsgroup(this, "REPARSE_SCRIPTS");
+		MessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
 	}
 	PlayAnimationProcess::~PlayAnimationProcess()
 	{
-		OnSetActive(false);
+		mAnimationState->setEnabled(false);
 	}
 	void PlayAnimationProcess::OnSetActive(bool active)
 	{
@@ -28,14 +34,11 @@ namespace Ice
 			mBlendingIn = true;
 			mBlendingOut = false;
 			mAnimationState->setEnabled(true);
-			MessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
 		}
 		else
 		{
-			mAnimationState->setEnabled(false);
-			MessageSystem::Instance().QuitAllNewsgroups(this);
 			mBlendingIn = false;
-			mBlendingOut = false;
+			mBlendingOut = true;
 		}
 	}
 	void PlayAnimationProcess::AddCallback(float timePos, ScriptParam callback)
@@ -45,7 +48,7 @@ namespace Ice
 	}
 	void PlayAnimationProcess::ReceiveMessage(Msg &msg)
 	{
-		if (msg.type == "UPDATE_PER_FRAME")
+		if (mAnimationState->getEnabled() && msg.type == "UPDATE_PER_FRAME")
 		{
 			float timeDelta = msg.params.GetFloat("TIME");
 			timeDelta *= mTimeScale;
@@ -68,7 +71,8 @@ namespace Ice
 				{
 					mWeight = 0;
 					mBlendingOut = false;
-					Terminate();
+					mAnimationState->setEnabled(false);
+					if (mFinished) ProcessNodeManager::Instance().RemoveProcessNode(GetProcessID());
 					return;
 				}
 			}
@@ -84,14 +88,24 @@ namespace Ice
 				float remaining = (mAnimationState->getLength() - mAnimationState->getTimePosition())/mTimeScale;
 				if (remaining < mOutBlendDuration)
 				{
+					mFinished = true;
 					mBlendingIn = false;
 					mBlendingOut = true;
 				}
+				else ProcessNodeManager::Instance().RemoveProcessNode(GetProcessID());
 			}
 		}
 		else if (msg.type == "REPARSE_SCRIPTS")
 		{
 			mScriptCallbacks.clear();
 		}
+	}
+
+	void PlayAnimationProcess::TerminateProcess()
+	{
+		//mFinished = true;
+		mBlendingIn = false;
+		mBlendingOut = true;
+		TriggerWaitingProcesses();
 	}
 }

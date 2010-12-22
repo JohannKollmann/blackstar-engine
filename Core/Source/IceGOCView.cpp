@@ -155,8 +155,13 @@ namespace Ice
 			Ogre::Technique *t = mMaterial->getTechnique("SphericalBillboard");
 			if (t)
 			{
-				t->getPass(0)->getFragmentProgramParameters()->setNamedConstant("particleRadius", mRadius);
-				t->getPass(0)->getFragmentProgramParameters()->setNamedConstant("particleDensity", mDensity);
+				//if (t->getPass(0)->getFragmentProgramParameters()->setN
+				try
+				{
+					t->getPass(0)->getFragmentProgramParameters()->setNamedConstant("particleRadius", mRadius);
+					t->getPass(0)->getFragmentProgramParameters()->setNamedConstant("particleDensity", mDensity);
+				}
+				catch (Ogre::Exception &e) {}
 			}
 		}
 		else IceWarning("Material " + mMaterialName + " not found!")

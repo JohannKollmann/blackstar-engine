@@ -266,6 +266,7 @@ namespace Ice
 		*/
 		ScriptSystem::GetInstance().ShareCFunction("Object_SetProperty", &GameObject::Lua_SetObjectProperty);
 		ScriptSystem::GetInstance().ShareCFunction("Object_GetProperty", &GameObject::Lua_GetObjectProperty);
+		ScriptSystem::GetInstance().ShareCFunction("Object_HasProperty", &GameObject::Lua_HasObjectProperty);
 
 		ScriptSystem::GetInstance().ShareCFunction("Object_SetPosition", &GameObject::Lua_SetObjectPosition);
 		ScriptSystem::GetInstance().ShareCFunction("Object_SetOrientation", &GameObject::Lua_SetObjectOrientation);
@@ -315,6 +316,8 @@ namespace Ice
 		ScriptSystem::GetInstance().ShareCFunction("AnimProcess_Create", &GOCAnimatedCharacter::Lua_AnimProcess_Create);
 		ScriptSystem::GetInstance().ShareCFunction("Process_AddDependency", &ProcessNode::Lua_AddDependency);
 		ScriptSystem::GetInstance().ShareCFunction("Process_Kill", &ProcessNode::Lua_KillProcess);
+		ScriptSystem::GetInstance().ShareCFunction("Process_SetActive", &ProcessNode::Lua_SetActive);
+		ScriptSystem::GetInstance().ShareCFunction("Process_FireFinish", &ProcessNode::Lua_TriggerWaiting);
 		ScriptSystem::GetInstance().ShareCFunction("ProcessQueue_Create", &ProcessNodeQueue::Lua_ProcessQueue_Create);
 		ScriptSystem::GetInstance().ShareCFunction("ProcessQueue_Enqueue", &ProcessNodeQueue::Lua_ProcessQueue_Enqueue);
 		ScriptSystem::GetInstance().ShareCFunction("ProcessQueue_Push", &ProcessNodeQueue::Lua_ProcessQueue_PushFront);

@@ -8,13 +8,25 @@ namespace Ice
 
 	void ProcessNodeQueue::PushFront(std::shared_ptr<ProcessNode> processNode)
 	{
-		if (!mQueue.empty()) processNode->AddTriggerOnFinish(ProcessNodeManager::Instance().GetProcessNode(mQueue.front()));
+		ITERATE(i, mQueue)
+		{
+			auto curr = ProcessNodeManager::Instance().GetProcessNode(*i);
+			if (curr.get()) curr->AddDependencyConnection(processNode.get());
+		}
 		if (!mIsActive) processNode->_addDependency(GetProcessID());
+		processNode->_addTriggerOnFinish(GetProcessID());
+		mQueue.push_front(processNode->GetProcessID());
 	}
 	void ProcessNodeQueue::Enqueue(std::shared_ptr<ProcessNode> processNode)
 	{
-		if (!mQueue.empty()) ProcessNodeManager::Instance().GetProcessNode(mQueue.front())->AddTriggerOnFinish(processNode);
+		ITERATE(i, mQueue)
+		{
+			auto curr = ProcessNodeManager::Instance().GetProcessNode(*i);
+			if (curr.get()) processNode->AddDependencyConnection(curr.get());
+		}
 		if (!mIsActive) processNode->_addDependency(GetProcessID());
+		processNode->_addTriggerOnFinish(GetProcessID());
+		mQueue.push_back(processNode->GetProcessID());
 	}
 	void ProcessNodeQueue::_notifyFinish(int pID)
 	{
@@ -23,7 +35,7 @@ namespace Ice
 			if (*i == pID)
 			{
 				mQueue.erase(i);
-				if (mQueue.empty()) TriggerDependencies();
+				if (mQueue.empty()) TriggerWaitingProcesses();
 				return;
 			}
 		}
@@ -35,7 +47,15 @@ namespace Ice
 		if (active)
 		{
 			ITERATE(i, mQueue)
-				ProcessNodeManager::Instance().GetProcessNode(*i)->_notifyFinish(GetProcessID());
+			{
+				if (ProcessNodeManager::Instance().GetProcessNode(*i).get())
+					ProcessNodeManager::Instance().GetProcessNode(*i)->_notifyFinish(GetProcessID());
+			}
+		}
+		else if (!mQueue.empty())
+		{
+			auto curr = ProcessNodeManager::Instance().GetProcessNode(mQueue.front());
+			if (curr.get()) curr->_addDependency(GetProcessID());
 		}
 	}
 

@@ -5,13 +5,24 @@ namespace Ice
 {
 	void GOCScript::OnSetParameters()
 	{
-		if (mOwnerGO) InitScript(mScriptFileName);
+		if (!mOwnerGO) return;
+		if (GOCScriptMessageCallback *c = mOwnerGO->GetComponent<GOCScriptMessageCallback>())
+		{
+			Msg msg; msg.type = "REPARSE_SCRIPTS";
+			c->ReceiveMessage(msg);		//HACK - damit script objekt message listener gelöscht werden
+		}
+		InitScript(mScriptFileName);
 	}
 
 	void GOCScript::SetOwner(GameObject *go)
 	{
 		mOwnerGO = go;
 		if (!mOwnerGO) return;
+		if (GOCScriptMessageCallback *c = mOwnerGO->GetComponent<GOCScriptMessageCallback>())
+		{
+			Msg msg; msg.type = "REPARSE_SCRIPTS";
+			c->ReceiveMessage(msg);		//HACK - damit script objekt message listener gelöscht werden
+		}
 		if (mScriptFileName != "") InitScript(mScriptFileName);
 	}
 
