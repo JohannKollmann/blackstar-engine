@@ -17,7 +17,6 @@ namespace Ice
 
 	void ScriptUser::InitScript(Ogre::String scriptFilename)
 	{
-
 		mScriptFileName = scriptFilename;
 		mScript = ScriptSystem::GetInstance().CreateInstance(scriptFilename, false);
 		ScriptSystem::GetInstance().RegisterScriptUser(this, mScript.GetID());

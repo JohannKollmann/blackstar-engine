@@ -12,7 +12,7 @@ namespace Ice
 		if (i == mProcessNodes.end())
 		{
 			IceWarning("Process ID not found")
-			return nullptr;
+			return std::shared_ptr<ProcessNode>(nullptr);
 		}
 		return i->second;
 	}
@@ -36,7 +36,8 @@ namespace Ice
 	void ProcessNodeManager::RemoveProcessNode(int processID)
 	{
 		auto i = mProcessNodes.find(processID);
-		IceAssert(i != mProcessNodes.end())
+		if (i == mProcessNodes.end()) return;
+		i->second->SetActive(false);
 		mProcessNodes.erase(i);
 	}
 

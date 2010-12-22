@@ -15,31 +15,65 @@ namespace Ice
 
 	protected:
 		std::list<int> mDependencies;		//list of process ids
-		std::vector<std::weak_ptr<ProcessNode>> mTriggerOnFinish;
+		std::vector<int> mTriggerOnFinish;
 		bool mIsActive;
 
 		int mProcessID;
 
 		void Init(int id);
 
-		void Terminate();
-
 	public:
-		ProcessNode() : mProcessID(0) {}
+		ProcessNode() : mProcessID(0), mIsActive(true) {}
 		virtual ~ProcessNode();
 
+		/**
+		Notifies the process that another process terminated.
+		@param pID process ID of the process that terminated
+		*/
 		virtual void _notifyFinish(int pID);
+
+		/**
+		Adds a dependency process. This process wil be stopped until all dependency have terminated.
+		@param pID the dependency process
+		*/
 		virtual void _addDependency(int pID);
 
-		virtual void TriggerDependencies();
+		/**
+		Adds a process that is notified when this process terminates.
+		@param pID the process that gets notified
+		*/
+		void _addTriggerOnFinish(int pID);
 
-		virtual void AddTriggerOnFinish(std::shared_ptr<ProcessNode> pNode);
+		/**
+		Notifies all waiting processes that this process terminated.
+		*/
+		virtual void TriggerWaitingProcesses();
 
+		/**
+		Adds a process as dependency of this one.
+		@param pNode The dependency process ID.
+		*/
+		virtual void AddDependencyConnection(ProcessNode *node);
+
+		/**
+		Terminates the process.
+		*/
+		virtual void TerminateProcess();
+
+		/**
+		Pauses/Unpauses the process, for example because a dependency was added / finished.
+		@param active unpause or pause
+		*/
 		void SetActive(bool active);
 
+		/**
+		Retrieves the process ID.
+		*/
 		int GetProcessID() const;
 
 		static std::vector<ScriptParam> Lua_AddDependency(Script& caller, std::vector<ScriptParam> vParams);
+		static std::vector<ScriptParam> Lua_SetActive(Script& caller, std::vector<ScriptParam> vParams);
+		static std::vector<ScriptParam> Lua_TriggerWaiting(Script& caller, std::vector<ScriptParam> vParams);
 		static std::vector<ScriptParam> Lua_KillProcess(Script& caller, std::vector<ScriptParam> vParams);
 
 	 protected:

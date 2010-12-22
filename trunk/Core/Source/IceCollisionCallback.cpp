@@ -78,7 +78,7 @@ namespace Ice
 		msg.params.AddOgreString("Material1", material1);
 		msg.params.AddOgreString("Material2", material2);
 		msg.params.AddFloat("Force", force);
-		MessageSystem::Instance().SendMessage(msg);
+		MessageSystem::Instance().SendInstantMessage(msg);
 	}
 
 
@@ -91,6 +91,9 @@ namespace Ice
 		{
 			NxShape *shape1 = i.getShape(0);
 			NxShape *shape2 = i.getShape(1);
+			if	((shape1->getGroup() == CollisionGroups::BONE || shape1->getGroup() == CollisionGroups::AI)
+				&& (shape2->getGroup() == CollisionGroups::BONE || shape2->getGroup() == CollisionGroups::AI))
+					continue;
 
 			//First material callback
 			Ogre::String material1 = SceneManager::Instance().GetSoundMaterialTable().GetMaterialName(shape1->getMaterial());
