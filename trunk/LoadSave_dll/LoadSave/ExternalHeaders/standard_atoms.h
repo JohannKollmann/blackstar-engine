@@ -106,13 +106,13 @@ strHandlerName ::Save(LoadSave::SaveSystem& ss, void* pData, std::string strVarN
 	else \
 		ss.OpenAtomArray( strTemplateTypeName , dims, "_list");\
 \
-	do\
+	for(;it!=pList->end(); it++)\
 	{\
 		if(LoadSave::LoadSave::Instance().GetObjectID( strTemplateTypeName )!=0) \
 			ss.AddObject((LoadSave::Saveable*)&(*it));\
 		else \
 			ss.AddAtom( strTemplateTypeName , (void*)&(*it));\
-	}while(++it!=pList->end());\
+	}\
 }\
 \
 void \
@@ -172,14 +172,14 @@ strHandlerName ::Save(LoadSave::SaveSystem& ss, void* pData, std::string strVarN
 		ss.OpenObjectArray( strKeyTypeName , dims, "_key");\
 	else \
 		ss.OpenAtomArray( strKeyTypeName , dims, "_key");\
-	do\
+	for(;it!=pMap->end();it++)\
 	{\
 		if(LoadSave::LoadSave::Instance().GetObjectID( strKeyTypeName )!=0) \
 			ss.AddObject((LoadSave::Saveable*)&(it->first));\
 		else \
 			ss.AddAtom( strKeyTypeName , (void*)&(it->first));\
 \
-	}while(++it!=pMap->end());\
+	}\
 \
 	it=pMap->begin();\
 \
@@ -187,13 +187,13 @@ strHandlerName ::Save(LoadSave::SaveSystem& ss, void* pData, std::string strVarN
 		ss.OpenObjectArray( strValueTypeName , dims, "_value");\
 	else \
 		ss.OpenAtomArray( strValueTypeName , dims, "_value");\
-	do\
+	for(;it!=pMap->end();it++)\
 	{\
 		if(LoadSave::LoadSave::Instance().GetObjectID( strValueTypeName )!=0) \
 			ss.AddObject((LoadSave::Saveable*)&(it->second));\
 		else \
 			ss.AddAtom( strValueTypeName , (void*)&(it->second));\
-	}while(++it!=pMap->end());\
+	}\
 } \
 void \
 strHandlerName ::Load(LoadSave::LoadSystem& ls, void* pData)\
@@ -592,7 +592,9 @@ CREATEVECTORHANDLER(float, "float", FloatVectorHandler)
 
 CREATEMAPHANDLER(std::string, "std::string", int, "int", StringIntMapHandler)
 
-CREATELISTHANDLER(float, "float", FloatListHandler);
+CREATELISTHANDLER(float, "float", FloatListHandler)
+
+CREATELISTHANDLER(int, "int", IntListHandler)
 
 CREATEVECTORHANDLER(int, "int", IntVectorHandler)
 
@@ -622,6 +624,7 @@ RegisterStandardAtoms()
 	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new FloatVectorHandler());
 	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new StringIntMapHandler());
 	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new FloatListHandler());
+	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new IntListHandler());
 	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new SaveableListHandler());
 	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new SaveableVectorHandler());
 
