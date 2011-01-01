@@ -456,9 +456,6 @@ namespace Ice
 		ls->LoadAtom("std::vector<Saveable*>", &objects);
 		//Objects call SceneManager::RegisterObject
 
-		//AIManager::Instance().SetNavigationMesh((NavigationMesh*)ls->LoadObject());
-		Ice::AIManager::Instance().GetNavigationMesh()->ImportOgreMesh(Ice::SceneManager::Instance().GetLevelMesh()->GetEntity()->getMesh());
-
 		ls->CloseFile();
 		ICE_DELETE ls;
 
@@ -497,6 +494,8 @@ namespace Ice
 		if (levelmesh != "")
 		{
 			LoadLevelMesh(levelmesh.c_str());
+			//AIManager::Instance().SetNavigationMesh((NavigationMesh*)ls->LoadObject());
+			Ice::AIManager::Instance().GetNavigationMesh()->ImportOgreMesh(Ice::SceneManager::Instance().GetLevelMesh()->GetEntity()->getMesh());
 		}
 		bool indoor = parameters->GetBool("Indoor");
 		if (indoor) SetToIndoor();

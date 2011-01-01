@@ -32,6 +32,12 @@ namespace Ice
 	{
 		if (mMover) mMover->notifyKeyDelete(this);
 	}
+	void GOCAnimKey::SetOwner(GameObject *go)
+	{
+		if (!go && mMover) mMover->notifyKeyDelete(this);
+		mOwnerGO = go;
+		NotifyOwnerGO();
+	}
 	void GOCAnimKey::SetMover(GOCMover *mover)
 	{
 		mMover = mover;

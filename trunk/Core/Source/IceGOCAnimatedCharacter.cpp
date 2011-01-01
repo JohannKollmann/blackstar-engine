@@ -18,10 +18,13 @@ namespace Ice
 	void GOCAnimatedCharacter::_clear()
 	{
 		_destroyCreatedProcesses();
-		if (GOCScriptMessageCallback *c = mOwnerGO->GetComponent<GOCScriptMessageCallback>())
+		if (mOwnerGO)
 		{
-			Msg msg; msg.type = "REPARSE_SCRIPTS";
-			c->ReceiveMessage(msg);		//HACK - damit script objekt message listener gelöscht werden
+			if (GOCScriptMessageCallback *c = mOwnerGO->GetComponent<GOCScriptMessageCallback>())
+			{
+				Msg msg; msg.type = "REPARSE_SCRIPTS";
+				c->ReceiveMessage(msg);		//HACK - damit script objekt message listener gelöscht werden
+			}
 		}
 		std::list<GameObject*>::iterator i = mBoneObjects.begin();
 		while (i != mBoneObjects.end())
@@ -144,8 +147,8 @@ namespace Ice
 
 	void GOCAnimatedCharacter::SetOwner(GameObject *go)
 	{
-		mOwnerGO = go;
 		_clear();
+		mOwnerGO = go;
 		if (!mOwnerGO) return;
 		if (mMeshName == "") return;
 		Create(mMeshName, mOwnerGO->GetGlobalScale());

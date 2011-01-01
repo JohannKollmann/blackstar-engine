@@ -39,6 +39,9 @@ namespace Ice
 	private:
 		AnimKey *mPredecessor;
 
+	protected:
+		void SetOwner(GameObject *go);
+
 	public:
 		GOCAnimKey() { mTimeToNextKey = 1; mPredecessor = nullptr; }
 		GOCAnimKey(AnimKey *pred);
