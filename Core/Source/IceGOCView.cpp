@@ -152,7 +152,7 @@ namespace Ice
 		if (!mat.isNull())
 		{
 			mMaterial = mat->clone(mat->getName() + SceneManager::Instance().RequestIDStr());
-			Ogre::Technique *t = mMaterial->getTechnique("SphericalBillboard");
+			Ogre::Technique *t = mMaterial->getTechnique("VolumetricBillboard");
 			if (t)
 			{
 				//if (t->getPass(0)->getFragmentProgramParameters()->setN
@@ -163,16 +163,16 @@ namespace Ice
 				}
 				catch (Ogre::Exception &e) {}
 			}
+
+			mBillboardSet->setMaterialName(mMaterial->getName());
+			mBillboardSet->setUseAccurateFacing(true);
+			//if (mRadius > 0) mDimensions = Ogre::Vector3(mRadius*2, mRadius*2, mRadius*2);
+			mBillboardSet->setDefaultDimensions(mDimensions.x, mDimensions.y);
+			mBillboardSet->createBillboard(0,0,0);
+			mBillboardSet->setVisibilityFlags(2);
+			NotifyOwnerGO();
 		}
 		else IceWarning("Material " + mMaterialName + " not found!")
-
-		mBillboardSet->setMaterialName(mMaterial->getName());
-		mBillboardSet->setUseAccurateFacing(true);
-		//if (mRadius > 0) mDimensions = Ogre::Vector3(mRadius*2, mRadius*2, mRadius*2);
-		mBillboardSet->setDefaultDimensions(mDimensions.x, mDimensions.y);
-		mBillboardSet->createBillboard(0,0,0);
-		mBillboardSet->setVisibilityFlags(2);
-		NotifyOwnerGO();
 	}
 	void GOCBillboard::Save(LoadSave::SaveSystem& mgr)
 	{
