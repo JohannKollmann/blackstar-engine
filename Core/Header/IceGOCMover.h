@@ -73,7 +73,8 @@ namespace Ice
 	private:
 		std::vector<GameObject*> mAnimKeys;
 		Ogre::String mKeyCallback;
-		bool mMoving;
+		bool mMoving;	//for intern use
+		bool mEnabled;	//for editor interface
 		bool mPerformingMovement;
 		bool mPaused;
 		bool mLoop;
@@ -143,6 +144,7 @@ namespace Ice
 			PROPERTY_BOOL(mIsClosed, "Closed", false);
 			PROPERTY_BOOL(mStaticMode, "Static Mode", false);
 			PROPERTY_BOOL(mIgnoreOrientation, "Ignore Orientation", false);
+			PROPERTY_BOOL(mEnabled, "Enabled", false);
 		END_GOCEDITORINTERFACE
 
 		void OnSetParameters();

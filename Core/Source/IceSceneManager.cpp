@@ -497,6 +497,10 @@ namespace Ice
 			//AIManager::Instance().SetNavigationMesh((NavigationMesh*)ls->LoadObject());
 			Ice::AIManager::Instance().GetNavigationMesh()->ImportOgreMesh(Ice::SceneManager::Instance().GetLevelMesh()->GetEntity()->getMesh());
 		}
+
+		mStartupScriptName = parameters->GetValue<Ogre::String>("Startup Script", "");
+		if (mStartupScriptName != "") ScriptSystem::GetInstance().CreateInstance(mStartupScriptName);
+
 		bool indoor = parameters->GetBool("Indoor");
 		if (indoor) SetToIndoor();
 		else
@@ -550,6 +554,8 @@ namespace Ice
 		if (mLevelMesh) parameters->AddOgreString("LevelMesh", mLevelMesh->GetMeshFileName());
 		else parameters->AddOgreString("LevelMesh", "");
 		parameters->AddBool("Indoor", mIndoorRendering);
+
+		parameters->AddOgreString("Startup Script", mStartupScriptName);
 
 		if (mWeatherController)
 		{
@@ -718,6 +724,8 @@ namespace Ice
 				if (mDayTime >= mMaxDayTime) mDayTime = 0.0f;
 				AIManager::Instance().Update(time);
 				if (mWeatherController) mWeatherController->Update(time);
+				ITERATE(i, mTimeListeners)
+					(*i)->UpdateScene(time);
 			}
 
 			//DestroyStoppedSounds();
