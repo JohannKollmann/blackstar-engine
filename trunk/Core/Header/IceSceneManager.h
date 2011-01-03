@@ -24,6 +24,17 @@ namespace Ice
 
 	class DllExport SceneManager : public EditorInterface, public MessageListener
 	{
+	public:
+
+		class TimeListener
+		{
+		public:
+			TimeListener() { SceneManager::Instance().mTimeListeners.push_back(this); }
+			virtual ~TimeListener() { SceneManager::Instance().mTimeListeners.remove(this); }
+
+			virtual void UpdateScene(float time) = 0;
+		};
+
 	private:
 		unsigned int mNextID;
 		float mDayTime;
@@ -31,6 +42,9 @@ namespace Ice
 		float mTimeScale;
 		bool mClockEnabled;
 		Ogre::Vector3 mNextPreviewPos;
+
+		//created when SceneBlendFactor is loaded
+		Ogre::String mStartupScriptName;
 
 		WeatherController *mWeatherController;
 
@@ -42,6 +56,7 @@ namespace Ice
 
 		std::vector<GameObject*> mObjectMessageQueue;
 		std::map<int, ManagedGameObject*> mGameObjects;
+		std::list<TimeListener*> mTimeListeners;
 
 		std::map<Ogre::String, GOCEditorInterfacePtr> mGOCPrototypes;
 
@@ -144,6 +159,8 @@ namespace Ice
 		int GetHour();
 		int GetMinutes();
 		void ReceiveMessage(Msg &msg);
+
+		bool IsClockEnabled() { return mClockEnabled; }
 
 		//Preview render helper functions (for items, editor object preview etc.) 
 		Ogre::TexturePtr CreatePreviewRender(Ogre::SceneNode *node, Ogre::String name, float width = 512, float height = 512);

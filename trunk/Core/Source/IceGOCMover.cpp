@@ -74,15 +74,21 @@ namespace Ice
 		mNormalLookAtObject = nullptr;
 		mLookAtLine = nullptr;
 		mNormalLookAtLine = nullptr;
+		mEnabled = false;
 		mLastKeyIndex = -1;
+		mfLastPos = 0;
+		MessageSystem::Instance().JoinNewsgroup(this, "START_PHYSICS");
 	}
 	void GOCMover::Init()
 	{
-		if (mSplineObject) return;
-		MessageSystem::Instance().JoinNewsgroup(this, "START_PHYSICS");
-		mSplineObject = Ice::Main::Instance().GetOgreSceneMgr()->createManualObject("Spline_" + SceneManager::Instance().RequestIDStr());
-		Ice::Main::Instance().GetOgreSceneMgr()->getRootSceneNode()->attachObject(mSplineObject);
-		mSplineObject->setVisible(SceneManager::Instance().GetShowEditorVisuals());
+		if (!mSplineObject)
+		{
+			mSplineObject = Ice::Main::Instance().GetOgreSceneMgr()->createManualObject("Spline_" + SceneManager::Instance().RequestIDStr());
+			Ice::Main::Instance().GetOgreSceneMgr()->getRootSceneNode()->attachObject(mSplineObject);
+			mSplineObject->setVisible(SceneManager::Instance().GetShowEditorVisuals());
+		}
+		Reset();
+		if (mEnabled) Trigger();
 	}
 	GOCMover::~GOCMover()
 	{
@@ -105,6 +111,8 @@ namespace Ice
 		if (!mOwnerGO) return;
 		UpdatePosition(mOwnerGO->GetGlobalPosition());
 		UpdateOrientation(mOwnerGO->GetGlobalOrientation());
+		Reset();
+		if (mEnabled) Trigger();
 	}
 
 	void GOCMover::Save(LoadSave::SaveSystem& mgr)
@@ -116,6 +124,7 @@ namespace Ice
 		//mgr.SaveAtom("std::vector<Saveable*>", &mAnimKeys, "AnimKeys");
 		mgr.SaveObject(mLookAtObject, "mLookAtObject", true);
 		mgr.SaveObject(mNormalLookAtObject, "mNormalLookAtObject", true);
+		mgr.SaveAtom("bool", &mEnabled, "Enabled");
 	}
 	void GOCMover::Load(LoadSave::LoadSystem& mgr)
 	{
@@ -129,6 +138,7 @@ namespace Ice
 		if (mLookAtObject) SetLookAtObject(mLookAtObject);
 		mNormalLookAtObject=(Ice::GameObject*)mgr.LoadObject();
 		if (mNormalLookAtObject) SetNormalLookAtObject(mNormalLookAtObject);
+		mgr.LoadAtom("bool", &mEnabled);
 	}
 
 	void GOCMover::UpdatePosition(Ogre::Vector3 position)
@@ -140,10 +150,16 @@ namespace Ice
 
 	void GOCMover::Reset()
 	{
-		PrepareMovement(true);
-		SetOwnerPosition(mAnimKeys[0]->GetGlobalPosition());
-		SetOwnerOrientation(mAnimKeys[0]->GetGlobalOrientation());
-		PrepareMovement(false);
+		if (mOwnerGO && mAnimKeys.size() > 0)
+		{
+			PrepareMovement(true);
+			SetOwnerPosition(mAnimKeys[0]->GetGlobalPosition());
+			SetOwnerOrientation(mAnimKeys[0]->GetGlobalOrientation());
+			PrepareMovement(false);
+		}
+		mMoving = false;
+		mfLastPos=0;
+		mLastKeyIndex = -1;
 	}
 
 	void GOCMover::Trigger()
@@ -211,7 +227,7 @@ namespace Ice
 				SetOwnerOrientation(Utils::ZDirToQuat(lookAtDir, upVector));
 				PrepareMovement(false);
 			}
-			if (mMoving && !mPaused)
+			if (mMoving && !mPaused && SceneManager::Instance().IsClockEnabled())
 			{
 				float time = msg.params.GetFloat("TIME");
 
