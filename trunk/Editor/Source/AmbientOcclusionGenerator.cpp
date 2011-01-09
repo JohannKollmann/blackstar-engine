@@ -168,9 +168,9 @@ void AmbientOcclusionGenerator::computeAO( Ogre::Vector3 position, Ogre::Vector3
 			Ogre::Ray ray(position + (castVector * 0.001f), castVector);
 			float test = Ogre::Vector3::UNIT_Y.dotProduct(castVector);		//normal.dotProduct(castVector);
 			float weight = Ogre::Math::Abs(normal.dotProduct(castVector));
-			if (test < 0)
+			if (test < 0)	
 			{
-				fNumSamples += 0.5f*weight;
+				fNumSamples += 0.5f*weight;	//light is coming from below	
 				continue;
 			}
 			//weight = 0.5f + 0.5f*weight;

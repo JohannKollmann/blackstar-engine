@@ -259,6 +259,7 @@ namespace Ice
 		Example usage: LoadLevel("World.eew")
 		*/
 		ScriptSystem::GetInstance().ShareCFunction("LoadLevel", &SceneManager::Lua_LoadLevel);
+		ScriptSystem::GetInstance().ShareCFunction("SaveLevel", &SceneManager::Lua_SaveLevel);
 
 		/**
 		Object get/set methods.
@@ -328,6 +329,10 @@ namespace Ice
 		ScriptSystem::GetInstance().ShareCFunction("Mover_Trigger", &GOCMover::Lua_TriggerMover);
 		ScriptSystem::GetInstance().ShareCFunction("Mover_Pause", &GOCMover::Lua_PauseMover);
 		ScriptSystem::GetInstance().ShareCFunction("Mover_Stop", &GOCMover::Lua_StopMover);
+
+		//Physical Body
+		ScriptSystem::GetInstance().ShareCFunction("Body_GetSpeed", &GOCPhysics::Lua_Body_GetSpeed);
+		ScriptSystem::GetInstance().ShareCFunction("Body_AddImpulse", &GOCPhysics::Lua_Body_AddImpulse);
 
 		//Time get/set methods
 		ScriptSystem::GetInstance().ShareCFunction("GetGameTimeHour", &SceneManager::Lua_GetGameTimeHour);
@@ -628,8 +633,7 @@ namespace Ice
 		mObjectMessageQueue.push_back(object);
 	}
 
-	std::vector<ScriptParam>
-	SceneManager::Lua_LoadLevel(Script& caller, std::vector<ScriptParam> vParams)
+	std::vector<ScriptParam> SceneManager::Lua_LoadLevel(Script& caller, std::vector<ScriptParam> vParams)
 	{
 		std::vector<ScriptParam> out;
 		if (vParams.size() == 1)
@@ -637,6 +641,18 @@ namespace Ice
 			if (vParams[0].getType() == ScriptParam::PARM_TYPE_STRING)
 			{
 				SceneManager::Instance().LoadLevel(vParams[0].getString());
+			}
+		}
+		return out;
+	}
+	std::vector<ScriptParam> SceneManager::Lua_SaveLevel(Script& caller, std::vector<ScriptParam> vParams)
+	{
+		std::vector<ScriptParam> out;
+		if (vParams.size() == 1)
+		{
+			if (vParams[0].getType() == ScriptParam::PARM_TYPE_STRING)
+			{
+				SceneManager::Instance().SaveLevel(vParams[0].getString());
 			}
 		}
 		return out;
