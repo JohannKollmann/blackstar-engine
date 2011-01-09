@@ -90,6 +90,7 @@ public:
 	void OnStopMover(wxCommandEvent& WXUNUSED(event) = wxCommandEvent());
 	void OnSetLookAtObject(wxCommandEvent& WXUNUSED(event) = wxCommandEvent());
 	void OnSetNormalLookAtObject(wxCommandEvent& WXUNUSED(event) = wxCommandEvent());
+	void OnComputeAO(wxCommandEvent& WXUNUSED(event) = wxCommandEvent());
 
 
 	/*

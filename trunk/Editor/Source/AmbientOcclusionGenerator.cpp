@@ -44,7 +44,7 @@ void AmbientOcclusionGenerator::bakeAmbientOcclusion(Ogre::MeshPtr mesh, Ogre::S
 	if (mesh->sharedVertexData)
 	{
 		aoMesh->sharedVertexData = new Ogre::VertexData();
-		processVertexData(aoMesh->sharedVertexData, mesh->sharedVertexData);
+		processVertexData(aoMesh->sharedVertexData, mesh->sharedVertexData, 1<<Ice::CollisionGroups::TMP);
 	}
 	for (unsigned i = 0; i < mesh->getNumSubMeshes(); i++)
 	{
@@ -57,7 +57,7 @@ void AmbientOcclusionGenerator::bakeAmbientOcclusion(Ogre::MeshPtr mesh, Ogre::S
 		if (subMesh->vertexData)
 		{
 			aoSubMesh->vertexData = new Ogre::VertexData();
-			processVertexData(aoSubMesh->vertexData, subMesh->vertexData);
+			processVertexData(aoSubMesh->vertexData, subMesh->vertexData, 1<<Ice::CollisionGroups::TMP);
 		}
 		wxEdit::Instance().GetProgressBar()->SetProgress(0.4f + 0.6f * ((float)i/(float)mesh->getNumSubMeshes()));
 	}
@@ -73,33 +73,86 @@ void AmbientOcclusionGenerator::bakeAmbientOcclusion(Ogre::MeshPtr mesh, Ogre::S
 	wxEdit::Instance().GetProgressBar()->Reset();
 }
 
-void AmbientOcclusionGenerator::processVertexData(Ogre::VertexData *targetData, Ogre::VertexData *inputData)
+void AmbientOcclusionGenerator::bakeAmbientOcclusion(Ogre::Entity *ent, Ogre::String outputFile)
+{
+	wxEdit::Instance().GetProgressBar()->SetStatusMessage("Computing Ambient Occlusion");
+
+	wxEdit::Instance().GetProgressBar()->SetProgress(0.1f);
+	wxEdit::Instance().GetAuiManager().Update();
+
+	Ogre::MeshPtr mesh = ent->getMesh();
+
+	Ogre::MeshPtr aoMesh = Ogre::MeshManager::getSingleton().createManual("TmpAOMesh", "General");
+
+	if (mesh->sharedVertexData)
+	{
+		aoMesh->sharedVertexData = new Ogre::VertexData();
+		processVertexData(aoMesh->sharedVertexData, mesh->sharedVertexData, 1<<Ice::CollisionGroups::DEFAULT|1<<Ice::CollisionGroups::LEVELMESH, ent->getParentNode());
+	}
+	for (unsigned i = 0; i < mesh->getNumSubMeshes(); i++)
+	{
+		Ogre::SubMesh *subMesh = mesh->getSubMesh(i);
+		Ogre::SubMesh *aoSubMesh = aoMesh->createSubMesh();
+		aoSubMesh->useSharedVertices = subMesh->useSharedVertices;
+		aoSubMesh->setMaterialName(subMesh->getMaterialName());
+		//Copy index data
+		aoSubMesh->indexData = subMesh->indexData->clone();
+		if (subMesh->vertexData)
+		{
+			aoSubMesh->vertexData = new Ogre::VertexData();
+			processVertexData(aoSubMesh->vertexData, subMesh->vertexData, 1<<Ice::CollisionGroups::DEFAULT|1<<Ice::CollisionGroups::LEVELMESH, ent->getParentNode());
+		}
+		wxEdit::Instance().GetProgressBar()->SetProgress(0.4f + 0.6f * ((float)i/(float)mesh->getNumSubMeshes()));
+	}
+
+	aoMesh->_setBounds(mesh->getBounds());
+	aoMesh->_setBoundingSphereRadius(mesh->getBoundingSphereRadius());
+
+	Ogre::MeshSerializer ms;
+	ms.exportMesh(aoMesh.getPointer(), outputFile);
+	Ogre::MeshManager::getSingleton().remove(aoMesh->getHandle());
+
+	wxEdit::Instance().GetProgressBar()->Reset();
+}
+
+void AmbientOcclusionGenerator::processVertexData(Ogre::VertexData *targetData, Ogre::VertexData *inputData, int rayCollisionGroups, Ogre::Node *baseNode)
 {
 	targetData->vertexCount = inputData->vertexCount;
 	Ogre::VertexDeclaration *vd = targetData->vertexDeclaration;
 
-	int offset = 0;
 	//We will use a new buffer for the ao
-	int aoBufferSource = inputData->vertexBufferBinding->getBufferCount();
+	bool addedAODecl = false;
+	int aoBufferSource = -1;
+
+	std::map<int, int> vertexDeclsOffsets;
 
 	for (unsigned int i = 0; i < inputData->vertexDeclaration->getElementCount(); i++)
 	{
 		const Ogre::VertexElement *elem = inputData->vertexDeclaration->getElement(i);
-		//if (elem->getSemantic() == Ogre::VertexElementSemantic::VES_DIFFUSE) continue; //Todo
-		vd->addElement(elem->getSource(), offset, elem->getType(), elem->getSemantic());
-		offset += Ogre::VertexElement::getTypeSize(elem->getType());
-		if (elem->getSemantic() == Ogre::VertexElementSemantic::VES_NORMAL)
+		if (vertexDeclsOffsets.find(elem->getSource()) == vertexDeclsOffsets.end()) vertexDeclsOffsets.insert(std::make_pair<int, int>(elem->getSource(), 0));
+		vd->addElement(elem->getSource(), vertexDeclsOffsets[elem->getSource()], elem->getType(), elem->getSemantic());
+		vertexDeclsOffsets[elem->getSource()] += Ogre::VertexElement::getTypeSize(elem->getType());
+
+		if (elem->getSemantic() == Ogre::VertexElementSemantic::VES_DIFFUSE) aoBufferSource = elem->getSource();
+
+		/*if (elem->getSemantic() == Ogre::VertexElementSemantic::VES_NORMAL)
 		{
 			//Add diffuse after normal
 			//vd->addElement(aoBufferSource, 0, Ogre::VertexElementType::VET_COLOUR, Ogre::VertexElementSemantic::VES_DIFFUSE, 0); 
 			//offset += Ogre::VertexElement::getTypeSize(Ogre::VertexElementType::VET_COLOUR);
-		}
+		}*/
 	}
-	vd->addElement(aoBufferSource, 0, Ogre::VertexElementType::VET_COLOUR, Ogre::VertexElementSemantic::VES_DIFFUSE, 0); 
+	if (aoBufferSource == -1)
+	{
+		aoBufferSource = inputData->vertexBufferBinding->getBufferCount();
+		vd->addElement(aoBufferSource, 0, Ogre::VertexElementType::VET_COLOUR, Ogre::VertexElementSemantic::VES_DIFFUSE, 0); 
+	}
 
 	//Clone existing buffers
 	for (unsigned int i = 0; i < inputData->vertexBufferBinding->getBufferCount(); i++)
 	{
+		if (i == aoBufferSource) continue;	//do not copy original ao buffer
+
 		const Ogre::HardwareVertexBufferSharedPtr oldBuf = inputData->vertexBufferBinding->getBuffer(i);
 		Ogre::HardwareVertexBufferSharedPtr vbuf = Ogre::HardwareBufferManager::getSingleton().createVertexBuffer(
 					oldBuf->getVertexSize(), oldBuf->getNumVertices(), Ogre::HardwareBuffer::HBU_STATIC_WRITE_ONLY);
@@ -136,7 +189,12 @@ void AmbientOcclusionGenerator::processVertexData(Ogre::VertexData *targetData, 
 		pVertices += vPosBuf->getVertexSize();
 
 		Ogre::ColourValue ao;
-		computeAO(pos, normal, ao);
+		if (baseNode)
+		{
+			pos = baseNode->_getDerivedPosition() + baseNode->_getDerivedOrientation()*(pos*baseNode->_getDerivedScale());
+			normal = baseNode->_getDerivedOrientation()*normal;
+		}
+		computeAO(pos, normal, rayCollisionGroups, ao);
 		rs->convertColourValue(ao, &aoBuffer[i]);
 	}
 	vPosBuf->unlock();
@@ -148,7 +206,7 @@ void AmbientOcclusionGenerator::processVertexData(Ogre::VertexData *targetData, 
 	delete aoBuffer;
 }
 
-void AmbientOcclusionGenerator::computeAO( Ogre::Vector3 position, Ogre::Vector3 normal, Ogre::ColourValue &target )
+void AmbientOcclusionGenerator::computeAO(Ogre::Vector3 position, Ogre::Vector3 normal, int rayCollisionGroups, Ogre::ColourValue &target )
 {
 	//position += normal*0.01f;
 	target.r = 0; target.g = 0; target.b = 0; target.a = 1;
@@ -174,7 +232,7 @@ void AmbientOcclusionGenerator::computeAO( Ogre::Vector3 position, Ogre::Vector3
 				continue;
 			}
 			//weight = 0.5f + 0.5f*weight;
-			if (test >= 0 && !Ice::Main::Instance().GetPhysXScene()->raycastAnyShape(ray, NX_STATIC_SHAPES, 1<<Ice::CollisionGroups::TMP, 20))//, 10))
+			if (test >= 0 && !Ice::Main::Instance().GetPhysXScene()->raycastAnyShape(ray, NX_STATIC_SHAPES, rayCollisionGroups, 20))//, 10))
 				sum += 1*weight;
 			fNumSamples += 1*weight;
  		}
