@@ -15,6 +15,7 @@
 #include "IceAIManager.h"
 #include "IceGOCMover.h"
 #include "IceGOCOgreNode.h"
+#include "AmbientOcclusionGenerator.h"
 
 IMPLEMENT_CLASS(Edit, wxOgre)
 
@@ -33,7 +34,8 @@ enum
 	EVT_PauseMover,
 	EVT_StopMover,
 	EVT_SetLookAtObject,
-	EVT_SetNormalLookAtObject
+	EVT_SetNormalLookAtObject,
+	EVT_ComputeAO
 };
 
 BEGIN_EVENT_TABLE(Edit, wxOgre)
@@ -59,6 +61,7 @@ BEGIN_EVENT_TABLE(Edit, wxOgre)
 	EVT_MENU(EVT_StopMover, Edit::OnStopMover)
 	EVT_MENU(EVT_SetLookAtObject, Edit::OnSetLookAtObject)
 	EVT_MENU(EVT_SetNormalLookAtObject, Edit::OnSetNormalLookAtObject)
+	EVT_MENU(EVT_ComputeAO, Edit::OnComputeAO)
 
 	END_EVENT_TABLE()
 
@@ -379,6 +382,11 @@ void Edit::OnMouseEvent(wxMouseEvent &ev)
 					{
 						menu.Append(EVT_SetLookAtObject, "Clear Look At");
 						menu.Append(EVT_SetNormalLookAtObject, "Clear Look At (Normal)");
+					}
+
+					if (obj1->GetComponent<Ice::GOCMeshRenderable>())
+					{
+						menu.Append(EVT_ComputeAO, "Compute Ambient Occlusion");
 					}
 
 					if (obj1->GetComponent("View", "Skeleton"))
@@ -1420,6 +1428,31 @@ void Edit::OnSetNormalLookAtObject( wxCommandEvent& WXUNUSED(event) /*= wxComman
 	IceAssert(mover);
 	if (mSelectedObjects.size() == 1) mover->SetNormalLookAtObject(nullptr);
 	else if (mSelectedObjects.size() == 2) mover->SetNormalLookAtObject(mSelectedObjects.back().mObject);
+}
+void Edit::OnComputeAO( wxCommandEvent& WXUNUSED(event) /*= wxCommandEvent()*/ )
+{
+	if (mSelectedObjects.size() < 1) return;
+	Ice::GOCMeshRenderable *mesh = mSelectedObjects.front().mObject->GetComponent<Ice::GOCMeshRenderable>();
+	IceAssert(mesh);
+    wxFileDialog dialog
+                 (
+                    this,
+                    "Save Mesh",
+                    wxEmptyString,
+                    wxEmptyString,
+                    "Ogre Mesh files (*.mesh)|*.mesh",
+					wxFD_SAVE|wxFD_OVERWRITE_PROMPT
+                 );
+
+    dialog.CentreOnParent();
+	dialog.SetPath("Data/Media/Meshes/");
+
+	dialog.SetFilterIndex(1);
+
+    if (dialog.ShowModal() == wxID_OK)
+    {
+		AmbientOcclusionGenerator::Instance().bakeAmbientOcclusion(mesh->GetEntity(), dialog.GetPath().c_str().AsChar());
+	}
 }
 
 Ogre::Vector3 Edit::GetInsertPosition()
