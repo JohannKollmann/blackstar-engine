@@ -7,6 +7,23 @@
 namespace Ice
 {
 
+	std::vector<ScriptParam> GOCPhysics::Body_GetSpeed(Script& caller, std::vector<ScriptParam> &vParams)
+	{
+		IceAssert(mActor);
+		if (mActor->getNxActor()->isDynamic()) SCRIPT_RETURNVALUE(mActor->getNxActor()->computeKineticEnergy())
+		else SCRIPT_RETURNERROR("Actor is static!")
+	}
+	std::vector<ScriptParam> GOCPhysics::Body_AddImpulse(Script& caller, std::vector<ScriptParam> &vParams)
+	{
+		IceAssert(mActor);
+		if (mActor->getNxActor()->isDynamic())
+		{
+			mActor->getNxActor()->addForce(NxVec3(vParams[0].getFloat(), vParams[1].getFloat(), vParams[2].getFloat()), NxForceMode::NX_IMPULSE);
+			SCRIPT_RETURN()
+		}
+		else SCRIPT_RETURNERROR("Actor is static!")
+	}
+
 	void GOPhysXRenderable::setTransform(Ogre::Vector3 position, Ogre::Quaternion rotation)
 	{
 		if (mBody)
@@ -40,7 +57,7 @@ namespace Ice
 			msg.type = "ACTOR_ONWAKE";
 			msg.rawData = mActor->getNxActor();
 			MessageSystem::Instance().SendInstantMessage(msg);
-			Main::Instance().GetPhysXScene()->destroyRenderedActor(mActor);
+			Main::Instance().GetPhysXScene()->destroyRenderedActor((OgrePhysX::RenderedActor*)mActor);
 			mActor = nullptr;
 			//This also destroys the renderable!
 			mRenderable = nullptr;
@@ -134,7 +151,7 @@ namespace Ice
 	}
 	void GOCRigidBody::UpdateScale(Ogre::Vector3 scale)
 	{
-		if (mActor) Main::Instance().GetPhysXScene()->destroyRenderedActor(mActor);
+		if (mActor) Main::Instance().GetPhysXScene()->destroyRenderedActor((OgrePhysX::RenderedActor*)mActor);
 		mRenderable = nullptr;
 		Create(mCollisionMeshName, mDensity, mShapeType, scale);
 		mActor->setGlobalOrientation(mOwnerGO->GetGlobalOrientation());
@@ -266,6 +283,7 @@ namespace Ice
 	void GOCStaticBody::SetOwner(GameObject *go)
 	{
 		mOwnerGO = go;
+		if (!mOwnerGO) return;
 		if (mCollisionMeshName == "") return;
 
 		if (mActor) Main::Instance().GetPhysXScene()->destroyActor(mActor);

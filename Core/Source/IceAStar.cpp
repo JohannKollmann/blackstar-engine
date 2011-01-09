@@ -96,14 +96,14 @@ namespace Ice
 
 	bool AStar::FindPath(AStarNode3D *start, AStarNode3D *target, std::vector<AStarNode3D*> &path)
 	{
-		int allEdgesMax = AIManager::Instance().GetNavigationMesh()->GetNodeCount()*8;
+		unsigned int allEdgesMax = AIManager::Instance().GetNavigationMesh()->GetNodeCount()*8;
 		std::vector<AStarEdge> allEdges; allEdges.reserve(allEdgesMax);
 		std::map<AStarNode3D*, AStarEdge*> eventListNeighborLookup;
 		std::vector<AStarEdge*> eventList;
 		std::vector<AStarEdge*> shortestPaths;
 		target->GetEdgesAStar(allEdges, start->GetGlobalPosition());		//Wir suchen vom Ziel aus nach dem Startknoten
-		for (int ni = 0; ni < allEdges.size(); ni++) eventListNeighborLookup.insert(std::make_pair<AStarNode3D*, AStarEdge*>(allEdges[ni].mNeighbor, &allEdges[ni]));
-		for (int ni = 0; ni < allEdges.size(); ni++) eventList.push_back(&allEdges[ni]);
+		for (unsigned int ni = 0; ni < allEdges.size(); ni++) eventListNeighborLookup.insert(std::make_pair<AStarNode3D*, AStarEdge*>(allEdges[ni].mNeighbor, &allEdges[ni]));
+		for (unsigned int ni = 0; ni < allEdges.size(); ni++) eventList.push_back(&allEdges[ni]);
 		target->closed = true;
 		std::make_heap(eventList.begin(), eventList.end(), std::greater<AStarEdge*>());
 		while (!eventList.empty())
@@ -118,7 +118,7 @@ namespace Ice
 			int neighborStart = allEdges.size();
 			current->mNeighbor->GetEdgesAStar(allEdges, start->GetGlobalPosition());
 			IceAssert(allEdges.size() < allEdgesMax)
-			for (int i = neighborStart; i < allEdges.size(); i++)
+			for (unsigned int i = neighborStart; i < allEdges.size(); i++)
 			{
 				if (allEdges[i].mNeighbor->closed) continue;
 				allEdges[i].mCost += current->mCost;

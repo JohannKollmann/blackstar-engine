@@ -5,15 +5,27 @@
 #include "IceGOComponent.h"
 #include "IceGOCEditorInterface.h"
 #include "OgrePhysX.h"
+#include "IceGOCScriptMakros.h"
 
 namespace Ice
 {
 
 	class DllExport GOCPhysics : public GOComponent
 	{
+	protected:
+		OgrePhysX::Actor *mActor;
+
 	public:
+		GOCPhysics() : mActor(nullptr) {}
 		virtual ~GOCPhysics(void) {};
 		goc_id_family& GetFamilyID() const { static std::string name = "Physics"; return name; }
+
+		OgrePhysX::Actor* GetActor() { return mActor; }
+
+		std::vector<ScriptParam> Body_GetSpeed(Script& caller, std::vector<ScriptParam> &vParams);
+		std::vector<ScriptParam> Body_AddImpulse(Script& caller, std::vector<ScriptParam> &vParams);
+		DEFINE_GOCLUAMETHOD(GOCPhysics, Body_GetSpeed)
+		DEFINE_TYPEDGOCLUAMETHOD(GOCPhysics, Body_AddImpulse, "float float float")
 	};
 
 	namespace Shapes
@@ -48,7 +60,6 @@ namespace Ice
 	class DllExport GOCRigidBody : public GOCEditorInterface, public GOCPhysics
 	{
 	private:
-		OgrePhysX::RenderedActor *mActor;
 		GOPhysXRenderable *mRenderable;
 		void Create(Ogre::String collision_mesh, float density, int shapetype, Ogre::Vector3 scale);
 		Ogre::String mCollisionMeshName;
@@ -72,8 +83,6 @@ namespace Ice
 
 		void Freeze(bool freeze);
 
-		OgrePhysX::RenderedActor* GetActor() { return mActor; }
-
 		void SetOwner(GameObject *go);
 		bool IsStatic() { return false; }
 
@@ -95,7 +104,6 @@ namespace Ice
 	class DllExport GOCStaticBody : public GOCEditorInterface, public GOCPhysics
 	{
 	private:
-		OgrePhysX::Actor *mActor;
 		void Create(Ogre::String collision_mesh, Ogre::Vector3 scale = Ogre::Vector3(1,1,1));
 		Ogre::String mCollisionMeshName;
 
@@ -136,7 +144,6 @@ namespace Ice
 			SPHERE = 1
 		};
 	private:
-		OgrePhysX::Actor *mActor;
 		TriggerShapes mShapeType;
 		Ogre::Vector3 mBoxDimensions;
 		float mSphereRadius;
