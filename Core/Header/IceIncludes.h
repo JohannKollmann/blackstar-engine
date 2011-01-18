@@ -70,6 +70,15 @@ class NxControllerManager;
 
 namespace Ice
 {
+	enum VisibilityFlags
+	{
+		V_REFRACTIVE = 0x00000001,
+		V_VOLUMETRIC = 0x00000002,
+		V_EDITOROBJECT = 0x00000004,
+		V_SKY = 0x00000008,
+		V_DEFAULT = 0xFFFFFF0,
+	};
+
 	#define DllExport __declspec(dllexport)
 
 	class Main;

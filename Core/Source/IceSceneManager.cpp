@@ -23,6 +23,7 @@
 #include "IceGOCForceField.h"
 #include "IceProcessNode.h"
 #include "IceProcessNodeQueue.h"
+#include "IceProcessNodeManager.h"
 
 #include "boost/filesystem/operations.hpp"
 #include "boost/filesystem/path.hpp"
@@ -323,6 +324,8 @@ namespace Ice
 		ScriptSystem::GetInstance().ShareCFunction("ProcessQueue_Enqueue", &ProcessNodeQueue::Lua_ProcessQueue_Enqueue);
 		ScriptSystem::GetInstance().ShareCFunction("ProcessQueue_Push", &ProcessNodeQueue::Lua_ProcessQueue_PushFront);
 
+		ScriptSystem::GetInstance().ShareCFunction("TimerProcess_Create", &ProcessNodeManager::Lua_ProcessTimer_Create);
+
 		/**
 		Triggers a mover.
 		*/
@@ -409,12 +412,13 @@ namespace Ice
 
 	void SceneManager::SetToOutdoor()
 	{
-		/*Main::Instance().GetOgreSceneMgr()->setSkyBox(true,"Sky/ClubTropicana", 2000);
+		/*Main::Instance().GetOgreSceneMgr()->setSkyBox(true, "Skybox/LostValley");
+		Main::Instance().GetOgreSceneMgr()->getSkyBoxNode()->getAttachedObject(0)->setVisibilityFlags( Ice::VisibilityFlags::V_SKY);
 		Ogre::Light *Light = Main::Instance().GetOgreSceneMgr()->createLight("Light0");
 		Light->setType(Ogre::Light::LT_DIRECTIONAL);
 		Light->setDirection(0, -1, 0.9);
-		Light->setDiffuseColour(1, 1, 1);
-		Light->setSpecularColour(Ogre::ColourValue(1, 0.9, 0.6)/5);*/
+		Light->setDiffuseColour(2, 2, 2);
+		Light->setSpecularColour(Ogre::ColourValue(1, 0.9, 0.6));*/
 		
 		if (!mWeatherController) mWeatherController = ICE_NEW WeatherController();
 		SetTimeScale(mTimeScale);
@@ -501,6 +505,11 @@ namespace Ice
 			LoadLevelMesh(levelmesh.c_str());
 			//AIManager::Instance().SetNavigationMesh((NavigationMesh*)ls->LoadObject());
 			Ice::AIManager::Instance().GetNavigationMesh()->ImportOgreMesh(Ice::SceneManager::Instance().GetLevelMesh()->GetEntity()->getMesh());
+		}
+		else if (mLevelMesh)
+		{
+			ICE_DELETE mLevelMesh;
+			mLevelMesh = nullptr;
 		}
 
 		mStartupScriptName = parameters->GetValue<Ogre::String>("Startup Script", "");

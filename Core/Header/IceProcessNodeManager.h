@@ -10,6 +10,7 @@ namespace Ice
 {
 	class PlayAnimationProcess;
 	class ProcessNodeQueue;
+	class TimerProcess;
 
 	class DllExport ProcessNodeManager
 	{
@@ -24,11 +25,14 @@ namespace Ice
 		virtual ~ProcessNodeManager() {}
 
 		std::shared_ptr<PlayAnimationProcess> CreatePlayAnimationProcess(Ogre::AnimationState *state);
+		std::shared_ptr<TimerProcess> CreateTimerProcess(ScriptParam callbackFn, float time);
 		std::shared_ptr<ProcessNodeQueue> CreateProcessNodeQueue();
 		void RemoveProcessNode(int processID);
 		std::shared_ptr<ProcessNode> GetProcessNode(int processID);
 
 		static ProcessNodeManager& Instance();
+
+		static std::vector<ScriptParam> Lua_ProcessTimer_Create(Script& caller, std::vector<ScriptParam> vParams);
 	};
 
 }

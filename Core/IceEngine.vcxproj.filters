@@ -626,6 +626,9 @@
     <ClInclude Include="Header\IcePlayAnimationProcess.h">
       <Filter>Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="Header\IceTimerProcess.h">
+      <Filter>ProcessNodeSystem</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Header\Messaging.txt">

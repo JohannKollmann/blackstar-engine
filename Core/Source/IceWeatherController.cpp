@@ -18,7 +18,7 @@ namespace Ice
 	        //| Caelum::CaelumSystem::CaelumComponent::CAELUM_COMPONENT_SUN
 	        | Caelum::CaelumSystem::CaelumComponent::CAELUM_COMPONENT_POINT_STARFIELD
 	        | Caelum::CaelumSystem::CaelumComponent::CAELUM_COMPONENT_CLOUDS
-	        | Caelum::CaelumSystem::CaelumComponent::CAELUM_COMPONENT_PRECIPITATION);
+			| Caelum::CaelumSystem::CaelumComponent::CAELUM_COMPONENT_PRECIPITATION);
 	        //| Caelum::CaelumSystem::CaelumComponent::CAELUM_COMPONENT_SCREEN_SPACE_FOG
 			//| Caelum::CaelumSystem::CaelumComponent::CAELUM_COMPONENT_GROUND_FOG);
 
@@ -68,14 +68,17 @@ namespace Ice
 		mCaelumSystem->getMoon()->setSpecularMultiplier(Ogre::ColourValue (0.5, 0.5, 0.5));
 		mCaelumSystem->getMoon ()->setAmbientMultiplier(Ogre::ColourValue(0.25f, 0.25f, 0.25f));
 
-		mCaelumSystem->getCloudSystem()->getLayer(0)->setHeight(2000);
-		mCaelumSystem->getCloudSystem()->getLayer(0)->setCloudUVFactor(250);
+		if (mCaelumSystem->getCloudSystem())
+		{
+			mCaelumSystem->getCloudSystem()->getLayer(0)->setHeight(2000);
+			mCaelumSystem->getCloudSystem()->getLayer(0)->setCloudUVFactor(250);
+		}
 
 		mPaused = false;
 
 		SetSpeedFactor(mCaelumSystem->getUniversalClock ()->getTimeScale ());
 
-		mCaelumSystem->forceSubcomponentVisibilityFlags(8);
+		mCaelumSystem->forceSubcomponentVisibilityFlags( Ice::VisibilityFlags::V_SKY);
 
 		MessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
 		MessageSystem::Instance().JoinNewsgroup(this, "KEY_UP");

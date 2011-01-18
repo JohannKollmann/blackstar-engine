@@ -80,7 +80,7 @@ namespace Ice
 		Ogre::String meshname = parameters->GetOgreString("MeshName");
 		bool shacowcaster = parameters->GetBool("ShadowCaster");
 		Create(meshname, shacowcaster);
-		int visibilityMask = parameters->GetValue<int>("Visibility mask", ~3);
+		int visibilityMask = parameters->GetValue<int>("Visibility mask", Ice::VisibilityFlags::V_DEFAULT);
 		mEntity->setVisibilityFlags(visibilityMask);
 	}
 
@@ -95,7 +95,7 @@ namespace Ice
 	{
 		parameters->AddOgreString("MeshName", "");
 		parameters->AddBool("ShadowCaster", true);
-		parameters->AddInt("Visibility mask", ~3);
+		parameters->AddInt("Visibility mask", Ice::VisibilityFlags::V_DEFAULT);
 	}
 
 	void GOCMeshRenderable::Save(LoadSave::SaveSystem& mgr)
@@ -114,7 +114,7 @@ namespace Ice
 		mgr.LoadAtom("Ogre::String", &meshname);
 		mgr.LoadAtom("bool", &shadow);
 		Create(meshname, shadow);
-		int visibilityMask = ~3;
+		int visibilityMask = Ice::VisibilityFlags::V_DEFAULT;
 		mgr.LoadAtom("int", &visibilityMask);
 		mEntity->setVisibilityFlags(visibilityMask);
 	}
@@ -169,7 +169,7 @@ namespace Ice
 			//if (mRadius > 0) mDimensions = Ogre::Vector3(mRadius*2, mRadius*2, mRadius*2);
 			mBillboardSet->setDefaultDimensions(mDimensions.x, mDimensions.y);
 			mBillboardSet->createBillboard(0,0,0);
-			mBillboardSet->setVisibilityFlags(2);
+			mBillboardSet->setVisibilityFlags( Ice::VisibilityFlags::V_VOLUMETRIC);
 			NotifyOwnerGO();
 		}
 		else IceWarning("Material " + mMaterialName + " not found!")
@@ -224,6 +224,7 @@ namespace Ice
 		else
 		{
 			mParticleSystem = Main::Instance().GetOgreSceneMgr()->createParticleSystem(Ogre::StringConverter::toString(id), pfxresname);
+			mParticleSystem->setVisibilityFlags(VisibilityFlags::V_VOLUMETRIC);		//for testing purposes
 			NotifyOwnerGO();
 		}
 	}

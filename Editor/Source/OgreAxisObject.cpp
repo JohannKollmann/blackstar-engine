@@ -110,7 +110,7 @@ Ogre::ManualObject* AxisComponent::createAxis(const Ogre::String &name, Ogre::Ve
 	addBox(mAxisObject, Vector3(Zscl, Zscl, Zlen), Vector3(0,0,-Zloc), ColourValue(fade, 0, 0, fade), (BOX_ALL & ~BOX_FRONT)); 
 
 	mAxisObject->setCastShadows(false);
-	mAxisObject->setVisibilityFlags(4);
+	mAxisObject->setVisibilityFlags( Ice::VisibilityFlags::V_EDITOROBJECT);
 
 	//axis->setRenderQueueGroup(Ogre::RENDER_QUEUE_OVERLAY - 1);
 

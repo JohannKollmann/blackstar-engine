@@ -78,7 +78,7 @@ namespace Ice
 
 	 protected:
 
-		virtual void OnSetActive(bool active)  = 0;
+		 virtual void OnSetActive(bool active)  {}
 	};
 
 }

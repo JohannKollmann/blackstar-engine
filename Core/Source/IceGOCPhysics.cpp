@@ -9,16 +9,16 @@ namespace Ice
 
 	std::vector<ScriptParam> GOCPhysics::Body_GetSpeed(Script& caller, std::vector<ScriptParam> &vParams)
 	{
-		IceAssert(mActor);
-		if (mActor->getNxActor()->isDynamic()) SCRIPT_RETURNVALUE(mActor->getNxActor()->computeKineticEnergy())
+		IceAssert(GetActor());
+		if (GetActor()->getNxActor()->isDynamic()) SCRIPT_RETURNVALUE(GetActor()->getNxActor()->computeKineticEnergy())
 		else SCRIPT_RETURNERROR("Actor is static!")
 	}
 	std::vector<ScriptParam> GOCPhysics::Body_AddImpulse(Script& caller, std::vector<ScriptParam> &vParams)
 	{
-		IceAssert(mActor);
-		if (mActor->getNxActor()->isDynamic())
+		IceAssert(GetActor());
+		if (GetActor()->getNxActor()->isDynamic())
 		{
-			mActor->getNxActor()->addForce(NxVec3(vParams[0].getFloat(), vParams[1].getFloat(), vParams[2].getFloat()), NxForceMode::NX_IMPULSE);
+			GetActor()->getNxActor()->addForce(NxVec3(vParams[0].getFloat(), vParams[1].getFloat(), vParams[2].getFloat()), NxForceMode::NX_IMPULSE);
 			SCRIPT_RETURN()
 		}
 		else SCRIPT_RETURNERROR("Actor is static!")

@@ -52,6 +52,7 @@ namespace Ice
 		mCameraCenterNode = nullptr;
 		mCameraNode = nullptr;
 		mTargetNode = nullptr;
+		mMaxPitch = 0.4;
 	}
 
 	GOCCameraController::~GOCCameraController()
@@ -144,10 +145,10 @@ namespace Ice
 		
 			double pitch = msg.params.GetInt("ROT_Y_REL")*mTightness;
 			sfAbsRefPitch+=pitch;
-			if(sfAbsRefPitch>=Ogre::Math::PI*0.4f)
-				sfAbsRefPitch=Ogre::Math::PI*0.4f;
-			if(sfAbsRefPitch<=-Ogre::Math::PI*0.4f)
-				sfAbsRefPitch=-Ogre::Math::PI*0.4f;
+			if(sfAbsRefPitch>=Ogre::Math::PI*mMaxPitch)
+				sfAbsRefPitch=Ogre::Math::PI*mMaxPitch;
+			if(sfAbsRefPitch<=-Ogre::Math::PI*mMaxPitch)
+				sfAbsRefPitch=-Ogre::Math::PI*mMaxPitch;
 			if(mfZoom>0.0f)
 			{
 				if (oldZoom == 0.0f)
@@ -155,6 +156,7 @@ namespace Ice
 					Msg msg;
 					msg.type = "LEAVE_FPS_MODE";
 					mOwnerGO->SendInstantMessage(msg);
+					mMaxPitch = 0.4f;
 				}
 				mCameraNode->setPosition(Ogre::Vector3(0.0f,0.0f,-6.0f)*static_cast<float>(sfActualZoom));
 				mCameraNode->setAutoTracking(true, mTargetNode);
@@ -166,6 +168,7 @@ namespace Ice
 					Msg msg;
 					msg.type = "ENTER_FPS_MODE";
 					mOwnerGO->SendInstantMessage(msg);
+					mMaxPitch = 0.6f;
 				}
 				sfActualZoom=0.0f;
 				mCameraNode->setPosition(0,0,0);

@@ -13,14 +13,13 @@ namespace Ice
 	class DllExport GOCPhysics : public GOComponent
 	{
 	protected:
-		OgrePhysX::Actor *mActor;
+		
 
 	public:
-		GOCPhysics() : mActor(nullptr) {}
 		virtual ~GOCPhysics(void) {};
 		goc_id_family& GetFamilyID() const { static std::string name = "Physics"; return name; }
 
-		OgrePhysX::Actor* GetActor() { return mActor; }
+		virtual OgrePhysX::Actor* GetActor() = 0;
 
 		std::vector<ScriptParam> Body_GetSpeed(Script& caller, std::vector<ScriptParam> &vParams);
 		std::vector<ScriptParam> Body_AddImpulse(Script& caller, std::vector<ScriptParam> &vParams);
@@ -55,11 +54,13 @@ namespace Ice
 		GOPhysXRenderable(GOCRigidBody *body) : mBody(body) {};
 		virtual ~GOPhysXRenderable() {}
 		void setTransform(Ogre::Vector3 position, Ogre::Quaternion rotation);
+
 	};
 
 	class DllExport GOCRigidBody : public GOCEditorInterface, public GOCPhysics
 	{
 	private:
+		OgrePhysX::Actor *mActor;
 		GOPhysXRenderable *mRenderable;
 		void Create(Ogre::String collision_mesh, float density, int shapetype, Ogre::Vector3 scale);
 		Ogre::String mCollisionMeshName;
@@ -86,6 +87,8 @@ namespace Ice
 		void SetOwner(GameObject *go);
 		bool IsStatic() { return false; }
 
+		OgrePhysX::Actor* GetActor() { return mActor; }
+
 		void SetParameters(DataMap *parameters);
 		void GetParameters(DataMap *parameters);
 		void GetDefaultParameters(DataMap *parameters);
@@ -104,6 +107,7 @@ namespace Ice
 	class DllExport GOCStaticBody : public GOCEditorInterface, public GOCPhysics
 	{
 	private:
+		OgrePhysX::Actor *mActor;
 		void Create(Ogre::String collision_mesh, Ogre::Vector3 scale = Ogre::Vector3(1,1,1));
 		Ogre::String mCollisionMeshName;
 
@@ -119,6 +123,8 @@ namespace Ice
 		void UpdatePosition(Ogre::Vector3 position);
 		void UpdateOrientation(Ogre::Quaternion orientation);
 		void UpdateScale(Ogre::Vector3 scale);
+
+		OgrePhysX::Actor* GetActor() { return mActor; }
 
 		void SetOwner(GameObject *go);
 
@@ -144,6 +150,7 @@ namespace Ice
 			SPHERE = 1
 		};
 	private:
+		OgrePhysX::Actor *mActor;
 		TriggerShapes mShapeType;
 		Ogre::Vector3 mBoxDimensions;
 		float mSphereRadius;
@@ -167,6 +174,8 @@ namespace Ice
 		void onLeave(GameObject *object);
 
 		void SetOwner(GameObject *go);
+
+		OgrePhysX::Actor* GetActor() { return mActor; }
 
 		void SetParameters(DataMap *parameters);
 		void GetParameters(DataMap *parameters);

@@ -42,6 +42,7 @@ namespace Ice
 		Ogre::SceneNode *mCameraNode;
 		Ogre::SceneNode *mCameraCenterNode;
 		float mTightness;
+		double mMaxPitch;
 		Ogre::Quaternion mCharacterOrientation;
 
 		float //mfCameraAngle,
