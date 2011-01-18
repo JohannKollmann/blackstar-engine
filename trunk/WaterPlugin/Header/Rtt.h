@@ -278,7 +278,7 @@ public:
 		mMaterial = baseMat->clone("WaterMaterial_" + id);
 		mEntity->setMaterial(mMaterial);
 
-		mEntity->setVisibilityFlags(1);
+		mEntity->setVisibilityFlags( Ice::VisibilityFlags::V_REFRACTIVE);
 		mEntity->setCastShadows(false);
 
 		//setup rtts

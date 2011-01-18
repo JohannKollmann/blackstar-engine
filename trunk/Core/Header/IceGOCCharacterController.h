@@ -69,6 +69,7 @@ namespace Ice
 	class DllExport GOCCharacterController : public GOCPhysics, public MessageListener, public GOCEditorInterface
 	{
 	private:
+		OgrePhysX::Actor *mActor;
 		OgrePhysX::Actor *mSweepActor;
 		NxSweepCache *mSweepCache;
 		void Create(Ogre::Vector3 dimensions);
@@ -86,6 +87,7 @@ namespace Ice
 
 		float mMovementSpeed;
 		float mSpeedFactor;
+		float mDensity;
 
 		Ogre::String mMaterialName;
 
@@ -93,7 +95,7 @@ namespace Ice
 		void _clear();
 
 	public:
-		GOCCharacterController() : mMovementSpeed(2.0f) {}
+		GOCCharacterController() : mMovementSpeed(2.0f), mActor(nullptr), mDensity(10) {}
 		GOCCharacterController(Ogre::Vector3 dimensions);
 		~GOCCharacterController(void);
 
@@ -111,6 +113,8 @@ namespace Ice
 		void Freeze(bool freeze);
 
 		void SetOwner(GameObject *go);
+
+		OgrePhysX::Actor* GetActor() { return mActor; }
 
 		void SetParameters(DataMap *parameters);
 		void GetParameters(DataMap *parameters);

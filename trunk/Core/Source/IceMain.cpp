@@ -243,7 +243,7 @@ void Main::initScene()
 	hdrListener->notifyCompositor(hdrinstance);
 	Ogre::CompositorManager::getSingleton().setCompositorEnabled(GetViewport(), "DownsampleHDR1", true);
 
-	Ogre::MovableObject::setDefaultVisibilityFlags(~3);
+	Ogre::MovableObject::setDefaultVisibilityFlags( Ice::VisibilityFlags::V_DEFAULT);
 	
 	mPhysXScene->getNxScene()->setUserContactReport(ICE_NEW ActorContactReport());
 

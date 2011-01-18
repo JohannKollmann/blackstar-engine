@@ -244,6 +244,7 @@
     <ClInclude Include="Header\IceScriptMessageListener.h" />
     <ClInclude Include="Header\IceSoundMaterialTable.h" />
     <ClInclude Include="Header\IceSpline.h" />
+    <ClInclude Include="Header\IceTimerProcess.h" />
     <ClInclude Include="Header\IceUtils.h" />
     <ClInclude Include="Header\IceAIManager.h" />
     <ClInclude Include="Header\IceAIState.h" />

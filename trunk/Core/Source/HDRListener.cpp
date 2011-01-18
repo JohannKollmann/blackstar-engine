@@ -182,6 +182,7 @@ namespace Ice
 	{
 		if (pass_id == 995)
 		{
+			if (!SceneManager::Instance().GetWeatherController()) return;
 			Ogre::Matrix4 viewproj = Ice::Main::Instance().GetCamera()->getProjectionMatrix() * Ice::Main::Instance().GetCamera()->getViewMatrix();
 			Ogre::Vector3 sunDir = SceneManager::Instance().GetWeatherController()->GetCaelumSystem()->getSun()->getLightDirection();
 			float camDotLight = Ice::Main::Instance().GetCamera()->getDerivedDirection().dotProduct(-sunDir);

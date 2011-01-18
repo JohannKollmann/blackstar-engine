@@ -9,6 +9,7 @@
 #include "IceIncludes.h"
 #include "OgreOggSound.h"
 #include "IceScriptSystem.h"
+#include "IceGOCView.h"
 
 namespace Ice
 {
@@ -138,7 +139,9 @@ namespace Ice
 						else
 						{
 							GameObject *object = (GameObject*)meshShape->getActor().userData;
-							//todo
+							GOCMeshRenderable *gocMesh = nullptr;
+							if (gocMesh = object->GetComponent<GOCMeshRenderable>())
+								ent = gocMesh->GetEntity();
 						}
 						if (ent)
 						{

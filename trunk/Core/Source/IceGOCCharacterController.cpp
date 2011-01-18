@@ -54,7 +54,9 @@ namespace Ice
 	GOCCharacterController::GOCCharacterController(Ogre::Vector3 dimensions)
 	{
 		mMovementSpeed = 2.0f;
+		mActor = nullptr;
 		Create(dimensions);
+		mDensity = 10;
 	}
 
 	GOCCharacterController::~GOCCharacterController(void)
@@ -99,7 +101,7 @@ namespace Ice
 		mHeight = mDimensions.y * 0.5f + offset;
 		mRadius *= 0.5f;
 		mActor = Main::Instance().GetPhysXScene()->createActor(
-			OgrePhysX::CapsuleShape(mRadius, mHeight).density(10).group(CollisionGroups::CHARACTER).localPose(Ogre::Vector3(0, mDimensions.y * 0.5f, 0)).material(nxID));
+			OgrePhysX::CapsuleShape(mRadius, mHeight).density(mDensity).group(CollisionGroups::CHARACTER).localPose(Ogre::Vector3(0, mDimensions.y * 0.5f, 0)).material(nxID));
 		//mActor->getNxActor()->raiseBodyFlag(NxBodyFlag::NX_BF_DISABLE_GRAVITY);
 		mActor->getNxActor()->setMassSpaceInertiaTensor(NxVec3(0,1,0));
 		mActor->getNxActor()->setSolverIterationCount(8);
@@ -230,7 +232,7 @@ namespace Ice
 			{
 				mJumping = true;
 				mJumpStartTime = timeGetTime();
-				mActor->getNxActor()->addForce(NxVec3(0, 250, 0), NxForceMode::NX_IMPULSE);
+				mActor->getNxActor()->addForce(NxVec3(0, 400, 0), NxForceMode::NX_IMPULSE);
 				Msg msg;
 				msg.type = "START_JUMP";
 				mOwnerGO->SendInstantMessage(msg);
@@ -272,7 +274,8 @@ namespace Ice
 		_clear();
 		mDimensions = parameters->GetValue("Dimensions", Ogre::Vector3(1,1,1));
 		mMovementSpeed = parameters->GetFloat("MaxSpeed");
-		mMaterialName = parameters->GetValue<Ogre::String>("mMaterialName", "Wood");
+		mMaterialName = parameters->GetValue<Ogre::String>("MaterialName", "Wood");
+		mDensity = parameters->GetValue<float>("Density", 10);
 		Create(mDimensions);
 		if (mOwnerGO) mActor->getNxActor()->userData = mOwnerGO;
 	}
@@ -280,26 +283,30 @@ namespace Ice
 	{
 		parameters->AddOgreVec3("Dimensions", mDimensions);
 		parameters->AddFloat("MaxSpeed", mMovementSpeed);
-		parameters->AddOgreString("mMaterialName", mMaterialName);
+		parameters->AddOgreString("MaterialName", mMaterialName);
+		parameters->AddFloat("Density", mDensity);
 	}
 	void GOCCharacterController::GetDefaultParameters(DataMap *parameters)
 	{
 		parameters->AddOgreVec3("Dimensions", Ogre::Vector3(0.5, 1.8, 0.5));
 		parameters->AddFloat("MaxSpeed", 2.0f);
-		parameters->AddOgreString("mMaterialName", "Wood");
+		parameters->AddOgreString("MaterialName", "Wood");
+		parameters->AddFloat("Density", 10);
 	}
 
 	void GOCCharacterController::Save(LoadSave::SaveSystem& mgr)
 	{
 		mgr.SaveAtom("Ogre::Vector3", &mDimensions, "Dimensions");
 		mgr.SaveAtom("float", &mMovementSpeed, "MaxSpeed");
-		mgr.SaveAtom("Ogre::String", &mMaterialName, "mMaterialName");
+		mgr.SaveAtom("Ogre::String", &mMaterialName, "MaterialName");
+		mgr.SaveAtom("float", &mDensity, "Density");
 	}
 	void GOCCharacterController::Load(LoadSave::LoadSystem& mgr)
 	{
 		mgr.LoadAtom("Ogre::Vector3", &mDimensions);
 		mgr.LoadAtom("float", &mMovementSpeed);		//Load Save: Todo!
 		mgr.LoadAtom("Ogre::String", &mMaterialName);
+		mgr.LoadAtom("float", &mDensity);
 		Create(mDimensions);
 	}
 
@@ -308,7 +315,7 @@ namespace Ice
 		//TODO: Use code from IceCollisionCallback.cpp for per-triangle materials!
 		std::string mat = "None";
 		NxRaycastHit hit;
-		if (Main::Instance().GetPhysXScene()->getNxScene()->raycastClosestShape(NxRay(OgrePhysX::Convert::toNx(mOwnerGO->GetGlobalPosition() + Ogre::Vector3(0,1,0)), NxVec3(0,-1,0)), NX_STATIC_SHAPES, hit, 1<<CollisionGroups::LEVELMESH, 1.5f, NX_RAYCAST_MATERIAL))
+		if (Main::Instance().GetPhysXScene()->getNxScene()->raycastClosestShape(NxRay(OgrePhysX::Convert::toNx(mOwnerGO->GetGlobalPosition() + Ogre::Vector3(0,1,0)), NxVec3(0,-1,0)), NX_ALL_SHAPES, hit, 1<<CollisionGroups::LEVELMESH|1<<CollisionGroups::DEFAULT, 1.5f, NX_RAYCAST_MATERIAL))
 		{
 			mat = SceneManager::Instance().GetSoundMaterialTable().GetMaterialName(hit.materialIndex);
 		}
