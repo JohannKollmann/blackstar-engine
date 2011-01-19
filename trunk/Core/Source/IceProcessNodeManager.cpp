@@ -36,9 +36,9 @@ namespace Ice
 		return pNode;
 	}
 
-	std::shared_ptr<TimerProcess> ProcessNodeManager::CreateTimerProcess(ScriptParam callbackFn, float time)
+	std::shared_ptr<TimerProcess> ProcessNodeManager::CreateTimerProcess(float time)
 	{
-		std::shared_ptr<TimerProcess> pNode = std::make_shared<TimerProcess>(callbackFn, time);
+		std::shared_ptr<TimerProcess> pNode = std::make_shared<TimerProcess>(time);
 		pNode->Init(mIDCounter);
 		mProcessNodes.insert(std::make_pair<int, std::shared_ptr<ProcessNode>>(mIDCounter++, std::static_pointer_cast<ProcessNode, TimerProcess>(pNode)));
 		return pNode;
@@ -61,14 +61,14 @@ namespace Ice
 
 	std::vector<ScriptParam> ProcessNodeManager::Lua_ProcessTimer_Create(Script& caller, std::vector<ScriptParam> vParams)
 	{
-		auto err = Utils::TestParameters(vParams, "float function");
+		auto err = Utils::TestParameters(vParams, "float", true);
 		if (err == "")
 		{
-			auto pNode = Instance().CreateTimerProcess(vParams[1], vParams[0].getFloat());
+			auto pNode = Instance().CreateTimerProcess(vParams[0].getFloat());
+			pNode->SetScriptCallback(vParams[1]);
 			SCRIPT_RETURNVALUE(pNode->GetProcessID())
 		}
 		else SCRIPT_RETURNERROR(err)
-		SCRIPT_RETURN()
 	}
 
 }

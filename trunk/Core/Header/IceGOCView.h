@@ -53,10 +53,6 @@ namespace Ice
 		static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "GOCMeshRenderable"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };
 		static LoadSave::Saveable* NewInstance();
 		GOCEditorInterface* New() { return new GOCMeshRenderable(); }
-
-
-		std::vector<ScriptParam> SetVisible(Script &caller, std::vector<ScriptParam> &params) { mEntity->setVisible(params[0].getBool());  return std::vector<ScriptParam>(); };
-		DEFINE_TYPEDGOCLUAMETHOD(GOCMeshRenderable, SetVisible, "bool")
 	};
 
 	class DllExport GOCBillboard : public GOCOgreNodeUser, public GOCStaticEditorInterface

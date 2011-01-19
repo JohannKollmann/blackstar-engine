@@ -1,6 +1,8 @@
 #pragma once
 
 #include "IceGOComponent.h"
+#include "IceGOCScriptMakros.h"
+#include "IceScriptSystem.h"
 
 namespace Ice
 {
@@ -22,6 +24,9 @@ namespace Ice
 		bool _getIsSaveable() const { return false; }
 
 		Ogre::SceneNode* GetNode() { return mNode; }
+
+		std::vector<ScriptParam> SetVisible(Script &caller, std::vector<ScriptParam> &params) { mNode->setVisible(params[0].getBool());  return std::vector<ScriptParam>(); };
+		DEFINE_TYPEDGOCLUAMETHOD(GOCOgreNode, SetVisible, "bool")
 	};
 
 	class DllExport GOCOgreNodeUser : public GOComponent

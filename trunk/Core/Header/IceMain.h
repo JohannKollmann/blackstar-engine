@@ -61,8 +61,6 @@ namespace Ice
 		// List of Plugin instances registered
 		std::vector<Ogre::Plugin*> mPlugins;
 
-		void AddOgreResourcePath(Ogre::String dir);
-
 		int winHeight;
 		int winWidth;
 
@@ -114,6 +112,8 @@ namespace Ice
 		void SetDirectionalShadowCameraSetup(Ogre::ShadowCameraSetupPtr setup) { mDirectionalShadowCameraSetup = setup; };
 		void SetSpotShadowCameraSetup(Ogre::ShadowCameraSetupPtr setup) { mSpotShadowCameraSetup = setup; };
 		void SetPointShadowCameraSetup(Ogre::ShadowCameraSetupPtr setup) { mPointShadowCameraSetup = setup; };
+
+		void AddOgreResourcePath(Ogre::String dir);
 
 		//Muss vom Plugin aus in dllStartPlugin aufgerufen werden!
 		void InstallPlugin(Ogre::Plugin* plugin);

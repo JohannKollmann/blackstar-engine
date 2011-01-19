@@ -235,6 +235,8 @@ bool wxFileTree::OnAddDirectory(VdtcTreeItemBase &item, const wxFileName &name)
 	if(!str.CmpNoCase("Debug") || !str.CmpNoCase("Release") || !str.CmpNoCase("CVS"))
 		return false;
 
+	//Ice::Main::Instance().AddOgreResourcePath(name.GetFullPath().c_str().AsChar());
+
 	return true;
 }
 
