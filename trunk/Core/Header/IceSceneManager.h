@@ -204,6 +204,9 @@ namespace Ice
 		*/
 		static std::vector<ScriptParam> Lua_GetFocusObject(Script& caller, std::vector<ScriptParam> params);
 
+		//Retrieves the player object id
+		static std::vector<ScriptParam> Lua_GetPlayer(Script& caller, std::vector<ScriptParam> params);
+
 	};
 
 }

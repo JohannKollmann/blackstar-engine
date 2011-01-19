@@ -309,6 +309,8 @@ namespace Ice
 		ScriptSystem::GetInstance().ShareCFunction("Npc_GotoWP", &GOCAI::Lua_Npc_GotoWP);
 		ScriptSystem::GetInstance().ShareCFunction("Npc_OpenDialog", &GOCAI::Lua_Npc_OpenDialog);
 
+		ScriptSystem::GetInstance().ShareCFunction("GetPlayer", &SceneManager::Lua_GetPlayer);
+
 		ScriptSystem::GetInstance().ShareCFunction("Forcefield_SetActive", &GOCForceField::Lua_Forcefield_Activate);
 
 		ScriptSystem::GetInstance().ShareCFunction("Character_GetGroundMaterial", &GOCCharacterController::Lua_Character_GetGroundMaterial);
@@ -1023,6 +1025,12 @@ namespace Ice
 		SCRIPT_RETURN()
 	}
 
+	std::vector<ScriptParam> SceneManager::Lua_GetPlayer(Script& caller, std::vector<ScriptParam> params)
+	{
+		int errout = -1;
+		if (!Instance().GetPlayer()) SCRIPT_RETURNVALUE(errout)
+		else SCRIPT_RETURNVALUE(Instance().GetPlayer()->GetID())
+	}
 
 
 
