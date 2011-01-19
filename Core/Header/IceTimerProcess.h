@@ -17,13 +17,17 @@ namespace Ice
 		float mOriginalTime;
 
 	public:
-		TimerProcess(ScriptParam scriptCallback, float time)
+		TimerProcess(float time)
 		{
-			mScriptCallback = scriptCallback;
 			mOriginalTime = time;
 			mTimeLeft = time;
 			MessageSystem::Instance().JoinNewsgroup(this, "REPARSE_SCRIPTS");
 			MessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
+		}
+
+		void SetScriptCallback(ScriptParam callback)
+		{
+			mScriptCallback = callback;
 		}
 
 		void ReceiveMessage(Msg &msg)
@@ -35,10 +39,14 @@ namespace Ice
 				mTimeLeft -= msg.params.GetFloat("TIME");
 				if (mTimeLeft <= 0)
 				{
-					std::vector<ScriptParam> in = ScriptSystem::GetInstance().RunCallbackFunction(mScriptCallback, std::vector<ScriptParam>());
 					bool terminate = true;
-					if (in.size() == 1)
-						if (in[0].getType() == ScriptParam::PARM_TYPE_BOOL) terminate = !in[0].getBool();
+
+					if (mScriptCallback.getType() == ScriptParam::PARM_TYPE_FUNCTION)
+					{
+						std::vector<ScriptParam> in = ScriptSystem::GetInstance().RunCallbackFunction(mScriptCallback, std::vector<ScriptParam>());
+						if (in.size() == 1)
+							if (in[0].getType() == ScriptParam::PARM_TYPE_BOOL) terminate = !in[0].getBool();
+					}
 
 					if (terminate) TerminateProcess();
 					else mTimeLeft = mOriginalTime;
