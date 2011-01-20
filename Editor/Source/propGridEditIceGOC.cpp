@@ -193,6 +193,9 @@ void wxEditIceGameObject::OnApply()
 		wxEdit::Instance().GetOgrePane()->DeselectObject(mGameObject);
 	}
 
+	Ice::Msg msg;msg.type = "INTERN_RESET";
+	mGameObject->SendInstantMessage(msg);
+
 	std::list<Ice::GOCEditorInterface*> existingGOCs;
 	for (auto ci = mGameObject->GetComponentIterator(); ci != mGameObject->GetComponentIteratorEnd(); ci++)
 	{

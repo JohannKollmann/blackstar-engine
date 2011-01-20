@@ -314,6 +314,7 @@ namespace Ice
 		ScriptSystem::GetInstance().ShareCFunction("Forcefield_SetActive", &GOCForceField::Lua_Forcefield_Activate);
 
 		ScriptSystem::GetInstance().ShareCFunction("Character_GetGroundMaterial", &GOCCharacterController::Lua_Character_GetGroundMaterial);
+		ScriptSystem::GetInstance().ShareCFunction("Character_SetSpeed", &GOCCharacterController::Lua_Character_SetSpeed);
 
 		ScriptSystem::GetInstance().ShareCFunction("Object_RunFunction", &GOCScript::Lua_RunFunction);
 
