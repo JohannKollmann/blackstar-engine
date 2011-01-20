@@ -10,17 +10,21 @@
 namespace Ice
 {
 
-	struct DllExport Newsgroup
-	{
-		float mPriority;
-		std::vector<MessageListener*> mListeners;
-		Ogre::String mName;
-
-		std::vector<Msg> mCurrentMessages;
-	};
-
 	class DllExport MessageSystem
 	{
+	public:
+		typedef Ogre::String NewsgroupID;
+
+		struct DllExport Newsgroup
+		{
+			float mPriority;
+			std::vector<MessageListener*> mListeners;
+			NewsgroupID mID;
+			std::vector<Msg> mCurrentMessages;
+
+			unsigned int _currIterateIndex;	//hack for remove while iterating
+		};
+
 	protected:
 		MessageSystem();
 		~MessageSystem();
@@ -31,7 +35,7 @@ namespace Ice
 		Die Newsgroups. Jeder Newsgroup ist ein Vektor von MessageListenern zugeordnet, die der Newsgroup
 		angehören.
 		*/
-		std::list<Newsgroup> mNewsgroups;
+		std::map<NewsgroupID, Newsgroup> mNewsgroups;
 
 	public:
 
@@ -47,17 +51,17 @@ namespace Ice
 		/*
 		Erstellt eine Newsgroup mit dem Namen groupname.
 		*/
-		void CreateNewsgroup(Ogre::String groupname, float priority = 1.0f);
+		void CreateNewsgroup(NewsgroupID groupname, float priority = 1.0f);
 
 		/*
 		Registriert einen MessageListener in einer Newsgroup.
 		*/
-		void JoinNewsgroup(MessageListener *listener, Ogre::String groupname);
+		void JoinNewsgroup(MessageListener *listener, NewsgroupID groupname);
 
 		/*
 		Entfernt einen MessageListener aus einer Newsgroup.
 		*/
-		void QuitNewsgroup(MessageListener *listener, Ogre::String groupname);
+		void QuitNewsgroup(MessageListener *listener, NewsgroupID groupname);
 
 		void QuitAllNewsgroups(MessageListener *listener);
 

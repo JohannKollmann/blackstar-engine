@@ -131,9 +131,10 @@ namespace Ice
 
 		//Scripting
 		std::vector<ScriptParam> Character_GetGroundMaterial(Script& caller, std::vector<ScriptParam> &vParams);
+		std::vector<ScriptParam> Character_SetSpeed(Script& caller, std::vector<ScriptParam> &vParams);
 
-		//Methods to setup states the time
 		DEFINE_GOCLUAMETHOD(GOCCharacterController, Character_GetGroundMaterial)
+		DEFINE_TYPEDGOCLUAMETHOD(GOCCharacterController, Character_SetSpeed, "float")
 	};
 
 

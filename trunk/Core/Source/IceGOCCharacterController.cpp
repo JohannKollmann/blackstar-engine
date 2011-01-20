@@ -323,5 +323,10 @@ namespace Ice
 		out.push_back(mat);
 		return out;
 	}
+	std::vector<ScriptParam> GOCCharacterController::Character_SetSpeed(Script& caller, std::vector<ScriptParam> &vParams)
+	{
+		SetSpeedFactor(vParams[0].getFloat());
+		SCRIPT_RETURN()
+	}
 
 };

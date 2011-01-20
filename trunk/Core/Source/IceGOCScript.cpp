@@ -6,11 +6,6 @@ namespace Ice
 	void GOCScript::OnSetParameters()
 	{
 		if (!mOwnerGO) return;
-		if (GOCScriptMessageCallback *c = mOwnerGO->GetComponent<GOCScriptMessageCallback>())
-		{
-			Msg msg; msg.type = "REPARSE_SCRIPTS";
-			c->ReceiveMessage(msg);		//HACK - damit script objekt message listener gelöscht werden
-		}
 		InitScript(mScriptFileName);
 	}
 
@@ -18,11 +13,6 @@ namespace Ice
 	{
 		mOwnerGO = go;
 		if (!mOwnerGO) return;
-		if (GOCScriptMessageCallback *c = mOwnerGO->GetComponent<GOCScriptMessageCallback>())
-		{
-			Msg msg; msg.type = "REPARSE_SCRIPTS";
-			c->ReceiveMessage(msg);		//HACK - damit script objekt message listener gelöscht werden
-		}
 		if (mScriptFileName != "") InitScript(mScriptFileName);
 	}
 
@@ -45,6 +35,12 @@ namespace Ice
 
 	void GOCScriptMessageCallback::ReceiveObjectMessage(Msg &msg)
 	{
+		if (msg.type == "INTERN_RESET")
+		{
+			mObjectMsgCallbacks.clear();
+			return;
+		}
+
 		auto i = mObjectMsgCallbacks.find(msg.type);
 		if (i == mObjectMsgCallbacks.end()) return;
 
@@ -53,7 +49,7 @@ namespace Ice
 		{
 			msg.params.GetNext().data.GetAsScriptParam(params);
 		}
-		for (auto c = 0; c < i->second.size(); c++)
+		for (unsigned int c = 0; c < i->second.size(); c++)
 		{
 			ScriptSystem::RunCallbackFunction(i->second[c], params);
 		}
