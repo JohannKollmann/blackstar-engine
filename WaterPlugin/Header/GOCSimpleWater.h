@@ -8,16 +8,21 @@
 #include "IceSceneManager.h"
 #include "Rtt.h"
 #include "IceGOCOgreNode.h"
+#include "Caelum.h"
+#include "InternalUtilities.h"
 
 class __declspec(dllexport) GOCSimpleWater : public Ice::GOCOgreNodeUser, public Ice::GOCStaticEditorInterface
 {
 private:
 	Ogre::String mWaterMesh;
+	Ogre::String mRefMaterial;
 	Ogre::Vector3 mUpVector;
 	WaterPlane mWaterPlane;
 	Ogre::Entity *mEntity;
 	float mWidth;
 	float mHeight;
+	bool mReflection;
+	int mReflectionRttRes;
 	//float mRadius;
 	Ice::DataMap::Enum mBodyTypeEnum;
 
@@ -45,6 +50,11 @@ private:
 			mWaterMesh = "WaterSurface_" + id;
 			Ogre::MeshManager::getSingleton().createPlane(mWaterMesh, "General", waterPlane, mWidth, mHeight, 1, 1, true, 1, 1, 1, upTexVector);
 		}
+		else if (mBodyTypeEnum.selection == 2)	//Dome
+		{
+			mWaterMesh = "WaterSurface_" + id;
+			Caelum::InternalUtilities::generateSphericDome (mWaterMesh, 32, Caelum::InternalUtilities::DT_SKY_DOME);
+		}
 
 		//create Entity
 		if (!Ogre::MeshManager::getSingleton().resourceExists(mWaterMesh) && !Ogre::ResourceGroupManager::getSingleton().resourceExists("General", mWaterMesh))
@@ -55,7 +65,7 @@ private:
 		mEntity = Ice::Main::Instance().GetOgreSceneMgr()->createEntity(id, mWaterMesh);
 		mEntity->setCastShadows(false);
 
-		mWaterPlane.create(mEntity, Ice::Main::Instance().GetCamera());
+		mWaterPlane.create(mEntity, Ice::Main::Instance().GetCamera(), mRefMaterial, mReflection, mReflectionRttRes);
 		mWaterPlane.setPlane(waterPlane);
 
 		SetOwner(mOwnerGO);
@@ -75,6 +85,7 @@ public:
 	{
 		mBodyTypeEnum.choices.push_back("Rectangle");
 		mBodyTypeEnum.choices.push_back("Mesh");
+		mBodyTypeEnum.choices.push_back("Dome");
 		mBodyTypeEnum.selection = 0;
 	}
 	~GOCSimpleWater(void)
@@ -117,7 +128,10 @@ public:
 		PROPERTY_ENUM(mBodyTypeEnum, "Body Type", mBodyTypeEnum)
 		PROPERTY_FLOAT(mWidth, "Width", 1.0f);
 		PROPERTY_FLOAT(mHeight, "Height", 1.0f);
+		PROPERTY_STRING(mRefMaterial, "Material", "WaterReflectionRefraction")
 		PROPERTY_STRING(mWaterMesh, "Water mesh", ".mesh")
+		PROPERTY_BOOL(mReflection, "Reflection", true)
+		PROPERTY_INT(mReflectionRttRes, "ReflectionRttResolution", 512);
 		PROPERTY_VECTOR3(mUpVector, "Up Vector", Ogre::Vector3(0,1,0));
 	END_GOCEDITORINTERFACE
 

@@ -24,6 +24,9 @@ namespace Ice
 			MessageSystem::Instance().JoinNewsgroup(this, "REPARSE_SCRIPTS");
 			MessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
 		}
+		~TimerProcess()
+		{
+		}
 
 		void SetScriptCallback(ScriptParam callback)
 		{
@@ -33,7 +36,10 @@ namespace Ice
 		void ReceiveMessage(Msg &msg)
 		{
 			if (msg.type == "REPARSE_SCRIPTS")
+			{
+				mScriptCallback = ScriptParam();
 				TerminateProcess();
+			}
 			else if (msg.type == "UPDATE_PER_FRAME" && mIsActive)
 			{
 				mTimeLeft -= msg.params.GetFloat("TIME");

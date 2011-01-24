@@ -261,6 +261,12 @@ namespace Ice
 		Create(mParticleResource);
 	}
 
+	std::vector<ScriptParam> GOCPfxRenderable::SetEmitting(Script &caller, std::vector<ScriptParam> &params)
+	{
+		if (mParticleSystem) mParticleSystem->setEmitting(params[0].getBool());
+		SCRIPT_RETURN()
+	}
+
 
 	//Sound
 	GOCSound3D::GOCSound3D(Ogre::String audiofile, float referenceDistance, float maxDistance, bool streamed, bool looped, bool preBuffered)
@@ -359,6 +365,12 @@ namespace Ice
 		mgr.LoadAtom("bool", (void*)&mLooped);
 		mgr.LoadAtom("bool", (void*)&mPrebuffered);
 		Create(mAudioFile, mReferenceDistance, mMaxDistance, mStreamed, mLooped, mPrebuffered);
+	}
+
+	std::vector<ScriptParam> GOCSound3D::StartFade(Script &caller, std::vector<ScriptParam> &params)
+	{
+		if (mSound) mSound->startFade(params[0].getBool(), params[1].getFloat());
+		SCRIPT_RETURN()
 	}
 
 

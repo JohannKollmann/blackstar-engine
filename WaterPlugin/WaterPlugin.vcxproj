@@ -48,7 +48,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\Dependencies\Hydrax\include\;Header\;../Core/Header/;../../Dependencies/Ogre3D/include;../Core/script;..\LoadSave_dll\LoadSave\ExternalHeaders;..\..\Dependencies\OpenAL\include;..\..\Dependencies\OgreOggSound\include;..\..\Dependencies\;..\..\Dependencies\Ogre3D\Dependencies\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\Dependencies\Hydrax\include\;Header\;../Core/Header/;../../Dependencies/Ogre3D/include;../Core/script;..\LoadSave_dll\LoadSave\ExternalHeaders;..\..\Dependencies\OpenAL\include;..\..\Dependencies\OgreOggSound\include;..\..\Dependencies\;..\..\Dependencies\Ogre3D\Dependencies\include;..\..\Dependencies\Caelum\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;SCRIPTEXTENSIONS_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -59,9 +59,9 @@
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>OgreMain_d.lib;IceEngine_d.lib;LoadSave_d.lib;OgreOggSound_d.lib;Hydrax_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OgreMain_d.lib;IceEngine_d.lib;LoadSave_d.lib;OgreOggSound_d.lib;Hydrax_d.lib;Caelum_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(TargetName).dll</OutputFile>
-      <AdditionalLibraryDirectories>..\..\Dependencies\Hydrax\lib\;..\..\Dependencies\boost\lib\;..\..\Dependencies\Ogre3D\lib;..\..\lib\;..\..\Dependencies\Ogre3D\Dependencies\lib\Debug;..\..\Dependencies\Ogre3D\Dependencies\lib\Release;..\..\Dependencies\OgreOggSound\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\Dependencies\Hydrax\lib\;..\..\Dependencies\boost\lib\;..\..\Dependencies\Ogre3D\lib;..\..\lib\;..\..\Dependencies\Ogre3D\Dependencies\lib\Debug;..\..\Dependencies\Ogre3D\Dependencies\lib\Release;..\..\Dependencies\OgreOggSound\lib\;..\..\Dependencies\Caelum\lib\debug\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>

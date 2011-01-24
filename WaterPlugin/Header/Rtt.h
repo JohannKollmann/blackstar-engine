@@ -78,6 +78,7 @@ public:
 	{
 		mCamera->enableCustomNearClipPlane(mPlane);
 		mCamera->enableReflection(mPlane);
+		mCamera->getViewport()->setVisibilityMask(Ice::VisibilityFlags::V_DEFAULT|Ice::VisibilityFlags::V_SKY);
 		ignoreObjects();
 	}
 
@@ -85,6 +86,7 @@ public:
 	{
 		mCamera->disableCustomNearClipPlane();
 		mCamera->disableReflection();
+		//mCamera->getViewport()->setVisibilityMask(0xFFFFFFFF);
 		resetObjects();
 	}
 };
@@ -267,10 +269,14 @@ public:
 		mReflectionListener.setPlane(plane);
 	}
 
-	void create(Ogre::Entity *ent, Ogre::Camera *cam)
+	void create(Ogre::Entity *ent, Ogre::Camera *cam, Ogre::String refMat, bool reflection, int reflectionRttRes)
 	{
-		Ogre::MaterialPtr baseMat = Ogre::MaterialManager::getSingleton().getByName("WaterReflectionRefraction");
-		IceAssert(!baseMat.isNull());
+		Ogre::MaterialPtr baseMat = Ogre::MaterialManager::getSingleton().getByName(refMat);
+		if (baseMat.isNull())
+		{
+			IceWarning("Material " + refMat + " does not exist!")
+			return;
+		}
 
 		mEntity = ent;
 
@@ -281,21 +287,22 @@ public:
 		mEntity->setVisibilityFlags( Ice::VisibilityFlags::V_REFRACTIVE);
 		mEntity->setCastShadows(false);
 
-		//setup rtts
-		mReflectionListener.setCamera(cam);
-		mReflectionListener.addIgnoreObject(ent);
+		if (reflection)
+		{
+			//setup rtts
+			mReflectionListener.setCamera(cam);
+			mReflectionListener.addIgnoreObject(ent);
 
-		mReflectionTexture = Ogre::TextureManager::getSingleton().createManual("Reflection_" + id,
-			Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, Ogre::TEX_TYPE_2D, 512, 512, 0, Ogre::PF_FLOAT16_RGB, Ogre::TU_RENDERTARGET);
-		Ogre::RenderTarget* reflection_rtt = mReflectionTexture->getBuffer()->getRenderTarget();
-		reflection_rtt->addViewport(cam)->setOverlaysEnabled(false);
-		reflection_rtt->getViewport(0)->setShadowsEnabled(false);
-		reflection_rtt->getViewport(0)->setMaterialScheme("LowQuality");
-		reflection_rtt->addListener(&mReflectionListener);
+			mReflectionTexture = Ogre::TextureManager::getSingleton().createManual("Reflection_" + id,
+				Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, Ogre::TEX_TYPE_2D, reflectionRttRes, reflectionRttRes, 0, Ogre::PF_FLOAT16_RGB, Ogre::TU_RENDERTARGET);
+			Ogre::RenderTarget* reflection_rtt = mReflectionTexture->getBuffer()->getRenderTarget();
+			reflection_rtt->addViewport(cam)->setOverlaysEnabled(false);
+			reflection_rtt->getViewport(0)->setShadowsEnabled(false);
+			reflection_rtt->getViewport(0)->setMaterialScheme("LowQuality");
+			reflection_rtt->addListener(&mReflectionListener);
+			mMaterial->getTechnique(0)->getPass(0)->getTextureUnitState("Reflection")->setTextureName(mReflectionTexture->getName());
+		}
 
-		//RefractionManager::Instance().AddRefractionObject(mEntity);
-
-		mMaterial->getTechnique(0)->getPass(0)->getTextureUnitState("Reflection")->setTextureName(mReflectionTexture->getName());
 		mMaterial->getTechnique(0)->getPass(0)->getTextureUnitState("Refraction")->setTextureName(Ice::Main::Instance().GetSceneRenderCompositor()->getTextureInstanceName("rt_SceneNoRefractiveObjects", 0));
 		mMaterial->getTechnique(0)->getPass(0)->getTextureUnitState("RefractionMask")->setTextureName(Ice::Main::Instance().GetSceneRenderCompositor()->getTextureInstanceName("rt_DepthBuffer", 0));
 		//mMaterial->getTechnique(0)->getPass(0)->getTextureUnitState("RefractionDepth")->setTextureName(Ice::Main::Instance().GetSceneRenderCompositor()->getTextureInstanceName("rt_DepthNoRefractiveObjects", 0));
