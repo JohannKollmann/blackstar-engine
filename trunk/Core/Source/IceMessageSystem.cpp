@@ -99,7 +99,7 @@ namespace Ice
 			if ((*x) == listener)
 			{
 				find->second.mListeners.erase(x);
-				if (index < find->second._currIterateIndex) find->second._currIterateIndex--;
+				if (index <= find->second._currIterateIndex) find->second._currIterateIndex--;
 				break;
 			}
 			index++;
@@ -116,7 +116,7 @@ namespace Ice
 				if (*li == listener)
 				{
 					ni->second.mListeners.erase(li);
-					if (index < ni->second._currIterateIndex) ni->second._currIterateIndex--;
+					if (index <= ni->second._currIterateIndex) ni->second._currIterateIndex--;
 					break;
 				}
 				index++;

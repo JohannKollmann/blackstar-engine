@@ -83,6 +83,8 @@ namespace Ice
 				shape, fieldDesc, mFieldLinearKernelDesc);
 		}
 		Main::Instance().GetOgreSceneMgr()->destroyEntity(entity);
+
+		ShowEditorVisual(SceneManager::Instance().GetShowEditorVisuals());
 	}
 
 	void GOCForceField::OnSetParameters()
@@ -94,21 +96,18 @@ namespace Ice
 	{
 		bool show = (mEditorVisual != nullptr);
 		_create();
-		if (show) ShowEditorVisual(show);
 		//mForceField->setPose(OgrePhysX::Convert::toNx(position, mOwnerGO->GetGlobalOrientation()));
 	}
 	void GOCForceField::UpdateOrientation(Ogre::Quaternion orientation)
 	{
 		bool show = (mEditorVisual != nullptr);
 		_create();
-		if (show) ShowEditorVisual(show);
 		//mForceField->setPose(OgrePhysX::Convert::toNx(mOwnerGO->GetGlobalPosition(), orientation));
 	}
 	void GOCForceField::UpdateScale(Ogre::Vector3 scale)
 	{
 		bool show = (mEditorVisual != nullptr);
 		_create();
-		if (show) ShowEditorVisual(show);
 	}
 
 	std::vector<ScriptParam> GOCForceField::Forcefield_Activate(Script& caller, std::vector<ScriptParam> &vParams)

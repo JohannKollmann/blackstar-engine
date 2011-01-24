@@ -124,6 +124,9 @@ namespace Ice
 		GOCEditorInterface* New() { return new GOCPfxRenderable(); }
 		Ogre::String GetLabel() { return "PFX"; }
 		GOComponent* GetGOComponent() { return this; }
+
+		std::vector<ScriptParam> SetEmitting(Script &caller, std::vector<ScriptParam> &params);
+		DEFINE_TYPEDGOCLUAMETHOD(GOCPfxRenderable, SetEmitting, "bool")
 	};
 
 
@@ -162,6 +165,9 @@ namespace Ice
 		GOCEditorInterface* New() { return new GOCSound3D(); }
 		Ogre::String GetLabel() { return "Sound3D"; }
 		GOComponent* GetGOComponent() { return this; }
+
+		std::vector<ScriptParam> StartFade(Script &caller, std::vector<ScriptParam> &params);
+		DEFINE_TYPEDGOCLUAMETHOD(GOCSound3D, StartFade, "bool float")
 	};
 
 
