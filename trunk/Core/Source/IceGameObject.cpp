@@ -527,7 +527,7 @@ namespace Ice
 	DEFINE_TYPEDGOLUAMETHOD_CPP(FreeResources, "bool")
 	DEFINE_GOLUAMETHOD_CPP(IsNpc)
 	DEFINE_GOLUAMETHOD_CPP(GetParent)
-	DEFINE_TYPEDGOLUAMETHOD_CPP(Object_Play3DSound, "string float float")		//audio file range loudness
+	DEFINE_TYPEDGOLUAMETHOD_CPP(Object_Play3DSound, "string float float")		//audio file, range, loudness
 	DEFINE_TYPEDGOLUAMETHOD_CPP(Object_GetDistToObject, "int")
 
 };

@@ -10,6 +10,7 @@
 #include "IceScriptSystem.h"
 #include "IceSoundMaterialTable.h"
 #include "IceGameObject.h"
+#include "OgreOggSound.h"
 
 namespace OgreOggSound
 {
@@ -62,16 +63,26 @@ namespace Ice
 
 		std::stack<CameraController*> mCameraStack;
 
-		std::vector<OgreOggSound::OgreOggISound*> mPlayingSounds;
-		void DestroyStoppedSounds();
-		float mDestroyStoppedSoundsDelay; //Hack because of OgreOggSound threading!
-		float mDestroyStoppedSoundsLast;
-
 		bool mShowEditorVisuals;
 
 		bool mClearingScene;
 
 		SoundMaterialTable mSoundMaterialTable;
+
+		class DllExport OggListener : public OgreOggSound::OgreOggISound::SoundListener
+		{
+			void soundStopped(OgreOggSound::OgreOggISound* sound);
+		};
+		OggListener mOggListener;
+
+		class DllExport OggCamSync : public MessageListener
+		{
+		public:
+			OggCamSync();
+			~OggCamSync() {}
+			void ReceiveMessage(Msg &msg);
+		};
+		OggCamSync mOggCamSync;
 
 	public:
 
@@ -90,8 +101,6 @@ namespace Ice
 
 		///Tells the system that the current camera controller has done its job.
 		void TerminateCurrentCameraController();
-
-		void RegisterSound(OgreOggSound::OgreOggISound* sound);
 
 		void AddToMessageQueue(GameObject *object);
 

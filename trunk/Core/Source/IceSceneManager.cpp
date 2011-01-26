@@ -48,8 +48,6 @@ namespace Ice
 		mPlayer = 0;
 		mMaxDayTime = 86400.0f;
 		mTimeScale = 64.0f;
-		mDestroyStoppedSoundsDelay = 0;
-		mDestroyStoppedSoundsLast = 0;
 
 		mShowEditorVisuals = false;
 
@@ -383,7 +381,6 @@ namespace Ice
 
 	void SceneManager::Reset()
 	{
-		DestroyStoppedSounds();
 		ClearGameObjects();
 		if (mLevelMesh)
 		{
@@ -395,8 +392,6 @@ namespace Ice
 
 	void SceneManager::Shutdown()
 	{
-		DestroyStoppedSounds();
-
 		SetToIndoor();
 
 		mGOCPrototypes.clear();
@@ -759,8 +754,6 @@ namespace Ice
 				ITERATE(i, mTimeListeners)
 					(*i)->UpdateScene(time);
 			}
-
-			//DestroyStoppedSounds();
 		}
 	}
 
@@ -957,8 +950,6 @@ namespace Ice
 
 	std::vector<ScriptParam> SceneManager::Lua_Play3DSound(Script& caller, std::vector<ScriptParam> vParams)
 	{
-		Instance().DestroyStoppedSounds();
-
 		std::vector<Ice::ScriptParam> vRef;
 		vRef.push_back(ScriptParam(0.0f));	//x pos
 		vRef.push_back(ScriptParam(0.0f));	//y pos
@@ -989,10 +980,25 @@ namespace Ice
 			sound->setMaxDistance(range);
 			sound->setVolume(loudness);
 			sound->play();
+			sound->setListener(&(Instance().mOggListener));
 			node->attachObject(sound);
-			SceneManager::Instance().RegisterSound(sound);
 		}
 		return std::vector<ScriptParam>();
+	}
+
+	void SceneManager::OggListener::soundStopped(OgreOggSound::OgreOggISound* sound)
+	{
+		Main::Instance().GetOgreSceneMgr()->destroySceneNode(sound->getParentSceneNode());
+		Main::Instance().GetSoundManager()->destroySound(sound);
+	}
+	SceneManager::OggCamSync::OggCamSync()
+	{
+		MessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
+	}
+	void SceneManager::OggCamSync::ReceiveMessage(Msg &msg)
+	{
+		Main::Instance().GetSoundManager()->getListener()->setPosition(Main::Instance().GetCamera()->getDerivedPosition());
+		Main::Instance().GetSoundManager()->getListener()->setOrientation(Main::Instance().GetCamera()->getDerivedOrientation());
 	}
 
 	std::vector<ScriptParam> SceneManager::Lua_GetGameTimeHour(Script& caller, std::vector<ScriptParam> vParams)
@@ -1035,33 +1041,6 @@ namespace Ice
 		int errout = -1;
 		if (!Instance().GetPlayer()) SCRIPT_RETURNVALUE(errout)
 		else SCRIPT_RETURNVALUE(Instance().GetPlayer()->GetID())
-	}
-
-
-
-	void SceneManager::RegisterSound(OgreOggSound::OgreOggISound* sound)
-	{
-		mPlayingSounds.push_back(sound);
-		mDestroyStoppedSoundsDelay = 10;
-	}
-
-	void SceneManager::DestroyStoppedSounds()
-	{
-		float time = (float)(timeGetTime() / 1000);
-		/*if (time - mDestroyStoppedSoundsLast < mDestroyStoppedSoundsDelay)
-			return;*/
-		auto iter = mPlayingSounds.begin();
-		for (unsigned int i = 0; i < mPlayingSounds.size(); i++)
-		{
-			if ((*iter)->isStopped())
-			{
-				//Main::Instance().GetOgreSceneMgr()->destroySceneNode((*iter)->getParentSceneNode());
-				Main::Instance().GetSoundManager()->destroySound(*iter);
-				iter = mPlayingSounds.erase(iter);
-			}
-			else iter++;
-		}
-		mDestroyStoppedSoundsLast = time;
 	}
 
 	void SceneManager::AcquireCamera(CameraController *cam)
