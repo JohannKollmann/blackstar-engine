@@ -13,6 +13,7 @@
 #include "HDRListener.h"
 #include "IceWeatherController.h"
 #include "IceCollisionCallback.h"
+#include "IceMessageSystem.h"
 
 #include "OgrePlugin.h"
 #include "OgreDynLibManager.h"
@@ -515,7 +516,6 @@ Ogre::SceneManager* Main::GetOgreSceneMgr()
 {
 	return mMainSceneMgr ? mSceneMgr : mPreviewSceneMgr;
 };
-
 
 typedef void (*DLL_START_PLUGIN)(void);
 typedef void (*DLL_STOP_PLUGIN)(void);

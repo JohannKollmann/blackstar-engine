@@ -283,7 +283,6 @@ namespace Ice
 	{
 		if (mSound)
 		{
-			mSound->stop();
 			if (mOwnerGO) GetNode()->detachObject(mSound);
 			Main::Instance().GetSoundManager()->destroySound(mSound->getName());
 		}

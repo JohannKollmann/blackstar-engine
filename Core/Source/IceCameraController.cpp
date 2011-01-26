@@ -59,8 +59,6 @@ namespace Ice
 				if (Main::Instance().GetInputManager()->isKeyDown(OIS::KeyCode::KC_X)) mMovementVec.y = -1;
 				mCamera->moveRelative(mMovementVec * time * mMoveSpeed);
 			}
-			Main::Instance().GetSoundManager()->getListener()->setPosition(mCamera->getDerivedPosition());
-			Main::Instance().GetSoundManager()->getListener()->setOrientation(mCamera->getDerivedOrientation());
 		}
 		else if (msg.type == "CONSOLE_INGAME")
 		{
