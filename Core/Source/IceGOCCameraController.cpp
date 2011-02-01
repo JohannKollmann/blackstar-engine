@@ -51,7 +51,7 @@ namespace Ice
 		mCamera = nullptr;
 		mCameraCenterNode = nullptr;
 		mCameraNode = nullptr;
-		mTargetNode = nullptr;
+		mPitchNode = nullptr;
 		mMaxPitch = 0.4;
 	}
 
@@ -59,8 +59,8 @@ namespace Ice
 	{
 		if (mCamera) DetachCamera();
 		if (mCameraCenterNode) Main::Instance().GetOgreSceneMgr()->destroySceneNode(mCameraCenterNode);
+		if (mPitchNode) Main::Instance().GetOgreSceneMgr()->destroySceneNode(mPitchNode);
 		if (mCameraNode) Main::Instance().GetOgreSceneMgr()->destroySceneNode(mCameraNode);
-		if (mTargetNode) Main::Instance().GetOgreSceneMgr()->destroySceneNode(mTargetNode);
 	}
 
 	void GOCCameraController::CreateNodes()
@@ -68,16 +68,13 @@ namespace Ice
 		mCameraCenterNode = GetNode()->createChildSceneNode(Ogre::Vector3(0, 2.0f, 0) / GetNode()->_getDerivedScale());
 		mCameraCenterNode->setInheritScale(false);
 		mCameraCenterNode->setInheritOrientation(false);
-		mTargetNode = mCameraCenterNode->createChildSceneNode(Ogre::Vector3(0,0,10));
-		mCameraNode = mCameraCenterNode->createChildSceneNode(Ogre::Vector3(0,0,0));
+		mPitchNode = mCameraCenterNode->createChildSceneNode(Ogre::Vector3(0,0,0));
+		mCameraNode = mPitchNode->createChildSceneNode(Ogre::Vector3(0,0,0));
 
 		mTightness = 0.003f;
-		mfRefCharacterAngle = 0;
 		mfZoom=-1.0;
 
 		mCameraNode->setFixedYawAxis (true);
-	
-		mCameraNode->setAutoTracking(true, mTargetNode);
 	}
 
 	void GOCCameraController::AttachCamera(Ogre::Camera *camera)
@@ -86,9 +83,9 @@ namespace Ice
 
 		mCameraCenterNode->resetOrientation();
 		mCamera = camera;
+		mCamera->setDirection(0,0,1);
 		mCameraNode->attachObject(mCamera);
 		mCamera->setPosition(0,0,0);
-		mCamera->setOrientation(Ogre::Vector3::UNIT_Z.getRotationTo(Ogre::Vector3(0,0,1)));
 
 		MessageSystem::Instance().JoinNewsgroup(this, "MOUSE_MOVE");
 		MessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
@@ -118,7 +115,6 @@ namespace Ice
 	{
 		static double sfAbsRefPitch=0.0;
 		static double sfAbsCamPitch=0.0;
-		static double sfAbsCamYaw=0.0;
 		static double sfActualZoom=0.0;
 	
 		if (msg.type == "KEY_DOWN")
@@ -159,7 +155,6 @@ namespace Ice
 					mMaxPitch = 0.4f;
 				}
 				mCameraNode->setPosition(Ogre::Vector3(0.0f,0.0f,-6.0f)*static_cast<float>(sfActualZoom));
-				mCameraNode->setAutoTracking(true, mTargetNode);
 			}
 			else
 			{
@@ -172,9 +167,7 @@ namespace Ice
 				}
 				sfActualZoom=0.0f;
 				mCameraNode->setPosition(0,0,0);
-				mCameraNode->setAutoTracking(false);
 				sfAbsCamPitch=sfAbsRefPitch;
-				sfAbsCamYaw=mfRefCharacterAngle;
 			}
 		
 		}
@@ -190,25 +183,20 @@ namespace Ice
 				double fRelPitch=(sfAbsCamPitch-sfAbsRefPitch)*time*cfSpeed;
 				sfAbsCamPitch-=fRelPitch;
 
-				double fRelAngle=(((mfRefCharacterAngle-sfAbsCamYaw)/(2.0f*Ogre::Math::PI)-Ogre::Math::Floor((mfRefCharacterAngle-sfAbsCamYaw)/(2.0f*Ogre::Math::PI)+0.5)+0.5f)*2.0f-1.0f)*Ogre::Math::PI;
-				double fRelYaw=fRelAngle*time*cfSpeed;
-				sfAbsCamYaw+=fRelYaw;
-
 				sfActualZoom-=(sfActualZoom-mfZoom)*time*cfSpeed*0.3f;
 				mCameraNode->setPosition(Ogre::Vector3(0.0f,0.0f,-6.0f)*static_cast<float>(sfActualZoom));
-			}
-		}
-		Ogre::Matrix3 mat3;
-		mat3.FromEulerAnglesYXZ(-Ogre::Radian(sfAbsCamYaw), Ogre::Radian(sfAbsCamPitch), Ogre::Radian(0.0f));
-		Ogre::Quaternion q;
-		q.FromRotationMatrix(mat3);
-		mCameraCenterNode->setOrientation(q);
 
+				mCameraCenterNode->setOrientation(Ogre::Quaternion::Slerp(time*5, mCameraCenterNode->getOrientation(), mOwnerGO->GetGlobalOrientation(), true));
+			}
+			else mCameraCenterNode->setOrientation(mOwnerGO->GetGlobalOrientation());
+		}
+
+		mPitchNode->resetOrientation();
+		mPitchNode->pitch(Ogre::Radian(sfAbsCamPitch));
 	}
 
 	void GOCCameraController::UpdateOrientation(Ogre::Quaternion orientation)
 	{
-		mfRefCharacterAngle=-orientation.getYaw().valueRadians();
 	}
 
 };
