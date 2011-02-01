@@ -207,8 +207,8 @@ namespace Ice
 		}
 		if (msg.type == "END_PHYSICS" && !mFreezed)
 		{
-			Ogre::Vector3 pos = mActor->getGlobalPosition();
-			SetOwnerPosition(Ogre::Vector3(pos.x, pos.y, pos.z));
+			SetOwnerPosition(mActor->getGlobalPosition());
+			//SetOwnerOrientation(mActor->getGlobalOrientation());
 		}
 	}
 

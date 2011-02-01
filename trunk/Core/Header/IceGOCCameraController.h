@@ -38,17 +38,14 @@ namespace Ice
 	{
 	private:
 		Ogre::Camera *mCamera;
-		Ogre::SceneNode *mTargetNode;
 		Ogre::SceneNode *mCameraNode;
+		Ogre::SceneNode *mPitchNode;
 		Ogre::SceneNode *mCameraCenterNode;
 		float mTightness;
+		float mInterpolationFactor;
 		double mMaxPitch;
-		Ogre::Quaternion mCharacterOrientation;
 
-		float //mfCameraAngle,
-			  //mfLastCharacterAngle,
-			  mfRefCharacterAngle,
-			  mfZoom;
+		float mfZoom;
 
 	public:
 		GOCCameraController();
