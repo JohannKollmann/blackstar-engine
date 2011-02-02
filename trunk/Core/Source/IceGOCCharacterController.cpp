@@ -122,6 +122,7 @@ namespace Ice
 	}
 	void GOCCharacterController::UpdateOrientation(Ogre::Quaternion orientation)
 	{
+		mActor->setGlobalOrientation(orientation);
 	}
 	void GOCCharacterController::UpdateScale(Ogre::Vector3 scale)
 	{
