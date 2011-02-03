@@ -10,7 +10,7 @@ namespace Ice
 	std::vector<ScriptParam> GOCPhysics::Body_GetSpeed(Script& caller, std::vector<ScriptParam> &vParams)
 	{
 		IceAssert(GetActor());
-		if (GetActor()->getNxActor()->isDynamic()) SCRIPT_RETURNVALUE(GetActor()->getNxActor()->computeKineticEnergy())
+		if (GetActor()->getNxActor()->isDynamic()) SCRIPT_RETURNVALUE(GetActor()->getNxActor()->getLinearVelocity().normalize())
 		else SCRIPT_RETURNERROR("Actor is static!")
 	}
 	std::vector<ScriptParam> GOCPhysics::Body_AddImpulse(Script& caller, std::vector<ScriptParam> &vParams)
