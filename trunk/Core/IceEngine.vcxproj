@@ -112,6 +112,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\IceOrientationBlendProcess.cpp" />
     <ClCompile Include="Source\IcePlayAnimationProcess.cpp" />
     <ClCompile Include="Source\IceGOCForceField.cpp" />
     <ClCompile Include="Source\IceGOCEditorInterface.cpp" />
@@ -203,6 +204,7 @@
     <ClCompile Include="Source\HDRListener.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Header\IceOrientationBlendProcess.h" />
     <ClInclude Include="Header\IcePlayAnimationProcess.h" />
     <ClInclude Include="Header\IceGOCForceField.h" />
     <ClInclude Include="Header\IceGOCOgreNode.h" />

@@ -168,6 +168,9 @@ void Main::initScene()
 	mPhysXScene->getNxScene()->setGroupCollisionFlag(CollisionGroups::AI, CollisionGroups::DEFAULT, false);
 	//mPhysXScene->getNxScene()->setGroupCollisionFlag(CollisionGroups::AI, CollisionGroups::LEVELMESH, false);
 
+	mPhysXScene->getNxScene()->setGroupCollisionFlag(CollisionGroups::TRIGGER, CollisionGroups::BONE, false);
+	mPhysXScene->getNxScene()->setGroupCollisionFlag(CollisionGroups::TRIGGER, CollisionGroups::AI, false);
+
 	mPhysXScene->getNxScene()->setActorGroupPairFlags(CollisionGroups::DEFAULT, CollisionGroups::DEFAULT, NX_NOTIFY_ON_START_TOUCH|NX_NOTIFY_FORCES);
 	mPhysXScene->getNxScene()->setActorGroupPairFlags(CollisionGroups::DEFAULT, CollisionGroups::LEVELMESH, NX_NOTIFY_ON_START_TOUCH|NX_NOTIFY_FORCES);
 

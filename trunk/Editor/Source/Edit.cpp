@@ -154,6 +154,8 @@ void Edit::PostInit()
 	Ice::MessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
 
 	Ice::Main::Instance().GetPreviewSceneMgr()->getRootSceneNode()->createChildSceneNode("EditorPreview");
+
+	Ice::SceneManager().Instance().ShowEditorMeshes(true);
 }
 
 void Edit::OnToolbarEvent(int toolID, Ogre::String toolname)

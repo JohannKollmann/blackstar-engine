@@ -67,6 +67,12 @@ namespace Ice
 		void SetActive(bool active);
 
 		/**
+		Retrieves whether the process is active or not.
+		@return active yes/no
+		*/
+		bool GetIsActive() { return mIsActive; }
+
+		/**
 		Retrieves the process ID.
 		*/
 		int GetProcessID() const;
