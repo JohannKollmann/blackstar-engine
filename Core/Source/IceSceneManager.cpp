@@ -180,6 +180,7 @@ namespace Ice
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCSound3D::Register);
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCRigidBody::Register);
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCStaticBody::Register);
+		LoadSave::LoadSave::Instance().RegisterObject(&GOCTrigger::Register);
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCAnimatedCharacter::Register);
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCAnimatedCharacterBone::Register);
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCCharacterController::Register);
@@ -208,6 +209,7 @@ namespace Ice
 		RegisterGOCPrototype("B_x", GOCEditorInterfacePtr(new GOCRigidBody()));
 		RegisterGOCPrototype("B_x", GOCEditorInterfacePtr(new GOCStaticBody()));
 		RegisterGOCPrototype("B_x", GOCEditorInterfacePtr(new GOCCharacterController()));
+		RegisterGOCPrototype("B_x", GOCEditorInterfacePtr(new GOCTrigger()));
 
 		RegisterGOCPrototype("C_x", GOCEditorInterfacePtr(new GOCAI()));
 		RegisterGOCPrototype("C_x", GOCEditorInterfacePtr(new GOCPlayerInput()));
@@ -301,9 +303,7 @@ namespace Ice
 		*/
 		ScriptSystem::GetInstance().ShareCFunction("Npc_AddTA", &GOCAI::Lua_Npc_AddTA);
 
-		/**
-		Tells the npc to go to a certain waypoint.
-		*/
+		//Tells the npc to go to a certain waypoint.
 		ScriptSystem::GetInstance().ShareCFunction("Npc_GotoWP", &GOCAI::Lua_Npc_GotoWP);
 		ScriptSystem::GetInstance().ShareCFunction("Npc_OpenDialog", &GOCAI::Lua_Npc_OpenDialog);
 
@@ -331,12 +331,13 @@ namespace Ice
 
 		ScriptSystem::GetInstance().ShareCFunction("TimerProcess_Create", &ProcessNodeManager::Lua_ProcessTimer_Create);
 
-		/**
-		Triggers a mover.
-		*/
+		//Triggers a mover.
 		ScriptSystem::GetInstance().ShareCFunction("Mover_Trigger", &GOCMover::Lua_TriggerMover);
 		ScriptSystem::GetInstance().ShareCFunction("Mover_Pause", &GOCMover::Lua_PauseMover);
 		ScriptSystem::GetInstance().ShareCFunction("Mover_Stop", &GOCMover::Lua_StopMover);
+
+		//Trigger
+		ScriptSystem::GetInstance().ShareCFunction("Trigger_SetActive", &GOCTrigger::Lua_Trigger_SetActive);
 
 		//Physical Body
 		ScriptSystem::GetInstance().ShareCFunction("Body_GetSpeed", &GOCPhysics::Lua_Body_GetSpeed);

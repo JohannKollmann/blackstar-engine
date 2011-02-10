@@ -289,7 +289,10 @@
       <Filter>ProcessNodeSystem</Filter>
     </ClCompile>
     <ClCompile Include="Source\IcePlayAnimationProcess.cpp">
-      <Filter>Graphics</Filter>
+      <Filter>ProcessNodeSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\IceOrientationBlendProcess.cpp">
+      <Filter>ProcessNodeSystem</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -623,10 +626,13 @@
     <ClInclude Include="Header\IceProcessNode.h">
       <Filter>ProcessNodeSystem</Filter>
     </ClInclude>
-    <ClInclude Include="Header\IcePlayAnimationProcess.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="Header\IceTimerProcess.h">
+      <Filter>ProcessNodeSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IcePlayAnimationProcess.h">
+      <Filter>ProcessNodeSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceOrientationBlendProcess.h">
       <Filter>ProcessNodeSystem</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,6 +1,7 @@
 
 #include "IceProcessNodeManager.h"
 #include "IcePlayAnimationProcess.h"
+#include "IceOrientationBlendProcess.h"
 #include "IceProcessNodeQueue.h"
 #include "IceTimerProcess.h"
 #include "IceUtils.h"
@@ -41,6 +42,14 @@ namespace Ice
 		std::shared_ptr<TimerProcess> pNode = std::make_shared<TimerProcess>(time);
 		pNode->Init(mIDCounter);
 		mProcessNodes.insert(std::make_pair<int, std::shared_ptr<ProcessNode>>(mIDCounter++, std::static_pointer_cast<ProcessNode, TimerProcess>(pNode)));
+		return pNode;
+	}
+
+	std::shared_ptr<OrientationBlendProcess> ProcessNodeManager::CreateOrientationBlendProcess(Transformable3D *object, Ogre::Quaternion targetOrientation, float duration)
+	{
+		std::shared_ptr<OrientationBlendProcess> pNode = std::make_shared<OrientationBlendProcess>(object, targetOrientation, duration);
+		pNode->Init(mIDCounter);
+		mProcessNodes.insert(std::make_pair<int, std::shared_ptr<ProcessNode>>(mIDCounter++, std::static_pointer_cast<ProcessNode, OrientationBlendProcess>(pNode)));
 		return pNode;
 	}
 

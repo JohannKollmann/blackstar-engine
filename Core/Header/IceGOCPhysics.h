@@ -43,6 +43,7 @@ namespace Ice
 		BONE,
 		CHARACTER,
 		AI,
+		TRIGGER,
 		TMP
 	};
 
@@ -153,6 +154,7 @@ namespace Ice
 		OgrePhysX::Actor *mActor;
 		TriggerShapes mShapeType;
 		Ogre::Vector3 mBoxDimensions;
+		bool mActive;
 		float mSphereRadius;
 		void Create(Ogre::Vector3 scale);
 
@@ -189,6 +191,9 @@ namespace Ice
 		static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "Trigger"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };
 		static LoadSave::Saveable* NewInstance() { return new GOCTrigger; };
 		GOCEditorInterface* New() { return new GOCTrigger(); }
+
+		std::vector<ScriptParam> Trigger_SetActive(Script& caller, std::vector<ScriptParam> &vParams);
+		DEFINE_TYPEDGOCLUAMETHOD(GOCTrigger, Trigger_SetActive, "bool")
 	};
 
 };

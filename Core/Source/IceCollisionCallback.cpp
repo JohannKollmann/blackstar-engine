@@ -19,7 +19,8 @@ namespace Ice
 		if (trigger.userData && other.userData)
 		{
 			GameObject *triggerObject = (GameObject*)trigger.userData;
-			GOCTrigger *trigger = (GOCTrigger*)triggerObject->GetComponent("Trigger");
+			IceAssert(triggerObject)
+			GOCTrigger *trigger = triggerObject->GetComponent<GOCTrigger>();
 			if (trigger)
 			{
 				GameObject *otherObject = (GameObject*)other.userData;
@@ -32,7 +33,8 @@ namespace Ice
 		if (trigger.userData && other.userData)
 		{
 			GameObject *triggerObject = (GameObject*)trigger.userData;
-			GOCTrigger *trigger = (GOCTrigger*)triggerObject->GetComponent("Trigger");
+			IceAssert(triggerObject)
+			GOCTrigger *trigger = triggerObject->GetComponent<GOCTrigger>();
 			if (trigger)
 			{
 				GameObject *otherObject = (GameObject*)other.userData;

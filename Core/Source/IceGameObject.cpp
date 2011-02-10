@@ -4,6 +4,7 @@
 #include "IceGOCScriptMakros.h"
 #include "IceGOCScript.h"
 #include "IceGOCAI.h"
+#include "IceProcessNodeManager.h"
 
 namespace Ice
 {
@@ -196,7 +197,7 @@ namespace Ice
 
 	void GameObject::ClearGOCs()
 	{
-		for (int i = 0; i < mComponents.size(); i++)
+		for (unsigned int i = 0; i < mComponents.size(); i++)
 		{
 			mComponents[i]->SetOwner(nullptr);
 		}
@@ -406,7 +407,12 @@ namespace Ice
 		mat3.FromEulerAnglesYXZ(yDeg, pDeg, rDeg);
 		Ogre::Quaternion q;
 		q.FromRotationMatrix(mat3);
-		SetGlobalOrientation(q);
+
+		if (vParams.size() > 3 && vParams[3].getType() == ScriptParam::PARM_TYPE_FLOAT)
+		{
+			ProcessNodeManager::Instance().CreateOrientationBlendProcess(this, q, vParams[3].getFloat());
+		}
+		else SetGlobalOrientation(q);
 		return out;
 	}
 	std::vector<ScriptParam> GameObject::SetObjectScale(Script& caller, std::vector<ScriptParam> &vParams)

@@ -326,6 +326,7 @@ namespace Ice
 		mBoxDimensions = boxDimensions;
 		mActor = nullptr;
 		mOwnerGO = nullptr;
+		mActive = true;
 	}
 
 	GOCTrigger::GOCTrigger(float sphereRadius)
@@ -334,6 +335,7 @@ namespace Ice
 		mSphereRadius = sphereRadius;
 		mActor = nullptr;
 		mOwnerGO = nullptr;
+		mActive = true;
 	}
 
 	GOCTrigger::~GOCTrigger(void)
@@ -354,32 +356,34 @@ namespace Ice
 		if (mShapeType == TriggerShapes::BOX)
 		{
 			mActor = Main::Instance().GetPhysXScene()->createActor(
-				OgrePhysX::BoxShape(mBoxDimensions * scale).setTrigger());
+				OgrePhysX::BoxShape(mBoxDimensions * scale).setTrigger().group(CollisionGroups::TRIGGER));
 		}
 		else
 		{
 			mActor = Main::Instance().GetPhysXScene()->createActor(
-				OgrePhysX::SphereShape(mSphereRadius * scale.length()).setTrigger());
+				OgrePhysX::SphereShape(mSphereRadius * scale.length()).group(CollisionGroups::TRIGGER));
 		}
 		mActor->getNxActor()->userData = mOwnerGO;
 	}
 
 	void GOCTrigger::onEnter(GameObject *object)
 	{
-		if (mOwnerGO)
+		if (mOwnerGO && mActive)
 		{
 			Msg msg;
 			msg.type = "TRIGGER_ENTER";
+			msg.params.AddInt("OBJ_ID", object->GetID());
 			msg.rawData = object;
 			mOwnerGO->SendMessage(msg);
 		}
 	}
 	void GOCTrigger::onLeave(GameObject *object)
 	{
-		if (mOwnerGO)
+		if (mOwnerGO && mActive)
 		{
 			Msg msg;
 			msg.type = "TRIGGER_LEAVE";
+			msg.params.AddInt("OBJ_ID", object->GetID());
 			msg.rawData = object;
 			mOwnerGO->SendMessage(msg);
 		}
@@ -417,22 +421,29 @@ namespace Ice
 		_clear();
 		Ogre::Vector3 scale = Ogre::Vector3(1,1,1);
 		scale = parameters->GetOgreVec3("Scale");
-		mShapeType = (TriggerShapes)parameters->GetInt("ShapeType");
+		mShapeType = (TriggerShapes)parameters->GetEnum("ShapeType").selection;
 		mBoxDimensions = parameters->GetOgreVec3("BoxSize");
 		mSphereRadius = parameters->GetFloat("Radius");
+		mActive = parameters->GetValue<bool>("Active", true);
 		if (mOwnerGO) Create(scale);
 	}
 	void GOCTrigger::GetParameters(DataMap *parameters)
 	{
-		parameters->AddInt("ShapeType", mShapeType);
+		std::vector<Ogre::String> shape_types;
+		shape_types.push_back("Box"); shape_types.push_back("Sphere");
+		parameters->AddEnum("ShapeType", shape_types, 0);
 		parameters->AddOgreVec3("BoxSize", mBoxDimensions);
 		parameters->AddFloat("Radius", mSphereRadius);
+		parameters->AddBool("Active", mActive);
 	}
 	void GOCTrigger::GetDefaultParameters(DataMap *parameters)
 	{
-		parameters->AddInt("ShapeType", 0);
+		std::vector<Ogre::String> shape_types;
+		shape_types.push_back("Box"); shape_types.push_back("Sphere");
+		parameters->AddEnum("ShapeType", shape_types, 0);
 		parameters->AddOgreVec3("BoxSize", Ogre::Vector3(1,1,1));
 		parameters->AddFloat("Radius", 0);
+		parameters->AddBool("Active", true);
 	}
 
 	void GOCTrigger::Save(LoadSave::SaveSystem& mgr)
@@ -440,12 +451,20 @@ namespace Ice
 		mgr.SaveAtom("int", &mShapeType, "ShapeType");
 		mgr.SaveAtom("Ogre::Vector3", &mBoxDimensions, "BoxSize");
 		mgr.SaveAtom("float", &mSphereRadius, "Radius");
+		mgr.SaveAtom("bool", &mActive, "Active");
 	}
 	void GOCTrigger::Load(LoadSave::LoadSystem& mgr)
 	{
 		mgr.LoadAtom("int", &mShapeType);
 		mgr.LoadAtom("Ogre::Vector3", &mBoxDimensions);
 		mgr.LoadAtom("float", &mSphereRadius);
+		mgr.LoadAtom("bool", &mActive);
+	}
+
+	std::vector<ScriptParam> GOCTrigger::Trigger_SetActive(Script& caller, std::vector<ScriptParam> &vParams)
+	{
+		mActive = vParams[0].getBool();
+		SCRIPT_RETURN()
 	}
 
 };
