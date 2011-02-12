@@ -234,6 +234,7 @@ void wxEditIceGameObject::OnApply()
 		{
 			Ice::GOCEditorInterface *editor_interface = Ice::SceneManager::Instance().NewGOC((*i).mSectionName);
 			editor_interface->SetParameters(&(*i).mSectionData);
+			mGameObject->RemoveComponent(editor_interface->GetGOComponent()->GetFamilyID());
 			mGameObject->AddComponent(Ice::GOComponentPtr(editor_interface->GetGOComponent()));
 		}
 	}
