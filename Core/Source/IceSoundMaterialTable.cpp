@@ -10,6 +10,7 @@ namespace Ice
 	SoundMaterialTable::SoundMaterialTable()
 	{
 		MessageSystem::Instance().JoinNewsgroup(this, "REPARSE_SCRIPTS");
+		MessageSystem::Instance().JoinNewsgroup(this, "REPARSE_SCRIPTS_POST");
 	}
 
 	void SoundMaterialTable::InitBindingsFromCfg(Ogre::String cfgFile)
@@ -140,6 +141,10 @@ namespace Ice
 		if (msg.type == "REPARSE_SCRIPTS")
 		{
 			Clear();
+		}
+		else if (msg.type == "REPARSE_SCRIPTS_POST")
+		{
+			InitBindingsFromCfg("OgreMaterialSoundBindings.cfg");
 		}
 	}
 
