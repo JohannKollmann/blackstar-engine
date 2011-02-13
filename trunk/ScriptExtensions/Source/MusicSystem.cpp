@@ -25,7 +25,7 @@ MusicSystem::MusicSystem()
 	Ice::ScriptSystem::GetInstance().ShareCFunction("music_set_mood", Lua_SetMood);
 	Ice::ScriptSystem::GetInstance().ShareCFunction("music_post_event", Lua_PostEvent);
 
-	//Ice::MessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
+	Ice::MessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
 }
 
 MusicSystem&
@@ -142,7 +142,7 @@ MusicSystem::Lua_CreateSound(Ice::Script& caller, std::vector<Ice::ScriptParam> 
 		return errout;
 	}
 
-	Ogre::String strID=Ice::SceneManager::Instance().RequestIDStr();
+	Ogre::String strID=Ogre::String("MusicSound_") + Ice::SceneManager::Instance().RequestIDStr();
 	OgreOggSound::OgreOggSoundManager::getSingleton().createSound(strID, vParams[0].getString());
 
 	SSoundProperty sp;
