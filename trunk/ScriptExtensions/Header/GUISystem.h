@@ -9,8 +9,6 @@
 #include <list>
 #include "IceScriptSystem.h"
 
-
-
 class __declspec(dllexport) GUISystem : public Ice::MessageListener
 {
 public:
@@ -57,6 +55,8 @@ public:
 	void SetCursor(int iHandle);
 	void DeleteWindow(int iHandle);
 
+	void Fade(int iHandle, float fFadeSpeed);
+
 	void Clear();
 private:
 	//scripting stuff
@@ -68,6 +68,7 @@ private:
 
 	static std::vector<Ice::ScriptParam> Lua_SetMaterial(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
 	static std::vector<Ice::ScriptParam> Lua_SetWindowVisible(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
+	static std::vector<Ice::ScriptParam> Lua_FadeWindow(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
 	static std::vector<Ice::ScriptParam> Lua_SetForegroundWindow(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
 	static std::vector<Ice::ScriptParam> Lua_SetFocus(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
 	static std::vector<Ice::ScriptParam> Lua_MoveWindow(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
@@ -120,7 +121,7 @@ private:
 		Ice::ScriptParam parOnClick, parMouseDown, parMouseUp, parMouseMove, parMouseHoverIn, parMouseHoverOut,
 			parOnChar, parKeyDown, parKeyUp;
 		bool bWasBaked;
-
+		float fFadeSpeed;
 	};
 	
 	std::map<int, SWindowInfo> m_mWindowInfos;
@@ -131,6 +132,9 @@ private:
 	float m_fMaxZ;
 	float m_fZStep;
 	int m_iFocusWin;
+	
+	std::list<int> m_lFading;
+	//std::map<int, EntityMaterialInstance*> m_mMatInstances;
 
 	//scripting..
 	std::map<std::string, FontTextures> m_mFontTextures;
