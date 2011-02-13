@@ -263,7 +263,8 @@ GUISystem::ReceiveMessage(Ice::Msg &msg)
 				//delete m_mMatInstances[*it];
 				//m_mMatInstances.erase(*it);
 				it=m_lFading.erase(it);
-				continue;
+				if (it == m_lFading.end()) break;
+				else continue;
 			}
 			if(fCurrTransparency<0.0f)
 			{
@@ -272,7 +273,8 @@ GUISystem::ReceiveMessage(Ice::Msg &msg)
 				//delete m_mMatInstances[*it];
 				//m_mMatInstances.erase(*it);
 				it=m_lFading.erase(it);
-				continue;
+				if (it == m_lFading.end()) break;
+				else continue;
 			}
 			//m_mMatInstances[*it]->setTransparency(fCurrTransparency);
 			Ice::Main::Instance().GetOgreSceneMgr()->getEntity(wininfo.strName)->getSubEntity(0)->setCustomParameter(1, Ogre::Vector4(fCurrTransparency, 0, 0, 0));
