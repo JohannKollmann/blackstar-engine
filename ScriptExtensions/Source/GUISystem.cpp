@@ -18,6 +18,7 @@ GUISystem::GUISystem(void)
 	Ice::MessageSystem::Instance().JoinNewsgroup(this, "MOUSE_DOWN");
 	Ice::MessageSystem::Instance().JoinNewsgroup(this, "MOUSE_UP");
 	Ice::MessageSystem::Instance().JoinNewsgroup(this, "KEY_DOWN");
+	Ice::MessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
 	Ogre::SceneNode* pNode=Ice::Main::Instance().GetOgreSceneMgr()->getRootSceneNode()->createChildSceneNode("GUISystemNode");
 	pNode->setPosition(0, 0, 0);
 	m_fXPos=m_fYPos=0.5f;
@@ -35,6 +36,7 @@ GUISystem::GUISystem(void)
 
 	Ice::ScriptSystem::GetInstance().ShareCFunction("gui_set_window_material", Lua_SetMaterial);
 	Ice::ScriptSystem::GetInstance().ShareCFunction("gui_set_visible", Lua_SetWindowVisible);
+	Ice::ScriptSystem::GetInstance().ShareCFunction("gui_fade_window", Lua_FadeWindow);
 	Ice::ScriptSystem::GetInstance().ShareCFunction("gui_set_foreground_window", Lua_SetForegroundWindow);
 	Ice::ScriptSystem::GetInstance().ShareCFunction("gui_set_focus", Lua_SetFocus);
 	Ice::ScriptSystem::GetInstance().ShareCFunction("gui_move_window", Lua_MoveWindow);
@@ -245,7 +247,38 @@ GUISystem::ReceiveMessage(Ice::Msg &msg)
 				if(it->second.parMouseUp.getType()==Ice::ScriptParam::PARM_TYPE_FUNCTION && msg.type=="MOUSE_UP")
 					Ice::ScriptSystem::RunCallbackFunction(it->second.parMouseUp, parms);
 			}
-		}	
+		}
+	if (msg.type == "UPDATE_PER_FRAME")
+	{
+		float time = msg.params.GetFloat("TIME");
+		for(std::list<int>::iterator it=m_lFading.begin(); it!=m_lFading.end(); it++)
+		{
+			SWindowInfo wininfo=m_mWindowInfos.find(*it)->second;
+			//float fCurrTransparency=m_mMatInstances[*it]->getTransparency();
+			float fCurrTransparency=Ice::Main::Instance().GetOgreSceneMgr()->getEntity(wininfo.strName)->getSubEntity(0)->getCustomParameter(1).x;
+			fCurrTransparency+=time*wininfo.fFadeSpeed;
+			if(fCurrTransparency>1.0f)
+			{
+				fCurrTransparency=1.0f;
+				//delete m_mMatInstances[*it];
+				//m_mMatInstances.erase(*it);
+				it=m_lFading.erase(it);
+				continue;
+			}
+			if(fCurrTransparency<0.0f)
+			{
+				SetVisible(*it, false);
+				fCurrTransparency=0.0f;
+				//delete m_mMatInstances[*it];
+				//m_mMatInstances.erase(*it);
+				it=m_lFading.erase(it);
+				continue;
+			}
+			//m_mMatInstances[*it]->setTransparency(fCurrTransparency);
+			Ice::Main::Instance().GetOgreSceneMgr()->getEntity(wininfo.strName)->getSubEntity(0)->setCustomParameter(1, Ogre::Vector4(fCurrTransparency, 0, 0, 0));
+			//settransparency(fCurrTransparency)
+		}
+	}
 }
 
 GUISystem&
@@ -394,6 +427,9 @@ GUISystem::Window::Bake()
 	GetInstance().m_mWindowInfos.find(m_iHandle)->second.bWasBaked=true;
 
 	Ice::Main::Instance().GetOgreSceneMgr()->getEntity(wininfo.strName)->getSubEntity(0)->setCustomParameter(0, Ogre::Vector4(x, y, 0, 0));
+	
+	Ice::Main::Instance().GetOgreSceneMgr()->getEntity(wininfo.strName)->getSubEntity(0)->setCustomParameter(1, Ogre::Vector4(1.0f, 0, 0, 0));
+	
 	if(wininfo.strMaterial.size())
 		Ice::Main::Instance().GetOgreSceneMgr()->getEntity(wininfo.strName)->getSubEntity(0)->setMaterialName(wininfo.strMaterial);
 	for(iSubWin=0; iSubWin<nSubWindows; iSubWin++)
@@ -401,6 +437,9 @@ GUISystem::Window::Bake()
 		SWindowInfo subwininfo=GetInstance().m_mWindowInfos.find(vSubWindows[iSubWin])->second;
 		Ogre::SubEntity* pSubEnt=Ice::Main::Instance().GetOgreSceneMgr()->getEntity(wininfo.strName)->getSubEntity(subwininfo.strName);
 		pSubEnt->setCustomParameter(0, Ogre::Vector4(x, y, 0, 0));
+
+		pSubEnt->setCustomParameter(1, Ogre::Vector4(1.0f, 0, 0, 0));
+				
 		if(wininfo.strMaterial.size())
 			pSubEnt->setMaterialName(subwininfo.strMaterial);
 	}
@@ -589,6 +628,40 @@ GUISystem::GetVisible(int iHandle)
 {
 	return m_mWindowInfos.find(iHandle)->second.bVisible;
 }
+
+void
+GUISystem::Fade(int iHandle, float fFadeSpeed)
+{
+	SWindowInfo subwininfo=m_mWindowInfos.find(iHandle)->second;
+	m_mWindowInfos.find(iHandle)->second.fFadeSpeed=fFadeSpeed;
+	if(subwininfo.iParentHandle==-1)
+	{
+		Ogre::Entity*ent=Ice::Main::Instance().GetOgreSceneMgr()->getEntity(subwininfo.strName);
+		for(std::list<int>::iterator it=m_lFading.begin(); it!=m_lFading.end(); it++)
+			if(*it==iHandle)
+				return;
+		m_lFading.push_back(iHandle);
+		//m_mMatInstances[iHandle]=new EntityMaterialInstance (ent);
+		//m_mMatInstances[iHandle]->setSceneBlending (SBT_ADD);
+		if(!ent->getVisible())
+		{
+			//m_mMatInstances[iHandle]->setTransparency(0.5f);//0.0f);
+			Ice::Main::Instance().GetOgreSceneMgr()->getEntity(subwininfo.strName)->getSubEntity(0)->setCustomParameter(1, Ogre::Vector4(0.0f, 0, 0, 0));
+			ent->setVisible(true);
+		}
+		else
+		{
+			//m_mMatInstances[iHandle]->setTransparency(0.5f);//1.0f);
+			Ice::Main::Instance().GetOgreSceneMgr()->getEntity(subwininfo.strName)->getSubEntity(0)->setCustomParameter(1, Ogre::Vector4(1.0f, 0, 0, 0));
+		}
+		return;
+	}
+	//hiding subwindows requires more work
+/*	SWindowInfo wininfo=m_mWindowInfos.find(FindParentWindow(iHandle))->second;
+	Ogre::Vector4 vCustom=Ice::Main::Instance().GetOgreSceneMgr()->getEntity(wininfo.strName)->getSubEntity(subwininfo.strName)->getCustomParameter(0);
+	vCustom.x=bVisible ? wininfo.x : 10;
+	Ice::Main::Instance().GetOgreSceneMgr()->getEntity(wininfo.strName)->getSubEntity(subwininfo.strName)->setCustomParameter(0, vCustom);
+*/}
 
 void
 GUISystem::SetCursor(int iHandle)
@@ -860,6 +933,20 @@ GUISystem::Lua_SetWindowVisible(Ice::Script &caller, std::vector<Ice::ScriptPara
 	GUISystem::GetInstance().SetVisible((int)vParams[0].getFloat(), vParams[1].getBool());
 	return ret;
 }
+
+std::vector<Ice::ScriptParam>
+GUISystem::Lua_FadeWindow(Ice::Script &caller, std::vector<Ice::ScriptParam> vParams)
+{//inputs: window-id,bool
+	std::vector<Ice::ScriptParam> ret;
+	if(vParams.size()!=2)
+		return ret;
+	if(vParams[0].getType()!=Ice::ScriptParam::PARM_TYPE_FLOAT ||
+		vParams[1].getType()!=Ice::ScriptParam::PARM_TYPE_FLOAT)
+		return ret;
+	GUISystem::GetInstance().Fade((int)vParams[0].getFloat(), vParams[1].getFloat());
+	return ret;
+}
+
 std::vector<Ice::ScriptParam>
 GUISystem::Lua_SetForegroundWindow(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams)
 {
