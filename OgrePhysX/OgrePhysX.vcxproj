@@ -79,8 +79,8 @@
       <AdditionalDependencies>OgreMain.lib;PhysXLoader.lib;PhysXCooking.lib;NxCharacter.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\Dependencies\Ogre3D\lib;..\..\Dependencies\PhysX\SDKs\lib\win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <OptimizeReferences>true</OptimizeReferences>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>false</OptimizeReferences>
+      <EnableCOMDATFolding>false</EnableCOMDATFolding>
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <PostBuildEvent>

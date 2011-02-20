@@ -74,7 +74,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>..\..\Dependencies\Hydrax\include\;.\Header\;../Core/Header/;../../Dependencies/Ogre3D/include;..\LoadSave_dll\LoadSave\ExternalHeaders;..\..\Dependencies\OpenAL\include;..\..\Dependencies\OgreOggSound\include;..\..\Dependencies\;..\..\Dependencies\Ogre3D\Dependencies\include;..\Core\script\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\Dependencies\Hydrax\include\;.\Header\;..\..\Dependencies\Caelum\include;../Core/Header/;../../Dependencies/Ogre3D/include;..\LoadSave_dll\LoadSave\ExternalHeaders;..\..\Dependencies\OpenAL\include;..\..\Dependencies\OgreOggSound\include;..\..\Dependencies\;..\..\Dependencies\Ogre3D\Dependencies\include;..\Core\script\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;SCRIPTEXTENSIONS_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -84,8 +84,8 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>OgreMain.lib;IceEngine.lib;LoadSave.lib;OgreOggSound.lib;Hydrax.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\..\Dependencies\Hydrax\lib\;..\..\Dependencies\boost\lib\;..\..\Dependencies\Ogre3D\lib;..\..\lib\;..\..\Dependencies\Ogre3D\Dependencies\lib\Debug;..\..\Dependencies\Ogre3D\Dependencies\lib\Release;..\..\Dependencies\OgreOggSound\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>OgreMain.lib;IceEngine.lib;LoadSave.lib;OgreOggSound.lib;Hydrax.lib;caelum.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\Dependencies\Caelum\lib\release;..\..\Dependencies\Hydrax\lib\;..\..\Dependencies\boost\lib\;..\..\Dependencies\Ogre3D\lib;..\..\lib\;..\..\Dependencies\Ogre3D\Dependencies\lib\Debug;..\..\Dependencies\Ogre3D\Dependencies\lib\Release;..\..\Dependencies\OgreOggSound\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
