@@ -486,7 +486,11 @@ void Edit::OnMouseEvent(wxMouseEvent &ev)
 						visuals->GetNode()->showBoundingBox(true);
 					}*/
 				mPerformingObjMov = true;
-				Ogre::Vector3 scaleaxis = Ogre::Vector3((mXAxisLock == AxisLock::UNLOCKED) ? 1.0f : 0.0f, (mYAxisLock == AxisLock::UNLOCKED) ? 1.0f : 0.0f, (mZAxisLock == AxisLock::UNLOCKED) ? 1.0f : 0.0f);	
+				Ogre::Vector3 scaleaxis = Ogre::Vector3((mXAxisLock == AxisLock::UNLOCKED) ? 1.0f : 0.0f, (mYAxisLock == AxisLock::UNLOCKED) ? 1.0f : 0.0f, (mZAxisLock == AxisLock::UNLOCKED) ? 1.0f : 0.0f);
+				scaleaxis = (*i).mObject->GetGlobalOrientation().Inverse() * scaleaxis;
+				scaleaxis.x = Ogre::Math::Abs(scaleaxis.x);
+				scaleaxis.y = Ogre::Math::Abs(scaleaxis.y);
+				scaleaxis.z = Ogre::Math::Abs(scaleaxis.z);
 				(*i).mObject->Rescale(scaleaxis * ev.m_wheelRotation * mObjectScaleSpeed);
 				(*i).mObject->Freeze(true);
 				AttachAxisObject((*i).mObject);
