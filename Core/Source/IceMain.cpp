@@ -23,10 +23,11 @@
 #include "boost/filesystem/path.hpp"
 
 #include "IceMainLoop.h"
-
 #include "IceGOCPhysics.h"
-
 #include "IceLeakWatch.h"
+#include "IceDepthSchemeHandler.h"
+#include "IceMain.h"
+
 
 #define USE_REMOTEDEBUGGER 1
 
@@ -197,6 +198,8 @@ void Main::initScene()
 	Ogre::MaterialManager::getSingleton().setDefaultTextureFiltering(Ogre::TFO_ANISOTROPIC);
 	Ogre::MaterialManager::getSingleton().setDefaultAnisotropy(8); 
 	Ogre::ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
+
+	Ogre::MaterialManager::getSingleton().addListener(new DepthSchemeHandler(), "Depth");
 
 	//mPreviewSceneMgr->setSkyBox(true, "Sky/ClubTropicana", 2000);
 	mPreviewSceneMgr->setAmbientLight(Ogre::ColourValue(0.8f, 0.8f, 0.8f));
