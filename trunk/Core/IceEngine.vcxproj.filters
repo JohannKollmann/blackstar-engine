@@ -635,6 +635,9 @@
     <ClInclude Include="Header\IceOrientationBlendProcess.h">
       <Filter>ProcessNodeSystem</Filter>
     </ClInclude>
+    <ClInclude Include="Header\IceDepthSchemeHandler.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Header\Messaging.txt">
