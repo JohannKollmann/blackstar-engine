@@ -142,9 +142,10 @@ bool wxEditGOCSections::OnDropText(const wxString& text)
 							currCat = p;
 							continue;
 						}
-						Ogre::String type = p->GetName().substr(0, p->GetName().find("|")).c_str();
+						Ogre::String sType = p->GetName().substr(0, p->GetName().find("|")).c_str();
+						Ice::GenericProperty::PropertyTypes type = static_cast<Ice::GenericProperty::PropertyTypes>(Ogre::StringConverter::parseInt(sType));
 						Ogre::String key = p->GetName().substr(p->GetName().find("|") + 1, p->GetName().find("--") - p->GetName().find("|") - 1).c_str();
-						if (type == "Ogre::String" && key.find("Mesh") != Ogre::String::npos)
+						if (type == Ice::GenericProperty::PropertyTypes::STRING && key.find("Mesh") != Ogre::String::npos)
 						{
 							found = true;
 							p->SetValueFromString(item->GetName().c_str());
