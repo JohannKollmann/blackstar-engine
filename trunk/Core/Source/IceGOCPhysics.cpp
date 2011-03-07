@@ -212,6 +212,7 @@ namespace Ice
 		mgr.SaveAtom("float", &mDensity, "Density");
 		mgr.SaveAtom("int", &mShapeType, "ShapeType");
 		mgr.SaveAtom("Ogre::String", &mMaterialName, "mMaterialName");
+		mgr.SaveAtom("bool", &mIsKinematic, "IsKinematic");
 	}
 	void GOCRigidBody::Load(LoadSave::LoadSystem& mgr)
 	{
@@ -221,6 +222,7 @@ namespace Ice
 		mgr.LoadAtom("float", &mDensity);
 		mgr.LoadAtom("int", &mShapeType);
 		mgr.LoadAtom("Ogre::String", &mMaterialName);
+		mgr.LoadAtom("bool", &mIsKinematic);
 		Create(mCollisionMeshName, mDensity, mShapeType, scale);
 	}
 

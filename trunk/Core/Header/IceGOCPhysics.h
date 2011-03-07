@@ -73,7 +73,7 @@ namespace Ice
 		void _clear();
 
 	public:
-		GOCRigidBody() { mActor = nullptr; mOwnerGO = nullptr; mRenderable = nullptr; }
+		GOCRigidBody() : mActor(nullptr), mRenderable(nullptr), mIsKinematic(false) {}
 		GOCRigidBody(Ogre::String collision_mesh, float density, int shapetype);
 		~GOCRigidBody(void);
 
