@@ -124,6 +124,27 @@ namespace Ice
 		GOCMeshRenderable *meshr = ICE_NEW GOCMeshRenderable();
 		return meshr;
 	}
+	
+	std::vector<ScriptParam> GOCMeshRenderable::ReplaceMaterial(Script &caller, std::vector<ScriptParam> &params)
+	{
+		std::vector<Ice::ScriptParam> errout;
+		errout.push_back(Ice::ScriptParam());
+		if (!mEntitiy)
+		{
+			errout.push_back(Ice::ScriptParam(std::string("mEntity not a valid pointer")));
+			return errout;
+		}
+		//replace material
+		for(int iSubEnt=0; iSubEnt<mEntitiy->getNumSubEntities(); iSubEnt++)
+		{
+			Ogre::SubEntity* pSubEnt=mEntity->getSubEntity(iSubEnt);
+			if(!pSubEnt->getMaterialName().compare(params[0].getString()))
+			{//replace this material
+				pSubEnt->setMaterialName(params[1].getString());
+			}
+		}
+		return std::vector<Ice::ScriptParam>();
+	}
 
 	//Billboard
 	void GOCBillboard::NotifyOwnerGO()
