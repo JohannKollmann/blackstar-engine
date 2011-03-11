@@ -129,13 +129,13 @@ namespace Ice
 	{
 		std::vector<Ice::ScriptParam> errout;
 		errout.push_back(Ice::ScriptParam());
-		if (!mEntitiy)
+		if (!mEntity)
 		{
 			errout.push_back(Ice::ScriptParam(std::string("mEntity not a valid pointer")));
 			return errout;
 		}
 		//replace material
-		for(int iSubEnt=0; iSubEnt<mEntitiy->getNumSubEntities(); iSubEnt++)
+		for(unsigned int iSubEnt=0; iSubEnt<mEntity->getNumSubEntities(); iSubEnt++)
 		{
 			Ogre::SubEntity* pSubEnt=mEntity->getSubEntity(iSubEnt);
 			if(!pSubEnt->getMaterialName().compare(params[0].getString()))
