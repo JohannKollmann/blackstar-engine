@@ -314,6 +314,8 @@ namespace Ice
 		ScriptSystem::GetInstance().ShareCFunction("Character_GetGroundMaterial", &GOCCharacterController::Lua_Character_GetGroundMaterial);
 		ScriptSystem::GetInstance().ShareCFunction("Character_SetSpeedFactor", &GOCCharacterController::Lua_Character_SetSpeed);
 
+		ScriptSystem::GetInstance().ShareCFunction("Mesh_ReplaceMaterial", &GOCMeshRenderable::Lua_ReplaceMaterial);
+
 		ScriptSystem::GetInstance().ShareCFunction("PFX_SetEmitting", &GOCPfxRenderable::Lua_SetEmitting);
 
 		ScriptSystem::GetInstance().ShareCFunction("Sound3D_StartFade", &GOCSound3D::Lua_StartFade);
@@ -1033,6 +1035,7 @@ namespace Ice
 		{
 			float scale = vParams[0].getFloat();
 			Instance().SetTimeScale(scale);
+
 		}
 		SCRIPT_RETURN()
 	}
