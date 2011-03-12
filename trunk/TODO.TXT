@@ -7,6 +7,16 @@
 - [script-edit] Intellisense fertig machen
 
 
+- Objekt-Rename durch klick in scenetree (wie im explorer)
+- clear lookat im mover-kontextmenü bzw. lookats im scenetree anzeigen durch "referenz"
+- (mover)-symbole einfügen, wenn .ot-datei mit enthaltenen movern geladen wird (es kommt nur die rote linie, keine waypoints)
+- zeit im edit standardmäßig einschalten (sonst gehen die mover erst nach einschalten)
+- irgendein wx-crash (das große fenster) wenn man in den tabs rechts (assets, scenetree etc.) umschaltet. kann ignoriert werden, da nicht reproduzierbar, nervt aber.
+- rechtsklick -> copy implementieren bzw rechtsklick->quicksave als ocs, damit man objekte leicht kopieren kann.
+- char bewegt beine nicht mehr nach laufen auf static mesh/kinematics
+- Objekte müssen im scenetree markiert bleiben wenn man sie angeklickt hat um sie vernünftig identifizieren zu können (blitzen momentan nur kurz)
+- "regenerate static meshes"-button für physX, nach verschieben fällt man manchmal durch weil scheinbar noch alte daten in physX liegen
+
 [Shader]
 - Automatischer Texturübergang
 - Kombinieren von 2 verschieden skalierten normalmaps (r und g channels adden)
@@ -29,3 +39,9 @@ Features
 - Dialoge
 - (Ragdoll)
 - Katapult und Gleiter
+
+
+
+
+
+
