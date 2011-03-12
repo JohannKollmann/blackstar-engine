@@ -777,13 +777,52 @@ std::vector<Ice::ScriptParam>
 GUISystem::Lua_CreateFontMaterial(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams)
 {//arguments: spacing file, texture name, base material name, pass name, target texture name, maxwidth, maxheight
 //outputs: material name
+
+	std::vector<Ice::ScriptParam> ret;
+	ret.push_back(Ice::ScriptParam(std::string("")));
+	ret.push_back(Ice::ScriptParam(std::string("")));
+	ret.push_back(Ice::ScriptParam(std::string("")));
+	ret.push_back(Ice::ScriptParam(std::string("")));
+	ret.push_back(Ice::ScriptParam(std::string("")));
+	ret.push_back(Ice::ScriptParam(0.0));
+	ret.push_back(Ice::ScriptParam(0.0));
+	
+	std::string strError=Ice::Utils::TestParameters(vParams, ret, true);
+	ret.clear();
+	ret.push_back(Ice::ScriptParam());
+	if(strError.size())
+	{
+		ret.push_back(Ice::ScriptParam(strError));
+		return ret;
+	}
+	if(vParams.size()!=7 && vParams.size()!=13)
+	{
+		ret.push_back(Ice::ScriptParam(std::string("function expects 7 or 11 parameters")));
+		return ret;
+	}
+	if(vParams.size()==13)
+		if(vParams[7].getType()!=Ice::ScriptParam::PARM_TYPE_FLOAT ||
+			vParams[8].getType()!=Ice::ScriptParam::PARM_TYPE_FLOAT ||
+			vParams[9].getType()!=Ice::ScriptParam::PARM_TYPE_FLOAT ||
+			vParams[10].getType()!=Ice::ScriptParam::PARM_TYPE_FLOAT ||
+			vParams[11].getType()!=Ice::ScriptParam::PARM_TYPE_FLOAT ||
+			vParams[12].getType()!=Ice::ScriptParam::PARM_TYPE_FLOAT)
+		{
+			ret.push_back(Ice::ScriptParam(std::string("parameters 8 through 11 have to be floats")));
+			return ret;
+		}
+	
 	std::map<std::string, FontTextures>::iterator it=GetInstance().m_mFontTextures.find(vParams[0].getString());
 	if(it==GetInstance().m_mFontTextures.end())
 	{//we don't have this spacing in memory, load it
 		GetInstance().m_mFontTextures.insert(std::pair<std::string, FontTextures>(vParams[0].getString(), FontTextures(vParams[0].getString())));
 		it=GetInstance().m_mFontTextures.find(vParams[0].getString());
 	}
-	Ogre::MaterialPtr pMat=it->second.CreateTextMaterial(Ogre::TextureManager::getSingleton().getByName(vParams[1].getString()), vParams[2].getString(), vParams[3].getString(), vParams[4].getString(), (int)vParams[5].getFloat(), (int)vParams[6].getFloat());
+	Ogre::MaterialPtr pMat;
+	if(vParams.size()==7)
+		pMat=it->second.CreateTextMaterial(Ogre::TextureManager::getSingleton().getByName(vParams[1].getString()), vParams[2].getString(), vParams[3].getString(), vParams[4].getString(), (int)vParams[5].getFloat(), (int)vParams[6].getFloat());
+	else
+		pMat=it->second.CreateTextMaterial(Ogre::TextureManager::getSingleton().getByName(vParams[1].getString()), vParams[2].getString(), vParams[3].getString(), vParams[4].getString(), (int)vParams[5].getFloat(), (int)vParams[6].getFloat(), Ogre::Vector3((float)vParams[7].getFloat(), (float)vParams[8].getFloat(), (float)vParams[9].getFloat()), Ogre::Vector3((float)vParams[10].getFloat(), (float)vParams[11].getFloat(), (float)vParams[12].getFloat()));
 	GetInstance().m_lMaterials.push_back(pMat->getName());
 	return std::vector<Ice::ScriptParam>(1, Ice::ScriptParam(pMat->getName()));
 }
@@ -792,19 +831,63 @@ std::vector<Ice::ScriptParam>
 GUISystem::Lua_ChangeFontMaterial(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams)
 {//arguments: spacing file, material name, texture name, pass name, target texture name, maxwidth, maxheight
 //outputs: none
+
+		std::vector<Ice::ScriptParam> ret;
+	ret.push_back(Ice::ScriptParam(std::string("")));
+	ret.push_back(Ice::ScriptParam(std::string("")));
+	ret.push_back(Ice::ScriptParam(std::string("")));
+	ret.push_back(Ice::ScriptParam(std::string("")));
+	ret.push_back(Ice::ScriptParam(std::string("")));
+	ret.push_back(Ice::ScriptParam(0.0));
+	ret.push_back(Ice::ScriptParam(0.0));
+	
+	std::string strError=Ice::Utils::TestParameters(vParams, ret, true);
+	ret.clear();
+	ret.push_back(Ice::ScriptParam());
+	if(strError.size())
+	{
+		ret.push_back(Ice::ScriptParam(strError));
+		return ret;
+	}
+	if(vParams.size()!=7 && vParams.size()!=11)
+	{
+		ret.push_back(Ice::ScriptParam(std::string("function expects 7 or 11 parameters")));
+		return ret;
+	}
+	if(vParams.size()==11)
+		if(vParams[7].getType()!=Ice::ScriptParam::PARM_TYPE_FLOAT ||
+			vParams[8].getType()!=Ice::ScriptParam::PARM_TYPE_FLOAT ||
+			vParams[9].getType()!=Ice::ScriptParam::PARM_TYPE_FLOAT ||
+			vParams[10].getType()!=Ice::ScriptParam::PARM_TYPE_FLOAT)
+		{
+			ret.push_back(Ice::ScriptParam(std::string("parameters 8 through 11 have to be floats")));
+			return ret;
+		}
+
+
 	std::map<std::string, FontTextures>::iterator it=GetInstance().m_mFontTextures.find(vParams[0].getString());
 	if(it==GetInstance().m_mFontTextures.end())
 	{//we don't have this spacing in memory, load it
 		GetInstance().m_mFontTextures.insert(std::pair<std::string, FontTextures>(vParams[0].getString(), FontTextures(vParams[0].getString())));
 		it=GetInstance().m_mFontTextures.find(vParams[0].getString());
 	}
-	it->second.ChangeTextMaterial(
-		Ogre::MaterialManager::getSingleton().getByName(vParams[1].getString()),
-		Ogre::TextureManager::getSingleton().getByName(vParams[2].getString()),
-		vParams[3].getString(),
-		vParams[4].getString(),
-		(int)vParams[5].getFloat(),
-		(int)vParams[6].getFloat());
+	if(vParams.size()==7)
+		it->second.ChangeTextMaterial(
+			Ogre::MaterialManager::getSingleton().getByName(vParams[1].getString()),
+			Ogre::TextureManager::getSingleton().getByName(vParams[2].getString()),
+			vParams[3].getString(),
+			vParams[4].getString(),
+			(int)vParams[5].getFloat(),
+			(int)vParams[6].getFloat());
+	else
+		it->second.ChangeTextMaterial(
+			Ogre::MaterialManager::getSingleton().getByName(vParams[1].getString()),
+			Ogre::TextureManager::getSingleton().getByName(vParams[2].getString()),
+			vParams[3].getString(),
+			vParams[4].getString(),
+			(int)vParams[5].getFloat(),
+			(int)vParams[6].getFloat(),
+			Ogre::Vector3((float)vParams[7].getFloat(), (float)vParams[8].getFloat(), (float)vParams[9].getFloat()), Ogre::Vector3((float)vParams[10].getFloat(), (float)vParams[11].getFloat(), (float)vParams[12].getFloat()));
 
 	return std::vector<Ice::ScriptParam>();
 }

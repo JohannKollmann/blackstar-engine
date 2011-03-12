@@ -259,7 +259,7 @@ FontTextures::CreateTextTexture(std::string strText, int iMaxWidth, int iMaxHeig
 }
 
 Ogre::MaterialPtr
-FontTextures::CreateTextMaterial(Ogre::TexturePtr pTex, Ogre::String strBaseMaterial, Ogre::String strTargetPassName, Ogre::String strTargetTextureAlias, int iMaxWidth, int iMaxHeight)
+FontTextures::CreateTextMaterial(Ogre::TexturePtr pTex, Ogre::String strBaseMaterial, Ogre::String strTargetPassName, Ogre::String strTargetTextureAlias, int iMaxWidth, int iMaxHeight, Ogre::Vector3 transform1, Ogre::Vector3 transform2)
 {
 	Ogre::MaterialPtr mat=Ogre::MaterialManager::getSingleton().getByName(strBaseMaterial);
 	Ogre::String strTestMatName=Ogre::String("Ice::FontTextureMaterial ") + Ice::SceneManager::Instance().RequestIDStr();
@@ -276,8 +276,8 @@ FontTextures::CreateTextMaterial(Ogre::TexturePtr pTex, Ogre::String strBaseMate
 			pPass->getFragmentProgramParameters()->setNamedConstant("fTextWidth", Ogre::Real(pTex->getWidth()));
 			pPass->getFragmentProgramParameters()->setNamedConstant("fTextHeight", Ogre::Real(pTex->getHeight()));
 			pPass->getFragmentProgramParameters()->setNamedConstant("fTexelSize", Ogre::Real(1.0/(double)m_TexelWidth));
-			pPass->getFragmentProgramParameters()->setNamedConstant("fUScale", Ogre::Real((double)iMaxWidth/(double)pTex->getWidth()));
-			pPass->getFragmentProgramParameters()->setNamedConstant("fVScale", Ogre::Real((double)iMaxHeight/(double)pTex->getHeight()));
+			pPass->getFragmentProgramParameters()->setNamedConstant("fTransform1", Ogre::Vector3((double)iMaxWidth/(double)pTex->getWidth()*transform1.x, (double)iMaxWidth/(double)pTex->getWidth()*transform1.y, transform1.z));
+			pPass->getFragmentProgramParameters()->setNamedConstant("fTransform2", Ogre::Vector3((double)iMaxHeight/(double)pTex->getHeight()*transform2.x, (double)iMaxHeight/(double)pTex->getHeight()*transform2.y, transform2.z));
 		}
 	}
 	mat->compile(true);
@@ -285,7 +285,7 @@ FontTextures::CreateTextMaterial(Ogre::TexturePtr pTex, Ogre::String strBaseMate
 }
 
 void
-FontTextures::ChangeTextMaterial(Ogre::MaterialPtr pMat, Ogre::TexturePtr pTex, Ogre::String strTargetPassName, Ogre::String strTargetTextureAlias, int iMaxWidth, int iMaxHeight)
+FontTextures::ChangeTextMaterial(Ogre::MaterialPtr pMat, Ogre::TexturePtr pTex, Ogre::String strTargetPassName, Ogre::String strTargetTextureAlias, int iMaxWidth, int iMaxHeight, Ogre::Vector3 transform1, Ogre::Vector3 transform2)
 {
 	pMat->unload();
 	for(unsigned int iTechnique=0; iTechnique<pMat->getNumTechniques(); iTechnique++)
@@ -299,8 +299,10 @@ FontTextures::ChangeTextMaterial(Ogre::MaterialPtr pMat, Ogre::TexturePtr pTex, 
 			pPass->getFragmentProgramParameters()->setNamedConstant("fTextWidth", Ogre::Real(pTex->getWidth()));
 			pPass->getFragmentProgramParameters()->setNamedConstant("fTextHeight", Ogre::Real(pTex->getHeight()));
 			pPass->getFragmentProgramParameters()->setNamedConstant("fTexelSize", Ogre::Real(1.0/(double)m_TexelWidth));
-			pPass->getFragmentProgramParameters()->setNamedConstant("fUScale", Ogre::Real((double)iMaxWidth/(double)pTex->getWidth()));
-			pPass->getFragmentProgramParameters()->setNamedConstant("fVScale", Ogre::Real((double)iMaxHeight/(double)pTex->getHeight()));
+			//pPass->getFragmentProgramParameters()->setNamedConstant("fUScale", Ogre::Real((double)iMaxWidth/(double)pTex->getWidth()));
+			//pPass->getFragmentProgramParameters()->setNamedConstant("fVScale", Ogre::Real((double)iMaxHeight/(double)pTex->getHeight()));
+			pPass->getFragmentProgramParameters()->setNamedConstant("fTransform1", Ogre::Vector3((double)iMaxWidth/(double)pTex->getWidth()*transform1.x, (double)iMaxWidth/(double)pTex->getWidth()*transform1.y, transform1.z));
+			pPass->getFragmentProgramParameters()->setNamedConstant("fTransform2", Ogre::Vector3((double)iMaxHeight/(double)pTex->getHeight()*transform2.x, (double)iMaxHeight/(double)pTex->getHeight()*transform2.y, transform2.z));
 		}
 	}
 	pMat->compile(true);
