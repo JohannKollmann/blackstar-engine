@@ -53,7 +53,7 @@ namespace Ice
 			if (item.key == "Script Filenames") continue;
 			std::vector<ScriptParam> vParams;
 			item.data.GetAsScriptParam(vParams);
-			if (vParams.size() == 1) mScriptProperties.insert(std::make_pair<Ogre::String, ScriptParam>(item.key, vParams[0]));
+			if (vParams.size() == 1) mScriptProperties[item.key] = vParams[0];
 		}
 	}
 	void GOCScript::GetParameters(DataMap *parameters)
