@@ -138,12 +138,15 @@ namespace Ice
 		for(unsigned int iSubEnt=0; iSubEnt<mEntity->getNumSubEntities(); iSubEnt++)
 		{
 			Ogre::SubEntity* pSubEnt=mEntity->getSubEntity(iSubEnt);
+			//Ogre::LogManager::getSingleton().logMessage(pSubEnt->getMaterialName());
 			if(!pSubEnt->getMaterialName().compare(params[0].getString()))
 			{//replace this material
 				pSubEnt->setMaterialName(params[1].getString());
+				return std::vector<Ice::ScriptParam>();
 			}
 		}
-		return std::vector<Ice::ScriptParam>();
+		errout.push_back(Ice::ScriptParam(std::string("material ") + params[0].getString() + std::string(" not found")));
+		return errout;
 	}
 
 	//Billboard
