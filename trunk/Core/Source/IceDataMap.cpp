@@ -53,6 +53,15 @@ namespace Ice
 		}
 	}
 
+	void GenericProperty::Set(const ScriptParam &scriptParam)
+	{
+		if (scriptParam.getType() == ScriptParam::PARM_TYPE_BOOL) mData = scriptParam.getBool();
+		else if (scriptParam.getType() == ScriptParam::PARM_TYPE_FLOAT) mData = static_cast<float>(scriptParam.getFloat());
+		else if (scriptParam.getType() == ScriptParam::PARM_TYPE_INT) mData = scriptParam.getInt();
+		else if (scriptParam.getType() == ScriptParam::PARM_TYPE_STRING) mData = scriptParam.getString();
+		else IceWarning("Could not convert ScriptParam to GenericProperty!")
+	}
+
 	void GenericProperty::Save(LoadSave::SaveSystem& myManager)
 	{
 		int type = getType();
@@ -297,6 +306,13 @@ namespace Ice
 		Enum e; e.choices = choices; e.selection = selection;
 		AddItem<Enum>(keyname, e);
 		//AddOgreString(keyname, e.toString());
+	}
+
+	void DataMap::AddScriptParam(const Ogre::String &keyname, const ScriptParam &param)
+	{
+		GenericProperty gp;
+		gp.Set(param);
+		AddItem(keyname, gp);
 	}
 
 	bool DataMap::HasNext()

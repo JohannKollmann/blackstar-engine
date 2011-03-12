@@ -17,7 +17,7 @@ namespace Ice
 		GOCAnimatedCharacter *mGOCRagdoll;
 	};
 
-	class DllExport GOCAnimatedCharacter : public GOCEditorInterface, public GOCOgreNodeUser, public ScriptUser
+	class DllExport GOCAnimatedCharacter : public GOCEditorInterface, public GOCOgreNodeUser, public MessageListener
 	{
 	private:
 		Ogre::Entity *mEntity;
@@ -53,7 +53,7 @@ namespace Ice
 		goc_id_family& GetFamilyID() const { static std::string name = "View"; return name; }
 		GOComponent::goc_id_type& GetComponentID() const { static std::string name = "Skeleton"; return name; }
 
-		void OnReceiveMessage(Msg &msg);
+		void ReceiveMessage(Msg &msg);
 		void ReceiveObjectMessage(Msg &msg);
 
 		void SetOwner(GameObject *go);
@@ -68,9 +68,6 @@ namespace Ice
 		GOCEditorInterface* New() { return new GOCAnimatedCharacter(); }
 		Ogre::String GetLabel() { return "Skeleton"; }
 		GOComponent* GetGOComponent() { return this; }
-
-		//Scripting
-		int GetThisID() { IceAssert(mOwnerGO); return mOwnerGO->GetID(); }
 
 		std::vector<ScriptParam> AnimProcess_Create(Script& caller, std::vector<ScriptParam> &vParams);
 		std::vector<ScriptParam> AnimProcess_GetBinding(Script& caller, std::vector<ScriptParam> &vParams);

@@ -247,6 +247,8 @@ void wxEditIceGameObject::OnApply()
 	mGameObject->SetGlobalOrientation(mGameObject->GetGlobalOrientation());
 	mGameObject->SetGlobalScale(mGameObject->GetGlobalScale());
 
+	mGameObject->FirePostInit();
+
 	if (select == true)
 	{
 		wxEdit::Instance().GetOgrePane()->SelectObject(mGameObject);

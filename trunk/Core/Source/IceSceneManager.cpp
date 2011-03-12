@@ -266,10 +266,6 @@ namespace Ice
 		Object get/set methods.
 		Example usage: SetPosition(id, 1.0, 2.5, 3.1)
 		*/
-		ScriptSystem::GetInstance().ShareCFunction("Object_SetProperty", &GameObject::Lua_SetObjectProperty);
-		ScriptSystem::GetInstance().ShareCFunction("Object_GetProperty", &GameObject::Lua_GetObjectProperty);
-		ScriptSystem::GetInstance().ShareCFunction("Object_HasProperty", &GameObject::Lua_HasObjectProperty);
-
 		ScriptSystem::GetInstance().ShareCFunction("Object_SetPosition", &GameObject::Lua_SetObjectPosition);
 		ScriptSystem::GetInstance().ShareCFunction("Object_SetOrientation", &GameObject::Lua_SetObjectOrientation);
 		ScriptSystem::GetInstance().ShareCFunction("Object_SetScale", &GameObject::Lua_SetObjectScale);
@@ -298,6 +294,11 @@ namespace Ice
 		*/
 		ScriptSystem::GetInstance().ShareCFunction("Npc_ClearQueue", &GOCAI::Lua_Npc_ClearQueue);
 
+		//Script component
+		ScriptSystem::GetInstance().ShareCFunction("Script_SetProperty", &GOCScript::Lua_Script_SetProperty);
+		ScriptSystem::GetInstance().ShareCFunction("Script_GetProperty", &GOCScript::Lua_Script_GetProperty);
+		ScriptSystem::GetInstance().ShareCFunction("Script_HasProperty", &GOCScript::Lua_Script_HasProperty);
+
 		/**
 		Adds a scripted state to the daily routine queue.
 		*/
@@ -319,8 +320,6 @@ namespace Ice
 		ScriptSystem::GetInstance().ShareCFunction("PFX_SetEmitting", &GOCPfxRenderable::Lua_SetEmitting);
 
 		ScriptSystem::GetInstance().ShareCFunction("Sound3D_StartFade", &GOCSound3D::Lua_StartFade);
-
-		ScriptSystem::GetInstance().ShareCFunction("Object_RunFunction", &GOCScript::Lua_RunFunction);
 
 		ScriptSystem::GetInstance().ShareCFunction("AnimProcess_Create", &GOCAnimatedCharacter::Lua_AnimProcess_Create);
 		ScriptSystem::GetInstance().ShareCFunction("Process_AddDependency", &ProcessNode::Lua_AddDependency);

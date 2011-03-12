@@ -3,24 +3,68 @@
 
 namespace Ice
 {
-	void GOCScript::OnSetParameters()
+	void GOCScript::Create()
 	{
 		if (!mOwnerGO) return;
-		InitScript(mScriptFileName);
+		mScripts.clear();
+		auto names = Ogre::StringUtil::split(mScriptFileNames, ";");
+		ITERATE(i, names)
+			mScripts.push_back(std::make_shared<ScriptItem>(this, *i));
 	}
 
 	void GOCScript::SetOwner(GameObject *go)
 	{
 		mOwnerGO = go;
-		if (!mOwnerGO) return;
-		if (mScriptFileName != "") InitScript(mScriptFileName);
 	}
 
-	std::vector<ScriptParam> GOCScript::RunFunction(Script& caller, std::vector<ScriptParam> &vParams)
+	std::vector<ScriptParam> GOCScript::Script_SetProperty(Script& caller, std::vector<ScriptParam> &vParams)
 	{
-		std::string strFnName=vParams[0].getString();
-		vParams.erase(vParams.begin());
-		return mScript.CallFunction(strFnName, vParams);
+		std::vector<ScriptParam> out;
+		Ogre::String key = vParams[0].getString().c_str();
+		mScriptProperties[key] = vParams[1];
+		return out;
+	}
+	std::vector<ScriptParam> GOCScript::Script_GetProperty(Script& caller, std::vector<ScriptParam> &vParams)
+	{
+		std::vector<ScriptParam> out;
+		Ogre::String key = vParams[0].getString().c_str();
+		auto i = mScriptProperties.find(key);
+		if (i == mScriptProperties.end()) return out;
+		out.push_back(i->second);
+		return out;
+	}
+	std::vector<ScriptParam> GOCScript::Script_HasProperty(Script& caller, std::vector<ScriptParam> &vParams)
+	{
+		std::vector<ScriptParam> out;
+		Ogre::String key = vParams[0].getString().c_str();
+		auto i = mScriptProperties.find(key);
+		out.push_back(i != mScriptProperties.end());
+		return out;
+	}
+
+	void GOCScript::SetParameters(DataMap *parameters)
+	{
+		mScriptProperties.clear();
+		mScriptFileNames = parameters->GetValue<Ogre::String>("Script Filenames", "");
+
+		while (parameters->HasNext())
+		{
+			auto item = parameters->GetNext();
+			if (item.key == "Script Filenames") continue;
+			std::vector<ScriptParam> vParams;
+			item.data.GetAsScriptParam(vParams);
+			if (vParams.size() == 1) mScriptProperties.insert(std::make_pair<Ogre::String, ScriptParam>(item.key, vParams[0]));
+		}
+	}
+	void GOCScript::GetParameters(DataMap *parameters)
+	{
+		parameters->AddOgreString("Script Filenames", mScriptFileNames);
+		ITERATE(i, mScriptProperties)
+			parameters->AddScriptParam(i->first, i->second);
+	}
+	void GOCScript::GetDefaultParameters(DataMap *parameters)
+	{
+		parameters->AddOgreString("Script Filenames", "a.lua;b.lua");
 	}
 
 	GOCScriptMessageCallback::GOCScriptMessageCallback()
