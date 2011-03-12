@@ -756,6 +756,21 @@ std::vector<Ice::ScriptParam>
 GUISystem::Lua_CreateFontTexture(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams)
 {//arguments: spacing file, text, maxwidth, maxheight
 //outputs: texture name, actual width, actual height
+	std::vector<Ice::ScriptParam> ret;
+	ret.push_back(Ice::ScriptParam(std::string("")));
+	ret.push_back(Ice::ScriptParam(std::string("")));
+	ret.push_back(Ice::ScriptParam(0.0));
+	ret.push_back(Ice::ScriptParam(0.0));
+	
+	std::string strError=Ice::Utils::TestParameters(vParams, ret, false);
+	ret.clear();
+	ret.push_back(Ice::ScriptParam());
+	if(strError.size())
+	{
+		ret.push_back(Ice::ScriptParam(strError));
+		return ret;
+	}
+
 	std::map<std::string, FontTextures>::iterator it=GetInstance().m_mFontTextures.find(vParams[0].getString());
 	if(it==GetInstance().m_mFontTextures.end())
 	{//we don't have this spacing in memory, load it
