@@ -86,8 +86,9 @@ LuaScript::GetArguments(lua_State* pState, int iStartIndex, Script& script)
 {
 	int nParams=lua_gettop(pState);
 	std::vector<ScriptParam> vParams;
+	int iType;
 	for(int iParam=iStartIndex; iParam<=nParams; iParam++)
-		switch(lua_type(pState, iParam))
+		switch(iType=lua_type(pState, iParam))
 		{
 		case LUA_TNUMBER:
 			vParams.push_back(ScriptParam(lua_tonumber(pState, iParam)));
@@ -149,7 +150,11 @@ LuaScript::GetArguments(lua_State* pState, int iStartIndex, Script& script)
 			//unsupported type
 			vParams.clear();
 			vParams.push_back(ScriptParam());
-			vParams.push_back(ScriptParam(std::string("unsupported type while extracting params")));
+			std::stringstream st;
+			st << iType;
+			std::stringstream st2;
+			st2 << (iParam-iStartIndex);
+			vParams.push_back(ScriptParam(std::string("unsupported type (") + (iType==LUA_TNIL ? std::string("nil") : st.str()) + std::string(") while extracting param ") + st2.str()));
 			return vParams;
 		};
 	return vParams;

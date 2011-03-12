@@ -91,8 +91,8 @@
       <AdditionalLibraryDirectories>..\..\Dependencies\Hydrax\lib\;..\..\Dependencies\boost\lib\;..\..\Dependencies\Ogre3D\lib;..\..\lib\;..\..\Dependencies\Ogre3D\Dependencies\lib\Debug;..\..\Dependencies\Ogre3D\Dependencies\lib\Release;..\..\Dependencies\OgreOggSound\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
-      <OptimizeReferences>true</OptimizeReferences>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>false</OptimizeReferences>
+      <EnableCOMDATFolding>false</EnableCOMDATFolding>
       <TargetMachine>MachineX86</TargetMachine>
       <OutputFile>$(OutDir)$(TargetName).dll</OutputFile>
     </Link>
