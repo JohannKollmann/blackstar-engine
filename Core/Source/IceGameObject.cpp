@@ -320,6 +320,12 @@ namespace Ice
 		return true;
 	}
 
+	void  GameObject::FirePostInit()
+	{
+		ITERATE(i, mComponents)
+			(*i)->NotifyPostInit();
+	}
+
 	void GameObject::Save(LoadSave::SaveSystem& mgr)
 	{
 		mgr.SaveAtom("Ogre::String", (void*)(&mName), "mName");
@@ -362,32 +368,9 @@ namespace Ice
 		{
 			(*i)->SetParent(this);
 		}
+		FirePostInit();
 	}
 
-	std::vector<ScriptParam> GameObject::SetObjectProperty(Script& caller, std::vector<ScriptParam> &vParams)
-	{
-		std::vector<ScriptParam> out;
-		Ogre::String key = vParams[0].getString().c_str();
-		mScriptProperties[key] = vParams[1];
-		return out;
-	}
-	std::vector<ScriptParam> GameObject::GetObjectProperty(Script& caller, std::vector<ScriptParam> &vParams)
-	{
-		std::vector<ScriptParam> out;
-		Ogre::String key = vParams[0].getString().c_str();
-		auto i = mScriptProperties.find(key);
-		if (i == mScriptProperties.end()) return out;
-		out.push_back(i->second);
-		return out;
-	}
-	std::vector<ScriptParam> GameObject::HasObjectProperty(Script& caller, std::vector<ScriptParam> &vParams)
-	{
-		std::vector<ScriptParam> out;
-		Ogre::String key = vParams[0].getString().c_str();
-		auto i = mScriptProperties.find(key);
-		out.push_back(i != mScriptProperties.end());
-		return out;
-	}
 	std::vector<ScriptParam> GameObject::SetObjectPosition(Script& caller, std::vector<ScriptParam> &vParams)
 	{
 		std::vector<ScriptParam> out;
@@ -519,9 +502,6 @@ namespace Ice
 		else SCRIPT_RETURNERROR("invalid object id")
 	}
 
-	DEFINE_TYPEDGOLUAMETHOD_CPP(SetObjectProperty, "string")
-	DEFINE_TYPEDGOLUAMETHOD_CPP(GetObjectProperty, "string")
-	DEFINE_TYPEDGOLUAMETHOD_CPP(HasObjectProperty, "string")
 	DEFINE_TYPEDGOLUAMETHOD_CPP(SetObjectPosition, "float float float")
 	DEFINE_TYPEDGOLUAMETHOD_CPP(SetObjectOrientation, "float float float")
 	DEFINE_TYPEDGOLUAMETHOD_CPP(SetObjectScale, "float float float")

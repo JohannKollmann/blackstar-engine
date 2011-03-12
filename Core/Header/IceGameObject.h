@@ -63,8 +63,6 @@ namespace Ice
 		void UpdateChildren(bool move = true);
 		void UpdateLocalTransform();
 
-		std::map<Ogre::String, ScriptParam> mScriptProperties;
-
 	public:
 		GameObject();
 		virtual ~GameObject();
@@ -196,7 +194,10 @@ namespace Ice
 		*/
 		bool IsStatic();
 
-		///Tells als components to change to an inactive state, where say don't use any resources.
+		///Tells all components that the object is assembled completely
+		void FirePostInit();
+
+		///Tells all components to change to an inactive state, where say don't use any resources.
 		void FreeResources(bool free);
 
 		//Scripting

@@ -874,6 +874,8 @@ Ice::GameObject* Edit::InsertObject(Ice::GameObject *parent, bool align, bool cr
 		wxEdit::Instance().GetOgrePane()->SetFocus();
 	}
 
+	object->FirePostInit();
+
 	return object;
 }
 

@@ -46,7 +46,7 @@ namespace Ice
 		void Set(void *data, const PropertyTypes &type);
 
 		///Converts from a ScriptParam.
-		//void Set(const ScriptParam &scriptParam);
+		void Set(const ScriptParam &scriptParam);
 
 		///Retrieves the saved data of type T.
 		template <typename T>
@@ -185,6 +185,8 @@ namespace Ice
 		void AddOgreQuat(const Ogre::String &keyname, const Ogre::Quaternion &quat);
 		void AddOgreString(const Ogre::String &keyname, const Ogre::String &text);
 		void AddEnum(const Ogre::String &keyname, std::vector<Ogre::String> choices, unsigned int selection = 0);
+
+		void AddScriptParam(const Ogre::String &keyname, const ScriptParam &param);
 
 		//Load Save methods
 		void Save(LoadSave::SaveSystem& myManager);

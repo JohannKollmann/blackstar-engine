@@ -132,7 +132,7 @@ namespace Ice
 		}
 	}
 
-	void GOCAnimatedCharacter::OnReceiveMessage(Msg &msg)
+	void GOCAnimatedCharacter::ReceiveMessage(Msg &msg)
 	{
 		if (!mOwnerGO) return;
 		if (msg.type == "REPARSE_SCRIPTS")
@@ -167,14 +167,12 @@ namespace Ice
 			mSetControlToActorsTemp = false;
 		}
 
-		if (mScriptFileName != "") InitScript(mScriptFileName);
 		//else if (mEditorMode) CreateBoneObjects();
 	}
 
 	void GOCAnimatedCharacter::SetParameters(DataMap *parameters)
 	{
 		mMeshName = parameters->GetOgreString("MeshName");
-		mScriptFileName = parameters->GetValue<Ogre::String>("Animation Script", "");
 		mShadowCaster = parameters->GetBool("ShadowCaster");
 		mSetControlToActorsTemp = parameters->GetBool("Ragdoll");
 		Ogre::Vector3 scale = Ogre::Vector3(1,1,1);
@@ -190,14 +188,12 @@ namespace Ice
 	void GOCAnimatedCharacter::GetParameters(DataMap *parameters)
 	{
 		parameters->AddOgreString("MeshName", mEntity->getMesh()->getName());
-		parameters->AddOgreString("Animation Script", mScriptFileName);
 		parameters->AddBool("Ragdoll", false);
 		parameters->AddBool("ShadowCaster", mEntity->getCastShadows());
 	}
 	void GOCAnimatedCharacter::GetDefaultParameters(DataMap *parameters)
 	{
 		parameters->AddOgreString("MeshName", "");
-		parameters->AddOgreString("Animation Script", "");
 		parameters->AddBool("Ragdoll", false);
 		parameters->AddBool("ShadowCaster", true);
 	}
@@ -205,7 +201,6 @@ namespace Ice
 	void GOCAnimatedCharacter::Save(LoadSave::SaveSystem& mgr)
 	{
 		mgr.SaveAtom("Ogre::String", (void*)&mEntity->getMesh()->getName(), "MeshName");
-		mgr.SaveAtom("Ogre::String", (void*)&mScriptFileName, "Animation Script");
 		bool ragdoll = mRagdoll->isControlledByActors();
 		mgr.SaveAtom("bool", &ragdoll, "Ragdoll");
 		bool shadow = mEntity->getCastShadows();
@@ -219,7 +214,6 @@ namespace Ice
 		bool shadowcaster = true;
 		bool ragdoll = false;
 		mgr.LoadAtom("Ogre::String", &mMeshName);
-		mgr.LoadAtom("Ogre::String", &mScriptFileName);
 		mgr.LoadAtom("bool", &mSetControlToActorsTemp);
 		mgr.LoadAtom("bool", &mShadowCaster);
 	}
@@ -254,7 +248,7 @@ namespace Ice
 			process->SetInBlendDuration(blendTime);
 			process->SetOutBlendDuration(blendTime);
 			process->SetTimeScale(timeScale);
-			for (int i = 4; vParams.size() > i+1; i+=2)
+			for (unsigned int i = 4; vParams.size() > i+1; i+=2)
 			{
 				if (vParams[i].getType() == ScriptParam::PARM_TYPE_FLOAT && vParams[i+1].getType() == ScriptParam::PARM_TYPE_FUNCTION)
 					process->AddCallback(vParams[i].getFloat(), vParams[i+1]);

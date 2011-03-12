@@ -11,30 +11,56 @@
 namespace Ice
 {
 
-	class DllExport GOCScript : public GOComponent, public GOCStaticEditorInterface, public ScriptUser
+	class DllExport GOCScript : public GOComponent, public GOCEditorInterface
 	{
+	private:
+		Ogre::String mScriptFileNames;
+
+		class ScriptItem : public ScriptUser
+		{
+		private:
+			GOCScript *mGOCScript;
+		public:
+			ScriptItem(GOCScript *gocs, Ogre::String scriptName) : mGOCScript(gocs) { InitScript(scriptName); }
+			int GetThisID() { return mGOCScript->GetThisID(); }
+		};
+
+		std::vector<std::shared_ptr<ScriptItem>> mScripts;
+
+		std::map<Ogre::String, ScriptParam> mScriptProperties;
+
 	public:
 		GOCScript() {}
 		~GOCScript() {}
 
+		void Create();
+
 		int GetThisID() { IceAssert(mOwnerGO); return mOwnerGO->GetID(); }
 		GOComponent::goc_id_type& GetComponentID() const { static std::string name = "Script"; return name; }
 
-		BEGIN_GOCEDITORINTERFACE(GOCScript, "Script")
-			PROPERTY_STRING(mScriptFileName, "Script File", ".lua")
-		END_GOCEDITORINTERFACE
-		void OnSetParameters();
+		void SetParameters(DataMap *parameters);
+		void GetParameters(DataMap *parameters);
+		void GetDefaultParameters(DataMap *parameters);
+		Ogre::String GetLabel() { return "Script"; }
+		GOComponent* GetGOComponent() { return this; }
+		GOCScript* New() { return new GOCScript(); }
 
 		void SetOwner(GameObject *go);
 
-		std::vector<ScriptParam> RunFunction(Script& caller, std::vector<ScriptParam> &vParams);
-		DEFINE_TYPEDGOCLUAMETHOD(GOCScript, RunFunction, "string");
+		void NotifyPostInit() { Create(); }
+
+		std::vector<ScriptParam> Script_SetProperty(Script& caller, std::vector<ScriptParam> &vParams);
+		std::vector<ScriptParam> Script_GetProperty(Script& caller, std::vector<ScriptParam> &vParams);
+		std::vector<ScriptParam> Script_HasProperty(Script& caller, std::vector<ScriptParam> &vParams);
+		DEFINE_TYPEDGOCLUAMETHOD(GOCScript, Script_SetProperty, "string")
+		DEFINE_TYPEDGOCLUAMETHOD(GOCScript, Script_GetProperty, "string")
+		DEFINE_TYPEDGOCLUAMETHOD(GOCScript, Script_HasProperty, "string")
 
 		std::string& TellName() { static std::string name = "Script"; return name; };
 		static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "Script"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };
 		static LoadSave::Saveable* NewInstance() { return new GOCScript; };
-		void Save(LoadSave::SaveSystem& mgr) { mgr.SaveAtom("std::string", &mScriptFileName, "ScriptFileName"); }
-		void Load(LoadSave::LoadSystem& mgr) { mgr.LoadAtom("std::string", &mScriptFileName); }
+		void Save(LoadSave::SaveSystem& mgr) { mgr.SaveAtom("std::string", &mScriptFileNames, "ScriptFileNames"); }
+		void Load(LoadSave::LoadSystem& mgr) { mgr.LoadAtom("std::string", &mScriptFileNames); }
 	};
 
 	class DllExport GOCScriptMessageCallback : public GOComponent, public MessageListener

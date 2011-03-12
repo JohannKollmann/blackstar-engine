@@ -29,6 +29,9 @@ namespace Ice
 		GameObject *mOwnerGO;
 		virtual void NotifyOwnerGO();
 
+		///Called by GameObject::FirePostInit
+		virtual void NotifyPostInit() {}
+
 	public:
 		typedef std::string goc_id_type;
 		typedef std::string goc_id_family;
