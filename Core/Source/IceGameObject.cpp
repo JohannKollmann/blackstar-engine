@@ -324,6 +324,10 @@ namespace Ice
 	{
 		ITERATE(i, mComponents)
 			(*i)->NotifyPostInit();
+
+		Msg msg;
+		msg.type = "INIT_POST";
+		SendInstantMessage(msg);
 	}
 
 	void GameObject::Save(LoadSave::SaveSystem& mgr)
