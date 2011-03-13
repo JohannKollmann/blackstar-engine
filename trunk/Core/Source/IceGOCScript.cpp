@@ -67,6 +67,18 @@ namespace Ice
 		parameters->AddOgreString("Script Filenames", "a.lua;b.lua");
 	}
 
+	void GOCScript::Save(LoadSave::SaveSystem& mgr)
+	{
+		DataMap map;
+		GetParameters(&map);
+		mgr.SaveObject(&map, "Data", false, false);
+	}
+	void GOCScript::Load(LoadSave::LoadSystem& mgr)
+	{
+		DataMap *map = (DataMap*)mgr.LoadObject();
+		SetParameters(map);
+	}
+
 	GOCScriptMessageCallback::GOCScriptMessageCallback()
 	{
 		MessageSystem::Instance().JoinNewsgroup(this, "REPARSE_SCRIPTS");
