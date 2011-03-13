@@ -59,8 +59,8 @@ namespace Ice
 		std::string& TellName() { static std::string name = "Script"; return name; };
 		static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "Script"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };
 		static LoadSave::Saveable* NewInstance() { return new GOCScript; };
-		void Save(LoadSave::SaveSystem& mgr) { mgr.SaveAtom("std::string", &mScriptFileNames, "ScriptFileNames"); }
-		void Load(LoadSave::LoadSystem& mgr) { mgr.LoadAtom("std::string", &mScriptFileNames); }
+		void Save(LoadSave::SaveSystem& mgr);
+		void Load(LoadSave::LoadSystem& mgr);
 	};
 
 	class DllExport GOCScriptMessageCallback : public GOComponent, public MessageListener

@@ -88,7 +88,7 @@ void SaveSystem::SetUseRecordReferences(bool use)
 }
 
 void
-SaveSystem::SaveObject(Saveable *pObj, std::string varName, bool allowNull)
+SaveSystem::SaveObject(Saveable *pObj, std::string varName, bool allowNull, bool useRecordReferences)
 {
 	if (!pObj)
 	{
@@ -97,9 +97,9 @@ SaveSystem::SaveObject(Saveable *pObj, std::string varName, bool allowNull)
 		this->SaveAtom("NullObject", nullptr, varName);
 		return;
 	}
-	if(!mUseRecordReferences || m_RecordIDs.find(pObj)==m_RecordIDs.end())
+	if(!useRecordReferences || !mUseRecordReferences || m_RecordIDs.find(pObj)==m_RecordIDs.end())
 	{
-		m_RecordIDs.insert(std::pair<Saveable*, int>(pObj, m_pSM->GetRecordID()));
+		if (useRecordReferences) m_RecordIDs.insert(std::pair<Saveable*, int>(pObj, m_pSM->GetRecordID()));
 		m_pSM->AddOpenElement(LoadSave::Instance().GetObjectID(pObj->TellName()), EscapeXMLName(pObj->TellName()), varName, 0, NULL, "", false, NULL, false);
 		pObj->Save(*this);
 		m_pSM->CloseCurrentElement();
