@@ -28,6 +28,7 @@ namespace Ice
 		std::vector<std::shared_ptr<ScriptItem>> mScripts;
 
 		std::map<Ogre::String, ScriptParam> mScriptProperties;
+		DataMap mTempMap;//HACK while save system can't turn off record references for child objects
 
 	public:
 		GOCScript() {}

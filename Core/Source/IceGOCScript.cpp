@@ -69,9 +69,9 @@ namespace Ice
 
 	void GOCScript::Save(LoadSave::SaveSystem& mgr)
 	{
-		DataMap map;
-		GetParameters(&map);
-		mgr.SaveObject(&map, "Data", false, false);
+		//DataMap map;
+		GetParameters(&mTempMap);
+		mgr.SaveObject(&mTempMap, "Data", false, false);
 	}
 	void GOCScript::Load(LoadSave::LoadSystem& mgr)
 	{
