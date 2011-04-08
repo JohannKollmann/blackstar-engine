@@ -194,6 +194,56 @@ namespace Ice
 		mData.clear();
 	}
 
+	void DataMap::ParseString(Ogre::String &keyValues)
+	{
+		Ogre::String type;
+		Ogre::String key;
+		Ogre::String value;
+		int readingState = 0;
+		for (int i = 0; i < keyValues.length(); i++)
+		{
+			if (readingState == 0)
+			{
+				if (keyValues[i] == ' ')
+				{
+					if (key == "")
+					{
+						IceWarning("Key must not be empty!")
+						return;
+					}
+					readingState = 1;
+				}
+				else type = type + keyValues[i];
+			}
+			else if (readingState == 1)
+			{
+				if (keyValues[i] == '=') readingState = 2;
+				else key = key + keyValues[i];
+			}
+			else if (readingState == 2)
+			{
+				if (keyValues[i] == ';') 
+				{
+					Ogre::StringUtil::trim(type);
+					Ogre::StringUtil::trim(key);
+					Ogre::StringUtil::trim(value);
+					if (type == "int") AddInt(key, Ogre::StringConverter::parseInt(value));
+					else if (type == "float") AddFloat(key, Ogre::StringConverter::parseReal(value));
+					else if (type == "bool") AddBool(key, Ogre::StringConverter::parseBool(value));
+					else if (type == "string") AddOgreString(key, value);
+					else if (type == "vector3") AddOgreVec3(key, Ogre::StringConverter::parseVector3(value));
+					else if (type == "quat") AddOgreQuat(key, Ogre::StringConverter::parseQuaternion(value));
+					else IceWarning("Unknown data type: " + type)
+					readingState = 0;
+					type = "";
+					key = "";
+					value = "";
+				}
+				else value = value + keyValues[i];
+			}
+		}
+	}
+
 	bool DataMap::HasKey(const Ogre::String &keyname)
 	{
 		for (auto i = mData.begin(); i != mData.end(); i++)

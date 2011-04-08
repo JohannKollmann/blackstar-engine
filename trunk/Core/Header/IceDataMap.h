@@ -98,6 +98,9 @@ namespace Ice
 		//Iterator methods
 		bool HasNext();
 		Item GetNext();
+		
+		//Inits the datamap from a types key-value string ("vector3 position = x y z; float weight = 8;")
+		void ParseString(Ogre::String &keyValues);
 
 		///Retrieves whether there is an item with key keyname.
 		bool HasKey(const Ogre::String &keyname);
