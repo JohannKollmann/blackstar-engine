@@ -266,6 +266,9 @@ namespace Ice
 		Object get/set methods.
 		Example usage: SetPosition(id, 1.0, 2.5, 3.1)
 		*/
+		ScriptSystem::GetInstance().ShareCFunction("Object_Create", &SceneManager::Lua_CreateGameObject);
+		ScriptSystem::GetInstance().ShareCFunction("Object_SetParent", &GameObject::Lua_SetParent);
+		ScriptSystem::GetInstance().ShareCFunction("Object_AddComponent", &GameObject::Lua_AddComponent);
 		ScriptSystem::GetInstance().ShareCFunction("Object_SetPosition", &GameObject::Lua_SetObjectPosition);
 		ScriptSystem::GetInstance().ShareCFunction("Object_SetOrientation", &GameObject::Lua_SetObjectOrientation);
 		ScriptSystem::GetInstance().ShareCFunction("Object_SetScale", &GameObject::Lua_SetObjectScale);
@@ -1001,6 +1004,12 @@ namespace Ice
 	{
 		Main::Instance().GetSoundManager()->getListener()->setPosition(Main::Instance().GetCamera()->getDerivedPosition());
 		Main::Instance().GetSoundManager()->getListener()->setOrientation(Main::Instance().GetCamera()->getDerivedOrientation());
+	}
+
+	std::vector<ScriptParam> SceneManager::Lua_CreateGameObject(Script& caller, std::vector<ScriptParam> vParams)
+	{
+		GameObject *object = Instance().CreateGameObject();
+		SCRIPT_RETURNVALUE(object->GetID());
 	}
 
 	std::vector<ScriptParam> SceneManager::Lua_GetGameTimeHour(Script& caller, std::vector<ScriptParam> vParams)

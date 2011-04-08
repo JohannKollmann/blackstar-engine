@@ -375,6 +375,23 @@ namespace Ice
 		FirePostInit();
 	}
 
+	std::vector<ScriptParam> GameObject::AddComponent(Script& caller, std::vector<ScriptParam> &vParams)
+	{
+		GOCEditorInterface *goc = SceneManager::Instance().NewGOC(vParams[0].getString());
+		DataMap data;
+		data.ParseString(vParams[1].getString());
+		goc->SetParameters(&data);
+		SCRIPT_RETURN()
+	}
+
+	std::vector<ScriptParam> GameObject::SetParent(Script& caller, std::vector<ScriptParam> &vParams)
+	{
+		GameObject *go = SceneManager::Instance().GetObjectByInternID(vParams[0].getInt());
+		if (!go) IceWarning("Invalid parent ID!")
+		else SetParent(go);
+		SCRIPT_RETURN()
+	}
+
 	std::vector<ScriptParam> GameObject::SetObjectPosition(Script& caller, std::vector<ScriptParam> &vParams)
 	{
 		std::vector<ScriptParam> out;
@@ -506,6 +523,8 @@ namespace Ice
 		else SCRIPT_RETURNERROR("invalid object id")
 	}
 
+	DEFINE_TYPEDGOLUAMETHOD_CPP(AddComponent, "string string")
+	DEFINE_TYPEDGOLUAMETHOD_CPP(SetParent, "int")
 	DEFINE_TYPEDGOLUAMETHOD_CPP(SetObjectPosition, "float float float")
 	DEFINE_TYPEDGOLUAMETHOD_CPP(SetObjectOrientation, "float float float")
 	DEFINE_TYPEDGOLUAMETHOD_CPP(SetObjectScale, "float float float")

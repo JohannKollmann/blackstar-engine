@@ -201,6 +201,8 @@ namespace Ice
 		void FreeResources(bool free);
 
 		//Scripting
+		std::vector<ScriptParam> AddComponent(Script& caller, std::vector<ScriptParam> &vParams);
+		std::vector<ScriptParam> SetParent(Script& caller, std::vector<ScriptParam> &vParams);
 		std::vector<ScriptParam> SetObjectProperty(Script& caller, std::vector<ScriptParam> &vParams);
 		std::vector<ScriptParam> GetObjectProperty(Script& caller, std::vector<ScriptParam> &vParams);
 		std::vector<ScriptParam> HasObjectProperty(Script& caller, std::vector<ScriptParam> &vParams);
@@ -218,6 +220,8 @@ namespace Ice
 		std::vector<ScriptParam> Object_Play3DSound(Script& caller, std::vector<ScriptParam> &vParams);
 		std::vector<ScriptParam> Object_GetDistToObject(Script& caller, std::vector<ScriptParam> &vParams);
 
+		DEFINE_GOLUAMETHOD_H(SetParent)
+		DEFINE_GOLUAMETHOD_H(AddComponent)
 		DEFINE_GOLUAMETHOD_H(SetObjectProperty)
 		DEFINE_GOLUAMETHOD_H(GetObjectProperty)
 		DEFINE_GOLUAMETHOD_H(HasObjectProperty)

@@ -185,6 +185,9 @@ namespace Ice
 		static std::vector<ScriptParam> Lua_LoadLevel(Script& caller, std::vector<ScriptParam> vParams);
 		static std::vector<ScriptParam> Lua_SaveLevel(Script& caller, std::vector<ScriptParam> vParams);
 
+		//Object creation - retrieves the object id
+		static std::vector<ScriptParam> Lua_CreateGameObject(Script& caller, std::vector<ScriptParam> vParams); 
+
 		//Sound system
 		static std::vector<ScriptParam> Lua_CreateMaterialProfile(Script& caller, std::vector<ScriptParam> vParams);
 		static std::vector<ScriptParam> Lua_Play3DSound(Script& caller, std::vector<ScriptParam> vParams);
