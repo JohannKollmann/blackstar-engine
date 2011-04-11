@@ -2,7 +2,7 @@
 #include <string>
 
 #undef AddAtom
-CREATEMAPHANDLER(std::string, "std::string", ResidentVariables::SaveableScriptParam, "ResidentVariables::SaveableScriptParam", ScriptParamMapHandler);
+//CREATEMAPHANDLER(std::string, "std::string", ResidentVariables::SaveableScriptParam, "ResidentVariables::SaveableScriptParam", ScriptParamMapHandler);
 
 ResidentManager&
 ResidentManager::GetInstance()
@@ -18,7 +18,7 @@ ResidentManager::ResidentManager()
 	Ice::ScriptSystem::GetInstance().ShareCFunction("rget", GetCallback);
 
 	LoadSave::LoadSave::Instance().RegisterObject(&ResidentVariables::Register);
-	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new ScriptParamMapHandler);
+	//LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new ScriptParamMapHandler);
 }
 
 void
@@ -184,13 +184,13 @@ ResidentManager::GetCallback(Ice::Script &caller, std::vector<Ice::ScriptParam> 
 void
 ResidentVariables::Save(LoadSave::SaveSystem &myManager)
 {
-	myManager.SaveAtom("std::map<std::string, ResidentVariables::SaveableScriptParam>", &m_mVars, "m_mVars");
+	//myManager.SaveAtom("std::map<std::string, ResidentVariables::SaveableScriptParam>", &m_mVars, "m_mVars");
 }
 
 void
 ResidentVariables::Load(LoadSave::LoadSystem& myManager)
 {
-	myManager.LoadAtom("std::map<std::string, ResidentVariables::SaveableScriptParam>", &m_mVars);
+	//myManager.LoadAtom("std::map<std::string, ResidentVariables::SaveableScriptParam>", &m_mVars);
 }
 
 std::string&

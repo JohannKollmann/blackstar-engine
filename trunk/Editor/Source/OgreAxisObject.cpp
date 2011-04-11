@@ -129,22 +129,22 @@ AxisComponent::~AxisComponent()
 	}
 }
 
-void AxisComponent::SetOwner(Ice::GameObject *go)
+void AxisComponent::NotifyOwnerGO()
 {
-	mOwnerGO = go;
-	if (!mOwnerGO) return;
+	Ice::GameObjectPtr owner = mOwnerGO.lock();
+	if (!owner.get()) return;
 	if (mAxisObject)
 	{
 		Ice::Main::Instance().GetOgreSceneMgr()->destroyManualObject(mAxisObject);
 	}
 	Ogre::Vector3 vAxisDimensions = Ogre::Vector3(1,1,1);
-	Ice::GOCMeshRenderable *gocmesh = mOwnerGO->GetComponent<Ice::GOCMeshRenderable>();
+	Ice::GOCMeshRenderable *gocmesh = owner->GetComponent<Ice::GOCMeshRenderable>();
 	if (gocmesh != 0)
 	{
 		vAxisDimensions = gocmesh->GetEntity()->getBoundingBox().getSize() * gocmesh->GetNode()->_getDerivedScale();
 	}
 	createAxis("AxisObject_" + Ogre::StringConverter::toString(Ice::SceneManager::Instance().RequestID()), vAxisDimensions);
 	GetNode()->attachObject(mAxisObject);
-	GetNode()->setPosition(mOwnerGO->GetGlobalPosition());
-	GetNode()->setOrientation(mOwnerGO->GetGlobalOrientation());
+	GetNode()->setPosition(owner->GetGlobalPosition());
+	GetNode()->setOrientation(owner->GetGlobalOrientation());
 }

@@ -49,14 +49,15 @@ namespace Ice
 
 		WeatherController *mWeatherController;
 
-		GameObject *mPlayer;
+		GameObjectPtr mPlayer;
 
 		bool mIndoorRendering;
 
 		LevelMesh *mLevelMesh;
 
-		std::vector<GameObject*> mObjectMessageQueue;
-		std::map<int, ManagedGameObject*> mGameObjects;
+		std::vector< std::weak_ptr<GameObject> > mObjectMessageQueue;
+		std::map<int, GameObjectPtr> mGameObjects;
+
 		std::list<TimeListener*> mTimeListeners;
 
 		std::map<Ogre::String, GOCEditorInterfacePtr> mGOCPrototypes;
@@ -90,8 +91,8 @@ namespace Ice
 
 		SoundMaterialTable& GetSoundMaterialTable() { return mSoundMaterialTable; }
 
-		void RegisterPlayer(GameObject *player);
-		GameObject* GetPlayer() { return mPlayer; }
+		void RegisterPlayer(GameObjectPtr player);
+		GameObjectPtr GetPlayer() { return mPlayer; }
 
 		/** Acquires control over the main camera. GOCSimpleCameraController::AttachCamera will be called.
 		The old active camera controller gets pushed on a stack an will be informed when this camera controller calls FreeCamera.
@@ -102,7 +103,7 @@ namespace Ice
 		///Tells the system that the current camera controller has done its job.
 		void TerminateCurrentCameraController();
 
-		void AddToMessageQueue(GameObject *object);
+		void AddToMessageQueue(std::weak_ptr<GameObject> object);
 
 		std::map<Ogre::String, std::map<Ogre::String, DataMap> > mGOCDefaultParameters; //For Editors
 
@@ -117,16 +118,13 @@ namespace Ice
 		unsigned int RequestID();
 		Ogre::String RequestIDStr();
 
-		ManagedGameObject* GetObjectByInternID(int id);
+		GameObjectPtr GetObjectByInternID(int id);
 		void ClearGameObjects();
 
-		void NotifyGODelete(ManagedGameObject *object);
-		int RegisterObject(ManagedGameObject *object);
+		std::map<int, GameObjectPtr>& GetGameObjects();
 
-		std::map<int, ManagedGameObject*>& GetGameObjects();
-
-		void RemoveGameObject(ManagedGameObject *object);
-		ManagedGameObject* CreateGameObject();
+		void RemoveGameObject(int objectID);
+		GameObjectPtr CreateGameObject();
 
 		WeatherController* GetWeatherController();
 

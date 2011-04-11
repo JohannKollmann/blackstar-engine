@@ -20,19 +20,22 @@ public:
 	void Save(LoadSave::SaveSystem& myManager)
 	{
 		myManager.SaveAtom("Ogre::String", (void*)&mSectionName, "Key");
-		myManager.SaveObject(&mSectionData, "Value");	
+		myManager.SaveObject(&mSectionData, "Value", false, false);	
 	}
 	void Load(LoadSave::LoadSystem& mgr)
 	{
 		mgr.LoadAtom("Ogre::String", &mSectionName);
-		mSectionData = *((Ice::DataMap*)mgr.LoadObject());
+		mSectionData = (*mgr.LoadTypedObject<Ice::DataMap>().get());
+		mSectionData.HasNext();
 	};
 	static LoadSave::Saveable* NewInstance() { return new ComponentSection; };
 	static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "ComponentSection"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };
 	std::string& TellName() { return m_strName; };
 };
 
-class ComponentSectionVectorHandler : LoadSave::AtomHandler 
+typedef std::shared_ptr<ComponentSection> ComponentSectionPtr;
+
+/*class ComponentSectionVectorHandler : LoadSave::AtomHandler 
 { 
 public: 
 	ComponentSectionVectorHandler (){m_strName= std::string("std::vector<") + "ComponentSection" + std::string(">");} 
@@ -41,7 +44,7 @@ public:
 	void Load(LoadSave::LoadSystem& ls, void* pDest); 
 private: 
 	std::string m_strName; 
-}; 
+};*/ 
 class wxEditGOCSections : public wxEditIceDataMap
 {
 public:
@@ -51,7 +54,7 @@ public:
 	virtual void OnLeave();
 	virtual void OnActivate();
 
-	void GetGOCSections(std::vector<ComponentSection> &sections);
+	void GetGOCSections(std::vector<ComponentSectionPtr> &sections);
 	void AddGOCSection(Ogre::String name, Ice::DataMap &map, bool expand = false);
 	void RemoveGOCSection(Ogre::String name);
 
@@ -61,14 +64,14 @@ public:
 class wxEditIceGameObject : public wxEditGOCSections
 {
 private:
-	Ice::GameObject *mGameObject;
+	Ice::GameObjectPtr mGameObject;
 
 public:
 	wxEditIceGameObject();
 	virtual ~wxEditIceGameObject() { };
 
-	void SetObject(Ice::GameObject *object, bool update_ui = true);
-	Ice::GameObject* GetGameObject();
+	void SetObject(Ice::GameObjectPtr object, bool update_ui = true);
+	Ice::GameObjectPtr GetGameObject();
 
 	void OnUpdate();
 	void OnApply();

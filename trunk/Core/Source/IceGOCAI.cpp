@@ -12,7 +12,6 @@ namespace Ice
 	GOCAI::GOCAI(void)
 	{
 		mCharacterMovementState = 0;
-		mOwnerGO = 0;
 		AIManager::Instance().RegisterAIObject(this);
 		MessageSystem::Instance().JoinNewsgroup(this, "ENABLE_GAME_CLOCK");
 		MessageSystem::Instance().JoinNewsgroup(this, "REPARSE_SCRIPTS");
@@ -27,16 +26,18 @@ namespace Ice
 
 	int GOCAI::GetID()
 	{
-		if (mOwnerGO) return mOwnerGO->GetID();
+		GameObjectPtr owner = mOwnerGO.lock();
+		if (owner.get()) return owner->GetID();
 		throw Ogre::Exception(Ogre::Exception::ERR_INVALID_STATE, "Called GetID, but AI isn't attached to a game object!", "int GOCAI::GetID()");
 	}
 
-	void GOCAI::SetOwner(GameObject *go)
+	void GOCAI::SetOwner(std::weak_ptr<GameObject> go)
 	{
 		mOwnerGO = go;
-		if (!mOwnerGO) return;
-		UpdatePosition(mOwnerGO->GetGlobalPosition());
-		UpdateOrientation(mOwnerGO->GetGlobalOrientation());
+		GameObjectPtr owner = mOwnerGO.lock();
+		if (!owner.get()) return;
+		UpdatePosition(owner->GetGlobalPosition());
+		UpdateOrientation(owner->GetGlobalOrientation());
 	}
 
 	void GOCAI::AddState(AIState *state)
@@ -90,7 +91,7 @@ namespace Ice
 
 	void GOCAI::Update(float time)
 	{
-		if (mOwnerGO == nullptr) return;
+		if (mOwnerGO.expired()) return;
 		if (mActionQueue.size() > 0)
 		{
 			bool finished = mActionQueue[0]->Update(time);
@@ -168,7 +169,7 @@ namespace Ice
 
 	void GOCAI::ReceiveMessage(Msg &msg)
 	{
-		if (!mOwnerGO) return;
+		if (mOwnerGO.expired()) return;
 		if (msg.type == "ENABLE_GAME_CLOCK")
 		{
 			bool enable = msg.params.GetBool("enable");

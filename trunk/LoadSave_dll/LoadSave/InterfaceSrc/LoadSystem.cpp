@@ -89,12 +89,11 @@ LoadSystem::LoadAtom(std::string strType, void *pAtom)
 		m_pLM->ExitChunk();//and jump out
 }
 
-Saveable*
-LoadSystem::LoadObject()
+std::shared_ptr<Saveable> LoadSystem::LoadObject()
 {
 
 	if(!m_pLM->EnterChunk())
-		return (Saveable*)0;
+		return std::shared_ptr<Saveable>();
 	int iID;
 	int iTypeModifier;
 	int iRecordID;
@@ -112,7 +111,7 @@ LoadSystem::LoadObject()
 	if(iID == LoadSave::Instance().GetAtomID("NullObject"))
 	{
 		m_pLM->ExitChunk();
-		return nullptr;
+		return std::shared_ptr<Saveable>();
 	}
 	//test if a reference was saved instead of a real object
 	if(iID == LoadSave::Instance().GetAtomID("RecordReference"))
@@ -120,13 +119,13 @@ LoadSystem::LoadObject()
 		int iRefRecordID;
 		m_pLM->ReadAtom(&iRefRecordID);// a bit hacky but didn't work another way, cuz we already entered the atom
 		m_pLM->ExitChunk();
-		std::map<int, Saveable*>::const_iterator it=m_RecordIDs.find(iRefRecordID);
+		auto it=m_RecordIDs.find(iRefRecordID);
 		return it->second;
 	}
 	std::string strType=LoadSave::Instance().GetTypeName(iID);
-	Saveable* pObj=LoadSave::Instance().GetInstanceFunction(strType)();
+	std::shared_ptr<Saveable> pObj = std::shared_ptr<Saveable>(LoadSave::Instance().GetInstanceFunction(strType)());
 
-	m_RecordIDs.insert(std::pair<int, Saveable*>(iRecordID, pObj));
+	m_RecordIDs.insert(std::pair<int, std::shared_ptr<Saveable>>(iRecordID, pObj));
 	pObj->Load(*this);
 	
 	m_pLM->ExitChunk();
@@ -182,7 +181,7 @@ LoadSystem::LoadAtomArray(std::string strType)
 	return arrDims;
 }
 
-Saveable*
+std::shared_ptr<Saveable>
 LoadSystem::LoadArrayObject()
 {
 	int iID;
@@ -192,7 +191,7 @@ LoadSystem::LoadArrayObject()
 	std::vector<int> arrPos;
 	int iAtomSize;
 	m_pLM->ReadChunkInfo(&iID, &iTypeModifier, &iRecordID, &arrDims, &arrPos, &iAtomSize);
-	Saveable* pObj;
+	std::shared_ptr<Saveable> pObj;
 	if(arrPos[0]<arrDims[0])
 		pObj=LoadObject();
 	m_pLM->ReadChunkInfo(&iID, &iTypeModifier, &iRecordID, &arrDims, &arrPos, &iAtomSize);

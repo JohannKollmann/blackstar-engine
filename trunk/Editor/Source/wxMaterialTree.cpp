@@ -101,7 +101,7 @@ void wxMaterialTree::Update()
 
 		std::vector<Ogre::String> other_materials_added;
 
-		for (std::map<int, Ice::ManagedGameObject*>::iterator i = Ice::SceneManager::Instance().GetGameObjects().begin(); i != Ice::SceneManager::Instance().GetGameObjects().end(); i++)
+		for (auto i = Ice::SceneManager::Instance().GetGameObjects().begin(); i != Ice::SceneManager::Instance().GetGameObjects().end(); i++)
 		{
 			Ice::GOCMeshRenderable *gocmesh = i->second->GetComponent<Ice::GOCMeshRenderable>();
 			if (gocmesh != 0)

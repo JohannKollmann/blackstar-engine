@@ -20,7 +20,7 @@ namespace Ice
 		Msg objmsg;
 		objmsg.type = "UPDATE_CHARACTER_MOVEMENTSTATE";
 		objmsg.params.AddInt("CharacterMovementState", mCharacterMovementState);
-		mOwnerGO->SendInstantMessage(objmsg);
+		mOwnerGO.lock()->SendInstantMessage(objmsg);
 	}
 
 #define BROADCAST_MOVEMENTCHANGE(movementType, newState) \
@@ -31,7 +31,7 @@ namespace Ice
 		Msg objmsg; \
 		objmsg.type = ((newState & movementType) ? "ENTER_MOVEMENT_STATE" : "LEAVE_MOVEMENT_STATE"); \
 		objmsg.params.AddOgreString("state", #movementType); \
-		mOwnerGO->SendInstantMessage(objmsg); \
+		mOwnerGO.lock()->SendInstantMessage(objmsg); \
 	} \
 } \
 
@@ -135,10 +135,10 @@ namespace Ice
 			float time = msg.params.GetFloat("TIME");
 			//if (mJump.mJumping) jumpDelta = mJump.GetHeight(time);
 			Ogre::Vector3 finalDir = Ogre::Vector3(0,0,0);
-			Ogre::Vector3 userDir = mOwnerGO->GetGlobalOrientation() * (mDirection);
+			Ogre::Vector3 userDir = mOwnerGO.lock()->GetGlobalOrientation() * (mDirection);
 
 			float maxStepHeight = 0.8f;
-			NxVec3 currPos = OgrePhysX::Convert::toNx(mOwnerGO->GetGlobalPosition());
+			NxVec3 currPos = OgrePhysX::Convert::toNx(mOwnerGO.lock()->GetGlobalPosition());
 			//feet capsule
 			NxCapsule feetVolume;
 			feetVolume.radius = mRadius*1.2f;
@@ -199,12 +199,12 @@ namespace Ice
 				mJumping = false;
 				Msg jump_response;
 				jump_response.type = "END_JUMP";
-				mOwnerGO->SendInstantMessage(jump_response);
+				mOwnerGO.lock()->SendInstantMessage(jump_response);
 			}
 			/*Msg collision_response;
 			collision_response.type = "CharacterCollisionReport";
 			collision_response.params.AddInt("collisionFlags", collisionFlags);
-			mOwnerGO->SendMessage(collision_response);*/
+			mOwnerGO.lock()->SendMessage(collision_response);*/
 		}
 		if (msg.type == "END_PHYSICS" && !mFreezed)
 		{
@@ -236,7 +236,7 @@ namespace Ice
 				mActor->getNxActor()->addForce(NxVec3(0, 400, 0), NxForceMode::NX_IMPULSE);
 				Msg msg;
 				msg.type = "START_JUMP";
-				mOwnerGO->SendInstantMessage(msg);
+				mOwnerGO.lock()->SendInstantMessage(msg);
 			}
 		}
 		if (msg.type == "KillCharacter")
@@ -245,14 +245,15 @@ namespace Ice
 		}
 	}
 
-	void GOCCharacterController::SetOwner(GameObject *go)
+	void GOCCharacterController::SetOwner(std::weak_ptr<GameObject> go)
 	{
 		mOwnerGO = go;
-		if (!mOwnerGO) return;
+		GameObjectPtr owner = mOwnerGO.lock();
+		if (!owner.get()) return;
 		if (mActor)
 		{
-			mActor->getNxActor()->userData = mOwnerGO;
-			UpdatePosition(mOwnerGO->GetGlobalPosition());
+			mActor->getNxActor()->userData = owner.get();
+			UpdatePosition(owner->GetGlobalPosition());
 		}
 	}
 
@@ -278,7 +279,8 @@ namespace Ice
 		mMaterialName = parameters->GetValue<Ogre::String>("MaterialName", "Wood");
 		mDensity = parameters->GetValue<float>("Density", 10);
 		Create(mDimensions);
-		if (mOwnerGO) mActor->getNxActor()->userData = mOwnerGO;
+		GameObjectPtr owner = mOwnerGO.lock();
+		if (owner.get()) mActor->getNxActor()->userData = owner.get();
 	}
 	void GOCCharacterController::GetParameters(DataMap *parameters)
 	{
@@ -316,7 +318,7 @@ namespace Ice
 		//TODO: Use code from IceCollisionCallback.cpp for per-triangle materials!
 		std::string mat = "None";
 		NxRaycastHit hit;
-		if (Main::Instance().GetPhysXScene()->getNxScene()->raycastClosestShape(NxRay(OgrePhysX::Convert::toNx(mOwnerGO->GetGlobalPosition() + Ogre::Vector3(0,1,0)), NxVec3(0,-1,0)), NX_ALL_SHAPES, hit, 1<<CollisionGroups::LEVELMESH|1<<CollisionGroups::DEFAULT, 1.5f, NX_RAYCAST_MATERIAL))
+		if (Main::Instance().GetPhysXScene()->getNxScene()->raycastClosestShape(NxRay(OgrePhysX::Convert::toNx(mOwnerGO.lock()->GetGlobalPosition() + Ogre::Vector3(0,1,0)), NxVec3(0,-1,0)), NX_ALL_SHAPES, hit, 1<<CollisionGroups::LEVELMESH|1<<CollisionGroups::DEFAULT, 1.5f, NX_RAYCAST_MATERIAL))
 		{
 			mat = SceneManager::Instance().GetSoundMaterialTable().GetMaterialName(hit.materialIndex);
 		}

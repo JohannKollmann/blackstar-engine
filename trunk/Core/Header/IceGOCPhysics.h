@@ -85,7 +85,7 @@ namespace Ice
 
 		void Freeze(bool freeze);
 
-		void SetOwner(GameObject *go);
+		void SetOwner(std::weak_ptr<GameObject> go);
 		bool IsStatic() { return false; }
 
 		OgrePhysX::Actor* GetActor() { return mActor; }
@@ -115,7 +115,7 @@ namespace Ice
 		void _clear();
 
 	public:
-		GOCStaticBody() { mActor = 0; mOwnerGO = 0; }
+		GOCStaticBody() { mActor = 0; mOwnerGO; }
 		GOCStaticBody(Ogre::String collision_mesh);
 		~GOCStaticBody(void);
 
@@ -127,7 +127,7 @@ namespace Ice
 
 		OgrePhysX::Actor* GetActor() { return mActor; }
 
-		void SetOwner(GameObject *go);
+		void SetOwner(std::weak_ptr<GameObject> go);
 
 		void SetParameters(DataMap *parameters);
 		void GetParameters(DataMap *parameters);
@@ -161,7 +161,7 @@ namespace Ice
 		void _clear();
 
 	public:
-		GOCTrigger() { mActor = nullptr; mOwnerGO = nullptr; mSphereRadius = -1; }
+		GOCTrigger() { mActor = nullptr; mOwnerGO; mSphereRadius = -1; }
 		GOCTrigger(Ogre::Vector3 boxDimensions);
 		GOCTrigger(float sphereRadius);
 		~GOCTrigger(void);
@@ -175,7 +175,7 @@ namespace Ice
 		void onEnter(GameObject *object);
 		void onLeave(GameObject *object);
 
-		void SetOwner(GameObject *go);
+		void SetOwner(std::weak_ptr<GameObject> go);
 
 		OgrePhysX::Actor* GetActor() { return mActor; }
 

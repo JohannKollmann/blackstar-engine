@@ -9,7 +9,7 @@ namespace Ice
 
 	GOCEditorVisualised::~GOCEditorVisualised()
 	{
-		if (mEditorVisual && mOwnerGO)
+		if (mEditorVisual && !mOwnerGO.expired())
 		{
 			GetNode()->detachObject(mEditorVisual);
 			Main::Instance().GetOgreSceneMgr()->destroyEntity(mEditorVisual);
@@ -21,7 +21,7 @@ namespace Ice
 		if (show && !mEditorVisual)
 		{
 			mEditorVisual = Main::Instance().GetOgreSceneMgr()->createEntity(GetEditorVisualMeshName());
-			mEditorVisual->setUserAny(Ogre::Any(mOwnerGO));
+			mEditorVisual->setUserAny(Ogre::Any(GetOwner().get()));
 			GetNode()->attachObject(mEditorVisual);
 		}
 		else if (!show && mEditorVisual)
@@ -68,9 +68,9 @@ namespace Ice
 
 	void GOCMeshRenderable::NotifyOwnerGO()
 	{
-		if (mEntity && mOwnerGO)
+		if (mEntity && !mOwnerGO.expired())
 		{
-			mEntity->setUserAny(Ogre::Any(mOwnerGO));
+			mEntity->setUserAny(Ogre::Any(GetOwner().get()));
 			GetNode()->attachObject(mEntity);
 		}
 	}
@@ -152,9 +152,9 @@ namespace Ice
 	//Billboard
 	void GOCBillboard::NotifyOwnerGO()
 	{
-		if (mBillboardSet && mOwnerGO)
+		if (mBillboardSet && !mOwnerGO.expired())
 		{
-			((Ogre::MovableObject*)mBillboardSet)->setUserAny(Ogre::Any(mOwnerGO));
+			((Ogre::MovableObject*)mBillboardSet)->setUserAny(Ogre::Any(GetOwner().get()));
 			GetNode()->attachObject(mBillboardSet);
 		}
 	}
@@ -229,7 +229,7 @@ namespace Ice
 	{
 		if (mParticleSystem)
 		{
-			if (mOwnerGO) GetNode()->detachObject(mParticleSystem);
+			if (!mOwnerGO.expired()) GetNode()->detachObject(mParticleSystem);
 			Main::Instance().GetOgreSceneMgr()->destroyParticleSystem(mParticleSystem);
 		}
 		mParticleSystem = nullptr;
@@ -255,7 +255,7 @@ namespace Ice
 
 	void GOCPfxRenderable::NotifyOwnerGO()
 	{
-		if (mParticleSystem && mOwnerGO) GetNode()->attachObject(mParticleSystem);
+		if (mParticleSystem && !mOwnerGO.expired()) GetNode()->attachObject(mParticleSystem);
 	}
 
 	void GOCPfxRenderable::SetParameters(DataMap *parameters)
@@ -307,7 +307,7 @@ namespace Ice
 	{
 		if (mSound)
 		{
-			if (mOwnerGO) GetNode()->detachObject(mSound);
+			if (!mOwnerGO.expired()) GetNode()->detachObject(mSound);
 			Main::Instance().GetSoundManager()->destroySound(mSound->getName());
 		}
 		mSound = nullptr;
@@ -335,7 +335,7 @@ namespace Ice
 
 	void GOCSound3D::NotifyOwnerGO()
 	{
-		if (mSound && mOwnerGO) GetNode()->attachObject(mSound);
+		if (mSound && !mOwnerGO.expired()) GetNode()->attachObject(mSound);
 	}
 
 	void GOCSound3D::SetParameters(DataMap *parameters)
@@ -412,7 +412,7 @@ namespace Ice
 	{
 		if (mLight)
 		{
-			if (mOwnerGO) GetNode()->detachObject(mLight);
+			if (!mOwnerGO.expired()) GetNode()->detachObject(mLight);
 			Main::Instance().GetOgreSceneMgr()->destroyLight(mLight);
 		}
 		mLight = nullptr;
@@ -446,7 +446,7 @@ namespace Ice
 
 	void GOCLocalLightRenderable::NotifyOwnerGO()
 	{
-		if (mLight && mOwnerGO) GetNode()->attachObject(mLight);
+		if (mLight && !mOwnerGO.expired()) GetNode()->attachObject(mLight);
 	}
 
 	void GOCLocalLightRenderable::SetParameters(DataMap *parameters)

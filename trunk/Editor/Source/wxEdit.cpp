@@ -9,7 +9,7 @@
 #include "DotSceneLoader.h"
 #include "IceAIManager.h"
 #include "IceLevelMesh.h"
-#include "NavMeshEditorNode.h"
+#include "IceSaveableVectorHandler.h"
 
 BEGIN_EVENT_TABLE(wxEdit, wxFrame)
     EVT_ACTIVATE(wxEdit::OnActivate)
@@ -204,7 +204,7 @@ void wxEdit::PostCreate()
 	mObjectPreviewWindow->initOgre("PreviewWindow");
 
 	LoadSave::LoadSave::Instance().RegisterObject(&ComponentSection::Register);
-	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new ComponentSectionVectorHandler());
+	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new Ice::SaveableVectorHandler<ComponentSection>("vector<ComponentSectionPtr>"));
 }
 
 wxPoint wxEdit::GetStartPosition()
@@ -339,7 +339,6 @@ void wxEdit::OnLoadMesh(wxCommandEvent& WXUNUSED(event))
 		wxEdit::Instance().GetWorldExplorer()->GetMaterialTree()->Update();
 
 		Ice::AIManager::Instance().GetNavigationMesh()->ImportOgreMesh(Ice::SceneManager::Instance().GetLevelMesh()->GetEntity()->getMesh());
-		//NavMeshEditorNode::FromMesh(Ice::AIManager::Instance().GetNavigationMesh());
     }
 	wxEdit::Instance().GetProgressBar()->Reset();
 };

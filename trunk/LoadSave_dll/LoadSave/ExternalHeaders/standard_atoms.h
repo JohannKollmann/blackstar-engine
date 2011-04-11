@@ -32,14 +32,6 @@ strHandlerName ::Save(LoadSave::SaveSystem& ss, void* pData, std::string strVarN
 	std::vector< template_type >* pVector=(std::vector< template_type >*)pData;\
 	dims.push_back(pVector->size());\
 \
-	if(LoadSave::LoadSave::Instance().GetObjectID( strTemplateTypeName )!=0)\
-	{/*it is an object*/\
-		/*open an object-array*/\
-		ss.OpenObjectArray( strTemplateTypeName , dims, "_array");\
-		for(unsigned int i=0; i<pVector->size(); i++)\
-			ss.AddObject((LoadSave::Saveable*)&((*pVector)[i]));\
-	}\
-	else\
 	{/*it must be an atom*/\
 		/*open an atom-array*/\
 		ss.OpenAtomArray( strTemplateTypeName , dims, "_array");\
@@ -53,24 +45,11 @@ strHandlerName ::Load(LoadSave::LoadSystem& ls, void* pDest)\
 {\
 	std::vector<int> dims;\
 	std::vector< template_type >* pVector=(std::vector< template_type >*)pDest;\
-	if(LoadSave::LoadSave::Instance().GetObjectID( strTemplateTypeName )!=0)\
-	{/*it is an object*/\
-		std::string str;\
-		dims=ls.LoadObjectArray(&str);\
-		if(str!=strTemplateTypeName)\
-			return;\
-	}\
-	else\
 	{/*it must be an atom*/\
 		dims=ls.LoadAtomArray(strTemplateTypeName);\
 	}\
 	for(int i=0; i<dims[0]; i++)\
 	{\
-		if(LoadSave::LoadSave::Instance().GetObjectID( strTemplateTypeName )!=0)\
-		{/*it is an object*/\
-			pVector->push_back(*((template_type*)ls.LoadArrayObject()));\
-		}\
-		else\
 		{/*it must be an atom*/\
 			template_type atom;\
 			ls.LoadArrayAtom(strTemplateTypeName, &atom);\
@@ -101,17 +80,11 @@ strHandlerName ::Save(LoadSave::SaveSystem& ss, void* pData, std::string strVarN
 \
 	std::list< template_type >::const_iterator it=pList->begin();\
 \
-	if(LoadSave::LoadSave::Instance().GetObjectID( strTemplateTypeName )!=0) \
-		ss.OpenObjectArray( strTemplateTypeName , dims, "_list");\
-	else \
-		ss.OpenAtomArray( strTemplateTypeName , dims, "_list");\
+	ss.OpenAtomArray( strTemplateTypeName , dims, "_list");\
 \
 	for(;it!=pList->end(); it++)\
 	{\
-		if(LoadSave::LoadSave::Instance().GetObjectID( strTemplateTypeName )!=0) \
-			ss.AddObject((LoadSave::Saveable*)&(*it));\
-		else \
-			ss.AddAtom( strTemplateTypeName , (void*)&(*it));\
+		ss.AddAtom( strTemplateTypeName , (void*)&(*it));\
 	}\
 }\
 \
@@ -120,24 +93,11 @@ strHandlerName ::Load(LoadSave::LoadSystem& ls, void* pDest)\
 {\
 	std::vector<int> dims;\
 	std::list< template_type >* pList=(std::list< template_type >*)pDest;\
-	if(LoadSave::LoadSave::Instance().GetObjectID( strTemplateTypeName )!=0)\
-	{/*it is an object*/\
-		std::string str;\
-		dims=ls.LoadObjectArray(&str);\
-		if(str!=strTemplateTypeName)\
-			return;\
-	}\
-	else\
 	{/*it must be an atom*/\
 		dims=ls.LoadAtomArray(strTemplateTypeName);\
 	}\
 	for(int i=0; i<dims[0]; i++)\
 	{\
-		if(LoadSave::LoadSave::Instance().GetObjectID( strTemplateTypeName )!=0)\
-		{/*it is an object*/\
-			pList->insert(pList->end(), *((template_type*)ls.LoadArrayObject()));\
-		}\
-		else\
 		{/*it must be an atom*/\
 			template_type atom;\
 			ls.LoadArrayAtom(strTemplateTypeName, &atom);\
@@ -168,31 +128,18 @@ strHandlerName ::Save(LoadSave::SaveSystem& ss, void* pData, std::string strVarN
 \
 	std::map< key_type, value_type >::const_iterator it=pMap->begin();\
 \
-	if(LoadSave::LoadSave::Instance().GetObjectID( strKeyTypeName )!=0) \
-		ss.OpenObjectArray( strKeyTypeName , dims, "_key");\
-	else \
-		ss.OpenAtomArray( strKeyTypeName , dims, "_key");\
+	ss.OpenAtomArray( strKeyTypeName , dims, "_key");\
 	for(;it!=pMap->end();it++)\
 	{\
-		if(LoadSave::LoadSave::Instance().GetObjectID( strKeyTypeName )!=0) \
-			ss.AddObject((LoadSave::Saveable*)&(it->first));\
-		else \
-			ss.AddAtom( strKeyTypeName , (void*)&(it->first));\
-\
+		ss.AddAtom( strKeyTypeName , (void*)&(it->first));\
 	}\
 \
 	it=pMap->begin();\
 \
-	if(LoadSave::LoadSave::Instance().GetObjectID( strValueTypeName )!=0) \
-		ss.OpenObjectArray( strValueTypeName , dims, "_value");\
-	else \
-		ss.OpenAtomArray( strValueTypeName , dims, "_value");\
+	ss.OpenAtomArray( strValueTypeName , dims, "_value");\
 	for(;it!=pMap->end();it++)\
 	{\
-		if(LoadSave::LoadSave::Instance().GetObjectID( strValueTypeName )!=0) \
-			ss.AddObject((LoadSave::Saveable*)&(it->second));\
-		else \
-			ss.AddAtom( strValueTypeName , (void*)&(it->second));\
+		ss.AddAtom( strValueTypeName , (void*)&(it->second));\
 	}\
 } \
 void \
@@ -202,24 +149,11 @@ strHandlerName ::Load(LoadSave::LoadSystem& ls, void* pData)\
 	std::map< key_type, value_type >* pMap=(std::map< key_type, value_type >*)pData;\
 \
 	std::list<key_type> keylist;\
-	if(LoadSave::LoadSave::Instance().GetObjectID( strKeyTypeName )!=0)\
-	{/*it is an object*/\
-		std::string str;\
-		dims=ls.LoadObjectArray(&str);\
-		if(str!=strKeyTypeName)\
-			return;\
-	}\
-	else\
 	{/*it must be an atom*/\
 		dims=ls.LoadAtomArray(strKeyTypeName);\
 	}\
 	for(int i=0; i<dims[0]; i++)\
 	{\
-		if(LoadSave::LoadSave::Instance().GetObjectID( strKeyTypeName )!=0)\
-		{/*it is an object*/\
-			keylist.insert(keylist.end(), *((key_type*)ls.LoadArrayObject()));\
-		}\
-		else\
 		{/*it must be an atom*/\
 			key_type atom;\
 			ls.LoadArrayAtom(strKeyTypeName, &atom);\
@@ -227,25 +161,12 @@ strHandlerName ::Load(LoadSave::LoadSystem& ls, void* pData)\
 		}\
 	}\
 \
-	if(LoadSave::LoadSave::Instance().GetObjectID( strValueTypeName )!=0)\
-	{/*it is an object*/\
-		std::string str;\
-		dims=ls.LoadObjectArray(&str);\
-		if(str!=strValueTypeName)\
-			return;\
-	}\
-	else\
 	{/*it must be an atom*/\
 		dims=ls.LoadAtomArray(strValueTypeName);\
 	}\
 	std::list<key_type>::const_iterator it=keylist.begin();\
 	for(; it!=keylist.end(); it++)\
 	{\
-		if(LoadSave::LoadSave::Instance().GetObjectID( strValueTypeName )!=0)\
-		{/*it is an object*/\
-		pMap->insert(std::pair<key_type, value_type>(*it, *((value_type*)ls.LoadArrayObject())));\
-		}\
-		else\
 		{/*it must be an atom*/\
 			value_type atom;\
 			ls.LoadArrayAtom(strValueTypeName, &atom);\
@@ -377,8 +298,6 @@ private:
 const int BIT_ONE_SET=0x80000000;
 #define NEGATIVE_ZERO *((float*)&BIT_ONE_SET)
 
-#ifdef _MSC_VER
-
 class OgreVec3Handler : LoadSave::AtomHandler
 {
 public:
@@ -503,91 +422,6 @@ void OgreStringHandler::Load(LoadSave::LoadSystem &ls, void *pDest)
 	}
 }
 
-#endif
-
-class SaveableListHandler : LoadSave::AtomHandler
-{
-public:
-	SaveableListHandler (){m_strName= std::string("std::list<Saveable*>");}
-	std::string& TellName(){return m_strName;}
-	void Save(LoadSave::SaveSystem& ss, void* pData, std::string strVarName);
-	void Load(LoadSave::LoadSystem& ls, void* pDest);
-private:
-	std::string m_strName;
-};
-
-void SaveableListHandler::Save(LoadSave::SaveSystem& ss, void* pData, std::string strVarName)
-{
-	/*test what category the data is*/
-	std::vector<int> dims;
-	std::list< LoadSave::Saveable* >* pList=(std::list< LoadSave::Saveable* >*)pData;
-	dims.push_back(pList->size());
-
-	ss.OpenObjectArray("Saveable" , dims, "_list");
-
-	for (std::list< LoadSave::Saveable* >::const_iterator it=pList->begin(); it != pList->end(); it++)
-	{
-		ss.AddObject((LoadSave::Saveable*)(*it));
-	}
-}
-
-void SaveableListHandler::Load(LoadSave::LoadSystem& ls, void* pDest)
-{
-	std::vector<int> dims;
-	std::list< LoadSave::Saveable* >* pList=(std::list< LoadSave::Saveable* >*)pDest;
-	std::string str;
-	dims=ls.LoadObjectArray(&str);
-	if(str!="Saveable")
-		return;
-	for(int i=0; i<dims[0]; i++)
-	{
-		pList->push_back(ls.LoadArrayObject());//LoadObject());
-		//pList->push_back(*((LoadSave::Saveable**)ls.LoadArrayObject()));
-		//pList->insert(pList->end(), *((LoadSave::Saveable**)ls.LoadArrayObject()));
-	}
-}
-
-class SaveableVectorHandler : LoadSave::AtomHandler
-{
-public:
-	SaveableVectorHandler (){m_strName= std::string("std::vector<Saveable*>");}
-	std::string& TellName(){return m_strName;}
-	void Save(LoadSave::SaveSystem& ss, void* pData, std::string strVarName);
-	void Load(LoadSave::LoadSystem& ls, void* pDest);
-private:
-	std::string m_strName;
-};
-
-void SaveableVectorHandler::Save(LoadSave::SaveSystem& ss, void* pData, std::string strVarName)
-{
-	/*test what category the data is*/
-	std::vector<int> dims;
-	std::vector< LoadSave::Saveable* >* pVector=(std::vector< LoadSave::Saveable* >*)pData;
-	dims.push_back(pVector->size());
-
-	ss.OpenObjectArray("Saveable" , dims, "_vector");
-
-	for (std::vector< LoadSave::Saveable* >::const_iterator it=pVector->begin(); it != pVector->end(); it++)
-	{
-		ss.AddObject((LoadSave::Saveable*)(*it));
-	}
-}
-
-void SaveableVectorHandler::Load(LoadSave::LoadSystem& ls, void* pDest)
-{
-	std::vector<int> dims;
-	std::vector< LoadSave::Saveable* >* pVector=(std::vector< LoadSave::Saveable* >*)pDest;
-	std::string str;
-	dims=ls.LoadObjectArray(&str);
-	if(str!="Saveable")
-		return;
-	for(int i=0; i<dims[0]; i++)
-	{
-		pVector->push_back(ls.LoadArrayObject());
-	}
-}
-
-
 CREATEVECTORHANDLER(float, "float", FloatVectorHandler)
 
 CREATEMAPHANDLER(std::string, "std::string", int, "int", StringIntMapHandler)
@@ -602,15 +436,8 @@ CREATEVECTORHANDLER(int, "int", IntVectorHandler)
 
 //CREATEMAPHANDLER(std::string, "std::string", ResidentManager::ResidentVariables::ScriptVar, "ResidentManager::ResidentVariables::ScriptVar", ResidentVariablesMapHandler)
 
-#ifdef _MSC_VER
-
-CREATEMAPHANDLER(Ogre::String, "Ogre::String", GenericProperty, "GenericProperty", GenericPropertyMapHandler)
-
-CREATEVECTORHANDLER(DataMap::Item, "DataMapItem", DataMapItemVectorHandler)
-
 CREATEVECTORHANDLER(Ogre::Vector3, "Ogre::Vector3", OgreVec3VectorHandler)
 
-#endif
 
 void
 RegisterStandardAtoms()
@@ -625,22 +452,16 @@ RegisterStandardAtoms()
 	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new StringIntMapHandler());
 	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new FloatListHandler());
 	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new IntListHandler());
-	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new SaveableListHandler());
-	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new SaveableVectorHandler());
 
 	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new NullObjectHandler());
 
-#ifdef _MSC_VER
-
-	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new GenericPropertyMapHandler());
-	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new DataMapItemVectorHandler());
 	//Ogre
 	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new OgreVec3Handler());
 	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new OgreQuaternionHandler());
 	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new OgreStringHandler());
 	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new IntVectorHandler());
 	LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new OgreVec3VectorHandler());
-#endif
+
 	//Lua
 	//ResidentVariables
 	//LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new StringScriptParamMapHandler);

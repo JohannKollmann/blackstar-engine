@@ -129,7 +129,7 @@ void DotSceneLoader::LoadNode(TiXmlElement* objectElement)
     }
 	if (meshname != "")
 	{
-		Ice::GameObject *object = Ice::SceneManager::Instance().CreateGameObject();
+		Ice::GameObjectPtr object = Ice::SceneManager::Instance().CreateGameObject();
 		object->AddComponent(Ice::GOComponentPtr(new Ice::GOCMeshRenderable(meshname, true)));
 		object->AddComponent(Ice::GOComponentPtr(new Ice::GOCStaticBody(meshname)));
 		object->SetGlobalPosition(position);

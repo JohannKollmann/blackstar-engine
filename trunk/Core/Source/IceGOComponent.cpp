@@ -5,17 +5,18 @@
 namespace Ice
 {
 
-	void GOComponent::SetOwner(GameObject *go)
+	void GOComponent::SetOwner(std::weak_ptr<GameObject> go)
 	{
 		mOwnerGO = go;
 		NotifyOwnerGO();
 	}
 	void GOComponent::NotifyOwnerGO()
 	{
-		if (!mOwnerGO) return;
-		UpdatePosition(mOwnerGO->GetGlobalPosition());
-		UpdateOrientation(mOwnerGO->GetGlobalOrientation());
-		UpdateScale(mOwnerGO->GetGlobalScale());
+		GameObjectPtr ownerGO = mOwnerGO.lock();
+		if (!ownerGO.get()) return;
+		UpdatePosition(ownerGO->GetGlobalPosition());
+		UpdateOrientation(ownerGO->GetGlobalOrientation());
+		UpdateScale(ownerGO->GetGlobalScale());
 	}
 
 	void GOComponent::_updatePosition(const Ogre::Vector3 &position)
@@ -33,17 +34,17 @@ namespace Ice
 
 	void GOComponent::SetOwnerPosition(const Ogre::Vector3 &position, bool updateChildren)
 	{
-		if (!mOwnerGO) return;
+		if (mOwnerGO.expired()) return;
 		mTransformingOwner = true;
-		mOwnerGO->SetGlobalPosition(position, updateChildren);
+		mOwnerGO.lock()->SetGlobalPosition(position, updateChildren);
 		mTransformingOwner = false;
 	}
 
 	void GOComponent::SetOwnerOrientation(const Ogre::Quaternion &orientation, bool updateChildren)
 	{
-		if (!mOwnerGO) return;
+		if (mOwnerGO.expired()) return;
 		mTransformingOwner = true;
-		mOwnerGO->SetGlobalOrientation(orientation, updateChildren);
+		mOwnerGO.lock()->SetGlobalOrientation(orientation, updateChildren);
 		mTransformingOwner = false;
 	}
 

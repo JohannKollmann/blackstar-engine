@@ -16,6 +16,7 @@ Zeigt ein Ice::GameObject mit allen children geordnet nach Typ (Licht, Geometrie
 #include "IceGameObject.h"
 #include "EntityTreeNotebookListener.h"
 #include "EDTIncludes.h"
+#include <set>
 
 
 class OgreTreeItemBase : public wxTreeItemData
@@ -23,21 +24,21 @@ class OgreTreeItemBase : public wxTreeItemData
 protected:
 	wxString mName;
 	int mType;
-	Ice::GameObject *mGameObject;
+	std::weak_ptr<Ice::GameObject> mGameObject;
 	bool mIsDir;
 
 public:
 	OgreTreeItemBase(const wxString &name)
-		: mIsDir(true), mName(name), mGameObject(nullptr) {}
-	OgreTreeItemBase(Ice::GameObject *object)
-		: mIsDir(false)
-		, mGameObject(object) {}
+		: mIsDir(true), mName(name) {}
+	OgreTreeItemBase(std::weak_ptr<Ice::GameObject> object)
+		: mIsDir(false) { mGameObject = object; }
 
 	~OgreTreeItemBase() {}
 
 	const wxString &GetName()
 	{
-		if (mGameObject) mName = wxString(mGameObject->GetName().c_str());
+		Ice::GameObjectPtr object = mGameObject.lock();
+		if (object.get()) mName = wxString(object->GetName().c_str());
 		return mName;
 	}
 	virtual const wxString &GetCaption()
@@ -45,7 +46,7 @@ public:
 		return GetName();
 	}
 
-	Ice::GameObject* getGO() { return mGameObject; }
+	Ice::GameObjectPtr GetGameObject() { return mGameObject.lock(); }
 
 	virtual int GetIconId() const
 	{
@@ -69,16 +70,16 @@ protected:
 
 	std::vector<OgreTreeItemBase*> mAllItems;
 
-	OgreTreeItemBase* FindItemByObject(Ice::GameObject *object);
+	OgreTreeItemBase* FindItemByObject(Ice::GameObjectPtr object);
 
 	OgreTreeItemBase *mSelectedItem;
 
-	OgreTreeItemBase* AppendGameObject(wxTreeItemId parent, Ice::GameObject *object);
+	OgreTreeItemBase* AppendGameObject(wxTreeItemId parent, Ice::GameObjectPtr object, std::set<int> &expandBlacklist = std::set<int>());
 
 	void OnItemMenu(wxTreeEvent &event);
 	void OnItemActivated(wxTreeEvent &event);
 
-	bool ExpandToObject(OgreTreeItemBase *from, Ice::GameObject *object);
+	bool ExpandToObject(OgreTreeItemBase *from, Ice::GameObjectPtr object);
 
 public:
     /** Default constructor of this control. It is similar to the wxTreeCtrl */
@@ -88,19 +89,19 @@ public:
                   const wxString& name = "wxOgreSceneTree");
     virtual ~wxOgreSceneTree();
 
-	Ice::GameObject* GetSelectedItem();
+	Ice::GameObjectPtr GetSelectedItem();
 
 	void Update();
-	void NotifyObject(Ice::GameObject *object);
-	void UpdateObject(Ice::GameObject* object);
+	void NotifyObject(Ice::GameObjectPtr object);
+	void UpdateObject(Ice::GameObjectPtr object);
 
-	void ScanFromNode(OgreTreeItemBase *item, Ice::GameObject *scanFrom);
+	void ScanFromNode(OgreTreeItemBase *item, Ice::GameObjectPtr scanFrom, std::set<int> &expandBlacklist = std::set<int>());
 
 	void OnExpanding(wxTreeEvent &event);
 
 	void OnSelChanged(wxTreeEvent &event);
 
-	void ExpandToObject(Ice::GameObject *object);
+	void ExpandToObject(Ice::GameObjectPtr object);
 
 	void OnEnterTab();
 	void OnLeaveTab();

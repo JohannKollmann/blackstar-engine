@@ -21,7 +21,7 @@ namespace Ice
 		static const float MAX_HEIGHT_DIST_BETWEEN_NODES;
 		static const float MAX_STEP_HEIGHT;
 
-	private:
+	public:
 
 		class PathNodeTree : public Saveable
 		{
@@ -55,7 +55,7 @@ namespace Ice
 		class PathNodeTreeNode : public PathNodeTree
 		{
 		private:
-			PathNodeTree *mChildren[8];
+			std::shared_ptr<PathNodeTree> mChildren[8];
 			bool mEmpty;
 			PathNodeTreeNode() {}
 
@@ -78,7 +78,7 @@ namespace Ice
 		class PathNodeTreeLeaf : public PathNodeTree
 		{
 		private:
-			std::vector<AStarNode3D*> mPathNodes;
+			std::vector< std::shared_ptr<AStarNode3D> > mPathNodes;
 			PathNodeTreeLeaf() {}
 		public:
 			PathNodeTreeLeaf(Ogre::AxisAlignedBox box);
@@ -97,6 +97,8 @@ namespace Ice
 			static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "PathNodeTreeLeaf"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; }
 			static LoadSave::Saveable* NewInstance() { return new PathNodeTreeLeaf; }
 		};
+
+	private:
 
 		bool mNeedsUpdate;
 		bool mDestroyingNavMesh;

@@ -11,7 +11,6 @@
 #include "IceGOCAnimatedCharacter.h"
 #include "OgrePhysX.h"
 #include "NxScene.h"
-#include "NavMeshEditorNode.h"
 #include "IceAIManager.h"
 #include "IceGOCMover.h"
 #include "IceGOCOgreNode.h"
@@ -27,7 +26,6 @@ enum
 	EVT_CreateObjectgroup,
 	EVT_SaveObjectgroup,
 	EVT_SaveBones,
-	EVT_CreateWayTriangle,
 	EVT_InsertAnimKey,
 	EVT_MoverInserKey,
 	EVT_TriggerMover,
@@ -53,7 +51,6 @@ BEGIN_EVENT_TABLE(Edit, wxOgre)
 	EVT_MENU(EVT_CreateObjectgroup, Edit::OnCreateObjectGroup)
 	EVT_MENU(EVT_SaveObjectgroup, Edit::OnSaveObjectGroup)
 	EVT_MENU(EVT_SaveBones, Edit::OnSaveBones)
-	EVT_MENU(EVT_CreateWayTriangle, Edit::OnCreateWayTriangle)
 	EVT_MENU(EVT_InsertAnimKey, Edit::OnInsertAnimKey)
 	EVT_MENU(EVT_MoverInserKey, Edit::OnMoverInsertKey)
 	EVT_MENU(EVT_TriggerMover, Edit::OnTriggerMover)
@@ -108,7 +105,7 @@ Edit::Edit(wxWindow* parent) : wxOgre(parent, -1)
 	mCurrentMaterialSelection.mBillboardSet = NULL;
 	mCurrentMaterialSelection.mOriginalMaterialName = "";
 
-	mMoverReset.mover = nullptr;
+	mMoverReset.Mover.reset();
 };
 
 void Edit::PostInit()
@@ -236,7 +233,7 @@ void Edit::PlayGame()
 
 	if (mSelectedObjects.size () != 1) return;
 
-	Ice::GameObject* obj = (*mSelectedObjects.begin()).mObject;
+	Ice::GameObjectPtr obj = (*mSelectedObjects.begin()).mObject;
 	Ice::GOCSimpleCameraController *cam = (Ice::GOCSimpleCameraController*)obj->GetComponent("Camera");
 	Ice::GOCPlayerInput *input = (Ice::GOCPlayerInput*)obj->GetComponent("CharacterInput", "PlayerInput");
 	if (cam && input)
@@ -271,36 +268,6 @@ void Edit::FreeAndShowMouse()
 	SetCursorPos(mWinMousePosition.x, mWinMousePosition.y);
 	mMouseLocked = false;
 	mShowMouse = true;
-}
-
-void Edit::OnCreateWayTriangle( wxCommandEvent& WXUNUSED(event) )
-{
-	if (mSelectedObjects.size() == 2)
-	{
-		Ice::GameObject* obj1 = (*mSelectedObjects.begin()).mObject;
-		Ice::GameObject* obj2 = mSelectedObjects.begin()._Mynode()->_Next->_Myval.mObject;
-		if (obj1->GetComponent<NavMeshEditorNode>() && obj2->GetComponent<NavMeshEditorNode>())
-		{
-			NavMeshEditorNode *n1 = obj1->GetComponent<NavMeshEditorNode>();
-			NavMeshEditorNode *n2 = obj2->GetComponent<NavMeshEditorNode>();
-			if (n1->GetType() == NavMeshEditorNode::NODE && n2->GetType() == NavMeshEditorNode::EDGE)
-			{
-				NavMeshEditorNode *n3 = n2->GetTriangles()[0].n1.neighbour;
-				NavMeshEditorNode *n4 = n2->GetTriangles()[0].n2.neighbour;
-				DeselectAllObjects();
-				n1->AddTriangle(n3, n4);
-				n1->UpdatePosition(n1->GetOwner()->GetGlobalPosition());
-			}
-			if (n2->GetType() == NavMeshEditorNode::NODE && n1->GetType() == NavMeshEditorNode::EDGE)
-			{
-				NavMeshEditorNode *n3 = n1->GetTriangles()[0].n1.neighbour;
-				NavMeshEditorNode *n4 = n1->GetTriangles()[0].n2.neighbour;
-				DeselectAllObjects();
-				n2->AddTriangle(n3, n4);
-				n2->UpdatePosition(n2->GetOwner()->GetGlobalPosition());
-			}
-		}
-	}
 }
 
 void Edit::OnMouseEvent(wxMouseEvent &ev)
@@ -359,27 +326,20 @@ void Edit::OnMouseEvent(wxMouseEvent &ev)
 				if (mSelectedObjects.size() > 1) menu.Append(EVT_CreateObjectgroup, "Merge");
 				if (mSelectedObjects.size() == 2)		//Dyadic operators
 				{
-					Ice::GameObject* obj1 = (*mSelectedObjects.begin()).mObject;
-					Ice::GameObject* obj2 = mSelectedObjects.begin()._Mynode()->_Next->_Myval.mObject;
+					Ice::GameObjectPtr obj1 = (*mSelectedObjects.begin()).mObject;
+					Ice::GameObjectPtr obj2 = mSelectedObjects.begin()._Mynode()->_Next->_Myval.mObject;
 
 					if (obj1->GetComponent<Ice::GOCMover>())
 					{
 						menu.Append(EVT_SetLookAtObject, "Look At");
 						menu.Append(EVT_SetNormalLookAtObject, "Look At (Normal)");
 					}
-
-					if (obj1->GetComponent<NavMeshEditorNode>() && obj2->GetComponent<NavMeshEditorNode>())
-					{
-						NavMeshEditorNode *n1 = obj1->GetComponent<NavMeshEditorNode>();
-						NavMeshEditorNode *n2 = obj2->GetComponent<NavMeshEditorNode>();
-						if (n1->GetType() != n2->GetType()) menu.Append(EVT_CreateWayTriangle, "Create Triangle");
-					}
 				}
 				if (mSelectedObjects.size() == 1)
 				{
 					menu.Append(EVT_SaveObjectgroup, "Save Object Group");
 
-					Ice::GameObject* obj1 = (*mSelectedObjects.begin()).mObject;
+					Ice::GameObjectPtr obj1 = (*mSelectedObjects.begin()).mObject;
 					if (obj1->GetComponent<Ice::GOCMover>())
 					{
 						menu.Append(EVT_SetLookAtObject, "Clear Look At");
@@ -395,7 +355,7 @@ void Edit::OnMouseEvent(wxMouseEvent &ev)
 					{
 						menu.Append(EVT_SaveBones, "Save Bone Config");
 					}
-					if (obj1->GetComponent<Ice::AnimKey>())
+					if (obj1->GetComponent<Ice::GOCAnimKey>())
 						menu.Append(EVT_InsertAnimKey, "New Anim Key");
 					if (obj1->GetComponent<Ice::GOCMover>())
 						menu.Append(EVT_MoverInserKey, "New Anim Key");
@@ -501,13 +461,13 @@ void Edit::OnMouseEvent(wxMouseEvent &ev)
 	ev.Skip();
 };
 
-void Edit::AttachAxisObject(Ice::GameObject *object)
+void Edit::AttachAxisObject(Ice::GameObjectPtr object)
 {
 	object->RemoveComponent("AxisObject");
 	AxisComponent* caxis = new AxisComponent();
 	object->AddComponent(Ice::GOComponentPtr(caxis));
 }
-void Edit::DetachAxisObject(Ice::GameObject *object)
+void Edit::DetachAxisObject(Ice::GameObjectPtr object)
 {
 	object->RemoveComponent("AxisObject");
 }
@@ -615,7 +575,7 @@ void Edit::OnMouseMove(Ogre::Radian RotX,Ogre::Radian RotY)
 	}
 	else
 	{
-		for (std::list<Ice::GameObject*>::iterator i = mPreviewObjects.begin(); i != mPreviewObjects.end(); i++)
+		for (auto i = mPreviewObjects.begin(); i != mPreviewObjects.end(); i++)
 		{
 			(*i)->SetGlobalOrientation(Ogre::Quaternion());
 			AlignObjectWithMesh(*i);
@@ -719,15 +679,15 @@ void Edit::OnSelectResource()
 
 void Edit::ClearPreviewObject()
 {
-	for (std::list<Ice::GameObject*>::iterator i = mPreviewObjects.begin(); i != mPreviewObjects.end(); i++)
+	for (auto i = mPreviewObjects.begin(); i != mPreviewObjects.end(); i++)
 	{
-		delete (*i);
+		Ice::SceneManager::Instance().RemoveGameObject((*i)->GetID());
 	}
 	mPreviewObjects.clear();
 }
 void Edit::CreatePreviewObject()
 {
-	Ice::GameObject *preview = InsertObject(0, true, true);
+	Ice::GameObjectPtr preview = InsertObject(0, true, true);
 	if (preview)
 	{
 		if (preview->GetComponent("Physics")) preview->RemoveComponent("Physics");
@@ -740,13 +700,11 @@ void Edit::OnLoadWorld(Ogre::String fileName)
 	STOP_MAINLOOP
 	DeselectAllObjects();
 	wxEdit::Instance().GetpropertyWindow()->SetPage("None");
-	mMoverReset.mover = nullptr;
+	mMoverReset.Mover.reset();
 	Ice::SceneManager::Instance().LoadLevel(fileName);
 	wxEdit::Instance().GetWorldExplorer()->GetSceneTree()->Update();
 	wxEdit::Instance().GetWorldExplorer()->GetMaterialTree()->Update();
 	wxEdit::Instance().GetOgrePane()->SetFocus();
-
-	NavMeshEditorNode::FromMesh(Ice::AIManager::Instance().GetNavigationMesh());
 	RESUME_MAINLOOP
 };
 
@@ -755,9 +713,9 @@ void Edit::OnSaveWorld(Ogre::String fileName)
 	Ice::SceneManager::Instance().SaveLevel(fileName);
 };
 
-Ice::GameObject* Edit::InsertWaypoint(bool align, bool create_only)
+Ice::GameObjectPtr Edit::InsertWaypoint(bool align, bool create_only)
 {
-	Ice::GameObject *waypoint = Ice::SceneManager::Instance().CreateGameObject();
+	Ice::GameObjectPtr waypoint = Ice::SceneManager::Instance().CreateGameObject();
 	waypoint->AddComponent(Ice::GOComponentPtr(new Ice::GOCWaypoint()));
 	waypoint->ShowEditorVisuals(true);
 	waypoint->SetGlobalOrientation(Ogre::Quaternion(Ice::Main::Instance().GetCamera()->getDerivedOrientation().getYaw(), Ogre::Vector3(0,1,0)));
@@ -772,84 +730,49 @@ Ice::GameObject* Edit::InsertWaypoint(bool align, bool create_only)
 	return waypoint;
 }
 
-Ice::GameObject* Edit::InsertWayTriangle(bool align, bool create_only)
+Ice::GameObjectPtr Edit::InsertObject(Ice::GameObjectPtr parent, bool align, bool create_only)
 {
-	Ice::GameObject *oNode1 = new Ice::GameObject();
-	Ice::GameObject *oNode2 = new Ice::GameObject();
-	Ice::GameObject *oNode3 = new Ice::GameObject();
-
-	NavMeshEditorNode *n1 = new NavMeshEditorNode();
-	oNode1->AddComponent(Ice::GOComponentPtr(n1));
-	NavMeshEditorNode *n2 = new NavMeshEditorNode();
-	oNode2->AddComponent(Ice::GOComponentPtr(n2));
-	NavMeshEditorNode *n3 = new NavMeshEditorNode(oNode3, NavMeshEditorNode::NODE, n1, n2);
-
-	if (align)
-		AlignObjectWithMesh(oNode1);
-	else
-		oNode1->SetGlobalPosition(Ice::Main::Instance().GetCamera()->getDerivedPosition() + (Ice::Main::Instance().GetCamera()->getDerivedOrientation() * Ogre::Vector3(0,0,-5))); 
-	oNode2->SetGlobalPosition(oNode1->GetGlobalPosition() + Ogre::Vector3(1,0,2));
-	oNode3->SetGlobalPosition(oNode1->GetGlobalPosition() + Ogre::Vector3(2,0,0));
-
-	if (!create_only)
-	{
-		SelectObject(oNode1);
-
-		wxEdit::Instance().GetWorldExplorer()->GetMaterialTree()->Update();
-
-		wxEdit::Instance().GetOgrePane()->SetFocus();
-	}
-
-	return oNode1;
-}
-
-Ice::GameObject* Edit::InsertObject(Ice::GameObject *parent, bool align, bool create_only)
-{
-	Ice::GameObject *object = 0;
+	Ice::GameObjectPtr object;
 	Ogre::String sResource = wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->GetSelectedResource().c_str();
 	if (sResource == "None") return nullptr;
 	if (sResource.find("Waypoint.static") != Ogre::String::npos)
 	{
 		return InsertWaypoint(align, create_only);
 	}
-	else if (sResource.find("WayTriangle.static") != Ogre::String::npos)
-	{
-		return InsertWayTriangle(align, create_only);
-	}
 	else if (sResource.find(".") != Ogre::String::npos)
 	{
 		LoadSave::LoadSystem *ls=LoadSave::LoadSave::Instance().LoadFile(sResource);
 		if (sResource.find(".ot") != Ogre::String::npos)
 		{
-			object = (Ice::GameObject*)ls->LoadObject();
+			object = ls->LoadTypedObject<Ice::GameObject>();
 
-			if (parent != NULL) object->SetParent(parent);
+			if (parent.get()) object->SetParent(parent);
 		}
 		else
 		{
 			object = Ice::SceneManager::Instance().CreateGameObject();
 			object->SetParent(parent);
 
-			std::vector<ComponentSection> sections;
+			std::vector<ComponentSectionPtr> sections;
 			Ogre::Vector3 offset;
 			Ogre::Vector3 scale = Ogre::Vector3(1,1,1);
 			Ogre::Quaternion orientation;
-			ls->LoadAtom("std::vector<ComponentSection>", (void*)(&sections));
+			ls->LoadAtom("vector<ComponentSectionPtr>", (void*)(&sections));
 			for (auto i = sections.begin(); i != sections.end(); i++)
 			{
-				if ((*i).mSectionName == "GameObject")
+				if ((*i)->mSectionName == "GameObject")
 				{
-					offset = (*i).mSectionData.GetOgreVec3("Position");
-					orientation = (*i).mSectionData.GetOgreQuat("Orientation");
-					scale = (*i).mSectionData.GetOgreVec3("Scale");
+					offset = (*i)->mSectionData.GetOgreVec3("Position");
+					orientation = (*i)->mSectionData.GetOgreQuat("Orientation");
+					scale = (*i)->mSectionData.GetOgreVec3("Scale");
 					object->SetGlobalOrientation(orientation);
 					object->SetGlobalScale(scale);
 					continue;
 				} 
-				(*i).mSectionData.AddOgreVec3("Scale", scale);
+				(*i)->mSectionData.AddOgreVec3("Scale", scale);
 
-				Ice::GOCEditorInterface *component = Ice::SceneManager::Instance().NewGOC((*i).mSectionName);
-				component->SetParameters(&(*i).mSectionData);
+				Ice::GOCEditorInterface *component = Ice::SceneManager::Instance().NewGOC((*i)->mSectionName);
+				component->SetParameters(&(*i)->mSectionData);
 				object->AddComponent(Ice::GOComponentPtr(component->GetGOComponent()));
 			}
 
@@ -921,17 +844,14 @@ void Edit::OnDeleteObject( wxCommandEvent& WXUNUSED(event) )
 	if (mSelectedObjects.size() == 1)
 	{
 		one = true;
-		Ice::GameObject *object = (*mSelectedObjects.begin()).mObject;
+		Ice::GameObjectPtr object = (*mSelectedObjects.begin()).mObject;
 
-		//check if the object has managed children
+		//check if the object owns other objects.
 		bool hasChildren = false;
-		for (unsigned short i = 0; i < object->GetNumChildren(); i++)
+		while (object->HasNextObjectReference())
 		{
-			if (object->GetChild(i)->IsManagedByParent())
-			{
-				hasChildren = true;
-				break;
-			}
+			Ice::ObjectReferencePtr objRef = object->GetNextObjectReference();
+			if (objRef->Flags & Ice::ObjectReference::OWNER) hasChildren = true;
 		}
 		if (hasChildren)
 		{
@@ -941,17 +861,18 @@ void Edit::OnDeleteObject( wxCommandEvent& WXUNUSED(event) )
 			int input = dialog.ShowModal();
 			if (input == wxID_YES)
 			{
-				if (object == mMoverReset.mover) mMoverReset.mover = nullptr;
-				delete object;
+				if (object.get() == mMoverReset.Mover.lock().get()) mMoverReset.Mover.reset();
+				Ice::SceneManager::Instance().RemoveGameObject(object->GetID());
 			}
 			else if (input == wxID_NO)
 			{
-				while (object->GetNumChildren() > 0)
+				while (object->HasNextObjectReference())
 				{
-					object->GetChild(0)->SetParent(object->GetParent());
+					Ice::ObjectReferencePtr objRef = object->GetNextObjectReference();
+					if (objRef->Flags & Ice::ObjectReference::OWNER) objRef->Object.lock()->SetParent(object->GetParent());
 				}
-				if (object == mMoverReset.mover) mMoverReset.mover = nullptr;
-				delete object;
+				if (object.get() == mMoverReset.Mover.lock().get()) mMoverReset.Mover.reset();
+				Ice::SceneManager::Instance().RemoveGameObject(object->GetID());
 			}
 			else if (input == wxID_CANCEL) return;
 		}
@@ -960,10 +881,7 @@ void Edit::OnDeleteObject( wxCommandEvent& WXUNUSED(event) )
 	{
 		for (std::list<EditorSelection>::iterator i = mSelectedObjects.begin(); i != mSelectedObjects.end(); i++)
 		{
-			if (NavMeshEditorNode::IsEdge(i->mObject)) return;
-			if (i->mObject->GetComponent<NavMeshEditorNode>() && !one) return;	//Hack - only possible to remove one triangle node
-			delete (*i).mObject;
-			(*i).mObject = 0;
+			Ice::SceneManager::Instance().RemoveGameObject((*i).mObject->GetID());
 		}
 	}
 	mSelectedObjects.clear();
@@ -974,7 +892,7 @@ void Edit::OnDeleteObject( wxCommandEvent& WXUNUSED(event) )
 
 void Edit::OnCreateObjectGroup( wxCommandEvent& WXUNUSED(event) )
 {
-	Ice::GameObject *parent = Ice::SceneManager::Instance().CreateGameObject();
+	Ice::GameObjectPtr parent = Ice::SceneManager::Instance().CreateGameObject();
 	parent->SetGlobalPosition(Ice::Main::Instance().GetCamera()->getDerivedPosition() + (Ice::Main::Instance().GetCamera()->getDerivedOrientation() * Ogre::Vector3(0,0,-5)));
 	for (std::list<EditorSelection>::iterator i = mSelectedObjects.begin(); i != mSelectedObjects.end(); i++)
 	{
@@ -1008,11 +926,11 @@ void Edit::OnSaveObjectGroup( wxCommandEvent& WXUNUSED(event) )
 		if (dialog.ShowModal() == wxID_OK)
 		{
 			LoadSave::SaveSystem *ss=LoadSave::LoadSave::Instance().CreateSaveFile(dialog.GetPath().c_str().AsChar(), Ogre::String(dialog.GetPath().c_str()) + ".xml");
-			Ice::GameObject *go = (*mSelectedObjects.begin()).mObject;
+			Ice::GameObjectPtr go = (*mSelectedObjects.begin()).mObject;
 			DeselectAllObjects();
 			Ogre::Vector3 position = go->GetGlobalPosition();
 			go->SetGlobalPosition(Ogre::Vector3(0,0,0));
-			ss->SaveObject(go, "Root");
+			ss->SaveObject(go.get(), "Root");
 			ss->CloseFiles();
 			go->SetGlobalPosition(position);
 			SelectObject(go);
@@ -1038,7 +956,7 @@ void Edit::OnSelectMaterial(float MouseX, float MouseY)
 
 	Ogre::Ray ray = Ice::Main::Instance().GetCamera()->getCameraToViewportRay(MouseX, MouseY);
 	Ice::ObjectLevelRayCaster rc(ray);
-	Ice::GameObject *object = rc.GetFirstHit(true);
+	Ice::GameObject* object = rc.GetFirstHit(true);
 	if (object)
 	{
 		Ice::GOCMeshRenderable *gocmesh = object->GetComponent<Ice::GOCMeshRenderable>();
@@ -1101,7 +1019,7 @@ void Edit::OnSelectObject(float MouseX, float MouseY)
 	{
 		for (auto i = mSelectedObjects.begin(); i != mSelectedObjects.end(); i++)
 		{
-			if (i->mObject == object)
+			if (i->mObject.get() == object)
 			{
 				found = true;
 				break;
@@ -1115,7 +1033,7 @@ void Edit::OnSelectObject(float MouseX, float MouseY)
 	if (!mMultiSelect) DeselectAllObjects();
 	if (object)
 	{
-		SelectObject(object);
+		SelectObject(Ice::SceneManager::Instance().GetObjectByInternID(object->GetID()));
 		wxEdit::Instance().GetOgrePane()->SetFocus();
 	}
 }
@@ -1125,7 +1043,7 @@ void Edit::OnBrush()
 	InsertObject(0, true);
 }
 
-void Edit::SelectObject(Ice::GameObject *object)
+void Edit::SelectObject(Ice::GameObjectPtr object)
 {
 	//Ogre::LogManager::getSingleton().logMessage("Select Object " + object->GetName());
 	if (!mMultiSelect) DeselectAllObjects();
@@ -1159,43 +1077,51 @@ void Edit::SelectObject(Ice::GameObject *object)
 	//Ogre::LogManager::getSingleton().logMessage("SelectObject " + object->GetName());
 }
 
-void Edit::SelectChildren(Ice::GameObject *object)
+void Edit::SelectChildren(Ice::GameObjectPtr object)
 {
 	//Ogre::LogManager::getSingleton().logMessage("select Children " + object->GetName());
-	for (unsigned short i = 0; i < object->GetNumChildren(); i++)
+	while (object->HasNextObjectReference())
 	{
-		Ice::GameObject *child = object->GetChild(i);
-		child->Freeze(true);
-		Ice::GOCOgreNode *visuals = object->GetComponent<Ice::GOCOgreNode>();
-		if (visuals != 0)
+		Ice::ObjectReferencePtr objRef = object->GetNextObjectReference();
+		Ice::GameObjectPtr child = objRef->Object.lock();
+		if (child.get() && objRef->Flags & Ice::ObjectReference::OWNER)
 		{
-			visuals->GetNode()->showBoundingBox(true);
+			child->Freeze(true);
+			Ice::GOCOgreNode *visuals = object->GetComponent<Ice::GOCOgreNode>();
+			if (visuals != 0)
+			{
+				visuals->GetNode()->showBoundingBox(true);
+			}
+			SelectChildren(child);
 		}
-		SelectChildren(child);
 	}
 }
 
-void Edit::DeselectChildren(Ice::GameObject *object)
+void Edit::DeselectChildren(Ice::GameObjectPtr object)
 {
 	//Ogre::LogManager::getSingleton().logMessage("Deselect Children " + object->GetName());
-	for (unsigned short i = 0; i < object->GetNumChildren(); i++)
+	while (object->HasNextObjectReference())
 	{
-		Ice::GameObject *child = object->GetChild(i);
-		child->Freeze(false);
-		Ice::GOCOgreNode *visuals = object->GetComponent<Ice::GOCOgreNode>();
-		if (visuals != 0)
+		Ice::ObjectReferencePtr objRef = object->GetNextObjectReference();
+		Ice::GameObjectPtr child = objRef->Object.lock();
+		if (child.get() && objRef->Flags & Ice::ObjectReference::OWNER)
 		{
-			visuals->GetNode()->showBoundingBox(false);
+			child->Freeze(false);
+			Ice::GOCOgreNode *visuals = object->GetComponent<Ice::GOCOgreNode>();
+			if (visuals != nullptr)
+			{
+				visuals->GetNode()->showBoundingBox(false);
+			}
+			DeselectChildren(child);
 		}
-		DeselectChildren(child);
 	}
 }
 
-bool Edit::ObjectIsSelected(Ice::GameObject *object)
+bool Edit::ObjectIsSelected(Ice::GameObjectPtr object)
 {
 	for (std::list<EditorSelection>::iterator i = mSelectedObjects.begin(); i != mSelectedObjects.end(); i++)
 	{
-		if ((*i).mObject == object)
+		if ((*i).mObject.get() == object.get())
 		{
 			return true;
 		}
@@ -1203,7 +1129,7 @@ bool Edit::ObjectIsSelected(Ice::GameObject *object)
 	return false;
 }
 
-void Edit::DeselectObject(Ice::GameObject *object)
+void Edit::DeselectObject(Ice::GameObjectPtr object)
 {
 	if (object->GetComponent("CharacterInput", "PlayerInput") && object->GetComponent("Camera"))
 	{
@@ -1246,7 +1172,7 @@ void Edit::DeselectAllObjects()
 	mSelectedObjects.clear();
 }
 
-void Edit::AlignObjectWithMesh(Ice::GameObject *object, bool rotate)
+void Edit::AlignObjectWithMesh(const Ice::GameObjectPtr &object, bool rotate)
 {
 	Ogre::Ray mouseRay = Ice::Main::Instance().GetCamera()->getCameraToViewportRay(mMousePosition.x, mMousePosition.y);
 	OgrePhysX::Scene::QueryHit report;
@@ -1256,7 +1182,7 @@ void Edit::AlignObjectWithMesh(Ice::GameObject *object, bool rotate)
 	Ice::Main::Instance().GetPhysXScene()->raycastAllShapes(lReport, mouseRay);
 	for (std::vector<OgrePhysX::Scene::QueryHit>::iterator i = lReport.begin(); i != lReport.end(); i++)
 	{
-		if ((*i).hitActor->userData != object && i->distance < shortest)
+		if ((*i).hitActor->userData != object.get() && i->distance < shortest)
 		{
 			report = *i;
 			found = true;
@@ -1322,17 +1248,18 @@ void Edit::ReceiveMessage(Ice::Msg &msg)
 	}
 	if (msg.type == "UPDATE_PER_FRAME")
 	{
-		if (mMoverReset.mover)
+		Ice::GameObjectPtr mover = mMoverReset.Mover.lock();
+		if (mover.get())
 		{
-			if (!mMoverReset.mover->GetComponent<Ice::GOCMover>()->IsMoving())
+			if (!mover->GetComponent<Ice::GOCMover>()->IsMoving())
 			{
 				if (mFreezeCamera)
 				{
 					mFreezeCamera = false;
 					mSelectedObjects.front().mObject->GetComponent<Ice::GOCOgreNode>()->GetNode()->showBoundingBox(true);
 				}
-				mMoverReset.mover->GetComponent<Ice::GOCMover>()->Reset();
-				mMoverReset.mover = nullptr;
+				mover->GetComponent<Ice::GOCMover>()->Reset();
+				mMoverReset.Mover.reset();
 			}
 		}
 		//Die Preview node, wenn vorhanden, rotieren
@@ -1355,10 +1282,10 @@ void Edit::OnInsertAnimKey( wxCommandEvent& WXUNUSED(event) /*= wxCommandEvent()
 	STOP_MAINLOOP
 	if (mSelectedObjects.size() != 1) return;
 
-	Ice::AnimKey *key = mSelectedObjects.front().mObject->GetComponent<Ice::AnimKey>();
+	Ice::GOCAnimKey *key = mSelectedObjects.front().mObject->GetComponent<Ice::GOCAnimKey>();
 	if (!key) return;
 
-	Ice::GameObject *animKey = key->CreateSuccessor();
+	Ice::GameObjectPtr animKey = key->CreateSuccessor();
 	animKey->SetGlobalPosition(GetInsertPosition());
 
 	SelectObject(animKey);
@@ -1368,7 +1295,6 @@ void Edit::OnInsertAnimKey( wxCommandEvent& WXUNUSED(event) /*= wxCommandEvent()
 
 void Edit::OnMoverInsertKey( wxCommandEvent& WXUNUSED(event)) /*= wxCommandEvent()*/
 {
-
 	if (mSelectedObjects.size() != 1) return;
 	
 	Ice::GOCMover *mover = mSelectedObjects.front().mObject->GetComponent<Ice::GOCMover>();
@@ -1378,16 +1304,11 @@ void Edit::OnMoverInsertKey( wxCommandEvent& WXUNUSED(event)) /*= wxCommandEvent
 	mMoverReset.resetPos = mover->GetOwner()->GetGlobalPosition();
 	mMoverReset.resetQuat = mover->GetOwner()->GetGlobalOrientation();*/
 
-	Ice::GameObject *go = new Ice::GameObject();
-	Ice::GOCAnimKey *key = new Ice::GOCAnimKey();
-	go->AddComponent(Ice::GOComponentPtr(key));
-	go->SetParent(mover->GetOwner());
+	Ice::GameObjectPtr keyObj = mover->CreateKey(0);
 
-	go->SetGlobalPosition(mover->GetOwner()->GetGlobalPosition());
-	SelectObject(go);
-	wxEdit::Instance().GetWorldExplorer()->GetSceneTree()->NotifyObject(go);
-
-	//mover->InsertKey(go, nullptr);	is called in OnAddChild handler
+	keyObj->SetGlobalPosition(mover->GetOwner()->GetGlobalPosition());
+	SelectObject(keyObj);
+	wxEdit::Instance().GetWorldExplorer()->GetSceneTree()->NotifyObject(keyObj);
 }
 
 #define CALL_MOVER_FUNCTION(fct)\
@@ -1407,7 +1328,7 @@ if (mSelectedObjects.size() != 1) return;\
 void Edit::OnTriggerMover( wxCommandEvent& WXUNUSED(event) /*= wxCommandEvent()*/ )
 {
 	Ice::GOCMover *m = mSelectedObjects.front().mObject->GetComponent<Ice::GOCMover>();
-	if (m) mMoverReset.mover = m->GetOwner();
+	if (m) mMoverReset.Mover = m->GetOwner();
 	CALL_MOVER_FUNCTION(Trigger)
 }
 
@@ -1426,7 +1347,7 @@ void Edit::OnSetLookAtObject( wxCommandEvent& WXUNUSED(event) /*= wxCommandEvent
 	if (mSelectedObjects.size() < 1) return;
 	Ice::GOCMover *mover = mSelectedObjects.front().mObject->GetComponent<Ice::GOCMover>();
 	IceAssert(mover);
-	if (mSelectedObjects.size() == 1) mover->SetLookAtObject(nullptr);
+	if (mSelectedObjects.size() == 1) mover->SetLookAtObject(std::weak_ptr<Ice::GameObject>());
 	else if (mSelectedObjects.size() == 2) mover->SetLookAtObject(mSelectedObjects.back().mObject);
 }
 void Edit::OnSetNormalLookAtObject( wxCommandEvent& WXUNUSED(event) /*= wxCommandEvent()*/ )
@@ -1434,7 +1355,7 @@ void Edit::OnSetNormalLookAtObject( wxCommandEvent& WXUNUSED(event) /*= wxComman
 	if (mSelectedObjects.size() < 1) return;
 	Ice::GOCMover *mover = mSelectedObjects.front().mObject->GetComponent<Ice::GOCMover>();
 	IceAssert(mover);
-	if (mSelectedObjects.size() == 1) mover->SetNormalLookAtObject(nullptr);
+	if (mSelectedObjects.size() == 1) mover->SetNormalLookAtObject(std::weak_ptr<Ice::GameObject>());
 	else if (mSelectedObjects.size() == 2) mover->SetNormalLookAtObject(mSelectedObjects.back().mObject);
 }
 void Edit::OnComputeAO( wxCommandEvent& WXUNUSED(event) /*= wxCommandEvent()*/ )

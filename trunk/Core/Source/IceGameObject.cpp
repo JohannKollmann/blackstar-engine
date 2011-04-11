@@ -8,65 +8,48 @@
 
 namespace Ice
 {
-
-	ManagedGameObject::ManagedGameObject()
+	void ObjectReference::Save(LoadSave::SaveSystem& mgr)
 	{
-		mSelectable = true;
-		mParent = nullptr;
-		mManagedByParent = true;
-		mID = SceneManager::Instance().RegisterObject(this);
-		mName = "GameObject";
-		mScale = Ogre::Vector3(1,1,1);
-		mPosition = Ogre::Vector3(0,0,0);
-		mOrientation = Ogre::Quaternion();
-		UpdateLocalTransform();
-		mTransformingChildren = false;
-		mUpdatingFromParent = false;
-		mIgnoreParent = false;
 	}
-	ManagedGameObject::~ManagedGameObject()
+	void ObjectReference::Load(LoadSave::LoadSystem& mgr)
 	{
-		SceneManager::Instance().NotifyGODelete(this);
-		if (mParent)
-		{
-			mParent->UnregisterChild(this);
-		}
-		ClearChildren();
-		ClearGOCs();
 	}
-
 
 	GameObject::GameObject()
 	{
 		mSelectable = true;
-		mParent = nullptr;
-		mManagedByParent = true;
 		mID = SceneManager::Instance().RequestID();
 		mName = "GameObject";
 		mScale = Ogre::Vector3(1,1,1);
 		mPosition = Ogre::Vector3(0,0,0);
 		mOrientation = Ogre::Quaternion();
-		UpdateLocalTransform();
-		mTransformingChildren = false;
-		mUpdatingFromParent = false;
-		mIgnoreParent = false;
+		mTransformingLinkedObjects = false;
 		mFreezed = false;
+		mReferencedObjectsInternIterator = mReferencedObjects.begin();
 	}
 
 	GameObject::~GameObject()
 	{
-		if (mParent)
-		{
-			mParent->UnregisterChild(this);
-		}
-		ClearChildren();
 		ClearGOCs();
+		ClearOwnedObjects();
+	}
+
+	void GameObject::SetWeakThis(std::weak_ptr<GameObject> wThis)
+	{
+		IceAssert(wThis.lock().get() == this)
+		mWeakThis = wThis;
+		for (unsigned int i = 0; i < mComponents.size(); i++)
+		{
+			mComponents[i]->SetOwner(mWeakThis);
+			mComponents[i]->UpdatePosition(GetGlobalPosition());
+			mComponents[i]->UpdateOrientation(GetGlobalOrientation());
+		}
 	}
 
 	void GameObject::SendMessage(Msg &msg)
 	{
 		mCurrentMessages.push_back(msg);
-		if (mCurrentMessages.size() == 1) SceneManager::Instance().AddToMessageQueue(this);
+		if (mCurrentMessages.size() == 1) SceneManager::Instance().AddToMessageQueue(mWeakThis);
 	}
 
 	void GameObject::SendInstantMessage(Msg &msg)
@@ -91,61 +74,6 @@ namespace Ice
 		msgcopy.clear();
 	}
 
-	void GameObject::UpdateLocalTransform()
-	{
-		if (mParent)
-		{
-			mLocalPosition = mParent->GetGlobalOrientation().Inverse () * (mPosition - mParent->GetGlobalPosition());
-			mLocalOrientation = mParent->GetGlobalOrientation().Inverse() * mOrientation;
-		}
-	}
-
-	void GameObject::SetParent(GameObject *parent)
-	{
-		if (mParent)
-		{
-			mParent->UnregisterChild(this);
-		}
-		mParent = parent;
-		if (mParent)
-		{
-			mParent->RegisterChild(this);
-			UpdateLocalTransform();
-		}
-	}
-
-	void GameObject::RegisterChild(GameObject *child)
-	{
-		mChildren.push_back(child);
-		for (auto i = mComponents.begin(); i != mComponents.end(); i++)
-		{
-			(*i)->OnAddChild(child);
-		}
-	}
-
-	void GameObject::UnregisterChild(GameObject *child)
-	{
-		for (auto i = mChildren.begin(); i != mChildren.end(); i++)
-		{
-			if ((*i) == child)
-			{
-				mChildren.erase(i);
-				return;
-			}
-		}
-		for (auto i = mComponents.begin(); i != mComponents.end(); i++)
-		{
-			(*i)->OnRemoveChild(child);
-		}
-	}
-
-	std::vector<GameObject*> GameObject::DetachChildren()
-	{
-		auto children_copy = mChildren;
-		mChildren.clear();
-		return children_copy;
-	}
-
 	void GameObject::AddComponent(GOComponentPtr component)
 	{
 		for (auto i = mComponents.begin(); i != mComponents.end(); i++)
@@ -153,7 +81,7 @@ namespace Ice
 			IceAssert((*i)->GetFamilyID() != component->GetFamilyID());
 		}
 		mComponents.push_back(component);
-		component->SetOwner(this);
+		component->SetOwner(mWeakThis);
 		component->UpdatePosition(GetGlobalPosition());
 		component->UpdateOrientation(GetGlobalOrientation());
 	}
@@ -199,64 +127,179 @@ namespace Ice
 	{
 		for (unsigned int i = 0; i < mComponents.size(); i++)
 		{
-			mComponents[i]->SetOwner(nullptr);
+			mComponents[i]->SetOwner(std::weak_ptr<GameObject>());
 		}
 
 		mComponents.clear();
 	}
 
-	void GameObject::ClearChildren()
+	void GameObject::ClearOwnedObjects()
 	{
-		while (mChildren.size() > 0)
-			delete mChildren[0];
-		mChildren.clear();
+		while (HasNextObjectReference())
+		{
+			ObjectReferencePtr objRef = GetNextObjectReference();
+			GameObjectPtr obj = objRef->Object.lock();
+			if (obj.get() && objRef->Flags & ObjectReference::OWNER)
+				SceneManager::Instance().RemoveGameObject(obj->GetID());
+		}
+		mReferencedObjectsInternIterator = mReferencedObjects.begin();
 	}
 
-	void GameObject::UpdateChildren(bool move)
+	void GameObject::AddObjectReference(std::weak_ptr<GameObject> other, unsigned int flags, unsigned int userID)
 	{
-		for (auto i = mChildren.begin(); i != mChildren.end(); i++)
+		while (other.lock()->HasNextObjectReference())
 		{
-			if (move) (*i)->OnParentChanged();
-			else (*i)->UpdateLocalTransform();
+			ObjectReferencePtr objRef = other.lock()->GetNextObjectReference();
+			GameObjectPtr obj = objRef->Object.lock();
+			unsigned int flags = objRef->Flags;
+			IceAssert(! (obj.get() == this || (flags & ObjectReference::MOVER || flags & ObjectReference::OWNER)))
+		}
+		ObjectReferencePtr objLink = std::make_shared<ObjectReference>();
+		objLink->Object = std::weak_ptr<GameObject>(other);
+		objLink->Flags = flags;
+		objLink->UserID = userID;
+		mReferencedObjects.push_back(objLink);
+		mReferencedObjectsInternIterator = mReferencedObjects.begin();
+	}
+
+	void  GameObject::RemoveObjectReferences(GameObject *object)
+	{
+		while (HasNextObjectReference())
+		{
+			ObjectReferencePtr objRef = *mReferencedObjectsInternIterator;
+			if (objRef->Object.lock().get() == object)
+			{
+				mReferencedObjectsInternIterator = mReferencedObjects.erase(mReferencedObjectsInternIterator);
+			}
+			else mReferencedObjectsInternIterator++;
+		}
+		mReferencedObjectsInternIterator = mReferencedObjects.begin();
+	}
+
+	void  GameObject::RemoveObjectReferences(unsigned int userID)
+	{
+		while (HasNextObjectReference())
+		{
+			ObjectReferencePtr objRef = *mReferencedObjectsInternIterator;
+			if (objRef->UserID == userID)
+			{
+				mReferencedObjectsInternIterator = mReferencedObjects.erase(mReferencedObjectsInternIterator);
+			}
+			else mReferencedObjectsInternIterator++;
+		}
+		mReferencedObjectsInternIterator = mReferencedObjects.begin();
+	}
+
+	void GameObject::SetParent(GameObjectPtr parent)
+	{
+		GameObjectPtr oldParent = GetParent();
+		if (oldParent.get())
+		{
+			oldParent->RemoveObjectReferences(this);
+			RemoveObjectReferences(ReferenceTypes::PARENT);		//Remove old parent
+		}
+
+		if (parent.get())
+		{
+			AddObjectReference(std::weak_ptr<GameObject>(parent), ObjectReference::PERSISTENT, ReferenceTypes::PARENT);
+			parent->AddObjectReference(mWeakThis, ObjectReference::OWNER|ObjectReference::MOVER|ObjectReference::PERSISTENT);
 		}
 	}
 
-	GameObject* GameObject::GetChild(unsigned short index)
+	GameObjectPtr GameObject::GetParent()
 	{
-		IceAssert(mChildren.size() > index && index >= 0);
-		return mChildren[index];
+		while (HasNextObjectReference())
+		{
+			ObjectReferencePtr objRef = GetNextObjectReference();
+			GameObjectPtr obj = objRef->Object.lock();
+			if (obj.get() && objRef->UserID == ReferenceTypes::PARENT) return obj;
+		}
+		return GameObjectPtr();
+	}
+
+	bool GameObject::HasNextObjectReference()
+	{
+		if (mReferencedObjectsInternIterator == mReferencedObjects.end())
+		{
+			mReferencedObjectsInternIterator = mReferencedObjects.begin();
+			return false;
+		}
+		else
+		{
+			if ((*mReferencedObjectsInternIterator)->Object.expired())
+			{
+				mReferencedObjectsInternIterator = mReferencedObjects.erase(mReferencedObjectsInternIterator);
+				return HasNextObjectReference();
+			}
+			else return true;
+		}
+	}
+
+	std::shared_ptr<ObjectReference> GameObject::GetNextObjectReference()
+	{
+		IceAssert(mReferencedObjectsInternIterator != mReferencedObjects.end());
+		std::shared_ptr<ObjectReference> out = *mReferencedObjectsInternIterator;
+		mReferencedObjectsInternIterator++;
+		return out;
+	}
+
+	void GameObject::ResetObjectReferenceIterator()
+	{
+		mReferencedObjectsInternIterator = mReferencedObjects.begin();
+	}
+
+	GameObjectPtr GameObject::GetReferencedObjectByName(Ogre::String name)
+	{
+		while (HasNextObjectReference())
+		{
+			GameObjectPtr obj = GetNextObjectReference()->Object.lock();
+			if (obj.get() && obj->GetName() == name) return obj;
+		}
+		return GameObjectPtr();
 	}
 
 	void GameObject::SetGlobalPosition(Ogre::Vector3 pos, bool updateChildren)
 	{
-		mTransformingChildren = updateChildren;
+		mTransformingLinkedObjects = true;
+		while (HasNextObjectReference())
+		{
+			ObjectReferencePtr objRef = GetNextObjectReference();
+			GameObjectPtr obj = objRef->Object.lock();
+			if (objRef->Flags & ObjectReference::MOVER)
+			{
+				Ogre::Vector3 localObjPos = mOrientation.Inverse () * (obj->GetGlobalPosition() - mPosition);
+				obj->SetGlobalPosition(pos + (mOrientation * localObjPos));
+			}
+		}
+		mTransformingLinkedObjects = false;
+
 		mPosition = pos;
 		for (auto i = mComponents.begin(); i != mComponents.end(); i++)
 		{
 			(*i)->_updatePosition(pos);
 		}
-		if (mParent)
-		{
-			mLocalPosition = mParent->GetGlobalOrientation().Inverse () * (mPosition - mParent->GetGlobalPosition());
-		}
-		UpdateChildren(updateChildren);
-		mTransformingChildren = false;
 	}
 
 	void GameObject::SetGlobalOrientation(Ogre::Quaternion orientation, bool updateChildren)
 	{
-		mTransformingChildren = updateChildren;
+		mTransformingLinkedObjects = true;
+		while (HasNextObjectReference())
+		{
+			ObjectReferencePtr objRef = GetNextObjectReference();
+			GameObjectPtr obj = objRef->Object.lock();
+			if (objRef->Flags & ObjectReference::MOVER)
+			{
+				Ogre::Quaternion localObjRot = mOrientation.Inverse() * obj->GetGlobalOrientation();
+				obj->SetGlobalOrientation(mOrientation * localObjRot);
+			}
+		}
+		mTransformingLinkedObjects = false;
+
 		mOrientation = orientation;
 		for (auto i = mComponents.begin(); i != mComponents.end(); i++)
 		{
 			(*i)->_updateOrientation(orientation);
 		}
-		if (mParent)
-		{
-			mLocalOrientation = mParent->GetGlobalOrientation().Inverse() * orientation;
-		}
-		UpdateChildren(updateChildren);
-		mTransformingChildren = false;
 	}
 
 	void GameObject::SetGlobalScale(Ogre::Vector3 scale)
@@ -291,26 +334,6 @@ namespace Ice
 		}
 	}
 
-	void GameObject::OnParentChanged()
-	{
-		if (mIgnoreParent)
-		{
-			UpdateLocalTransform();
-			return;
-		}
-
-		mUpdatingFromParent = true;
-		mOrientation = mParent->GetGlobalOrientation() * mLocalOrientation;
-		mPosition = mParent->GetGlobalOrientation() * mLocalPosition + mParent->GetGlobalPosition();
-		for (auto i = mComponents.begin(); i != mComponents.end(); i++)
-		{
-			(*i)->UpdateOrientation(mOrientation);
-			(*i)->UpdatePosition(mPosition);
-		}
-		UpdateChildren();
-		mUpdatingFromParent = false;
-	}
-
 	bool GameObject::IsStatic()
 	{
 		for (auto i = mComponents.begin(); i != mComponents.end(); i++)
@@ -320,7 +343,7 @@ namespace Ice
 		return true;
 	}
 
-	void  GameObject::FirePostInit()
+	void GameObject::FirePostInit()
 	{
 		ITERATE(i, mComponents)
 			(*i)->NotifyPostInit();
@@ -338,15 +361,27 @@ namespace Ice
 		mgr.SaveAtom("Ogre::Vector3", (void*)(&mScale), "Scale");
 		mgr.SaveAtom("bool", (void*)&mSelectable, "Selectable");
 
-		std::vector<GOComponent*> saveable_components;
+		std::vector< GOComponentPtr > persistentComponents;
 		for (auto i = mComponents.begin(); i != mComponents.end(); i++)
-			if ((*i)->_getIsSaveable()) saveable_components.push_back((*i).get());
-		mgr.SaveAtom("std::vector<Saveable*>", (void*)(&saveable_components), "mComponents");
+			if ((*i)->_getIsSaveable()) persistentComponents.push_back((*i));
+		mgr.SaveAtom("vector<GOComponentPtr>", (void*)(&persistentComponents), "Components");
 
-		std::vector<GameObject*> managed_children;
-		for (auto i = mChildren.begin(); i != mChildren.end(); i++)
-			if ((*i)->mManagedByParent) managed_children.push_back((*i));
-		mgr.SaveAtom("std::vector<Saveable*>", (void*)(&managed_children), "mChildren");
+		std::vector<ObjectReferencePtr> persistentLinks;
+		std::vector< GameObjectPtr > ownershipBarrier;
+		for (auto i = mReferencedObjects.begin(); i != mReferencedObjects.end();)
+		{
+			std::shared_ptr<GameObject> obj = (*i)->Object.lock();
+			if (!obj.get())
+			{
+				i = mReferencedObjects.erase(i);
+				if (i == mReferencedObjects.end()) break;
+				else continue;
+			}
+			ownershipBarrier.push_back(obj);
+			if ((*i)->Flags & ObjectReference::PERSISTENT) persistentLinks.push_back(*i);
+			i++;
+		}
+		mgr.SaveAtom("vector<ObjectReferencePtr>", (void*)(&persistentLinks), "Object References");
 	}
 
 	void GameObject::Load(LoadSave::LoadSystem& mgr)
@@ -356,22 +391,13 @@ namespace Ice
 		mgr.LoadAtom("Ogre::Quaternion", &mOrientation);
 		mgr.LoadAtom("Ogre::Vector3", &mScale);
 		mgr.LoadAtom("bool", &mSelectable);
-		std::vector<GOComponent*> loaded_components;
-		mgr.LoadAtom("std::vector<Saveable*>", (void*)(&loaded_components));
-		for (unsigned int i = 0; i < loaded_components.size(); i++)
-			mComponents.push_back(std::shared_ptr<GOComponent>(loaded_components[i]));
-		for (unsigned int i = 0; i < mComponents.size(); i++)
-		{
-			mComponents[i]->SetOwner(this);
-			mComponents[i]->UpdatePosition(GetGlobalPosition());
-			mComponents[i]->UpdateOrientation(GetGlobalOrientation());
-		}
-		std::vector<GameObject*> managed_children;
-		mgr.LoadAtom("std::vector<Saveable*>", (void*)(&managed_children));
-		for (auto i = managed_children.begin(); i != managed_children.end(); i++)
-		{
-			(*i)->SetParent(this);
-		}
+		std::vector< GOComponentPtr > persistentComponents;
+		mgr.LoadAtom("vector<GOComponentPtr>", (void*)(&persistentComponents));
+		for (unsigned int i = 0; i < persistentComponents.size(); i++)
+			mComponents.push_back(persistentComponents[i]);
+
+		mgr.LoadAtom("vector<ObjectReferencePtr>", (void*)(&mReferencedObjects));
+
 		FirePostInit();
 	}
 
@@ -381,14 +407,6 @@ namespace Ice
 		DataMap data;
 		data.ParseString(vParams[1].getString());
 		goc->SetParameters(&data);
-		SCRIPT_RETURN()
-	}
-
-	std::vector<ScriptParam> GameObject::SetParent(Script& caller, std::vector<ScriptParam> &vParams)
-	{
-		GameObject *go = SceneManager::Instance().GetObjectByInternID(vParams[0].getInt());
-		if (!go) IceWarning("Invalid parent ID!")
-		else SetParent(go);
 		SCRIPT_RETURN()
 	}
 
@@ -467,29 +485,14 @@ namespace Ice
 		out.push_back(ScriptParam(usable));
 		return out;
 	}
-	std::vector<ScriptParam> GameObject::GetChildObjectByName(Script& caller, std::vector<ScriptParam> &vParams)
+	std::vector<ScriptParam> GameObject::GetLinkedObjectByName(Script& caller, std::vector<ScriptParam> &vParams)
 	{
 		std::vector<ScriptParam> out;
 		int id = -1;
 		Ogre::String cName = vParams[0].getString();
-		for (auto i = mChildren.begin(); i != mChildren.end(); i++)
-		{
-			if ((*i)->GetName() == cName)
-			{
-				id = (*i)->GetID();
-				break;
-			}
-		}
-		out.push_back(ScriptParam(id));
-		return out;
-	}
-	std::vector<ScriptParam> GameObject::GetParent(Script& caller, std::vector<ScriptParam> &vParams)
-	{
-		std::vector<ScriptParam> out;
-		int id = -1;
-		if (mParent) id = mParent->GetID();
-		out.push_back(ScriptParam(id));
-		return out;
+		GameObjectPtr obj = GetReferencedObjectByName(cName);
+		if (obj.get()) SCRIPT_RETURNVALUE(obj->GetID())
+		else SCRIPT_RETURNVALUE(-1)
 	}
 	std::vector<ScriptParam> GameObject::IsNpc(Script& caller, std::vector<ScriptParam> &vParams)
 	{
@@ -518,24 +521,22 @@ namespace Ice
 	}
 	std::vector<ScriptParam> GameObject::Object_GetDistToObject(Script& caller, std::vector<ScriptParam> &vParams)
 	{
-		if (GameObject *object = SceneManager::Instance().GetObjectByInternID(vParams[0].getInt()))
+		if (GameObjectPtr object = SceneManager::Instance().GetObjectByInternID(vParams[0].getInt()))
 			SCRIPT_RETURNVALUE(GetGlobalPosition().distance(object->GetGlobalPosition()))
 		else SCRIPT_RETURNERROR("invalid object id")
 	}
 
 	DEFINE_TYPEDGOLUAMETHOD_CPP(AddComponent, "string string")
-	DEFINE_TYPEDGOLUAMETHOD_CPP(SetParent, "int")
 	DEFINE_TYPEDGOLUAMETHOD_CPP(SetObjectPosition, "float float float")
 	DEFINE_TYPEDGOLUAMETHOD_CPP(SetObjectOrientation, "float float float")
 	DEFINE_TYPEDGOLUAMETHOD_CPP(SetObjectScale, "float float float")
 	DEFINE_GOLUAMETHOD_CPP(GetObjectName)
 	DEFINE_TYPEDGOLUAMETHOD_CPP(SendObjectMessage, "string")
 	DEFINE_TYPEDGOLUAMETHOD_CPP(ReceiveObjectMessage, "string function")
-	DEFINE_TYPEDGOLUAMETHOD_CPP(GetChildObjectByName, "string")
+	DEFINE_TYPEDGOLUAMETHOD_CPP(GetLinkedObjectByName, "string")
 	DEFINE_TYPEDGOLUAMETHOD_CPP(HasScriptListener, "string")
 	DEFINE_TYPEDGOLUAMETHOD_CPP(FreeResources, "bool")
 	DEFINE_GOLUAMETHOD_CPP(IsNpc)
-	DEFINE_GOLUAMETHOD_CPP(GetParent)
 	DEFINE_TYPEDGOLUAMETHOD_CPP(Object_Play3DSound, "string float float")		//audio file, range, loudness
 	DEFINE_TYPEDGOLUAMETHOD_CPP(Object_GetDistToObject, "int")
 

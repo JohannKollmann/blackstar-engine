@@ -68,7 +68,7 @@ private:
 		mWaterPlane.create(mEntity, Ice::Main::Instance().GetCamera(), mRefMaterial, mReflection, mReflectionRttRes);
 		mWaterPlane.setPlane(waterPlane);
 
-		SetOwner(mOwnerGO);
+		NotifyOwnerGO();
 
 	}
 
@@ -97,26 +97,30 @@ public:
 
 	void UpdatePosition(Ogre::Vector3 position)
 	{
-		mWaterPlane.setPlane(Ogre::Plane(mOwnerGO->GetGlobalOrientation() * mUpVector, mOwnerGO->GetGlobalPosition()));
+		Ice::GameObjectPtr owner = mOwnerGO.lock();
+		if (!owner.get()) return;
+		mWaterPlane.setPlane(Ogre::Plane(owner->GetGlobalOrientation() * mUpVector, owner->GetGlobalPosition()));
 	}
 	void UpdateOrientation(Ogre::Quaternion orientation)
 	{
-		mWaterPlane.setPlane(Ogre::Plane(mOwnerGO->GetGlobalOrientation() * mUpVector, mOwnerGO->GetGlobalPosition()));
+		Ice::GameObjectPtr owner = mOwnerGO.lock();
+		if (!owner.get()) return;
+		mWaterPlane.setPlane(Ogre::Plane(owner->GetGlobalOrientation() * mUpVector, owner->GetGlobalPosition()));
 	}
 	void UpdateScale(Ogre::Vector3 scale)
 	{
 	}
 
-	void SetOwner(Ice::GameObject *owner)
+	void NotifyOwnerGO()
 	{
-		mOwnerGO = owner;
-		if (!mOwnerGO) return;
-		if (mEntity && mOwnerGO)
+		Ice::GameObjectPtr owner = mOwnerGO.lock();
+		if (!owner.get()) return;
+		if (mEntity)
 		{
-			mEntity->setUserAny(Ogre::Any(mOwnerGO));
+			mEntity->setUserAny(Ogre::Any(owner.get()));
 			GetNode()->attachObject(mEntity);
 		}
-		UpdatePosition(mOwnerGO->GetGlobalPosition());
+		UpdatePosition(owner->GetGlobalPosition());
 	}
 
 	void ShowEditorVisual(bool show)

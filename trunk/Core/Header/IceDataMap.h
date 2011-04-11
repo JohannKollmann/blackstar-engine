@@ -75,8 +75,9 @@ namespace Ice
 		class DllExport Item : public LoadSave::Saveable
 		{
 		public:
-			Ogre::String key;
-			GenericProperty data;
+			Item();
+			Ogre::String Key;
+			std::shared_ptr<GenericProperty> Data;
 
 			//Load Save methods
 			void Save(LoadSave::SaveSystem& myManager);
@@ -87,13 +88,23 @@ namespace Ice
 		};
 
 	private:
-		std::vector<Item> mData;
-		std::vector<Item>::iterator mIterator;
+		std::vector< std::shared_ptr<Item> > mItems;
+		std::vector< std::shared_ptr<Item> >::iterator mIterator;
 
 	public:
 		DataMap();
 		DataMap(const DataMap &rhs);
 		~DataMap();
+
+		inline DataMap& operator=(const DataMap &rhs)
+		{
+			if (this != &rhs)
+			{
+				mItems = std::vector< std::shared_ptr<Item> >(rhs.mItems);
+				mIterator = mItems.begin();
+			}
+			return *this;
+		}
 
 		//Iterator methods
 		bool HasNext();
@@ -109,8 +120,8 @@ namespace Ice
 		template <class templateType>
 		templateType GetValue(const Ogre::String &keyname)	const
 		{
-			for (auto i = mData.begin(); i != mData.end(); i++)
-				if (i->key == keyname) return i->data.Get<templateType>();
+			for (auto i = mItems.begin(); i != mItems.end(); i++)
+				if ((*i)->Key == keyname) return (*i)->Data->Get<templateType>();
 			IceAssert(false)
 			return templateType();
 		}
@@ -119,8 +130,8 @@ namespace Ice
 		template <class templateType>
 		templateType GetValue(const Ogre::String &keyname, templateType defaultVal)	const
 		{
-			for (auto i = mData.begin(); i != mData.end(); i++)
-				if (i->key == keyname) return i->data.Get<templateType>();
+			for (auto i = mItems.begin(); i != mItems.end(); i++)
+				if ((*i)->Key == keyname) return (*i)->Data->Get<templateType>();
 			return defaultVal;
 		}
 
@@ -153,30 +164,30 @@ namespace Ice
 		template <class templateType>
 		void AddItem(const Ogre::String &keyname, const templateType &var)
 		{
-			Item item;
-			item.key = keyname;
-			item.data.Set<templateType>(var);
-			mData.push_back(item);
-			mIterator = mData.begin();
+			std::shared_ptr<Item> item = std::make_shared<Item>();
+			item->Key = keyname;
+			item->Data->Set<templateType>(var);
+			mItems.push_back(item);
+			mIterator = mItems.begin();
 		};
 		///Inserts a new item into the DataMap, the data is passed using a GenericProperty.
 		void AddItem(const Ogre::String &keyname, const GenericProperty &prop)
 		{
-			Item item;
-			item.key = keyname;
-			item.data = prop;
-			mData.push_back(item);
-			mIterator = mData.begin();
+			std::shared_ptr<Item> item = std::make_shared<Item>();
+			item->Key = keyname;
+			*(item->Data.get()) = prop;
+			mItems.push_back(item);
+			mIterator = mItems.begin();
 		}
 
 		///Inserts a new item into the DataMap, the data is passed using a void buffer.
 		void AddItem(const Ogre::String &keyname, void *data, const GenericProperty::PropertyTypes &type)
 		{
-			Item item;
-			item.key = keyname;
-			item.data.Set(data, type);
-			mData.push_back(item);
-			mIterator = mData.begin();
+			std::shared_ptr<Item> item = std::make_shared<Item>();
+			item->Key = keyname;
+			item->Data->Set(data, type);
+			mItems.push_back(item);
+			mIterator = mItems.begin();
 		};
 
 		//Typed set methods

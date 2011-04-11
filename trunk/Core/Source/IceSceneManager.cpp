@@ -25,6 +25,8 @@
 #include "IceProcessNodeQueue.h"
 #include "IceProcessNodeManager.h"
 
+#include "IceSaveableVectorHandler.h"
+
 #include "boost/filesystem/operations.hpp"
 #include "boost/filesystem/path.hpp"
 
@@ -45,7 +47,6 @@ namespace Ice
 		mLevelMesh = 0;
 		mNextID = 0;
 		mDayTime = 0.0f;
-		mPlayer = 0;
 		mMaxDayTime = 86400.0f;
 		mTimeScale = 64.0f;
 
@@ -81,7 +82,7 @@ namespace Ice
 		return Ogre::StringConverter::toString(RequestID());
 	}
 
-	void SceneManager::RegisterPlayer(GameObject *player)
+	void SceneManager::RegisterPlayer(GameObjectPtr player)
 	{
 		mPlayer = player;
 	}
@@ -92,7 +93,8 @@ namespace Ice
 		mObjectMessageQueue.clear();
 		for (unsigned int i = 0; i < cpy.size(); i++)
 		{
-			cpy[i]->ProcessMessages();
+			GameObjectPtr object = cpy[i].lock();
+			if (object.get()) object->ProcessMessages();
 		}
 	}
 
@@ -170,7 +172,7 @@ namespace Ice
 		LoadSave::LoadSave::Instance().RegisterObject(&DataMap::Item::Register);
 		LoadSave::LoadSave::Instance().RegisterObject(&GenericProperty::Register);
 		LoadSave::LoadSave::Instance().RegisterObject(&GameObject::Register);
-		LoadSave::LoadSave::Instance().RegisterObject(&ManagedGameObject::Register);
+		LoadSave::LoadSave::Instance().RegisterObject(&ObjectReference::Register);
 		LoadSave::LoadSave::Instance().RegisterObject(&LoadSave::SaveableDummy::Register);
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCWaypoint::Register);
 
@@ -197,6 +199,12 @@ namespace Ice
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCAnimKey::Register);
 
 		LoadSave::LoadSave::Instance().RegisterObject(&NavigationMesh::Register);
+
+		LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new SaveableVectorHandler<GameObject>("vector<GameObjectPtr>"));
+		LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new SaveableVectorHandler<GOComponent>("vector<GOComponent>"));
+		LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new SaveableVectorHandler<NavigationMesh::PathNodeTree>("vector<PathNodeTreePtr>"));
+		LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new SaveableVectorHandler<DataMap::Item>("vector<DataMapItemPtr>"));
+
 
 		RegisterGOCPrototype("A", GOCEditorInterfacePtr(new GOCMeshRenderable()));
 		RegisterGOCPrototype("A", GOCEditorInterfacePtr(new GOCPfxRenderable()));
@@ -267,15 +275,13 @@ namespace Ice
 		Example usage: SetPosition(id, 1.0, 2.5, 3.1)
 		*/
 		ScriptSystem::GetInstance().ShareCFunction("Object_Create", &SceneManager::Lua_CreateGameObject);
-		ScriptSystem::GetInstance().ShareCFunction("Object_SetParent", &GameObject::Lua_SetParent);
 		ScriptSystem::GetInstance().ShareCFunction("Object_AddComponent", &GameObject::Lua_AddComponent);
 		ScriptSystem::GetInstance().ShareCFunction("Object_SetPosition", &GameObject::Lua_SetObjectPosition);
 		ScriptSystem::GetInstance().ShareCFunction("Object_SetOrientation", &GameObject::Lua_SetObjectOrientation);
 		ScriptSystem::GetInstance().ShareCFunction("Object_SetScale", &GameObject::Lua_SetObjectScale);
 		ScriptSystem::GetInstance().ShareCFunction("Object_GetName", &GameObject::Lua_GetObjectName);
 		ScriptSystem::GetInstance().ShareCFunction("Object_HasScriptListener", &GameObject::Lua_HasScriptListener);
-		ScriptSystem::GetInstance().ShareCFunction("Object_GetChild", &GameObject::Lua_GetChildObjectByName);
-		ScriptSystem::GetInstance().ShareCFunction("Object_GetParent", &GameObject::Lua_GetParent);
+		ScriptSystem::GetInstance().ShareCFunction("Object_GetLink", &GameObject::Lua_GetLinkedObjectByName);
 		ScriptSystem::GetInstance().ShareCFunction("Object_IsNpc", &GameObject::Lua_IsNpc);
 		ScriptSystem::GetInstance().ShareCFunction("Object_Play3DSound", &GameObject::Lua_Object_Play3DSound);
 		ScriptSystem::GetInstance().ShareCFunction("Object_GetDistToObject", &GameObject::Lua_Object_GetDistToObject);
@@ -374,12 +380,6 @@ namespace Ice
 	void SceneManager::ClearGameObjects()
 	{
 		mClearingScene = true;
-		std::map<int, ManagedGameObject*>::iterator i = mGameObjects.begin();
-		while (i != mGameObjects.end())
-		{
-			delete i->second;
-			i = mGameObjects.begin();
-		}
 		mGameObjects.clear();
 		mClearingScene = false;
 	}
@@ -463,14 +463,18 @@ namespace Ice
 
 		ClearGameObjects();
 
-		LoadSave::LoadSystem *ls=LoadSave::LoadSave::Instance().LoadFile(levelfile);
+		LoadSave::LoadSystem *ls = LoadSave::LoadSave::Instance().LoadFile(levelfile);
 
-		DataMap *levelparams = (DataMap*)ls->LoadObject();
-		SetParameters(levelparams);
+		std::shared_ptr<DataMap> levelparams = ls->LoadTypedObject<DataMap>();
+		SetParameters(levelparams.get());
 
-		std::vector<ManagedGameObject*> objects;
-		ls->LoadAtom("std::vector<Saveable*>", &objects);
-		//Objects call SceneManager::RegisterObject
+		std::vector<GameObjectPtr> objects;
+		ls->LoadAtom("vector<GameObjectPtr>", &objects);
+		ITERATE(i, objects)
+		{
+			(*i)->SetWeakThis(std::weak_ptr<GameObject>(*i));
+			mGameObjects.insert(std::make_pair<int, GameObjectPtr>((*i)->GetID(), *i));
+		}
 
 		ls->CloseFile();
 		ICE_DELETE ls;
@@ -490,12 +494,10 @@ namespace Ice
 		DataMap map;
 		GetParameters(&map);
 		ss->SaveObject(&map, "LevelParams");
-		std::vector<LoadSave::Saveable*> objects;
-		for (std::map<int, ManagedGameObject*>::iterator i = mGameObjects.begin(); i != mGameObjects.end(); i++)
-		{
+		std::vector<GameObjectPtr> objects;
+		for (auto i = mGameObjects.begin(); i != mGameObjects.end(); i++)
 			objects.push_back(i->second);
-		}
-		ss->SaveAtom("std::vector<Saveable*>", &objects, "Objects");
+		ss->SaveAtom("vector<GameObjectPtr>", &objects, "Objects");
 		//ss->SaveObject(AIManager::Instance().GetNavigationMesh(), "WayMesh");
 		ss->CloseFiles();
 		ICE_DELETE ss;
@@ -612,39 +614,32 @@ namespace Ice
 		parameters->AddFloat("ShadowAdaption_Factor", buf[26]);
 	}
 
-	std::map<int, ManagedGameObject*>& SceneManager::GetGameObjects()
+	std::map<int, GameObjectPtr>& SceneManager::GetGameObjects()
 	{
 		return mGameObjects;
 	}
 
-	void  SceneManager::NotifyGODelete(ManagedGameObject *object)
+	void SceneManager::RemoveGameObject(int objectID)
 	{
-		std::map<int, ManagedGameObject*>::iterator i = mGameObjects.find(object->GetID());
+		auto i = mGameObjects.find(objectID);
 		if (i != mGameObjects.end()) mGameObjects.erase(i);
 	}
-	int SceneManager::RegisterObject(ManagedGameObject *object)
+	GameObjectPtr SceneManager::CreateGameObject()
 	{
-		int id = RequestID();
-		mGameObjects.insert(std::make_pair<int, ManagedGameObject*>(id, object));
-		return id;
-	}
-	void SceneManager::RemoveGameObject(ManagedGameObject *object)
-	{
-		ICE_DELETE object;
-	}
-	ManagedGameObject* SceneManager::CreateGameObject()
-	{
-		return ICE_NEW ManagedGameObject();
+		GameObjectPtr object = std::make_shared<GameObject>();
+		object->SetWeakThis(std::weak_ptr<GameObject>(object));
+		mGameObjects.insert(std::make_pair<int, GameObjectPtr>(object->GetID(), object));
+		return object;
 	}
 
-	ManagedGameObject* SceneManager::GetObjectByInternID(int id)
+	GameObjectPtr SceneManager::GetObjectByInternID(int id)
 	{
-		std::map<int, ManagedGameObject*>::iterator i = mGameObjects.find(id);
+		auto i = mGameObjects.find(id);
 		if (i != mGameObjects.end()) return i->second;
-		return 0;
+		return GameObjectPtr();
 	}
 
-	void SceneManager::AddToMessageQueue(GameObject *object)
+	void SceneManager::AddToMessageQueue(std::weak_ptr<GameObject> object)
 	{
 		mObjectMessageQueue.push_back(object);
 	}
@@ -731,7 +726,7 @@ namespace Ice
 		if (vParams[2].getType() != ScriptParam::PARM_TYPE_FLOAT) return out;
 		int collision = (int)vParams[2].getFloat();
 
-		GameObject *object = Instance().CreateGameObject();
+		GameObjectPtr object = Instance().CreateGameObject();
 		object->AddComponent(GOComponentPtr(new GOCMeshRenderable(mesh, shadows)));
 		if (collision == -1)
 		{
@@ -898,7 +893,7 @@ namespace Ice
 			if (i->hitActor->userData)
 			{
 				GameObject *object = (GameObject*)i->hitActor->userData;
-				if (object == SceneManager::Instance().GetPlayer()) continue;
+				if (object == SceneManager::Instance().GetPlayer().get()) continue;
 				if (i->distance < cdist)
 				{
 					cdist = i->distance;
@@ -1008,7 +1003,7 @@ namespace Ice
 
 	std::vector<ScriptParam> SceneManager::Lua_CreateGameObject(Script& caller, std::vector<ScriptParam> vParams)
 	{
-		GameObject *object = Instance().CreateGameObject();
+		GameObjectPtr object = Instance().CreateGameObject();
 		SCRIPT_RETURNVALUE(object->GetID());
 	}
 

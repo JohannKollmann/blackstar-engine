@@ -5,14 +5,14 @@ namespace Ice
 {
 	void GOCScript::Create()
 	{
-		if (!mOwnerGO) return;
+		if (mOwnerGO.expired()) return;
 		mScripts.clear();
 		auto names = Ogre::StringUtil::split(mScriptFileNames, ";");
 		ITERATE(i, names)
 			mScripts.push_back(std::make_shared<ScriptItem>(this, *i));
 	}
 
-	void GOCScript::SetOwner(GameObject *go)
+	void GOCScript::SetOwner(std::weak_ptr<GameObject> go)
 	{
 		mOwnerGO = go;
 	}
@@ -50,10 +50,10 @@ namespace Ice
 		while (parameters->HasNext())
 		{
 			auto item = parameters->GetNext();
-			if (item.key == "Script Filenames") continue;
+			if (item.Key == "Script Filenames") continue;
 			std::vector<ScriptParam> vParams;
-			item.data.GetAsScriptParam(vParams);
-			if (vParams.size() == 1) mScriptProperties[item.key] = vParams[0];
+			item.Data->GetAsScriptParam(vParams);
+			if (vParams.size() == 1) mScriptProperties[item.Key] = vParams[0];
 		}
 	}
 	void GOCScript::GetParameters(DataMap *parameters)
@@ -75,8 +75,8 @@ namespace Ice
 	}
 	void GOCScript::Load(LoadSave::LoadSystem& mgr)
 	{
-		DataMap *map = (DataMap*)mgr.LoadObject();
-		SetParameters(map);
+		std::shared_ptr<DataMap> map = mgr.LoadTypedObject<DataMap>();
+		SetParameters(map.get());
 	}
 
 	GOCScriptMessageCallback::GOCScriptMessageCallback()
@@ -103,7 +103,7 @@ namespace Ice
 		std::vector<ScriptParam> params;
 		while (msg.params.HasNext())
 		{
-			msg.params.GetNext().data.GetAsScriptParam(params);
+			msg.params.GetNext().Data->GetAsScriptParam(params);
 		}
 		for (unsigned int c = 0; c < i->second.size(); c++)
 		{

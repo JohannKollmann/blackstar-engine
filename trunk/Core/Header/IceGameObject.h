@@ -19,7 +19,34 @@ namespace Ice
 	#define DEFINE_GOLUAMETHOD_H(methodName) \
 	static std::vector<ScriptParam> Lua_##methodName (Script& caller, std::vector<ScriptParam> vParams);
 
-	typedef DllExport std::shared_ptr<GameObject> GameObjectPtr;
+	class DllExport ObjectReference : public LoadSave::Saveable
+	{
+	public:
+		ObjectReference() : Flags(0), UserID(0) {}
+
+		enum FlagTypes
+		{
+			OWNER = 1,		//deletes linked object when object is deleted
+			MOVER = 2,		//moves link object (parent-child style)
+			PERSISTENT = 4	//loadsaves linked object
+		};
+		unsigned int Flags;
+		std::weak_ptr<GameObject> Object;
+
+		//You can store your own flags here.
+		unsigned int UserID;
+
+
+		//Load / Save
+		std::string& TellName()
+		{
+			static std::string name = "ObjectReference"; return name;
+		};
+		void Save(LoadSave::SaveSystem& mgr);
+		void Load(LoadSave::LoadSystem& mgr);
+		static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "ObjectReference"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; }
+		static LoadSave::Saveable* NewInstance() { return new ObjectReference(); }
+	};
 
 	/**
 	Every entity in 3D space is a game object. A game object has a position, rotation and scale (Transformable3D) and provides parent-child support.
@@ -27,21 +54,23 @@ namespace Ice
 	*/
 	class DllExport GameObject : public LoadSave::Saveable, public Transformable3D, public Utils::DeleteListener
 	{
+	public:
+		enum ReferenceTypes
+		{
+			PARENT = 11235813
+		};
+
 	protected:
 		int mID;
+		std::weak_ptr<GameObject> mWeakThis;
 
 		//Name
 		Ogre::String mName;
 
-		bool mManagedByParent;
-
 		bool mSelectable;
 		bool mFreezed;
 
-		bool mTransformingChildren;
-		bool mUpdatingFromParent;
-
-		bool mIgnoreParent;
+		bool mTransformingLinkedObjects;
 
 		//Global and local transform
 		Ogre::Vector3 mPosition;
@@ -56,16 +85,19 @@ namespace Ice
 		//Messaging
 		std::vector<Msg> mCurrentMessages;
 
-		//Parent and children
-		GameObject* mParent;
-		std::vector<GameObject*> mChildren;
-
-		void UpdateChildren(bool move = true);
-		void UpdateLocalTransform();
+		//Linked objects
+		std::vector<ObjectReferencePtr> mReferencedObjects;
+		std::vector<ObjectReferencePtr>::iterator mReferencedObjectsInternIterator;
 
 	public:
 		GameObject();
 		virtual ~GameObject();
+
+		/**
+		Sets the weak "this" pointer. The factory responsible for the game object must call this function!
+		@pre w.This.lock().get() == this
+		*/
+		void SetWeakThis(std::weak_ptr<GameObject> wThis);
 
 		/**
 		@return The name of the object.
@@ -87,11 +119,6 @@ namespace Ice
 		@return The unique ID of the object as string.
 		*/
 		Ogre::String GetIDStr() { return Ogre::StringConverter::toString(mID); }
-
-		/**
-		@return The object's parent (nullptr if not existing).
-		*/
-		GameObject* GetParent() { return mParent; }
 
 		///Broadcasts a message to all components.
 		void SendMessage(Msg &msg);
@@ -136,42 +163,48 @@ namespace Ice
 		///Detaches and deletes all attaches components.
 		void ClearGOCs();
 
-		///Deletes all children.
-		void ClearChildren();
-
-		///Sets the parent.
-		void SetParent(GameObject *parent);
-
-		///Registers an object as child of this object.
-		void RegisterChild(GameObject* child);
-
-		///Unregisters an object as child of this object.
-		void UnregisterChild(GameObject* child);
+		//Deletes all referenced objects that are owned by this object.
+		void ClearOwnedObjects();
 
 		/**
-		Detaches all children.
-		@return The detached children.
+		Creates a directional link between two objects.
+		@param other The other GameObject.
+		@param flags Characterizes the relationship between the two objects, see ObjectReference.
+		@pre It is NOT allowed that the MOVER or OWNER flag is set bidirectionally.
 		*/
-		std::vector<GameObject*> DetachChildren();
+		void AddObjectReference(std::weak_ptr<GameObject> other, unsigned int flags = 0, unsigned int userID = 0);
+
+		//Removes all object references with ObjectReference.Object == object.
+		void RemoveObjectReferences(GameObject *object);
+
+		//Removes all object references with ObjectReference.UserID == userID.
+		void RemoveObjectReferences(unsigned int userID);
+
+		//Creates a parent-child relationship between two objects.
+		void SetParent(GameObjectPtr parent);
+
+		//Retrieves the parent object if existent, otherwise an empty GameObjectPtr.
+		GameObjectPtr GetParent();
 
 		/**
-		@return The number of children.
+		Provides a mechanism to iterate over the linked objects.
+		example usage: 
+		while (obj->HasNextLinkedObject()) { link = GetNextLinkedObject(); }
 		*/
-		unsigned int GetNumChildren()
-		{
-			return mChildren.size();
-		}
+		bool HasNextObjectReference();
+		std::shared_ptr<ObjectReference> GetNextObjectReference();
 
 		/**
-		@return The child at index index if existing, otherwise nullptr.
+		Sets the linked object intern iterator to the beginning.
+		HasNextLinkedObject calls this when it returns false, so you probably don't have to call this manually.
 		*/
-		GameObject* GetChild(unsigned short index);
+		void ResetObjectReferenceIterator();	
 
-		///Notifies the object that the state of its parent has changed.
-		void OnParentChanged();
+		/**
+		@return The linked object with the passed name, otherwise nullptr.
+		*/
+		GameObjectPtr GetReferencedObjectByName(Ogre::String name);
 
-		///Shall the object ignore the parent's movement/rotation/scale?
-		void SetIgnoreParent(bool ignore) { mIgnoreParent = ignore; }
 
 		Ogre::Vector3 GetGlobalPosition() { return mPosition; }
 		Ogre::Quaternion GetGlobalOrientation() { return mOrientation; }	
@@ -184,10 +217,7 @@ namespace Ice
 		void Translate(Ogre::Vector3 vec, bool updateChildren = true) { SetGlobalPosition(mPosition + vec, updateChildren); }
 		void Rotate(Ogre::Vector3 axis, Ogre::Radian angle, bool updateChildren = true) { Ogre::Quaternion q; q.FromAngleAxis(angle, axis); SetGlobalOrientation(mOrientation * q, updateChildren); }
 		void Rescale(Ogre::Vector3 scaleoffset) { SetGlobalScale(mScale + scaleoffset); }
-		bool GetTransformingChildren() { return mTransformingChildren; }
-		bool GetUpdatingFromParent() { return mUpdatingFromParent; }
-		void SetManagedByParent(bool set) { mManagedByParent = set; }
-		bool IsManagedByParent() { return mManagedByParent; }
+		bool GetTransformingLinkedObjects() { return mTransformingLinkedObjects; }
 
 		/**
 		Returns whether the object is movable and should be included in a save file.
@@ -202,7 +232,6 @@ namespace Ice
 
 		//Scripting
 		std::vector<ScriptParam> AddComponent(Script& caller, std::vector<ScriptParam> &vParams);
-		std::vector<ScriptParam> SetParent(Script& caller, std::vector<ScriptParam> &vParams);
 		std::vector<ScriptParam> SetObjectProperty(Script& caller, std::vector<ScriptParam> &vParams);
 		std::vector<ScriptParam> GetObjectProperty(Script& caller, std::vector<ScriptParam> &vParams);
 		std::vector<ScriptParam> HasObjectProperty(Script& caller, std::vector<ScriptParam> &vParams);
@@ -212,15 +241,13 @@ namespace Ice
 		std::vector<ScriptParam> GetObjectName(Script& caller, std::vector<ScriptParam> &vParams);
 		std::vector<ScriptParam> SendObjectMessage(Script& caller, std::vector<ScriptParam> &vParams);
 		std::vector<ScriptParam> ReceiveObjectMessage(Script& caller, std::vector<ScriptParam> &vParams);
-		std::vector<ScriptParam> GetChildObjectByName(Script& caller, std::vector<ScriptParam> &vParams);
-		std::vector<ScriptParam> GetParent(Script& caller, std::vector<ScriptParam> &vParams);
+		std::vector<ScriptParam> GetLinkedObjectByName(Script& caller, std::vector<ScriptParam> &vParams);
 		std::vector<ScriptParam> HasScriptListener(Script& caller, std::vector<ScriptParam> &vParams);
 		std::vector<ScriptParam> IsNpc(Script& caller, std::vector<ScriptParam> &vParams);
 		std::vector<ScriptParam> FreeResources(Script& caller, std::vector<ScriptParam> &vParams);
 		std::vector<ScriptParam> Object_Play3DSound(Script& caller, std::vector<ScriptParam> &vParams);
 		std::vector<ScriptParam> Object_GetDistToObject(Script& caller, std::vector<ScriptParam> &vParams);
 
-		DEFINE_GOLUAMETHOD_H(SetParent)
 		DEFINE_GOLUAMETHOD_H(AddComponent)
 		DEFINE_GOLUAMETHOD_H(SetObjectProperty)
 		DEFINE_GOLUAMETHOD_H(GetObjectProperty)
@@ -231,8 +258,7 @@ namespace Ice
 		DEFINE_GOLUAMETHOD_H(GetObjectName)
 		DEFINE_GOLUAMETHOD_H(SendObjectMessage)
 		DEFINE_GOLUAMETHOD_H(ReceiveObjectMessage)
-		DEFINE_GOLUAMETHOD_H(GetChildObjectByName)
-		DEFINE_GOLUAMETHOD_H(GetParent)
+		DEFINE_GOLUAMETHOD_H(GetLinkedObjectByName)
 		DEFINE_GOLUAMETHOD_H(HasScriptListener)
 		DEFINE_GOLUAMETHOD_H(IsNpc)
 		DEFINE_GOLUAMETHOD_H(FreeResources)
@@ -255,20 +281,6 @@ namespace Ice
 		void Load(LoadSave::LoadSystem& mgr);
 		static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "GameObject"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; }
 		static LoadSave::Saveable* NewInstance() { return new GameObject(); }
-	};
-
-	class ManagedGameObject : public GameObject
-	{
-	public:
-		ManagedGameObject();
-		~ManagedGameObject();
-
-		static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "ManagedGameObject"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; }
-		std::string& TellName()
-		{
-			static std::string name = "ManagedGameObject"; return name;
-		};
-		static LoadSave::Saveable* NewInstance() { return new ManagedGameObject(); }
 	};
 
 };

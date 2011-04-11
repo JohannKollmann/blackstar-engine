@@ -53,7 +53,7 @@ namespace Ice
 		void SelectState();
 		void LeaveActiveActionState();
 
-		void SetOwner(GameObject *go);
+		void SetOwner(std::weak_ptr<GameObject> go);
 
 		int GetID();
 

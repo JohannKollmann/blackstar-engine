@@ -71,14 +71,14 @@ void wxObjectFolderTree::ClearObjectPreview()
 void wxObjectFolderTree::CreateObjectPreview(Ogre::String file)
 {
 	LoadSave::LoadSystem *ls=LoadSave::LoadSave::Instance().LoadFile(file);
-	std::vector<ComponentSection> sections;
-	ls->LoadAtom("std::vector<ComponentSection>", (void*)(&sections));
+	std::vector<ComponentSectionPtr> sections;
+	ls->LoadAtom("vector<ComponentSectionPtr>", (void*)(&sections));
 	Ogre::Vector3 scale(1,1,1);
 	for (auto i = sections.begin(); i != sections.end(); i++)
 	{
-		if ((*i).mSectionName == "Mesh")
+		if ((*i)->mSectionName == "Mesh")
 		{
-			wxEdit::Instance().GetPreviewWindow()->ShowMesh(i->mSectionData.GetOgreString("MeshName"));
+			wxEdit::Instance().GetPreviewWindow()->ShowMesh((*i)->mSectionData.GetOgreString("MeshName"));
 		}
 	}
 	ls->CloseFile();

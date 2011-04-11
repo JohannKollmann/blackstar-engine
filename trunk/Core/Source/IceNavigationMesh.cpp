@@ -57,15 +57,10 @@ namespace Ice
 
 	NavigationMesh::PathNodeTreeNode::PathNodeTreeNode(Ogre::AxisAlignedBox box) : PathNodeTree(box)
 	{
-		memset(mChildren, 0, 32);
 		mEmpty = true;
 	}
 	NavigationMesh::PathNodeTreeNode::~PathNodeTreeNode()
 	{
-		for (int i = 0; i < 8; i++)
-		{
-			if (mChildren[i]) ICE_DELETE mChildren[i];
-		}
 	}
 	void NavigationMesh::PathNodeTreeNode::AddPathNode(AStarNode3D *node)
 	{
@@ -81,8 +76,8 @@ namespace Ice
 				Ogre::Vector3 min(center.x < corners[i].x ? center.x : corners[i].x, center.y < corners[i].y ? center.y : corners[i].y, center.z < corners[i].z ? center.z : corners[i].z);
 				Ogre::Vector3 max(center.x >= corners[i].x ? center.x : corners[i].x, center.y >= corners[i].y ? center.y : corners[i].y, center.z >= corners[i].z ? center.z : corners[i].z);
 				Ogre::AxisAlignedBox subBox(min, max);
-				if (createLeafs) mChildren[i] = ICE_NEW PathNodeTreeLeaf(subBox);
-				else mChildren[i] = ICE_NEW PathNodeTreeNode(subBox);
+				if (createLeafs) mChildren[i].reset(new PathNodeTreeLeaf(subBox));
+				else mChildren[i].reset(new PathNodeTreeNode(subBox));
 			}
 		}
 		for (int i = 0; i < 8; i++)
@@ -127,7 +122,7 @@ namespace Ice
 	{
 		mgr.SaveAtom("Ogre::Vector3", &mBox.getMinimum(), "Box Minimum");
 		mgr.SaveAtom("Ogre::Vector3", &mBox.getMaximum(), "Box Maximum");
-		for (int i = 0; i < 8; i++) mgr.SaveObject(mChildren[i], "Child", true);
+		for (int i = 0; i < 8; i++) mgr.SaveObject(mChildren[i].get(), "Child", true);
 	}
 	void NavigationMesh::PathNodeTreeNode::Load(LoadSave::LoadSystem& mgr)
 	{
@@ -136,33 +131,30 @@ namespace Ice
 		mgr.LoadAtom("Ogre::Vector3", &boxMax);
 		mBox = Ogre::AxisAlignedBox(boxMin, boxMax);
 		mBorderBox = Ogre::AxisAlignedBox(mBox.getMinimum() + Ogre::Vector3(-NODE_EXTENT,-NODE_EXTENT,-NODE_EXTENT), mBox.getMaximum() + Ogre::Vector3(NODE_EXTENT,NODE_EXTENT,NODE_EXTENT));
-		for (int i = 0; i < 8; i++) mChildren[i] = (PathNodeTree*)mgr.LoadObject();
+		for (int i = 0; i < 8; i++) mChildren[i] = mgr.LoadTypedObject<PathNodeTree>();//std::static_pointer_cast<PathNodeTree, LoadSave::Saveable>(mgr.LoadObject());
 	}
-
 
 	NavigationMesh::PathNodeTreeLeaf::PathNodeTreeLeaf(Ogre::AxisAlignedBox box) : PathNodeTree(box)
 	{
 	}
 	NavigationMesh::PathNodeTreeLeaf::~PathNodeTreeLeaf()
 	{
-		for (std::vector<AStarNode3D*>::iterator i = mPathNodes.begin(); i != mPathNodes.end(); i++)
-			ICE_DELETE (*i);
 	}
 	void NavigationMesh::PathNodeTreeLeaf::AddPathNode(AStarNode3D *node)
 	{
 		mNodeCount++;
-		mPathNodes.push_back(node);
+		mPathNodes.push_back(std::shared_ptr<AStarNode3D>(node));
 	}
 	void NavigationMesh::PathNodeTreeLeaf::GetPathNodes(const Ogre::AxisAlignedBox &box, std::vector<AStarNode3D*> &oResult, bool getBlocked)
 	{
-		for (std::vector<AStarNode3D*>::iterator i = mPathNodes.begin(); i != mPathNodes.end(); i++)
+		for (auto i = mPathNodes.begin(); i != mPathNodes.end(); i++)
 		{
-			if ((*i)->volume.intersects(box) && (getBlocked || !(*i)->IsBlocked())) oResult.push_back(*i);
+			if ((*i)->volume.intersects(box) && (getBlocked || !(*i)->IsBlocked())) oResult.push_back((*i).get());
 		}
 	}
 	void NavigationMesh::PathNodeTreeLeaf::InjectObstacle(void *identifier, const Ogre::AxisAlignedBox &box)
 	{
-		for (std::vector<AStarNode3D*>::iterator i = mPathNodes.begin(); i != mPathNodes.end(); i++)
+		for (auto i = mPathNodes.begin(); i != mPathNodes.end(); i++)
 		{
 			if ((*i)->volume.intersects(box))
 				(*i)->AddBlocker(identifier);
@@ -170,7 +162,7 @@ namespace Ice
 	}
 	void NavigationMesh::PathNodeTreeLeaf::RemoveObstacle(void *identifier, const Ogre::AxisAlignedBox &box)
 	{
-		for (std::vector<AStarNode3D*>::iterator i = mPathNodes.begin(); i != mPathNodes.end(); i++)
+		for (auto i = mPathNodes.begin(); i != mPathNodes.end(); i++)
 		{
 			//if ((*i)->volume.intersects(box))
 				(*i)->RemoveBlocker(identifier);
@@ -180,7 +172,7 @@ namespace Ice
 	{
 		mgr.SaveAtom("Ogre::Vector3", &mBox.getMinimum(), "Box Minimum");
 		mgr.SaveAtom("Ogre::Vector3", &mBox.getMaximum(), "Box Maximum");
-		mgr.SaveAtom("std::vector<Saveable*>", (void*)&mPathNodes, "PathNodes");
+		mgr.SaveAtom("vector<PathNodeTreePtr>", (void*)&mPathNodes, "PathNodes");
 	}
 	void NavigationMesh::PathNodeTreeLeaf::Load(LoadSave::LoadSystem& mgr)
 	{
@@ -189,7 +181,7 @@ namespace Ice
 		mgr.LoadAtom("Ogre::Vector3", &boxMax);
 		mBox = Ogre::AxisAlignedBox(boxMin, boxMax);
 		mBorderBox = Ogre::AxisAlignedBox(mBox.getMinimum() + Ogre::Vector3(-NODE_EXTENT,-NODE_EXTENT,-NODE_EXTENT), mBox.getMaximum() + Ogre::Vector3(NODE_EXTENT,NODE_EXTENT,NODE_EXTENT));
-		mgr.LoadAtom("std::vector<Saveable*>", (void*)&mPathNodes);
+		mgr.LoadAtom("vector<PathNodeTreePtr>", (void*)&mPathNodes);
 	}
 
 	NavigationMesh::NavigationMesh()

@@ -9,69 +9,56 @@
 namespace Ice
 {
 
-	GameObject* AnimKey::CreateSuccessor()
-	{
-		if (!mMover)
-		{
-			Ogre::LogManager::getSingleton().logMessage("Error in AnimKey::CreateSuccessor: mMover = 0 !");
-			return 0;
-		}
-		GameObject *go = new GameObject();
-		GOCAnimKey *key = new GOCAnimKey(this);
-		go->AddComponent(GOComponentPtr(key));
-		go->SetParent(mMover->GetOwner());
-		return go;
-	}
-
-	GOCAnimKey::GOCAnimKey(AnimKey *pred)
-	{
-		mPredecessor = pred;
-		mTimeToNextKey = 1;
-	}
-	GOCAnimKey::~GOCAnimKey()
-	{
-		if (mMover) mMover->notifyKeyDelete(this);
-	}
-	void GOCAnimKey::SetOwner(GameObject *go)
-	{
-		if (!go && mMover) mMover->notifyKeyDelete(this);
-		mOwnerGO = go;
-		NotifyOwnerGO();
-	}
-	void GOCAnimKey::SetMover(GOCMover *mover)
-	{
-		mMover = mover;
-		mMover->InsertKey(mOwnerGO, mPredecessor);
-	}
-
 	void GOCAnimKey::Save(LoadSave::SaveSystem& mgr)
 	{
 		mgr.SaveAtom("float", &mTimeToNextKey, "TimeToNextKey");
-		mgr.SaveObject(dynamic_cast<LoadSave::Saveable*>(mPredecessor), "Mover", true);	//hack
-		mgr.SaveObject(mMover, "Mover");
 	}
 	void GOCAnimKey::Load(LoadSave::LoadSystem& mgr)
 	{
 		mgr.LoadAtom("float",  &mTimeToNextKey);
-		mPredecessor = dynamic_cast<AnimKey*>(mgr.LoadObject());
-		mMover = (GOCMover*)mgr.LoadObject();
 	}
 	void GOCAnimKey::UpdatePosition(Ogre::Vector3 position)
+	{	
+		GameObjectPtr mover = GetMover();
+		if (!mover.get()) return;
+		mover->GetComponent<GOCMover>()->UpdateKeys();
+	}
+	GameObjectPtr GOCAnimKey::GetMover()
 	{
-		if (mMover) mMover->UpdateKeys();
+		GameObjectPtr owner = mOwnerGO.lock();
+		if (!owner.get()) return GameObjectPtr();
+		while (owner->HasNextObjectReference())
+		{
+			ObjectReferencePtr objRef = owner->GetNextObjectReference();
+			if (objRef->UserID == GOCMover::ReferenceTypes::MOVER) return objRef->Object.lock();
+		}
+		return GameObjectPtr();
+	}
+	GameObjectPtr GOCAnimKey::CreateSuccessor()
+	{
+		GameObjectPtr mover = GetMover();
+		IceAssert(mover.get());
+		unsigned int index = 0;
+		while (mover->HasNextObjectReference())
+		{
+			ObjectReferencePtr objRef = mover->GetNextObjectReference();
+			if (objRef->UserID == GOCMover::ReferenceTypes::KEY)
+			{
+				index++;
+				if (objRef->Object.lock().get() == mOwnerGO.lock().get()) break;
+			}
+		}
+		return mover->GetComponent<GOCMover>()->CreateKey(index);
 	}
 
 	GOCMover::GOCMover()
 	{
-		//mMover = this;
 		mMoving = false;
 		mPerformingMovement = false;
 		mPaused=false;
 		mSplineObject = nullptr;
 		mIsClosed = false;
 		mIgnoreOrientation=false;
-		mLookAtObject = nullptr;
-		mNormalLookAtObject = nullptr;
 		mLookAtLine = nullptr;
 		mNormalLookAtLine = nullptr;
 		mEnabled = false;
@@ -89,6 +76,8 @@ namespace Ice
 		}
 		Reset();
 		if (mEnabled) Trigger();
+
+		ShowEditorVisual(SceneManager::Instance().GetShowEditorVisuals());
 	}
 	GOCMover::~GOCMover()
 	{
@@ -105,12 +94,13 @@ namespace Ice
 		Init();
 	}
 
-	void GOCMover::SetOwner(GameObject *owner)
+	void GOCMover::SetOwner(std::weak_ptr<GameObject> go)
 	{
-		mOwnerGO = owner;
-		if (!mOwnerGO) return;
-		UpdatePosition(mOwnerGO->GetGlobalPosition());
-		UpdateOrientation(mOwnerGO->GetGlobalOrientation());
+		mOwnerGO = go;
+		GameObjectPtr owner = mOwnerGO.lock();
+		if (!owner.get()) return;
+		UpdatePosition(owner->GetGlobalPosition());
+		UpdateOrientation(owner->GetGlobalOrientation());
 		Reset();
 		if (mEnabled) Trigger();
 	}
@@ -121,9 +111,6 @@ namespace Ice
 		mgr.SaveAtom("bool", &mIsClosed, "Closed");
 		mgr.SaveAtom("bool", &mStaticMode, "StaticMode");
 		mgr.SaveAtom("bool", &mIgnoreOrientation, "IgnoreOrientation");
-		//mgr.SaveAtom("std::vector<Saveable*>", &mAnimKeys, "AnimKeys");
-		mgr.SaveObject(mLookAtObject, "mLookAtObject", true);
-		mgr.SaveObject(mNormalLookAtObject, "mNormalLookAtObject", true);
 		mgr.SaveAtom("bool", &mEnabled, "Enabled");
 	}
 	void GOCMover::Load(LoadSave::LoadSystem& mgr)
@@ -133,11 +120,6 @@ namespace Ice
 		mgr.LoadAtom("bool", &mIsClosed);
 		mgr.LoadAtom("bool", &mStaticMode);
 		mgr.LoadAtom("bool", &mIgnoreOrientation);
-		//mgr.LoadAtom("std::vector<Saveable*>", &mAnimKeys);
-		mLookAtObject=(Ice::GameObject*)mgr.LoadObject();
-		if (mLookAtObject) SetLookAtObject(mLookAtObject);
-		mNormalLookAtObject=(Ice::GameObject*)mgr.LoadObject();
-		if (mNormalLookAtObject) SetNormalLookAtObject(mNormalLookAtObject);
 		mgr.LoadAtom("bool", &mEnabled);
 	}
 
@@ -150,11 +132,12 @@ namespace Ice
 
 	void GOCMover::Reset()
 	{
-		if (mOwnerGO && mAnimKeys.size() > 0)
+		GameObjectPtr keyObj = GetKey(0);
+		if (keyObj.get())
 		{
 			PrepareMovement(true);
-			SetOwnerPosition(mAnimKeys[0]->GetGlobalPosition());
-			SetOwnerOrientation(mAnimKeys[0]->GetGlobalOrientation());
+			SetOwnerPosition(keyObj->GetGlobalPosition());
+			SetOwnerOrientation(keyObj->GetGlobalOrientation());
 			PrepareMovement(false);
 		}
 		mMoving = false;
@@ -172,22 +155,75 @@ namespace Ice
 		//SetKeyIgnoreParent(true);
 		mfLastPos=0;
 		Ice::Msg msg; msg.type = "MOVER_START";
-		mOwnerGO->SendInstantMessage(msg);
-		if(mAnimKeys.size()<1)
+		mOwnerGO.lock()->SendInstantMessage(msg);
+		if(GetNumKeys() < 1)
 		{
 			Ice::Msg msg; msg.type = "MOVER_END";
-			mOwnerGO->SendMessage(msg);
+			mOwnerGO.lock()->SendMessage(msg);
 			mMoving = false;
 			//SetKeyIgnoreParent(false);
 		}
+	}
+
+	GameObjectPtr GOCMover::CreateKey(unsigned int insertIndex)
+	{
+		GameObjectPtr owner = mOwnerGO.lock();
+		IceAssert(owner.get());
+		std::list< std::weak_ptr<GameObject> > keyObjects;
+		while (owner->HasNextObjectReference())
+		{
+			ObjectReferencePtr objRef = owner->GetNextObjectReference();
+			if (objRef->UserID == ReferenceTypes::KEY) keyObjects.push_back(objRef->Object);
+		}
+		auto iter = keyObjects.begin();
+		for (unsigned int i = 0; i < insertIndex; i++)
+		{
+			if (iter != keyObjects.end()) iter++;
+		}
+		GameObjectPtr newKey = SceneManager::Instance().CreateGameObject();
+		newKey->AddComponent(std::make_shared<GOCAnimKey>());
+		newKey->AddObjectReference(std::weak_ptr<GameObject>(SceneManager::Instance().GetObjectByInternID(owner->GetID())), ObjectReference::PERSISTENT, ReferenceTypes::MOVER);
+		std::weak_ptr<GameObject> weakNewKey = std::weak_ptr<GameObject>(newKey);
+		
+		keyObjects.insert(iter, weakNewKey);
+		ITERATE(i, keyObjects) 
+			owner->AddObjectReference(*i, ObjectReference::OWNER|ObjectReference::PERSISTENT|ObjectReference::MOVER, ReferenceTypes::KEY);
+		return newKey;
+	}
+
+	unsigned int GOCMover::GetNumKeys()
+	{
+		GameObjectPtr owner = mOwnerGO.lock();
+		int out = 0;
+		if (!owner.get()) return out;
+		while (owner->HasNextObjectReference())
+			if (owner->GetNextObjectReference()->UserID == ReferenceTypes::KEY) out++;
+
+		return out;
+	}
+
+	GameObjectPtr GOCMover::GetKey(unsigned int index)
+	{
+		GameObjectPtr owner = mOwnerGO.lock();
+		if (!owner.get()) return GameObjectPtr();
+
+		int keyIndexIter = 0;
+		while (owner->HasNextObjectReference())
+		{
+			ObjectReferencePtr objRef = owner->GetNextObjectReference();
+			if (objRef->UserID == ReferenceTypes::KEY)
+			{
+				if (keyIndexIter == index) return objRef->Object.lock();
+				keyIndexIter++;
+			}
+		}
+		return GameObjectPtr();
 	}
 
 	void GOCMover::PrepareMovement(bool prepare)
 	{
 		mPerformingMovement = prepare;
 		SetKeyIgnoreParent(prepare);
-		if (mLookAtObject) mLookAtObject->SetIgnoreParent(prepare);
-		if (mNormalLookAtObject) mNormalLookAtObject->SetIgnoreParent(prepare);
 	}
 
 	void GOCMover::Pause()
@@ -200,7 +236,7 @@ namespace Ice
 		mMoving = false;
 		mfLastPos=0;
 		Ice::Msg msg; msg.type = "MOVER_END";
-		mOwnerGO->SendInstantMessage(msg);
+		mOwnerGO.lock()->SendInstantMessage(msg);
 		mLastKeyIndex = -1;
 		//reset mover to first key
 		Reset();
@@ -208,19 +244,22 @@ namespace Ice
 
 	void GOCMover::ReceiveMessage( Msg &msg )
 	{
-		if (msg.type == "START_PHYSICS" && mOwnerGO)
+		GameObjectPtr owner = mOwnerGO.lock();
+		if (msg.type == "START_PHYSICS" && owner.get())
 		{
 			if (mLookAtLine) _updateLookAtLine();
 			if (mNormalLookAtLine) _updateNormalLookAtLine();
 			Ogre::Vector3 upVector = Ogre::Vector3(0,1,0);
-			if (mNormalLookAtObject)
+			GameObjectPtr normalLookAtObj = GetNormalLookAtObject();
+			if (normalLookAtObj.get())
 			{
-				upVector = mNormalLookAtObject->GetGlobalPosition() - GetOwner()->GetGlobalPosition();
+				upVector = normalLookAtObj->GetGlobalPosition() - owner->GetGlobalPosition();
 				upVector.normalise();
 			}
-			if (mLookAtObject)
+			GameObjectPtr lookAtObj = GetLookAtObject();
+			if (lookAtObj)
 			{
-				Ogre::Vector3 lookAtDir = mLookAtObject->GetGlobalPosition() - GetOwner()->GetGlobalPosition();
+				Ogre::Vector3 lookAtDir = lookAtObj->GetGlobalPosition() - owner->GetGlobalPosition();
 				lookAtDir.normalise();
 
 				PrepareMovement(true);
@@ -231,7 +270,7 @@ namespace Ice
 			{
 				float time = msg.params.GetFloat("TIME");
 
-				Ogre::Vector3 oldPos = mOwnerGO->GetGlobalPosition();
+				Ogre::Vector3 oldPos = mOwnerGO.lock()->GetGlobalPosition();
 				
 				if(mStaticMode)
 				{
@@ -264,10 +303,14 @@ namespace Ice
 					{
 						if (keyIndex != mLastKeyIndex)
 						{
+							//Send a message that a key passed.
 							Ice::Msg msg; msg.type = "MOVER_KEY";
-							IceAssert(keyIndex < (int)mAnimKeys.size());
-							msg.params.AddOgreString("Keyname", mAnimKeys[keyIndex]->GetName());
-							mOwnerGO->SendInstantMessage(msg);
+							GameObjectPtr keyObj = GetKey(keyIndex);
+							if (keyObj.get())
+							{
+								msg.params.AddOgreString("Keyname", keyObj->GetName());
+								owner->SendInstantMessage(msg);
+							}
 							mLastKeyIndex = keyIndex;
 						}
 					}
@@ -275,9 +318,9 @@ namespace Ice
 						mLastKeyIndex = keyIndex;
 				}
 
-				if (!(mLookAtObject || mIgnoreOrientation))		//look towards current target direction
+				if (!(lookAtObj.get() || mIgnoreOrientation))		//look towards current target direction
 				{
-					Ogre::Vector3 lookAtDir = (mOwnerGO->GetGlobalPosition() - oldPos).normalisedCopy();
+					Ogre::Vector3 lookAtDir = (mOwnerGO.lock()->GetGlobalPosition() - oldPos).normalisedCopy();
 					PrepareMovement(true);
 					SetOwnerOrientation(Utils::ZDirToQuat(lookAtDir, upVector));
 					PrepareMovement(false);
@@ -289,7 +332,7 @@ namespace Ice
 					mMoving = false;
 					mfLastPos=0;
 					Ice::Msg msg; msg.type = "MOVER_END";
-					mOwnerGO->SendMessage(msg);
+					owner->SendMessage(msg);
 					mLastKeyIndex = -1;
 				}
 			}
@@ -298,15 +341,23 @@ namespace Ice
 
 	void GOCMover::SetKeyIgnoreParent(bool ignore)
 	{
-		for (auto i = mAnimKeys.begin(); i != mAnimKeys.end(); i++)
+		GameObjectPtr owner = mOwnerGO.lock();
+		if (!owner.get()) return;
+		while (owner->HasNextObjectReference())
 		{
-			(*i)->SetIgnoreParent(ignore);
+			ObjectReferencePtr objRef = owner->GetNextObjectReference();
+			if (objRef->UserID == ReferenceTypes::KEY)
+			{
+				if (ignore) objRef->Flags = objRef->Flags & ~ObjectReference::MOVER;
+				else objRef->Flags = objRef->Flags | ObjectReference::MOVER;
+			}
 		}
 	}
 
 	void GOCMover::UpdateKeys()
 	{
-		if (!mOwnerGO) return;
+		GameObjectPtr owner = mOwnerGO.lock();
+		if (!owner.get()) return;
 		if (mPerformingMovement) return;
 		/*if (mAnimKeys.size() > 0)
 		{
@@ -315,10 +366,9 @@ namespace Ice
 			SetOwnerOrientation(mAnimKeys[0]->GetGlobalOrientation());
 			PrepareMovement(false);
 		}*/
-		//if (mMoving && !mOwnerGO->GetUpdatingFromParent()) return;
+		//if (mMoving && !mOwnerGO.lock()->GetUpdatingFromParent()) return;
 		mSplineObject->clear();
-		if(mAnimKeys.size()<2)
-			return;
+		if(GetNumKeys() < 2) return;
 		int keyCounter = 0;
 		
 		std::vector<Ogre::Vector4> vKeys;
@@ -326,18 +376,24 @@ namespace Ice
 
 		double fCurrTime=0.0;
 
-		for(int iKey=0; iKey<(int)mAnimKeys.size(); iKey++)
+		while (owner->HasNextObjectReference())
 		{
-			Ogre::Vector3 keyPos = mAnimKeys[iKey]->GetGlobalPosition();
-
-			if(mStaticMode)
+			ObjectReferencePtr objRef = owner->GetNextObjectReference();
+			if (objRef->UserID == ReferenceTypes::KEY)
 			{
-				vUntimedKeys.push_back(keyPos);
-				fCurrTime+=mAnimKeys[iKey]->GetComponent<AnimKey>()->GetTimeToNextKey();
-				mKeyTiming.push_back(fCurrTime);
+				GameObjectPtr keyObj = objRef->Object.lock();
+				if (!keyObj.get()) continue;
+				Ogre::Vector3 keyPos = keyObj->GetGlobalPosition();
+
+				if(mStaticMode)
+				{
+					vUntimedKeys.push_back(keyPos);
+					fCurrTime += keyObj->GetComponent<GOCAnimKey>()->GetTimeToNextKey();
+					mKeyTiming.push_back(fCurrTime);
+				}
+				else
+					vKeys.push_back(Ogre::Vector4(keyPos.x, keyPos.y, keyPos.z, keyObj->GetComponent<GOCAnimKey>()->GetTimeToNextKey()));
 			}
-			else
-				vKeys.push_back(Ogre::Vector4(keyPos.x, keyPos.y, keyPos.z, mAnimKeys[iKey]->GetComponent<AnimKey>()->GetTimeToNextKey()));
 		}
 		if(mStaticMode)
 			mSpline.SetPoints(vUntimedKeys, mIsClosed);
@@ -359,7 +415,7 @@ namespace Ice
 		if (show && !mEditorVisual)
 		{
 			mEditorVisual = Main::Instance().GetOgreSceneMgr()->createEntity(GetEditorVisualMeshName());
-			mEditorVisual->setUserAny(Ogre::Any(mOwnerGO));
+			mEditorVisual->setUserAny(Ogre::Any(GetOwner().get()));
 			GetNode()->attachObject(mEditorVisual);
 		}
 		else if (!show && mEditorVisual)
@@ -382,9 +438,15 @@ namespace Ice
 			_destroyNormalLookAtLine();
 		}
 
-		for (auto i = mAnimKeys.begin(); i != mAnimKeys.end(); i++)
-			(*i)->ShowEditorVisuals(show);
-
+		GameObjectPtr owner = GetOwner();
+		if (owner.get())
+		{
+			while (owner->HasNextObjectReference())
+			{
+				ObjectReferencePtr objRef = owner->GetNextObjectReference();
+				if (objRef->UserID == ReferenceTypes::KEY) objRef->Object.lock()->ShowEditorVisuals(show);
+			}
+		}
 	}
 	void GOCMover::_destroyNormalLookAtLine()
 	{
@@ -406,7 +468,8 @@ namespace Ice
 	}
 	void GOCMover::_updateLookAtLine()
 	{
-		if (mLookAtObject && SceneManager::Instance().GetShowEditorVisuals())
+		GameObjectPtr lookAtObj = GetLookAtObject();
+		if (lookAtObj.get() && SceneManager::Instance().GetShowEditorVisuals())
 		{
 			if (!mLookAtLine)
 			{
@@ -416,14 +479,15 @@ namespace Ice
 			mLookAtLine->clear();
 			mLookAtLine->begin("BlueLine", Ogre::RenderOperation::OT_LINE_STRIP);
 			mLookAtLine->position(GetOwner()->GetGlobalPosition());
-			mLookAtLine->position(mLookAtObject->GetGlobalPosition());
+			mLookAtLine->position(lookAtObj->GetGlobalPosition());
 			mLookAtLine->end();
 			mLookAtLine->setCastShadows(false);
 		}
 	}
 	void GOCMover::_updateNormalLookAtLine()
 	{
-		if (mNormalLookAtObject && SceneManager::Instance().GetShowEditorVisuals())
+		GameObjectPtr lookAtObj = GetNormalLookAtObject();
+		if (lookAtObj.get() && SceneManager::Instance().GetShowEditorVisuals())
 		{
 			if (!mNormalLookAtLine)
 			{
@@ -433,43 +497,55 @@ namespace Ice
 			mNormalLookAtLine->clear();
 			mNormalLookAtLine->begin("BlueLine", Ogre::RenderOperation::OT_LINE_STRIP);
 			mNormalLookAtLine->position(GetOwner()->GetGlobalPosition());
-			mNormalLookAtLine->position(mNormalLookAtObject->GetGlobalPosition());
+			mNormalLookAtLine->position(lookAtObj->GetGlobalPosition());
 			mNormalLookAtLine->end();
 			mNormalLookAtLine->setCastShadows(false);
 		}
 	}
-	void GOCMover::onDeleteSubject(Utils::DeleteListener* subject)
+
+	GameObjectPtr GOCMover::GetLookAtObject()
 	{
-		if (subject == mLookAtObject)
+		GameObjectPtr owner = GetOwner();
+		if (owner.get())
 		{
-			_destroyLookAtLine();
-			mLookAtObject = nullptr;
+			while (owner->HasNextObjectReference())
+			{
+				ObjectReferencePtr objRef = owner->GetNextObjectReference();
+				if (objRef->UserID == ReferenceTypes::LOOKAT) return objRef->Object.lock();
+			}
 		}
-		if (subject == mNormalLookAtObject)
+		return GameObjectPtr();
+	}
+	std::shared_ptr<GameObject> GOCMover::GetNormalLookAtObject()
+	{
+		GameObjectPtr owner = GetOwner();
+		if (owner.get())
 		{
-			_destroyNormalLookAtLine();
-			mNormalLookAtObject = nullptr;
+			while (owner->HasNextObjectReference())
+			{
+				ObjectReferencePtr objRef = owner->GetNextObjectReference();
+				if (objRef->UserID == ReferenceTypes::NORMALLOOKAT) return objRef->Object.lock();
+			}
 		}
+		return GameObjectPtr();
 	}
 
-	void GOCMover::SetLookAtObject(GameObject *target)
+	void GOCMover::SetLookAtObject(std::weak_ptr<GameObject> target)
 	{
 		_destroyLookAtLine();
-		if (mLookAtObject && mNormalLookAtObject != mLookAtObject) mLookAtObject->removeListener(this);
-		mLookAtObject = target;
-		if (mLookAtObject && mLookAtObject != mNormalLookAtObject) mLookAtObject->addDeleteListener(this);
-		if (mOwnerGO) _updateLookAtLine();
+		GameObjectPtr owner = GetOwner();
+		owner->AddObjectReference(target, ObjectReference::PERSISTENT, ReferenceTypes::LOOKAT);
+		_updateLookAtLine();
 	}
-	void GOCMover::SetNormalLookAtObject(GameObject *target)
+	void GOCMover::SetNormalLookAtObject(std::weak_ptr<GameObject> target)
 	{
-		_destroyNormalLookAtLine();
-		if (mNormalLookAtObject && mNormalLookAtObject != mLookAtObject) mNormalLookAtObject->removeListener(this);
-		mNormalLookAtObject = target;
-		if (mNormalLookAtObject && mLookAtObject != mNormalLookAtObject) mNormalLookAtObject->addDeleteListener(this);
-		if (mOwnerGO) _updateNormalLookAtLine();
+		_destroyLookAtLine();
+		GameObjectPtr owner = GetOwner();
+		owner->AddObjectReference(target, ObjectReference::PERSISTENT, ReferenceTypes::NORMALLOOKAT);
+		_updateLookAtLine();
 	}
 
-	void GOCMover::notifyKeyDelete(GOCAnimKey *key)
+	/*void GOCMover::notifyKeyDelete(GOCAnimKey *key)
 	{
 		for (unsigned int i = 0; i < mAnimKeys.size(); i++)
 		{
@@ -501,7 +577,7 @@ namespace Ice
 				(*(mAnimKeys.begin()))->GetComponent<GOCAnimKey>()->mPredecessor = key->GetComponent<AnimKey>();
 			mAnimKeys.insert(mAnimKeys.begin(), key);
 		}
-		else*/
+		else*//*
 		if(pred==nullptr)//insert first key
 		{
 			mAnimKeys.insert(mAnimKeys.begin(), key);
@@ -527,11 +603,6 @@ namespace Ice
 			}
 		}
 		UpdateKeys();
-	}
+	}*/
 
-	void GOCMover::OnAddChild(GameObject *child)
-	{
-		GOCAnimKey *key = child->GetComponent<GOCAnimKey>();
-		if (key) key->SetMover(this);
-	}
 }

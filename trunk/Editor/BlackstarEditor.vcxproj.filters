@@ -99,9 +99,6 @@
     <ClInclude Include="Source\MaterialReload.h">
       <Filter>Editor</Filter>
     </ClInclude>
-    <ClInclude Include="Header\NavMeshEditorNode.h">
-      <Filter>Editor</Filter>
-    </ClInclude>
     <ClInclude Include="Header\OgreAxisObject.h">
       <Filter>Editor</Filter>
     </ClInclude>
@@ -201,9 +198,6 @@
       <Filter>Editor</Filter>
     </ClCompile>
     <ClCompile Include="Source\EntityMaterialInspector.cpp">
-      <Filter>Editor</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\NavMeshEditorNode.cpp">
       <Filter>Editor</Filter>
     </ClCompile>
     <ClCompile Include="Source\OgreAxisObject.cpp">

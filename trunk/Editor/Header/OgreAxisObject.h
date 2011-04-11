@@ -31,7 +31,7 @@ public:
 	~AxisComponent();
 	goc_id_type& GetComponentID() const { static std::string name = "AxisObject"; return name; } 
 	goc_id_family& GetFamilyID() const { static std::string name = "AxisObject"; return name; } 
-	void SetOwner(Ice::GameObject *go);
+	void NotifyOwnerGO();
 
 	void Save(LoadSave::SaveSystem& mgr) {};
 	void Load(LoadSave::LoadSystem& mgr) {};

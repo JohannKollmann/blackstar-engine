@@ -28,11 +28,11 @@ wxOgreSceneTree::~wxOgreSceneTree()
 
 }
 
-Ice::GameObject* wxOgreSceneTree::GetSelectedItem()
+Ice::GameObjectPtr wxOgreSceneTree::GetSelectedItem()
 {
 	if (mSelectedItem != nullptr)
 	{
-		return mSelectedItem->getGO();
+		return mSelectedItem->GetGameObject();
 	}
 	return nullptr;
 }
@@ -53,7 +53,7 @@ void wxOgreSceneTree::Update()
 	{
 		wxTreeItemId id = AddRoot(mStart->GetCaption(), mStart->GetIconId(), mStart->GetSelectedIconId(), mStart);
 
-		for (std::map<int, Ice::ManagedGameObject*>::iterator i = Ice::SceneManager::Instance().GetGameObjects().begin(); i != Ice::SceneManager::Instance().GetGameObjects().end(); i++)
+		for (auto i = Ice::SceneManager::Instance().GetGameObjects().begin(); i != Ice::SceneManager::Instance().GetGameObjects().end(); i++)
 		{
 			if (!i->second->GetParent())
 			{
@@ -70,31 +70,31 @@ void wxOgreSceneTree::Update()
 	wxEdit::Instance().GetpropertyWindow()->Refresh();
 };
 
-OgreTreeItemBase* wxOgreSceneTree::AppendGameObject(wxTreeItemId parent, Ice::GameObject *object)
+OgreTreeItemBase* wxOgreSceneTree::AppendGameObject(wxTreeItemId parent, Ice::GameObjectPtr object, std::set<int> &expandBlacklist)
 {
-	OgreTreeItemBase *item = new OgreTreeItemBase(object);
+	OgreTreeItemBase *item = new OgreTreeItemBase(std::weak_ptr<Ice::GameObject>(object));
 	mAllItems.push_back(item);
 	AppendItem(parent, item->GetName(), item->GetIconId(), item->GetSelectedIconId(), item);
-	ScanFromNode(item, object);
+	ScanFromNode(item, object, expandBlacklist);
 	return item;
 }
 
-OgreTreeItemBase* wxOgreSceneTree::FindItemByObject(Ice::GameObject *object)
+OgreTreeItemBase* wxOgreSceneTree::FindItemByObject(Ice::GameObjectPtr object)
 {
 	for (auto i = mAllItems.begin(); i != mAllItems.end(); i++)
-		if ((*i)->getGO() == object) return *i;
+		if ((*i)->GetGameObject().get() == object.get()) return *i;
 	return nullptr;
 }
 
-void wxOgreSceneTree::UpdateObject(Ice::GameObject* object)
+void wxOgreSceneTree::UpdateObject(Ice::GameObjectPtr object)
 {
 	OgreTreeItemBase *item = FindItemByObject(object);
 	if (item) SetItemText(item->GetId(), object->GetName());
 }
 
-void wxOgreSceneTree::NotifyObject(Ice::GameObject *object)
+void wxOgreSceneTree::NotifyObject(Ice::GameObjectPtr object)
 {
-	Ice::GameObject *parent = object->GetParent();
+	Ice::GameObjectPtr parent = object->GetParent();
 	if (parent)
 	{
 		OgreTreeItemBase *parentItem = FindItemByObject(parent);
@@ -107,19 +107,18 @@ void wxOgreSceneTree::NotifyObject(Ice::GameObject *object)
 	}
 }
 
-void wxOgreSceneTree::ScanFromNode(OgreTreeItemBase *item, Ice::GameObject *scanFrom)
+void wxOgreSceneTree::ScanFromNode(OgreTreeItemBase *item, Ice::GameObjectPtr scanFrom, std::set<int> &expandBlacklist)
 {
-	if (scanFrom == nullptr) return;
-	OgreTreeItemBase *currentItem = 0;
-	Ice::GameObject *currentNode = nullptr;
+	if (!scanFrom.get()) return;
+	expandBlacklist.insert(scanFrom->GetID());
+	OgreTreeItemBase *currentItem = nullptr;
+	Ice::GameObjectPtr currentNode;
 	//Ogre::LogManager::getSingleton().logMessage(scanFrom->GetName() + " " + Ogre::StringConverter::toString(scanFrom->GetNumChildren()));
-	if (scanFrom->GetNumChildren() > 0)
+	while (scanFrom->HasNextObjectReference())
 	{
-		for (unsigned short i = 0; i < scanFrom->GetNumChildren(); i++)
-		{
-			currentNode = scanFrom->GetChild(i);
-			if (currentNode->IsManagedByParent()) AppendGameObject(item->GetId(), currentNode);
-		}
+		currentNode = scanFrom->GetNextObjectReference()->Object.lock();
+		if (currentNode.get() && expandBlacklist.find(currentNode->GetID()) == expandBlacklist.end())
+			AppendGameObject(item->GetId(), currentNode, expandBlacklist);
 	}
 };
 
@@ -140,9 +139,9 @@ void wxOgreSceneTree::OnItemActivated(wxTreeEvent &event)
 		OgreTreeItemBase *t = (OgreTreeItemBase *)GetItemData(id);
 		if (t->IsFile())
 		{
-			wxEdit::Instance().GetOgrePane()->SelectObject(t->getGO());
-			Ice::Main::Instance().GetCamera()->setPosition(t->getGO()->GetGlobalPosition() - Ogre::Vector3(0,0,5));
-			Ice::Main::Instance().GetCamera()->lookAt(t->getGO()->GetGlobalPosition());
+			wxEdit::Instance().GetOgrePane()->SelectObject(t->GetGameObject());
+			Ice::Main::Instance().GetCamera()->setPosition(t->GetGameObject()->GetGlobalPosition() - Ogre::Vector3(0,0,5));
+			Ice::Main::Instance().GetCamera()->lookAt(t->GetGameObject()->GetGlobalPosition());
 			wxEdit::Instance().GetOgrePane()->update();
 		}
 	}
@@ -166,12 +165,12 @@ void wxOgreSceneTree::OnSelChanged(wxTreeEvent &event)
 	}
 }
 
-void wxOgreSceneTree::ExpandToObject(Ice::GameObject *object)
+void wxOgreSceneTree::ExpandToObject(Ice::GameObjectPtr object)
 {
 	ExpandToObject(mStart, object);
 }
 
-bool wxOgreSceneTree::ExpandToObject(OgreTreeItemBase *from, Ice::GameObject *object)
+bool wxOgreSceneTree::ExpandToObject(OgreTreeItemBase *from, Ice::GameObjectPtr object)
 {
 	wxTreeItemIdValue cookie = 0;
 	OgreTreeItemBase *b;
@@ -181,7 +180,7 @@ bool wxOgreSceneTree::ExpandToObject(OgreTreeItemBase *from, Ice::GameObject *ob
 		b = (OgreTreeItemBase *)GetItemData(child);
 		if (b->IsFile())
 		{
-			if (b->getGO() == object)
+			if (b->GetGameObject().get() == object.get())
 			{
 				Expand(from->GetId());
 				SelectItem(b->GetId());
@@ -209,7 +208,7 @@ bool wxOgreSceneTree::ExpandToObject(OgreTreeItemBase *from, Ice::GameObject *ob
 void wxOgreSceneTree::OnEnterTab()
 {
 	wxEditIceGameObject *page = (wxEditIceGameObject*)wxEdit::Instance().GetpropertyWindow()->SetPage("EditGameObject");
-	if (GetSelectedItem() != 0)
+	if (GetSelectedItem() != nullptr)
 	{
 		page->SetObject(GetSelectedItem());
 	}

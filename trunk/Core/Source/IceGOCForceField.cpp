@@ -37,16 +37,17 @@ namespace Ice
 		}
 		Ogre::Entity *entity = Main::Instance().GetOgreSceneMgr()->createEntity("tmpCollisionEnt", mCollisionMeshName);
 		Ogre::Vector3 scale = Ogre::Vector3(1,1,1);
-		if (mOwnerGO) scale = mOwnerGO->GetGlobalScale();
+		GameObjectPtr owner = mOwnerGO.lock();
+		if (owner.get()) scale = owner->GetGlobalScale();
 		NxForceFieldDesc fieldDesc;
 		fieldDesc.setToDefault();
 		fieldDesc.actor = nullptr;
 		fieldDesc.coordinates = NX_FFC_CARTESIAN;
-		if (mOwnerGO)
-			fieldDesc.pose = OgrePhysX::Convert::toNx(mOwnerGO->GetGlobalPosition(), mOwnerGO->GetGlobalOrientation());
+		if (owner.get())
+			fieldDesc.pose = OgrePhysX::Convert::toNx(owner->GetGlobalPosition(), owner->GetGlobalOrientation());
 		mFieldLinearKernelDesc.falloffLinear = NxVec3(mFalloff, mFalloff, mFalloff);
 		mFieldLinearKernelDesc.constant = OgrePhysX::Convert::toNx(mForceDirection * mForceMultiplier);
-		if (mOwnerGO) scale = mOwnerGO->GetGlobalScale();
+		if (owner.get()) scale = owner->GetGlobalScale();
 		if (mShapeType ==  Shapes::SHAPE_SPHERE)
 		{
 			float sphereShapeRadius = entity->getBoundingRadius();
@@ -96,13 +97,13 @@ namespace Ice
 	{
 		bool show = (mEditorVisual != nullptr);
 		_create();
-		//mForceField->setPose(OgrePhysX::Convert::toNx(position, mOwnerGO->GetGlobalOrientation()));
+		//mForceField->setPose(OgrePhysX::Convert::toNx(position, mOwnerGO.lock()->GetGlobalOrientation()));
 	}
 	void GOCForceField::UpdateOrientation(Ogre::Quaternion orientation)
 	{
 		bool show = (mEditorVisual != nullptr);
 		_create();
-		//mForceField->setPose(OgrePhysX::Convert::toNx(mOwnerGO->GetGlobalPosition(), orientation));
+		//mForceField->setPose(OgrePhysX::Convert::toNx(mOwnerGO.lock()->GetGlobalPosition(), orientation));
 	}
 	void GOCForceField::UpdateScale(Ogre::Vector3 scale)
 	{
@@ -119,7 +120,7 @@ namespace Ice
 
 	void GOCForceField::ShowEditorVisual(bool show)
 	{
-		if (!mOwnerGO) return;
+		if (mOwnerGO.expired()) return;
 		if (show)
 		{
 			if (!mEditorVisual && mCollisionMeshName != "")
@@ -130,7 +131,7 @@ namespace Ice
 					mEditorVisual->getSubEntity(i)->setMaterialName("Editor_TransparentBlue");
 
 				mEditorVisual2 = Main::Instance().GetOgreSceneMgr()->createEntity("blockpfeil.mesh");
-				mEditorVisual2->setUserAny(Ogre::Any(mOwnerGO));
+				mEditorVisual2->setUserAny(Ogre::Any(GetOwner().get()));
 				mArrowNode = GetNode()->createChildSceneNode();
 				//mArrowNode->setInheritOrientation(false);
 				mArrowNode->setOrientation(Ogre::Vector3::UNIT_X.getRotationTo(mForceDirection));
