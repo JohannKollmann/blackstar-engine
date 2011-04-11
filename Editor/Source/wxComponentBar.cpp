@@ -105,6 +105,23 @@ void wxComponentBar::SetSections(std::vector<ComponentSection> &sections)
 	}
 }
 
+void wxComponentBar::SetSections(std::vector<ComponentSectionPtr> &sections)
+{
+	ResetCheckBoxes();
+	for (auto i = sections.begin(); i != sections.end(); i++)
+	{
+		for (std::map<int, ComponentParameters>::iterator x = mCallbackMap.begin(); x != mCallbackMap.end(); x++)
+		{
+			if ((*x).second.mName == (*i)->mSectionName)
+			{
+				(*x).second.mCheckBox->Set3StateValue(wxCheckBoxState::wxCHK_CHECKED);
+				NotifyGroupCheck(true, (*x).second.mName, (*x).second.mFamily);
+				break;
+			}
+		}
+	}
+}
+
 void wxComponentBar::SetSectionStatus(Ogre::String name, bool checked)
 {
 	for (std::map<int, ComponentParameters>::iterator x = mCallbackMap.begin(); x != mCallbackMap.end(); x++)

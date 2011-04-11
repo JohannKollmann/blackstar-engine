@@ -30,21 +30,23 @@ namespace Ice
 
 	GOCOgreNodeUser::~GOCOgreNodeUser()
 	{
-		if (mOwnerGO)
+		GameObjectPtr owner = mOwnerGO.lock();
+		if (owner.get())
 		{
 			if (GetNode()->numAttachedObjects() == 0)
-				mOwnerGO->RemoveComponent("OgreNode");
+				owner->RemoveComponent("OgreNode");
 		}
 	}
 	Ogre::SceneNode* GOCOgreNodeUser::GetNode()
 	{
-		IceAssert(mOwnerGO);
+		GameObjectPtr owner = mOwnerGO.lock();
+		IceAssert(owner.get())
 
-		GOCOgreNode *gocNode = mOwnerGO->GetComponent<GOCOgreNode>();
+		GOCOgreNode *gocNode = owner->GetComponent<GOCOgreNode>();
 		if (gocNode) return gocNode->GetNode();
 
 		gocNode = new GOCOgreNode();
-		mOwnerGO->AddComponent(GOComponentPtr(gocNode));
+		owner->AddComponent(GOComponentPtr(gocNode));
 		return gocNode->GetNode();
 	}
 }

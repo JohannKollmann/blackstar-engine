@@ -22,7 +22,7 @@ namespace Ice
 		std::vector<ScriptParam> params;
 		while (msg.params.HasNext())
 		{
-			msg.params.GetNext().data.GetAsScriptParam(params);
+			msg.params.GetNext().Data->GetAsScriptParam(params);
 		}
 		ScriptSystem::RunCallbackFunction(mScriptCallback, params);
 	}

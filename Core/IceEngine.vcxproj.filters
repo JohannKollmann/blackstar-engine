@@ -638,6 +638,9 @@
     <ClInclude Include="Header\IceDepthSchemeHandler.h">
       <Filter>Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="Header\IceSaveableVectorHandler.h">
+      <Filter>System</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Header\Messaging.txt">

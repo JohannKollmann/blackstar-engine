@@ -55,7 +55,7 @@ namespace Ice
 		void AttachCamera(Ogre::Camera *camera);
 		void DetachCamera();
 
-		void SetOwner(GameObject *go);
+		void SetOwner(std::weak_ptr<GameObject> go);
 
 		void ReceiveMessage(Msg &msg);
 

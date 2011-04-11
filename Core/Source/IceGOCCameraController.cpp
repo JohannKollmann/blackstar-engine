@@ -95,20 +95,22 @@ namespace Ice
 	{
 		Msg msg;
 		msg.type = "LEAVE_FPS_MODE";
-		if (mOwnerGO) mOwnerGO->SendInstantMessage(msg);
+		GameObjectPtr owner = mOwnerGO.lock();
+		if (owner.get()) owner->SendInstantMessage(msg);
 		if (!mCamera) return;
 		mCameraNode->detachObject(mCamera);
 		MessageSystem::Instance().QuitAllNewsgroups(this);
 		mCamera = nullptr;
 	}	
 
-	void GOCCameraController::SetOwner(GameObject *go)
+	void GOCCameraController::SetOwner(std::weak_ptr<GameObject> go)
 	{
 		mOwnerGO = go;
-		if (!mOwnerGO) return;
+		GameObjectPtr owner = mOwnerGO.lock();
+		if (!owner.get()) return;
 		CreateNodes();
-		UpdatePosition(go->GetGlobalPosition());
-		UpdateOrientation(go->GetGlobalOrientation());
+		UpdatePosition(owner->GetGlobalPosition());
+		UpdateOrientation(owner->GetGlobalOrientation());
 	}
 
 	void GOCCameraController::ReceiveMessage(Msg &msg)
@@ -151,7 +153,7 @@ namespace Ice
 				{
 					Msg msg;
 					msg.type = "LEAVE_FPS_MODE";
-					mOwnerGO->SendInstantMessage(msg);
+					mOwnerGO.lock()->SendInstantMessage(msg);
 					mMaxPitch = 0.4f;
 				}
 				mCameraNode->setPosition(Ogre::Vector3(0.0f,0.0f,-6.0f)*static_cast<float>(sfActualZoom));
@@ -162,7 +164,7 @@ namespace Ice
 				{
 					Msg msg;
 					msg.type = "ENTER_FPS_MODE";
-					mOwnerGO->SendInstantMessage(msg);
+					mOwnerGO.lock()->SendInstantMessage(msg);
 					mMaxPitch = 0.6f;
 				}
 				sfActualZoom=0.0f;
@@ -186,9 +188,9 @@ namespace Ice
 				sfActualZoom-=(sfActualZoom-mfZoom)*time*cfSpeed*0.3f;
 				mCameraNode->setPosition(Ogre::Vector3(0.0f,0.0f,-6.0f)*static_cast<float>(sfActualZoom));
 
-				mCameraCenterNode->setOrientation(Ogre::Quaternion::Slerp(time*5, mCameraCenterNode->getOrientation(), mOwnerGO->GetGlobalOrientation(), true));
+				mCameraCenterNode->setOrientation(Ogre::Quaternion::Slerp(time*5, mCameraCenterNode->getOrientation(), mOwnerGO.lock()->GetGlobalOrientation(), true));
 			}
-			else mCameraCenterNode->setOrientation(mOwnerGO->GetGlobalOrientation());
+			else mCameraCenterNode->setOrientation(mOwnerGO.lock()->GetGlobalOrientation());
 		}
 
 		mPitchNode->resetOrientation();

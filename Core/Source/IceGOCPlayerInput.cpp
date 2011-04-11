@@ -34,9 +34,10 @@ void GOCPlayerInput::SetActive(bool active)
 	}
 
 	mActive = active;
-	if (mActive && mOwnerGO)
-		SceneManager::Instance().RegisterPlayer(mOwnerGO);
-	else SceneManager::Instance().RegisterPlayer(0);
+	GameObjectPtr owner = mOwnerGO.lock();
+	if (mActive && owner.get())
+		SceneManager::Instance().RegisterPlayer(owner);
+	else SceneManager::Instance().RegisterPlayer(GameObjectPtr());
 }
 
 void GOCPlayerInput::Pause(bool pause)
@@ -55,7 +56,7 @@ void GOCPlayerInput::ReceiveMessage(Msg &msg)
 
 	if (msg.type == "MOUSE_MOVE")
 	{
-		mOwnerGO->Rotate(Ogre::Vector3(0,1,0), Ogre::Radian((Ogre::Degree(-msg.params.GetInt("ROT_X_REL") * 0.2f))));
+		mOwnerGO.lock()->Rotate(Ogre::Vector3(0,1,0), Ogre::Radian((Ogre::Degree(-msg.params.GetInt("ROT_X_REL") * 0.2f))));
 	}
 	if (msg.type == "UPDATE_PER_FRAME")
 	{
@@ -80,7 +81,7 @@ void GOCPlayerInput::ReceiveMessage(Msg &msg)
 		{
 			Msg msg;
 			msg.type = "INPUT_START_JUMP";
-			mOwnerGO->SendInstantMessage(msg);
+			mOwnerGO.lock()->SendInstantMessage(msg);
 		}
 	}
 }

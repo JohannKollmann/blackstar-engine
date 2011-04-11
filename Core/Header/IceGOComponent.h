@@ -26,7 +26,7 @@ namespace Ice
 		virtual bool _getIsSaveable() const { return true; }
 
 	protected:
-		GameObject *mOwnerGO;
+		std::weak_ptr<GameObject> mOwnerGO;
 		virtual void NotifyOwnerGO();
 
 		///Called by GameObject::FirePostInit
@@ -36,7 +36,7 @@ namespace Ice
 		typedef std::string goc_id_type;
 		typedef std::string goc_id_family;
 
-		GOComponent() : mOwnerGO(nullptr), mTransformingOwner(false) {}
+		GOComponent() : mTransformingOwner(false) {}
 		virtual ~GOComponent() {}
 
 		///Sets the position of the component's owner object.
@@ -58,10 +58,10 @@ namespace Ice
 		virtual goc_id_family& GetFamilyID() const { return GetComponentID(); }
 
 		///Sets the component owner object.
-		virtual void SetOwner(GameObject *go);
+		virtual void SetOwner(std::weak_ptr<GameObject> go);
 
 		///Retrieves the component owner object.
-		GameObject* GetOwner() const { return mOwnerGO; }
+		GameObjectPtr GetOwner() const { return mOwnerGO.lock(); }
 
 		///Called when a child is added to the owner object.
 		virtual void OnAddChild(GameObject *child) {}
@@ -95,8 +95,6 @@ namespace Ice
 		void Save(LoadSave::SaveSystem& mgr) {}
 		void Load(LoadSave::LoadSystem& mgr) {}
 	};
-
-	typedef DllExport std::shared_ptr<GOComponent> GOComponentPtr;
 
 	class DllExport GOComponentEditable : public GOCEditorInterface, public GOComponent
 	{

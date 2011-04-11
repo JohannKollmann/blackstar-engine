@@ -148,7 +148,6 @@
     <ClInclude Include="Header\Edit.h" />
     <ClInclude Include="Header\EntityMaterialInspector.h" />
     <ClInclude Include="Source\MaterialReload.h" />
-    <ClInclude Include="Header\NavMeshEditorNode.h" />
     <ClInclude Include="Header\OgreAxisObject.h" />
   </ItemGroup>
   <ItemGroup>
@@ -184,7 +183,6 @@
     <ClCompile Include="Source\Main.cpp" />
     <ClCompile Include="Source\Edit.cpp" />
     <ClCompile Include="Source\EntityMaterialInspector.cpp" />
-    <ClCompile Include="Source\NavMeshEditorNode.cpp" />
     <ClCompile Include="Source\OgreAxisObject.cpp" />
   </ItemGroup>
   <ItemGroup>

@@ -15,44 +15,27 @@ namespace Ice
 {
 	class GOCMover;
 
-	class DllExport AnimKey
+	class DllExport GOCAnimKey : public GOCEditorVisualised, public GOCStaticEditorInterface
 	{
-	protected:
-		GOCMover *mMover;
+		friend class GOCMover;
+
+	private:
 		float mTimeToNextKey;
 
 	public:
-		AnimKey() : mMover(nullptr), mTimeToNextKey(1) {}
-		virtual ~AnimKey() {}
-
-		virtual void SetMover(GOCMover *mover) {};
-		GOCMover* GetMover() { return mMover; }
-
-		float GetTimeToNextKey() { return mTimeToNextKey; }
-
-		GameObject* CreateSuccessor();
-	};
-
-	class DllExport GOCAnimKey : public AnimKey, public GOCEditorVisualised, public GOCStaticEditorInterface
-	{
-		friend class GOCMover;
-	private:
-		AnimKey *mPredecessor;
-
-	protected:
-		void SetOwner(GameObject *go);
-
-	public:
-		GOCAnimKey() { mTimeToNextKey = 1; mPredecessor = nullptr; }
-		GOCAnimKey(AnimKey *pred);
-		~GOCAnimKey(void);
-
-		void SetMover(GOCMover *mover);
+		GOCAnimKey() : mTimeToNextKey(0.0f) {}
+		~GOCAnimKey() {};
 
 		goc_id_type& GetComponentID() const { static std::string name = "MoverAnimKey"; return name; }
 
+		float GetTimeToNextKey() { return mTimeToNextKey; }
+
 		void UpdatePosition(Ogre::Vector3 position);
 		void UpdateOrientation(Ogre::Quaternion orientation) {}
+
+		GameObjectPtr GetMover();
+
+		GameObjectPtr CreateSuccessor();
 
 		Ogre::String GetEditorVisualMeshName() { return "Editor_AnimKey.mesh"; }
 
@@ -66,12 +49,20 @@ namespace Ice
 		static LoadSave::Saveable* NewInstance() { return new GOCAnimKey; }
 	};
 
-	class DllExport GOCMover : /*public AnimKey, */public GOCEditorVisualised, public GOCStaticEditorInterface, public MessageListener, public Utils::DeleteListener
+	class DllExport GOCMover : public GOCEditorVisualised, public GOCStaticEditorInterface, public MessageListener
 	{
 		friend class GOCAnimKey;
 
+	public:
+		enum ReferenceTypes
+		{
+			KEY = 1,
+			LOOKAT = 2,
+			NORMALLOOKAT = 3,
+			MOVER = 4
+		};
+
 	private:
-		std::vector<GameObject*> mAnimKeys;
 		Ogre::String mKeyCallback;
 		bool mMoving;	//for intern use
 		bool mEnabled;	//for editor interface
@@ -89,11 +80,6 @@ namespace Ice
 		Ogre::ManualObject *mSplineObject;
 		Ogre::ManualObject *mLookAtLine;
 		Ogre::ManualObject *mNormalLookAtLine;
-
-		GameObject *mLookAtObject;			//the mover will always face this object
-		GameObject *mNormalLookAtObject;	//the mover's normal will always face this object
-
-		void notifyKeyDelete(GOCAnimKey *key);
 
 		void _updateNormalLookAtLine();
 		void _updateLookAtLine();
@@ -123,18 +109,21 @@ namespace Ice
 		void UpdatePosition(Ogre::Vector3 position);
 		void UpdateOrientation(Ogre::Quaternion orientation) {}
 
-		void SetLookAtObject(GameObject *target);
-		void SetNormalLookAtObject(GameObject *target);
-		void onDeleteSubject(Utils::DeleteListener* subject);
+		void SetLookAtObject(std::weak_ptr<GameObject> target);
+		void SetNormalLookAtObject(std::weak_ptr<GameObject> target);
+		GameObjectPtr GetLookAtObject();
+		GameObjectPtr GetNormalLookAtObject();
+
+		//Creates a new key object which is inserted after the key at insertIndex.
+		GameObjectPtr CreateKey(unsigned int insertIndex);
+
+		unsigned int GetNumKeys();
+		GameObjectPtr GetKey(unsigned int index);
 
 		Ogre::String GetEditorVisualMeshName() { return "Editor_AnimKey.mesh"; }
 		void ShowEditorVisual(bool show);		//Override, because we want to draw lines to the target objects
 
 		bool IsMoving() { return mMoving; }
-
-		void InsertKey(GameObject *key, AnimKey *pred);
-
-		void OnAddChild(GameObject *child);
 
 		void SetKeyIgnoreParent(bool ignore);
 
@@ -148,7 +137,7 @@ namespace Ice
 		END_GOCEDITORINTERFACE
 
 		void OnSetParameters();
-		void SetOwner(GameObject *owner);
+		void SetOwner(std::weak_ptr<GameObject> go);
 
 		//Scripting
 		std::vector<ScriptParam> TriggerMover(Script &caller, std::vector<ScriptParam> &params) { Trigger();  return std::vector<ScriptParam>(); };

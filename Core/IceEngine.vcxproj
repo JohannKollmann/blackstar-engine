@@ -230,6 +230,7 @@
     <ClInclude Include="Header\IceProcessNode.h" />
     <ClInclude Include="Header\IceProcessNodeManager.h" />
     <ClInclude Include="Header\IceProcessNodeQueue.h" />
+    <ClInclude Include="Header\IceSaveableVectorHandler.h" />
     <ClInclude Include="Header\IceSceneManager.h" />
     <ClInclude Include="Header\Ice3D.h" />
     <ClInclude Include="Header\IceCameraController.h" />

@@ -22,7 +22,7 @@ namespace Ice
 		if (param_test == "") \
 		{ \
 			int id = vParams[0].getInt(); \
-			GameObject *obj = SceneManager::Instance().GetObjectByInternID(id); \
+			GameObjectPtr obj = SceneManager::Instance().GetObjectByInternID(id); \
 			if (!obj) \
 			{ \
 				errout.push_back(ScriptParam(std::string("Could not find object for given ID!")));\
@@ -58,7 +58,7 @@ namespace Ice
 		if (param_test == "") \
 		{ \
 			int id = vParams[0].getInt(); \
-			GameObject *obj = SceneManager::Instance().GetObjectByInternID(id); \
+			GameObjectPtr obj = SceneManager::Instance().GetObjectByInternID(id); \
 			if (!obj) \
 			{ \
 				errout.push_back(ScriptParam(std::string("Could not find object for given ID!")));\
@@ -100,7 +100,7 @@ namespace Ice
 		if (param_test == "") \
 		{ \
 			int id = vParams[0].getInt(); \
-			GameObject *obj = SceneManager::Instance().GetObjectByInternID(id); \
+			GameObjectPtr obj = SceneManager::Instance().GetObjectByInternID(id); \
 			if (!obj) \
 			{ \
 				errout.push_back(ScriptParam(std::string("Could not find object for given ID!")));\
@@ -130,7 +130,7 @@ namespace Ice
 		if (param_test == "") \
 		{ \
 			int id = vParams[0].getInt(); \
-			GameObject *obj = SceneManager::Instance().GetObjectByInternID(id); \
+			GameObjectPtr obj = SceneManager::Instance().GetObjectByInternID(id); \
 			if (!obj) \
 			{ \
 				errout.push_back(ScriptParam(std::string("could not find object for given ID!")));\

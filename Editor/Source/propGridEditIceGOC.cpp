@@ -7,17 +7,17 @@
 #include "wx/msw/winundef.h"
 
  
-void  
+/*void  
 ComponentSectionVectorHandler ::Save(LoadSave::SaveSystem& ss, void* pData, std::string strVarName) 
 { 
-	/*test what category the data is*/ 
+	/*test what category the data is*//* 
 	std::vector<int> dims; 
 	std::vector< ComponentSection >* pVector=(std::vector< ComponentSection >*)pData; 
 	dims.push_back(pVector->size()); 
  
 	if(LoadSave::LoadSave::Instance().GetObjectID( "ComponentSection" )!=0) 
-	{/*it is an object*/ 
-		/*open an object-array*/ 
+	{/*it is an object*/
+		/*open an object-array*/ /*
 		ss.OpenObjectArray( "ComponentSection" , dims, "_array"); 
 		for(unsigned int i=0; i<pVector->size(); i++) 
 			ss.AddObject((LoadSave::Saveable*)&((*pVector)[i])); 
@@ -34,7 +34,7 @@ ComponentSectionVectorHandler ::Load(LoadSave::LoadSystem& ls, void* pDest)
 	std::vector<int> dims; 
 	std::vector< ComponentSection >* pVector=(std::vector< ComponentSection >*)pDest; 
 	if(LoadSave::LoadSave::Instance().GetObjectID( "ComponentSection" )!=0) 
-	{/*it is an object*/ 
+	{/*it is an object*/ /*
 		std::string str; 
 		dims=ls.LoadObjectArray(&str); 
 		if(str!="ComponentSection") 
@@ -47,15 +47,15 @@ ComponentSectionVectorHandler ::Load(LoadSave::LoadSystem& ls, void* pDest)
 	for(int i=0; i<dims[0]; i++) 
 	{ 
 		if(LoadSave::LoadSave::Instance().GetObjectID( "ComponentSection" )!=0) 
-		{/*it is an object*/ 
+		{/*it is an object*/ /*
 			pVector->push_back(*((ComponentSection*)ls.LoadArrayObject())); 
 		} 
 		else 
-		{/*it must be an atom*/ 
+		{/*it must be an atom*/ /*
 			IceAssert(false)
 		} 
 	} 
-}
+}*/
 
 
 void wxEditGOCSections::OnLeave()
@@ -88,25 +88,25 @@ void wxEditGOCSections::OnActivate()
 	mPropGrid->Clear();
 }
 
-void wxEditGOCSections::GetGOCSections(std::vector<ComponentSection> &sections)
+void wxEditGOCSections::GetGOCSections(std::vector<ComponentSectionPtr> &sections)
 {
 		wxPropertyGridIterator it = mPropGrid->GetIterator(wxPG_ITERATE_ALL);
 		if (it.AtEnd()) return;
 		it++;
 		Ice::DataMap transformdata;
 		Ogre::String nextSectionname = SectionToDataMap(it, &transformdata);
-		ComponentSection tcs;
-		tcs.mSectionName = "GameObject";
-		tcs.mSectionData = transformdata;
+		ComponentSectionPtr tcs = std::make_shared<ComponentSection>();
+		tcs->mSectionName = "GameObject";
+		tcs->mSectionData = transformdata;
 		sections.push_back(tcs);
 		while (nextSectionname != "")
 		{
 			it++;
-			ComponentSection cs;
+			ComponentSectionPtr cs = std::make_shared<ComponentSection>();
 			Ice::DataMap sd;
-			cs.mSectionName = nextSectionname;
+			cs->mSectionName = nextSectionname;
 			nextSectionname = SectionToDataMap(it, &sd);
-			cs.mSectionData = sd;
+			cs->mSectionData = sd;
 			sections.push_back(cs);
 		}
 }
@@ -178,14 +178,14 @@ wxEditIceGameObject::wxEditIceGameObject()
 	mGameObject = nullptr;
 }
 
-Ice::GameObject* wxEditIceGameObject::GetGameObject()
+Ice::GameObjectPtr wxEditIceGameObject::GetGameObject()
 {
 	return mGameObject;
 }
 
 void wxEditIceGameObject::OnApply()
 {
-	std::vector<ComponentSection> sections;
+	std::vector<ComponentSectionPtr> sections;
 	GetGOCSections(sections);
 	bool select = false;
 	if (wxEdit::Instance().GetOgrePane()->ObjectIsSelected(mGameObject))
@@ -207,25 +207,25 @@ void wxEditIceGameObject::OnApply()
 
 	for (auto i = sections.begin(); i != sections.end(); i++)
 	{
-		if ((*i).mSectionName == "GameObject")
+		if ((*i)->mSectionName == "GameObject")
 		{
-			mGameObject->SetName((*i).mSectionData.GetOgreString("Name"));
-			mGameObject->SetGlobalPosition((*i).mSectionData.GetOgreVec3("Position"));
-			mGameObject->SetGlobalOrientation((*i).mSectionData.GetOgreQuat("Orientation"));
-			mGameObject->SetGlobalScale((*i).mSectionData.GetOgreVec3("Scale"));
+			mGameObject->SetName((*i)->mSectionData.GetOgreString("Name"));
+			mGameObject->SetGlobalPosition((*i)->mSectionData.GetOgreVec3("Position"));
+			mGameObject->SetGlobalOrientation((*i)->mSectionData.GetOgreQuat("Orientation"));
+			mGameObject->SetGlobalScale((*i)->mSectionData.GetOgreVec3("Scale"));
 			continue;
 		}     
 
 		//Component data
-		i->mSectionData.AddOgreVec3("Scale", mGameObject->GetGlobalScale());	//HACK - Some components require scale value for initialisation (f.o. rigid bodies)
+		(*i)->mSectionData.AddOgreVec3("Scale", mGameObject->GetGlobalScale());	//HACK - Some components require scale value for initialisation (f.o. rigid bodies)
 
-		Ice::GOCEditorInterface *proto = Ice::SceneManager::Instance().GetGOCPrototype((*i).mSectionName);
+		Ice::GOCEditorInterface *proto = Ice::SceneManager::Instance().GetGOCPrototype((*i)->mSectionName);
 		bool found = false;
 		for (auto ie = existingGOCs.begin(); ie != existingGOCs.end(); ie++)
 		{
 			if ((*ie)->GetGOComponent()->GetComponentID() == proto->GetGOComponent()->GetComponentID())
 			{
-				(*ie)->SetParameters(&(*i).mSectionData);
+				(*ie)->SetParameters(&(*i)->mSectionData);
 				existingGOCs.erase(ie);
 				found = true;
 				break;
@@ -233,8 +233,8 @@ void wxEditIceGameObject::OnApply()
 		}
 		if (!found)
 		{
-			Ice::GOCEditorInterface *editor_interface = Ice::SceneManager::Instance().NewGOC((*i).mSectionName);
-			editor_interface->SetParameters(&(*i).mSectionData);
+			Ice::GOCEditorInterface *editor_interface = Ice::SceneManager::Instance().NewGOC((*i)->mSectionName);
+			editor_interface->SetParameters(&(*i)->mSectionData);
 			mGameObject->RemoveComponent(editor_interface->GetGOComponent()->GetFamilyID());
 			mGameObject->AddComponent(Ice::GOComponentPtr(editor_interface->GetGOComponent()));
 		}
@@ -260,11 +260,11 @@ void wxEditIceGameObject::OnApply()
 
 void wxEditGOResource::OnApply()
 {
-	std::vector<ComponentSection> sections;
+	std::vector<ComponentSectionPtr> sections;
 	GetGOCSections(sections);
 
 	LoadSave::SaveSystem *ss=LoadSave::LoadSave::Instance().CreateSaveFile(mCurrentEditPath, mCurrentEditPath + ".xml");
-	ss->SaveAtom("std::vector<ComponentSection>", &sections, "Sections");
+	ss->SaveAtom("vector<ComponentSectionPtr>", &sections, "Sections");
 	ss->CloseFiles();
 	delete ss;
 
@@ -274,7 +274,7 @@ void wxEditGOResource::OnApply()
 	wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->ExpandToPath(path);
 }
 
-void wxEditIceGameObject::SetObject(Ice::GameObject *object, bool update_ui)
+void wxEditIceGameObject::SetObject(Ice::GameObjectPtr object, bool update_ui)
 {
 	mPropGrid->Clear();
 	mGameObject = object;
@@ -322,11 +322,11 @@ void wxEditGOResource::SetResource(Ogre::String savepath)
 	mPropGrid->Clear();
 	mCurrentEditPath = savepath;
 	LoadSave::LoadSystem *ls=LoadSave::LoadSave::Instance().LoadFile(mCurrentEditPath);
-	std::vector<ComponentSection> sections;
-	ls->LoadAtom("std::vector<ComponentSection>", &sections);
+	std::vector<ComponentSectionPtr> sections;
+	ls->LoadAtom("vector<ComponentSectionPtr>", &sections);
 	for (auto i = sections.begin(); i != sections.end(); i++)
 	{
-		AddGOCSection(i->mSectionName, i->mSectionData);
+		AddGOCSection((*i)->mSectionName, (*i)->mSectionData);
 	}
 	ls->CloseFile();
 	delete ls;

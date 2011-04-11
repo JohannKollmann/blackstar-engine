@@ -25,7 +25,7 @@ class IEditorSelection
 };
 struct EditorSelection
 {
-	Ice::GameObject *mObject;
+	Ice::GameObjectPtr mObject;
 };
 
 struct MaterialSelection
@@ -61,9 +61,9 @@ public:
 
 	struct MoverReset
 	{
-		Ice::GameObject *mover;
-		Ogre::Vector3 resetPos;
-		Ogre::Quaternion resetQuat;
+		std::weak_ptr<Ice::GameObject> Mover;
+		Ogre::Vector3 ResetPos;
+		Ogre::Quaternion ResetQuat;
 	};
 
 	void PostInit();
@@ -82,7 +82,6 @@ public:
 	void OnCreateObjectGroup(wxCommandEvent& WXUNUSED(event) = wxCommandEvent());
 	void OnSaveObjectGroup(wxCommandEvent& WXUNUSED(event) = wxCommandEvent());
 	void OnSaveBones(wxCommandEvent& WXUNUSED(event) = wxCommandEvent());
-	void OnCreateWayTriangle(wxCommandEvent& WXUNUSED(event) = wxCommandEvent());
 	void OnInsertAnimKey(wxCommandEvent& WXUNUSED(event) = wxCommandEvent());
 	void OnMoverInsertKey(wxCommandEvent& WXUNUSED(event) = wxCommandEvent());
 	void OnTriggerMover(wxCommandEvent& WXUNUSED(event) = wxCommandEvent());
@@ -101,9 +100,8 @@ public:
 	void OnLoadWorld(Ogre::String fileName);
 	void OnSaveWorld(Ogre::String fileName);
 
-	Ice::GameObject* InsertObject(Ice::GameObject *parent = 0, bool align = false, bool create_only = false);
-	Ice::GameObject* InsertWaypoint(bool align = false, bool create_only = false);
-	Ice::GameObject* InsertWayTriangle(bool align = false, bool create_only = false);
+	Ice::GameObjectPtr InsertObject(Ice::GameObjectPtr parent = Ice::GameObjectPtr(), bool align = false, bool create_only = false);
+	Ice::GameObjectPtr InsertWaypoint(bool align = false, bool create_only = false);
 
 	void OnSelectObject(float MouseX, float MouseY);
 	void OnBrush();
@@ -113,13 +111,11 @@ public:
 	void ClearPreviewObject();
 	void CreatePreviewObject();
 
-	void OnCreateWayTriangle();
-
 	void DeselectMaterial();
-	void SelectObject(Ice::GameObject *object);
-	void DeselectObject(Ice::GameObject *object);
+	void SelectObject(Ice::GameObjectPtr object);
+	void DeselectObject(Ice::GameObjectPtr object);
 	void DeselectAllObjects();
-	bool ObjectIsSelected(Ice::GameObject *object);
+	bool ObjectIsSelected(Ice::GameObjectPtr object);
 
 	void ReceiveMessage(Ice::Msg &msg);
 
@@ -145,7 +141,7 @@ public:
 private:
 	std::list<EditorSelection> mSelectedObjects;	//Liste der angeklickten Objekte
 
-	std::list<Ice::GameObject*> mPreviewObjects;
+	std::list<Ice::GameObjectPtr> mPreviewObjects;
 
 	MaterialSelection mCurrentMaterialSelection;
 
@@ -196,13 +192,14 @@ private:
 	bool mInsertAsChild;
 	bool mStrgPressed;
 
-	void SelectChildren(Ice::GameObject *object);
-	void DeselectChildren(Ice::GameObject *object);
+	void SelectChildren(Ice::GameObjectPtr object);
+	void DeselectChildren(Ice::GameObjectPtr object);
 
-	void AlignObjectWithMesh(Ice::GameObject *object, bool rotate = false);
+	//This is called per frame, for performance reasons GameObjectPtr is passed by reference.
+	void AlignObjectWithMesh(const Ice::GameObjectPtr &object, bool rotate = false);
 
-	void AttachAxisObject(Ice::GameObject *object);
-	void DetachAxisObject(Ice::GameObject *object);
+	void AttachAxisObject(Ice::GameObjectPtr object);
+	void DetachAxisObject(Ice::GameObjectPtr object);
 
 	Ogre::Vector3 GetInsertPosition();
 

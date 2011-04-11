@@ -41,7 +41,6 @@ namespace Ice
 		mShapeType = shapetype;
 		mActor = nullptr;
 		mRenderable = nullptr;
-		mOwnerGO = nullptr;
 		mIsKinematic = false;
 	}
 
@@ -112,7 +111,7 @@ namespace Ice
 				mRenderable,
 				OgrePhysX::BoxShape(entity, scale).density(mDensity).group(CollisionGroups::DEFAULT).material(nxID));
 		}
-		mActor->getNxActor()->userData = mOwnerGO;
+		mActor->getNxActor()->userData = mOwnerGO.lock().get();
 		mActor->getNxActor()->setGroup(CollisionGroups::DEFAULT);
 
 		if (mIsKinematic) mActor->getNxActor()->raiseBodyFlag(NxBodyFlag::NX_BF_KINEMATIC);
@@ -147,29 +146,30 @@ namespace Ice
 	}
 	void GOCRigidBody::UpdateOrientation(Ogre::Quaternion orientation)
 	{
-		if (mActor) mActor->setGlobalPose(mOwnerGO->GetGlobalPosition(), orientation);
+		if (mActor) mActor->setGlobalPose(mOwnerGO.lock()->GetGlobalPosition(), orientation);
 	}
 	void GOCRigidBody::UpdateScale(Ogre::Vector3 scale)
 	{
 		if (mActor) Main::Instance().GetPhysXScene()->destroyRenderedActor((OgrePhysX::RenderedActor*)mActor);
 		mRenderable = nullptr;
 		Create(mCollisionMeshName, mDensity, mShapeType, scale);
-		mActor->setGlobalOrientation(mOwnerGO->GetGlobalOrientation());
-		mActor->setGlobalPosition(mOwnerGO->GetGlobalPosition());
+		mActor->setGlobalOrientation(mOwnerGO.lock()->GetGlobalOrientation());
+		mActor->setGlobalPosition(mOwnerGO.lock()->GetGlobalPosition());
 	}
 
-	void GOCRigidBody::SetOwner(GameObject *go)
+	void GOCRigidBody::SetOwner(std::weak_ptr<GameObject> go)
 	{
 		mOwnerGO = go;
-		if (!mOwnerGO) return;
+		GameObjectPtr owner = mOwnerGO.lock();
+		if (!owner.get()) return;
 		if (mActor)
 		{
-			UpdateScale(mOwnerGO->GetGlobalScale());
-			mActor->getNxActor()->userData = mOwnerGO;
-			mActor->setGlobalOrientation(mOwnerGO->GetGlobalOrientation());
-			mActor->setGlobalPosition(mOwnerGO->GetGlobalPosition());
+			UpdateScale(owner->GetGlobalScale());
+			mActor->getNxActor()->userData = owner.get();
+			mActor->setGlobalOrientation(owner->GetGlobalOrientation());
+			mActor->setGlobalPosition(owner->GetGlobalPosition());
 		}
-		else if (mCollisionMeshName != "") Create(mCollisionMeshName, mDensity, mShapeType, mOwnerGO->GetGlobalScale());
+		else if (mCollisionMeshName != "") Create(mCollisionMeshName, mDensity, mShapeType, owner->GetGlobalScale());
 	}
 
 	void GOCRigidBody::SetParameters(DataMap *parameters)
@@ -182,7 +182,7 @@ namespace Ice
 		mDensity = parameters->GetFloat("Density");
 		mShapeType = parameters->GetEnum("ShapeType").selection;
 		mIsKinematic = parameters->GetValue<bool>("Kinematic", false);
-		if (mOwnerGO) Create(mCollisionMeshName, mDensity, mShapeType, scale);
+		if (!mOwnerGO.expired()) Create(mCollisionMeshName, mDensity, mShapeType, scale);
 	}
 	void GOCRigidBody::GetParameters(DataMap *parameters)
 	{
@@ -208,7 +208,7 @@ namespace Ice
 	void GOCRigidBody::Save(LoadSave::SaveSystem& mgr)
 	{
 		mgr.SaveAtom("Ogre::String", &mCollisionMeshName, "CollisionMeshFile");
-		mgr.SaveAtom("Ogre::Vector3", &mOwnerGO->GetGlobalScale(), "Scale");
+		mgr.SaveAtom("Ogre::Vector3", &mOwnerGO.lock()->GetGlobalScale(), "Scale");
 		mgr.SaveAtom("float", &mDensity, "Density");
 		mgr.SaveAtom("int", &mShapeType, "ShapeType");
 		mgr.SaveAtom("Ogre::String", &mMaterialName, "mMaterialName");
@@ -233,7 +233,6 @@ namespace Ice
 	{
 		mCollisionMeshName = collision_mesh;
 		mActor = nullptr;
-		mOwnerGO = nullptr;
 	}
 
 	GOCStaticBody::~GOCStaticBody(void)
@@ -261,8 +260,8 @@ namespace Ice
 		}
 		Ogre::Entity *entity = Main::Instance().GetOgreSceneMgr()->createEntity("tempCollisionModell", mCollisionMeshName);
 		mActor = Main::Instance().GetPhysXScene()->createActor(
-			OgrePhysX::RTMeshShape(entity->getMesh()).materials(SceneManager::Instance().GetSoundMaterialTable().mOgreNxBinds).scale(scale).group(CollisionGroups::DEFAULT), mOwnerGO->GetGlobalPosition(), mOwnerGO->GetGlobalOrientation());
-		mActor->getNxActor()->userData = mOwnerGO;
+			OgrePhysX::RTMeshShape(entity->getMesh()).materials(SceneManager::Instance().GetSoundMaterialTable().mOgreNxBinds).scale(scale).group(CollisionGroups::DEFAULT), mOwnerGO.lock()->GetGlobalPosition(), mOwnerGO.lock()->GetGlobalOrientation());
+		mActor->getNxActor()->userData = mOwnerGO.lock().get();
 		Main::Instance().GetOgreSceneMgr()->destroyEntity(entity);
 	}
 
@@ -277,20 +276,21 @@ namespace Ice
 	void GOCStaticBody::UpdateScale(Ogre::Vector3 scale)
 	{
 		Create(mCollisionMeshName, scale);
-		mActor->getNxActor()->userData = mOwnerGO;
-		mActor->setGlobalOrientation(mOwnerGO->GetGlobalOrientation());
-		mActor->setGlobalPosition(mOwnerGO->GetGlobalPosition());
+		mActor->getNxActor()->userData = mOwnerGO.lock().get();
+		mActor->setGlobalOrientation(mOwnerGO.lock()->GetGlobalOrientation());
+		mActor->setGlobalPosition(mOwnerGO.lock()->GetGlobalPosition());
 	}
 
-	void GOCStaticBody::SetOwner(GameObject *go)
+	void GOCStaticBody::SetOwner(std::weak_ptr<GameObject> go)
 	{
 		mOwnerGO = go;
-		if (!mOwnerGO) return;
+		GameObjectPtr owner = mOwnerGO.lock();
+		if (!owner.get()) return;
 		if (mCollisionMeshName == "") return;
 
 		if (mActor) Main::Instance().GetPhysXScene()->destroyActor(mActor);
-		Create(mCollisionMeshName, mOwnerGO->GetGlobalScale());
-		mActor->getNxActor()->userData = mOwnerGO;
+		Create(mCollisionMeshName, owner->GetGlobalScale());
+		mActor->getNxActor()->userData = owner.get();
 	}
 
 	void GOCStaticBody::SetParameters(DataMap *parameters)
@@ -299,7 +299,7 @@ namespace Ice
 		mCollisionMeshName = parameters->GetOgreString("CollisionMeshFile");
 		Ogre::Vector3 scale = Ogre::Vector3(1,1,1);
 		scale = parameters->GetOgreVec3("Scale");
-		if (mOwnerGO) Create(mCollisionMeshName, scale);
+		if (!mOwnerGO.expired()) Create(mCollisionMeshName, scale);
 	}
 	void GOCStaticBody::GetParameters(DataMap *parameters)
 	{
@@ -327,7 +327,6 @@ namespace Ice
 		mShapeType = TriggerShapes::BOX;
 		mBoxDimensions = boxDimensions;
 		mActor = nullptr;
-		mOwnerGO = nullptr;
 		mActive = true;
 	}
 
@@ -336,7 +335,6 @@ namespace Ice
 		mShapeType = TriggerShapes::SPHERE;
 		mSphereRadius = sphereRadius;
 		mActor = nullptr;
-		mOwnerGO = nullptr;
 		mActive = true;
 	}
 
@@ -365,29 +363,31 @@ namespace Ice
 			mActor = Main::Instance().GetPhysXScene()->createActor(
 				OgrePhysX::SphereShape(mSphereRadius * scale.length()).group(CollisionGroups::TRIGGER));
 		}
-		mActor->getNxActor()->userData = mOwnerGO;
+		mActor->getNxActor()->userData = mOwnerGO.lock().get();
 	}
 
 	void GOCTrigger::onEnter(GameObject *object)
 	{
-		if (mOwnerGO && mActive)
+		GameObjectPtr owner = mOwnerGO.lock();
+		if (owner.get() && mActive)
 		{
 			Msg msg;
 			msg.type = "TRIGGER_ENTER";
 			msg.params.AddInt("OBJ_ID", object->GetID());
 			msg.rawData = object;
-			mOwnerGO->SendMessage(msg);
+			owner->SendMessage(msg);
 		}
 	}
 	void GOCTrigger::onLeave(GameObject *object)
 	{
-		if (mOwnerGO && mActive)
+		GameObjectPtr owner = mOwnerGO.lock();
+		if (owner.get() && mActive)
 		{
 			Msg msg;
 			msg.type = "TRIGGER_LEAVE";
 			msg.params.AddInt("OBJ_ID", object->GetID());
 			msg.rawData = object;
-			mOwnerGO->SendMessage(msg);
+			owner->SendMessage(msg);
 		}
 	}
 
@@ -403,19 +403,19 @@ namespace Ice
 	{
 		if (mActor) Main::Instance().GetPhysXScene()->destroyActor(mActor);
 		Create(scale);
-		mActor->setGlobalOrientation(mOwnerGO->GetGlobalOrientation());
-		mActor->setGlobalPosition(mOwnerGO->GetGlobalPosition());
+		mActor->setGlobalOrientation(mOwnerGO.lock()->GetGlobalOrientation());
+		mActor->setGlobalPosition(mOwnerGO.lock()->GetGlobalPosition());
 	}
 
-	void GOCTrigger::SetOwner(GameObject *go)
+	void GOCTrigger::SetOwner(std::weak_ptr<GameObject> go)
 	{
 		mOwnerGO = go;
 		if (mSphereRadius == -1) return;
 		if (mActor) Main::Instance().GetPhysXScene()->destroyActor(mActor);
-		Create(mOwnerGO->GetGlobalScale());
-		mActor->getNxActor()->userData = mOwnerGO;
-		mActor->setGlobalOrientation(mOwnerGO->GetGlobalOrientation());
-		mActor->setGlobalPosition(mOwnerGO->GetGlobalPosition());
+		Create(mOwnerGO.lock()->GetGlobalScale());
+		mActor->getNxActor()->userData = mOwnerGO.lock().get();
+		mActor->setGlobalOrientation(mOwnerGO.lock()->GetGlobalOrientation());
+		mActor->setGlobalPosition(mOwnerGO.lock()->GetGlobalPosition());
 	}
 
 	void GOCTrigger::SetParameters(DataMap *parameters)
@@ -427,7 +427,7 @@ namespace Ice
 		mBoxDimensions = parameters->GetOgreVec3("BoxSize");
 		mSphereRadius = parameters->GetFloat("Radius");
 		mActive = parameters->GetValue<bool>("Active", true);
-		if (mOwnerGO) Create(scale);
+		if (!mOwnerGO.expired()) Create(scale);
 	}
 	void GOCTrigger::GetParameters(DataMap *parameters)
 	{

@@ -29,10 +29,10 @@ namespace Ice
 			DataMap::Item gp = parameters->GetNext();
 			for (auto i = mRefParams.begin(); i != mRefParams.end(); i++)
 			{
-				if (i->keyname == gp.key)
+				if (i->keyname == gp.Key)
 				{
-					IceAssert(i->defaultVal.getType() == gp.data.getType());
-					gp.data.Get(i->target);
+					IceAssert(i->defaultVal.getType() == gp.Data->getType());
+					gp.Data->Get(i->target);
 					break;
 				}
 			}

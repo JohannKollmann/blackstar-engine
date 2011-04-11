@@ -110,4 +110,9 @@ namespace Ice
 	class GOCSimpleCameraController;
 	class GOCCameraController;
 	class FreeFlightCameraController;
+	class ObjectReference;
+
+	typedef DllExport std::shared_ptr<ObjectReference> ObjectReferencePtr;
+	typedef DllExport std::shared_ptr<GameObject> GameObjectPtr;
+	typedef DllExport std::shared_ptr<GOComponent> GOComponentPtr;
 };

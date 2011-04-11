@@ -36,7 +36,7 @@ namespace Ice
 
 		void Create();
 
-		int GetThisID() { IceAssert(mOwnerGO); return mOwnerGO->GetID(); }
+		int GetThisID() { GameObjectPtr owner = mOwnerGO.lock(); IceAssert(owner.get()); return owner->GetID(); }
 		GOComponent::goc_id_type& GetComponentID() const { static std::string name = "Script"; return name; }
 
 		void SetParameters(DataMap *parameters);
@@ -46,7 +46,7 @@ namespace Ice
 		GOComponent* GetGOComponent() { return this; }
 		GOCScript* New() { return new GOCScript(); }
 
-		void SetOwner(GameObject *go);
+		void SetOwner(std::weak_ptr<GameObject> go);
 
 		void NotifyPostInit() { Create(); }
 

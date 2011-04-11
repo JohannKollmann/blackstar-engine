@@ -180,18 +180,18 @@ namespace Ice
 
 	DataMap::DataMap()
 	{
-		mIterator = mData.begin();
+		mIterator = mItems.begin();
 	}
 
 	DataMap::DataMap(const DataMap &rhs)
 	{
-		mData = rhs.mData;
-		mIterator = mData.begin();
+		mItems = std::vector< std::shared_ptr<Item> >(rhs.mItems);
+		mIterator = mItems.begin();
 	}
 
 	DataMap::~DataMap()
 	{
-		mData.clear();
+		mItems.clear();
 	}
 
 	void DataMap::ParseString(Ogre::String &keyValues)
@@ -200,7 +200,7 @@ namespace Ice
 		Ogre::String key;
 		Ogre::String value;
 		int readingState = 0;
-		for (int i = 0; i < keyValues.length(); i++)
+		for (unsigned int i = 0; i < keyValues.length(); i++)
 		{
 			if (readingState == 0)
 			{
@@ -246,9 +246,9 @@ namespace Ice
 
 	bool DataMap::HasKey(const Ogre::String &keyname)
 	{
-		for (auto i = mData.begin(); i != mData.end(); i++)
+		for (auto i = mItems.begin(); i != mItems.end(); i++)
 		{
-			if (i->key == keyname) return true;
+			if ((*i)->Key == keyname) return true;
 		}
 		return false;
 	}
@@ -367,38 +367,43 @@ namespace Ice
 
 	bool DataMap::HasNext()
 	{
-		if (mIterator != mData.end()) return true;
-		mIterator = mData.begin();
+		if (mIterator != mItems.end()) return true;
+		mIterator = mItems.begin();
 		return false;
 	}
 
 	DataMap::Item DataMap::GetNext()
 	{
-		Item returner = *mIterator;
+		Item returner = *(*mIterator).get();
 		mIterator++;
 		return returner;
 	}
 
+	DataMap::Item::Item()
+	{
+		Data = std::make_shared<GenericProperty>();
+	}
+
 	void DataMap::Item::Save(LoadSave::SaveSystem& mgr)
 	{
-		mgr.SaveAtom("Ogre::String", &key, "key");
-		mgr.SaveObject(&data, "Data");
+		mgr.SaveAtom("Ogre::String", &Key, "key");
+		mgr.SaveObject(Data.get(), "Data");
 	}
 	void DataMap::Item::Load(LoadSave::LoadSystem& mgr)
 	{
-		mgr.LoadAtom("Ogre::String", &key);
-		data  = *(GenericProperty*)mgr.LoadObject();
+		mgr.LoadAtom("Ogre::String", &Key);
+		Data = mgr.LoadTypedObject<GenericProperty>();
 	}
 
 	void DataMap::Save(LoadSave::SaveSystem& mgr)
 	{
-		mgr.SaveAtom("std::vector<DataMapItem>", &mData, "Items");
+		mgr.SaveAtom("vector<DataMapItemPtr>", &mItems, "Items");
 	}
 
 	void DataMap::Load(LoadSave::LoadSystem& mgr)
 	{
-		mgr.LoadAtom("std::vector<DataMapItem>", &mData);
-		mIterator = mData.begin();
+		mgr.LoadAtom("vector<DataMapItemPtr>", &mItems);
+		mIterator = mItems.begin();
 	}
 
 };

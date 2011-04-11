@@ -112,7 +112,7 @@ namespace Ice
 
 		void Freeze(bool freeze);
 
-		void SetOwner(GameObject *go);
+		void SetOwner(std::weak_ptr<GameObject> go);
 
 		OgrePhysX::Actor* GetActor() { return mActor; }
 

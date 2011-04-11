@@ -56,7 +56,7 @@ namespace Ice
 		void ReceiveMessage(Msg &msg);
 		void ReceiveObjectMessage(Msg &msg);
 
-		void SetOwner(GameObject *go);
+		void SetOwner(std::weak_ptr<GameObject> go);
 		void SetParameters(DataMap *parameters);
 		void GetParameters(DataMap *parameters);
 		void GetDefaultParameters(DataMap *parameters);
@@ -117,7 +117,7 @@ namespace Ice
 
 		void SetBone(Ogre::SceneNode *meshnode, GOCAnimatedCharacter* ragdoll, OgrePhysX::sBoneActorBind &bone_config, bool controlBone);
 
-		void SetOwner(GameObject *go);
+		void SetOwner(std::weak_ptr<GameObject> go);
 
 		void Save(LoadSave::SaveSystem& mgr) {};
 		void Load(LoadSave::LoadSystem& mgr) {};
