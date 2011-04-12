@@ -27,6 +27,7 @@ namespace Ice
 	{
 		GameObjectPtr owner = mOwnerGO.lock();
 		if (!owner.get()) return GameObjectPtr();
+		owner->ResetObjectReferenceIterator();
 		while (owner->HasNextObjectReference())
 		{
 			ObjectReferencePtr objRef = owner->GetNextObjectReference();
@@ -39,6 +40,7 @@ namespace Ice
 		GameObjectPtr mover = GetMover();
 		IceAssert(mover.get());
 		unsigned int index = 0;
+		mover->ResetObjectReferenceIterator();
 		while (mover->HasNextObjectReference())
 		{
 			ObjectReferencePtr objRef = mover->GetNextObjectReference();
@@ -76,8 +78,6 @@ namespace Ice
 		}
 		Reset();
 		if (mEnabled) Trigger();
-
-		ShowEditorVisual(SceneManager::Instance().GetShowEditorVisuals());
 	}
 	GOCMover::~GOCMover()
 	{
@@ -169,23 +169,28 @@ namespace Ice
 	{
 		GameObjectPtr owner = mOwnerGO.lock();
 		IceAssert(owner.get());
-		std::list< std::weak_ptr<GameObject> > keyObjects;
+		std::list<GameObjectPtr> keyObjects;
+		owner->ResetObjectReferenceIterator();
 		while (owner->HasNextObjectReference())
 		{
 			ObjectReferencePtr objRef = owner->GetNextObjectReference();
-			if (objRef->UserID == ReferenceTypes::KEY) keyObjects.push_back(objRef->Object);
+			if (objRef->UserID == ReferenceTypes::KEY) keyObjects.push_back(objRef->Object.lock());
 		}
+
+		owner->RemoveObjectReferences(ReferenceTypes::KEY);
+
+		GameObjectPtr newKey = SceneManager::Instance().CreateGameObject();
+		newKey->AddComponent(std::make_shared<GOCAnimKey>());
+		newKey->AddObjectReference(SceneManager::Instance().GetObjectByInternID(owner->GetID()), ObjectReference::PERSISTENT, ReferenceTypes::MOVER);
+		std::weak_ptr<GameObject> weakNewKey = std::weak_ptr<GameObject>(newKey);
+		
 		auto iter = keyObjects.begin();
 		for (unsigned int i = 0; i < insertIndex; i++)
 		{
 			if (iter != keyObjects.end()) iter++;
 		}
-		GameObjectPtr newKey = SceneManager::Instance().CreateGameObject();
-		newKey->AddComponent(std::make_shared<GOCAnimKey>());
-		newKey->AddObjectReference(std::weak_ptr<GameObject>(SceneManager::Instance().GetObjectByInternID(owner->GetID())), ObjectReference::PERSISTENT, ReferenceTypes::MOVER);
-		std::weak_ptr<GameObject> weakNewKey = std::weak_ptr<GameObject>(newKey);
-		
 		keyObjects.insert(iter, weakNewKey);
+
 		ITERATE(i, keyObjects) 
 			owner->AddObjectReference(*i, ObjectReference::OWNER|ObjectReference::PERSISTENT|ObjectReference::MOVER, ReferenceTypes::KEY);
 		return newKey;
@@ -196,6 +201,7 @@ namespace Ice
 		GameObjectPtr owner = mOwnerGO.lock();
 		int out = 0;
 		if (!owner.get()) return out;
+		owner->ResetObjectReferenceIterator();
 		while (owner->HasNextObjectReference())
 			if (owner->GetNextObjectReference()->UserID == ReferenceTypes::KEY) out++;
 
@@ -208,6 +214,7 @@ namespace Ice
 		if (!owner.get()) return GameObjectPtr();
 
 		int keyIndexIter = 0;
+		owner->ResetObjectReferenceIterator();
 		while (owner->HasNextObjectReference())
 		{
 			ObjectReferencePtr objRef = owner->GetNextObjectReference();
@@ -343,6 +350,7 @@ namespace Ice
 	{
 		GameObjectPtr owner = mOwnerGO.lock();
 		if (!owner.get()) return;
+		owner->ResetObjectReferenceIterator();
 		while (owner->HasNextObjectReference())
 		{
 			ObjectReferencePtr objRef = owner->GetNextObjectReference();
@@ -376,6 +384,7 @@ namespace Ice
 
 		double fCurrTime=0.0;
 
+		owner->ResetObjectReferenceIterator();
 		while (owner->HasNextObjectReference())
 		{
 			ObjectReferencePtr objRef = owner->GetNextObjectReference();
@@ -441,6 +450,7 @@ namespace Ice
 		GameObjectPtr owner = GetOwner();
 		if (owner.get())
 		{
+			owner->ResetObjectReferenceIterator();
 			while (owner->HasNextObjectReference())
 			{
 				ObjectReferencePtr objRef = owner->GetNextObjectReference();
@@ -508,6 +518,7 @@ namespace Ice
 		GameObjectPtr owner = GetOwner();
 		if (owner.get())
 		{
+			owner->ResetObjectReferenceIterator();
 			while (owner->HasNextObjectReference())
 			{
 				ObjectReferencePtr objRef = owner->GetNextObjectReference();
@@ -521,6 +532,7 @@ namespace Ice
 		GameObjectPtr owner = GetOwner();
 		if (owner.get())
 		{
+			owner->ResetObjectReferenceIterator();
 			while (owner->HasNextObjectReference())
 			{
 				ObjectReferencePtr objRef = owner->GetNextObjectReference();
@@ -530,14 +542,14 @@ namespace Ice
 		return GameObjectPtr();
 	}
 
-	void GOCMover::SetLookAtObject(std::weak_ptr<GameObject> target)
+	void GOCMover::SetLookAtObject(GameObjectPtr target)
 	{
 		_destroyLookAtLine();
 		GameObjectPtr owner = GetOwner();
 		owner->AddObjectReference(target, ObjectReference::PERSISTENT, ReferenceTypes::LOOKAT);
 		_updateLookAtLine();
 	}
-	void GOCMover::SetNormalLookAtObject(std::weak_ptr<GameObject> target)
+	void GOCMover::SetNormalLookAtObject(GameObjectPtr target)
 	{
 		_destroyLookAtLine();
 		GameObjectPtr owner = GetOwner();

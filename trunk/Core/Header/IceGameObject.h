@@ -52,7 +52,7 @@ namespace Ice
 	Every entity in 3D space is a game object. A game object has a position, rotation and scale (Transformable3D) and provides parent-child support.
 	A game object also consists of a set of components, which provide special functionality like mesh, sound, ai etc.
 	*/
-	class DllExport GameObject : public LoadSave::Saveable, public Transformable3D, public Utils::DeleteListener
+	class DllExport GameObject : public LoadSave::Saveable, public Transformable3D
 	{
 	public:
 		enum ReferenceTypes
@@ -172,7 +172,7 @@ namespace Ice
 		@param flags Characterizes the relationship between the two objects, see ObjectReference.
 		@pre It is NOT allowed that the MOVER or OWNER flag is set bidirectionally.
 		*/
-		void AddObjectReference(std::weak_ptr<GameObject> other, unsigned int flags = 0, unsigned int userID = 0);
+		void AddObjectReference(const GameObjectPtr &other, unsigned int flags = 0, unsigned int userID = 0);
 
 		//Removes all object references with ObjectReference.Object == object.
 		void RemoveObjectReferences(GameObject *object);

@@ -734,7 +734,7 @@ Ice::GameObjectPtr Edit::InsertObject(Ice::GameObjectPtr parent, bool align, boo
 {
 	Ice::GameObjectPtr object;
 	Ogre::String sResource = wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->GetSelectedResource().c_str();
-	if (sResource == "None") return nullptr;
+	if (sResource == "None") return object;
 	if (sResource.find("Waypoint.static") != Ogre::String::npos)
 	{
 		return InsertWaypoint(align, create_only);
@@ -834,7 +834,7 @@ void Edit::OnDeleteObject( wxCommandEvent& WXUNUSED(event) )
 	wxEditIceGameObject *propgrid_page = dynamic_cast<wxEditIceGameObject*>(wxEdit::Instance().GetpropertyWindow()->GetCurrentPage());
 	if (propgrid_page)
 	{
-		propgrid_page->SetObject(nullptr);
+		propgrid_page->SetObject(Ice::GameObjectPtr());
 		wxEdit::Instance().GetpropertyWindow()->Refresh();
 	}
 	wxEdit::Instance().GetpropertyWindow()->SetPage("None");
@@ -848,6 +848,7 @@ void Edit::OnDeleteObject( wxCommandEvent& WXUNUSED(event) )
 
 		//check if the object owns other objects.
 		bool hasChildren = false;
+		object->ResetObjectReferenceIterator();
 		while (object->HasNextObjectReference())
 		{
 			Ice::ObjectReferencePtr objRef = object->GetNextObjectReference();
@@ -866,6 +867,7 @@ void Edit::OnDeleteObject( wxCommandEvent& WXUNUSED(event) )
 			}
 			else if (input == wxID_NO)
 			{
+				object->ResetObjectReferenceIterator();
 				while (object->HasNextObjectReference())
 				{
 					Ice::ObjectReferencePtr objRef = object->GetNextObjectReference();
@@ -1045,6 +1047,8 @@ void Edit::OnBrush()
 
 void Edit::SelectObject(Ice::GameObjectPtr object)
 {
+	if (!object.get()) return;
+
 	//Ogre::LogManager::getSingleton().logMessage("Select Object " + object->GetName());
 	if (!mMultiSelect) DeselectAllObjects();
 	else DeselectObject(object);
@@ -1080,6 +1084,7 @@ void Edit::SelectObject(Ice::GameObjectPtr object)
 void Edit::SelectChildren(Ice::GameObjectPtr object)
 {
 	//Ogre::LogManager::getSingleton().logMessage("select Children " + object->GetName());
+	object->ResetObjectReferenceIterator();
 	while (object->HasNextObjectReference())
 	{
 		Ice::ObjectReferencePtr objRef = object->GetNextObjectReference();
@@ -1100,6 +1105,7 @@ void Edit::SelectChildren(Ice::GameObjectPtr object)
 void Edit::DeselectChildren(Ice::GameObjectPtr object)
 {
 	//Ogre::LogManager::getSingleton().logMessage("Deselect Children " + object->GetName());
+	object->ResetObjectReferenceIterator();
 	while (object->HasNextObjectReference())
 	{
 		Ice::ObjectReferencePtr objRef = object->GetNextObjectReference();
@@ -1347,7 +1353,7 @@ void Edit::OnSetLookAtObject( wxCommandEvent& WXUNUSED(event) /*= wxCommandEvent
 	if (mSelectedObjects.size() < 1) return;
 	Ice::GOCMover *mover = mSelectedObjects.front().mObject->GetComponent<Ice::GOCMover>();
 	IceAssert(mover);
-	if (mSelectedObjects.size() == 1) mover->SetLookAtObject(std::weak_ptr<Ice::GameObject>());
+	if (mSelectedObjects.size() == 1) mover->SetLookAtObject(Ice::GameObjectPtr());
 	else if (mSelectedObjects.size() == 2) mover->SetLookAtObject(mSelectedObjects.back().mObject);
 }
 void Edit::OnSetNormalLookAtObject( wxCommandEvent& WXUNUSED(event) /*= wxCommandEvent()*/ )
@@ -1355,7 +1361,7 @@ void Edit::OnSetNormalLookAtObject( wxCommandEvent& WXUNUSED(event) /*= wxComman
 	if (mSelectedObjects.size() < 1) return;
 	Ice::GOCMover *mover = mSelectedObjects.front().mObject->GetComponent<Ice::GOCMover>();
 	IceAssert(mover);
-	if (mSelectedObjects.size() == 1) mover->SetNormalLookAtObject(std::weak_ptr<Ice::GameObject>());
+	if (mSelectedObjects.size() == 1) mover->SetNormalLookAtObject(Ice::GameObjectPtr());
 	else if (mSelectedObjects.size() == 2) mover->SetNormalLookAtObject(mSelectedObjects.back().mObject);
 }
 void Edit::OnComputeAO( wxCommandEvent& WXUNUSED(event) /*= wxCommandEvent()*/ )

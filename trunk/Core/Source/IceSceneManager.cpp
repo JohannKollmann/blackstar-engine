@@ -201,7 +201,8 @@ namespace Ice
 		LoadSave::LoadSave::Instance().RegisterObject(&NavigationMesh::Register);
 
 		LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new SaveableVectorHandler<GameObject>("vector<GameObjectPtr>"));
-		LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new SaveableVectorHandler<GOComponent>("vector<GOComponent>"));
+		LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new SaveableVectorHandler<ObjectReference>("vector<ObjectReferencePtr>"));
+		LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new SaveableVectorHandler<GOComponent>("vector<GOComponentPtr>"));
 		LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new SaveableVectorHandler<NavigationMesh::PathNodeTree>("vector<PathNodeTreePtr>"));
 		LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new SaveableVectorHandler<DataMap::Item>("vector<DataMapItemPtr>"));
 
@@ -477,7 +478,7 @@ namespace Ice
 		}
 
 		ls->CloseFile();
-		ICE_DELETE ls;
+		delete ls;
 
 		msg.type = "LOADLEVEL_END";
 		MessageSystem::Instance().SendInstantMessage(msg);

@@ -145,14 +145,15 @@ namespace Ice
 		mReferencedObjectsInternIterator = mReferencedObjects.begin();
 	}
 
-	void GameObject::AddObjectReference(std::weak_ptr<GameObject> other, unsigned int flags, unsigned int userID)
+	void GameObject::AddObjectReference(const GameObjectPtr &other, unsigned int flags, unsigned int userID)
 	{
-		while (other.lock()->HasNextObjectReference())
+		other->ResetObjectReferenceIterator();
+		while (other->HasNextObjectReference())
 		{
-			ObjectReferencePtr objRef = other.lock()->GetNextObjectReference();
+			ObjectReferencePtr objRef = other->GetNextObjectReference();
 			GameObjectPtr obj = objRef->Object.lock();
 			unsigned int flags = objRef->Flags;
-			IceAssert(! (obj.get() == this || (flags & ObjectReference::MOVER || flags & ObjectReference::OWNER)))
+			IceAssert(! (obj.get() == this && ((flags & ObjectReference::MOVER) || (flags & ObjectReference::OWNER))))
 		}
 		ObjectReferencePtr objLink = std::make_shared<ObjectReference>();
 		objLink->Object = std::weak_ptr<GameObject>(other);
@@ -164,6 +165,7 @@ namespace Ice
 
 	void  GameObject::RemoveObjectReferences(GameObject *object)
 	{
+		ResetObjectReferenceIterator();
 		while (HasNextObjectReference())
 		{
 			ObjectReferencePtr objRef = *mReferencedObjectsInternIterator;
@@ -178,6 +180,7 @@ namespace Ice
 
 	void  GameObject::RemoveObjectReferences(unsigned int userID)
 	{
+		ResetObjectReferenceIterator();
 		while (HasNextObjectReference())
 		{
 			ObjectReferencePtr objRef = *mReferencedObjectsInternIterator;
@@ -201,13 +204,14 @@ namespace Ice
 
 		if (parent.get())
 		{
-			AddObjectReference(std::weak_ptr<GameObject>(parent), ObjectReference::PERSISTENT, ReferenceTypes::PARENT);
-			parent->AddObjectReference(mWeakThis, ObjectReference::OWNER|ObjectReference::MOVER|ObjectReference::PERSISTENT);
+			AddObjectReference(parent, ObjectReference::PERSISTENT, ReferenceTypes::PARENT);
+			parent->AddObjectReference(mWeakThis.lock(), ObjectReference::OWNER|ObjectReference::MOVER|ObjectReference::PERSISTENT);
 		}
 	}
 
 	GameObjectPtr GameObject::GetParent()
 	{
+		ResetObjectReferenceIterator();
 		while (HasNextObjectReference())
 		{
 			ObjectReferencePtr objRef = GetNextObjectReference();
@@ -250,6 +254,7 @@ namespace Ice
 
 	GameObjectPtr GameObject::GetReferencedObjectByName(Ogre::String name)
 	{
+		ResetObjectReferenceIterator();
 		while (HasNextObjectReference())
 		{
 			GameObjectPtr obj = GetNextObjectReference()->Object.lock();
@@ -261,6 +266,7 @@ namespace Ice
 	void GameObject::SetGlobalPosition(Ogre::Vector3 pos, bool updateChildren)
 	{
 		mTransformingLinkedObjects = true;
+		ResetObjectReferenceIterator();
 		while (HasNextObjectReference())
 		{
 			ObjectReferencePtr objRef = GetNextObjectReference();
@@ -283,14 +289,17 @@ namespace Ice
 	void GameObject::SetGlobalOrientation(Ogre::Quaternion orientation, bool updateChildren)
 	{
 		mTransformingLinkedObjects = true;
+		ResetObjectReferenceIterator();
 		while (HasNextObjectReference())
 		{
 			ObjectReferencePtr objRef = GetNextObjectReference();
 			GameObjectPtr obj = objRef->Object.lock();
 			if (objRef->Flags & ObjectReference::MOVER)
 			{
+				Ogre::Vector3 localObjPos = mOrientation.Inverse () * (obj->GetGlobalPosition() - mPosition);
 				Ogre::Quaternion localObjRot = mOrientation.Inverse() * obj->GetGlobalOrientation();
-				obj->SetGlobalOrientation(mOrientation * localObjRot);
+				obj->SetGlobalOrientation(orientation * localObjRot);
+				obj->SetGlobalPosition(mPosition + (orientation * localObjPos));
 			}
 		}
 		mTransformingLinkedObjects = false;

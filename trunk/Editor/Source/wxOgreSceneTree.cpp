@@ -114,6 +114,7 @@ void wxOgreSceneTree::ScanFromNode(OgreTreeItemBase *item, Ice::GameObjectPtr sc
 	OgreTreeItemBase *currentItem = nullptr;
 	Ice::GameObjectPtr currentNode;
 	//Ogre::LogManager::getSingleton().logMessage(scanFrom->GetName() + " " + Ogre::StringConverter::toString(scanFrom->GetNumChildren()));
+	scanFrom->ResetObjectReferenceIterator();
 	while (scanFrom->HasNextObjectReference())
 	{
 		currentNode = scanFrom->GetNextObjectReference()->Object.lock();
