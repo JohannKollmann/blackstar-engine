@@ -23,12 +23,12 @@ namespace Ice
 		float mTimeToNextKey;
 
 	public:
-		GOCAnimKey() : mTimeToNextKey(0.0f) {}
+		GOCAnimKey() : mTimeToNextKey(1.0f) {}
 		~GOCAnimKey() {};
 
 		goc_id_type& GetComponentID() const { static std::string name = "MoverAnimKey"; return name; }
 
-		float GetTimeToNextKey() { return mTimeToNextKey; }
+		float GetTimeToNextKey() { return mTimeToNextKey > 0 ? mTimeToNextKey : 0.01f; }
 
 		void UpdatePosition(Ogre::Vector3 position);
 		void UpdateOrientation(Ogre::Quaternion orientation) {}
@@ -109,8 +109,8 @@ namespace Ice
 		void UpdatePosition(Ogre::Vector3 position);
 		void UpdateOrientation(Ogre::Quaternion orientation) {}
 
-		void SetLookAtObject(std::weak_ptr<GameObject> target);
-		void SetNormalLookAtObject(std::weak_ptr<GameObject> target);
+		void SetLookAtObject(GameObjectPtr target);
+		void SetNormalLookAtObject(GameObjectPtr target);
 		GameObjectPtr GetLookAtObject();
 		GameObjectPtr GetNormalLookAtObject();
 

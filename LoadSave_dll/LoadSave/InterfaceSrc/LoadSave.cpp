@@ -28,6 +28,11 @@ int g_iCurrID=0;
 
 void (*g_LogFn)(std::string)=NULL;
 
+LoadSystem::~LoadSystem()
+{
+	m_RecordIDs.clear();
+}
+
 void
 LoadSave::RegisterAtom(AtomHandler *pHandler)
 {

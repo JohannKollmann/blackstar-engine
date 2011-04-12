@@ -17,7 +17,7 @@ typedef void (*SaveableRegisterFn)(std::string*, SaveableInstanceFn*);
 class Saveable
 {
 public: 
-	//virtual ~Saveable() {};
+	virtual ~Saveable() {}
 	virtual void Save(SaveSystem& myManager) = 0;//the central function
 	virtual void Load(LoadSystem& mgr) = 0;
 	static Saveable* NewInstance();//overload this one

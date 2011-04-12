@@ -11,6 +11,7 @@ namespace LoadSave
 class LS_EXPORT LoadSystem
 {
 public:
+	~LoadSystem();
 	LoadSystem(std::string strFile);
 	LoadSystem(void* pData, int iDataSize);
 	void CloseFile();

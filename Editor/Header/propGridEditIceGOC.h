@@ -64,7 +64,7 @@ public:
 class wxEditIceGameObject : public wxEditGOCSections
 {
 private:
-	Ice::GameObjectPtr mGameObject;
+	std::weak_ptr<Ice::GameObject> mGameObject;
 
 public:
 	wxEditIceGameObject();
