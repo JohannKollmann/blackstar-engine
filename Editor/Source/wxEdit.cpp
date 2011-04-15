@@ -49,14 +49,6 @@ wxEdit::wxEdit() : wxFrame(nullptr, -1, _("Blackspace Editor"),
 		mMainToolbar = new wxEditorToolbar(this);
 		mExplorerToolbar = new wxEditorToolbar(this);
 
-	m_mgr.AddPane(mMainToolbar, wxAuiPaneInfo().
-                  Name(("maintoolbar")).Caption(("")).
-				  Top().Fixed().ToolbarPane().Layer(0));
-
-	m_mgr.AddPane(mExplorerToolbar, wxAuiPaneInfo().
-		Name(("explorertoolbar")).Caption(("")).
-		Right().Fixed().ToolbarPane().Position(0).Layer(1));
-
 		// ************************
 		mMainNotebook = new wxMainNotebook(this, wxID_ANY, wxDefaultPosition, wxDefaultSize,
 			wxAUI_NB_TOP | wxAUI_NB_TAB_SPLIT | wxAUI_NB_TAB_MOVE | wxAUI_NB_SCROLL_BUTTONS);
@@ -65,7 +57,7 @@ wxEdit::wxEdit() : wxFrame(nullptr, -1, _("Blackspace Editor"),
 
 		m_mgr.AddPane(mMainNotebook, wxCENTER, ("Main"));
 
-		mPropertyWindow = new wxPropertyGridWindow(this, -1, wxDefaultPosition, wxSize(200,250));
+		mPropertyWindow = new wxPropertyGridWindow(this, -1, wxDefaultPosition, wxSize(360,250));
 		mPropertyWindow->AddPage(new wxEditIceGameObject(), "EditGameObject");
 		mPropertyWindow->AddPage(new wxEditGOResource(), "EditGOCRes");
 		mPropertyWindow->AddPage(new wxEditIceSceneParams(), "EditSceneParams");
@@ -74,24 +66,32 @@ wxEdit::wxEdit() : wxFrame(nullptr, -1, _("Blackspace Editor"),
 
 		mWorldExplorer = new wxEntityTreeNotebook(this, wxID_ANY,
 									wxPoint(GetClientSize().x, GetClientSize().y),
-                                    wxSize(330,400),
+                                    wxSize(360,400),
                                     wxAUI_NB_TOP | wxAUI_NB_TAB_SPLIT | wxAUI_NB_TAB_MOVE | wxAUI_NB_SCROLL_BUTTONS | wxAUI_NB_TAB_EXTERNAL_MOVE | wxNO_BORDER);
 
 		mSettingsWindow = new wxSettingsWindow(this, wxID_ANY, wxDefaultPosition, wxSize(800,600));
 
 		mMeshMagick = new wxMeshMagick(this, wxID_ANY, wxDefaultPosition, wxSize(800,600));
 
+		m_mgr.AddPane(mExplorerToolbar, wxAuiPaneInfo().
+			Name(("explorertoolbar")).Caption(("")).
+			ToolbarPane().Right().Layer(1).Position(0));
+
+		m_mgr.AddPane(mMainToolbar, wxAuiPaneInfo().
+			Name(("maintoolbar")).Caption(("")).
+			ToolbarPane().Top().Layer(0).MinSize(500,35));
+
 		// add the panes to the manager
 		m_mgr.AddPane(mWorldExplorer, wxAuiPaneInfo().Name(("World")).
 			Right().
-			Position(1).
 			Layer(1).
+			Position(1).
 			CloseButton(false).
 			Caption("World"));
 		m_mgr.AddPane(mPropertyWindow, wxAuiPaneInfo().Name(("Properties")).
 			Right().
-			Position(2).
 			Layer(1).
+			Position(2).
 			CloseButton(false).
 			Caption("Properties"));
 
@@ -166,7 +166,7 @@ wxEdit::wxEdit() : wxFrame(nullptr, -1, _("Blackspace Editor"),
 
 void wxEdit::RefreshToolbars()
 {
-	m_mgr.DetachPane(mMainToolbar);
+	/*m_mgr.DetachPane(mMainToolbar);
 	m_mgr.AddPane(mMainToolbar, wxAuiPaneInfo().
 		Name(("maintoolbar")).Caption(("")).
 		Top().Fixed().ToolbarPane().Layer(0));
@@ -174,21 +174,21 @@ void wxEdit::RefreshToolbars()
 	m_mgr.DetachPane(mExplorerToolbar);
 	m_mgr.AddPane(mExplorerToolbar, wxAuiPaneInfo().
 		Name(("explorertoolbar")).Caption(("")).
-		Right().Fixed().ToolbarPane().Layer(1).Position(0));
+		Right().Fixed().ToolbarPane().Layer(1).Position(0));*/
 
 	m_mgr.Update();
 }
 
 void wxEdit::PostCreate()
 {
-	mComponentBar = new wxComponentBar(this, -1, wxDefaultPosition, wxSize(100,100));
+	mComponentBar = new wxComponentBar(this, -1, wxDefaultPosition, wxSize(360,100));
 	m_mgr.AddPane(	mComponentBar, wxAuiPaneInfo().
 					Name(("componentbar")).
 					Caption(("Components")).
 					Fixed().
 					Right().
-					Position(3).
 					Layer(1).
+					Position(3).
 					Show(false).
 					CloseButton(false));
 	GetOgrePane()->setCamera(Ice::Main::Instance().GetCamera());
@@ -196,7 +196,17 @@ void wxEdit::PostCreate()
 	GetWorldExplorer()->GetSceneTree()->Update();
 	GetWorldExplorer()->GetMaterialTree()->Update();
 	GetOgrePane()->SetFocus();
+
 	m_mgr.Update();
+
+	/*m_mgr.AddPane(mMainToolbar, wxAuiPaneInfo().
+		Name(("maintoolbar")).Caption(("")).
+		ToolbarPane().Top().Position(0));
+
+	m_mgr.AddPane(mExplorerToolbar, wxAuiPaneInfo().
+		Name(("explorertoolbar")).Caption(("")).
+		ToolbarPane().Right().Layer(1).Position(0));*/
+
 	wxEdit::Instance().GetExplorerToolbar()->SetGroupStatus("ResourceMgr", false);	//Hack
 	Ice::MainLoop::Instance().doLoop();
 	Ice::SceneManager::Instance().EnableClock(false);

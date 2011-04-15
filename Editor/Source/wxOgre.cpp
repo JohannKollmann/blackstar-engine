@@ -3,6 +3,7 @@
 #include "IceWeatherController.h"
 #include "IceSceneManager.h"
 #include "IceMain.h"
+#include "Edit.h"
 
 #ifdef __WXGTK__
 #include <gdk/gdk.h>
@@ -128,8 +129,9 @@ wxOgre::~wxOgre()
 
 void wxOgre::OnSize(wxSizeEvent& event)
 {
-	/*if (mInitialized && !mPaused)
+	if (mInitialized && !mPaused)
 	{
+		STOP_MAINLOOP
 		// Setting new size;
 		int width;
 		int height;
@@ -142,8 +144,8 @@ void wxOgre::OnSize(wxSizeEvent& event)
 			Ice::Main::Instance().GetCamera()->setAspectRatio(Ogre::Real(width) / Ogre::Real(height));
 
 		if (Ice::SceneManager::Instance().GetWeatherController()) Ice::SceneManager::Instance().GetWeatherController()->UpdateViewport();
-		//update();
-	}*/
+		RESUME_MAINLOOP
+	}
 }
 void wxOgre::OnPaint(wxPaintEvent& event)
 {

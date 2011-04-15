@@ -152,7 +152,6 @@ namespace Ice
 		if(mMoving)
 			return;
 		mMoving = true;
-		//SetKeyIgnoreParent(true);
 		mfLastPos=0;
 		Ice::Msg msg; msg.type = "MOVER_START";
 		mOwnerGO.lock()->SendInstantMessage(msg);
@@ -161,7 +160,6 @@ namespace Ice
 			Ice::Msg msg; msg.type = "MOVER_END";
 			mOwnerGO.lock()->SendMessage(msg);
 			mMoving = false;
-			//SetKeyIgnoreParent(false);
 		}
 	}
 
@@ -170,12 +168,7 @@ namespace Ice
 		GameObjectPtr owner = mOwnerGO.lock();
 		IceAssert(owner.get());
 		std::list<GameObjectPtr> keyObjects;
-		owner->ResetObjectReferenceIterator();
-		while (owner->HasNextObjectReference())
-		{
-			ObjectReferencePtr objRef = owner->GetNextObjectReference();
-			if (objRef->UserID == ReferenceTypes::KEY) keyObjects.push_back(objRef->Object.lock());
-		}
+		owner->GetReferencedObjects(ReferenceTypes::KEY, keyObjects);
 
 		owner->RemoveObjectReferences(ReferenceTypes::KEY);
 
@@ -192,7 +185,7 @@ namespace Ice
 		keyObjects.insert(iter, weakNewKey);
 
 		ITERATE(i, keyObjects) 
-			owner->AddObjectReference(*i, ObjectReference::OWNER|ObjectReference::PERSISTENT|ObjectReference::MOVER, ReferenceTypes::KEY);
+			owner->AddObjectReference(*i, ObjectReference::OWNER|ObjectReference::PERSISTENT|ObjectReference::MOVEIT_USER, ReferenceTypes::KEY);
 		return newKey;
 	}
 
@@ -230,7 +223,6 @@ namespace Ice
 	void GOCMover::PrepareMovement(bool prepare)
 	{
 		mPerformingMovement = prepare;
-		SetKeyIgnoreParent(prepare);
 	}
 
 	void GOCMover::Pause()
@@ -342,22 +334,6 @@ namespace Ice
 					owner->SendMessage(msg);
 					mLastKeyIndex = -1;
 				}
-			}
-		}
-	}
-
-	void GOCMover::SetKeyIgnoreParent(bool ignore)
-	{
-		GameObjectPtr owner = mOwnerGO.lock();
-		if (!owner.get()) return;
-		owner->ResetObjectReferenceIterator();
-		while (owner->HasNextObjectReference())
-		{
-			ObjectReferencePtr objRef = owner->GetNextObjectReference();
-			if (objRef->UserID == ReferenceTypes::KEY)
-			{
-				if (ignore) objRef->Flags = objRef->Flags & ~ObjectReference::MOVER;
-				else objRef->Flags = objRef->Flags | ObjectReference::MOVER;
 			}
 		}
 	}

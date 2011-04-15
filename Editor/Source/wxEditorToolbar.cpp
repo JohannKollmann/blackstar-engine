@@ -140,5 +140,6 @@ void wxEditorToolbar::RefreshAll()
 		}
 	}
 	Realize();
-	wxEdit::Instance().RefreshToolbars();
+	//Refresh();
+	//wxEdit::Instance().RefreshToolbars();
 }

@@ -59,7 +59,7 @@
 		bool mPaused;
 		bool mInitialized;
 
-	private:
+	protected:
 
 		/** Creates an ogre rendering window and all other default objects
 		such as the Ogre Root, default camera, default scene manager etc */ 
@@ -68,7 +68,7 @@
 		void toggleTimerRendering();
 
 		/** Callback function to a window resize event */
-		void OnSize(wxSizeEvent& event);
+		virtual void OnSize(wxSizeEvent& event);
 		/** Callback function to a window paint event */
 		void OnPaint(wxPaintEvent& event);
 		/** Callback function to an EraseBackground event */
