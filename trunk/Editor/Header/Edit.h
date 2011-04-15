@@ -44,6 +44,8 @@ protected:
 
 	void OnRender();
 
+	void OnSize(wxSizeEvent& event);
+
 public:
 
 	enum EEditModes

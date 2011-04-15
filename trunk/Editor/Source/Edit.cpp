@@ -33,7 +33,10 @@ enum
 	EVT_StopMover,
 	EVT_SetLookAtObject,
 	EVT_SetNormalLookAtObject,
-	EVT_ComputeAO
+	EVT_ComputeAO,
+	EVT_CreateFixedJoint,
+	EVT_CreateRevoluteJoint,
+	EVT_CreateSphericalJoint
 };
 
 BEGIN_EVENT_TABLE(Edit, wxOgre)
@@ -334,6 +337,12 @@ void Edit::OnMouseEvent(wxMouseEvent &ev)
 						menu.Append(EVT_SetLookAtObject, "Look At");
 						menu.Append(EVT_SetNormalLookAtObject, "Look At (Normal)");
 					}
+					if (obj1->GetComponent<Ice::GOCRigidBody>() && obj2->GetComponent<Ice::GOCRigidBody>())
+					{
+						menu.Append(EVT_CreateFixedJoint, "Create fixed joint");
+						menu.Append(EVT_CreateRevoluteJoint, "Create revolute joint");
+						menu.Append(EVT_CreateSphericalJoint, "Create spherical joint");
+					}
 				}
 				if (mSelectedObjects.size() == 1)
 				{
@@ -504,7 +513,7 @@ void Edit::OnMouseMove(Ogre::Radian RotX,Ogre::Radian RotY)
 				LockAndHideMouse();
 				for (std::list<EditorSelection>::iterator i = mSelectedObjects.begin(); i != mSelectedObjects.end(); i++)
 				{
-					(*i).mObject->Translate(Ice::Main::Instance().GetCamera()->getDerivedOrientation() * Ogre::Vector3(RotX.valueRadians() * mObjectMovSpeed,0,0), mXAxisLock == AxisLock::UNLOCKED);
+					(*i).mObject->Translate(Ice::Main::Instance().GetCamera()->getDerivedOrientation() * Ogre::Vector3(RotX.valueRadians() * mObjectMovSpeed,0,0), mXAxisLock == AxisLock::UNLOCKED, mXAxisLock == AxisLock::UNLOCKED);
 				}
 			}
 			if (mYAxisLock == AxisLock::UNLOCKED || mYAxisLock == AxisLock::UNLOCKED_SKIPCHILDREN)
@@ -513,7 +522,7 @@ void Edit::OnMouseMove(Ogre::Radian RotX,Ogre::Radian RotY)
 				LockAndHideMouse();
 				for (std::list<EditorSelection>::iterator i = mSelectedObjects.begin(); i != mSelectedObjects.end(); i++)
 				{
-					(*i).mObject->Translate(Ogre::Vector3(0,-RotY.valueRadians() * mObjectMovSpeed,0), mYAxisLock == AxisLock::UNLOCKED);
+					(*i).mObject->Translate(Ogre::Vector3(0,-RotY.valueRadians() * mObjectMovSpeed,0), mYAxisLock == AxisLock::UNLOCKED, mYAxisLock == AxisLock::UNLOCKED);
 				}
 			}
 			if (mZAxisLock == AxisLock::UNLOCKED || mZAxisLock == AxisLock::UNLOCKED_SKIPCHILDREN)
@@ -525,7 +534,7 @@ void Edit::OnMouseMove(Ogre::Radian RotX,Ogre::Radian RotY)
 					Ogre::Vector3 movaxis = Ice::Main::Instance().GetCamera()->getDerivedDirection() * -1.0f;
 					movaxis.y = 0;
 					movaxis.normalise();
-					(*i).mObject->Translate(movaxis * RotY.valueRadians() * mObjectMovSpeed , mZAxisLock == AxisLock::UNLOCKED);
+					(*i).mObject->Translate(movaxis * RotY.valueRadians() * mObjectMovSpeed , mZAxisLock == AxisLock::UNLOCKED, mZAxisLock == AxisLock::UNLOCKED);
 				}
 			}
 			if (mAlignObjectWithMesh)
@@ -547,7 +556,7 @@ void Edit::OnMouseMove(Ogre::Radian RotX,Ogre::Radian RotY)
 				LockAndHideMouse();
 				for (std::list<EditorSelection>::iterator i = mSelectedObjects.begin(); i != mSelectedObjects.end(); i++)
 				{
-					(*i).mObject->Rotate((*i).mObject->GetGlobalOrientation().Inverse() * Ice::Main::Instance().GetCamera()->getDerivedOrientation().xAxis(), RotY * mObjectRotSpeed, mXAxisLock == AxisLock::UNLOCKED);
+					(*i).mObject->Rotate((*i).mObject->GetGlobalOrientation().Inverse() * Ice::Main::Instance().GetCamera()->getDerivedOrientation().xAxis(), RotY * mObjectRotSpeed, mXAxisLock == AxisLock::UNLOCKED, mXAxisLock == AxisLock::UNLOCKED);
 				}
 			}
 			if (mYAxisLock == AxisLock::UNLOCKED || mYAxisLock == AxisLock::UNLOCKED_SKIPCHILDREN)
@@ -556,7 +565,7 @@ void Edit::OnMouseMove(Ogre::Radian RotX,Ogre::Radian RotY)
 				LockAndHideMouse();
 				for (std::list<EditorSelection>::iterator i = mSelectedObjects.begin(); i != mSelectedObjects.end(); i++)
 				{
-					(*i).mObject->Rotate((*i).mObject->GetGlobalOrientation().Inverse() * Ogre::Vector3::UNIT_Y, RotX * mObjectRotSpeed, mYAxisLock == AxisLock::UNLOCKED);
+					(*i).mObject->Rotate((*i).mObject->GetGlobalOrientation().Inverse() * Ogre::Vector3::UNIT_Y, RotX * mObjectRotSpeed, mYAxisLock == AxisLock::UNLOCKED, mYAxisLock == AxisLock::UNLOCKED);
 				}
 			}
 			if (mZAxisLock == AxisLock::UNLOCKED || mZAxisLock == AxisLock::UNLOCKED_SKIPCHILDREN)
@@ -568,7 +577,7 @@ void Edit::OnMouseMove(Ogre::Radian RotX,Ogre::Radian RotY)
 					Ogre::Vector3 rotaxis = Ice::Main::Instance().GetCamera()->getDerivedDirection() * -1.0f;
 					rotaxis.y = 0;
 					rotaxis.normalise();
-					(*i).mObject->Rotate((*i).mObject->GetGlobalOrientation().Inverse() * rotaxis, RotX * mObjectRotSpeed, mZAxisLock == AxisLock::UNLOCKED);
+					(*i).mObject->Rotate((*i).mObject->GetGlobalOrientation().Inverse() * rotaxis, RotX * mObjectRotSpeed, mZAxisLock == AxisLock::UNLOCKED, mZAxisLock == AxisLock::UNLOCKED);
 				}
 			}
 		}
@@ -1398,4 +1407,9 @@ Ogre::Vector3 Edit::GetInsertPosition()
 void Edit::OnRender()
 {
 	Ice::MainLoop::Instance().doLoop();
+}
+
+void Edit::OnSize(wxSizeEvent& event)
+{
+	wxOgre::OnSize(event);
 }

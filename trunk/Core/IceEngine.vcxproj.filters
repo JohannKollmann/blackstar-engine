@@ -294,6 +294,9 @@
     <ClCompile Include="Source\IceOrientationBlendProcess.cpp">
       <Filter>ProcessNodeSystem</Filter>
     </ClCompile>
+    <ClCompile Include="Source\IceGOCJoint.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header\IceMessageListener.h">
@@ -640,6 +643,9 @@
     </ClInclude>
     <ClInclude Include="Header\IceSaveableVectorHandler.h">
       <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceGOCJoint.h">
+      <Filter>Components</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

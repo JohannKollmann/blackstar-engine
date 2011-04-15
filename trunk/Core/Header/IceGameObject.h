@@ -26,9 +26,10 @@ namespace Ice
 
 		enum FlagTypes
 		{
-			OWNER = 1,		//deletes linked object when object is deleted
-			MOVER = 2,		//moves link object (parent-child style)
-			PERSISTENT = 4	//loadsaves linked object
+			OWNER = 1,			//deletes referenced object when object is deleted
+			PERSISTENT = 2,		//loadsaves referenced object
+			MOVEIT = 4,			//moves referenced object (parent-child style)
+			MOVEIT_USER = 8,	//moves referenced object (parent-child style) only when user explicitly specifies it (see SetGlobalPosition / SetGlobalOrientation).  
 		};
 		unsigned int Flags;
 		std::weak_ptr<GameObject> Object;
@@ -70,7 +71,7 @@ namespace Ice
 		bool mSelectable;
 		bool mFreezed;
 
-		bool mTransformingLinkedObjects;
+		bool mTransformingReferencedObjects;
 
 		//Global and local transform
 		Ogre::Vector3 mPosition;
@@ -85,7 +86,7 @@ namespace Ice
 		//Messaging
 		std::vector<Msg> mCurrentMessages;
 
-		//Linked objects
+		//Referenced objects
 		std::vector<ObjectReferencePtr> mReferencedObjects;
 		std::vector<ObjectReferencePtr>::iterator mReferencedObjectsInternIterator;
 
@@ -180,6 +181,12 @@ namespace Ice
 		//Removes all object references with ObjectReference.UserID == userID.
 		void RemoveObjectReferences(unsigned int userID);
 
+		/**
+		Retrieves all object references with ObjectReference.UserID == userID.
+		*/
+		void GetReferencedObjects(unsigned int userID, std::vector<GameObjectPtr> &out);
+		void GetReferencedObjects(unsigned int userID, std::list<GameObjectPtr> &out);
+
 		//Creates a parent-child relationship between two objects.
 		void SetParent(GameObjectPtr parent);
 
@@ -187,21 +194,21 @@ namespace Ice
 		GameObjectPtr GetParent();
 
 		/**
-		Provides a mechanism to iterate over the linked objects.
+		Provides a mechanism to iterate over the referenced objects.
 		example usage: 
-		while (obj->HasNextLinkedObject()) { link = GetNextLinkedObject(); }
+		while (obj->HasNextObjectReference()) { link = GetNextObjectReference(); }
 		*/
 		bool HasNextObjectReference();
 		std::shared_ptr<ObjectReference> GetNextObjectReference();
 
 		/**
-		Sets the linked object intern iterator to the beginning.
-		HasNextLinkedObject calls this when it returns false, so you probably don't have to call this manually.
+		Sets the referenced object intern iterator to the beginning.
+		HasNextObjectReference calls this when it returns false, so you probably don't have to call this manually.
 		*/
 		void ResetObjectReferenceIterator();	
 
 		/**
-		@return The linked object with the passed name, otherwise nullptr.
+		@return The referenced object with the passed name, otherwise nullptr.
 		*/
 		GameObjectPtr GetReferencedObjectByName(Ogre::String name);
 
@@ -209,15 +216,27 @@ namespace Ice
 		Ogre::Vector3 GetGlobalPosition() { return mPosition; }
 		Ogre::Quaternion GetGlobalOrientation() { return mOrientation; }	
 		Ogre::Vector3 GetGlobalScale() { return mScale; }
-		void SetGlobalPosition(Ogre::Vector3 pos) { SetGlobalPosition(pos, true); }
-		void SetGlobalPosition(Ogre::Vector3 pos, bool updateChildren);
-		void SetGlobalOrientation(Ogre::Quaternion quat) { SetGlobalOrientation(quat, true); }
-		void SetGlobalOrientation(Ogre::Quaternion quat, bool updateChildren);
-		void SetGlobalScale(Ogre::Vector3 scale);
-		void Translate(Ogre::Vector3 vec, bool updateChildren = true) { SetGlobalPosition(mPosition + vec, updateChildren); }
-		void Rotate(Ogre::Vector3 axis, Ogre::Radian angle, bool updateChildren = true) { Ogre::Quaternion q; q.FromAngleAxis(angle, axis); SetGlobalOrientation(mOrientation * q, updateChildren); }
+
+		/** Sets the global position of the object.
+		@param moveReferences Specifies whether object references with the flag MOVEIT_USER shall be moved relatively.
+		@param moveChildren Specifies whether object references with the flag MOVEIT shall be moved relatively.
+		*/
+		void SetGlobalPosition(const Ogre::Vector3 &pos, bool moveReferences, bool moveChildren = true);
+		void SetGlobalPosition(const Ogre::Vector3 &pos) { SetGlobalPosition(pos, false, true); }
+
+		/** Sets the global orientation of the object.
+		@param moveReferences Specifies whether object references with the flag MOVEIT_USER shall be moved relatively.
+		@param moveChildren Specifies whether object references with the flag MOVEIT shall be moved relatively.
+		*/
+		void SetGlobalOrientation(const Ogre::Quaternion &quat, bool moveReferences, bool moveChildren = true);
+		void SetGlobalOrientation(const Ogre::Quaternion &quat) { SetGlobalOrientation(quat, false, true); }
+
+		void Translate(Ogre::Vector3 vec, bool moveReferences = false, bool moveChildren = true) { SetGlobalPosition(mPosition + vec, moveReferences, moveChildren); }
+		void Rotate(Ogre::Vector3 axis, Ogre::Radian angle, bool moveReferences = false, bool moveChildren = true) { Ogre::Quaternion q; q.FromAngleAxis(angle, axis); SetGlobalOrientation(mOrientation * q, moveReferences, moveChildren); }
+
+		void SetGlobalScale(const Ogre::Vector3 &scale);
 		void Rescale(Ogre::Vector3 scaleoffset) { SetGlobalScale(mScale + scaleoffset); }
-		bool GetTransformingLinkedObjects() { return mTransformingLinkedObjects; }
+		bool GetTransformingReferencedObjects() { return mTransformingReferencedObjects; }
 
 		/**
 		Returns whether the object is movable and should be included in a save file.
@@ -241,7 +260,7 @@ namespace Ice
 		std::vector<ScriptParam> GetObjectName(Script& caller, std::vector<ScriptParam> &vParams);
 		std::vector<ScriptParam> SendObjectMessage(Script& caller, std::vector<ScriptParam> &vParams);
 		std::vector<ScriptParam> ReceiveObjectMessage(Script& caller, std::vector<ScriptParam> &vParams);
-		std::vector<ScriptParam> GetLinkedObjectByName(Script& caller, std::vector<ScriptParam> &vParams);
+		std::vector<ScriptParam> GetReferencedObjectByName(Script& caller, std::vector<ScriptParam> &vParams);
 		std::vector<ScriptParam> HasScriptListener(Script& caller, std::vector<ScriptParam> &vParams);
 		std::vector<ScriptParam> IsNpc(Script& caller, std::vector<ScriptParam> &vParams);
 		std::vector<ScriptParam> FreeResources(Script& caller, std::vector<ScriptParam> &vParams);
@@ -258,7 +277,7 @@ namespace Ice
 		DEFINE_GOLUAMETHOD_H(GetObjectName)
 		DEFINE_GOLUAMETHOD_H(SendObjectMessage)
 		DEFINE_GOLUAMETHOD_H(ReceiveObjectMessage)
-		DEFINE_GOLUAMETHOD_H(GetLinkedObjectByName)
+		DEFINE_GOLUAMETHOD_H(GetReferencedObjectByName)
 		DEFINE_GOLUAMETHOD_H(HasScriptListener)
 		DEFINE_GOLUAMETHOD_H(IsNpc)
 		DEFINE_GOLUAMETHOD_H(FreeResources)

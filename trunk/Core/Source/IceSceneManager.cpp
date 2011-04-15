@@ -24,6 +24,7 @@
 #include "IceProcessNode.h"
 #include "IceProcessNodeQueue.h"
 #include "IceProcessNodeManager.h"
+#include "IceGOCJoint.h"
 
 #include "IceSaveableVectorHandler.h"
 
@@ -198,6 +199,8 @@ namespace Ice
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCMover::Register);
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCAnimKey::Register);
 
+		LoadSave::LoadSave::Instance().RegisterObject(&GOCFixedJoint::Register);
+
 		LoadSave::LoadSave::Instance().RegisterObject(&NavigationMesh::Register);
 
 		LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new SaveableVectorHandler<GameObject>("vector<GameObjectPtr>"));
@@ -230,6 +233,8 @@ namespace Ice
 		RegisterGOCPrototype("E", GOCEditorInterfacePtr(new GOCScript()));
 		RegisterGOCPrototype("E", GOCEditorInterfacePtr(new GOCForceField()));
 		RegisterGOCPrototype(GOCEditorInterfacePtr(new GOCAnimKey()));
+
+		RegisterGOCPrototype(GOCEditorInterfacePtr(new GOCFixedJoint()));
 
 		//simple test:
 		/*GameObject *test = new GameObject();
@@ -282,7 +287,7 @@ namespace Ice
 		ScriptSystem::GetInstance().ShareCFunction("Object_SetScale", &GameObject::Lua_SetObjectScale);
 		ScriptSystem::GetInstance().ShareCFunction("Object_GetName", &GameObject::Lua_GetObjectName);
 		ScriptSystem::GetInstance().ShareCFunction("Object_HasScriptListener", &GameObject::Lua_HasScriptListener);
-		ScriptSystem::GetInstance().ShareCFunction("Object_GetLink", &GameObject::Lua_GetLinkedObjectByName);
+		ScriptSystem::GetInstance().ShareCFunction("Object_GetReferenced", &GameObject::Lua_GetReferencedObjectByName);
 		ScriptSystem::GetInstance().ShareCFunction("Object_IsNpc", &GameObject::Lua_IsNpc);
 		ScriptSystem::GetInstance().ShareCFunction("Object_Play3DSound", &GameObject::Lua_Object_Play3DSound);
 		ScriptSystem::GetInstance().ShareCFunction("Object_GetDistToObject", &GameObject::Lua_Object_GetDistToObject);

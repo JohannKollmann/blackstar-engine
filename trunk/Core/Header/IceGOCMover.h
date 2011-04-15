@@ -125,8 +125,6 @@ namespace Ice
 
 		bool IsMoving() { return mMoving; }
 
-		void SetKeyIgnoreParent(bool ignore);
-
 		//Editor interface
 		BEGIN_GOCEDITORINTERFACE(GOCMover, "Mover")
 			//PROPERTY_FLOAT(mTimeToNextKey, "TimeToNextKey", 1.0f);

@@ -23,7 +23,7 @@ namespace Ice
 		mScale = Ogre::Vector3(1,1,1);
 		mPosition = Ogre::Vector3(0,0,0);
 		mOrientation = Ogre::Quaternion();
-		mTransformingLinkedObjects = false;
+		mTransformingReferencedObjects = false;
 		mFreezed = false;
 		mReferencedObjectsInternIterator = mReferencedObjects.begin();
 	}
@@ -153,7 +153,7 @@ namespace Ice
 			ObjectReferencePtr objRef = other->GetNextObjectReference();
 			GameObjectPtr obj = objRef->Object.lock();
 			unsigned int flags = objRef->Flags;
-			IceAssert(! (obj.get() == this && ((flags & ObjectReference::MOVER) || (flags & ObjectReference::OWNER))))
+			IceAssert(! (obj.get() == this && ((flags & ObjectReference::MOVEIT) || (flags & ObjectReference::OWNER))))
 		}
 		ObjectReferencePtr objLink = std::make_shared<ObjectReference>();
 		objLink->Object = std::weak_ptr<GameObject>(other);
@@ -205,7 +205,7 @@ namespace Ice
 		if (parent.get())
 		{
 			AddObjectReference(parent, ObjectReference::PERSISTENT, ReferenceTypes::PARENT);
-			parent->AddObjectReference(mWeakThis.lock(), ObjectReference::OWNER|ObjectReference::MOVER|ObjectReference::PERSISTENT);
+			parent->AddObjectReference(mWeakThis.lock(), ObjectReference::OWNER|ObjectReference::MOVEIT|ObjectReference::PERSISTENT);
 		}
 	}
 
@@ -263,21 +263,45 @@ namespace Ice
 		return GameObjectPtr();
 	}
 
-	void GameObject::SetGlobalPosition(Ogre::Vector3 pos, bool updateChildren)
+	void GameObject::GetReferencedObjects(unsigned int userID, std::vector<GameObjectPtr> &out)
 	{
-		mTransformingLinkedObjects = true;
 		ResetObjectReferenceIterator();
 		while (HasNextObjectReference())
 		{
 			ObjectReferencePtr objRef = GetNextObjectReference();
-			GameObjectPtr obj = objRef->Object.lock();
-			if (objRef->Flags & ObjectReference::MOVER)
-			{
-				Ogre::Vector3 localObjPos = mOrientation.Inverse () * (obj->GetGlobalPosition() - mPosition);
-				obj->SetGlobalPosition(pos + (mOrientation * localObjPos));
-			}
+			GameObjectPtr object = objRef->Object.lock();
+			if (objRef->UserID == userID && object.get()) out.push_back(object);
 		}
-		mTransformingLinkedObjects = false;
+	}
+	void GameObject::GetReferencedObjects(unsigned int userID, std::list<GameObjectPtr> &out)
+	{
+		ResetObjectReferenceIterator();
+		while (HasNextObjectReference())
+		{
+			ObjectReferencePtr objRef = GetNextObjectReference();
+			GameObjectPtr object = objRef->Object.lock();
+			if (objRef->UserID == userID && object.get()) out.push_back(object);
+		}
+	}
+
+	void GameObject::SetGlobalPosition(const Ogre::Vector3 &pos, bool moveReferences, bool moveChildren)
+	{	
+		if (moveReferences || moveChildren)
+		{
+			mTransformingReferencedObjects = true;
+			ResetObjectReferenceIterator();
+			while (HasNextObjectReference())
+			{
+				ObjectReferencePtr objRef = GetNextObjectReference();
+				GameObjectPtr obj = objRef->Object.lock();
+				if (objRef->Flags & ObjectReference::MOVEIT && moveChildren || objRef->Flags & ObjectReference::MOVEIT_USER && moveReferences)
+				{
+					Ogre::Vector3 localObjPos = mOrientation.Inverse () * (obj->GetGlobalPosition() - mPosition);
+					obj->SetGlobalPosition(pos + (mOrientation * localObjPos));
+				}
+			}
+			mTransformingReferencedObjects = false;
+		}
 
 		mPosition = pos;
 		for (auto i = mComponents.begin(); i != mComponents.end(); i++)
@@ -286,23 +310,26 @@ namespace Ice
 		}
 	}
 
-	void GameObject::SetGlobalOrientation(Ogre::Quaternion orientation, bool updateChildren)
+	void GameObject::SetGlobalOrientation(const Ogre::Quaternion &orientation, bool moveReferences, bool moveChildren)
 	{
-		mTransformingLinkedObjects = true;
-		ResetObjectReferenceIterator();
-		while (HasNextObjectReference())
+		if (moveReferences || moveChildren)
 		{
-			ObjectReferencePtr objRef = GetNextObjectReference();
-			GameObjectPtr obj = objRef->Object.lock();
-			if (objRef->Flags & ObjectReference::MOVER)
+			mTransformingReferencedObjects = true;
+			ResetObjectReferenceIterator();
+			while (HasNextObjectReference())
 			{
-				Ogre::Vector3 localObjPos = mOrientation.Inverse () * (obj->GetGlobalPosition() - mPosition);
-				Ogre::Quaternion localObjRot = mOrientation.Inverse() * obj->GetGlobalOrientation();
-				obj->SetGlobalOrientation(orientation * localObjRot);
-				obj->SetGlobalPosition(mPosition + (orientation * localObjPos));
+				ObjectReferencePtr objRef = GetNextObjectReference();
+				GameObjectPtr obj = objRef->Object.lock();
+				if (objRef->Flags & ObjectReference::MOVEIT && moveChildren || objRef->Flags & ObjectReference::MOVEIT_USER && moveReferences)
+				{
+					Ogre::Vector3 localObjPos = mOrientation.Inverse () * (obj->GetGlobalPosition() - mPosition);
+					Ogre::Quaternion localObjRot = mOrientation.Inverse() * obj->GetGlobalOrientation();
+					obj->SetGlobalOrientation(orientation * localObjRot);
+					obj->SetGlobalPosition(mPosition + (orientation * localObjPos));
+				}
 			}
+			mTransformingReferencedObjects = false;
 		}
-		mTransformingLinkedObjects = false;
 
 		mOrientation = orientation;
 		for (auto i = mComponents.begin(); i != mComponents.end(); i++)
@@ -311,7 +338,7 @@ namespace Ice
 		}
 	}
 
-	void GameObject::SetGlobalScale(Ogre::Vector3 scale)
+	void GameObject::SetGlobalScale(const Ogre::Vector3 &scale)
 	{
 		mScale = scale;
 		for (auto i = mComponents.begin(); i != mComponents.end(); i++)
@@ -494,7 +521,7 @@ namespace Ice
 		out.push_back(ScriptParam(usable));
 		return out;
 	}
-	std::vector<ScriptParam> GameObject::GetLinkedObjectByName(Script& caller, std::vector<ScriptParam> &vParams)
+	std::vector<ScriptParam> GameObject::GetReferencedObjectByName(Script& caller, std::vector<ScriptParam> &vParams)
 	{
 		std::vector<ScriptParam> out;
 		int id = -1;
@@ -542,7 +569,7 @@ namespace Ice
 	DEFINE_GOLUAMETHOD_CPP(GetObjectName)
 	DEFINE_TYPEDGOLUAMETHOD_CPP(SendObjectMessage, "string")
 	DEFINE_TYPEDGOLUAMETHOD_CPP(ReceiveObjectMessage, "string function")
-	DEFINE_TYPEDGOLUAMETHOD_CPP(GetLinkedObjectByName, "string")
+	DEFINE_TYPEDGOLUAMETHOD_CPP(GetReferencedObjectByName, "string")
 	DEFINE_TYPEDGOLUAMETHOD_CPP(HasScriptListener, "string")
 	DEFINE_TYPEDGOLUAMETHOD_CPP(FreeResources, "bool")
 	DEFINE_GOLUAMETHOD_CPP(IsNpc)

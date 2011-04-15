@@ -212,8 +212,8 @@ void wxEditIceGameObject::OnApply()
 		if ((*i)->mSectionName == "GameObject")
 		{
 			object->SetName((*i)->mSectionData.GetOgreString("Name"));
-			object->SetGlobalPosition((*i)->mSectionData.GetOgreVec3("Position"));
-			object->SetGlobalOrientation((*i)->mSectionData.GetOgreQuat("Orientation"));
+			object->SetGlobalPosition((*i)->mSectionData.GetOgreVec3("Position"), true);
+			object->SetGlobalOrientation((*i)->mSectionData.GetOgreQuat("Orientation"), true);
 			object->SetGlobalScale((*i)->mSectionData.GetOgreVec3("Scale"));
 			continue;
 		}     
