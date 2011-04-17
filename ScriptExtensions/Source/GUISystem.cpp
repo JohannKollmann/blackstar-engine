@@ -423,7 +423,8 @@ GUISystem::Window::Bake()
 	meshptr.get()->load();
 	Ogre::Entity *ent = Ice::Main::Instance().GetOgreSceneMgr()->createEntity(wininfo.strName, wininfo.strName);
 	ent->setCastShadows(false);
-	ent->setRenderQueueGroup(101);
+	//ent->setRenderQueueGroup(101);
+	ent->setVisibilityFlags(Ice::V_GUI);
 	Ice::Main::Instance().GetOgreSceneMgr()->getSceneNode("GUISystemNode")->attachObject(ent);
 
 	GetInstance().m_mWindowInfos.find(m_iHandle)->second.bWasBaked=true;

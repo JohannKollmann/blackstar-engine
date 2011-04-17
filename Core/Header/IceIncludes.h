@@ -76,7 +76,8 @@ namespace Ice
 		V_VOLUMETRIC = 0x00000002,
 		V_EDITOROBJECT = 0x00000004,
 		V_SKY = 0x00000008,
-		V_DEFAULT = 0xFFFFFFF0,
+		V_GUI = 0x00000010,
+		V_DEFAULT = 0xFFFFFFF0
 	};
 
 	#define DllExport __declspec(dllexport)
