@@ -55,10 +55,8 @@ void wxOgreSceneTree::Update()
 
 		for (auto i = Ice::SceneManager::Instance().GetGameObjects().begin(); i != Ice::SceneManager::Instance().GetGameObjects().end(); i++)
 		{
-			if (!i->second->GetParent())
-			{
-				AppendGameObject(mStart->GetId(), i->second);
-			}
+			std::set<int> blackList;
+			AppendGameObject(mStart->GetId(), i->second, blackList);
 		}
 
 		Expand(id);
@@ -94,7 +92,7 @@ void wxOgreSceneTree::UpdateObject(Ice::GameObjectPtr object)
 
 void wxOgreSceneTree::NotifyObject(Ice::GameObjectPtr object)
 {
-	Ice::GameObjectPtr parent = object->GetParent();
+	/*Ice::GameObjectPtr parent = object->GetParent();
 	if (parent)
 	{
 		OgreTreeItemBase *parentItem = FindItemByObject(parent);
@@ -104,7 +102,8 @@ void wxOgreSceneTree::NotifyObject(Ice::GameObjectPtr object)
 	else
 	{
 		AppendGameObject(mStart->GetId(), object);
-	}
+	}*/
+	Update();
 }
 
 void wxOgreSceneTree::ScanFromNode(OgreTreeItemBase *item, Ice::GameObjectPtr scanFrom, std::set<int> &expandBlacklist)
@@ -187,20 +186,15 @@ bool wxOgreSceneTree::ExpandToObject(OgreTreeItemBase *from, Ice::GameObjectPtr 
 				SelectItem(b->GetId());
 				return true;
 			}
-			else
-			{
-				if (ExpandToObject(b, object)) return true;
-			}
 		}
-		if (b->IsDir())
-		{
-			if (ExpandToObject(b, object))
-			{
-				Expand(from->GetId());
-				return true;
-			}
-		}
+		child = GetNextChild(from->GetId(), cookie);
+	}
 
+	child = GetFirstChild(from->GetId(), cookie);
+	while(child.IsOk())
+	{
+		b = (OgreTreeItemBase *)GetItemData(child);
+		if (ExpandToObject(b, object)) return true;
 		child = GetNextChild(from->GetId(), cookie);
 	}
 	return false;

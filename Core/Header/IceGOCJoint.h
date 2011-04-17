@@ -9,7 +9,7 @@
 namespace Ice
 {
 
-	class GOCJoint : public GOCEditorVisualised
+	class DllExport GOCJoint : public GOCEditorVisualised
 	{
 	public:
 		enum ReferenceTypes
@@ -35,13 +35,13 @@ namespace Ice
 
 		goc_id_type& GetFamilyID() const { static std::string name = "Joint"; return name; }
 
-		Ogre::String GetEditorVisualMeshName() { return "sphere.mesh"; }
+		Ogre::String GetEditorVisualMeshName() { return "sphere.50cm.mesh"; }
 
 		virtual void Save(LoadSave::SaveSystem& mgr);
 		virtual void Load(LoadSave::LoadSystem& mgr);
 	};
 
-	class GOCFixedJoint : public GOCJoint, public GOCStaticEditorInterface
+	class DllExport GOCFixedJoint : public GOCJoint, public GOCStaticEditorInterface
 	{
 	public:
 		goc_id_type& GetComponentID() const { static std::string name = "Fixed Joint"; return name; }
@@ -51,8 +51,9 @@ namespace Ice
 			PROPERTY_FLOAT(mMaxTorque, "Max Torque", NX_MAX_REAL);
 		END_GOCEDITORINTERFACE
 
-		void OnSetParameters();
-		void NotifyOwnerGO();
+		void NotifyPostInit();
+
+		void UpdatePosition(Ogre::Vector3 position);
 
 		static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "Fixed Joint"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };
 		static LoadSave::Saveable* NewInstance() { return new GOCFixedJoint; }

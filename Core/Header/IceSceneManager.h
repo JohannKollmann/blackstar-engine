@@ -123,6 +123,8 @@ namespace Ice
 
 		std::map<int, GameObjectPtr>& GetGameObjects();
 
+		void RegisterGameObject(GameObjectPtr object);
+
 		void RemoveGameObject(int objectID);
 		GameObjectPtr CreateGameObject();
 

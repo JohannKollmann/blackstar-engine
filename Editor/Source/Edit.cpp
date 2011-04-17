@@ -15,6 +15,7 @@
 #include "IceGOCMover.h"
 #include "IceGOCOgreNode.h"
 #include "AmbientOcclusionGenerator.h"
+#include "IceGOCJoint.h"
 
 IMPLEMENT_CLASS(Edit, wxOgre)
 
@@ -34,9 +35,7 @@ enum
 	EVT_SetLookAtObject,
 	EVT_SetNormalLookAtObject,
 	EVT_ComputeAO,
-	EVT_CreateFixedJoint,
-	EVT_CreateRevoluteJoint,
-	EVT_CreateSphericalJoint
+	EVT_CreateJoint
 };
 
 BEGIN_EVENT_TABLE(Edit, wxOgre)
@@ -62,6 +61,7 @@ BEGIN_EVENT_TABLE(Edit, wxOgre)
 	EVT_MENU(EVT_SetLookAtObject, Edit::OnSetLookAtObject)
 	EVT_MENU(EVT_SetNormalLookAtObject, Edit::OnSetNormalLookAtObject)
 	EVT_MENU(EVT_ComputeAO, Edit::OnComputeAO)
+	EVT_MENU(EVT_CreateJoint, Edit::OnCreateJoint)
 
 	END_EVENT_TABLE()
 
@@ -257,6 +257,7 @@ void Edit::PlayGame()
 
 void Edit::LockAndHideMouse()
 {
+	if (!HasFocus()) return;
 	if (mShowMouse) ShowCursor(false);
 	POINT p;
 	GetCursorPos(&p);
@@ -315,14 +316,36 @@ void Edit::OnMouseEvent(wxMouseEvent &ev)
 			wxMenu menu("");
 
 			if (true)
-			{
-				if (mEdit->GetWorldExplorer()->GetResourceTree()->GetSelectedResource() != "None"
-					&& mEdit->GetWorldExplorer()->GetResourceTree()->GetSelectedResource().find("Joint") == Ogre::String::npos)
+			{	
+				std::vector<ComponentSectionPtr> sections;
+
+				if (mEdit->GetWorldExplorer()->GetResourceTree()->GetSelectedResource() != "None")
 				{
-					menu.Append(EVT_InsertObject, "Insert " + mEdit->GetWorldExplorer()->GetResourceTree()->GetSelectedResource());
-					if (mSelectedObjects.size() > 0)
+					bool skip = false;
+					if (mEdit->GetWorldExplorer()->GetResourceTree()->GetSelectedResource().find(".ot") == Ogre::String::npos)
 					{
-						menu.Append(EVT_InsertObjectAsChild, "Insert " + mEdit->GetWorldExplorer()->GetResourceTree()->GetSelectedResource() + " as Child of " +  mSelectedObjects.end()._Mynode()->_Prev->_Myval.mObject->GetName());
+						LoadSave::LoadSystem *ls=LoadSave::LoadSave::Instance().LoadFile(mEdit->GetWorldExplorer()->GetResourceTree()->GetSelectedResource());
+						ls->LoadAtom("vector<ComponentSectionPtr>", (void*)(&sections));
+						ls->CloseFile();
+						delete ls;
+
+						ITERATE(i, sections)
+						{
+							if ((*i)->mSectionName.find("Joint") != Ogre::String::npos)
+							{
+								skip = true;
+								break;
+							}
+						}
+					}
+
+					if (!skip)
+					{
+						menu.Append(EVT_InsertObject, "Insert " + mEdit->GetWorldExplorer()->GetResourceTree()->GetSelectedResource());
+						if (mSelectedObjects.size() > 0)
+						{
+							menu.Append(EVT_InsertObjectAsChild, "Insert " + mEdit->GetWorldExplorer()->GetResourceTree()->GetSelectedResource() + " as Child of " +  mSelectedObjects.end()._Mynode()->_Prev->_Myval.mObject->GetName());
+						}
 					}
 				}
 
@@ -339,9 +362,17 @@ void Edit::OnMouseEvent(wxMouseEvent &ev)
 					}
 					if (obj1->GetComponent<Ice::GOCRigidBody>() && obj2->GetComponent<Ice::GOCRigidBody>())
 					{
-						menu.Append(EVT_CreateFixedJoint, "Create fixed joint");
-						menu.Append(EVT_CreateRevoluteJoint, "Create revolute joint");
-						menu.Append(EVT_CreateSphericalJoint, "Create spherical joint");
+						if (mEdit->GetWorldExplorer()->GetResourceTree()->GetSelectedResource() != "None" && mEdit->GetWorldExplorer()->GetResourceTree()->GetSelectedResource().find(".ot") == Ogre::String::npos)
+						{
+							ITERATE(i, sections)
+							{
+								if ((*i)->mSectionName.find("Joint") != Ogre::String::npos)
+								{
+									menu.Append(EVT_CreateJoint, "Create joint");
+									break;
+								}
+							}
+						}
 					}
 				}
 				if (mSelectedObjects.size() == 1)
@@ -513,7 +544,8 @@ void Edit::OnMouseMove(Ogre::Radian RotX,Ogre::Radian RotY)
 				LockAndHideMouse();
 				for (std::list<EditorSelection>::iterator i = mSelectedObjects.begin(); i != mSelectedObjects.end(); i++)
 				{
-					(*i).mObject->Translate(Ice::Main::Instance().GetCamera()->getDerivedOrientation() * Ogre::Vector3(RotX.valueRadians() * mObjectMovSpeed,0,0), mXAxisLock == AxisLock::UNLOCKED, mXAxisLock == AxisLock::UNLOCKED);
+					std::set<Ice::GameObject*> blacklist;
+					(*i).mObject->Translate(Ice::Main::Instance().GetCamera()->getDerivedOrientation() * Ogre::Vector3(RotX.valueRadians() * mObjectMovSpeed,0,0), mXAxisLock == AxisLock::UNLOCKED, mXAxisLock == AxisLock::UNLOCKED, &blacklist);
 				}
 			}
 			if (mYAxisLock == AxisLock::UNLOCKED || mYAxisLock == AxisLock::UNLOCKED_SKIPCHILDREN)
@@ -522,7 +554,8 @@ void Edit::OnMouseMove(Ogre::Radian RotX,Ogre::Radian RotY)
 				LockAndHideMouse();
 				for (std::list<EditorSelection>::iterator i = mSelectedObjects.begin(); i != mSelectedObjects.end(); i++)
 				{
-					(*i).mObject->Translate(Ogre::Vector3(0,-RotY.valueRadians() * mObjectMovSpeed,0), mYAxisLock == AxisLock::UNLOCKED, mYAxisLock == AxisLock::UNLOCKED);
+					std::set<Ice::GameObject*> blacklist;
+					(*i).mObject->Translate(Ogre::Vector3(0,-RotY.valueRadians() * mObjectMovSpeed,0), mYAxisLock == AxisLock::UNLOCKED, mYAxisLock == AxisLock::UNLOCKED, &blacklist);
 				}
 			}
 			if (mZAxisLock == AxisLock::UNLOCKED || mZAxisLock == AxisLock::UNLOCKED_SKIPCHILDREN)
@@ -534,7 +567,8 @@ void Edit::OnMouseMove(Ogre::Radian RotX,Ogre::Radian RotY)
 					Ogre::Vector3 movaxis = Ice::Main::Instance().GetCamera()->getDerivedDirection() * -1.0f;
 					movaxis.y = 0;
 					movaxis.normalise();
-					(*i).mObject->Translate(movaxis * RotY.valueRadians() * mObjectMovSpeed , mZAxisLock == AxisLock::UNLOCKED, mZAxisLock == AxisLock::UNLOCKED);
+					std::set<Ice::GameObject*> blacklist;
+					(*i).mObject->Translate(movaxis * RotY.valueRadians() * mObjectMovSpeed , mZAxisLock == AxisLock::UNLOCKED, mZAxisLock == AxisLock::UNLOCKED, &blacklist);
 				}
 			}
 			if (mAlignObjectWithMesh)
@@ -556,7 +590,8 @@ void Edit::OnMouseMove(Ogre::Radian RotX,Ogre::Radian RotY)
 				LockAndHideMouse();
 				for (std::list<EditorSelection>::iterator i = mSelectedObjects.begin(); i != mSelectedObjects.end(); i++)
 				{
-					(*i).mObject->Rotate((*i).mObject->GetGlobalOrientation().Inverse() * Ice::Main::Instance().GetCamera()->getDerivedOrientation().xAxis(), RotY * mObjectRotSpeed, mXAxisLock == AxisLock::UNLOCKED, mXAxisLock == AxisLock::UNLOCKED);
+					std::set<Ice::GameObject*> blacklist;
+					(*i).mObject->Rotate((*i).mObject->GetGlobalOrientation().Inverse() * Ice::Main::Instance().GetCamera()->getDerivedOrientation().xAxis(), RotY * mObjectRotSpeed, mXAxisLock == AxisLock::UNLOCKED, mXAxisLock == AxisLock::UNLOCKED, &blacklist);
 				}
 			}
 			if (mYAxisLock == AxisLock::UNLOCKED || mYAxisLock == AxisLock::UNLOCKED_SKIPCHILDREN)
@@ -565,7 +600,8 @@ void Edit::OnMouseMove(Ogre::Radian RotX,Ogre::Radian RotY)
 				LockAndHideMouse();
 				for (std::list<EditorSelection>::iterator i = mSelectedObjects.begin(); i != mSelectedObjects.end(); i++)
 				{
-					(*i).mObject->Rotate((*i).mObject->GetGlobalOrientation().Inverse() * Ogre::Vector3::UNIT_Y, RotX * mObjectRotSpeed, mYAxisLock == AxisLock::UNLOCKED, mYAxisLock == AxisLock::UNLOCKED);
+					std::set<Ice::GameObject*> blacklist;
+					(*i).mObject->Rotate((*i).mObject->GetGlobalOrientation().Inverse() * Ogre::Vector3::UNIT_Y, RotX * mObjectRotSpeed, mYAxisLock == AxisLock::UNLOCKED, mYAxisLock == AxisLock::UNLOCKED, &blacklist);
 				}
 			}
 			if (mZAxisLock == AxisLock::UNLOCKED || mZAxisLock == AxisLock::UNLOCKED_SKIPCHILDREN)
@@ -577,7 +613,8 @@ void Edit::OnMouseMove(Ogre::Radian RotX,Ogre::Radian RotY)
 					Ogre::Vector3 rotaxis = Ice::Main::Instance().GetCamera()->getDerivedDirection() * -1.0f;
 					rotaxis.y = 0;
 					rotaxis.normalise();
-					(*i).mObject->Rotate((*i).mObject->GetGlobalOrientation().Inverse() * rotaxis, RotX * mObjectRotSpeed, mZAxisLock == AxisLock::UNLOCKED, mZAxisLock == AxisLock::UNLOCKED);
+					std::set<Ice::GameObject*> blacklist;
+					(*i).mObject->Rotate((*i).mObject->GetGlobalOrientation().Inverse() * rotaxis, RotX * mObjectRotSpeed, mZAxisLock == AxisLock::UNLOCKED, mZAxisLock == AxisLock::UNLOCKED, &blacklist);
 				}
 			}
 		}
@@ -739,6 +776,33 @@ Ice::GameObjectPtr Edit::InsertWaypoint(bool align, bool create_only)
 	return waypoint;
 }
 
+Ice::GameObjectPtr Edit::CreateGameObject(std::vector<ComponentSectionPtr> componentParameters)
+{
+	Ice::GameObjectPtr object = Ice::SceneManager::Instance().CreateGameObject();
+
+	Ogre::Vector3 offset;
+	Ogre::Vector3 scale = Ogre::Vector3(1,1,1);
+	Ogre::Quaternion orientation;
+	for (auto i = componentParameters.begin(); i != componentParameters.end(); i++)
+	{
+		if ((*i)->mSectionName == "GameObject")
+		{
+			offset = (*i)->mSectionData.GetOgreVec3("Position");
+			orientation = (*i)->mSectionData.GetOgreQuat("Orientation");
+			scale = (*i)->mSectionData.GetOgreVec3("Scale");
+			object->SetGlobalOrientation(orientation);
+			object->SetGlobalScale(scale);
+			continue;
+		} 
+		(*i)->mSectionData.AddOgreVec3("Scale", scale);
+
+		Ice::GOCEditorInterface *component = Ice::SceneManager::Instance().NewGOC((*i)->mSectionName);
+		component->SetParameters(&(*i)->mSectionData);
+		object->AddComponent(Ice::GOComponentPtr(component->GetGOComponent()));
+	}
+	return object;
+}
+
 Ice::GameObjectPtr Edit::InsertObject(Ice::GameObjectPtr parent, bool align, bool create_only)
 {
 	Ice::GameObjectPtr object;
@@ -759,31 +823,11 @@ Ice::GameObjectPtr Edit::InsertObject(Ice::GameObjectPtr parent, bool align, boo
 		}
 		else
 		{
-			object = Ice::SceneManager::Instance().CreateGameObject();
-			object->SetParent(parent);
-
 			std::vector<ComponentSectionPtr> sections;
-			Ogre::Vector3 offset;
-			Ogre::Vector3 scale = Ogre::Vector3(1,1,1);
-			Ogre::Quaternion orientation;
 			ls->LoadAtom("vector<ComponentSectionPtr>", (void*)(&sections));
-			for (auto i = sections.begin(); i != sections.end(); i++)
-			{
-				if ((*i)->mSectionName == "GameObject")
-				{
-					offset = (*i)->mSectionData.GetOgreVec3("Position");
-					orientation = (*i)->mSectionData.GetOgreQuat("Orientation");
-					scale = (*i)->mSectionData.GetOgreVec3("Scale");
-					object->SetGlobalOrientation(orientation);
-					object->SetGlobalScale(scale);
-					continue;
-				} 
-				(*i)->mSectionData.AddOgreVec3("Scale", scale);
 
-				Ice::GOCEditorInterface *component = Ice::SceneManager::Instance().NewGOC((*i)->mSectionName);
-				component->SetParameters(&(*i)->mSectionData);
-				object->AddComponent(Ice::GOComponentPtr(component->GetGOComponent()));
-			}
+			object = CreateGameObject(sections);
+			object->SetParent(parent);
 
 		}
 
@@ -791,10 +835,9 @@ Ice::GameObjectPtr Edit::InsertObject(Ice::GameObjectPtr parent, bool align, boo
 		delete ls;
 	}
 
+	std::set<Ice::GameObject*> blacklist;
 	if (align) AlignObjectWithMesh(object);
-	else object->SetGlobalPosition(GetInsertPosition()); 
-
-	object->ShowEditorVisuals(true);
+	else object->SetGlobalPosition(GetInsertPosition(), true, true, &blacklist); 
 
 	if (!create_only)
 	{
@@ -807,6 +850,8 @@ Ice::GameObjectPtr Edit::InsertObject(Ice::GameObjectPtr parent, bool align, boo
 	}
 
 	object->FirePostInit();
+
+	object->ShowEditorVisuals(true);
 
 	return object;
 }
@@ -829,6 +874,9 @@ void Edit::OnKillFocus( wxFocusEvent& event )
 void Edit::OnSetFocus( wxFocusEvent& event )
 {
 	Ice::Main::Instance().GetInputManager()->SetEnabled(true);
+	if (!mShowMouse) ShowCursor(true);
+	mMouseLocked = false;
+	mShowMouse = true;
 }
 
 void Edit::OnInsertObjectAsChild( wxCommandEvent& WXUNUSED(event) )
@@ -861,7 +909,7 @@ void Edit::OnDeleteObject( wxCommandEvent& WXUNUSED(event) )
 		while (object->HasNextObjectReference())
 		{
 			Ice::ObjectReferencePtr objRef = object->GetNextObjectReference();
-			if (objRef->Flags & Ice::ObjectReference::OWNER) hasChildren = true;
+			if (objRef->UserID == Ice::GameObject::ReferenceTypes::PARENT) hasChildren = true;
 		}
 		if (hasChildren)
 		{
@@ -880,7 +928,7 @@ void Edit::OnDeleteObject( wxCommandEvent& WXUNUSED(event) )
 				while (object->HasNextObjectReference())
 				{
 					Ice::ObjectReferencePtr objRef = object->GetNextObjectReference();
-					if (objRef->Flags & Ice::ObjectReference::OWNER) objRef->Object.lock()->SetParent(object->GetParent());
+					if (objRef->UserID == Ice::GameObject::ReferenceTypes::PARENT) objRef->Object.lock()->SetParent(object->GetParent());
 				}
 				if (object.get() == mMoverReset.Mover.lock().get()) mMoverReset.Mover.reset();
 				Ice::SceneManager::Instance().RemoveGameObject(object->GetID());
@@ -940,10 +988,12 @@ void Edit::OnSaveObjectGroup( wxCommandEvent& WXUNUSED(event) )
 			Ice::GameObjectPtr go = (*mSelectedObjects.begin()).mObject;
 			DeselectAllObjects();
 			Ogre::Vector3 position = go->GetGlobalPosition();
-			go->SetGlobalPosition(Ogre::Vector3(0,0,0));
+			std::set<Ice::GameObject*> blacklist;
+			go->SetGlobalPosition(Ogre::Vector3(0,0,0), true, true, &blacklist);
+			blacklist.clear();
 			ss->SaveObject(go.get(), "Root");
 			ss->CloseFiles();
-			go->SetGlobalPosition(position);
+			go->SetGlobalPosition(position, true, true, &blacklist);
 			SelectObject(go);
 			delete ss;
 		}
@@ -1227,7 +1277,8 @@ void Edit::AlignObjectWithMesh(const Ice::GameObjectPtr &object, bool rotate)
 			}
 			else offset = (visuals->GetNode()->getScale() * 0.5f) * normal;//object->GetVisual()->getBoundingBox().getSize()
 		}
-		object->SetGlobalPosition(position + offset);
+		std::set<Ice::GameObject*> blacklist;
+		object->SetGlobalPosition(position + offset, true, true, &blacklist);
 	}
 
 }
@@ -1397,6 +1448,28 @@ void Edit::OnComputeAO( wxCommandEvent& WXUNUSED(event) /*= wxCommandEvent()*/ )
     {
 		AmbientOcclusionGenerator::Instance().bakeAmbientOcclusion(mesh->GetEntity(), dialog.GetPath().c_str().AsChar());
 	}
+}
+
+void Edit::OnCreateJoint( wxCommandEvent& WXUNUSED(event))
+{
+	IceAssert(mSelectedObjects.size() == 2)
+		Ice::GameObjectPtr obj1 = (*mSelectedObjects.begin()).mObject;
+	Ice::GameObjectPtr obj2 = mSelectedObjects.begin()._Mynode()->_Next->_Myval.mObject;
+	IceAssert(obj1->GetComponent<Ice::GOCRigidBody>() && obj2->GetComponent<Ice::GOCRigidBody>())
+	LoadSave::LoadSystem *ls=LoadSave::LoadSave::Instance().LoadFile(mEdit->GetWorldExplorer()->GetResourceTree()->GetSelectedResource());
+	std::vector<ComponentSectionPtr> sections;
+	ls->LoadAtom("vector<ComponentSectionPtr>", (void*)(&sections));
+	ls->CloseFile();
+	delete ls;
+	Ice::GameObjectPtr object = CreateGameObject(sections);
+	object->GetComponent<Ice::GOCJoint>()->SetActorObjects(obj1, obj2);
+	object->SetGlobalPosition(obj1->GetGlobalPosition() + ((obj2->GetGlobalPosition() - obj1->GetGlobalPosition()) * 0.5f));
+	object->FirePostInit();
+	object->ShowEditorVisuals(true);
+
+	wxEdit::Instance().GetWorldExplorer()->GetSceneTree()->NotifyObject(object);
+	SelectObject(object);
+	wxEdit::Instance().GetOgrePane()->SetFocus();
 }
 
 Ogre::Vector3 Edit::GetInsertPosition()
