@@ -212,8 +212,10 @@ void wxEditIceGameObject::OnApply()
 		if ((*i)->mSectionName == "GameObject")
 		{
 			object->SetName((*i)->mSectionData.GetOgreString("Name"));
-			object->SetGlobalPosition((*i)->mSectionData.GetOgreVec3("Position"), true);
-			object->SetGlobalOrientation((*i)->mSectionData.GetOgreQuat("Orientation"), true);
+			std::set<Ice::GameObject*> blacklist;
+			object->SetGlobalPosition((*i)->mSectionData.GetOgreVec3("Position"), true, true, &blacklist);
+			blacklist.clear();
+			object->SetGlobalOrientation((*i)->mSectionData.GetOgreQuat("Orientation"), true, true, &blacklist);
 			object->SetGlobalScale((*i)->mSectionData.GetOgreVec3("Scale"));
 			continue;
 		}     

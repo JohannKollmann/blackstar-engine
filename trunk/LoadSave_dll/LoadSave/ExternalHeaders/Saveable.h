@@ -20,6 +20,7 @@ public:
 	virtual ~Saveable() {}
 	virtual void Save(SaveSystem& myManager) = 0;//the central function
 	virtual void Load(LoadSystem& mgr) = 0;
+	virtual void SetWeakThis(std::weak_ptr<Saveable> wThis) {}
 	static Saveable* NewInstance();//overload this one
 	static void Register(std::string* pstrName, SaveableInstanceFn* pFn);//and this one too
 	virtual std::string& TellName() = 0;//return the name

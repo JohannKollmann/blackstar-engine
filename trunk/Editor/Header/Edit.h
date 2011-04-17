@@ -92,6 +92,7 @@ public:
 	void OnSetLookAtObject(wxCommandEvent& WXUNUSED(event) = wxCommandEvent());
 	void OnSetNormalLookAtObject(wxCommandEvent& WXUNUSED(event) = wxCommandEvent());
 	void OnComputeAO(wxCommandEvent& WXUNUSED(event) = wxCommandEvent());
+	void OnCreateJoint(wxCommandEvent& WXUNUSED(event) = wxCommandEvent());
 
 
 	/*
@@ -112,6 +113,8 @@ public:
 	void OnSelectResource();
 	void ClearPreviewObject();
 	void CreatePreviewObject();
+
+	Ice::GameObjectPtr CreateGameObject(std::vector<ComponentSectionPtr> componentParameters);
 
 	void DeselectMaterial();
 	void SelectObject(Ice::GameObjectPtr object);

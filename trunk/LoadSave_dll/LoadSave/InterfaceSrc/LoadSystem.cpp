@@ -126,6 +126,7 @@ std::shared_ptr<Saveable> LoadSystem::LoadObject()
 	std::shared_ptr<Saveable> pObj = std::shared_ptr<Saveable>(LoadSave::Instance().GetInstanceFunction(strType)());
 
 	m_RecordIDs.insert(std::pair<int, std::shared_ptr<Saveable>>(iRecordID, pObj));
+	pObj->SetWeakThis(std::weak_ptr<Saveable>(pObj));
 	pObj->Load(*this);
 	
 	m_pLM->ExitChunk();

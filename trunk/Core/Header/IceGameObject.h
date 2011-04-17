@@ -98,7 +98,7 @@ namespace Ice
 		Sets the weak "this" pointer. The factory responsible for the game object must call this function!
 		@pre w.This.lock().get() == this
 		*/
-		void SetWeakThis(std::weak_ptr<GameObject> wThis);
+		void SetWeakThis(std::weak_ptr<LoadSave::Saveable> wThis);
 
 		/**
 		@return The name of the object.
@@ -220,19 +220,23 @@ namespace Ice
 		/** Sets the global position of the object.
 		@param moveReferences Specifies whether object references with the flag MOVEIT_USER shall be moved relatively.
 		@param moveChildren Specifies whether object references with the flag MOVEIT shall be moved relatively.
+		@param referenceBlacklist	Pass an empty std::set<GameObject*> if you want to be sure that an object referenced transitively is not moved twice.
+									This Parameter is only relevant when moveReferences is true.
 		*/
-		void SetGlobalPosition(const Ogre::Vector3 &pos, bool moveReferences, bool moveChildren = true);
+		void SetGlobalPosition(const Ogre::Vector3 &pos, bool moveReferences, bool moveChildren = true, std::set<GameObject*> *referenceBlacklist = nullptr);
 		void SetGlobalPosition(const Ogre::Vector3 &pos) { SetGlobalPosition(pos, false, true); }
 
 		/** Sets the global orientation of the object.
 		@param moveReferences Specifies whether object references with the flag MOVEIT_USER shall be moved relatively.
 		@param moveChildren Specifies whether object references with the flag MOVEIT shall be moved relatively.
+		@param referenceBlacklist	Pass an empty std::set<GameObject*> if you want to be sure that an object referenced transitively is not moved twice.
+									This Parameter is only relevant when moveReferences is true.
 		*/
-		void SetGlobalOrientation(const Ogre::Quaternion &quat, bool moveReferences, bool moveChildren = true);
+		void SetGlobalOrientation(const Ogre::Quaternion &quat, bool moveReferences, bool moveChildren = true, std::set<GameObject*> *referenceBlacklist = nullptr);
 		void SetGlobalOrientation(const Ogre::Quaternion &quat) { SetGlobalOrientation(quat, false, true); }
 
-		void Translate(Ogre::Vector3 vec, bool moveReferences = false, bool moveChildren = true) { SetGlobalPosition(mPosition + vec, moveReferences, moveChildren); }
-		void Rotate(Ogre::Vector3 axis, Ogre::Radian angle, bool moveReferences = false, bool moveChildren = true) { Ogre::Quaternion q; q.FromAngleAxis(angle, axis); SetGlobalOrientation(mOrientation * q, moveReferences, moveChildren); }
+		void Translate(Ogre::Vector3 vec, bool moveReferences = false, bool moveChildren = true, std::set<GameObject*> *referenceBlacklist = nullptr) { SetGlobalPosition(mPosition + vec, moveReferences, moveChildren, referenceBlacklist); }
+		void Rotate(Ogre::Vector3 axis, Ogre::Radian angle, bool moveReferences = false, bool moveChildren = true, std::set<GameObject*> *referenceBlacklist = nullptr) { Ogre::Quaternion q; q.FromAngleAxis(angle, axis); SetGlobalOrientation(mOrientation * q, moveReferences, moveChildren, referenceBlacklist); }
 
 		void SetGlobalScale(const Ogre::Vector3 &scale);
 		void Rescale(Ogre::Vector3 scaleoffset) { SetGlobalScale(mScale + scaleoffset); }
@@ -243,7 +247,7 @@ namespace Ice
 		*/
 		bool IsStatic();
 
-		///Tells all components that the object is assembled completely
+		///Tells all components that the object is assembled completely.
 		void FirePostInit();
 
 		///Tells all components to change to an inactive state, where say don't use any resources.

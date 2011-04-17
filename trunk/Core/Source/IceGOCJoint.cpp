@@ -22,8 +22,9 @@ namespace Ice
 		GOCRigidBody *body1 = jointActors[0]->GetComponent<GOCRigidBody>();
 		GOCRigidBody *body2 = jointActors[1]->GetComponent<GOCRigidBody>();
 		IceAssert(body1 && body2)
+		IceAssert(body1 != body2)
 		desc.actor[0] = body1->GetActor()->getNxActor();
-		desc.actor[1] = body1->GetActor()->getNxActor();
+		desc.actor[1] = body2->GetActor()->getNxActor();
 		desc.maxForce = mMaxForce;
 		desc.maxTorque = mMaxTorque;
 		mPhysXJoint = Main::Instance().GetPhysXScene()->getNxScene()->createJoint(desc);
@@ -63,17 +64,27 @@ namespace Ice
 		mgr.LoadAtom("float", &mMaxTorque);
 	}
 
-	void GOCFixedJoint::OnSetParameters()
-	{
-		NotifyOwnerGO();
-	}
-	void GOCFixedJoint::NotifyOwnerGO()
+	void GOCFixedJoint::NotifyPostInit()
 	{
 		if (!mOwnerGO.expired())
 		{
 			NxFixedJointDesc desc;
 			createJoint(desc);
 		}
+	}
+
+	void GOCFixedJoint::UpdatePosition(Ogre::Vector3 position)
+	{
+		/*GameObjectPtr owner = mOwnerGO.lock();
+		if (owner.get())
+		{
+			std::vector<GameObjectPtr> jointActors;
+			owner->GetReferencedObjects(ReferenceTypes::JOINTACTOR, jointActors);
+			if (jointActors.size() == 2)
+			{
+				SetOwnerPosition(jointActors[0]->GetGlobalPosition() + ((jointActors[1]->GetGlobalPosition() - jointActors[0]->GetGlobalPosition()) * 0.5f));
+			}
+		}*/
 	}
 
 }

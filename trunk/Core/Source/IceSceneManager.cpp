@@ -234,7 +234,7 @@ namespace Ice
 		RegisterGOCPrototype("E", GOCEditorInterfacePtr(new GOCForceField()));
 		RegisterGOCPrototype(GOCEditorInterfacePtr(new GOCAnimKey()));
 
-		RegisterGOCPrototype(GOCEditorInterfacePtr(new GOCFixedJoint()));
+		RegisterGOCPrototype("F_x", GOCEditorInterfacePtr(new GOCFixedJoint()));
 
 		//simple test:
 		/*GameObject *test = new GameObject();
@@ -461,6 +461,11 @@ namespace Ice
 		mLevelMesh = ICE_NEW LevelMesh(meshname);
 	}
 
+	void SceneManager::RegisterGameObject(GameObjectPtr object)
+	{
+		mGameObjects.insert(std::make_pair<int, GameObjectPtr>(object->GetID(), object));
+	}
+
 	void SceneManager::LoadLevel(Ogre::String levelfile, bool load_dynamic)
 	{
 		Msg msg;
@@ -475,12 +480,7 @@ namespace Ice
 		SetParameters(levelparams.get());
 
 		std::vector<GameObjectPtr> objects;
-		ls->LoadAtom("vector<GameObjectPtr>", &objects);
-		ITERATE(i, objects)
-		{
-			(*i)->SetWeakThis(std::weak_ptr<GameObject>(*i));
-			mGameObjects.insert(std::make_pair<int, GameObjectPtr>((*i)->GetID(), *i));
-		}
+		ls->LoadAtom("vector<GameObjectPtr>", &objects);	//objects call RegisterObject
 
 		ls->CloseFile();
 		delete ls;

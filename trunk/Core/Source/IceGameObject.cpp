@@ -10,9 +10,15 @@ namespace Ice
 {
 	void ObjectReference::Save(LoadSave::SaveSystem& mgr)
 	{
+		mgr.SaveAtom("int", &Flags, "Flags");
+		mgr.SaveAtom("int", &UserID, "UserID");
+		mgr.SaveObject(Object.lock().get(), "Object", true);
 	}
 	void ObjectReference::Load(LoadSave::LoadSystem& mgr)
 	{
+		mgr.LoadAtom("int", &Flags);
+		mgr.LoadAtom("int", &UserID);
+		Object = std::weak_ptr<GameObject>(mgr.LoadTypedObject<GameObject>());
 	}
 
 	GameObject::GameObject()
@@ -34,16 +40,10 @@ namespace Ice
 		ClearOwnedObjects();
 	}
 
-	void GameObject::SetWeakThis(std::weak_ptr<GameObject> wThis)
+	void GameObject::SetWeakThis(std::weak_ptr<LoadSave::Saveable> wThis)
 	{
 		IceAssert(wThis.lock().get() == this)
-		mWeakThis = wThis;
-		for (unsigned int i = 0; i < mComponents.size(); i++)
-		{
-			mComponents[i]->SetOwner(mWeakThis);
-			mComponents[i]->UpdatePosition(GetGlobalPosition());
-			mComponents[i]->UpdateOrientation(GetGlobalOrientation());
-		}
+		mWeakThis = std::weak_ptr<GameObject>(std::static_pointer_cast<GameObject, LoadSave::Saveable>(wThis.lock()));
 	}
 
 	void GameObject::SendMessage(Msg &msg)
@@ -135,25 +135,30 @@ namespace Ice
 
 	void GameObject::ClearOwnedObjects()
 	{
-		while (HasNextObjectReference())
+		if (!SceneManager::Instance().GetClearingScene())
 		{
-			ObjectReferencePtr objRef = GetNextObjectReference();
-			GameObjectPtr obj = objRef->Object.lock();
-			if (obj.get() && objRef->Flags & ObjectReference::OWNER)
-				SceneManager::Instance().RemoveGameObject(obj->GetID());
+			while (HasNextObjectReference())
+			{
+				ObjectReferencePtr objRef = GetNextObjectReference();
+				GameObjectPtr obj = objRef->Object.lock();
+				if (obj.get() && objRef->Flags & ObjectReference::OWNER)
+					SceneManager::Instance().RemoveGameObject(obj->GetID());
+			}
 		}
 		mReferencedObjectsInternIterator = mReferencedObjects.begin();
 	}
 
 	void GameObject::AddObjectReference(const GameObjectPtr &other, unsigned int flags, unsigned int userID)
 	{
-		other->ResetObjectReferenceIterator();
-		while (other->HasNextObjectReference())
+		if ((flags & ObjectReference::MOVEIT) || (flags & ObjectReference::OWNER)) 
 		{
-			ObjectReferencePtr objRef = other->GetNextObjectReference();
-			GameObjectPtr obj = objRef->Object.lock();
-			unsigned int flags = objRef->Flags;
-			IceAssert(! (obj.get() == this && ((flags & ObjectReference::MOVEIT) || (flags & ObjectReference::OWNER))))
+			other->ResetObjectReferenceIterator();
+			while (other->HasNextObjectReference())
+			{
+				ObjectReferencePtr objRef = other->GetNextObjectReference();
+				GameObjectPtr obj = objRef->Object.lock();
+				IceAssert(! (obj.get() == this && ((objRef->Flags & ObjectReference::MOVEIT) || (objRef->Flags & ObjectReference::OWNER))))
+			}
 		}
 		ObjectReferencePtr objLink = std::make_shared<ObjectReference>();
 		objLink->Object = std::weak_ptr<GameObject>(other);
@@ -284,7 +289,7 @@ namespace Ice
 		}
 	}
 
-	void GameObject::SetGlobalPosition(const Ogre::Vector3 &pos, bool moveReferences, bool moveChildren)
+	void GameObject::SetGlobalPosition(const Ogre::Vector3 &pos, bool moveReferences, bool moveChildren, std::set<GameObject*> *referenceBlacklist)
 	{	
 		if (moveReferences || moveChildren)
 		{
@@ -294,10 +299,22 @@ namespace Ice
 			{
 				ObjectReferencePtr objRef = GetNextObjectReference();
 				GameObjectPtr obj = objRef->Object.lock();
-				if (objRef->Flags & ObjectReference::MOVEIT && moveChildren || objRef->Flags & ObjectReference::MOVEIT_USER && moveReferences)
+				if (objRef->Flags & ObjectReference::MOVEIT || objRef->Flags & ObjectReference::MOVEIT_USER)
 				{
 					Ogre::Vector3 localObjPos = mOrientation.Inverse () * (obj->GetGlobalPosition() - mPosition);
-					obj->SetGlobalPosition(pos + (mOrientation * localObjPos));
+
+					if (objRef->Flags & ObjectReference::MOVEIT && moveChildren)
+					{
+						obj->SetGlobalPosition(pos + (mOrientation * localObjPos), moveReferences, moveChildren, referenceBlacklist);
+					}
+					else if (objRef->Flags & ObjectReference::MOVEIT_USER && moveReferences)
+					{
+						if (!referenceBlacklist || referenceBlacklist->find(obj.get()) == referenceBlacklist->end())
+						{
+							if (referenceBlacklist) referenceBlacklist->insert(obj.get());			
+							obj->SetGlobalPosition(pos + (mOrientation * localObjPos), moveReferences, moveChildren, referenceBlacklist);
+						}
+					}
 				}
 			}
 			mTransformingReferencedObjects = false;
@@ -310,7 +327,7 @@ namespace Ice
 		}
 	}
 
-	void GameObject::SetGlobalOrientation(const Ogre::Quaternion &orientation, bool moveReferences, bool moveChildren)
+	void GameObject::SetGlobalOrientation(const Ogre::Quaternion &orientation, bool moveReferences, bool moveChildren, std::set<GameObject*> *referenceBlacklist)
 	{
 		if (moveReferences || moveChildren)
 		{
@@ -320,12 +337,25 @@ namespace Ice
 			{
 				ObjectReferencePtr objRef = GetNextObjectReference();
 				GameObjectPtr obj = objRef->Object.lock();
-				if (objRef->Flags & ObjectReference::MOVEIT && moveChildren || objRef->Flags & ObjectReference::MOVEIT_USER && moveReferences)
+				if (objRef->Flags & ObjectReference::MOVEIT || objRef->Flags & ObjectReference::MOVEIT_USER)
 				{
 					Ogre::Vector3 localObjPos = mOrientation.Inverse () * (obj->GetGlobalPosition() - mPosition);
 					Ogre::Quaternion localObjRot = mOrientation.Inverse() * obj->GetGlobalOrientation();
-					obj->SetGlobalOrientation(orientation * localObjRot);
-					obj->SetGlobalPosition(mPosition + (orientation * localObjPos));
+
+					if (objRef->Flags & ObjectReference::MOVEIT && moveChildren)
+					{
+						obj->SetGlobalOrientation(orientation * localObjRot, moveReferences, moveChildren, referenceBlacklist);
+						obj->SetGlobalPosition(mPosition + (orientation * localObjPos), moveReferences, moveChildren, referenceBlacklist);
+					}
+					else if (objRef->Flags & ObjectReference::MOVEIT_USER && moveReferences)
+					{
+						if (!referenceBlacklist || referenceBlacklist->find(obj.get()) == referenceBlacklist->end())
+						{
+							if (referenceBlacklist) referenceBlacklist->insert(obj.get());
+							obj->SetGlobalOrientation(orientation * localObjRot, moveReferences, moveChildren, referenceBlacklist);
+							obj->SetGlobalPosition(mPosition + (orientation * localObjPos), moveReferences, moveChildren, referenceBlacklist);
+						}
+					}
 				}
 			}
 			mTransformingReferencedObjects = false;
@@ -434,6 +464,15 @@ namespace Ice
 
 		mgr.LoadAtom("vector<ObjectReferencePtr>", (void*)(&mReferencedObjects));
 
+		SceneManager::Instance().RegisterGameObject(mWeakThis.lock());
+
+		for (unsigned int i = 0; i < mComponents.size(); i++)
+		{
+			mComponents[i]->SetOwner(mWeakThis);
+			mComponents[i]->UpdatePosition(GetGlobalPosition());
+			mComponents[i]->UpdateOrientation(GetGlobalOrientation());
+		}
+
 		FirePostInit();
 	}
 
@@ -443,6 +482,7 @@ namespace Ice
 		DataMap data;
 		data.ParseString(vParams[1].getString());
 		goc->SetParameters(&data);
+		AddComponent(GOComponentPtr(goc->GetGOComponent()));
 		SCRIPT_RETURN()
 	}
 
