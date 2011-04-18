@@ -55,8 +55,7 @@ void wxOgreSceneTree::Update()
 
 		for (auto i = Ice::SceneManager::Instance().GetGameObjects().begin(); i != Ice::SceneManager::Instance().GetGameObjects().end(); i++)
 		{
-			std::set<int> blackList;
-			AppendGameObject(mStart->GetId(), i->second, blackList);
+			AppendGameObject(mStart->GetId(), i->second);
 		}
 
 		Expand(id);
@@ -68,12 +67,14 @@ void wxOgreSceneTree::Update()
 	wxEdit::Instance().GetpropertyWindow()->Refresh();
 };
 
-OgreTreeItemBase* wxOgreSceneTree::AppendGameObject(wxTreeItemId parent, Ice::GameObjectPtr object, std::set<int> &expandBlacklist)
+OgreTreeItemBase* wxOgreSceneTree::AppendGameObject(wxTreeItemId parent, Ice::GameObjectPtr object)
 {
 	OgreTreeItemBase *item = new OgreTreeItemBase(std::weak_ptr<Ice::GameObject>(object));
 	mAllItems.push_back(item);
 	AppendItem(parent, item->GetName(), item->GetIconId(), item->GetSelectedIconId(), item);
-	ScanFromNode(item, object, expandBlacklist);
+	std::queue<OgreTreeItemBase*> expandQueue;
+	expandQueue.push(item);
+	ScanFromNode(expandQueue);
 	return item;
 }
 
@@ -106,19 +107,28 @@ void wxOgreSceneTree::NotifyObject(Ice::GameObjectPtr object)
 	Update();
 }
 
-void wxOgreSceneTree::ScanFromNode(OgreTreeItemBase *item, Ice::GameObjectPtr scanFrom, std::set<int> &expandBlacklist)
+void wxOgreSceneTree::ScanFromNode(std::queue<OgreTreeItemBase*> &expandQueue, std::set<int> &expandBlacklist)
 {
-	if (!scanFrom.get()) return;
-	expandBlacklist.insert(scanFrom->GetID());
-	OgreTreeItemBase *currentItem = nullptr;
-	Ice::GameObjectPtr currentNode;
-	//Ogre::LogManager::getSingleton().logMessage(scanFrom->GetName() + " " + Ogre::StringConverter::toString(scanFrom->GetNumChildren()));
-	scanFrom->ResetObjectReferenceIterator();
-	while (scanFrom->HasNextObjectReference())
+	while (!expandQueue.empty())
 	{
-		currentNode = scanFrom->GetNextObjectReference()->Object.lock();
-		if (currentNode.get() && expandBlacklist.find(currentNode->GetID()) == expandBlacklist.end())
-			AppendGameObject(item->GetId(), currentNode, expandBlacklist);
+		OgreTreeItemBase *currItem = expandQueue.front();
+		expandQueue.pop();
+		Ice::GameObjectPtr currObject = currItem->GetGameObject();
+		expandBlacklist.insert(currItem->GetGameObject()->GetID());
+		OgreTreeItemBase *item = nullptr;
+		//Ogre::LogManager::getSingleton().logMessage(scanFrom->GetName() + " " + Ogre::StringConverter::toString(scanFrom->GetNumChildren()));
+		currObject->ResetObjectReferenceIterator();
+		while (currObject->HasNextObjectReference())
+		{
+			Ice::GameObjectPtr ref = currObject->GetNextObjectReference()->Object.lock();
+			if (ref.get() && expandBlacklist.find(ref->GetID()) == expandBlacklist.end())
+			{
+				OgreTreeItemBase *item = new OgreTreeItemBase(std::weak_ptr<Ice::GameObject>(ref));
+				mAllItems.push_back(item);
+				AppendItem(currItem->GetId(), item->GetName(), item->GetIconId(), item->GetSelectedIconId(), item);
+				expandQueue.push(item);
+			}
+		}
 	}
 };
 
