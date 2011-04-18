@@ -74,7 +74,7 @@ protected:
 
 	OgreTreeItemBase *mSelectedItem;
 
-	OgreTreeItemBase* AppendGameObject(wxTreeItemId parent, Ice::GameObjectPtr object, std::set<int> &expandBlacklist = std::set<int>());
+	OgreTreeItemBase* AppendGameObject(wxTreeItemId parent, Ice::GameObjectPtr object);
 
 	void OnItemMenu(wxTreeEvent &event);
 	void OnItemActivated(wxTreeEvent &event);
@@ -95,7 +95,7 @@ public:
 	void NotifyObject(Ice::GameObjectPtr object);
 	void UpdateObject(Ice::GameObjectPtr object);
 
-	void ScanFromNode(OgreTreeItemBase *item, Ice::GameObjectPtr scanFrom, std::set<int> &expandBlacklist = std::set<int>());
+	void ScanFromNode(std::queue<OgreTreeItemBase*> &expandQueue, std::set<int> &expandBlacklist = std::set<int>());
 
 	void OnExpanding(wxTreeEvent &event);
 
