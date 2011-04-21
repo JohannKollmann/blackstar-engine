@@ -23,6 +23,8 @@ namespace Ice
 		GOCRigidBody *body2 = jointActors[1]->GetComponent<GOCRigidBody>();
 		IceAssert(body1 && body2)
 		IceAssert(body1 != body2)
+		body1->GetActor()->getNxActor()->setSolverIterationCount(8);
+		body2->GetActor()->getNxActor()->setSolverIterationCount(8);
 		desc.actor[0] = body1->GetActor()->getNxActor();
 		desc.actor[1] = body2->GetActor()->getNxActor();
 		desc.maxForce = mMaxForce;
@@ -49,8 +51,8 @@ namespace Ice
 
 		actor1->AddObjectReference(owner, ObjectReference::PERSISTENT|ObjectReference::OWNER|ObjectReference::MOVEIT_USER, ReferenceTypes::JOINT);
 		actor2->AddObjectReference(owner, ObjectReference::PERSISTENT|ObjectReference::OWNER|ObjectReference::MOVEIT_USER, ReferenceTypes::JOINT);
-		owner->AddObjectReference(actor1, ObjectReference::PERSISTENT, ReferenceTypes::JOINTACTOR);
-		owner->AddObjectReference(actor2, ObjectReference::PERSISTENT, ReferenceTypes::JOINTACTOR);
+		owner->AddObjectReference(actor1, ObjectReference::PERSISTENT|ObjectReference::OWNED, ReferenceTypes::JOINTACTOR);
+		owner->AddObjectReference(actor2, ObjectReference::PERSISTENT|ObjectReference::OWNED, ReferenceTypes::JOINTACTOR);
 	}
 
 	void GOCJoint::Save(LoadSave::SaveSystem& mgr)
@@ -66,6 +68,7 @@ namespace Ice
 
 	void GOCFixedJoint::NotifyPostInit()
 	{
+		clear();
 		if (!mOwnerGO.expired())
 		{
 			NxFixedJointDesc desc;

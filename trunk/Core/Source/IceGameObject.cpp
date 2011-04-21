@@ -209,7 +209,7 @@ namespace Ice
 
 		if (parent.get())
 		{
-			AddObjectReference(parent, ObjectReference::PERSISTENT, ReferenceTypes::PARENT);
+			AddObjectReference(parent, ObjectReference::PERSISTENT|ObjectReference::OWNED, ReferenceTypes::PARENT);
 			parent->AddObjectReference(mWeakThis.lock(), ObjectReference::OWNER|ObjectReference::MOVEIT|ObjectReference::PERSISTENT);
 		}
 	}
@@ -287,6 +287,27 @@ namespace Ice
 			GameObjectPtr object = objRef->Object.lock();
 			if (objRef->UserID == userID && object.get()) out.push_back(object);
 		}
+	}
+
+	void GameObject::GetReferencedObjectsByFlag(unsigned int flags, std::vector<GameObjectPtr> &out)
+	{
+		ResetObjectReferenceIterator();
+		while (HasNextObjectReference())
+		{
+			ObjectReferencePtr objRef = GetNextObjectReference();
+			GameObjectPtr object = objRef->Object.lock();
+			if (objRef->Flags & flags && object.get()) out.push_back(object);
+		}		
+	}
+	void GameObject::GetReferencedObjectsByFlag(unsigned int flags, std::list<GameObjectPtr> &out)
+	{
+		ResetObjectReferenceIterator();
+		while (HasNextObjectReference())
+		{
+			ObjectReferencePtr objRef = GetNextObjectReference();
+			GameObjectPtr object = objRef->Object.lock();
+			if (objRef->Flags & flags && object.get()) out.push_back(object);
+		}		
 	}
 
 	void GameObject::SetGlobalPosition(const Ogre::Vector3 &pos, bool moveReferences, bool moveChildren, std::set<GameObject*> *referenceBlacklist)
@@ -413,6 +434,13 @@ namespace Ice
 	{
 		ITERATE(i, mComponents)
 			(*i)->NotifyPostInit();
+
+		ResetObjectReferenceIterator();
+		while (HasNextObjectReference())
+		{
+			std::shared_ptr<ObjectReference> ref = GetNextObjectReference();
+			if (ref->Flags & ObjectReference::OWNER) ref->Object.lock()->FirePostInit();
+		}
 
 		Msg msg;
 		msg.type = "INIT_POST";

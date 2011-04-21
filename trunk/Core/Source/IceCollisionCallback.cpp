@@ -68,6 +68,7 @@ namespace Ice
 
 	bool PhysXUserCallback::onJointBreak(NxReal breakingImpulse, NxJoint& brokenJoint)
 	{
+		Ogre::LogManager::getSingleton().logMessage("Joint break!");
 		return true;
 	}
 

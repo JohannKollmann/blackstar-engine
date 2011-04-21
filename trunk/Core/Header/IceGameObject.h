@@ -27,9 +27,10 @@ namespace Ice
 		enum FlagTypes
 		{
 			OWNER = 1,			//deletes referenced object when object is deleted
-			PERSISTENT = 2,		//loadsaves referenced object
-			MOVEIT = 4,			//moves referenced object (parent-child style)
-			MOVEIT_USER = 8,	//moves referenced object (parent-child style) only when user explicitly specifies it (see SetGlobalPosition / SetGlobalOrientation).  
+			OWNED = 2,			//Identifier flag for example for edit tree
+			PERSISTENT = 4,		//loadsaves referenced object
+			MOVEIT = 8,			//moves referenced object (parent-child style)
+			MOVEIT_USER = 16,	//moves referenced object (parent-child style) only when user explicitly specifies it (see SetGlobalPosition / SetGlobalOrientation).  
 		};
 		unsigned int Flags;
 		std::weak_ptr<GameObject> Object;
@@ -186,6 +187,8 @@ namespace Ice
 		*/
 		void GetReferencedObjects(unsigned int userID, std::vector<GameObjectPtr> &out);
 		void GetReferencedObjects(unsigned int userID, std::list<GameObjectPtr> &out);
+		void GetReferencedObjectsByFlag(unsigned int flags, std::vector<GameObjectPtr> &out);
+		void GetReferencedObjectsByFlag(unsigned int flags, std::list<GameObjectPtr> &out);
 
 		//Creates a parent-child relationship between two objects.
 		void SetParent(GameObjectPtr parent);
