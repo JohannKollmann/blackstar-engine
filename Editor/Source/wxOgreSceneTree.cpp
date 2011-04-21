@@ -55,7 +55,9 @@ void wxOgreSceneTree::Update()
 
 		for (auto i = Ice::SceneManager::Instance().GetGameObjects().begin(); i != Ice::SceneManager::Instance().GetGameObjects().end(); i++)
 		{
-			AppendGameObject(mStart->GetId(), i->second);
+			std::vector<Ice::GameObjectPtr> test;
+			i->second->GetReferencedObjectsByFlag(Ice::ObjectReference::OWNED, test);
+			if (test.size() == 0) AppendGameObject(mStart->GetId(), i->second);
 		}
 
 		Expand(id);
