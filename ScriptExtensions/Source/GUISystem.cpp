@@ -5,6 +5,18 @@
 #include "IceUtils.h"
 #include "IceSceneManager.h"
 
+#define REL_COORD_X(x, fInvAspect) ((x<0) ? (x*fInvAspect+1.0f) : (x*fInvAspect))
+#define REL_COORD_Y(y) ((y<0) ? (y+1.0f) : (y))
+
+void
+GUISystem::SetWindowPosition(Ogre::SubEntity* pSubEnt, float fX, float fY, bool bKeepRest)
+{
+	Ogre::Vector4 vCustom=bKeepRest ? pSubEnt->getCustomParameter(0) : Ogre::Vector4();
+	float fInvAspect=Ice::Main::Instance().GetViewport()->getActualHeight()/(float)Ice::Main::Instance().GetViewport()->getActualWidth();
+	vCustom.x=REL_COORD_X(fX, fInvAspect);
+	vCustom.y=REL_COORD_Y(fY);
+	pSubEnt->setCustomParameter(0, vCustom);
+}
 
 GUISystem::GUISystem(void)
 {
@@ -315,7 +327,9 @@ void
 GUISystem::Window::Bake()
 {
 	GUISystem::SWindowInfo wininfo=GetInstance().m_mWindowInfos.find(m_iHandle)->second;
-	float x=wininfo.x, y=wininfo.y, w=wininfo.w, h=wininfo.h, u=wininfo.fUScale, v=wininfo.fVScale;
+	float fInvScale=(float)Ice::Main::Instance().GetViewport()->getActualHeight()/(float)Ice::Main::Instance().GetViewport()->getActualWidth();
+	float x=REL_COORD_X(wininfo.x,fInvScale), y=REL_COORD_Y(wininfo.y), w=REL_COORD_X(wininfo.w,fInvScale), h=REL_COORD_Y(wininfo.h),
+		u=wininfo.fUScale, v=wininfo.fVScale;
 	Ogre::MeshPtr meshptr = Ogre::MeshManager::getSingleton().createManual(wininfo.strName, "General");
 	meshptr.get()->createSubMesh("windowface");
 
@@ -377,10 +391,10 @@ GUISystem::Window::Bake()
 		//while(tempinfo
 		float z=-GUISystem::GetInstance().m_fZStep*(float)iLevel;
 		float afSubWinVerts[]={
-		subwininfo.x,subwininfo.y,z,0.0,0.0,
-		subwininfo.x+subwininfo.w,subwininfo.y,z,subwininfo.fUScale,0.0,
-		subwininfo.x,subwininfo.y+subwininfo.h,z,0.0,subwininfo.fVScale,
-		subwininfo.x+subwininfo.w,subwininfo.y+subwininfo.h,z,subwininfo.fUScale,subwininfo.fVScale};
+		subwininfo.x*fInvScale,subwininfo.y,z,0.0,0.0,
+		(subwininfo.x+subwininfo.w)*fInvScale,subwininfo.y,z,subwininfo.fUScale,0.0,
+		subwininfo.x*fInvScale,subwininfo.y+subwininfo.h,z,0.0,subwininfo.fVScale,
+		(subwininfo.x+subwininfo.w)*fInvScale,subwininfo.y+subwininfo.h,z,subwininfo.fUScale,subwininfo.fVScale};
 		vbuf->writeData((iSubWin+1)*4*decl->getVertexSize(0), 4*decl->getVertexSize(0), afSubWinVerts, false);
 	}
 	GetInstance().m_mWindowInfos.find(m_iHandle)->second.iDepth=wininfo.iDepth+1;
@@ -429,7 +443,8 @@ GUISystem::Window::Bake()
 
 	GetInstance().m_mWindowInfos.find(m_iHandle)->second.bWasBaked=true;
 
-	Ice::Main::Instance().GetOgreSceneMgr()->getEntity(wininfo.strName)->getSubEntity(0)->setCustomParameter(0, Ogre::Vector4(x, y, 0, 0));
+	//Ice::Main::Instance().GetOgreSceneMgr()->getEntity(wininfo.strName)->getSubEntity(0)->setCustomParameter(0, Ogre::Vector4(x, y, 0, 0));
+	SetWindowPosition(Ice::Main::Instance().GetOgreSceneMgr()->getEntity(wininfo.strName)->getSubEntity(0), x,y, false);
 	
 	Ice::Main::Instance().GetOgreSceneMgr()->getEntity(wininfo.strName)->getSubEntity(0)->setCustomParameter(1, Ogre::Vector4(1.0f, 0, 0, 0));
 	
@@ -439,7 +454,8 @@ GUISystem::Window::Bake()
 	{
 		SWindowInfo subwininfo=GetInstance().m_mWindowInfos.find(vSubWindows[iSubWin])->second;
 		Ogre::SubEntity* pSubEnt=Ice::Main::Instance().GetOgreSceneMgr()->getEntity(wininfo.strName)->getSubEntity(subwininfo.strName);
-		pSubEnt->setCustomParameter(0, Ogre::Vector4(x, y, 0, 0));
+		//pSubEnt->setCustomParameter(0, Ogre::Vector4(x, y, 0, 0));
+		SetWindowPosition(pSubEnt, x,y, false);
 
 		pSubEnt->setCustomParameter(1, Ogre::Vector4(1.0f, 0, 0, 0));
 				
@@ -535,10 +551,11 @@ GUISystem::Window::Move(float x, float y)
 	Ogre::Entity* pEnt=Ice::Main::Instance().GetOgreSceneMgr()->getEntity(wi.strName);
 	for(unsigned int iSubEnt=0; iSubEnt<pEnt->getNumSubEntities(); iSubEnt++)
 	{
-		Ogre::Vector4 vCustom=pEnt->getSubEntity(iSubEnt)->getCustomParameter(0);
+		/*Ogre::Vector4 vCustom=pEnt->getSubEntity(iSubEnt)->getCustomParameter(0);
 		vCustom.x=x;
 		vCustom.y=y;
-		pEnt->getSubEntity(iSubEnt)->setCustomParameter(0, vCustom);
+		pEnt->getSubEntity(iSubEnt)->setCustomParameter(0, vCustom);*/
+		SetWindowPosition(pEnt->getSubEntity(iSubEnt), x,y);
 	}
 }
 
