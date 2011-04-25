@@ -3,6 +3,7 @@
 
 #include "Ogre.h"
 #include "IceMessageListener.h"
+#include "IceMain.h"
 #include "FontTextures.h"
 #include <map>
 #include <vector>
@@ -102,6 +103,8 @@ private:
 	//input states
 	static std::vector<Ice::ScriptParam> Lua_GetKeyDown(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
 	static std::vector<Ice::ScriptParam> Lua_GetMouseButtons(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
+
+	static void SetWindowPosition(Ogre::SubEntity* pSubEnt, float fX, float fY, bool bKeepRest=true);
 
 	int FindParentWindow(int iSubWindowHandle);
 	float m_fXPos, m_fYPos;
