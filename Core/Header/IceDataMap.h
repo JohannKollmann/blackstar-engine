@@ -136,13 +136,13 @@ namespace Ice
 		}
 
 		//Typed get methods
-		int GetInt(const Ogre::String &keyname)						const;
-		bool GetBool(const Ogre::String &keyname)					const;
-		float GetFloat(const Ogre::String &keyname)					const;
-		Ogre::Vector3 GetOgreVec3(const Ogre::String &keyname)		const;
-		Ogre::ColourValue GetOgreCol(const Ogre::String &keyname)	const;
-		Ogre::Quaternion GetOgreQuat(const Ogre::String &keyname)	const;
-		Ogre::String GetOgreString(const Ogre::String &keyname)		const;
+		int GetInt(const Ogre::String &keyname, int defaultVal = 0)														const;
+		bool GetBool(const Ogre::String &keyname, bool defaultVal = false)												const;
+		float GetFloat(const Ogre::String &keyname, float defaultVal = 0.0f)											const;
+		Ogre::Vector3 GetOgreVec3(const Ogre::String &keyname, Ogre::Vector3 defaultVal = Ogre::Vector3(1, 1, 1))		const;
+		Ogre::ColourValue GetOgreCol(const Ogre::String &keyname, Ogre::ColourValue defaultVal = Ogre::ColourValue())	const;
+		Ogre::Quaternion GetOgreQuat(const Ogre::String &keyname, Ogre::Quaternion defaultVal = Ogre::Quaternion())		const;
+		Ogre::String GetOgreString(const Ogre::String &keyname, Ogre::String defaultVal = "")							const;
 
 		class DllExport Enum
 		{
@@ -158,7 +158,7 @@ namespace Ice
 				return o;
 			}
 		};
-		DataMap::Enum GetEnum(const Ogre::String &keyname)			const;
+		DataMap::Enum GetEnum(const Ogre::String &keyname, DataMap::Enum defaultVal = DataMap::Enum())		const;
 
 		///Inserts a new item into the DataMap.
 		template <class templateType>

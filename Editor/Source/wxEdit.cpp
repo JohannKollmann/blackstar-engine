@@ -266,6 +266,7 @@ void wxEdit::OnClose(wxCloseEvent &event)
 void wxEdit::OnLoadWorld(wxCommandEvent& WXUNUSED(event))
 {
 	//Ogre::LogManager::getSingleton().logMessage("OnLoadWorld");
+	STOP_MAINLOOP
     wxFileDialog dialog
                  (
                     this,
@@ -284,6 +285,7 @@ void wxEdit::OnLoadWorld(wxCommandEvent& WXUNUSED(event))
 	}
 	wxEdit::Instance().GetProgressBar()->Reset();
 	Ice::SceneManager::Instance().ShowEditorMeshes(mMenuBar->IsChecked(wxMainMenu_EditorMeshes));
+	RESUME_MAINLOOP
 };
 
 void wxEdit::OnSaveWorld(wxCommandEvent& WXUNUSED(event))

@@ -5,6 +5,7 @@
 #include "IceGOCEditorInterface.h"
 #include "IceGOCView.h"
 #include "NxScene.h"
+#include "IceGOCScriptMakros.h"
 
 namespace Ice
 {
@@ -39,6 +40,10 @@ namespace Ice
 
 		virtual void Save(LoadSave::SaveSystem& mgr);
 		virtual void Load(LoadSave::LoadSystem& mgr);
+
+		//Scripting
+		std::vector<ScriptParam> SetActorObjects(Script &caller, std::vector<ScriptParam> &params);
+		DEFINE_TYPEDGOCLUAMETHOD(GOCJoint, SetActorObjects, "int int")
 	};
 
 	class DllExport GOCFixedJoint : public GOCJoint, public GOCStaticEditorInterface

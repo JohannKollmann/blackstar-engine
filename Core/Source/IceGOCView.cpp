@@ -77,8 +77,8 @@ namespace Ice
 
 	void GOCMeshRenderable::SetParameters(DataMap *parameters)
 	{
-		Ogre::String meshname = parameters->GetOgreString("MeshName");
-		bool shacowcaster = parameters->GetBool("ShadowCaster");
+		Ogre::String meshname = parameters->GetValue<Ogre::String>("MeshName", "");
+		bool shacowcaster = parameters->GetValue<bool>("ShadowCaster", false);
 		Create(meshname, shacowcaster);
 		int visibilityMask = parameters->GetValue<int>("Visibility mask", Ice::VisibilityFlags::V_DEFAULT);
 		mEntity->setVisibilityFlags(visibilityMask);

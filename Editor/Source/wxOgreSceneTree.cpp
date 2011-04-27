@@ -69,14 +69,14 @@ void wxOgreSceneTree::Update()
 	wxEdit::Instance().GetpropertyWindow()->Refresh();
 };
 
-OgreTreeItemBase* wxOgreSceneTree::AppendGameObject(wxTreeItemId parent, Ice::GameObjectPtr object)
+OgreTreeItemBase* wxOgreSceneTree::AppendGameObject(wxTreeItemId parent, Ice::GameObjectPtr object, std::set<int> &expandBlacklist)
 {
 	OgreTreeItemBase *item = new OgreTreeItemBase(std::weak_ptr<Ice::GameObject>(object));
 	mAllItems.push_back(item);
 	AppendItem(parent, item->GetName(), item->GetIconId(), item->GetSelectedIconId(), item);
 	std::queue<OgreTreeItemBase*> expandQueue;
 	expandQueue.push(item);
-	ScanFromNode(expandQueue);
+	ScanFromNode(expandQueue, expandBlacklist);
 	return item;
 }
 
@@ -111,26 +111,32 @@ void wxOgreSceneTree::NotifyObject(Ice::GameObjectPtr object)
 
 void wxOgreSceneTree::ScanFromNode(std::queue<OgreTreeItemBase*> &expandQueue, std::set<int> &expandBlacklist)
 {
+	int expandReferences = true;
 	while (!expandQueue.empty())
 	{
 		OgreTreeItemBase *currItem = expandQueue.front();
 		expandQueue.pop();
 		Ice::GameObjectPtr currObject = currItem->GetGameObject();
-		expandBlacklist.insert(currItem->GetGameObject()->GetID());
 		OgreTreeItemBase *item = nullptr;
 		//Ogre::LogManager::getSingleton().logMessage(scanFrom->GetName() + " " + Ogre::StringConverter::toString(scanFrom->GetNumChildren()));
 		currObject->ResetObjectReferenceIterator();
 		while (currObject->HasNextObjectReference())
 		{
-			Ice::GameObjectPtr ref = currObject->GetNextObjectReference()->Object.lock();
-			if (ref.get() && expandBlacklist.find(ref->GetID()) == expandBlacklist.end())
+			std::shared_ptr<Ice::ObjectReference> ref = currObject->GetNextObjectReference();
+			if (expandReferences || ref->Flags & Ice::ObjectReference::OWNER)
 			{
-				OgreTreeItemBase *item = new OgreTreeItemBase(std::weak_ptr<Ice::GameObject>(ref));
-				mAllItems.push_back(item);
-				AppendItem(currItem->GetId(), item->GetName(), item->GetIconId(), item->GetSelectedIconId(), item);
-				expandQueue.push(item);
+				Ice::GameObjectPtr refObj = ref->Object.lock();
+				if (ref.get() && expandBlacklist.find(refObj->GetID()) == expandBlacklist.end())
+				{
+					OgreTreeItemBase *item = new OgreTreeItemBase(std::weak_ptr<Ice::GameObject>(refObj));
+					mAllItems.push_back(item);
+					AppendItem(currItem->GetId(), item->GetName(), item->GetIconId(), item->GetSelectedIconId(), item);
+					expandQueue.push(item);
+					expandBlacklist.insert(refObj->GetID());
+				}
 			}
 		}
+		expandReferences = false;
 	}
 };
 
