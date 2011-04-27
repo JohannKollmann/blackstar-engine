@@ -11,7 +11,7 @@ namespace Ice
 {
 
 	/**
-	A component provides a certain functionality that can be attached to game object.
+	* A component provides a certain functionality that can be attached to a game object.
 	*/
 	class DllExport GOComponent : public LoadSave::Saveable
 	{
@@ -51,9 +51,9 @@ namespace Ice
 		virtual void FreeResources(bool free) {};
 
 		/**
-		Retrieves the component family type identifier.
-		@return the family name of the component.
-		@remarks Only one component of the same family can be attached to the same object.
+		* Retrieves the component family type identifier.
+		* @return the family name of the component.
+		* @remarks Only one component of the same family can be attached to the same object.
 		*/		
 		virtual goc_id_family& GetFamilyID() const { return GetComponentID(); }
 

@@ -96,29 +96,29 @@ namespace Ice
 		virtual ~GameObject();
 
 		/**
-		Sets the weak "this" pointer. The factory responsible for the game object must call this function!
-		@pre w.This.lock().get() == this
+		* Sets the weak "this" pointer. The factory responsible for the game object must call this function!
+		* @pre wThis.lock().get() == this
 		*/
 		void SetWeakThis(std::weak_ptr<LoadSave::Saveable> wThis);
 
 		/**
-		@return The name of the object.
+		* @return The name of the object.
 		*/
 		Ogre::String GetName() { return mName; }
 
 		/**
-		Sets the name of the object.
-		@param name The new name of the object.
+		* Sets the name of the object.
+		* @param name The new name of the object.
 		*/
 		void SetName(Ogre::String name) { mName = name; }
 
 		/**
-		@return The unique ID of the object.
+		* @return The unique ID of the object.
 		*/
 		int GetID() { return mID; }
 
 		/**
-		@return The unique ID of the object as string.
+		* @return The unique ID of the object as string.
 		*/
 		Ogre::String GetIDStr() { return Ogre::StringConverter::toString(mID); }
 
@@ -132,8 +132,8 @@ namespace Ice
 		void ProcessMessages();
 
 		/**
-		Attaches a component to the object.
-		@param component The component.
+		* Attaches a component to the object.
+		* @param component The component.
 		*/
 		void AddComponent(GOComponentPtr component);
 
@@ -158,60 +158,68 @@ namespace Ice
 		///Returns the component of family familyID and type typeID if it exists, otherwise nullptr.
 		GOComponent* GetComponent(const GOComponent::goc_id_family& familyID, GOComponent::goc_id_type typeID);
 
-		//Provides a mechanism to iterate over the components attached to the object.
+		///Provides a mechanism to iterate over the components attached to the object.
 		std::vector<GOComponentPtr>::iterator GetComponentIterator() { return mComponents.begin(); }
+		///Provides a mechanism to iterate over the components attached to the object.
 		std::vector<GOComponentPtr>::iterator GetComponentIteratorEnd() { return mComponents.end(); }
 
 		///Detaches and deletes all attaches components.
 		void ClearGOCs();
 
-		//Deletes all referenced objects that are owned by this object.
+		///Deletes all referenced objects that are owned by this object.
 		void ClearOwnedObjects();
 
 		/**
-		Creates a directional link between two objects.
-		@param other The other GameObject.
-		@param flags Characterizes the relationship between the two objects, see ObjectReference.
-		@pre It is NOT allowed that the MOVER or OWNER flag is set bidirectionally.
+		* Creates a directional link between two objects.
+		* @param other The other GameObject.
+		* @param flags Characterizes the relationship between the two objects, see ObjectReference.
+		* @pre It is NOT allowed that the MOVER or OWNER flag is set bidirectionally.
 		*/
 		void AddObjectReference(const GameObjectPtr &other, unsigned int flags = 0, unsigned int userID = 0);
 
-		//Removes all object references with ObjectReference.Object == object.
+		///Removes all object references with ObjectReference.Object == object.
 		void RemoveObjectReferences(GameObject *object);
 
-		//Removes all object references with ObjectReference.UserID == userID.
+		///Removes all object references with ObjectReference.UserID == userID.
 		void RemoveObjectReferences(unsigned int userID);
 
-		/**
-		Retrieves all object references with ObjectReference.UserID == userID.
-		*/
+		///Retrieves all object references with ObjectReference.UserID == userID.
 		void GetReferencedObjects(unsigned int userID, std::vector<GameObjectPtr> &out);
+
+		///Retrieves all object references with ObjectReference.UserID == userID.
 		void GetReferencedObjects(unsigned int userID, std::list<GameObjectPtr> &out);
+
+		///Retrieves all object references with ObjectReference.Flags & flags.
 		void GetReferencedObjectsByFlag(unsigned int flags, std::vector<GameObjectPtr> &out);
+
+		///Retrieves all object references with ObjectReference.Flags & flags.
 		void GetReferencedObjectsByFlag(unsigned int flags, std::list<GameObjectPtr> &out);
 
-		//Creates a parent-child relationship between two objects.
+		///Creates a parent-child relationship between two objects.
 		void SetParent(GameObjectPtr parent);
 
-		//Retrieves the parent object if existent, otherwise an empty GameObjectPtr.
+		///Retrieves the parent object if existent, otherwise an empty GameObjectPtr.
 		GameObjectPtr GetParent();
 
 		/**
-		Provides a mechanism to iterate over the referenced objects.
-		example usage: 
-		while (obj->HasNextObjectReference()) { link = GetNextObjectReference(); }
+		* Provides a mechanism to iterate over the referenced objects.
+		* example usage: 
+		* while (obj->HasNextObjectReference()) { link = GetNextObjectReference(); }
 		*/
 		bool HasNextObjectReference();
+		/**
+		* @see HasNextObjectReference
+		*/
 		std::shared_ptr<ObjectReference> GetNextObjectReference();
 
 		/**
-		Sets the referenced object intern iterator to the beginning.
-		HasNextObjectReference calls this when it returns false, so you probably don't have to call this manually.
+		* Sets the referenced object intern iterator to the beginning.
+		* HasNextObjectReference calls this when it returns false, so you probably don't have to call this manually.
 		*/
 		void ResetObjectReferenceIterator();	
 
 		/**
-		@return The referenced object with the passed name, otherwise nullptr.
+		* @return The referenced object with the passed name, otherwise nullptr.
 		*/
 		GameObjectPtr GetReferencedObjectByName(Ogre::String name);
 
@@ -221,33 +229,47 @@ namespace Ice
 		Ogre::Vector3 GetGlobalScale() { return mScale; }
 
 		/** Sets the global position of the object.
-		@param moveReferences Specifies whether object references with the flag MOVEIT_USER shall be moved relatively.
-		@param moveChildren Specifies whether object references with the flag MOVEIT shall be moved relatively.
-		@param referenceBlacklist	Pass an empty std::set<GameObject*> if you want to be sure that an object referenced transitively is not moved twice.
+		* @param moveReferences Specifies whether object references with the flag MOVEIT_USER shall be moved relatively.
+		* @param moveChildren Specifies whether object references with the flag MOVEIT shall be moved relatively.
+		* @param referenceBlacklist	Pass an empty std::set<GameObject*> if you want to be sure that an object referenced transitively is not moved twice.
 									This Parameter is only relevant when moveReferences is true.
 		*/
 		void SetGlobalPosition(const Ogre::Vector3 &pos, bool moveReferences, bool moveChildren = true, std::set<GameObject*> *referenceBlacklist = nullptr);
+
+		///Sets the global position of the object.
 		void SetGlobalPosition(const Ogre::Vector3 &pos) { SetGlobalPosition(pos, false, true); }
 
 		/** Sets the global orientation of the object.
-		@param moveReferences Specifies whether object references with the flag MOVEIT_USER shall be moved relatively.
-		@param moveChildren Specifies whether object references with the flag MOVEIT shall be moved relatively.
-		@param referenceBlacklist	Pass an empty std::set<GameObject*> if you want to be sure that an object referenced transitively is not moved twice.
+		* @param moveReferences Specifies whether object references with the flag MOVEIT_USER shall be moved relatively.
+		* @param moveChildren Specifies whether object references with the flag MOVEIT shall be moved relatively.
+		* @param referenceBlacklist	Pass an empty std::set<GameObject*> if you want to be sure that an object referenced transitively is not moved twice.
 									This Parameter is only relevant when moveReferences is true.
 		*/
 		void SetGlobalOrientation(const Ogre::Quaternion &quat, bool moveReferences, bool moveChildren = true, std::set<GameObject*> *referenceBlacklist = nullptr);
+
+		///Sets the global orientation of the object.
 		void SetGlobalOrientation(const Ogre::Quaternion &quat) { SetGlobalOrientation(quat, false, true); }
 
+		/** Translates the object in global space of the object.
+		* @see SetGlobalPosition
+		*/
 		void Translate(Ogre::Vector3 vec, bool moveReferences = false, bool moveChildren = true, std::set<GameObject*> *referenceBlacklist = nullptr) { SetGlobalPosition(mPosition + vec, moveReferences, moveChildren, referenceBlacklist); }
+
+		/** Translates the object in global space of the object.
+		* @see SetGlobalOrientation
+		*/
 		void Rotate(Ogre::Vector3 axis, Ogre::Radian angle, bool moveReferences = false, bool moveChildren = true, std::set<GameObject*> *referenceBlacklist = nullptr) { Ogre::Quaternion q; q.FromAngleAxis(angle, axis); SetGlobalOrientation(mOrientation * q, moveReferences, moveChildren, referenceBlacklist); }
 
+		///Sets the scale of the object.
 		void SetGlobalScale(const Ogre::Vector3 &scale);
+
+		///Changes the scale of the object. scaleoffset is added to the current scale.
 		void Rescale(Ogre::Vector3 scaleoffset) { SetGlobalScale(mScale + scaleoffset); }
+
+		///Retrieves wether the object is currently transforming referenced objects.
 		bool GetTransformingReferencedObjects() { return mTransformingReferencedObjects; }
 
-		/**
-		Returns whether the object is movable and should be included in a save file.
-		*/
+		///Returns whether the object is movable and should be included in a save file.
 		bool IsStatic();
 
 		///Tells all components that the object is assembled completely.
@@ -258,6 +280,7 @@ namespace Ice
 
 		//Scripting
 		std::vector<ScriptParam> AddComponent(Script& caller, std::vector<ScriptParam> &vParams);
+		std::vector<ScriptParam> SetParent(Script& caller, std::vector<ScriptParam> &vParams);
 		std::vector<ScriptParam> SetObjectProperty(Script& caller, std::vector<ScriptParam> &vParams);
 		std::vector<ScriptParam> GetObjectProperty(Script& caller, std::vector<ScriptParam> &vParams);
 		std::vector<ScriptParam> HasObjectProperty(Script& caller, std::vector<ScriptParam> &vParams);
@@ -275,6 +298,7 @@ namespace Ice
 		std::vector<ScriptParam> Object_GetDistToObject(Script& caller, std::vector<ScriptParam> &vParams);
 
 		DEFINE_GOLUAMETHOD_H(AddComponent)
+		DEFINE_GOLUAMETHOD_H(SetParent)
 		DEFINE_GOLUAMETHOD_H(SetObjectProperty)
 		DEFINE_GOLUAMETHOD_H(GetObjectProperty)
 		DEFINE_GOLUAMETHOD_H(HasObjectProperty)
@@ -292,10 +316,17 @@ namespace Ice
 		DEFINE_GOLUAMETHOD_H(Object_GetDistToObject)
 
 		//Editor stuff
+
+		///Freezed / unfreezes the object.
 		void Freeze(bool freeze);
+
+		///Shows / hides editor visualisation.
 		void ShowEditorVisuals(bool show);
 
+		///Retrieves, whether the object is selectable in an editor.
 		bool IsSelectable() { return mSelectable; }
+
+		///Sets whether the object is selectable in an editor.
 		void SetSelectable(bool selectable) { mSelectable = selectable; }
 
 		//Load / Save

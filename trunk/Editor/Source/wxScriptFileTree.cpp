@@ -25,8 +25,7 @@ wxScriptFileTree::wxScriptFileTree(wxWindow* parent, wxWindowID id, const wxPoin
 	SetRootPath("Data/Scripts/");
 	wxEdit::Instance().GetExplorerToolbar()->RegisterTool("ReloadScripts", "Scripts1", "Data/Editor/Intern/editor_scriptreload_01.png", wxScriptFileTree::OnToolbarEvent, "Reload all scripts");
 	wxEdit::Instance().GetExplorerToolbar()->RegisterTool("NewScript", "Scripts2", "Data/Editor/Intern/editor_scripnew_01.png", wxScriptFileTree::OnToolbarEvent, "Add empty script");
-	wxEdit::Instance().GetExplorerToolbar()->RegisterTool("NewNpcScript", "Scripts2", "Data/Editor/Intern/editor_scriptnpc_01.png", wxScriptFileTree::OnToolbarEvent, "Add Npc script");
-	wxEdit::Instance().GetExplorerToolbar()->RegisterTool("NewStateScript", "Scripts2", "Data/Editor/Intern/editor_scriptstatus_01.png", wxScriptFileTree::OnToolbarEvent, "Add State script");
+	wxEdit::Instance().GetExplorerToolbar()->RegisterTool("NewObjectScript", "Scripts2", "Data/Editor/Intern/editor_scriptnpc_01.png", wxScriptFileTree::OnToolbarEvent, "Add Object script");
 	//wxEdit::Instance().GetExplorerToolbar()->RegisterTool("DeleteScript", "Scripts3", "Data/Editor/Intern/editor_scriptdelete_01.png", wxScriptFileTree::OnToolbarEvent);
 }
 
@@ -76,7 +75,7 @@ void wxScriptFileTree::OnToolbarEvent(int toolID, Ogre::String toolname)
 		Ice::ScriptSystem::GetInstance().ReparseAllScripts();				
 		RESUME_MAINLOOP
 	}
-	if (toolname == "NewScript" || toolname == "NewNpcScript" || toolname == "NewStateScript")
+	if (toolname == "NewScript" || toolname == "NewObjectScript")
 	{
 		Ogre::String insertpath = wxEdit::Instance().GetWorldExplorer()->GetScriptTree()->GetInsertPath();
 		Ogre::String file = wxEdit::Instance().GetWorldExplorer()->GetScriptTree()->DoCreateFileDialog();
@@ -87,23 +86,16 @@ void wxScriptFileTree::OnToolbarEvent(int toolID, Ogre::String toolname)
 		stream.open(fullPath.c_str(), std::ios::out);
 		stream << std::endl;
 		stream << "function init()" << std::endl;
+		stream << "    bindc(\"LogMessage\")" << std::endl;
+		if (toolname == "NewObjectScript")
+		{
+			stream << "    bindc(\"This\")" << std::endl;
+		}
 		stream << "end" << std::endl;
 		stream << std::endl;
-		if (toolname == "NewNpcScript")
-		{
-			stream << "function create(id)" << std::endl;
-			stream << "end" << std::endl;
-			stream << std::endl;
-		}
-		else if (toolname == "NewStateScript")
-		{
-			stream << "function onEnter()" << std::endl;
-			stream << "end" << std::endl;
-			stream << std::endl;
-			stream << "function onUpdate()" << std::endl;
-			stream << "end" << std::endl;
-			stream << std::endl;
-		}
+		stream << "function create()" << std::endl;
+		stream << "end" << std::endl;
+		stream << std::endl;
 		stream.close();
 		wxFileName path(insertpath.c_str());
 		wxEdit::Instance().GetWorldExplorer()->GetScriptTree()->ExpandToPath(path);

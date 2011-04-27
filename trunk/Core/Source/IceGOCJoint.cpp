@@ -23,8 +23,8 @@ namespace Ice
 		GOCRigidBody *body2 = jointActors[1]->GetComponent<GOCRigidBody>();
 		IceAssert(body1 && body2)
 		IceAssert(body1 != body2)
-		body1->GetActor()->getNxActor()->setSolverIterationCount(8);
-		body2->GetActor()->getNxActor()->setSolverIterationCount(8);
+		body1->GetActor()->getNxActor()->setSolverIterationCount(16);
+		body2->GetActor()->getNxActor()->setSolverIterationCount(16);
 		desc.actor[0] = body1->GetActor()->getNxActor();
 		desc.actor[1] = body2->GetActor()->getNxActor();
 		desc.maxForce = mMaxForce;
@@ -53,6 +53,25 @@ namespace Ice
 		actor2->AddObjectReference(owner, ObjectReference::PERSISTENT|ObjectReference::OWNER|ObjectReference::MOVEIT_USER, ReferenceTypes::JOINT);
 		owner->AddObjectReference(actor1, ObjectReference::PERSISTENT|ObjectReference::OWNED, ReferenceTypes::JOINTACTOR);
 		owner->AddObjectReference(actor2, ObjectReference::PERSISTENT|ObjectReference::OWNED, ReferenceTypes::JOINTACTOR);
+	}
+
+	std::vector<ScriptParam> GOCJoint::SetActorObjects(Script &caller, std::vector<ScriptParam> &params)
+	{
+		GameObjectPtr obj1 = SceneManager::Instance().GetObjectByInternID(params[0].getInt());
+		GameObjectPtr obj2 = SceneManager::Instance().GetObjectByInternID(params[1].getInt());
+		if (!obj1.get() || !obj2.get())
+		{
+			SCRIPT_RETURNERROR("Invalid object ID!")
+		}
+		GOCRigidBody *body1 = obj1->GetComponent<GOCRigidBody>();
+		GOCRigidBody *body2 =obj2->GetComponent<GOCRigidBody>();
+		if (!body1 || !body2 || body1 == body2)
+		{
+			SCRIPT_RETURNERROR("Invalid objects!")
+		}
+		SetActorObjects(obj1, obj2);
+		NotifyPostInit();
+		SCRIPT_RETURN()
 	}
 
 	void GOCJoint::Save(LoadSave::SaveSystem& mgr)

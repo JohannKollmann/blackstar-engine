@@ -514,6 +514,14 @@ namespace Ice
 		SCRIPT_RETURN()
 	}
 
+	std::vector<ScriptParam> GameObject::SetParent(Script& caller, std::vector<ScriptParam> &vParams)
+	{
+		GameObjectPtr parent = SceneManager::Instance().GetObjectByInternID(vParams[0].getInt());
+		if (!parent.get()) SCRIPT_RETURNERROR("Invalid object ID!")
+		else SetParent(parent);
+		SCRIPT_RETURN()
+	}
+
 	std::vector<ScriptParam> GameObject::SetObjectPosition(Script& caller, std::vector<ScriptParam> &vParams)
 	{
 		std::vector<ScriptParam> out;
@@ -631,6 +639,7 @@ namespace Ice
 	}
 
 	DEFINE_TYPEDGOLUAMETHOD_CPP(AddComponent, "string string")
+	DEFINE_TYPEDGOLUAMETHOD_CPP(SetParent, "int")
 	DEFINE_TYPEDGOLUAMETHOD_CPP(SetObjectPosition, "float float float")
 	DEFINE_TYPEDGOLUAMETHOD_CPP(SetObjectOrientation, "float float float")
 	DEFINE_TYPEDGOLUAMETHOD_CPP(SetObjectScale, "float float float")

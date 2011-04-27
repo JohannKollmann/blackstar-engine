@@ -34,9 +34,9 @@ namespace OgrePhysX
 			return;
 		}
 		mNxScene = World::getSingleton().getSDK()->createScene(desc);
-		mNxScene->setTiming(1/60.0f, 8, NX_TIMESTEP_VARIABLE);
+		mNxScene->setTiming(1/100.0f, 16, NX_TIMESTEP_FIXED);
 		mTimeAccu = 0.0f;
-		mFrameTime = 1/60.0f;
+		mFrameTime = 1/100.0f;
 		mSimulationListener = nullptr;
 
 		NxMaterial* defaultMaterial = mNxScene->getMaterialFromIndex(0);

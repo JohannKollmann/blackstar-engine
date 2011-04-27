@@ -282,6 +282,7 @@ namespace Ice
 		*/
 		ScriptSystem::GetInstance().ShareCFunction("Object_Create", &SceneManager::Lua_CreateGameObject);
 		ScriptSystem::GetInstance().ShareCFunction("Object_AddComponent", &GameObject::Lua_AddComponent);
+		ScriptSystem::GetInstance().ShareCFunction("Object_SetParent", &GameObject::Lua_SetParent);
 		ScriptSystem::GetInstance().ShareCFunction("Object_SetPosition", &GameObject::Lua_SetObjectPosition);
 		ScriptSystem::GetInstance().ShareCFunction("Object_SetOrientation", &GameObject::Lua_SetObjectOrientation);
 		ScriptSystem::GetInstance().ShareCFunction("Object_SetScale", &GameObject::Lua_SetObjectScale);
@@ -351,6 +352,9 @@ namespace Ice
 		ScriptSystem::GetInstance().ShareCFunction("Mover_Trigger", &GOCMover::Lua_TriggerMover);
 		ScriptSystem::GetInstance().ShareCFunction("Mover_Pause", &GOCMover::Lua_PauseMover);
 		ScriptSystem::GetInstance().ShareCFunction("Mover_Stop", &GOCMover::Lua_StopMover);
+
+		//Joint
+		ScriptSystem::GetInstance().ShareCFunction("Joint_SetActors", &GOCJoint::Lua_SetActorObjects);
 
 		//Trigger
 		ScriptSystem::GetInstance().ShareCFunction("Trigger_SetActive", &GOCTrigger::Lua_Trigger_SetActive);

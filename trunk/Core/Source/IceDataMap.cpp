@@ -204,20 +204,23 @@ namespace Ice
 		{
 			if (readingState == 0)
 			{
-				if (keyValues[i] == ' ')
+				if (keyValues[i] == ' ' && type != "")
+				{
+					readingState = 1;
+				}
+				else if (keyValues[i] != ' ') type = type + keyValues[i];
+			}
+			else if (readingState == 1)
+			{
+				if (keyValues[i] == '=')
 				{
 					if (key == "")
 					{
 						IceWarning("Key must not be empty!")
 						return;
 					}
-					readingState = 1;
+					readingState = 2;
 				}
-				else type = type + keyValues[i];
-			}
-			else if (readingState == 1)
-			{
-				if (keyValues[i] == '=') readingState = 2;
 				else key = key + keyValues[i];
 			}
 			else if (readingState == 2)
@@ -233,6 +236,7 @@ namespace Ice
 					else if (type == "string") AddOgreString(key, value);
 					else if (type == "vector3") AddOgreVec3(key, Ogre::StringConverter::parseVector3(value));
 					else if (type == "quat") AddOgreQuat(key, Ogre::StringConverter::parseQuaternion(value));
+					else if (type == "enum") AddEnum(key, std::vector<std::string>(), Ogre::StringConverter::parseInt(value));
 					else IceWarning("Unknown data type: " + type)
 					readingState = 0;
 					type = "";
@@ -253,45 +257,45 @@ namespace Ice
 		return false;
 	}
 
-	int DataMap::GetInt(const Ogre::String &keyname) const
+	int DataMap::GetInt(const Ogre::String &keyname, int defaultVal) const
 	{
-		return GetValue<int>(keyname);
+		return GetValue<int>(keyname, defaultVal);
 	}
 
-	bool DataMap::GetBool(const Ogre::String &keyname) const
+	bool DataMap::GetBool(const Ogre::String &keyname, bool defaultVal) const
 	{
-		return GetValue<bool>(keyname);
+		return GetValue<bool>(keyname, defaultVal);
 	}
 
-	float DataMap::GetFloat(const Ogre::String &keyname) const
+	float DataMap::GetFloat(const Ogre::String &keyname, float defaultVal) const
 	{
-		return GetValue<float>(keyname);
+		return GetValue<float>(keyname, defaultVal);
 	}
 
-	Ogre::Vector3 DataMap::GetOgreVec3(const Ogre::String &keyname) const
+	Ogre::Vector3 DataMap::GetOgreVec3(const Ogre::String &keyname, Ogre::Vector3 defaultVal) const
 	{
-		return GetValue<Ogre::Vector3>(keyname);
+		return GetValue<Ogre::Vector3>(keyname, defaultVal);
 	}
 
-	Ogre::ColourValue DataMap::GetOgreCol(const Ogre::String &keyname) const
+	Ogre::ColourValue DataMap::GetOgreCol(const Ogre::String &keyname, Ogre::ColourValue defaultVal) const
 	{
-		Ogre::Vector3 vec = GetValue<Ogre::Vector3>(keyname);
+		Ogre::Vector3 vec = GetValue<Ogre::Vector3>(keyname, Ogre::Vector3(defaultVal.r, defaultVal.g, defaultVal.b));
 		return Ogre::ColourValue(vec.x, vec.y, vec.z);
 	}
 
-	Ogre::Quaternion DataMap::GetOgreQuat(const Ogre::String &keyname) const
+	Ogre::Quaternion DataMap::GetOgreQuat(const Ogre::String &keyname, Ogre::Quaternion defaultVal) const
 	{
-		return GetValue<Ogre::Quaternion>(keyname);
+		return GetValue<Ogre::Quaternion>(keyname, defaultVal);
 	}
 
-	Ogre::String DataMap::GetOgreString(const Ogre::String &keyname) const
+	Ogre::String DataMap::GetOgreString(const Ogre::String &keyname, Ogre::String defaultVal) const
 	{
-		return GetValue<Ogre::String>(keyname);
+		return GetValue<Ogre::String>(keyname, defaultVal);
 	}
 
-	DataMap::Enum DataMap::GetEnum(const Ogre::String &keyname)	const
+	DataMap::Enum DataMap::GetEnum(const Ogre::String &keyname, DataMap::Enum defaultVal)	const
 	{
-		return GetValue<Enum>(keyname);
+		return GetValue<Enum>(keyname, defaultVal);
 	}
 
 	Ogre::String DataMap::Enum::toString() const
@@ -350,8 +354,6 @@ namespace Ice
 
 	void DataMap::AddEnum(const Ogre::String &keyname, std::vector<Ogre::String> choices, unsigned int selection)
 	{
-		IceAssert(choices.size() > selection)
-
 		//hack: code it as Ogre string
 		Enum e; e.choices = choices; e.selection = selection;
 		AddItem<Enum>(keyname, e);
