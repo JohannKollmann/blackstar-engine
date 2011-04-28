@@ -10,10 +10,9 @@
 #include "wxMaterialEditor.h"
 
 #include "IceGOCView.h"
+#include "IceSceneManager.h"
 
 #include "Edit.h"
-
-#include "IceSceneManager.h"
 
 BEGIN_EVENT_TABLE(wxMaterialTree, wxTreeCtrl)
 	EVT_TREE_ITEM_MENU(-1, wxMaterialTree::OnItemMenu)
@@ -42,6 +41,10 @@ wxMaterialTree::~wxMaterialTree()
 	// delete the icons
 	delete _iconList;
 
+}
+
+void wxMaterialTree::OnToolbarEvent(int toolID, Ogre::String toolname)
+{
 }
 
 bool wxMaterialTree::AddEntity(Ogre::Entity *entity)
@@ -436,10 +439,6 @@ Ogre::String wxMaterialTree::GetTemplateLocation(Ogre::String tmat)
 	return "";
 }
 
-void wxMaterialTree::OnToolbarEvent(int toolID, Ogre::String toolname)
-{
-}
-
 void wxMaterialTree::OnEnterTab()
 {
 	wxMaterialEditor *editor = (wxMaterialEditor*)(wxEdit::Instance().GetpropertyWindow()->SetPage("material"));
@@ -449,5 +448,4 @@ void wxMaterialTree::OnEnterTab()
 }
 void wxMaterialTree::OnLeaveTab()
 {
-	//wxEdit::Instance().GetExplorerToolbar()->SetGroupStatus("Materials", false);
 }

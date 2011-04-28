@@ -462,7 +462,7 @@ void wxEdit::OnShowLog(wxCommandEvent& WXUNUSED(event))
 
 void wxEdit::OnAbout(wxCommandEvent& WXUNUSED(event))
 {
-	wxMessageBox("Blackspacer (C) 2010 Andreas Henne (Caphalor)\nBlackspace Engine (C) 2010 Benedikt (1nsane) / Andreas Henne\n\nDependencies: Ogre 1.8, PhysX 2.8, wxWidgets 2.87, Caelum, OpenAL, OgreOggSound, boost, Lua, MeshMagick\n\nContact: heandreas@live.de\nJOIN US! ;)",
+	wxMessageBox("Blackspacer (C) 2011 Andreas Henne (Caphalor)\nBlackspace Engine (C) 2011 Benedikt (1nsane) / Andreas Henne\n\nDependencies: Ogre 1.8, PhysX 2.8, wxWidgets 2.87, Caelum, OpenAL, OgreOggSound, boost, Lua, MeshMagick\n\nContact: heandreas@live.de\nJOIN US! ;)",
                        "About Blackspace Editor 'Weathertop' PRE ALPHA",
                        wxICON_INFORMATION);
 	wxEdit::Instance().GetProgressBar()->Reset();
