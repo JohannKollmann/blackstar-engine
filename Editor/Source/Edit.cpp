@@ -17,6 +17,8 @@
 #include "AmbientOcclusionGenerator.h"
 #include "IceGOCJoint.h"
 
+#include "ResourceGroupReloader.h"
+
 IMPLEMENT_CLASS(Edit, wxOgre)
 
 enum
@@ -137,6 +139,9 @@ void Edit::PostInit()
 	wxEdit::Instance().GetMainToolbar()->RegisterTool("StopGame", "Game", "Data/Editor/Intern/Icon_Stop.png", Edit::OnToolbarEvent, "Reset everything to the state before you started playing.");
 	wxEdit::Instance().GetMainToolbar()->SetGroupStatus("Game", false);
 
+	wxEdit::Instance().GetMainToolbar()->RegisterTool("ReloadOgreResources", "Reload", "Data/Editor/Intern/editor_scriptreload_01.png", Edit::OnToolbarEvent, "Reload all Ogre resources");
+	wxEdit::Instance().GetMainToolbar()->SetGroupStatus("Reload", true);
+
 	Ice::AIManager::Instance().SetWayMeshLoadingMode(false);
 
 	SetCameraMoveSpeed(mMovSpeed);
@@ -211,6 +216,11 @@ void Edit::OnToolbarEvent(int toolID, Ogre::String toolname)
 	if (toolname == "PlayGame")
 	{
 		edit->PlayGame();
+	}
+	if (toolname == "ReloadOgreResources")
+	{
+		ResourceGroupReloader rgh;
+		rgh.reloadResourceGroup("General");
 	}
 }
 

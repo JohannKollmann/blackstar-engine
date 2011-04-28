@@ -117,6 +117,7 @@
   <ItemGroup>
     <ClInclude Include="Header\AmbientOcclusionGenerator.h" />
     <ClInclude Include="Header\EntityTreeNotebookListener.h" />
+    <ClInclude Include="Header\ResourceGroupReloader.h" />
     <ClInclude Include="Header\virtualdirtreectrl.h" />
     <ClInclude Include="Header\wxComponentBar.h" />
     <ClInclude Include="Header\wxEdit.h" />
@@ -152,6 +153,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\AmbientOcclusionGenerator.cpp" />
+    <ClCompile Include="Source\ResourceGroupReloader.cpp" />
     <ClCompile Include="Source\virtualdirtreectrl.cpp" />
     <ClCompile Include="Source\wxComponentBar.cpp" />
     <ClCompile Include="Source\wxEdit.cpp" />

@@ -124,15 +124,26 @@ bool Main::Run(Ogre::RenderWindow *window, size_t OISInputWindow)
 	return true;
 };
 
-void Main::AddOgreResourcePath(Ogre::String dir)
+void Main::AddOgreResourcePath(Ogre::String dir, Ogre::String resourceGroup)
 {
 	if (dir.find("svn") != Ogre::String::npos) return;
 	boost::filesystem::path path(dir.c_str());
-	Ogre::ResourceGroupManager::getSingleton().addResourceLocation(dir, "FileSystem");
+	Ogre::ResourceGroupManager::getSingleton().addResourceLocation(dir, "FileSystem", resourceGroup);
 	for (boost::filesystem::directory_iterator i(path); i != boost::filesystem::directory_iterator(); i++)
 	{
-		if (boost::filesystem::is_directory((*i))) AddOgreResourcePath((*i).path().directory_string().c_str());
+		if (boost::filesystem::is_directory((*i))) AddOgreResourcePath((*i).path().directory_string().c_str(), resourceGroup);
 	}
+}
+
+void Main::InitOgreResources()
+{
+	//Init Ogre Resources
+	for (std::vector<KeyVal>::iterator i = mSettings["Resources"].begin(); i != mSettings["Resources"].end(); i++)
+	{
+		if (i->Key == "Zip") Ogre::ResourceGroupManager::getSingleton().addResourceLocation(i->Val, "Zip");
+		if (i->Key == "FileSystem") AddOgreResourcePath(i->Val);
+	}
+	Ogre::ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
 }
 
 void Main::initScene()
@@ -175,13 +186,6 @@ void Main::initScene()
 	mPhysXScene->getNxScene()->setActorGroupPairFlags(CollisionGroups::DEFAULT, CollisionGroups::DEFAULT, NX_NOTIFY_ON_START_TOUCH|NX_NOTIFY_FORCES);
 	mPhysXScene->getNxScene()->setActorGroupPairFlags(CollisionGroups::DEFAULT, CollisionGroups::LEVELMESH, NX_NOTIFY_ON_START_TOUCH|NX_NOTIFY_FORCES);
 
-	//Init Ogre Resources
-	for (std::vector<KeyVal>::iterator i = mSettings["Resources"].begin(); i != mSettings["Resources"].end(); i++)
-	{
-		if (i->Key == "Zip") Ogre::ResourceGroupManager::getSingleton().addResourceLocation(i->Val, "Zip");
-		if (i->Key == "FileSystem") AddOgreResourcePath(i->Val);
-	}
-
 	mSceneMgr = mRoot->createSceneManager(Ogre::ST_GENERIC, "Esgaroth");
 	mCamera = mSceneMgr->createCamera("MainCamera");
 	mCamera->lookAt(Ogre::Vector3(0,0,1));
@@ -194,10 +198,11 @@ void Main::initScene()
 
 	mPreviewSceneMgr = mRoot->createSceneManager(Ogre::ST_GENERIC, "Esgaroth_Preview");
 
+	InitOgreResources();
+
 	Ogre::TextureManager::getSingleton().setDefaultNumMipmaps(5);
 	Ogre::MaterialManager::getSingleton().setDefaultTextureFiltering(Ogre::TFO_ANISOTROPIC);
 	Ogre::MaterialManager::getSingleton().setDefaultAnisotropy(8); 
-	Ogre::ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
 
 	Ogre::MaterialManager::getSingleton().addListener(new DepthSchemeHandler(), "Depth");
 
@@ -230,25 +235,7 @@ void Main::initScene()
 	mSoundManager->setDistanceModel(AL_LINEAR_DISTANCE);
 	//mCamera->getParentSceneNode()->attachObject(mSoundManager->getListener());
 
-	/*Ogre::CompositorManager::getSingleton().addCompositor(GetViewport(), "RenderDepth");
-	Ogre::CompositorManager::getSingleton().setCompositorEnabled(GetViewport(), "RenderDepth", true);
-	Ogre::CompositorInstance *hdrinstance = Ogre::CompositorManager::getSingleton().addCompositor(Main::Instance().GetViewport(), "HDRWorking");
-	HDRListener *hdrListener = new HDRListener(); 
-	hdrinstance->addListener(hdrListener);
-	hdrListener->notifyViewportSize(mViewport->getActualWidth(), mViewport->getActualHeight());
-	hdrListener->notifyCompositor(hdrinstance);
-	Ogre::CompositorManager::getSingleton().setCompositorEnabled(GetViewport(), "HDRWorking", true);*/
-
-
-	mSceneRenderCompositor = Ogre::CompositorManager::getSingleton().addCompositor(GetViewport(), "RenderHDRScene");
-	mSceneRenderCompositor->addListener(new VolumetricLightListener());
-	Ogre::CompositorManager::getSingleton().setCompositorEnabled(GetViewport(), "RenderHDRScene", true);
-	Ogre::CompositorInstance *hdrinstance = Ogre::CompositorManager::getSingleton().addCompositor(Main::Instance().GetViewport(), "DownsampleHDR1");
-	HDRListener *hdrListener = new HDRListener(); 
-	hdrinstance->addListener(hdrListener);
-	hdrListener->notifyViewportSize(mViewport->getActualWidth(), mViewport->getActualHeight());
-	hdrListener->notifyCompositor(hdrinstance);
-	Ogre::CompositorManager::getSingleton().setCompositorEnabled(GetViewport(), "DownsampleHDR1", true);
+	InitCompositor();
 
 	Ogre::MovableObject::setDefaultVisibilityFlags( Ice::VisibilityFlags::V_DEFAULT);
 	
@@ -338,6 +325,19 @@ void Main::initScene()
 
 
 };
+
+void Main::InitCompositor()
+{
+	mSceneRenderCompositor = Ogre::CompositorManager::getSingleton().addCompositor(GetViewport(), "RenderHDRScene");
+	mSceneRenderCompositor->addListener(new VolumetricLightListener());
+	Ogre::CompositorManager::getSingleton().setCompositorEnabled(GetViewport(), "RenderHDRScene", true);
+	Ogre::CompositorInstance *hdrinstance = Ogre::CompositorManager::getSingleton().addCompositor(Main::Instance().GetViewport(), "DownsampleHDR1");
+	HDRListener *hdrListener = new HDRListener(); 
+	hdrinstance->addListener(hdrListener);
+	hdrListener->notifyViewportSize(mViewport->getActualWidth(), mViewport->getActualHeight());
+	hdrListener->notifyCompositor(hdrinstance);
+	Ogre::CompositorManager::getSingleton().setCompositorEnabled(GetViewport(), "DownsampleHDR1", true);
+}
 
 void Main::LoadOgrePlugins()
 {

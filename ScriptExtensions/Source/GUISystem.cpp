@@ -11,7 +11,7 @@
 void
 GUISystem::SetWindowPosition(Ogre::SubEntity* pSubEnt, float fX, float fY, bool bKeepRest)
 {
-	Ogre::Vector4 vCustom=bKeepRest ? pSubEnt->getCustomParameter(0) : Ogre::Vector4();
+	Ogre::Vector4 vCustom=bKeepRest ? Ogre::Vector4(pSubEnt->getCustomParameterPtr(0)) : Ogre::Vector4();
 	float fInvAspect=Ice::Main::Instance().GetViewport()->getActualHeight()/(float)Ice::Main::Instance().GetViewport()->getActualWidth();
 	vCustom.x=REL_COORD_X(fX, fInvAspect);
 	vCustom.y=REL_COORD_Y(fY);
@@ -267,7 +267,7 @@ GUISystem::ReceiveMessage(Ice::Msg &msg)
 		{
 			SWindowInfo wininfo=m_mWindowInfos.find(*it)->second;
 			//float fCurrTransparency=m_mMatInstances[*it]->getTransparency();
-			float fCurrTransparency=Ice::Main::Instance().GetOgreSceneMgr()->getEntity(wininfo.strName)->getSubEntity(0)->getCustomParameter(1).x;
+			float fCurrTransparency = Ogre::Vector4(Ice::Main::Instance().GetOgreSceneMgr()->getEntity(wininfo.strName)->getSubEntity(0)->getCustomParameterPtr(1)).x;
 			fCurrTransparency+=time*wininfo.fFadeSpeed;
 			if(fCurrTransparency>1.0f)
 			{
@@ -551,7 +551,7 @@ GUISystem::Window::Move(float x, float y)
 	Ogre::Entity* pEnt=Ice::Main::Instance().GetOgreSceneMgr()->getEntity(wi.strName);
 	for(unsigned int iSubEnt=0; iSubEnt<pEnt->getNumSubEntities(); iSubEnt++)
 	{
-		/*Ogre::Vector4 vCustom=pEnt->getSubEntity(iSubEnt)->getCustomParameter(0);
+		/*Ogre::Vector4 vCustom = Ogre::Vector4(pEnt->getSubEntity(iSubEnt)->getCustomParameterPtr(0));
 		vCustom.x=x;
 		vCustom.y=y;
 		pEnt->getSubEntity(iSubEnt)->setCustomParameter(0, vCustom);*/
@@ -599,7 +599,7 @@ GUISystem::SetForegroundWindow(int iHandle)
 		Ogre::Entity* pEnt=Ice::Main::Instance().GetOgreSceneMgr()->getEntity(wininfo.strName);
 		for(unsigned int iSubEnt=0; iSubEnt<pEnt->getNumSubEntities(); iSubEnt++)
 		{
-			Ogre::Vector4 vCustom=pEnt->getSubEntity(iSubEnt)->getCustomParameter(0);
+			Ogre::Vector4 vCustom = Ogre::Vector4(pEnt->getSubEntity(iSubEnt)->getCustomParameterPtr(0));
 			vCustom.z=(float)iCurrDepth*m_fZStep;
 			pEnt->getSubEntity(iSubEnt)->setCustomParameter(0, vCustom);
 		}
@@ -638,7 +638,7 @@ GUISystem::SetVisible(int iHandle, bool bVisible)
 	}
 	//hiding subwindows requires more work
 	SWindowInfo wininfo=m_mWindowInfos.find(FindParentWindow(iHandle))->second;
-	Ogre::Vector4 vCustom=Ice::Main::Instance().GetOgreSceneMgr()->getEntity(wininfo.strName)->getSubEntity(subwininfo.strName)->getCustomParameter(0);
+	Ogre::Vector4 vCustom = Ogre::Vector4(Ice::Main::Instance().GetOgreSceneMgr()->getEntity(wininfo.strName)->getSubEntity(subwininfo.strName)->getCustomParameterPtr(0));
 	vCustom.x=bVisible ? wininfo.x : 10;
 	Ice::Main::Instance().GetOgreSceneMgr()->getEntity(wininfo.strName)->getSubEntity(subwininfo.strName)->setCustomParameter(0, vCustom);
 }
@@ -678,7 +678,7 @@ GUISystem::Fade(int iHandle, float fFadeSpeed)
 	}
 	//hiding subwindows requires more work
 /*	SWindowInfo wininfo=m_mWindowInfos.find(FindParentWindow(iHandle))->second;
-	Ogre::Vector4 vCustom=Ice::Main::Instance().GetOgreSceneMgr()->getEntity(wininfo.strName)->getSubEntity(subwininfo.strName)->getCustomParameter(0);
+	Ogre::Vector4 vCustom = Ogre::Vector4(Ice::Main::Instance().GetOgreSceneMgr()->getEntity(wininfo.strName)->getSubEntity(subwininfo.strName)->getCustomParameterPtrPtr(0));
 	vCustom.x=bVisible ? wininfo.x : 10;
 	Ice::Main::Instance().GetOgreSceneMgr()->getEntity(wininfo.strName)->getSubEntity(subwininfo.strName)->setCustomParameter(0, vCustom);
 */}

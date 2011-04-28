@@ -66,6 +66,7 @@ namespace Ice
 
 	public:
 
+		void InitCompositor();
 		Ogre::CompositorInstance* GetSceneRenderCompositor() { return mSceneRenderCompositor; }
 
 		Ogre::Entity *mWaterTestEntity;
@@ -78,6 +79,8 @@ namespace Ice
 		void ExternInit();
 
 		void initScene();
+
+		void InitOgreResources();
 
 		void LoadPlugins();
 
@@ -113,7 +116,7 @@ namespace Ice
 		void SetSpotShadowCameraSetup(Ogre::ShadowCameraSetupPtr setup) { mSpotShadowCameraSetup = setup; };
 		void SetPointShadowCameraSetup(Ogre::ShadowCameraSetupPtr setup) { mPointShadowCameraSetup = setup; };
 
-		void AddOgreResourcePath(Ogre::String dir);
+		void AddOgreResourcePath(Ogre::String dir, Ogre::String resourceGroup = "General");
 
 		//Muss vom Plugin aus in dllStartPlugin aufgerufen werden!
 		void InstallPlugin(Ogre::Plugin* plugin);

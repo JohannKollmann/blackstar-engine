@@ -136,7 +136,6 @@ protected:
 		don't forget to delete it! */
 	wxBitmap *CreateNodeBitmap();
 
-
 	void OnMenuEvent(wxCommandEvent& event);
 	void OnItemMenu(wxTreeEvent &event);
 	void ShowMenu(OgreMaterialTreeItemBase *item, const wxPoint& pt);

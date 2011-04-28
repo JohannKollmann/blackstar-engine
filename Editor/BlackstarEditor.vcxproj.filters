@@ -117,6 +117,9 @@
     <ClInclude Include="Header\wxMediaPane.h">
       <Filter>View</Filter>
     </ClInclude>
+    <ClInclude Include="Header\ResourceGroupReloader.h">
+      <Filter>Editor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\virtualdirtreectrl.cpp">
@@ -216,6 +219,9 @@
       <Filter>View</Filter>
     </ClCompile>
     <ClCompile Include="Source\AmbientOcclusionGenerator.cpp">
+      <Filter>Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ResourceGroupReloader.cpp">
       <Filter>Editor</Filter>
     </ClCompile>
   </ItemGroup>
