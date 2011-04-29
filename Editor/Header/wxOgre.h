@@ -1,6 +1,7 @@
 
 #pragma once
 
+#include "boost/thread.hpp"
 #include "Ogre.h"
 #include "wx/wx.h"
 #include "EDTIncludes.h"
@@ -22,6 +23,9 @@
 	{
 		DECLARE_CLASS(wxOgre)
 
+	private:
+		boost::mutex mLoopMutex;
+
 	public:
 		/** A new wxOgre must receive a parent frame to which to attach 
 		itself to */
@@ -41,6 +45,8 @@
 		void setCamera(Ogre::Camera* camera) { mCamera = camera;};
 
 		void SetPaused(bool paused);
+
+		boost::mutex& GetLoopMutex() { return mLoopMutex; }
 		
 
 	protected:

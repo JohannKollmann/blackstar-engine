@@ -162,10 +162,12 @@ void wxOgre::OnRenderTimer(wxTimerEvent& event)
 
 void wxOgre::update()
 {
+	mLoopMutex.lock();
 	if (mInitialized && !mPaused)
 	{
 		OnRender();
 	}
+	mLoopMutex.unlock();
 }
 
 void wxOgre::SetPaused(bool paused)

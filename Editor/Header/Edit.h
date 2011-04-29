@@ -14,8 +14,14 @@
 #include "IceGOCCameraController.h"
 #include "wxOgre.h"
 #include "wx/msw/winundef.h"
+#include "boost/thread.hpp"
 
-#define STOP_MAINLOOP wxEdit::Instance().GetMainNotebook()->GetOgreWindow()->SetPaused(true);
+#define STOP_MAINLOOP { \
+		wxEdit::Instance().GetMainNotebook()->GetOgreWindow()->GetLoopMutex().lock(); \
+		wxEdit::Instance().GetMainNotebook()->GetOgreWindow()->SetPaused(true); \
+		wxEdit::Instance().GetMainNotebook()->GetOgreWindow()->GetLoopMutex().unlock(); \
+	}
+
 #define RESUME_MAINLOOP wxEdit::Instance().GetMainNotebook()->GetOgreWindow()->SetPaused(false);
 
 class IEditorSelection

@@ -522,14 +522,16 @@ namespace Ice
 	{
 		_destroyLookAtLine();
 		GameObjectPtr owner = GetOwner();
-		owner->AddObjectReference(target, ObjectReference::PERSISTENT, ReferenceTypes::LOOKAT);
+		owner->RemoveObjectReferences(ReferenceTypes::LOOKAT);
+		if (target.get()) owner->AddObjectReference(target, ObjectReference::PERSISTENT, ReferenceTypes::LOOKAT);
 		_updateLookAtLine();
 	}
 	void GOCMover::SetNormalLookAtObject(GameObjectPtr target)
 	{
 		_destroyLookAtLine();
 		GameObjectPtr owner = GetOwner();
-		owner->AddObjectReference(target, ObjectReference::PERSISTENT, ReferenceTypes::NORMALLOOKAT);
+		owner->RemoveObjectReferences(ReferenceTypes::LOOKAT);
+		if (target.get()) owner->AddObjectReference(target, ObjectReference::PERSISTENT, ReferenceTypes::NORMALLOOKAT);
 		_updateLookAtLine();
 	}
 
