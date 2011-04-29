@@ -715,11 +715,11 @@ namespace Ice
 
 	std::vector<ScriptParam> SceneManager::Lua_GetRandomNumber(Script& caller, std::vector<ScriptParam> vParams)
 	{
-		int random = 0;
-		auto err = Utils::TestParameters(vParams, "int int");
+		float random = 0;
+		auto err = Utils::TestParameters(vParams, "float float");
 		if (err == "")
 		{
-			random = static_cast<int>(Ogre::Math::RangeRandom(vParams[0].getInt(), vParams[1].getInt()));
+			random = Ogre::Math::RangeRandom(vParams[0].getFloat(), vParams[1].getFloat());
 			SCRIPT_RETURNVALUE(random)
 		}
 		else SCRIPT_RETURNERROR(err)

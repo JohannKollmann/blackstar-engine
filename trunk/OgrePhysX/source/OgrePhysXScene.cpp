@@ -34,7 +34,7 @@ namespace OgrePhysX
 			return;
 		}
 		mNxScene = World::getSingleton().getSDK()->createScene(desc);
-		mNxScene->setTiming(1/80.0f, 16, NX_TIMESTEP_FIXED);
+		mNxScene->setTiming(1/80.0f, 12, NX_TIMESTEP_FIXED);
 		mTimeAccu = 0.0f;
 		mFrameTime = 1/80.0f;
 		mSimulationListener = nullptr;
@@ -280,7 +280,8 @@ namespace OgrePhysX
 	void Scene::simulate(float time)
 	{
 		mTimeAccu += time;
-		while (mTimeAccu >= mFrameTime)
+		int numSubSteps = 0;
+		while (mTimeAccu >= mFrameTime && numSubSteps < 12)
 		{
 			if (mSimulationListener) mSimulationListener->onBeginSimulate(mFrameTime);
 			mNxScene->simulate(mFrameTime);
