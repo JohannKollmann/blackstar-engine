@@ -21,6 +21,11 @@ wxScriptFileTree::wxScriptFileTree(wxWindow* parent, wxWindowID id, const wxPoin
 {
 	wxArrayString extensions;
 	extensions.Add("*.lua");
+	extensions.Add("*.material");
+	extensions.Add("*.compositor");
+	extensions.Add("*.hlsl");
+	extensions.Add("*.cg");
+	extensions.Add("*.glsl");
 	SetExtensions(extensions);
 	SetRootPath("Data/Scripts/");
 	wxEdit::Instance().GetExplorerToolbar()->RegisterTool("ReloadScripts", "Scripts1", "Data/Editor/Intern/editor_scriptreload_01.png", wxScriptFileTree::OnToolbarEvent, "Reload all scripts");
