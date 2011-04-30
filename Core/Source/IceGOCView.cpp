@@ -440,6 +440,8 @@ namespace Ice
 			mLight->setType(Ogre::Light::LightTypes::LT_POINT);
 		}
 		mLight->setCastShadows(shadow_caster);
+		mLight->setDiffuseColour(diffuse);
+		mLight->setSpecularColour(specular);
 		mLight->setAttenuation(maxDistance, attenuation.x, attenuation.y, attenuation.z);
 		NotifyOwnerGO();
 	}
@@ -452,21 +454,21 @@ namespace Ice
 	void GOCLocalLightRenderable::SetParameters(DataMap *parameters)
 	{
 		bool spot = parameters->GetBool("Spotlight");
-		Ogre::Vector3 diffuse = parameters->GetOgreVec3("Diffuse");
-		Ogre::Vector3 specular = parameters->GetOgreVec3("Specular");
+		Ogre::ColourValue diffuse = parameters->GetOgreCol("Diffuse");
+		Ogre::ColourValue specular = parameters->GetOgreCol("Specular");
 		bool shadow = parameters->GetBool("ShadowCaster");
 		float maxDist = parameters->GetFloat("MaxLightRange");
 		Ogre::Vector3 atten = parameters->GetOgreVec3("Attenuation");
 		Ogre::Vector3 spotdata = parameters->GetOgreVec3("SpotLightData");
 		mFlickerSpeed = parameters->GetFloat("FlickerSpeed");
 		mFlickerIntensity = parameters->GetFloat("FlickerIntensity");
-		Create(Ogre::ColourValue(diffuse.x, diffuse.y, diffuse.z), Ogre::ColourValue(specular.x, specular.y, specular.z), spot, shadow, maxDist, atten, spotdata, mFlickerSpeed, mFlickerSpeed);
+		Create(diffuse, specular, spot, shadow, maxDist, atten, spotdata, mFlickerSpeed, mFlickerSpeed);
 	}
 
 	void GOCLocalLightRenderable::GetParameters(DataMap *parameters)
 	{
-		parameters->AddOgreVec3("Diffuse", Ogre::Vector3(mOriginalColour.r, mOriginalColour.g, mOriginalColour.b));
-		parameters->AddOgreVec3("Specular", Ogre::Vector3(mLight->getSpecularColour().r, mLight->getSpecularColour().g, mLight->getSpecularColour().b));
+		parameters->AddOgreCol("Diffuse", mOriginalColour);
+		parameters->AddOgreCol("Specular", mLight->getSpecularColour());
 		parameters->AddBool("ShadowCaster", mLight->getCastShadows());
 		parameters->AddFloat("MaxLightRange", mLight->getAttenuationRange());
 		parameters->AddOgreVec3("Attenuation", Ogre::Vector3(mLight->getAttenuationConstant(), mLight->getAttenuationLinear(), mLight->getAttenuationQuadric()));
@@ -479,8 +481,8 @@ namespace Ice
 
 	void GOCLocalLightRenderable::GetDefaultParameters(DataMap *parameters)
 	{
-		parameters->AddOgreVec3("Diffuse", Ogre::Vector3(0,0,0));
-		parameters->AddOgreVec3("Specular", Ogre::Vector3(0,0,0));;
+		parameters->AddOgreCol("Diffuse", Ogre::ColourValue());
+		parameters->AddOgreCol("Specular", Ogre::ColourValue());;
 		parameters->AddBool("ShadowCaster", true);
 		parameters->AddFloat("MaxLightRange", 200);
 		parameters->AddOgreVec3("Attenuation", Ogre::Vector3(1,0.01,0.0005));

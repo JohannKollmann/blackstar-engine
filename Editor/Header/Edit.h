@@ -18,11 +18,11 @@
 
 #define STOP_MAINLOOP { \
 		wxEdit::Instance().GetMainNotebook()->GetOgreWindow()->GetLoopMutex().lock(); \
-		wxEdit::Instance().GetMainNotebook()->GetOgreWindow()->SetPaused(true); \
+		wxEdit::Instance().GetMainNotebook()->GetOgreWindow()->IncBlockingCounter(); \
 		wxEdit::Instance().GetMainNotebook()->GetOgreWindow()->GetLoopMutex().unlock(); \
 	}
 
-#define RESUME_MAINLOOP wxEdit::Instance().GetMainNotebook()->GetOgreWindow()->SetPaused(false);
+#define RESUME_MAINLOOP wxEdit::Instance().GetMainNotebook()->GetOgreWindow()->DecBlockingCounter();
 
 class IEditorSelection
 {

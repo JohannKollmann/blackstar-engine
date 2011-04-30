@@ -185,11 +185,15 @@ void Edit::OnToolbarEvent(int toolID, Ogre::String toolname)
 
 	if (toolname == "Physics")
 	{
+		STOP_MAINLOOP
 		Ice::MainLoop::Instance().SetPhysics(checked);
+		RESUME_MAINLOOP
 	}
 	if (toolname == "TimeCycle")
 	{
+		STOP_MAINLOOP
 		Ice::SceneManager::Instance().EnableClock(checked);
+		RESUME_MAINLOOP
 	}
 	if (toolname == "BrushMode")
 	{
