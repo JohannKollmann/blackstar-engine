@@ -42,33 +42,6 @@ wxScriptEditor::wxScriptEditor(wxWindow *parent, wxWindowID id,
 
     SetMarginWidth(0, TextWidth(wxSTC_STYLE_LINENUMBER, "_99999"));
 
-	StyleClearAll();
-	SetLexer(wxSTC_LEX_LUA);
-	
-	//StyleSetBold(14, true);
-	for (int i = 0; i < 20; i++)
-	{
-        wxFont font (10, wxMODERN, wxNORMAL, wxNORMAL);
-        StyleSetFont (i, font);
-	}
-
-	StyleSetBold(wxSTC_STYLE_BRACELIGHT, true);
-	StyleSetForeground(wxSTC_STYLE_BRACELIGHT, wxColour("red"));
-
-	//Keywords
-	StyleSetBold(5, true);
-	StyleSetForeground(5, wxColour("blue"));
-	SetKeyWords(0, ("and break do else elseif end for function if local nil not or repeat return then until while true false"));
-
-	//Strings
-	StyleSetForeground(6, wxColour("brown"));
-	StyleSetForeground(7, wxColour("brown"));
-
-	//Comments
-	StyleSetForeground(1, wxColour("forest green"));
-	StyleSetForeground(2, wxColour("forest green"));
-	StyleSetForeground(3, wxColour("forest green"));
-
     SetTabWidth (4);
     SetUseTabs (false);
     SetTabIndents (true);
@@ -164,6 +137,77 @@ void wxScriptEditor::LoadScript(wxString path)
 {
 	mCurrentFile = path;
 	LoadFile(path);
+	if (path.Find(".lua") != wxString::npos)
+	{
+		StyleClearAll();
+		SetLexer(wxSTC_LEX_LUA);
+	
+		//StyleSetBold(14, true);
+		for (int i = 0; i < 20; i++)
+		{
+			wxFont font (10, wxMODERN, wxNORMAL, wxNORMAL);
+			StyleSetFont (i, font);
+		}
+
+		StyleSetBold(wxSTC_STYLE_BRACELIGHT, true);
+		StyleSetForeground(wxSTC_STYLE_BRACELIGHT, wxColour("red"));
+
+		//Keywords
+		StyleSetBold(5, true);
+		StyleSetForeground(5, wxColour("blue"));
+		SetKeyWords(0, ("and break do else elseif end for function if local nil not or repeat return then until while true false"));
+
+		//Strings
+		StyleSetForeground(6, wxColour("brown"));
+		StyleSetForeground(7, wxColour("brown"));
+
+		//Comments
+		StyleSetForeground(1, wxColour("forest green"));
+		StyleSetForeground(2, wxColour("forest green"));
+		StyleSetForeground(3, wxColour("forest green"));
+	}
+	else if (path.Find(".material") != wxString::npos || path.Find(".program") != wxString::npos || path.Find(".compositor") != wxString::npos)
+	{
+		StyleClearAll();
+		SetLexer(wxSTC_LEX_CPP);
+	
+		StyleSetForeground(wxSTC_C_STRING,					wxColour(200,0,50));
+		StyleSetForeground(wxSTC_C_PREPROCESSOR,			wxColour(50,50,50));
+		StyleSetForeground(wxSTC_C_NUMBER,					wxColour(0, 0, 0));
+		StyleSetForeground(wxSTC_C_WORD,					wxColour(0, 0, 255));
+		StyleSetForeground(wxSTC_C_WORD2,					wxColour(200, 0, 0));
+        StyleSetForeground (wxSTC_C_COMMENT,				wxColour("forest green"));
+        StyleSetForeground (wxSTC_C_COMMENTLINE,			wxColour("forest green"));
+        StyleSetForeground (wxSTC_C_COMMENTDOC,				wxColour("forest green"));
+        StyleSetForeground (wxSTC_C_COMMENTDOCKEYWORD,		wxColour("forest green"));
+        StyleSetForeground (wxSTC_C_COMMENTDOCKEYWORDERROR, wxColour("forest green"));
+        StyleSetBold(wxSTC_C_WORD, false);
+        StyleSetBold(wxSTC_C_WORD2, false);
+        StyleSetBold(wxSTC_C_COMMENTDOCKEYWORD, false);
+		SetKeyWords(0, wxT("compositor material technique pass target abstract import texture_unit vertex_program default_params shared_params param_named_auto param_named shared_params_ref shared_params fragment_program vertex_program_ref fragment_program_ref shadow_caster_vertex_program_ref shadow_receiver_fragment_program_ref shadow_receiver_vertex_program_ref"));
+		//visibility_mask first_render_queue last_render_queue shadows target pass input colour_value identifier material_scheme entry_point source
+        //SetKeyWords(1, wxT("clear render_scene render_quad blend_diffuse_alpha src_texture src_current colour_blend on off alpha_blend none clamp linear always_pass wrap bilinear trilinear point mirror once_per_light add dest_colour zero replace combinedUVW spherical one separateUV cubic_reflection true false scale_x scale_y sine shadow PF_BYTE_LA Input time_0_x anisotropic true false int half float float2 float3 float4 float3x3 float3x4 float4x3 float4x4 double worldviewproj_matrix ambient_light_colour light_position_object_space light_diffuse_colour custom world_matrix_array_3x4 viewproj_matrix light_specular_colour camera_position_object_space light_position time"));
+	}
+	else if (path.Find(".hlsl") != wxString::npos || path.Find(".cg") != wxString::npos || path.Find(".glsl") != wxString::npos)
+	{
+		StyleClearAll();
+		SetLexer(wxSTC_LEX_CPP);
+		StyleSetForeground(wxSTC_C_STRING,					wxColour(200,0,0));
+		StyleSetForeground(wxSTC_C_PREPROCESSOR,			wxColour(50,50,50));
+		StyleSetForeground(wxSTC_C_NUMBER,					wxColour(0, 0, 0));
+		StyleSetForeground(wxSTC_C_WORD,					wxColour(0, 0, 255));
+		StyleSetForeground(wxSTC_C_WORD2,					wxColour(200, 0, 0));
+        StyleSetForeground (wxSTC_C_COMMENT,				wxColour("forest green"));
+        StyleSetForeground (wxSTC_C_COMMENTLINE,			wxColour("forest green"));
+        StyleSetForeground (wxSTC_C_COMMENTDOC,				wxColour("forest green"));
+        StyleSetForeground (wxSTC_C_COMMENTDOCKEYWORD,		wxColour("forest green"));
+        StyleSetForeground (wxSTC_C_COMMENTDOCKEYWORDERROR, wxColour("forest green"));
+        StyleSetBold(wxSTC_C_WORD, false);
+        StyleSetBold(wxSTC_C_WORD2, false);
+        StyleSetBold(wxSTC_C_COMMENTDOCKEYWORD, false);
+		SetKeyWords(0, wxT("return for if else while break continue uniform out"));
+        SetKeyWords(1, wxT("void const int float float2 float3 float4 float4x3 float3x4 float3x3 void char double sampler2D COLOR"));
+	}
 	mOverrideChange = true;
 }
 

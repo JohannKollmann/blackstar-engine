@@ -138,9 +138,15 @@ namespace Ice
 		void SetOwner(std::weak_ptr<GameObject> go);
 
 		//Scripting
+		std::vector<ScriptParam> AddKey(Script &caller, std::vector<ScriptParam> &params) { CreateKey(params[0].getInt());  return std::vector<ScriptParam>(); };
+		std::vector<ScriptParam> SetLookAtObject(Script &caller, std::vector<ScriptParam> &params) { SetLookAtObject(Ice::SceneManager::Instance().GetObjectByInternID(params[0].getInt()));  return std::vector<ScriptParam>(); };
+		std::vector<ScriptParam> SetNormalLookAtObject(Script &caller, std::vector<ScriptParam> &params) { SetNormalLookAtObject(Ice::SceneManager::Instance().GetObjectByInternID(params[0].getInt()));  return std::vector<ScriptParam>(); };
 		std::vector<ScriptParam> TriggerMover(Script &caller, std::vector<ScriptParam> &params) { Trigger();  return std::vector<ScriptParam>(); };
 		std::vector<ScriptParam> PauseMover(Script &caller, std::vector<ScriptParam> &params) { Pause();  return std::vector<ScriptParam>(); };
 		std::vector<ScriptParam> StopMover(Script &caller, std::vector<ScriptParam> &params) { Stop();  return std::vector<ScriptParam>(); };
+		DEFINE_TYPEDGOCLUAMETHOD(GOCMover, AddKey, "int")
+		DEFINE_TYPEDGOCLUAMETHOD(GOCMover, SetLookAtObject, "int")
+		DEFINE_TYPEDGOCLUAMETHOD(GOCMover, SetNormalLookAtObject, "int")
 		DEFINE_GOCLUAMETHOD(GOCMover, TriggerMover)
 		DEFINE_GOCLUAMETHOD(GOCMover, PauseMover)
 		DEFINE_GOCLUAMETHOD(GOCMover, StopMover)

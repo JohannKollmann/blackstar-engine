@@ -815,6 +815,7 @@ Ice::GameObjectPtr Edit::CreateGameObject(std::vector<ComponentSectionPtr> compo
 
 Ice::GameObjectPtr Edit::InsertObject(Ice::GameObjectPtr parent, bool align, bool create_only)
 {
+	STOP_MAINLOOP
 	Ice::GameObjectPtr object;
 	Ogre::String sResource = wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->GetSelectedResource().c_str();
 	if (sResource == "None") return object;
@@ -862,6 +863,8 @@ Ice::GameObjectPtr Edit::InsertObject(Ice::GameObjectPtr parent, bool align, boo
 	object->FirePostInit();
 
 	object->ShowEditorVisuals(true);
+
+	RESUME_MAINLOOP
 
 	return object;
 }
@@ -1020,6 +1023,7 @@ void Edit::OnSaveBones( wxCommandEvent& WXUNUSED(event) )
 
 void Edit::OnSelectMaterial(float MouseX, float MouseY)
 {
+	STOP_MAINLOOP
 	DeselectMaterial();
 
 	//Potenziell unsicher!
@@ -1059,10 +1063,12 @@ void Edit::OnSelectMaterial(float MouseX, float MouseY)
 			wxEdit::Instance().GetOgrePane()->SetFocus();
 		}
 	}
+	RESUME_MAINLOOP
 }
 
 void Edit::DeselectMaterial()
 {
+	STOP_MAINLOOP
 	if (mCurrentMaterialSelection.mSubEntity != NULL)
 	{
 		mCurrentMaterialSelection.mSubEntity->setMaterialName(mCurrentMaterialSelection.mOriginalMaterialName);
@@ -1077,6 +1083,7 @@ void Edit::DeselectMaterial()
 		mCurrentMaterialSelection.mSubEntity = NULL;
 		mCurrentMaterialSelection.mOriginalMaterialName = "";
 	}
+	RESUME_MAINLOOP
 }
 
 void Edit::OnSelectObject(float MouseX, float MouseY)

@@ -352,6 +352,9 @@ namespace Ice
 		ScriptSystem::GetInstance().ShareCFunction("Mover_Trigger", &GOCMover::Lua_TriggerMover);
 		ScriptSystem::GetInstance().ShareCFunction("Mover_Pause", &GOCMover::Lua_PauseMover);
 		ScriptSystem::GetInstance().ShareCFunction("Mover_Stop", &GOCMover::Lua_StopMover);
+		ScriptSystem::GetInstance().ShareCFunction("Mover_AddKey", &GOCMover::Lua_AddKey);
+		ScriptSystem::GetInstance().ShareCFunction("Mover_SetLookAtObject", &GOCMover::Lua_SetLookAtObject);
+		ScriptSystem::GetInstance().ShareCFunction("Mover_SetNormalLookAtObject", &GOCMover::Lua_SetNormalLookAtObject);
 
 		//Joint
 		ScriptSystem::GetInstance().ShareCFunction("Joint_SetActors", &GOCJoint::Lua_SetActorObjects);

@@ -6,7 +6,6 @@
 - [script-edit] wenn man alles rückgängig macht bleibt der geändert-stern
 - [script-edit] Intellisense fertig machen
 
-- clear lookat im mover-kontextmenü bzw. lookats im scenetree anzeigen durch "referenz"
 - (mover)-symbole einfügen, wenn .ot-datei mit enthaltenen movern geladen wird (es kommt nur die rote linie, keine waypoints)
 - Objekt-Rename durch klick in scenetree (wie im explorer)
 - zeit im edit standardmäßig einschalten (sonst gehen die mover erst nach einschalten)

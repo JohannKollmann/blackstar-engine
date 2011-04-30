@@ -347,9 +347,9 @@ void wxEdit::OnLoadMesh(wxCommandEvent& WXUNUSED(event))
 		wxEdit::Instance().GetpropertyWindow()->SetPage("None");
 		//Ice::Main::Instance().GetCamera()->setPosition(Ogre::Vector3(0,0,0));
 		wxEdit::Instance().GetProgressBar()->SetStatusMessage("Updating material Tree...");
-		wxEdit::Instance().GetProgressBar()->SetProgress(0.8);
+		wxEdit::Instance().GetProgressBar()->SetProgress(0.3f);
 		wxEdit::Instance().GetWorldExplorer()->GetMaterialTree()->Update();
-
+		wxEdit::Instance().GetProgressBar()->SetStatusMessage("Generating navigation mesh...");
 		Ice::AIManager::Instance().GetNavigationMesh()->ImportOgreMesh(Ice::SceneManager::Instance().GetLevelMesh()->GetEntity()->getMesh());
     }
 	wxEdit::Instance().GetProgressBar()->Reset();
