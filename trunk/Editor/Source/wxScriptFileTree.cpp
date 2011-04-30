@@ -23,6 +23,7 @@ wxScriptFileTree::wxScriptFileTree(wxWindow* parent, wxWindowID id, const wxPoin
 	extensions.Add("*.lua");
 	extensions.Add("*.material");
 	extensions.Add("*.compositor");
+	extensions.Add("*.program");
 	extensions.Add("*.hlsl");
 	extensions.Add("*.cg");
 	extensions.Add("*.glsl");

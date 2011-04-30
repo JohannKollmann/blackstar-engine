@@ -170,8 +170,11 @@ void wxScriptEditor::LoadScript(wxString path)
 	{
 		StyleClearAll();
 		SetLexer(wxSTC_LEX_CPP);
+
+		StyleSetBold(wxSTC_STYLE_BRACELIGHT, true);
+		StyleSetForeground(wxSTC_STYLE_BRACELIGHT, wxColour("red"));
 	
-		StyleSetForeground(wxSTC_C_STRING,					wxColour(200,0,50));
+		StyleSetForeground(wxSTC_C_STRING,					wxColour(150,0,50));
 		StyleSetForeground(wxSTC_C_PREPROCESSOR,			wxColour(50,50,50));
 		StyleSetForeground(wxSTC_C_NUMBER,					wxColour(0, 0, 0));
 		StyleSetForeground(wxSTC_C_WORD,					wxColour(0, 0, 255));
@@ -184,7 +187,7 @@ void wxScriptEditor::LoadScript(wxString path)
         StyleSetBold(wxSTC_C_WORD, false);
         StyleSetBold(wxSTC_C_WORD2, false);
         StyleSetBold(wxSTC_C_COMMENTDOCKEYWORD, false);
-		SetKeyWords(0, wxT("compositor material technique pass target abstract import texture_unit vertex_program default_params shared_params param_named_auto param_named shared_params_ref shared_params fragment_program vertex_program_ref fragment_program_ref shadow_caster_vertex_program_ref shadow_receiver_fragment_program_ref shadow_receiver_vertex_program_ref"));
+		SetKeyWords(0, wxT("compositor material technique pass target abstract import texture_unit vertex_program default_params shared_params shared_params_ref shared_params fragment_program vertex_program_ref fragment_program_ref shadow_caster_vertex_program_ref shadow_receiver_fragment_program_ref shadow_receiver_vertex_program_ref"));
 		//visibility_mask first_render_queue last_render_queue shadows target pass input colour_value identifier material_scheme entry_point source
         //SetKeyWords(1, wxT("clear render_scene render_quad blend_diffuse_alpha src_texture src_current colour_blend on off alpha_blend none clamp linear always_pass wrap bilinear trilinear point mirror once_per_light add dest_colour zero replace combinedUVW spherical one separateUV cubic_reflection true false scale_x scale_y sine shadow PF_BYTE_LA Input time_0_x anisotropic true false int half float float2 float3 float4 float3x3 float3x4 float4x3 float4x4 double worldviewproj_matrix ambient_light_colour light_position_object_space light_diffuse_colour custom world_matrix_array_3x4 viewproj_matrix light_specular_colour camera_position_object_space light_position time"));
 	}
@@ -192,6 +195,10 @@ void wxScriptEditor::LoadScript(wxString path)
 	{
 		StyleClearAll();
 		SetLexer(wxSTC_LEX_CPP);
+
+		StyleSetBold(wxSTC_STYLE_BRACELIGHT, true);
+		StyleSetForeground(wxSTC_STYLE_BRACELIGHT, wxColour("red"));
+
 		StyleSetForeground(wxSTC_C_STRING,					wxColour(200,0,0));
 		StyleSetForeground(wxSTC_C_PREPROCESSOR,			wxColour(50,50,50));
 		StyleSetForeground(wxSTC_C_NUMBER,					wxColour(0, 0, 0));

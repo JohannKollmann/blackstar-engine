@@ -25,6 +25,7 @@
 
 	private:
 		boost::mutex mLoopMutex;
+		int mBlockingCounter;
 
 	public:
 		/** A new wxOgre must receive a parent frame to which to attach 
@@ -45,6 +46,8 @@
 		void setCamera(Ogre::Camera* camera) { mCamera = camera;};
 
 		void SetPaused(bool paused);
+		void IncBlockingCounter() { mBlockingCounter++; }
+		void DecBlockingCounter() { mBlockingCounter--; }
 
 		boost::mutex& GetLoopMutex() { return mLoopMutex; }
 		

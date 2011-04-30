@@ -36,7 +36,8 @@ wxOgre::wxOgre(wxWindow* parent, wxWindowID id,
     mRoot(0),
 	mCamera(0),
 	mInitialized(false),
-	mPaused(false)
+	mPaused(false),
+	mBlockingCounter(0)
 {
 	//Ogre::LogManager::getSingleton().logMessage("new wxOgre");
 }
@@ -163,7 +164,7 @@ void wxOgre::OnRenderTimer(wxTimerEvent& event)
 void wxOgre::update()
 {
 	mLoopMutex.lock();
-	if (mInitialized && !mPaused)
+	if (mInitialized && !mPaused && mBlockingCounter == 0)
 	{
 		OnRender();
 	}
