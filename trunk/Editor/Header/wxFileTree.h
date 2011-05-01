@@ -103,15 +103,15 @@ public:
 
 	void ShowMenu(VdtcTreeItemBase *item, const wxPoint& pt);
 
-	virtual void OnShowMenuCallback(wxMenu *menu, VdtcTreeItemBase *item) {};
-	virtual void OnMenuCallback(int id) {};
-	virtual void OnSelectItemCallback() {};
-	virtual void OnRemoveItemCallback() {};
-	virtual void OnRenameItemCallback(Ogre::String oldpath, Ogre::String newpath) {};
-	virtual void OnCreateFolderCallback(Ogre::String path) {};
-	virtual void OnDropExternFilesCallback(const wxArrayString& filenames) {};
+	virtual void OnShowMenuCallback(wxMenu *menu, VdtcTreeItemBase *item) {}
+	virtual void OnMenuCallback(int id) {}
+	virtual void OnSelectItemCallback() {}
+	virtual void OnRemoveItemCallback() {}
+	virtual void OnRenameItemCallback(Ogre::String oldPath, Ogre::String newPath, Ogre::String oldFile, Ogre::String newFile) {}
+	virtual void OnCreateFolderCallback(Ogre::String path) {}
+	virtual void OnDropExternFilesCallback(const wxArrayString& filenames) {}
 	virtual bool IsExternFileDropTarget() { return false; }
-	virtual void OnSetupDragCursor(wxDropSource &dropSource) {};
+	virtual void OnSetupDragCursor(wxDropSource &dropSource) {}
 
 	Ogre::String GetSelectedResource();
 	VdtcTreeItemBase* GetDraggedItem();

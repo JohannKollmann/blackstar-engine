@@ -7,7 +7,7 @@
 
 //#define BOOST_ALL_DYN_LINK
 
-#define PATH_SEPERATOR "/"
+#define PATH_SEPERATOR "\\"
 
 /*std::string toAnsi(std::wstring wstr) 
 {

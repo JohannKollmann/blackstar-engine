@@ -28,7 +28,7 @@ wxScriptFileTree::wxScriptFileTree(wxWindow* parent, wxWindowID id, const wxPoin
 	extensions.Add("*.cg");
 	extensions.Add("*.glsl");
 	SetExtensions(extensions);
-	SetRootPath("Data/Scripts/");
+	SetRootPath("Data\\Scripts");
 	wxEdit::Instance().GetExplorerToolbar()->RegisterTool("ReloadScripts", "Scripts1", "Data/Editor/Intern/editor_scriptreload_01.png", wxScriptFileTree::OnToolbarEvent, "Reload all scripts");
 	wxEdit::Instance().GetExplorerToolbar()->RegisterTool("NewScript", "Scripts2", "Data/Editor/Intern/editor_scripnew_01.png", wxScriptFileTree::OnToolbarEvent, "Add empty script");
 	wxEdit::Instance().GetExplorerToolbar()->RegisterTool("NewObjectScript", "Scripts2", "Data/Editor/Intern/editor_scriptnpc_01.png", wxScriptFileTree::OnToolbarEvent, "Add Object script");
@@ -124,4 +124,19 @@ void wxScriptFileTree::OnLeaveTab()
 	wxEdit::Instance().GetExplorerToolbar()->SetGroupStatus("Scripts1", false);
 	wxEdit::Instance().GetExplorerToolbar()->SetGroupStatus("Scripts2", false);
 	//wxEdit::Instance().GetExplorerToolbar()->SetGroupStatus("Scripts3", false);
+}
+
+void wxScriptFileTree::OnRenameItemCallback(Ogre::String oldPath, Ogre::String newPath, Ogre::String oldFile, Ogre::String newFile)
+{
+	STOP_MAINLOOP
+	if (mCurrentItem->IsDir())
+	{
+		Ogre::ResourceGroupManager::getSingleton().removeResourceLocation(oldPath, "FileSystem");
+		Ogre::ResourceGroupManager::getSingleton().addResourceLocation(newPath, "FileSystem");
+	}
+	else if (mCurrentItem->IsFile())
+	{
+		//Ogre::ResourceGroupManager::getSingleton().deleteResource(oldFile, "General", oldPath);
+	}
+	RESUME_MAINLOOP
 }

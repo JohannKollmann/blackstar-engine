@@ -12,7 +12,14 @@ BEGIN_EVENT_TABLE (wxScriptEditor, wxStyledTextCtrl)
     EVT_STC_CHARADDED (wxID_ANY,       wxScriptEditor::OnCharAdded)
 	EVT_STC_MODIFIED(wxID_ANY, wxScriptEditor::OnModified)
 	EVT_KEY_DOWN(wxScriptEditor::OnKeyPressed)
+
+    EVT_FIND(wxID_ANY, wxScriptEditor::OnFindDialog)
+    EVT_FIND_NEXT(wxID_ANY, wxScriptEditor::OnFindDialog)
+    EVT_FIND_REPLACE(wxID_ANY, wxScriptEditor::OnFindDialog)
+    EVT_FIND_REPLACE_ALL(wxID_ANY, wxScriptEditor::OnFindDialog)
+    EVT_FIND_CLOSE(wxID_ANY, wxScriptEditor::OnFindDialog)
 END_EVENT_TABLE()
+       
 
 wxScriptEditor::wxScriptEditor(wxWindow *parent, wxWindowID id,
             const wxPoint &pos,
@@ -71,7 +78,7 @@ void wxScriptEditor::OnUpdateUI(wxUpdateUIEvent& key)
 
 void wxScriptEditor::OnKeyPressed(wxKeyEvent& key)
 {
-	//if CTRL + "s"
+	//if CTRL + s
 	if (key.ControlDown() && key.GetKeyCode() == 83) {
 		SaveScript();
 	}
@@ -79,7 +86,73 @@ void wxScriptEditor::OnKeyPressed(wxKeyEvent& key)
 	else if (key.ControlDown() && key.GetKeyCode() == 32) {
 		IntelliSense(GetCurrentPos());
 	}
+	//CTRL + f
+	else if (key.ControlDown() && key.GetKeyCode() == 70)
+	{
+		mFindDialog = new wxFindReplaceDialog(this, &mFindReplaceData, "Find");
+		mFindDialog->Show();
+	}
+	//CTRL + h
+	else if (key.ControlDown() && key.GetKeyCode() == 72)
+	{
+		mFindReplaceDialog = new wxFindReplaceDialog(this, &mFindReplaceData, "Find", wxFR_REPLACEDIALOG);
+		mFindReplaceDialog->Show();
+	}
+	else if (key.GetKeyCode() == WXK_F3)
+	{
+		OnFindDialog(wxFindDialogEvent(wxEVT_COMMAND_FIND_NEXT));
+	}
 	OnKeyDown(key);
+}
+
+void wxScriptEditor::OnFindDialog(wxFindDialogEvent& event)
+{
+    wxEventType type = event.GetEventType();
+
+    if (type == wxEVT_COMMAND_FIND || type == wxEVT_COMMAND_FIND_NEXT)
+    {
+		int flags = 0;
+		if (mFindReplaceData.GetFlags() & wxFR_WHOLEWORD) flags = flags|wxSTC_FIND_WHOLEWORD;
+		if (mFindReplaceData.GetFlags() & wxFR_MATCHCASE) flags = flags|wxSTC_FIND_MATCHCASE;
+
+		long currFrom, currTo;
+		GetSelection(&currFrom, &currTo);
+		SetSelection(currFrom+1, currTo);
+		SearchAnchor();
+		SetSelection(currFrom, currTo);
+		SearchNext(flags, mFindReplaceData.GetFindString());
+		SearchAnchor();
+		EnsureCaretVisible();
+    }
+    else if (type == wxEVT_COMMAND_FIND_REPLACE)
+    {
+		ReplaceSelection(mFindReplaceData.GetReplaceString());
+    }
+	else if (type == wxEVT_COMMAND_FIND_REPLACE_ALL)
+	{
+		long currFrom, currTo;
+		GetSelection(&currFrom, &currTo);
+		SetSelectionStart(0);
+		SetSelectionEnd(GetLength());
+		SearchAnchor();
+		int start = 0;
+		while ((start = SearchNext(0, mFindReplaceData.GetFindString())) > -1)
+		{
+			ReplaceSelection(mFindReplaceData.GetReplaceString());
+			SetSelectionStart(start+1);
+			SetSelectionEnd(GetLength());
+			SearchAnchor();
+		}
+		SetSelectionStart(currFrom);
+		SetSelectionEnd(currTo);
+		SearchAnchor();
+	}
+    else if (type == wxEVT_COMMAND_FIND_CLOSE)
+    {
+        wxFindReplaceDialog *dlg = event.GetDialog();
+        dlg->Destroy();
+		SetFocus();
+    }
 }
 
 void wxScriptEditor::OnModified(wxStyledTextEvent &event)

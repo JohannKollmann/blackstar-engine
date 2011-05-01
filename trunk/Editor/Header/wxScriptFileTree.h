@@ -19,6 +19,7 @@ public:
 	}
 
 	void OnShowMenuCallback(wxMenu *menu, VdtcTreeItemBase *item);
+	void OnRenameItemCallback(Ogre::String oldPath, Ogre::String newPath, Ogre::String oldFile, Ogre::String newFile) override;
 	void OnMenuCallback(int id);
 	void OnSelectItemCallback();
 
