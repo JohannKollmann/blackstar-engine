@@ -38,7 +38,7 @@ public:
 	void OnMenuCallback(int id);
 	void OnSelectItemCallback();
 	void OnRemoveItemCallback();
-	void OnRenameItemCallback(Ogre::String oldpath, Ogre::String newpath);
+	void OnRenameItemCallback(Ogre::String oldPath, Ogre::String newPath, Ogre::String oldFile, Ogre::String newFile) override;
 	void OnCreateFolderCallback(Ogre::String path);
 	void OnDropExternFilesCallback(const wxArrayString& filenames);
 	bool IsExternFileDropTarget() { return true; }

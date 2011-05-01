@@ -1043,12 +1043,17 @@ void Edit::OnSelectMaterial(float MouseX, float MouseY)
 		{
 			EntityMaterialInspector emi(gocmesh->GetEntity());
 			Ogre::SubEntity *ent = emi.GetSubEntity(ray);
-			if (ent == 0) return;
+			if (!ent)
+			{
+				RESUME_MAINLOOP
+				return;
+			}
 			mCurrentMaterialSelection.mSubEntity = ent;
 			mCurrentMaterialSelection.mOriginalMaterialName = ent->getMaterialName();
 			ent->setMaterialName("Editor_Submesh_Selected");
 			wxEdit::Instance().GetWorldExplorer()->GetMaterialTree()->ExpandToMaterial(((Ogre::Entity*)gocmesh->GetEntity())->getMesh()->getName(), mCurrentMaterialSelection.mOriginalMaterialName);
 			wxEdit::Instance().GetOgrePane()->SetFocus();
+			RESUME_MAINLOOP
 			return;
 		}
 	}

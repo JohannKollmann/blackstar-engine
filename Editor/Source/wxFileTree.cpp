@@ -100,21 +100,21 @@ void wxFileTree::OnEndLabelEdit(wxTreeEvent& event)
 	VdtcTreeItemBase *t = (VdtcTreeItemBase *)GetItemData(id);
 	Ogre::String oldName = t->GetName();
 
-	Ogre::String BasePath = PATH_SEPERATOR + Ogre::String(this->GetRelativePath(id).GetPath().c_str());
-	Ogre::String OldPath = mRootPath + BasePath;
+	wxFileName relativePath = GetRelativePath(id);
+	Ogre::String basePath = Ogre::String(relativePath.GetPath().c_str());
+	Ogre::String oldPath = mRootPath + PATH_SEPERATOR + basePath;
 	if (t->IsDir())
 	{
-		int found = BasePath.find_last_of(PATH_SEPERATOR);
+		int found = basePath.find_last_of(PATH_SEPERATOR);
 		if (found != Ogre::String::npos)
 		{
-			BasePath = BasePath.substr(0, found) + PATH_SEPERATOR;
+			basePath = basePath.substr(0, found) + PATH_SEPERATOR;
 		}
 	}
 	if (t->IsFile())
 	{
 		Ogre::String oldextension = "";
 		Ogre::String newextension = "";
-		OldPath = OldPath + PATH_SEPERATOR + Ogre::String(oldName);
 		oldextension = oldName.substr(oldName.find("."), oldName.length());
 		newextension = newName.substr(newName.find("."), newName.length());
 		if (oldextension != newextension)
@@ -125,13 +125,13 @@ void wxFileTree::OnEndLabelEdit(wxTreeEvent& event)
 	}
 	t->SetName(newName);
 
-	Ogre::String NewPath = mRootPath + BasePath + PATH_SEPERATOR + newName;
+	Ogre::String newPath = mRootPath + PATH_SEPERATOR + basePath;
 
-	boost::filesystem::path SourcePath(OldPath.c_str());
-	boost::filesystem::path TargetPath(NewPath.c_str());
+	boost::filesystem::path SourcePath((oldPath + PATH_SEPERATOR + oldName).c_str());
+	boost::filesystem::path TargetPath((newPath + + PATH_SEPERATOR + newName).c_str());
 	boost::filesystem::rename(SourcePath, TargetPath);
 
-	OnRenameItemCallback(OldPath, NewPath);
+	OnRenameItemCallback(oldPath, newPath, oldName, newName);
 }
 
 void wxFileTree::OnMenuEvent(wxCommandEvent& event)

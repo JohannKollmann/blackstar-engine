@@ -10,6 +10,7 @@
 #include "OgreOggSound.h"
 #include "AmbientOcclusionGenerator.h"
 #include "IceMain.h"
+#include "Edit.h"
 
 enum
 {
@@ -68,18 +69,24 @@ void wxMediaTree::RefreshFilters()
 		extensions.Add("*.ogg");
 	}
 	SetExtensions(extensions);
-	SetRootPath("Data\\Media\\");
+	SetRootPath("Data\\Media");
 	wxFileName expandto = wxFileName(relPath.c_str());
 	ExpandToPath(expandto);
 }
 
-void wxMediaTree::OnRenameItemCallback(Ogre::String oldpath, Ogre::String newpath)
+void wxMediaTree::OnRenameItemCallback(Ogre::String oldPath, Ogre::String newPath, Ogre::String oldFile, Ogre::String newFile)
 {
+	STOP_MAINLOOP
 	if (mCurrentItem->IsDir())
 	{
-		Ogre::ResourceGroupManager::getSingleton().removeResourceLocation("Data/Media/" + oldpath, "FileSystem");
-		Ogre::ResourceGroupManager::getSingleton().addResourceLocation("Data/Media/" + newpath, "FileSystem");
+		Ogre::ResourceGroupManager::getSingleton().removeResourceLocation(oldPath, "FileSystem");
+		Ogre::ResourceGroupManager::getSingleton().addResourceLocation(newPath, "FileSystem");
 	}
+	else if (mCurrentItem->IsFile())
+	{
+		//Ogre::ResourceGroupManager::getSingleton().deleteResource(oldFile);
+	}
+	RESUME_MAINLOOP
 }
 
 void wxMediaTree::OnShowMenuCallback(wxMenu *menu, VdtcTreeItemBase *item)
