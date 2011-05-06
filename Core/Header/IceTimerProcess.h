@@ -9,7 +9,7 @@
 
 namespace Ice
 {
-	class TimerProcess : public ProcessNode, public MessageListener
+	class TimerProcess : public ProcessNode, public SimulationMessageListener
 	{
 	private:
 		ScriptParam mScriptCallback;
@@ -21,8 +21,8 @@ namespace Ice
 		{
 			mOriginalTime = time;
 			mTimeLeft = time;
-			MessageSystem::Instance().JoinNewsgroup(this, "REPARSE_SCRIPTS");
-			MessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
+			MessageSystem::Instance().JoinNewsgroup(this, GlobalMessageIDs::REPARSE_SCRIPTS_PRE);
+			MessageSystem::Instance().JoinNewsgroup(this, GlobalMessageIDs::UPDATE_PER_FRAME);
 		}
 		~TimerProcess()
 		{
@@ -35,12 +35,12 @@ namespace Ice
 
 		void ReceiveMessage(Msg &msg)
 		{
-			if (msg.type == "REPARSE_SCRIPTS")
+			if (msg.type == GlobalMessageIDs::REPARSE_SCRIPTS_PRE)
 			{
 				mScriptCallback = ScriptParam();
 				TerminateProcess();
 			}
-			else if (msg.type == "UPDATE_PER_FRAME" && mIsActive)
+			else if (msg.type == GlobalMessageIDs::UPDATE_PER_FRAME && mIsActive)
 			{
 				mTimeLeft -= msg.params.GetFloat("TIME");
 				if (mTimeLeft <= 0)

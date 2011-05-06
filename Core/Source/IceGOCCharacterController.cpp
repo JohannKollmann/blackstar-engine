@@ -71,7 +71,7 @@ namespace Ice
 			Msg msg;
 			msg.type = "ACTOR_ONWAKE";
 			msg.rawData = mActor->getNxActor();
-			MessageSystem::Instance().SendInstantMessage(msg);
+			MessageSystem::SendInstantMessage(msg);
 			Main::Instance().GetPhysXScene()->destroyActor(mActor);
 			mActor = nullptr;
 			Main::Instance().GetPhysXScene()->getNxScene()->releaseSweepCache(mSweepCache);
@@ -81,9 +81,9 @@ namespace Ice
 
 	void GOCCharacterController::Create(Ogre::Vector3 dimensions)
 	{
-		MessageSystem::Instance().QuitAllNewsgroups(this);
-		MessageSystem::Instance().JoinNewsgroup(this, "START_PHYSICS");
-		MessageSystem::Instance().JoinNewsgroup(this, "END_PHYSICS");
+		MessageSystem::QuitAllNewsgroups(this);
+		MessageSystem::JoinNewsgroup(this, "START_PHYSICS");
+		MessageSystem::JoinNewsgroup(this, "END_PHYSICS");
 
 		if (dimensions.x == 0 || dimensions.y == 0 || dimensions.z == 0) dimensions = Ogre::Vector3(1,1,1);
 

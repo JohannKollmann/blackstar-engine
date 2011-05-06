@@ -8,7 +8,7 @@
 
 namespace Ice
 {
-	class DllExport SoundMaterialTable : public MessageListener
+	class DllExport SoundMaterialTable : public ViewMessageListener
 	{
 		typedef unsigned short NxMatID;
 	private:

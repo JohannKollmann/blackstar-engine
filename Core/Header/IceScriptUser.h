@@ -8,7 +8,7 @@
 
 namespace Ice
 {
-	class DllExport ScriptUser : public MessageListener
+	class DllExport ScriptUser : public SimulationMessageListener
 	{
 	protected:
 		Ogre::String mScriptFileName;

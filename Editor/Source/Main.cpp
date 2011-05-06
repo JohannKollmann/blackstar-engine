@@ -28,8 +28,8 @@ public:
 		mFrame = new wxEdit();
 		SetTopWindow(mFrame);
 		mFrame->Show();
-		Ice::MessageSystem::Instance().CreateNewsgroup("REPARSE_SCRIPTS");
-		Ice::MessageSystem::Instance().CreateNewsgroup("REPARSE_SCRIPTS_POST");
+		Ice::MessageSystem::CreateNewsgroup(GlobalMessageIDs::REPARSE_SCRIPTS_PRE);
+		Ice::MessageSystem::CreateNewsgroup(GlobalMessageIDs::REPARSE_SCRIPTS_POST);
 		Ice::Main::Instance().Run(mFrame->GetOgrePane()->getRenderWindow(), (size_t)((HWND)mFrame->GetHandle()));
 		mFrame->PostCreate();
 		//Ogre::LogManager::getSingleton().logMessage("Root Num Children: " + Ogre::StringConverter::toString(Ice::Main::Instance().GetOgreSceneMgr()->getRootSceneNode()->numChildren()));

@@ -15,8 +15,8 @@ namespace Ice
 
 Console::Console()
 {
-	MessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
-	MessageSystem::Instance().JoinNewsgroup(this, "CONSOLE_INGAME");
+	MessageSystem::JoinNewsgroup(this, GlobalMessageIDs::UPDATE_PER_FRAME);
+	MessageSystem::JoinNewsgroup(this, "CONSOLE_INGAME");
 	AddCommand("lua_loadscript", "string");
 
 	ScriptSystem::GetInstance().ShareCFunction("console_get_num_commands", Lua_GetNumCommands);
@@ -147,7 +147,7 @@ void Console::ExecCommand(Ogre::String command)
 				Ogre::String paramname = "PARAM" + Ogre::StringConverter::toString(paramindex);
 				msg.params.AddOgreString(paramname, inputs[paramindex]);
 			}
-			MessageSystem::Instance().SendMessage(msg);
+			MessageSystem::SendMessage(msg);
 			Print(command);
 			return;
 		}

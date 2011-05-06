@@ -7,12 +7,12 @@ namespace Ice
 	OrientationBlendProcess::OrientationBlendProcess(Transformable3D *object, Ogre::Quaternion target, float duration)
 		: mRotationObject(object), mTargetOrientation(target), mTotalDuration(duration), mObjectInitialOrientation(object->GetGlobalOrientation()), mCurrentBlendPosition(0)
 	{
-		MessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
+		MessageSystem::JoinNewsgroup(this, GlobalMessageIDs::UPDATE_PER_FRAME);
 	}
 
 	void OrientationBlendProcess::ReceiveMessage(Msg &msg)
 	{
-		if (GetIsActive() && msg.type == "UPDATE_PER_FRAME")
+		if (GetIsActive() && msg.type == GlobalMessageIDs::UPDATE_PER_FRAME)
 		{
 			mRotationObject->SetGlobalOrientation(Ogre::Quaternion::Slerp(mCurrentBlendPosition, mObjectInitialOrientation, mTargetOrientation, true));
 			if (mCurrentBlendPosition >= 1) TerminateProcess();

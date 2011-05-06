@@ -34,7 +34,7 @@ namespace Ice
 		Ogre::String GetLabel() { return "Simple Camera"; }
 	};
 	
-	class DllExport GOCCameraController : public GOCSimpleCameraController, public MessageListener
+	class DllExport GOCCameraController : public GOCSimpleCameraController, public ViewMessageListener
 	{
 	private:
 		Ogre::Camera *mCamera;

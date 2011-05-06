@@ -49,7 +49,7 @@ namespace Ice
 		static LoadSave::Saveable* NewInstance() { return new GOCAnimKey; }
 	};
 
-	class DllExport GOCMover : public GOCEditorVisualised, public GOCStaticEditorInterface, public MessageListener
+	class DllExport GOCMover : public GOCEditorVisualised, public GOCStaticEditorInterface, public SimulationMessageListener
 	{
 		friend class GOCAnimKey;
 

@@ -26,11 +26,11 @@ void GOCPlayerInput::SetActive(bool active)
 {
 	if (active)
 	{
-		MessageSystem::Instance().QuitAllNewsgroups(this);
-		MessageSystem::Instance().JoinNewsgroup(this, "KEY_DOWN");
-		//MessageSystem::Instance().JoinNewsgroup(this, "KEY_UP");
-		MessageSystem::Instance().JoinNewsgroup(this, "MOUSE_MOVE");
-		MessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
+		MessageSystem::QuitAllNewsgroups(this);
+		MessageSystem::JoinNewsgroup(this, GlobalMessageIDs::KEY_DOWN);
+		//MessageSystem::JoinNewsgroup(this, GlobalMessageIDs::KEY_UP);
+		MessageSystem::JoinNewsgroup(this, GlobalMessageIDs::MOUSE_MOVE);
+		MessageSystem::JoinNewsgroup(this, GlobalMessageIDs::UPDATE_PER_FRAME);
 	}
 
 	mActive = active;
@@ -54,11 +54,11 @@ void GOCPlayerInput::ReceiveMessage(Msg &msg)
 {
 	if (!mActive) return;
 
-	if (msg.type == "MOUSE_MOVE")
+	if (msg.type == GlobalMessageIDs::MOUSE_MOVE)
 	{
 		mOwnerGO.lock()->Rotate(Ogre::Vector3(0,1,0), Ogre::Radian((Ogre::Degree(-msg.params.GetInt("ROT_X_REL") * 0.2f))));
 	}
-	if (msg.type == "UPDATE_PER_FRAME")
+	if (msg.type == GlobalMessageIDs::UPDATE_PER_FRAME)
 	{
 		int newState = 0;
 		if (Main::Instance().GetInputManager()->isKeyDown(OIS::KC_W))
@@ -75,7 +75,7 @@ void GOCPlayerInput::ReceiveMessage(Msg &msg)
 
 		BroadcastMovementState(newState);
 	}
-	if (msg.type == "KEY_DOWN")
+	if (msg.type == GlobalMessageIDs::KEY_DOWN)
 	{
 		if (msg.params.GetInt("KEY_ID_OIS") == OIS::KC_SPACE)
 		{

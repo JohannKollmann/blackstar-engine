@@ -39,6 +39,8 @@ namespace Ice
 		GOComponent() : mTransformingOwner(false) {}
 		virtual ~GOComponent() {}
 
+		virtual int GetThreadContext() = 0;
+
 		///Sets the position of the component's owner object.
 		void SetOwnerPosition(const Ogre::Vector3 &position, bool updateReferences = false, bool updateChildren = true);
 

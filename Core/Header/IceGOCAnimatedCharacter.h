@@ -17,7 +17,7 @@ namespace Ice
 		GOCAnimatedCharacter *mGOCRagdoll;
 	};
 
-	class DllExport GOCAnimatedCharacter : public GOCEditorInterface, public GOCOgreNodeUser, public MessageListener
+	class DllExport GOCAnimatedCharacter : public GOCEditorInterface, public GOCOgreNodeUser, public ViewMessageListener
 	{
 	private:
 		Ogre::Entity *mEntity;

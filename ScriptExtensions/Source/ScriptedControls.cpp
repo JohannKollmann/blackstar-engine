@@ -12,8 +12,8 @@ ScriptedControls::GetInstance()
 
 ScriptedControls::ScriptedControls()
 {
-	Ice::MessageSystem::Instance().JoinNewsgroup(this, "CONTROL_DOWN");
-	Ice::MessageSystem::Instance().JoinNewsgroup(this, "CONTROL_UP");
+	Ice::MessageSystem::JoinNewsgroup(this, "CONTROL_DOWN");
+	Ice::MessageSystem::JoinNewsgroup(this, "CONTROL_UP");
 
 	Ice::ScriptSystem::GetInstance().ShareCFunction("input_set_control", SetControl);
 	Ice::ScriptSystem::GetInstance().ShareCFunction("input_get_control", GetControl);

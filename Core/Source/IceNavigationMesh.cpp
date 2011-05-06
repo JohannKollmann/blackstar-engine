@@ -194,8 +194,8 @@ namespace Ice
 		mDebugVisual = nullptr;
 		mConnectionLinesDebugVisual = nullptr;
 
-		MessageSystem::Instance().JoinNewsgroup(this, "ACTOR_ONSLEEP");
-		MessageSystem::Instance().JoinNewsgroup(this, "ACTOR_ONWAKE");
+		MessageSystem::JoinNewsgroup(this, "ACTOR_ONSLEEP");
+		MessageSystem::JoinNewsgroup(this, "ACTOR_ONWAKE");
 	}
 	NavigationMesh::~NavigationMesh()
 	{

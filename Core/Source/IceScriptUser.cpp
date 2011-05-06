@@ -7,7 +7,7 @@ namespace Ice
 {
 	ScriptUser::ScriptUser()
 	{
-		MessageSystem::Instance().JoinNewsgroup(this, "REPARSE_SCRIPTS_POST");
+		MessageSystem::JoinNewsgroup(this, GlobalMessageIDs::REPARSE_SCRIPTS_POST);
 	}
 
 	ScriptUser::~ScriptUser()
@@ -24,7 +24,7 @@ namespace Ice
 	}
 	void ScriptUser::ReceiveMessage(Msg& msg)
 	{
-		if (msg.type == "REPARSE_SCRIPTS_POST" && mScriptFileName != "")
+		if (msg.type == GlobalMessageIDs::REPARSE_SCRIPTS_POST && mScriptFileName != "")
 		{
 			OnScriptReload();
 			InitScript(mScriptFileName);

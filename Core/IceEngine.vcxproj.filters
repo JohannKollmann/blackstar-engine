@@ -647,6 +647,9 @@
     <ClInclude Include="Header\IceGOCJoint.h">
       <Filter>Components</Filter>
     </ClInclude>
+    <ClInclude Include="Header\IceWrappedVector.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Header\Messaging.txt">

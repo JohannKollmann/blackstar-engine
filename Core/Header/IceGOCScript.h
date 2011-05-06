@@ -64,7 +64,7 @@ namespace Ice
 		void Load(LoadSave::LoadSystem& mgr);
 	};
 
-	class DllExport GOCScriptMessageCallback : public GOComponent, public MessageListener
+	class DllExport GOCScriptMessageCallback : public GOComponent, public SynchronizedMessageListener
 	{
 	private:
 		std::map< Ogre::String, std::vector<ScriptParam> > mObjectMsgCallbacks;

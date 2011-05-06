@@ -87,9 +87,9 @@ namespace Ice
 		mCameraNode->attachObject(mCamera);
 		mCamera->setPosition(0,0,0);
 
-		MessageSystem::Instance().JoinNewsgroup(this, "MOUSE_MOVE");
-		MessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
-		MessageSystem::Instance().JoinNewsgroup(this, "KEY_DOWN");
+		MessageSystem::JoinNewsgroup(this, GlobalMessageIDs::MOUSE_MOVE);
+		MessageSystem::JoinNewsgroup(this, GlobalMessageIDs::UPDATE_PER_FRAME);
+		MessageSystem::JoinNewsgroup(this, GlobalMessageIDs::KEY_DOWN);
 	}
 	void GOCCameraController::DetachCamera()
 	{
@@ -99,7 +99,7 @@ namespace Ice
 		if (owner.get()) owner->SendInstantMessage(msg);
 		if (!mCamera) return;
 		mCameraNode->detachObject(mCamera);
-		MessageSystem::Instance().QuitAllNewsgroups(this);
+		MessageSystem::QuitAllNewsgroups(this);
 		mCamera = nullptr;
 	}	
 
@@ -119,7 +119,7 @@ namespace Ice
 		static double sfAbsCamPitch=0.0;
 		static double sfActualZoom=0.0;
 	
-		if (msg.type == "KEY_DOWN")
+		if (msg.type == GlobalMessageIDs::KEY_DOWN)
 		{
 			OIS::KeyCode kc = (OIS::KeyCode)msg.params.GetInt("KEY_ID_OIS");
 			if (kc == OIS::KC_PGDOWN)
@@ -131,7 +131,7 @@ namespace Ice
 			if(mfZoom<0.0)
 				mfZoom=0.0;
 		}
-		if (msg.type == "MOUSE_MOVE")
+		if (msg.type == GlobalMessageIDs::MOUSE_MOVE)
 		{
 			float oldZoom = mfZoom;
 			mfZoom -= (mfZoom+0.1f)*(msg.params.GetInt("ROT_Z_REL")*0.001f);
@@ -173,7 +173,7 @@ namespace Ice
 			}
 		
 		}
-		if (msg.type == "UPDATE_PER_FRAME")
+		if (msg.type == GlobalMessageIDs::UPDATE_PER_FRAME)
 		{
 			float time = msg.params.GetFloat("TIME");
 			if(mfZoom>0.0)

@@ -12,7 +12,7 @@ namespace Caelum
 namespace Ice
 {
 
-class DllExport WeatherController : public MessageListener
+class DllExport WeatherController : public ViewMessageListener
 {
 private:
 	Caelum::CaelumSystem *mCaelumSystem;

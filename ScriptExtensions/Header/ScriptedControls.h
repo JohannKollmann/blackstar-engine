@@ -1,7 +1,7 @@
 #include "IceScriptSystem.h"
 #include "IceInput.h"
 
-class ScriptedControls : public Ice::MessageListener
+class ScriptedControls : public Ice::SimulationMessageListener
 {
 public:
 	ScriptedControls();

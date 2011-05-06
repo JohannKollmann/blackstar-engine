@@ -6,73 +6,163 @@
 #include "IceIncludes.h"
 #include "IceMsg.h"
 #include "IceMessageListener.h"
+#include "IceWrappedVector.h"
+#include "boost/thread.hpp"
 
 namespace Ice
 {
 
+	enum GlobalMessageIDs
+	{
+		UPDATE_PER_FRAME,													//called per frame
+		BEGIN_PHYSICS, PHYSICS_SUBSTEP, END_PHYSICS,						//called per physics update (can be multiple times per frame)
+		KEY_DOWN, KEY_UP, MOUSE_DOWN, MOUSE_UP, MOUSE_MOVE,					//user input
+		MATERIAL_CONTACT, ACTOR_ONSLEEP, ACTOR_ONWAKE,						//physics callbacks
+		REPARSE_SCRIPT_PRE, REPARSE_SCRIPTS_POST,							//reload scripts, reload materials
+		LOADLEVEL_BEGIN, LOADLEVEL_END,	SAVELEVEL_BEGIN, SAVELEVEL_END,		//load level, save level
+		ENABLE_GAME_CLOCK
+	};
+
+	/*
+	render thread (variable timestep)
+	while (1)
+	{
+		MessageSystem::MulticastMessage(simulateMsg, Newsgroups::BEGIN_RENDERING);
+		MessageSystem::ProcessMessages(AccessPermitionIDs::ACCESS_VIEW);
+		MessageSystem::MulticastMessage(simulateMsg, Newsgroups::END_RENDERING);
+		MessageSystem::ProcessMessages(AccessPermitionIDs::ACCESS_VIEW);
+	}
+
+	simulation thread (fixed timestep)
+	while (1)
+	{
+		MessageSystem::ProcessMessages(AccessPermitionIDs::ACCESS_PHYSICS);
+		MessageSystem::MulticastMessage(simulateMsg, AccessPermitionIDs::ACCESS_PHYSICS, Newsgroups::BEGIN_PHYSICS);
+		MessageSystem::MulticastMessage(simulateMsg, AccessPermitionIDs::ACCESS_PHYSICS, Newsgroups::END_PHYSICS);
+		MessageSystem::ProcessMessages(AccessPermitionIDs::ACCESS_ALL, true);	//exclusive
+	}
+
+	*/
+
 	class DllExport MessageSystem
 	{
-	public:
-		typedef Ogre::String NewsgroupID;
-
-		struct DllExport Newsgroup
+	private:
+		struct Newsgroup
 		{
-			float mPriority;
-			std::vector<MessageListener*> mListeners;
-			NewsgroupID mID;
-			std::vector<Msg> mCurrentMessages;
-
-			unsigned int _currIterateIndex;	//hack for remove while iterating
+			NewsgroupID groupID;
+			std::map<AccessPermitionID, WrappedVector<MessageListener*> > receivers;
 		};
 
-	protected:
-		MessageSystem();
-		~MessageSystem();
+		class DllExport MsgPacket
+		{
+		private:
+			Msg mMsg;
+			MessageListener *mReceiver;
+			WrappedVector<MessageListener*> *mReceivers;
+			bool mMulticast;
 
-	private:
+		public:
+			MsgPacket(Msg &msg, WrappedVector<MessageListener*> *receivers)
+			{
+				mMsg = msg;
+				mReceivers = receivers;
+				mMulticast = true;
+			}
+			MsgPacket(Msg &msg, MessageListener *receiver)
+			{
+				mMsg = msg;
+				mReceiver = receiver;
+				mMulticast = false;
+			}
+			~MsgPacket() {}
+			void Send()
+			{
+				if (mMulticast)
+				{
+					for (mReceivers->Init(); mReceivers->HasNext();)
+						mReceivers->GetNext()->ReceiveMessage(mMsg);
+				}
+				else
+				{
+					mReceiver->ReceiveMessage(mMsg);
+				}
+			}
+		};
 
-		/*
-		Die Newsgroups. Jeder Newsgroup ist ein Vektor von MessageListenern zugeordnet, die der Newsgroup
-		angehören.
-		*/
-		std::map<NewsgroupID, Newsgroup> mNewsgroups;
+		static const int MAX_NUM_JOBQUEUES = 10;
+	
+		struct JobQueue
+		{
+			boost::mutex flushingMutex;
+			boost::mutex processingMutex;
+			std::vector<MsgPacket> cachedPackets[MAX_NUM_JOBQUEUES];
+			std::vector<MsgPacket> packets;
+		};
+
+		static JobQueue mCurrentJobs[MAX_NUM_JOBQUEUES];
+
+		static std::map<NewsgroupID, Newsgroup > mNewsgroupReceivers;
+
+		static boost::mutex mProcessingMsgCond;
+		static boost::mutex mProcessingMsg;
+		static int mNumProcessingMessages;
+
+		static void sendSynchronizedPacket(MsgPacket &packet, int sender = -1);
 
 	public:
 
-		/*
-		Verschickt eine Message. Ist der Empfänger Zeiger der Message NULL, wird die Message an alle
-		Newsgroupmitglieder versendet. Eine Newsgroup muss in jedem Fall angegeben werden, da sie
-		gleichzeitig zur Message-Identifikation dient.
+		///Must be called at startup.
+		static void Init() { mNumProcessingMessages = 0; }
+
+		/**
+		* Send a message to a message listener.
+		* The message is delivered instantly when senderAccessPermitionID == receiver.AccessPermitionID or when ProcessMessages(receiver.AccessPermitionID) ist called.
+		* @param lock specifies whether the receiver queue shall be locked, when senderAccessPermitionID != receiver.AccessPermitionID)
 		*/
-		void SendMessage(Msg &msg);
+		static void SendMessage(Msg &msg, AccessPermitionID senderAccessPermitionID, MessageListener *receiver, bool synchronized = false);
 
-		void SendInstantMessage(Msg &msg);
-
-		/*
-		Erstellt eine Newsgroup mit dem Namen groupname.
+		/**
+		* Sends a message to a message listener.
+		* @param synchronized If set to true, the message es processed immediately and it is ensured that now other messages are processed in the meantime (avoid this if you can). 
 		*/
-		void CreateNewsgroup(NewsgroupID groupname, float priority = 1.0f);
+		static void SendMessage(Msg &msg, MessageListener *receiver, bool synchronized = false);
 
-		/*
-		Registriert einen MessageListener in einer Newsgroup.
+		/**
+		* Multicasts a message to all Message listeners that are registered member of groupID.
+		* The message is delivered instantly when senderAccessPermitionID == group.AccessPermitionID or when ProcessMessages(group.AccessPermitionID) ist called.
 		*/
-		void JoinNewsgroup(MessageListener *listener, NewsgroupID groupname);
+		static void MulticastMessage(Msg &msg, AccessPermitionID senderAccessPermitionID, NewsgroupID groupID, bool synchronized = false);
 
-		/*
-		Entfernt einen MessageListener aus einer Newsgroup.
+		/**
+		* Multicasts a message to all Message listeners that are registered member of groupID (always asynchron).
 		*/
-		void QuitNewsgroup(MessageListener *listener, NewsgroupID groupname);
+		static void MulticastMessage(Msg &msg, NewsgroupID groupID, bool synchronized = false);
 
-		void QuitAllNewsgroups(MessageListener *listener);
-
-		/*
-		Arbeitet alle abzuschickenden Messages ab.
+		/**
+		* Processes messages for all receivers with the AccessPermitionID accessPermitionID.
+		* @param synchronized If set to true it is ensured that no other messages are processed in the meantime.
 		*/
-		void Update();
+		static void ProcessMessages(AccessPermitionID accessPermitionID, bool synchronized = false);
 
+		/**
+		* Creates a newsgroup with id groupID
+		*/
+		static void CreateNewsgroup(NewsgroupID groupID);
 
-		//Singleton
-		static MessageSystem& Instance();
+		/**
+		* Registers a message listener in a newsgroup.
+		*/
+		static void JoinNewsgroup(MessageListener *listener, NewsgroupID groupname);
+
+		/**
+		* Removes a message listener from a Newsgroup.
+		*/
+		static void QuitNewsgroup(MessageListener *listener, NewsgroupID groupname);
+
+		/**
+		* removes a message listener from all newsgroups.
+		*/
+		static void QuitAllNewsgroups(MessageListener *listener);
 	};
 
 };

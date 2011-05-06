@@ -10,7 +10,7 @@
 #include <list>
 #include "IceScriptSystem.h"
 
-class __declspec(dllexport) GUISystem : public Ice::MessageListener
+class __declspec(dllexport) GUISystem : public Ice::ViewMessageListener
 {
 public:
 	GUISystem(void);

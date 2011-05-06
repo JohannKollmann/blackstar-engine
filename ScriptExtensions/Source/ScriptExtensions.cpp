@@ -58,7 +58,7 @@ ScriptExtensions::initialise()
 	MusicSystem::GetInstance();
 
 	TextureDebugger::Instance();
-	Ice::MessageSystem::Instance().JoinNewsgroup(this, "REPARSE_SCRIPTS");
+	Ice::MessageSystem::JoinNewsgroup(this, GlobalMessageIDs::REPARSE_SCRIPTS_PRE);
 }
 
 
@@ -66,7 +66,7 @@ void
 ScriptExtensions::shutdown()
 {
 	Ogre::LogManager::getSingleton().logMessage("Script Extensions shut down");
-	Ice::MessageSystem::Instance().QuitNewsgroup(this, "REPARSE_SCRIPTS");
+	Ice::MessageSystem::QuitNewsgroup(this, GlobalMessageIDs::REPARSE_SCRIPTS_PRE);
 }
 
 
@@ -79,7 +79,7 @@ ScriptExtensions::uninstall()
 void
 ScriptExtensions::ReceiveMessage(Ice::Msg &msg)
 {
-	if(msg.type == "REPARSE_SCRIPTS")
+	if(msg.type == GlobalMessageIDs::REPARSE_SCRIPTS_PRE)
 	{
 		GUISystem::GetInstance().Clear();
 		MusicSystem::GetInstance().Clear();

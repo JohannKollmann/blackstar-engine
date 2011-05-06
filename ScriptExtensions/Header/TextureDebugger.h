@@ -6,7 +6,7 @@
 #include "GUISystem.h"
 #include "IceScriptSystem.h"
 
-	class __declspec(dllexport) TextureDebugger : public Ice::MessageListener
+	class __declspec(dllexport) TextureDebugger : public Ice::ViewMessageListener
 	{
 	private:
 		GUISystem::Window mWindow;

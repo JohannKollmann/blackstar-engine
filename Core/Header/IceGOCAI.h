@@ -14,7 +14,7 @@
 namespace Ice
 {
 
-	class DllExport GOCAI : public GOCEditorInterface, public CharacterControllerInput, public MessageListener
+	class DllExport GOCAI : public GOCEditorInterface, public CharacterControllerInput, public SimulationMessageListener
 	{
 
 	private:

@@ -24,11 +24,11 @@ bool Editor::OnUpdate(float time, float time_total)
 	Main::Instance().GetSoundManager()->update();
 
 	//Game stuff
-	msg.type = "UPDATE_PER_FRAME";
-	MessageSystem::Instance().SendInstantMessage(msg);
+	msg.type = GlobalMessageIDs::UPDATE_PER_FRAME;
+	MessageSystem::SendInstantMessage(msg);
 
 	//Process all messages
-	MessageSystem::Instance().Update();
+	MessageSystem::Update();
 
 	SceneManager::Instance().UpdateGameObjects();
 
@@ -39,10 +39,10 @@ bool Editor::OnUpdate(float time, float time_total)
 	}
 
 	msg.type = "START_RENDERING";
-	MessageSystem::Instance().SendInstantMessage(msg);
+	MessageSystem::SendInstantMessage(msg);
 	bool render = Ogre::Root::getSingleton().renderOneFrame();
 	msg.type = "END_RENDERING";
-	MessageSystem::Instance().SendInstantMessage(msg);
+	MessageSystem::SendInstantMessage(msg);
 
 	return render;
 }
@@ -59,11 +59,11 @@ bool Game::OnUpdate(float time, float time_total)
 	Main::Instance().GetSoundManager()->update();
 
 	//Game stuff
-	msg.type = "UPDATE_PER_FRAME";
-	MessageSystem::Instance().SendInstantMessage(msg);
+	msg.type = GlobalMessageIDs::UPDATE_PER_FRAME;
+	MessageSystem::SendInstantMessage(msg);
 
 	//Process all messages
-	MessageSystem::Instance().Update();
+	MessageSystem::Update();
 
 	SceneManager::Instance().UpdateGameObjects();
 
@@ -74,11 +74,11 @@ bool Game::OnUpdate(float time, float time_total)
 	}
 
 	msg.type = "START_RENDERING";
-	MessageSystem::Instance().SendInstantMessage(msg);
+	MessageSystem::SendInstantMessage(msg);
 	Ogre::WindowEventUtilities::messagePump();
 	bool render = Ogre::Root::getSingleton().renderOneFrame();
 	msg.type = "END_RENDERING";
-	MessageSystem::Instance().SendInstantMessage(msg);
+	MessageSystem::SendInstantMessage(msg);
 
 	return render;
 }

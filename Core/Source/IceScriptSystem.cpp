@@ -276,7 +276,7 @@ namespace Ice
 			return ret;
 		}
 		ScriptMessageListener *listener = ICE_NEW ScriptMessageListener(params[1]);
-		MessageSystem::Instance().JoinNewsgroup(listener, params[0].getString());
+		MessageSystem::JoinNewsgroup(listener, params[0].getString());
 		ScriptSystem::GetInstance().mScriptMessageListeners.push_back(listener);
 		return ret;
 	}
@@ -284,13 +284,13 @@ namespace Ice
 	void ScriptSystem::ReparseAllScripts()
 	{
 		Ice::Msg msg;
-		msg.type = "REPARSE_SCRIPTS";
-		Ice::MessageSystem::Instance().SendInstantMessage(msg);
+		msg.type = GlobalMessageIDs::REPARSE_SCRIPTS_PRE;
+		Ice::MessageSystem::SendInstantMessage(msg);
 		Ice::ScriptSystem::GetInstance().Clear();
 		//Call init script
 		Ice::Script script = Ice::ScriptSystem::GetInstance().CreateInstance("InitEngine.lua");
-		msg.type = "REPARSE_SCRIPTS_POST";
-		Ice::MessageSystem::Instance().SendInstantMessage(msg);
+		msg.type = GlobalMessageIDs::REPARSE_SCRIPTS_POST;
+		Ice::MessageSystem::SendInstantMessage(msg);
 	}
 
 	ScriptUser* ScriptSystem::GetScriptableObject(int scriptID)

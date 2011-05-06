@@ -101,21 +101,21 @@ MainLoop& MainLoop::Instance()
 		Msg msg;
 		msg.params.AddFloat("TIME", time);
 		msg.type = "START_PHYSICS";
-		MessageSystem::Instance().SendInstantMessage(msg);
+		MessageSystem::SendInstantMessage(msg);
 	}
 	void MainLoop::PhysicsListener::onSimulate(float time)
 	{
 		Msg msg;
 		msg.params.AddFloat("TIME", time);
 		msg.type = "SIMULATING_PHYSICS";
-		MessageSystem::Instance().SendInstantMessage(msg);
+		MessageSystem::SendInstantMessage(msg);
 	}
 	void MainLoop::PhysicsListener::onEndSimulate(float time)
 	{
 		Msg msg;
 		msg.params.AddFloat("TIME", time);
 		msg.type = "END_PHYSICS";
-		MessageSystem::Instance().SendInstantMessage(msg);
+		MessageSystem::SendInstantMessage(msg);
 	}
 
 };

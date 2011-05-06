@@ -66,7 +66,7 @@ namespace Ice
 		int GetMovementState() { return mCharacterMovementState; }
 	};
 
-	class DllExport GOCCharacterController : public GOCPhysics, public MessageListener, public GOCEditorInterface
+	class DllExport GOCCharacterController : public GOCPhysics, public SimulationMessageListener, public GOCEditorInterface
 	{
 	private:
 		OgrePhysX::Actor *mActor;

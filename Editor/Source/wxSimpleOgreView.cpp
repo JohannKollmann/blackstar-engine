@@ -33,6 +33,7 @@ void wxSimpleOgreView::OnInit()
 	mViewport = mRenderWindow->addViewport(mCamera);
 	mViewport->setMaterialScheme("LowQuality");
 	mViewport->setBackgroundColour(Ogre::ColourValue::Black);
+	mViewport->setMaterialScheme("LowQuality");
 	mCamera->setAspectRatio(Ogre::Real(mViewport->getActualWidth()) / Ogre::Real(mViewport->getActualHeight()));
 
 	mNode = mSceneMgr->getRootSceneNode()->createChildSceneNode(Ogre::Vector3(0, 0, 5));

@@ -66,7 +66,7 @@ namespace Ice
 		mEnabled = false;
 		mLastKeyIndex = -1;
 		mfLastPos = 0;
-		MessageSystem::Instance().JoinNewsgroup(this, "START_PHYSICS");
+		MessageSystem::JoinNewsgroup(this, "START_PHYSICS");
 	}
 	void GOCMover::Init()
 	{

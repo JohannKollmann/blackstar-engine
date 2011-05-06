@@ -41,7 +41,7 @@ struct MaterialSelection
 	Ogre::String mOriginalMaterialName;
 };
 
-class Edit : public wxOgre, public Ice::MessageListener
+class Edit : public wxOgre, public Ice::ViewMessageListener
 {
 	DECLARE_CLASS(Edit)
 
