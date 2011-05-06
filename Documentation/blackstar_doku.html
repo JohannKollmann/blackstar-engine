@@ -19,6 +19,10 @@ Da wir nicht alle Zeit der Welt haben, benutzen wir einige Bibliotheken. Dazu ge
 	Eine Physik-Engine von NVIDIA. Zusätzlich haben wir eine kleine Wrapper-Bibliothek (OgrePhysX), die einige administrative Aufgaben beim Umgang mit PhysX abnimmt.</li>
 	<li><b>OpenAL</b><br/>
 	Eine freie Sound-Bibliothek von CREATIVE. Unterstützt 3D-Sound-Effekte und alles andere was eine Sound-Karte kann.</li>
+	<li><b>Caelum</b><br/>
+	Eine Open-Source Bibliothek zum rendern des Himmels mitsamt Tagesablauf.</li>	
+	<li><b>Lua</b><br/>
+	Eine freie Scriptsprache.</li>			
 </ul>
 
 
@@ -54,21 +58,23 @@ Folgende Komponenten sind bisher implementiert:
 Die zweite Möglichkeit recht tiefe Eingriffe vorzunehmen ist die Scripting-Schnittstelle. Wir nutzen die Scriptsprache Lua und stellen jegliche sinnvoll scriptbare Funktionalität im API bereit. Die komplette Spielmechanik soll gescriptet werden, nur Performance-kritische Routinen werden in Plugins ausgelagert und vom Script aus aufgerufen.
 Bereits Implementierte Script-APIs:
 <ul>
+	<li><b>Callbacks</b><br/>
+	Scripte können auf Wunsch Nachrichten empfangen und verschicken. Dies ist der Mechanismus, über den Scripte auf Ereignisse reagieren können.
+	Beispielsweise kann ein Script sich dafür registrieren, Tastatureingabenachrichten zu bekommen, um bei Druck auf "I" das Inventar einzublenden.
+	</li>
 	<li><b>GUI-System</b><br/>
 	Das GUI-System befindet sich auf einem Overlay über der Szene und stellt ein simples Fenstersystem zur Verfügung (für Inventar, Menüs, Healthbars...). Das bedeutet, dass all diese Dinge gescriptet werden.</li>
 	<li><b>Fonts</b><br/>
 	Das Font-Plugin stellt mittels Shader sehr speicherschonende und hochaufgelöste Font-Texturen bereit, die Hauptsächlich fürs GUI gedacht sind, aber auch in der 3D-Szene verwandt werden können (Wegweiser, Schilder etc.)</li>
 	<li><b>Objekt-Scripte</b><br/>
-	Objekt-Scripte werden direkt an Objekte angefügt und können mit "ihrem" Objekt auf sehr direkte Weise kommunizieren, z.B. für NPC-Scripte, Items, Feuerbälle. All diese Funktionen stehen auch scripten zur Verfügung, die das Objekt von außen manipulieren.
+	Objekt-Scripte werden direkt an Objekte angefügt und können mit "ihrem" Objekt auf sehr direkte Weise kommunizieren, z.B. für NPC-Scripte, Items, Feuerbälle. All diese Funktionen stehen auch Scripten zur Verfügung, die das Objekt von außen manipulieren.
+	In jedem Objekt können durch Scripte manuelle Eigenschaften gespeichert werden (wie z. B. Lebensenergie), die sich auch per Editor anzeigen und editieren lassen.
 	</li>
 	<li><b>Einfügen von Objekten</b><br/>
-	Alles was sich im Editor erstellen lässt, lässt sich auch über ein Script einfügen. Damit können z. B. Mauern aus einzelnen Steinen prozedural zusammengesetzt werden anstatt dies mühevoll von Hand zu tun. Denkbar wäre z. B. auch einfügen von Ambient-Vobs in einem bestimmten Bereich (z. B. Vegetation auf einer ebenen Fläche).
+	Alles was sich im Editor erstellen lässt, lässt sich auch über ein Script einfügen. Damit können z. B. Mauern aus einzelnen Steinen prozedural zusammengesetzt werden anstatt dies mühevoll von Hand zu tun. Denkbar wäre z. B. auch zufälliges einfügen von Ambient-Vobs in einem bestimmten Bereich (z. B. Vegetation auf einer ebenen Fläche).
 	</li>	
 	<li><b>Prozess-System</b><br/>
 	Das Prozess-System wird momentan zum Timing von Animations-Abläufen für die Spielersteuerung verwendet, kann aber beliebige abhängige Abläufe zeitlich steuern. Es befindet sich noch in der Testphase.
-	</li>
-	<li><b>Property-Grid-Parameter</b><br/>
-	ein Objekt-Script kann beliebige Parameter in die Property-Grid einblenden, z.b. für die Einstellung von In-Game-Eigenschaften
 	</li>
 </ul>
 
@@ -78,6 +84,9 @@ Scripte können genau wie alle anderen Resourcen jederzeit neu geladen werden. D
 
 <h2>Speicher/Lade-Funktionen</h2>
 Alle wichtigen Objekte sind mit Speicher/Lade-Funktionen ausgestattet, sodass man den kompletten Status der Engine speichern kann. Im Editor ist auch möglich, Assemblies und Einzelobjekte zu speichern.
+
+<h2>AI/Wegfindung</h2>
+Die Wegfindung ist komplett automatisch, es gibt kein Wegnetz oder ähnliches. Npcs können z. B. per Script den Befehl erhalten von A nach B zu laufen und finden wenn möglich selbstständig den Weg, dabei berücksichtigen sie dynamische Hindernisse.
 
 <h1>Features in Planung</h1>
 
