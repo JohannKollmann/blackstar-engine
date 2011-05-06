@@ -10,53 +10,81 @@ Dieses Posting soll den aktuellen Entwicklungsstand der Engine und die bereits i
 
 <h2>Allgemeines</h2>
 
-Die Engine ist grundsätzlich so angelegt, dass kein für ein Spiel spezifischer Code enthalten ist, sondern nur allgemein verwendbare Komponenten, die an die persönlichen Bedürfnisse angepasst sind.
-Jedes Spiel, das damit geschrieben wird, ist prinzipiell eine Mod, sodass die Engine für alle Benutzer und Spielkonzepte gleich gut (oder schlecht) geeignet sein sollte. Natürlich zielen die Implementierten Komponenten darauf ab, dass ein RPG damit geschrieben wird, aber das hält einen nicht davon ab, anderes damit anzustellen.
-
 <h2>Bibliotheken</h2>
 Da wir nicht alle Zeit der Welt haben, benutzen wir einige Bibliotheken. Dazu gehören:
 <ul>
 	<li><b>OGRE</b><br/>
-	Ogre ist eine Grafikbibliothek, die Unterstützung bei der Benutzung aller modernen Grafikkartenfeatures bietet. Sie nimmt auch viele Verwaltungsaufgaben ab und optimiert die Auslastung der Grafikkarte. Wir nutzen die Direct3D9-Ausgabe.</li>
+	Ogre ist eine Schicht zwischen unserer Engine und plattformspezifischen Grafikbibliotheken (DirectX/OpenGL), nimmt viele Verwaltungsaufgaben ab und optimiert die Auslastung der Grafikkarte. Wir nutzen momentan die Direct3D9-Ausgabe.</li>
 	<li><b>PhysX</b><br/>
-	Eine Physik-Engine von NVIDIA. Optional Hardware-unterstützt allerdings oft instabil, dafür aber frei verwendbar. Zusätzlich haben wir eine kleine Wrapper-Bibliothek (OgrePhysX), die einige administrative Aufgaben beim Umgang mit PhysX abnimmt.</li>
+	Eine Physik-Engine von NVIDIA. Zusätzlich haben wir eine kleine Wrapper-Bibliothek (OgrePhysX), die einige administrative Aufgaben beim Umgang mit PhysX abnimmt.</li>
 	<li><b>OpenAL</b><br/>
 	Eine freie Sound-Bibliothek von CREATIVE. Unterstützt 3D-Sound-Effekte und alles andere was eine Sound-Karte kann.</li>
 </ul>
 
 
+Die Engine ist grundsätzlich so angelegt, dass kein für ein Spiel spezifischer Code enthalten ist, sondern nur allgemein verwendbare Komponenten, die an die persönlichen Bedürfnisse angepasst sind.
+Jedes Spiel, das damit geschrieben wird, ist prinzipiell eine Mod, sodass die Engine für alle Benutzer und Spielkonzepte gleich gut (oder schlecht) geeignet sein sollte. Natürlich zielen die Implementierten Komponenten darauf ab, dass ein RPG damit geschrieben wird, aber das hält einen nicht davon ab, anderes damit anzustellen.
+
 <h2>Plugin-Schnittstelle</h2>
 Damit das möglich ist, gibt es eine Plugin-Schnittstelle, mit der so ziemlich beliebig tief in die Engine eingegriffen werden kann, und vor allem neue Komponenten und Editor-Funktionalität geschaffen werden kann.
 
 <h2>Komponenten</h2>
-Jedes Objekt in der Engine ist aus Komponenten zusammengesetzt, die sich natürlich auch per Plugin ergänzen lassen. Komponenten sind z.B. PC-Controller, Objekt-Scripte, Mover, Physik-Eigenschaften, Meshes. Ein Objekt ohne Komponenten kann nichts.
+Jedes 3D-Objekt in einer Szene ist aus Komponenten zusammengesetzt, wobei eine Komponente eine bestimmte Funktionalität bereitstellt. Es existieren somit unzählige mögliche Komponentenkombinationen.
+Viele Komponenten stellen Scriptmethoden bereit, z. B. um einen Mover in Bewegung zu setzen.<br>
+Folgende Komponenten sind bisher implementiert:
+<ul>
+<li>Mesh</li>
+<li>Partikelsystem</li>
+<li>Licht</li>
+<li>Sound</li>
+<li>Animiertes Mesh</li>
+<li>Billboard / Decal</li>
+<li>Dynamic Body</li>
+<li>Static Body</li>
+<li>Trigger</li>
+<li>Forcefield (eine Art Trigger, wobei alle physikalischen Objekte innerhalb des Triggers auf vorgegebene Weise beeinflusst werden, kann z. B. für eine Anti-Gravity Zone benutzt werden).</li>
+<li>Fixed (breakable) Joint</li>
+<li>Mover</li>
+<li>Player Input</li>
+<li>Camera (bindet die Camera fix an ein Objekt, z. B. für eine Kamerafahrt)</li>
+<li>Camera Controller (gibt dem Spieler die Möglichkeit, durch Drehung der Maus die Kamera zu rotieren und mit dem Mausrad zu zoomen)</li>
+</ul>
 
 <h2>Scripting</h2>
 Die zweite Möglichkeit recht tiefe Eingriffe vorzunehmen ist die Scripting-Schnittstelle. Wir nutzen die Scriptsprache Lua und stellen jegliche sinnvoll scriptbare Funktionalität im API bereit. Die komplette Spielmechanik soll gescriptet werden, nur Performance-kritische Routinen werden in Plugins ausgelagert und vom Script aus aufgerufen.
 Bereits Implementierte Script-APIs:
 <ul>
 	<li><b>GUI-System</b><br/>
-	Das GUI-System befindet sich auf einem Overlay über der Szene und stellt ein simples Fenstersystem zur Verfügung (für Inventar, Menüs, Healthbars...)</li>
+	Das GUI-System befindet sich auf einem Overlay über der Szene und stellt ein simples Fenstersystem zur Verfügung (für Inventar, Menüs, Healthbars...). Das bedeutet, dass all diese Dinge gescriptet werden.</li>
 	<li><b>Fonts</b><br/>
 	Das Font-Plugin stellt mittels Shader sehr speicherschonende und hochaufgelöste Font-Texturen bereit, die Hauptsächlich fürs GUI gedacht sind, aber auch in der 3D-Szene verwandt werden können (Wegweiser, Schilder etc.)</li>
 	<li><b>Objekt-Scripte</b><br/>
 	Objekt-Scripte werden direkt an Objekte angefügt und können mit "ihrem" Objekt auf sehr direkte Weise kommunizieren, z.B. für NPC-Scripte, Items, Feuerbälle. All diese Funktionen stehen auch scripten zur Verfügung, die das Objekt von außen manipulieren.
 	</li>
+	<li><b>Einfügen von Objekten</b><br/>
+	Alles was sich im Editor erstellen lässt, lässt sich auch über ein Script einfügen. Damit können z. B. Mauern aus einzelnen Steinen prozedural zusammengesetzt werden anstatt dies mühevoll von Hand zu tun. Denkbar wäre z. B. auch einfügen von Ambient-Vobs in einem bestimmten Bereich (z. B. Vegetation auf einer ebenen Fläche).
+	</li>	
 	<li><b>Prozess-System</b><br/>
-	Das Prozess-System wird momentan zum Timing von Animations-Abläufen für die Spielersteuerung verwendet, kann aber beliebige abhängige Abläufe zeitlich steuern
-	</li>
-	<li><b>Mover</b><br/>
-	ermöglichen simple Objekt-Animationen
+	Das Prozess-System wird momentan zum Timing von Animations-Abläufen für die Spielersteuerung verwendet, kann aber beliebige abhängige Abläufe zeitlich steuern. Es befindet sich noch in der Testphase.
 	</li>
 	<li><b>Property-Grid-Parameter</b><br/>
 	ein Objekt-Script kann beliebige Parameter in die Property-Grid einblenden, z.b. für die Einstellung von In-Game-Eigenschaften
 	</li>
 </ul>
 
+<h2>Editor</h2>
+Der Editor ist das zentrale Tool, mit dem letztendlich das Spiel entwickelt wird. Mit ihm werden nicht nur Welten "vobbiert", sondern auch mit dem integrierten Scripteditor die Spielmechanik und GUI entwickelt.
+Scripte können genau wie alle anderen Resourcen jederzeit neu geladen werden. Das Spiel kann komplett im Editor gespielt und getestet werden.
+
 <h2>Speicher/Lade-Funktionen</h2>
 Alle wichtigen Objekte sind mit Speicher/Lade-Funktionen ausgestattet, sodass man den kompletten Status der Engine speichern kann. Im Editor ist auch möglich, Assemblies und Einzelobjekte zu speichern.
 
 <h1>Features in Planung</h1>
+
+<h2>Threading [bereits angefangen]</h2>
+Physik, Rendering und AI sollten parallel berechnet werden. Um dies zu gewährleisten arbeiten wir momentan an einigen Verbesserungen unseres Nachrichtensystems, mit denen die verschiedenen Teile der Engine miteinander kommunizieren.
+Es sei an dieser Stelle erwähnt, dass Threading eine vertrackte Sache ist und Ursache für die meisten schwer reproduzierbaren Fehler (nicht nur bei uns!).
+Dennoch gehört es aufgrund überall verbreiteter Mehrkernprozessoren in jede moderne Engine und wir denken dass wir eine gute Lösung auf die Beine stellen.
 
 <h2>Grafischer Editor für Prozesse [bereits angefangen]</h2>
 Der Prozesseditor kann beliebige voneinander abhängige Aktionen grafisch darstellen. Die Darstellung ist an ein Flussdiagramm angeleht und besteht aus mit Pfeilen verbundenen Knotenpunkten. In die Knoten können vorgefertigte Aktionen geladen werden (z.B. NPC-Tagesablaufspunkte, Dialoge). Die Knoten-Vorlagen können per Plugin (evtl auch per Script) erweitert werden.
