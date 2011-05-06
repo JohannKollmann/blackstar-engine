@@ -10,6 +10,9 @@ Dieses Posting soll den aktuellen Entwicklungsstand der Engine und die bereits i
 
 <h2>Allgemeines</h2>
 
+Die Engine ist grundsätzlich so angelegt, dass kein für ein Spiel spezifischer Code enthalten ist, sondern nur allgemein verwendbare Komponenten, die an die persönlichen Bedürfnisse angepasst sind.
+Jedes Spiel, das damit geschrieben wird, ist prinzipiell eine Mod, sodass die Engine für alle Benutzer und Spielkonzepte gleich gut (oder schlecht) geeignet sein sollte. Natürlich zielen die Implementierten Komponenten darauf ab, dass ein RPG damit geschrieben wird, aber das hält einen nicht davon ab, anderes damit anzustellen.
+
 <h2>Bibliotheken</h2>
 Da wir nicht alle Zeit der Welt haben, benutzen wir einige Bibliotheken. Dazu gehören:
 <ul>
@@ -20,17 +23,13 @@ Da wir nicht alle Zeit der Welt haben, benutzen wir einige Bibliotheken. Dazu ge
 	<li><b>OpenAL</b><br/>
 	Eine freie Sound-Bibliothek von CREATIVE. Unterstützt 3D-Sound-Effekte und alles andere was eine Sound-Karte kann.</li>
 	<li><b>Caelum</b><br/>
-	Eine Open-Source Bibliothek zum rendern des Himmels mitsamt Tagesablauf.</li>	
+	Eine Open-Source Bibliothek zum Rendern des Himmels mitsamt Tagesablauf.</li>	
 	<li><b>Lua</b><br/>
 	Eine freie Scriptsprache.</li>			
 </ul>
 
-
-Die Engine ist grundsätzlich so angelegt, dass kein für ein Spiel spezifischer Code enthalten ist, sondern nur allgemein verwendbare Komponenten, die an die persönlichen Bedürfnisse angepasst sind.
-Jedes Spiel, das damit geschrieben wird, ist prinzipiell eine Mod, sodass die Engine für alle Benutzer und Spielkonzepte gleich gut (oder schlecht) geeignet sein sollte. Natürlich zielen die Implementierten Komponenten darauf ab, dass ein RPG damit geschrieben wird, aber das hält einen nicht davon ab, anderes damit anzustellen.
-
 <h2>Plugin-Schnittstelle</h2>
-Damit das möglich ist, gibt es eine Plugin-Schnittstelle, mit der so ziemlich beliebig tief in die Engine eingegriffen werden kann, und vor allem neue Komponenten und Editor-Funktionalität geschaffen werden kann.
+Um die Engine flexibel zu halten gibt es eine Plugin-Schnittstelle, mit der so ziemlich beliebig tief in die Engine eingegriffen werden kann und vor Allem neue Komponenten und Editor-Funktionalität geschaffen werden kann.
 
 <h2>Komponenten</h2>
 Jedes 3D-Objekt in einer Szene ist aus Komponenten zusammengesetzt, wobei eine Komponente eine bestimmte Funktionalität bereitstellt. Es existieren somit unzählige mögliche Komponentenkombinationen.
@@ -71,7 +70,7 @@ Bereits Implementierte Script-APIs:
 	In jedem Objekt können durch Scripte manuelle Eigenschaften gespeichert werden (wie z. B. Lebensenergie), die sich auch per Editor anzeigen und editieren lassen.
 	</li>
 	<li><b>Einfügen von Objekten</b><br/>
-	Alles was sich im Editor erstellen lässt, lässt sich auch über ein Script einfügen. Damit können z. B. Mauern aus einzelnen Steinen prozedural zusammengesetzt werden anstatt dies mühevoll von Hand zu tun. Denkbar wäre z. B. auch zufälliges einfügen von Ambient-Vobs in einem bestimmten Bereich (z. B. Vegetation auf einer ebenen Fläche).
+	Alles was sich im Editor erstellen lässt, lässt sich auch über ein Script einfügen. Damit können z. B. Mauern aus einzelnen Steinen prozedural zusammengesetzt werden anstatt dies mühevoll von Hand zu tun. Denkbar wäre z. B. auch zufälliges Einfügen von Ambient-Vobs in einem bestimmten Bereich (z. B. Vegetation auf einer ebenen Fläche).
 	</li>	
 	<li><b>Prozess-System</b><br/>
 	Das Prozess-System wird momentan zum Timing von Animations-Abläufen für die Spielersteuerung verwendet, kann aber beliebige abhängige Abläufe zeitlich steuern. Es befindet sich noch in der Testphase.
