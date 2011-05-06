@@ -55,7 +55,7 @@ namespace Ice
 			Msg msg;
 			msg.type = "ACTOR_ONWAKE";
 			msg.rawData = mActor->getNxActor();
-			MessageSystem::Instance().SendInstantMessage(msg);
+			MessageSystem::SendInstantMessage(msg);
 			Main::Instance().GetPhysXScene()->destroyRenderedActor((OgrePhysX::RenderedActor*)mActor);
 			mActor = nullptr;
 			//This also destroys the renderable!

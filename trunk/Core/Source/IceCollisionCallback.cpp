@@ -51,7 +51,7 @@ namespace Ice
 			Msg msg;
 			msg.type = "ACTOR_ONSLEEP";
 			msg.rawData = actors[i];
-			MessageSystem::Instance().SendInstantMessage(msg);
+			MessageSystem::SendInstantMessage(msg);
 		}
 	}
 
@@ -62,7 +62,7 @@ namespace Ice
 			Msg msg;
 			msg.type = "ACTOR_ONWAKE";
 			msg.rawData = actors[i];
-			MessageSystem::Instance().SendInstantMessage(msg);
+			MessageSystem::SendInstantMessage(msg);
 		}
 	}
 
@@ -82,7 +82,7 @@ namespace Ice
 		msg.params.AddOgreString("Material1", material1);
 		msg.params.AddOgreString("Material2", material2);
 		msg.params.AddFloat("Force", force);
-		MessageSystem::Instance().SendInstantMessage(msg);
+		MessageSystem::SendInstantMessage(msg);
 	}
 
 

@@ -5,7 +5,7 @@
 #include "OgreOggSound.h"
 #include "IceMessageListener.h"
 
-class MusicSystem : public Ice::MessageListener
+class MusicSystem : public Ice::ViewMessageListener
 {
 public:
 	MusicSystem();

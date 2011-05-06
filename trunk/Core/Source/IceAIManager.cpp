@@ -7,14 +7,13 @@ namespace Ice
 
 	AIManager::AIManager(void)
 	{
-		MessageSystem::Instance().JoinNewsgroup(this, "REPARSE_SCRIPTS_POST");
+		MessageSystem::JoinNewsgroup(this, GlobalMessageIDs::REPARSE_SCRIPTS_POST);
 		mNavigationMesh = ICE_NEW NavigationMesh();
 		mLoadWayMeshAsObjects = false;
 	}
 
 	AIManager::~AIManager(void)
 	{
-		MessageSystem::Instance().QuitNewsgroup(this, "REPARSE_SCRIPTS_POST");
 	}
 
 	void AIManager::RegisterWaypoint(GOCWaypoint *waypoint)

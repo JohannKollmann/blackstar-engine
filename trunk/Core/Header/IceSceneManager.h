@@ -23,7 +23,7 @@ namespace Ice
 	typedef GOCEditorInterface* (*EDTCreatorFn)();
 	typedef void (*GOCDefaultParametersFn)(DataMap*);
 
-	class DllExport SceneManager : public EditorInterface, public MessageListener
+	class DllExport SceneManager : public EditorInterface, public ViewMessageListener
 	{
 	public:
 
@@ -76,7 +76,7 @@ namespace Ice
 		};
 		OggListener mOggListener;
 
-		class DllExport OggCamSync : public MessageListener
+		class DllExport OggCamSync : public ViewMessageListener
 		{
 		public:
 			OggCamSync();

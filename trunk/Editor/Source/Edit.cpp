@@ -155,8 +155,8 @@ void Edit::PostInit()
 	mPivotNode = Ice::Main::Instance().GetOgreSceneMgr()->getRootSceneNode()->createChildSceneNode();
 	mPivotOffsetNode = mPivotNode->createChildSceneNode();
 
-	Ice::MessageSystem::Instance().JoinNewsgroup(this, "MOUSE_MOVE");
-	Ice::MessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
+	Ice::MessageSystem::JoinNewsgroup(this, GlobalMessageIDs::MOUSE_MOVE);
+	Ice::MessageSystem::JoinNewsgroup(this, GlobalMessageIDs::UPDATE_PER_FRAME);
 
 	Ice::Main::Instance().GetPreviewSceneMgr()->getRootSceneNode()->createChildSceneNode("EditorPreview");
 
@@ -1334,11 +1334,11 @@ void Edit::SetObjectRotationSpeed(float factor)
 
 void Edit::ReceiveMessage(Ice::Msg &msg)
 {
-	if (msg.type == "MOUSE_MOVE")
+	if (msg.type == GlobalMessageIDs::MOUSE_MOVE)
 	{
 		OnMouseMove(Ogre::Degree(msg.params.GetInt("ROT_X_REL")), Ogre::Degree(msg.params.GetInt("ROT_Y_REL")));
 	}
-	if (msg.type == "UPDATE_PER_FRAME")
+	if (msg.type == GlobalMessageIDs::UPDATE_PER_FRAME)
 	{
 		Ice::GameObjectPtr mover = mMoverReset.Mover.lock();
 		if (mover.get())

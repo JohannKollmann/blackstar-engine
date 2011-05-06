@@ -81,12 +81,12 @@ namespace Ice
 
 	GOCScriptMessageCallback::GOCScriptMessageCallback()
 	{
-		MessageSystem::Instance().JoinNewsgroup(this, "REPARSE_SCRIPTS");
+		MessageSystem::JoinNewsgroup(this, GlobalMessageIDs::REPARSE_SCRIPTS_PRE);
 	}
 
 	void GOCScriptMessageCallback::ReceiveMessage(Msg &msg)
 	{
-		if (msg.type == "REPARSE_SCRIPTS") mObjectMsgCallbacks.clear();
+		if (msg.type == GlobalMessageIDs::REPARSE_SCRIPTS_PRE) mObjectMsgCallbacks.clear();
 	}
 
 	void GOCScriptMessageCallback::ReceiveObjectMessage(Msg &msg)

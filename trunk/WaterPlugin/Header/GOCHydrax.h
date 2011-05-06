@@ -16,7 +16,7 @@
 #include "IceMessageListener.h"
 #include "IceWeatherController.h"
 
-class __declspec(dllexport) GOCHydrax : public Ice::GOComponent, public Ice::GOCStaticEditorInterface, public Ice::MessageListener
+class __declspec(dllexport) GOCHydrax : public Ice::GOComponent, public Ice::GOCStaticEditorInterface, public Ice::ViewMessageListener
 {
 private:
 	Hydrax::Hydrax *mHydrax;

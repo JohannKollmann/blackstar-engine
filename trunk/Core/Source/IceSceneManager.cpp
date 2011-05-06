@@ -55,18 +55,18 @@ namespace Ice
 
 		mClearingScene = false;
 
-		MessageSystem::Instance().CreateNewsgroup("ENABLE_GAME_CLOCK");
-		MessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
+		MessageSystem::CreateNewsgroup("ENABLE_GAME_CLOCK");
+		MessageSystem::JoinNewsgroup(this, GlobalMessageIDs::UPDATE_PER_FRAME);
 
-		Ice::MessageSystem::Instance().CreateNewsgroup("LOADLEVEL_BEGIN");
-		Ice::MessageSystem::Instance().CreateNewsgroup("LOADLEVEL_END");
-		Ice::MessageSystem::Instance().CreateNewsgroup("SAVELEVEL_BEGIN");
-		Ice::MessageSystem::Instance().CreateNewsgroup("SAVELEVEL_END");
+		Ice::MessageSystem::CreateNewsgroup("LOADLEVEL_BEGIN");
+		Ice::MessageSystem::CreateNewsgroup("LOADLEVEL_END");
+		Ice::MessageSystem::CreateNewsgroup("SAVELEVEL_BEGIN");
+		Ice::MessageSystem::CreateNewsgroup("SAVELEVEL_END");
 
-		Ice::MessageSystem::Instance().CreateNewsgroup("ACTOR_ONSLEEP");
-		Ice::MessageSystem::Instance().CreateNewsgroup("ACTOR_ONWAKE");
+		Ice::MessageSystem::CreateNewsgroup("ACTOR_ONSLEEP");
+		Ice::MessageSystem::CreateNewsgroup("ACTOR_ONWAKE");
 
-		Ice::MessageSystem::Instance().CreateNewsgroup("MATERIAL_ONCONTACT");
+		Ice::MessageSystem::CreateNewsgroup("MATERIAL_ONCONTACT");
 	}
 
 	SceneManager::~SceneManager(void)
@@ -250,7 +250,7 @@ namespace Ice
 
 		/**
 		Joins a newsgroup.
-		Example usage: Listen("UPDATE_PER_FRAME", myFunc)
+		Example usage: Listen(GlobalMessageIDs::UPDATE_PER_FRAME, myFunc)
 		*/
 		ScriptSystem::GetInstance().ShareCFunction("ReceiveGlobalMessage", &ScriptSystem::Lua_JoinNewsgroup);
 
@@ -477,7 +477,7 @@ namespace Ice
 	{
 		Msg msg;
 		msg.type = "LOADLEVEL_BEGIN";
-		MessageSystem::Instance().SendInstantMessage(msg);
+		MessageSystem::SendInstantMessage(msg);
 
 		ClearGameObjects();
 
@@ -493,14 +493,14 @@ namespace Ice
 		delete ls;
 
 		msg.type = "LOADLEVEL_END";
-		MessageSystem::Instance().SendInstantMessage(msg);
+		MessageSystem::SendInstantMessage(msg);
 	}
 
 	void SceneManager::SaveLevel(Ogre::String levelfile)
 	{
 		Msg msg;
 		msg.type = "SAVELEVEL_BEGIN";
-		MessageSystem::Instance().SendInstantMessage(msg);
+		MessageSystem::SendInstantMessage(msg);
 
 		ShowEditorMeshes(false);
 		LoadSave::SaveSystem *ss=LoadSave::LoadSave::Instance().CreateSaveFile(levelfile, levelfile + ".xml");
@@ -516,7 +516,7 @@ namespace Ice
 		ICE_DELETE ss;
 
 		msg.type = "SAVELEVEL_END";
-		MessageSystem::Instance().SendInstantMessage(msg);
+		MessageSystem::SendInstantMessage(msg);
 	}
 
 	void SceneManager::SetParameters(DataMap *parameters)
@@ -755,7 +755,7 @@ namespace Ice
 
 	void SceneManager::ReceiveMessage(Msg &msg)
 	{
-		if (msg.type == "UPDATE_PER_FRAME")
+		if (msg.type == GlobalMessageIDs::UPDATE_PER_FRAME)
 		{
 			float time = msg.params.GetFloat("TIME");
 			if (mClockEnabled)
@@ -776,7 +776,7 @@ namespace Ice
 		Msg msg;
 		msg.type = "ENABLE_GAME_CLOCK";
 		msg.params.AddBool("enable", enable);
-		MessageSystem::Instance().SendInstantMessage(msg);
+		MessageSystem::SendInstantMessage(msg);
 	}
 
 	void SceneManager::SetTimeScale(float scale)
@@ -1006,7 +1006,7 @@ namespace Ice
 	}
 	SceneManager::OggCamSync::OggCamSync()
 	{
-		MessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
+		MessageSystem::JoinNewsgroup(this, GlobalMessageIDs::UPDATE_PER_FRAME);
 	}
 	void SceneManager::OggCamSync::ReceiveMessage(Msg &msg)
 	{

@@ -9,7 +9,7 @@
 namespace Ice
 {
 
-class DllExport GOCPlayerInput : public CharacterControllerInput, public MessageListener, public GOCEditorInterface
+class DllExport GOCPlayerInput : public CharacterControllerInput, public SimulationMessageListener, public GOCEditorInterface
 {
 private:
 	bool mActive;

@@ -14,10 +14,10 @@ namespace Ice
 
 	FreeFlightCameraController::FreeFlightCameraController(void)
 	{
-		MessageSystem::Instance().JoinNewsgroup(this, "MOUSE_MOVE");
-		MessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
-		MessageSystem::Instance().JoinNewsgroup(this, "CONSOLE_INGAME");
-		MessageSystem::Instance().JoinNewsgroup(this, "KEY_UP");
+		MessageSystem::JoinNewsgroup(this, GlobalMessageIDs::MOUSE_MOVE);
+		MessageSystem::JoinNewsgroup(this, GlobalMessageIDs::UPDATE_PER_FRAME);
+		MessageSystem::JoinNewsgroup(this, "CONSOLE_INGAME");
+		MessageSystem::JoinNewsgroup(this, GlobalMessageIDs::KEY_UP);
 		Console::Instance().AddCommand("cam_goto_pos", "vector3");
 
 		mMovementVec = Ogre::Vector3(0,0,0);
@@ -40,12 +40,12 @@ namespace Ice
 		if (!mActive) return;
 
 		//Der folgende Code ermöglicht eine einfache Kamerasteuerung über WASD und die Maus und ist eher für Debug oder Editorzwecke gedacht.
-		if (msg.type == "MOUSE_MOVE")
+		if (msg.type == GlobalMessageIDs::MOUSE_MOVE)
 		{
 			if (mYRot) mCamera->yaw(Ogre::Degree(-msg.params.GetInt("ROT_X_REL") * mRotSpeed));
 			if (mXRot) mCamera->pitch(Ogre::Degree(-msg.params.GetInt("ROT_Y_REL") * mRotSpeed));
 		}
-		else if (msg.type == "UPDATE_PER_FRAME")
+		else if (msg.type == GlobalMessageIDs::UPDATE_PER_FRAME)
 		{
 			if (mMove)
 			{
@@ -67,7 +67,7 @@ namespace Ice
 				mCamera->setPosition(msg.params.GetOgreVec3("PARAM1"));
 			}
 		}
-		else if (msg.type == "KEY_UP")
+		else if (msg.type == GlobalMessageIDs::KEY_UP)
 		{
 			int keyid = msg.params.GetInt("KEY_ID_OIS");
 			if (keyid == OIS::KC_F2)

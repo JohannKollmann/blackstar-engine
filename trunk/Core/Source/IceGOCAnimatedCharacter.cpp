@@ -23,7 +23,7 @@ namespace Ice
 		{
 			if (GOCScriptMessageCallback *c = owner->GetComponent<GOCScriptMessageCallback>())
 			{
-				Msg msg; msg.type = "REPARSE_SCRIPTS";
+				Msg msg; msg.type = GlobalMessageIDs::REPARSE_SCRIPTS_PRE;
 				c->ReceiveMessage(msg);		//HACK - damit script objekt message listener gelöscht werden
 			}
 		}
@@ -51,8 +51,7 @@ namespace Ice
 		mEntity = nullptr;
 		mSetControlToActorsTemp = false;
 		mEditorMode = false;
-		MessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
-		MessageSystem::Instance().JoinNewsgroup(this, "REPARSE_SCRIPTS");
+		MessageSystem::JoinNewsgroup(this, GlobalMessageIDs::REPARSE_SCRIPTS_PRE);
 	}
 
 	GOCAnimatedCharacter::GOCAnimatedCharacter(Ogre::String meshname, Ogre::Vector3 scale)
@@ -60,8 +59,7 @@ namespace Ice
 		mSetControlToActorsTemp = false;
 		mEditorMode = false;
 		Create(meshname, scale);
-		MessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
-		MessageSystem::Instance().JoinNewsgroup(this, "REPARSE_SCRIPTS");
+		MessageSystem::JoinNewsgroup(this, GlobalMessageIDs::REPARSE_SCRIPTS_PRE);
 	}
 
 	void GOCAnimatedCharacter::Create(Ogre::String meshname, Ogre::Vector3 scale)
@@ -137,7 +135,7 @@ namespace Ice
 	void GOCAnimatedCharacter::ReceiveMessage(Msg &msg)
 	{
 		if (mOwnerGO.expired()) return;
-		if (msg.type == "REPARSE_SCRIPTS")
+		if (msg.type == GlobalMessageIDs::REPARSE_SCRIPTS_PRE)
 			_destroyCreatedProcesses();
 	}
 

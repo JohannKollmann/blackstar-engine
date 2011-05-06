@@ -20,8 +20,8 @@ namespace Ice
 		mFinished = false;
 		mWeight = 0;
 		mTimeScale = 1;
-		MessageSystem::Instance().JoinNewsgroup(this, "REPARSE_SCRIPTS");
-		MessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
+		MessageSystem::JoinNewsgroup(this, GlobalMessageIDs::REPARSE_SCRIPTS_PRE);
+		MessageSystem::JoinNewsgroup(this, GlobalMessageIDs::UPDATE_PER_FRAME);
 	}
 	PlayAnimationProcess::~PlayAnimationProcess()
 	{
@@ -48,7 +48,7 @@ namespace Ice
 	}
 	void PlayAnimationProcess::ReceiveMessage(Msg &msg)
 	{
-		if (mAnimationState->getEnabled() && msg.type == "UPDATE_PER_FRAME")
+		if (mAnimationState->getEnabled() && msg.type == GlobalMessageIDs::UPDATE_PER_FRAME)
 		{
 			float timeDelta = msg.params.GetFloat("TIME");
 			timeDelta *= mTimeScale;
@@ -95,7 +95,7 @@ namespace Ice
 				else ProcessNodeManager::Instance().RemoveProcessNode(GetProcessID());
 			}
 		}
-		else if (msg.type == "REPARSE_SCRIPTS")
+		else if (msg.type == GlobalMessageIDs::REPARSE_SCRIPTS_PRE)
 		{
 			mScriptCallbacks.clear();
 		}

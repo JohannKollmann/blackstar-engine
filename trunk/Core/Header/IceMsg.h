@@ -4,23 +4,23 @@
 #include "IceIncludes.h"
 #include "Ogre.h"
 #include "IceMessageListener.h"
-#include "IceDataMap.h"
 
 namespace Ice
 {
+	typedef int MsgType;
 
 	class DllExport Msg
 	{
 	public:
+
 		Msg()		
-		{						//Default: Broadcast
+		{
 			rawData = nullptr;
 		}
-		virtual ~Msg() { };
+		virtual ~Msg() { }
 
-		Ogre::String type;
-		DataMap params;
+		Ogre::Any params[8];
+		MsgType typeID;
 		void *rawData;
 	};
-
 };

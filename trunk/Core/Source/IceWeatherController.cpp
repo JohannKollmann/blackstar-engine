@@ -80,8 +80,8 @@ namespace Ice
 
 		mCaelumSystem->forceSubcomponentVisibilityFlags( Ice::VisibilityFlags::V_SKY);
 
-		MessageSystem::Instance().JoinNewsgroup(this, "UPDATE_PER_FRAME");
-		MessageSystem::Instance().JoinNewsgroup(this, "KEY_UP");
+		MessageSystem::JoinNewsgroup(this, GlobalMessageIDs::UPDATE_PER_FRAME);
+		MessageSystem::JoinNewsgroup(this, GlobalMessageIDs::KEY_UP);
 	};
 
 	void WeatherController::SetGroundFogEnabled (bool enable)
@@ -110,8 +110,8 @@ namespace Ice
 	{
 		Main::Instance().GetWindow()->removeListener (mCaelumSystem);
 		mCaelumSystem->shutdown (false);
-		MessageSystem::Instance().QuitNewsgroup(this, "UPDATE_PER_FRAME");
-		MessageSystem::Instance().QuitNewsgroup(this, "KEY_UP");
+		MessageSystem::QuitNewsgroup(this, GlobalMessageIDs::UPDATE_PER_FRAME);
+		MessageSystem::QuitNewsgroup(this, GlobalMessageIDs::KEY_UP);
 	};
 
 	Caelum::CaelumSystem* WeatherController::GetCaelumSystem()
@@ -151,7 +151,7 @@ namespace Ice
 
 	void WeatherController::ReceiveMessage(Msg &msg)
 	{
-		if (msg.type == "UPDATE_PER_FRAME")
+		if (msg.type == GlobalMessageIDs::UPDATE_PER_FRAME)
 		{
 			mCaelumSystem->notifyCameraChanged(Main::Instance().GetCamera());
 		}

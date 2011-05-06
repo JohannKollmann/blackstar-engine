@@ -13,8 +13,8 @@ namespace Ice
 	{
 		mCharacterMovementState = 0;
 		AIManager::Instance().RegisterAIObject(this);
-		MessageSystem::Instance().JoinNewsgroup(this, "ENABLE_GAME_CLOCK");
-		MessageSystem::Instance().JoinNewsgroup(this, "REPARSE_SCRIPTS");
+		MessageSystem::JoinNewsgroup(this, "ENABLE_GAME_CLOCK");
+		MessageSystem::JoinNewsgroup(this, GlobalMessageIDs::REPARSE_SCRIPTS_PRE);
 	}
 
 	GOCAI::~GOCAI(void)
@@ -178,7 +178,7 @@ namespace Ice
 				BroadcastMovementState(0);
 			}
 		}
-		else if (msg.type == "REPARSE_SCRIPTS")
+		else if (msg.type == GlobalMessageIDs::REPARSE_SCRIPTS_PRE)
 		{
 			ClearActionQueue();
 			ClearIdleQueue();

@@ -16,7 +16,7 @@ namespace Ice
 		virtual void DetachCamera() = 0;
 	};
 
-	class DllExport FreeFlightCameraController : public CameraController, public MessageListener
+	class DllExport FreeFlightCameraController : public CameraController, public ViewMessageListener
 	{
 	private:
 		Ogre::Camera *mCamera;

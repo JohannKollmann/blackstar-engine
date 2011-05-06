@@ -321,6 +321,7 @@
     <ClInclude Include="..\..\Dependencies\lua\src\lvm.h" />
     <ClInclude Include="..\..\Dependencies\lua\src\lzio.h" />
     <ClInclude Include="Header\LoadSaveable.h" />
+    <ClInclude Include="Header\IceWrappedVector.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Header\Messaging.txt" />
