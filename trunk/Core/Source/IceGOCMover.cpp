@@ -4,7 +4,7 @@
 #include "IceMessageSystem.h"
 #include "IceGOCView.h"
 #include "IceSceneManager.h"
-
+#include "IceObjectMessageIDs.h"
 
 namespace Ice
 {
@@ -66,7 +66,7 @@ namespace Ice
 		mEnabled = false;
 		mLastKeyIndex = -1;
 		mfLastPos = 0;
-		MessageSystem::JoinNewsgroup(this, "START_PHYSICS");
+		JoinNewsgroup(GlobalMessageIDs::PHYSICS_SUBSTEP);
 	}
 	void GOCMover::Init()
 	{
@@ -153,12 +153,12 @@ namespace Ice
 			return;
 		mMoving = true;
 		mfLastPos=0;
-		Ice::Msg msg; msg.type = "MOVER_START";
-		mOwnerGO.lock()->SendInstantMessage(msg);
+		Ice::Msg msg; msg.typeID = ObjectMessageIDs::MOVER_START;
+		BroadcastObjectMessage(msg);
 		if(GetNumKeys() < 1)
 		{
-			Ice::Msg msg; msg.type = "MOVER_END";
-			mOwnerGO.lock()->SendMessage(msg);
+			Ice::Msg msg; msg.typeID = ObjectMessageIDs::MOVER_END;
+			BroadcastObjectMessage(msg);
 			mMoving = false;
 		}
 	}
@@ -234,8 +234,8 @@ namespace Ice
 	{
 		mMoving = false;
 		mfLastPos=0;
-		Ice::Msg msg; msg.type = "MOVER_END";
-		mOwnerGO.lock()->SendInstantMessage(msg);
+		Ice::Msg msg; msg.typeID = ObjectMessageIDs::MOVER_END;
+		BroadcastObjectMessage(msg);
 		mLastKeyIndex = -1;
 		//reset mover to first key
 		Reset();
@@ -244,7 +244,7 @@ namespace Ice
 	void GOCMover::ReceiveMessage( Msg &msg )
 	{
 		GameObjectPtr owner = mOwnerGO.lock();
-		if (msg.type == "START_PHYSICS" && owner.get())
+		if (msg.typeID == GlobalMessageIDs::PHYSICS_SUBSTEP && owner.get())
 		{
 			if (mLookAtLine) _updateLookAtLine();
 			if (mNormalLookAtLine) _updateNormalLookAtLine();
@@ -303,12 +303,12 @@ namespace Ice
 						if (keyIndex != mLastKeyIndex)
 						{
 							//Send a message that a key passed.
-							Ice::Msg msg; msg.type = "MOVER_KEY";
+							Ice::Msg msg; msg.typeID = ObjectMessageIDs::MOVER_PASSING_KEY;
 							GameObjectPtr keyObj = GetKey(keyIndex);
 							if (keyObj.get())
 							{
 								msg.params.AddOgreString("Keyname", keyObj->GetName());
-								owner->SendInstantMessage(msg);
+								BroadcastObjectMessage(msg);
 							}
 							mLastKeyIndex = keyIndex;
 						}
@@ -329,9 +329,9 @@ namespace Ice
 				if(mfLastPos>=(mStaticMode ? mKeyTiming[mKeyTiming.size()-1] : mSpline.GetLength()))
 				{
 					mMoving = false;
-					mfLastPos=0;
-					Ice::Msg msg; msg.type = "MOVER_END";
-					owner->SendMessage(msg);
+					mfLastPos = 0;
+					Ice::Msg msg; msg.typeID = ObjectMessageIDs::MOVER_END;
+					BroadcastObjectMessage(msg);
 					mLastKeyIndex = -1;
 				}
 			}

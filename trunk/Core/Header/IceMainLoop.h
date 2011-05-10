@@ -4,55 +4,99 @@
 #include "IceIncludes.h"
 #define NOMINMAX
 #include "windows.h"
+#include "mmsystem.h"
 #include "Ogre.h"
-#include "IceGameState.h"
 #include "OgrePhysX.h"
+#include "boost/thread.hpp"
+#include "IceMessageSystem.h"
 
 namespace Ice
 {
-
-class DllExport MainLoop
-{
-protected:
-	bool mRunning;
-	bool mPaused;
-	bool mRunPhysics;
-	DWORD mTotalLastFrameTime;
-	float mTimeSinceLastFrame;
-	float mTotalTimeElapsed;
-	//Ogre::Timer *mTimer;
-
-	std::vector<GameState*> mStates;
-	GameState* mCurrentState;
-
-	class DllExport PhysicsListener : public OgrePhysX::Scene::SimulationListener
+	/**
+	* Manages an infinite loop where it sends a specified message to a specified receiver.
+	* Can be used with boost::thread.
+	*/
+	class DllExport MainLoopThread
 	{
-		void onBeginSimulate(float time);
-		void onSimulate(float time);
-		void onEndSimulate(float time);
+	protected:
+		bool mPaused;
+		bool mTerminate;
+		bool mFixedTimeStep;
+		DWORD mFixedTimeStepMiliSeconds;
+		DWORD mTotalLastFrameTime;
+		DWORD mTimeSinceLastFrame;
+		DWORD mTotalTimeElapsed;
+		float mTimeSinceLastFrameSeconds;
+		float mTotalTimeElapsedSeconds;
+		
+		bool mSynchronized;
+
+		AccessPermitionID mAccessPermitionID;
+
+		boost::mutex mFinishedStepMutex;
+
+		virtual void doLoop();
+
+	public:
+		MainLoopThread(AccessPermitionID accessPermitionID) : 
+			mAccessPermitionID(accessPermitionID), mSynchronized(false), mFixedTimeStep(false), mPaused(false), mTerminate(false), mTotalTimeElapsed(0), mTotalLastFrameTime(timeGetTime()), mTimeSinceLastFrame(0) {}
+
+		virtual ~MainLoopThread() {}
+
+		void operator() ();
+
+		void Step();
+
+		void SetSynchronized(bool synchronized) { mSynchronized = synchronized; }
+
+		void SetFixedTimeStep(DWORD stepMiliSeconds);
+
+		void SetPaused(bool paused);
+
+		void Terminate();
 	};
-	PhysicsListener mPhysicsListener;
 
-public:
+	class DllExport MainLoopThreadSender : public MainLoopThread
+	{
+	protected:	
+		class  DllExport MsgProcessingListener : public MessageSystem::ProcessingListener
+		{
+		public:
+			MsgTypeID mPerLoopMsg;
+			MessageListener *mMsgReceiver;
+			MainLoopThreadSender *mMainLoopThread;
 
-	MainLoop();
-	~MainLoop() { };
+			void OnFinishSending(AccessPermitionID accessPermitionID);
+		};
+		MsgProcessingListener mProcessingListener;
 
-	void startLoop();
-	void quitLoop();
-	void pauseLoop();
-	void continueLoop();
-	void SetPhysics(bool enable);
-	bool GetRunPhysics() { return mRunPhysics; };
+		virtual void doLoop();
 
-	bool doLoop();
+	public:
+		MainLoopThreadSender(MessageListener *msgReceiver, MsgTypeID perLoopMsg) : MainLoopThread(msgReceiver->GetAccessPermitionID()) { mProcessingListener.mMainLoopThread = this; mProcessingListener.mMsgReceiver = msgReceiver; mProcessingListener.mPerLoopMsg = perLoopMsg; }
+		virtual ~MainLoopThreadSender() {}
+	};
 
-	void AddState(GameState* state);
-	void SetState(Ogre::String name);
 
-	//Singleton
-	static MainLoop& Instance();
+	class DllExport PhysicsThread : public PhysicsMessageListener
+	{
+	private:
+		class DllExport PhysicsListener : public OgrePhysX::Scene::SimulationListener
+		{
+			void onBeginSimulate(float time);
+			void onSimulate(float time);
+			void onEndSimulate(float time);
+		};
+		PhysicsListener mPhysicsListener;
 
-};
+	public:
+		PhysicsThread();
+		void ReceiveMessage(Msg &msg);
+	};
 
+	class DllExport RenderThread : public ViewMessageListener
+	{
+	public:
+		void ReceiveMessage(Msg &msg);
+	};
 };

@@ -6,37 +6,30 @@
 
 namespace Ice
 {
-	typedef int NewsgroupID;
 	typedef int AccessPermitionID;
-
-	enum AccessPermitions
-	{
-		ACCESS_VIEW = 0,		//access Ogre
-		ACCESS_PHYSICS = 1,		//access physics engine
-		ACCESS_NONE = 2,		//access nothing, only perform own computations (ai)
-		ACCESS_ALL = 3			//access everything (scripting)
-	};
 
 	class DllExport MessageListener
 	{
-	protected:
+	private:
+		AccessPermitionID mAccessPermitionID;
+
+	public:
 
 		///Joins a newsgroup.
-		void JoinNewsgroup(NewsgroupID groupID);
+		void JoinNewsgroup(MsgTypeID groupID);
 
 		///Leaves a newsgroup.
-		void QuitNewsgroup(NewsgroupID groupID);
+		void QuitNewsgroup(MsgTypeID groupID);
 
 		///Leaves all joined newsgroups.
 		void QuitAllNewsgroups();
 
 		///Send a message to a certain receiver.
-		void SendMessage(Msg &msg, MessageListener *receiver);
+		void SendMessage(Msg &msg, std::shared_ptr<MessageListener> &receiver);
 
 		///Multicasts a message.
-		void MulticastMessage(Msg &msg, NewsgroupID groupID);
+		void MulticastMessage(Msg &msg);
 
-	public:
 		MessageListener();
 
 		virtual ~MessageListener();
@@ -61,10 +54,10 @@ namespace Ice
 		AccessPermitionID GetAccessPermitionID() { return AccessPermitions::ACCESS_VIEW; }
 	};
 
-	class SimulationMessageListener : public MessageListener
+	class IndependantMessageListener : public MessageListener
 	{
 	public:
-		virtual ~SimulationMessageListener() {}
+		virtual ~IndependantMessageListener() {}
 
 		AccessPermitionID GetAccessPermitionID() { return AccessPermitions::ACCESS_NONE; }
 	};

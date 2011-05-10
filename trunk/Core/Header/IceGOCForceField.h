@@ -32,7 +32,7 @@ namespace Ice
 		GOCForceField(void);
 		~GOCForceField(void);
 
-		goc_id_type& GetComponentID() const { static std::string name = "ForceField"; return name; }
+		GOComponent::TypeID& GetComponentID() const { static std::string name = "ForceField"; return name; }
 
 		void UpdatePosition(Ogre::Vector3 position);
 		void UpdateOrientation(Ogre::Quaternion orientation);

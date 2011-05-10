@@ -29,8 +29,8 @@ private:
 public:
 	AxisComponent();
 	~AxisComponent();
-	goc_id_type& GetComponentID() const { static std::string name = "AxisObject"; return name; } 
-	goc_id_family& GetFamilyID() const { static std::string name = "AxisObject"; return name; } 
+	GOComponent::TypeID& GetComponentID() const { static std::string name = "AxisObject"; return name; } 
+	GOComponent::FamilyID& GetFamilyID() const { static std::string name = "AxisObject"; return name; } 
 	void NotifyOwnerGO();
 
 	void Save(LoadSave::SaveSystem& mgr) {};

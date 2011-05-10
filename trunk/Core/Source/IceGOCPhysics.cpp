@@ -3,6 +3,7 @@
 #include "IceMain.h"
 #include "IceSceneManager.h"
 #include "IceGameObject.h"
+#include "IceObjectMessageIDs.h"
 
 namespace Ice
 {
@@ -28,8 +29,7 @@ namespace Ice
 	{
 		if (mBody)
 		{
-			mBody->SetOwnerPosition(position);
-			mBody->SetOwnerOrientation(rotation);
+			mBody->SetOwnerTransform(position, rotation);
 		}
 	}
 
@@ -53,9 +53,9 @@ namespace Ice
 		if (mActor)
 		{
 			Msg msg;
-			msg.type = "ACTOR_ONWAKE";
+			msg.typeID = GlobalMessageIDs::ACTOR_ONWAKE;
 			msg.rawData = mActor->getNxActor();
-			MessageSystem::SendInstantMessage(msg);
+			MulticastMessage(msg);
 			Main::Instance().GetPhysXScene()->destroyRenderedActor((OgrePhysX::RenderedActor*)mActor);
 			mActor = nullptr;
 			//This also destroys the renderable!
@@ -372,10 +372,10 @@ namespace Ice
 		if (owner.get() && mActive)
 		{
 			Msg msg;
-			msg.type = "TRIGGER_ENTER";
+			msg.typeID = ObjectMessageIDs::TRIGGER_ENTER;
 			msg.params.AddInt("OBJ_ID", object->GetID());
 			msg.rawData = object;
-			owner->SendMessage(msg);
+			BroadcastObjectMessage(msg);
 		}
 	}
 	void GOCTrigger::onLeave(GameObject *object)
@@ -384,10 +384,10 @@ namespace Ice
 		if (owner.get() && mActive)
 		{
 			Msg msg;
-			msg.type = "TRIGGER_LEAVE";
+			msg.typeID = ObjectMessageIDs::TRIGGER_LEAVE;
 			msg.params.AddInt("OBJ_ID", object->GetID());
 			msg.rawData = object;
-			owner->SendMessage(msg);
+			BroadcastObjectMessage(msg);
 		}
 	}
 

@@ -85,7 +85,11 @@ namespace Ice
 		};
 		OggCamSync mOggCamSync;
 
+		SceneManager();
+
 	public:
+
+		~SceneManager();
 
 		bool GetClearingScene() { return mClearingScene; }
 
@@ -106,11 +110,6 @@ namespace Ice
 		void AddToMessageQueue(std::weak_ptr<GameObject> object);
 
 		std::map<Ogre::String, std::map<Ogre::String, DataMap> > mGOCDefaultParameters; //For Editors
-
-		SceneManager(void);
-		~SceneManager(void);
-
-		void UpdateGameObjects();
 
 		/*
 		Liefert eine neue, individuelle ID zurück.

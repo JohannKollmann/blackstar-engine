@@ -5,6 +5,7 @@
 #include "IceGOCScript.h"
 #include "IceGOCAI.h"
 #include "IceProcessNodeManager.h"
+#include "IceMessageSystem.h"
 
 namespace Ice
 {
@@ -46,32 +47,25 @@ namespace Ice
 		mWeakThis = std::weak_ptr<GameObject>(std::static_pointer_cast<GameObject, LoadSave::Saveable>(wThis.lock()));
 	}
 
-	void GameObject::SendMessage(Msg &msg)
+	void GameObject::BroadcastObjectMessage(Msg &msg, GOComponent *sender)
 	{
-		mCurrentMessages.push_back(msg);
-		if (mCurrentMessages.size() == 1) SceneManager::Instance().AddToMessageQueue(mWeakThis);
+		ITERATE(i, mComponents)
+			if (i->get() != sender) MessageSystem::Instance().SendMessage(msg, sender->GetAccessPermitionID(), std::static_pointer_cast<MessageListener, GOComponent>(*i));
 	}
-
-	void GameObject::SendInstantMessage(Msg &msg)
+	void GameObject::BroadcastObjectMessage(Msg &msg)
 	{
-		for (unsigned int i = 0; i < mComponents.size(); i++)
-		{
-			mComponents[i]->ReceiveObjectMessage(msg);
-		}
+		ITERATE(i, mComponents)
+			MessageSystem::Instance().SendMessage(msg, std::static_pointer_cast<MessageListener, GOComponent>(*i));
 	}
-
-	void GameObject::ProcessMessages()
+	void GameObject::SendObjectMessage(Msg &msg, GOComponent::FamilyID &familyID, GOComponent *sender)
 	{
-		std::vector<Msg> msgcopy = mCurrentMessages;
-		mCurrentMessages.clear();
-		for (auto i = mComponents.begin(); i != mComponents.end(); i++)
-		{
-			for (std::vector<Msg>::iterator x = msgcopy.begin(); x != msgcopy.end(); x++)
-			{
-				(*i)->ReceiveObjectMessage((*x));
-			}
-		}
-		msgcopy.clear();
+		GOComponentPtr receiver = GetComponentPtr(familyID);
+		if (receiver) MessageSystem::Instance().SendMessage(msg, sender->GetAccessPermitionID(), std::static_pointer_cast<MessageListener, GOComponent>(receiver));
+	}
+	void GameObject::SendObjectMessage(Msg &msg, GOComponent::FamilyID &familyID)
+	{
+		GOComponentPtr receiver = GetComponentPtr(familyID);
+		if (receiver) MessageSystem::Instance().SendMessage(msg, std::static_pointer_cast<MessageListener, GOComponent>(receiver));
 	}
 
 	void GameObject::AddComponent(GOComponentPtr component)
@@ -86,7 +80,7 @@ namespace Ice
 		component->UpdateOrientation(GetGlobalOrientation());
 	}
 
-	GOComponent* GameObject::GetComponent(const GOComponent::goc_id_family &familyID)
+	GOComponent* GameObject::GetComponent(const GOComponent::FamilyID &familyID)
 	{
 		for (auto i = mComponents.begin(); i != mComponents.end(); i++)
 		{
@@ -97,8 +91,19 @@ namespace Ice
 		}
 		return nullptr;
 	}
+	GOComponentPtr GameObject::GetComponentPtr(const GOComponent::FamilyID &familyID)
+	{
+		for (auto i = mComponents.begin(); i != mComponents.end(); i++)
+		{
+			if ((*i)->GetFamilyID() == familyID)
+			{
+				return (*i);
+			}
+		}
+		return GOComponentPtr();
+	}
 
-	GOComponent* GameObject::GetComponent(const GOComponent::goc_id_family& familyID, GOComponent::goc_id_type typeID)
+	GOComponent* GameObject::GetComponent(const GOComponent::FamilyID& familyID, GOComponent::TypeID typeID)
 	{
 		for (auto i = mComponents.begin(); i != mComponents.end(); i++)
 		{
@@ -111,7 +116,7 @@ namespace Ice
 		return nullptr;
 	}
 
-	void GameObject::RemoveComponent(const GOComponent::goc_id_family &familyID)
+	void GameObject::RemoveComponent(const GOComponent::FamilyID &familyID)
 	{
 		for (auto i = mComponents.begin(); i != mComponents.end(); i++)
 		{
@@ -310,7 +315,7 @@ namespace Ice
 		}		
 	}
 
-	void GameObject::SetGlobalPosition(const Ogre::Vector3 &pos, bool moveReferences, bool moveChildren, std::set<GameObject*> *referenceBlacklist)
+	void GameObject::SetGlobalPosition(const Ogre::Vector3 &pos, bool updateComponents, bool moveReferences, bool moveChildren, std::set<GameObject*> *referenceBlacklist)
 	{	
 		if (moveReferences || moveChildren)
 		{
@@ -326,14 +331,14 @@ namespace Ice
 
 					if (objRef->Flags & ObjectReference::MOVEIT && moveChildren)
 					{
-						obj->SetGlobalPosition(pos + (mOrientation * localObjPos), moveReferences, moveChildren, referenceBlacklist);
+						obj->SetGlobalPosition(pos + (mOrientation * localObjPos), updateComponents, moveReferences, moveChildren, referenceBlacklist);
 					}
 					else if (objRef->Flags & ObjectReference::MOVEIT_USER && moveReferences)
 					{
 						if (!referenceBlacklist || referenceBlacklist->find(obj.get()) == referenceBlacklist->end())
 						{
 							if (referenceBlacklist) referenceBlacklist->insert(obj.get());			
-							obj->SetGlobalPosition(pos + (mOrientation * localObjPos), moveReferences, moveChildren, referenceBlacklist);
+							obj->SetGlobalPosition(pos + (mOrientation * localObjPos), updateComponents, moveReferences, moveChildren, referenceBlacklist);
 						}
 					}
 				}
@@ -342,13 +347,16 @@ namespace Ice
 		}
 
 		mPosition = pos;
-		for (auto i = mComponents.begin(); i != mComponents.end(); i++)
+	
+		if (updateComponents)
 		{
-			(*i)->_updatePosition(pos);
+			Msg msg; msg.typeID = MessageIDs::UPDATE_COMPONENT_POSITION;
+			msg.params.AddOgreVec3("Position", mPosition);
+			BroadcastObjectMessage(msg);
 		}
 	}
 
-	void GameObject::SetGlobalOrientation(const Ogre::Quaternion &orientation, bool moveReferences, bool moveChildren, std::set<GameObject*> *referenceBlacklist)
+	void GameObject::SetGlobalOrientation(const Ogre::Quaternion &orientation, bool updateComponents, bool moveReferences, bool moveChildren, std::set<GameObject*> *referenceBlacklist)
 	{
 		if (moveReferences || moveChildren)
 		{
@@ -365,16 +373,16 @@ namespace Ice
 
 					if (objRef->Flags & ObjectReference::MOVEIT && moveChildren)
 					{
-						obj->SetGlobalOrientation(orientation * localObjRot, moveReferences, moveChildren, referenceBlacklist);
-						obj->SetGlobalPosition(mPosition + (orientation * localObjPos), moveReferences, moveChildren, referenceBlacklist);
+						obj->SetGlobalOrientation(orientation * localObjRot, updateComponents, moveReferences, moveChildren, referenceBlacklist);
+						obj->SetGlobalPosition(mPosition + (orientation * localObjPos), updateComponents, moveReferences, moveChildren, referenceBlacklist);
 					}
 					else if (objRef->Flags & ObjectReference::MOVEIT_USER && moveReferences)
 					{
 						if (!referenceBlacklist || referenceBlacklist->find(obj.get()) == referenceBlacklist->end())
 						{
 							if (referenceBlacklist) referenceBlacklist->insert(obj.get());
-							obj->SetGlobalOrientation(orientation * localObjRot, moveReferences, moveChildren, referenceBlacklist);
-							obj->SetGlobalPosition(mPosition + (orientation * localObjPos), moveReferences, moveChildren, referenceBlacklist);
+							obj->SetGlobalOrientation(orientation * localObjRot, updateComponents, moveReferences, moveChildren, referenceBlacklist);
+							obj->SetGlobalPosition(mPosition + (orientation * localObjPos), updateComponents, moveReferences, moveChildren, referenceBlacklist);
 						}
 					}
 				}
@@ -383,18 +391,24 @@ namespace Ice
 		}
 
 		mOrientation = orientation;
-		for (auto i = mComponents.begin(); i != mComponents.end(); i++)
+
+		if (updateComponents)
 		{
-			(*i)->_updateOrientation(orientation);
+			Msg msg; msg.typeID = MessageIDs::UPDATE_COMPONENT_ORIENTATION;
+			msg.params.AddOgreQuat("Orientation", mOrientation);
+			BroadcastObjectMessage(msg);
 		}
 	}
 
-	void GameObject::SetGlobalScale(const Ogre::Vector3 &scale)
+	void GameObject::SetGlobalScale(const Ogre::Vector3 &scale, bool updateComponents)
 	{
 		mScale = scale;
-		for (auto i = mComponents.begin(); i != mComponents.end(); i++)
+
+		if (updateComponents)
 		{
-			(*i)->_updateScale(scale);
+			Msg msg; msg.typeID = MessageIDs::UPDATE_COMPONENT_SCALE;
+			msg.params.AddOgreVec3("Scale", mScale);
+			BroadcastObjectMessage(msg);
 		}
 	}
 
@@ -441,10 +455,6 @@ namespace Ice
 			std::shared_ptr<ObjectReference> ref = GetNextObjectReference();
 			if (ref->Flags & ObjectReference::OWNER) ref->Object.lock()->FirePostInit();
 		}
-
-		Msg msg;
-		msg.type = "INIT_POST";
-		SendInstantMessage(msg);
 	}
 
 	void GameObject::Save(LoadSave::SaveSystem& mgr)
@@ -568,9 +578,9 @@ namespace Ice
 	std::vector<ScriptParam> GameObject::SendObjectMessage(Script& caller, std::vector<ScriptParam> &vParams)
 	{
 		Msg msg;
-		msg.type = vParams[0].getString();
+		msg.typeID = vParams[0].getInt();
 		Utils::ScriptParamsToDataMap(caller, vParams, &msg.params, 1);
-		SendMessage(msg);
+		BroadcastObjectMessage(msg);
 		return std::vector<ScriptParam>();
 	}
 
@@ -584,7 +594,7 @@ namespace Ice
 			callback = new GOCScriptMessageCallback();
 			AddComponent(GOComponentPtr(callback));
 		}
-		callback->AddListener(vParams[0].getString(), vParams[1]);
+		callback->AddListener(vParams[0].getInt(), vParams[1]);
 		return out;
 	}
 
@@ -593,7 +603,7 @@ namespace Ice
 		std::vector<ScriptParam> out;
 		bool usable = false;
 		GOCScriptMessageCallback *callback = GetComponent<GOCScriptMessageCallback>();
-		if (callback) usable = callback->HasListener(vParams[0].getString());
+		if (callback) usable = callback->HasListener(vParams[0].getInt());
 		out.push_back(ScriptParam(usable));
 		return out;
 	}
@@ -644,10 +654,10 @@ namespace Ice
 	DEFINE_TYPEDGOLUAMETHOD_CPP(SetObjectOrientation, "float float float")
 	DEFINE_TYPEDGOLUAMETHOD_CPP(SetObjectScale, "float float float")
 	DEFINE_GOLUAMETHOD_CPP(GetObjectName)
-	DEFINE_TYPEDGOLUAMETHOD_CPP(SendObjectMessage, "string")
-	DEFINE_TYPEDGOLUAMETHOD_CPP(ReceiveObjectMessage, "string function")
+	DEFINE_TYPEDGOLUAMETHOD_CPP(SendObjectMessage, "int")
+	DEFINE_TYPEDGOLUAMETHOD_CPP(ReceiveObjectMessage, "int function")
 	DEFINE_TYPEDGOLUAMETHOD_CPP(GetReferencedObjectByName, "string")
-	DEFINE_TYPEDGOLUAMETHOD_CPP(HasScriptListener, "string")
+	DEFINE_TYPEDGOLUAMETHOD_CPP(HasScriptListener, "int")
 	DEFINE_TYPEDGOLUAMETHOD_CPP(FreeResources, "bool")
 	DEFINE_GOLUAMETHOD_CPP(IsNpc)
 	DEFINE_TYPEDGOLUAMETHOD_CPP(Object_Play3DSound, "string float float")		//audio file, range, loudness

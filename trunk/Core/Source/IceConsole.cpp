@@ -15,8 +15,8 @@ namespace Ice
 
 Console::Console()
 {
-	MessageSystem::JoinNewsgroup(this, GlobalMessageIDs::UPDATE_PER_FRAME);
-	MessageSystem::JoinNewsgroup(this, "CONSOLE_INGAME");
+	JoinNewsgroup(GlobalMessageIDs::UPDATE_PER_FRAME);
+	JoinNewsgroup(GlobalMessageIDs::CONSOLE_INGAME);
 	AddCommand("lua_loadscript", "string");
 
 	ScriptSystem::GetInstance().ShareCFunction("console_get_num_commands", Lua_GetNumCommands);
@@ -43,7 +43,7 @@ void Console::Show(bool show)
 void Console::ReceiveMessage(Msg &msg)
 {
 	//Todo
-	if (msg.type == "CONSOLE_INGAME")
+	if (msg.typeID == GlobalMessageIDs::CONSOLE_INGAME)
 	{
 		/*if (msg.params.GetOgreString("COMMAND") == "lua_loadscript")
 		{
@@ -140,14 +140,14 @@ void Console::ExecCommand(Ogre::String command)
 		if ((*i).first == inputs[0])
 		{
 			Msg msg;
-			msg.type = "CONSOLE_INGAME";
+			msg.typeID = GlobalMessageIDs::CONSOLE_INGAME;
 			msg.params.AddOgreString("COMMAND", (*i).first);
 			for (unsigned int paramindex = 1; paramindex < inputs.size(); paramindex++)
 			{
 				Ogre::String paramname = "PARAM" + Ogre::StringConverter::toString(paramindex);
 				msg.params.AddOgreString(paramname, inputs[paramindex]);
 			}
-			MessageSystem::SendMessage(msg);
+			MulticastMessage(msg);
 			Print(command);
 			return;
 		}

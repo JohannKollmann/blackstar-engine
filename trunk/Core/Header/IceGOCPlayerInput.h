@@ -9,7 +9,7 @@
 namespace Ice
 {
 
-class DllExport GOCPlayerInput : public CharacterControllerInput, public SimulationMessageListener, public GOCEditorInterface
+class DllExport GOCPlayerInput : public CharacterControllerInput, public GOCEditorInterface
 {
 private:
 	bool mActive;
@@ -18,13 +18,14 @@ public:
 	GOCPlayerInput(void);
 	~GOCPlayerInput(void);
 
+	AccessPermitionID GetAccessPermitionID() { return AccessPermitions::ACCESS_PHYSICS; }
+
 	void ReceiveMessage(Msg &msg);
 
 	void SetActive(bool active);
 	void Pause(bool pause);
 
-	void ReceiveObjectMessage(Msg &msg);
-	GOComponent::goc_id_type& GetComponentID() const { static std::string name = "PlayerInput"; return name; }
+	GOComponent::TypeID& GetComponentID() const { static std::string name = "PlayerInput"; return name; }
 
 	std::string& TellName() { static std::string name = "PlayerInput"; return name; };
 	static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "PlayerInput"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };

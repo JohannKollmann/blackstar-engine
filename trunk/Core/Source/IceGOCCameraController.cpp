@@ -6,6 +6,7 @@
 #include "IceCameraController.h"
 #include "IceSceneManager.h"
 #include "IceGOCOgreNode.h"
+#include "IceObjectMessageIDs.h"
 
 namespace Ice
 {
@@ -33,13 +34,13 @@ namespace Ice
 		GetNode()->detachObject(mCamera);
 		mCamera = nullptr;
 	}	
-	void GOCSimpleCameraController::ReceiveObjectMessage(Msg &msg)
+	void GOCSimpleCameraController::ReceiveMessage(Msg &msg)
 	{
-		if (msg.type == "MOVER_START")
+		if (msg.typeID == ObjectMessageIDs::MOVER_START)
 		{
 			SceneManager::Instance().AcquireCamera(this);
 		}
-		else if (msg.type == "MOVER_END")
+		else if (msg.typeID ==ObjectMessageIDs::MOVER_END)
 		{
 			SceneManager::Instance().TerminateCurrentCameraController();
 		}
@@ -87,19 +88,18 @@ namespace Ice
 		mCameraNode->attachObject(mCamera);
 		mCamera->setPosition(0,0,0);
 
-		MessageSystem::JoinNewsgroup(this, GlobalMessageIDs::MOUSE_MOVE);
-		MessageSystem::JoinNewsgroup(this, GlobalMessageIDs::UPDATE_PER_FRAME);
-		MessageSystem::JoinNewsgroup(this, GlobalMessageIDs::KEY_DOWN);
+		JoinNewsgroup(GlobalMessageIDs::MOUSE_MOVE);
+		JoinNewsgroup(GlobalMessageIDs::UPDATE_PER_FRAME);
+		JoinNewsgroup(GlobalMessageIDs::KEY_DOWN);
 	}
 	void GOCCameraController::DetachCamera()
 	{
 		Msg msg;
-		msg.type = "LEAVE_FPS_MODE";
-		GameObjectPtr owner = mOwnerGO.lock();
-		if (owner.get()) owner->SendInstantMessage(msg);
+		msg.typeID = ObjectMessageIDs::LEAVE_FPS_MODE;
+		BroadcastObjectMessage(msg);
 		if (!mCamera) return;
 		mCameraNode->detachObject(mCamera);
-		MessageSystem::QuitAllNewsgroups(this);
+		QuitAllNewsgroups();
 		mCamera = nullptr;
 	}	
 
@@ -119,7 +119,7 @@ namespace Ice
 		static double sfAbsCamPitch=0.0;
 		static double sfActualZoom=0.0;
 	
-		if (msg.type == GlobalMessageIDs::KEY_DOWN)
+		if (msg.typeID == GlobalMessageIDs::KEY_DOWN)
 		{
 			OIS::KeyCode kc = (OIS::KeyCode)msg.params.GetInt("KEY_ID_OIS");
 			if (kc == OIS::KC_PGDOWN)
@@ -131,7 +131,7 @@ namespace Ice
 			if(mfZoom<0.0)
 				mfZoom=0.0;
 		}
-		if (msg.type == GlobalMessageIDs::MOUSE_MOVE)
+		if (msg.typeID == GlobalMessageIDs::MOUSE_MOVE)
 		{
 			float oldZoom = mfZoom;
 			mfZoom -= (mfZoom+0.1f)*(msg.params.GetInt("ROT_Z_REL")*0.001f);
@@ -152,8 +152,8 @@ namespace Ice
 				if (oldZoom == 0.0f)
 				{
 					Msg msg;
-					msg.type = "LEAVE_FPS_MODE";
-					mOwnerGO.lock()->SendInstantMessage(msg);
+					msg.typeID = ObjectMessageIDs::LEAVE_FPS_MODE;
+					BroadcastObjectMessage(msg);
 					mMaxPitch = 0.4f;
 				}
 				mCameraNode->setPosition(Ogre::Vector3(0.0f,0.0f,-6.0f)*static_cast<float>(sfActualZoom));
@@ -163,8 +163,8 @@ namespace Ice
 				if (oldZoom != 0.0f)
 				{
 					Msg msg;
-					msg.type = "ENTER_FPS_MODE";
-					mOwnerGO.lock()->SendInstantMessage(msg);
+					msg.typeID = ObjectMessageIDs::ENTER_FPS_MODE;
+					BroadcastObjectMessage(msg);
 					mMaxPitch = 0.6f;
 				}
 				sfActualZoom=0.0f;
@@ -173,7 +173,7 @@ namespace Ice
 			}
 		
 		}
-		if (msg.type == GlobalMessageIDs::UPDATE_PER_FRAME)
+		if (msg.typeID == GlobalMessageIDs::UPDATE_PER_FRAME)
 		{
 			float time = msg.params.GetFloat("TIME");
 			if(mfZoom>0.0)

@@ -69,9 +69,6 @@
     <ClCompile Include="Source\IceDataMap.cpp">
       <Filter>System</Filter>
     </ClCompile>
-    <ClCompile Include="Source\IceGameState.cpp">
-      <Filter>System</Filter>
-    </ClCompile>
     <ClCompile Include="Source\IceInput.cpp">
       <Filter>System</Filter>
     </ClCompile>
@@ -330,9 +327,6 @@
       <Filter>Components</Filter>
     </ClInclude>
     <ClInclude Include="Header\IceDataMap.h">
-      <Filter>System</Filter>
-    </ClInclude>
-    <ClInclude Include="Header\IceGameState.h">
       <Filter>System</Filter>
     </ClInclude>
     <ClInclude Include="Header\IceIncludes.h">
@@ -649,6 +643,9 @@
     </ClInclude>
     <ClInclude Include="Header\IceWrappedVector.h">
       <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceObjectMessageIDs.h">
+      <Filter>Components</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

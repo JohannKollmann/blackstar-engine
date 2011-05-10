@@ -9,7 +9,7 @@
 namespace Ice
 {
 
-	class ScriptMessageListener : public MessageListener
+	class ScriptMessageListener : public SynchronizedMessageListener
 	{
 	private:
 		ScriptParam mScriptCallback;

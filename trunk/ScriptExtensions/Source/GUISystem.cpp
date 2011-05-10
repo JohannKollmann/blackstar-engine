@@ -26,11 +26,11 @@ GUISystem::GUISystem(void)
 	m_fMaxZ=0.0001f;
 	m_fZStep=m_fMaxZ/1000.0f;
 
-	Ice::MessageSystem::JoinNewsgroup(this, GlobalMessageIDs::MOUSE_MOVE);
-	Ice::MessageSystem::JoinNewsgroup(this, "MOUSE_DOWN");
-	Ice::MessageSystem::JoinNewsgroup(this, "MOUSE_UP");
-	Ice::MessageSystem::JoinNewsgroup(this, GlobalMessageIDs::KEY_DOWN);
-	Ice::MessageSystem::JoinNewsgroup(this, GlobalMessageIDs::UPDATE_PER_FRAME);
+	JoinNewsgroup(Ice::GlobalMessageIDs::MOUSE_MOVE);
+	JoinNewsgroup(Ice::GlobalMessageIDs::MOUSE_DOWN);
+	JoinNewsgroup(Ice::GlobalMessageIDs::MOUSE_UP);
+	JoinNewsgroup(Ice::GlobalMessageIDs::KEY_DOWN);
+	JoinNewsgroup(Ice::GlobalMessageIDs::UPDATE_PER_FRAME);
 	Ogre::SceneNode* pNode=Ice::Main::Instance().GetOgreSceneMgr()->getRootSceneNode()->createChildSceneNode("GUISystemNode");
 	pNode->setPosition(0, 0, 0);
 	m_fXPos=m_fYPos=0.5f;
@@ -85,7 +85,7 @@ GUISystem::GUISystem(void)
 void
 GUISystem::ReceiveMessage(Ice::Msg &msg)
 {
-	if(msg.type == GlobalMessageIDs::KEY_DOWN && m_iFocusWin!=-1)
+	if(msg.typeID == Ice::GlobalMessageIDs::KEY_DOWN && m_iFocusWin!=-1)
 	{
 		SWindowInfo wininfo=GUISystem::GetInstance().m_mWindowInfos.find(m_iFocusWin)->second;
 		while(wininfo.iParentHandle!=-1)
@@ -103,7 +103,7 @@ GUISystem::ReceiveMessage(Ice::Msg &msg)
 		if(it->second.iParentHandle==-1)
 			Ice::Main::Instance().GetOgreSceneMgr()->getEntity(it->second.strName)->setVisible(m_bMenuActive);*/
 
-	if (msg.type == GlobalMessageIDs::MOUSE_MOVE)
+	if (msg.typeID == Ice::GlobalMessageIDs::MOUSE_MOVE)
 	{
 		m_fXPos+=(float)msg.params.GetInt("ROT_X_REL")/(float)Ice::Main::Instance().GetViewport()->getActualWidth();
 		m_fYPos+=(float)msg.params.GetInt("ROT_Y_REL")/(float)Ice::Main::Instance().GetViewport()->getActualHeight();
@@ -197,7 +197,7 @@ GUISystem::ReceiveMessage(Ice::Msg &msg)
 		m_iHoverWin=iCurrHover;
 	}
 
-	if(msg.type == "MOUSE_DOWN" || msg.type == "MOUSE_UP")
+	if(msg.typeID == Ice::GlobalMessageIDs::MOUSE_DOWN || msg.typeID == Ice::GlobalMessageIDs::MOUSE_UP)
 		if(OIS::MB_Left==msg.params.GetInt("MOUSE_ID"))
 		{
 			/*std::map<int, SWindowInfo>::iterator it=m_mWindowInfos.begin();
@@ -241,9 +241,9 @@ GUISystem::ReceiveMessage(Ice::Msg &msg)
 				std::vector<Ice::ScriptParam> parms(1, Ice::ScriptParam(it->first));
 				parms.push_back(Ice::ScriptParam(m_fXPos));
 				parms.push_back(Ice::ScriptParam(m_fYPos));
-				if(it->second.parMouseDown.getType()==Ice::ScriptParam::PARM_TYPE_FUNCTION && msg.type=="MOUSE_DOWN")
+				if(it->second.parMouseDown.getType()==Ice::ScriptParam::PARM_TYPE_FUNCTION && msg.typeID == Ice::GlobalMessageIDs::MOUSE_DOWN)
 					Ice::ScriptSystem::RunCallbackFunction(it->second.parMouseDown, parms);
-				if(it->second.parMouseUp.getType()==Ice::ScriptParam::PARM_TYPE_FUNCTION && msg.type=="MOUSE_UP")
+				if(it->second.parMouseUp.getType()==Ice::ScriptParam::PARM_TYPE_FUNCTION && msg.typeID == Ice::GlobalMessageIDs::MOUSE_UP)
 					Ice::ScriptSystem::RunCallbackFunction(it->second.parMouseUp, parms);
 
 			}
@@ -254,13 +254,13 @@ GUISystem::ReceiveMessage(Ice::Msg &msg)
 			parms.push_back(Ice::ScriptParam(m_fYPos));
 			if(it!=m_mWindowInfos.end())
 			{
-				if(it->second.parMouseDown.getType()==Ice::ScriptParam::PARM_TYPE_FUNCTION && msg.type=="MOUSE_DOWN")
+				if(it->second.parMouseDown.getType()==Ice::ScriptParam::PARM_TYPE_FUNCTION && msg.typeID == Ice::GlobalMessageIDs::MOUSE_DOWN)
 					Ice::ScriptSystem::RunCallbackFunction(it->second.parMouseDown, parms);
-				if(it->second.parMouseUp.getType()==Ice::ScriptParam::PARM_TYPE_FUNCTION && msg.type=="MOUSE_UP")
+				if(it->second.parMouseUp.getType()==Ice::ScriptParam::PARM_TYPE_FUNCTION && msg.typeID == Ice::GlobalMessageIDs::MOUSE_UP)
 					Ice::ScriptSystem::RunCallbackFunction(it->second.parMouseUp, parms);
 			}
 		}
-	if (msg.type == GlobalMessageIDs::UPDATE_PER_FRAME)
+	if (msg.typeID == Ice::GlobalMessageIDs::UPDATE_PER_FRAME)
 	{
 		float time = msg.params.GetFloat("TIME");
 		for(std::list<int>::iterator it=m_lFading.begin(); it!=m_lFading.end(); it++)

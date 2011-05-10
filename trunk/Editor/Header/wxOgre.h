@@ -23,10 +23,6 @@
 	{
 		DECLARE_CLASS(wxOgre)
 
-	private:
-		boost::mutex mLoopMutex;
-		int mBlockingCounter;
-
 	public:
 		/** A new wxOgre must receive a parent frame to which to attach 
 		itself to */
@@ -45,12 +41,7 @@
 		Ogre::Camera* getCamera() { return mCamera; };
 		void setCamera(Ogre::Camera* camera) { mCamera = camera;};
 
-		void SetPaused(bool paused);
-		void IncBlockingCounter() { mBlockingCounter++; }
-		void DecBlockingCounter() { mBlockingCounter--; }
-
-		boost::mutex& GetLoopMutex() { return mLoopMutex; }
-		
+		void SetPaused(bool paused);		
 
 	protected:
 		DECLARE_EVENT_TABLE()

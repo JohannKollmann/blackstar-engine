@@ -26,7 +26,7 @@ namespace Ice
 		GOCAnimKey() : mTimeToNextKey(1.0f) {}
 		~GOCAnimKey() {};
 
-		goc_id_type& GetComponentID() const { static std::string name = "MoverAnimKey"; return name; }
+		GOComponent::TypeID& GetComponentID() const { static std::string name = "MoverAnimKey"; return name; }
 
 		float GetTimeToNextKey() { return mTimeToNextKey > 0 ? mTimeToNextKey : 0.01f; }
 
@@ -49,7 +49,7 @@ namespace Ice
 		static LoadSave::Saveable* NewInstance() { return new GOCAnimKey; }
 	};
 
-	class DllExport GOCMover : public GOCEditorVisualised, public GOCStaticEditorInterface, public SimulationMessageListener
+	class DllExport GOCMover : public GOCEditorVisualised, public GOCStaticEditorInterface
 	{
 		friend class GOCAnimKey;
 
@@ -90,6 +90,8 @@ namespace Ice
 		GOCMover(void);
 		~GOCMover(void);
 
+		AccessPermitionID GetAccessPermitionID() { return AccessPermitions::ACCESS_PHYSICS; }
+
 		void Init();
 
 		void PrepareMovement(bool prepare);
@@ -104,7 +106,7 @@ namespace Ice
 
 		void ReceiveMessage(Msg &msg);
 
-		goc_id_type& GetComponentID() const { static std::string name = "Mover"; return name; }
+		GOComponent::TypeID& GetComponentID() const { static std::string name = "Mover"; return name; }
 
 		void UpdatePosition(Ogre::Vector3 position);
 		void UpdateOrientation(Ogre::Quaternion orientation) {}

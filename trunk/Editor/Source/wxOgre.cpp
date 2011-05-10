@@ -20,7 +20,7 @@ IMPLEMENT_CLASS(wxOgre, wxControl)
 // Required for WX
 BEGIN_EVENT_TABLE(wxOgre, wxControl)
 	EVT_SIZE(wxOgre::OnSize)
-	// EVT_PAINT(wxOgre::OnPaint) // Produces flickers and runs too fast!
+	//EVT_PAINT(wxOgre::OnPaint) // Produces flickers and runs too fast!
 	EVT_ERASE_BACKGROUND( wxOgre::OnEraseBackground )
 	EVT_TIMER( ID_RENDERTIMER, wxOgre::OnRenderTimer )
 
@@ -36,8 +36,7 @@ wxOgre::wxOgre(wxWindow* parent, wxWindowID id,
     mRoot(0),
 	mCamera(0),
 	mInitialized(false),
-	mPaused(false),
-	mBlockingCounter(0)
+	mPaused(false)
 {
 	//Ogre::LogManager::getSingleton().logMessage("new wxOgre");
 }
@@ -150,7 +149,6 @@ void wxOgre::OnSize(wxSizeEvent& event)
 }
 void wxOgre::OnPaint(wxPaintEvent& event)
 {
-//	update(); // Produces flickers and runs too fast!
 }
 void wxOgre::OnEraseBackground( wxEraseEvent& )
 {
@@ -163,12 +161,10 @@ void wxOgre::OnRenderTimer(wxTimerEvent& event)
 
 void wxOgre::update()
 {
-	mLoopMutex.lock();
-	if (mInitialized && !mPaused && mBlockingCounter == 0)
+	if (mInitialized && !mPaused)
 	{
 		OnRender();
 	}
-	mLoopMutex.unlock();
 }
 
 void wxOgre::SetPaused(bool paused)

@@ -281,16 +281,16 @@ namespace OgrePhysX
 	{
 		mTimeAccu += time;
 		int numSubSteps = 0;
+		if (mSimulationListener) mSimulationListener->onBeginSimulate(mFrameTime);
 		while (mTimeAccu >= mFrameTime && numSubSteps < 12)
 		{
-			if (mSimulationListener) mSimulationListener->onBeginSimulate(mFrameTime);
 			mNxScene->simulate(mFrameTime);
 			if (mSimulationListener) mSimulationListener->onSimulate(mFrameTime);
 			mNxScene->flushStream();
 			mNxScene->fetchResults(NX_RIGID_BODY_FINISHED, true);
 			mTimeAccu -= mFrameTime;
-			if (mSimulationListener) mSimulationListener->onEndSimulate(mFrameTime);
 		}
+		if (mSimulationListener) mSimulationListener->onEndSimulate(mFrameTime);
 	}
 
 }

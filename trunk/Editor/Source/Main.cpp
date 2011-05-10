@@ -1,9 +1,9 @@
 
 #include "IceMain.h"
-#include "IceGamestate.h"
 #include "wxEdit.h"
 #include "IceSceneManager.h"
 #include "Edit.h"
+#include "IceMainLoop.h"
 
 //Editor Modus
 class Main : public wxApp
@@ -28,11 +28,25 @@ public:
 		mFrame = new wxEdit();
 		SetTopWindow(mFrame);
 		mFrame->Show();
-		Ice::MessageSystem::CreateNewsgroup(GlobalMessageIDs::REPARSE_SCRIPTS_PRE);
-		Ice::MessageSystem::CreateNewsgroup(GlobalMessageIDs::REPARSE_SCRIPTS_POST);
 		Ice::Main::Instance().Run(mFrame->GetOgrePane()->getRenderWindow(), (size_t)((HWND)mFrame->GetHandle()));
 		mFrame->PostCreate();
-		//Ogre::LogManager::getSingleton().logMessage("Root Num Children: " + Ogre::StringConverter::toString(Ice::Main::Instance().GetOgreSceneMgr()->getRootSceneNode()->numChildren()));
+
+		//Ice::Main::Instance().CreateMainLoopThreads();
+		Ice::MainLoopThread *physicsThread = new Ice::MainLoopThreadSender(new Ice::PhysicsThread(), Ice::GlobalMessageIDs::PHYSICS_BEGIN);
+		physicsThread->SetFixedTimeStep(20);
+		Ice::Main::Instance().AddMainLoopThread("Physics", physicsThread);
+
+		Ice::MainLoopThread *renderThread = new Ice::MainLoopThreadSender(new Ice::RenderThread(), Ice::GlobalMessageIDs::RENDERING_BEGIN);
+		Ice::Main::Instance().AddMainLoopThread("View", renderThread, false);
+
+		Ice::MainLoopThread *indyThread = new Ice::MainLoopThread(Ice::AccessPermitions::ACCESS_NONE);
+		indyThread->SetFixedTimeStep(30);
+		Ice::Main::Instance().AddMainLoopThread("Independant", indyThread);
+
+		Ice::MainLoopThread *synchronized = new Ice::MainLoopThread(Ice::AccessPermitions::ACCESS_ALL);
+		synchronized->SetSynchronized(true);
+		Ice::Main::Instance().AddMainLoopThread("Synchronized", synchronized, false);
+
 		return true;                    
 	}
 

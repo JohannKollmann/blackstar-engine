@@ -7,7 +7,7 @@
 namespace Ice
 {
 
-	class OrientationBlendProcess : public ProcessNode, public SimulationMessageListener
+	class OrientationBlendProcess : public ProcessNode, public PhysicsMessageListener
 	{
 	private:
 		Transformable3D *mRotationObject;

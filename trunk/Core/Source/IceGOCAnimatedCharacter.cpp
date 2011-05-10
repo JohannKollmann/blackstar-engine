@@ -6,6 +6,7 @@
 #include "IceUtils.h"
 #include "IceProcessNodeManager.h"
 #include "IceGOCScript.h"
+#include "IceObjectMessageIDs.h"
 
 namespace Ice
 {
@@ -23,7 +24,7 @@ namespace Ice
 		{
 			if (GOCScriptMessageCallback *c = owner->GetComponent<GOCScriptMessageCallback>())
 			{
-				Msg msg; msg.type = GlobalMessageIDs::REPARSE_SCRIPTS_PRE;
+				Msg msg; msg.typeID = GlobalMessageIDs::REPARSE_SCRIPTS_PRE;
 				c->ReceiveMessage(msg);		//HACK - damit script objekt message listener gelöscht werden
 			}
 		}
@@ -51,7 +52,7 @@ namespace Ice
 		mEntity = nullptr;
 		mSetControlToActorsTemp = false;
 		mEditorMode = false;
-		MessageSystem::JoinNewsgroup(this, GlobalMessageIDs::REPARSE_SCRIPTS_PRE);
+		JoinNewsgroup(GlobalMessageIDs::REPARSE_SCRIPTS_PRE);
 	}
 
 	GOCAnimatedCharacter::GOCAnimatedCharacter(Ogre::String meshname, Ogre::Vector3 scale)
@@ -59,7 +60,7 @@ namespace Ice
 		mSetControlToActorsTemp = false;
 		mEditorMode = false;
 		Create(meshname, scale);
-		MessageSystem::JoinNewsgroup(this, GlobalMessageIDs::REPARSE_SCRIPTS_PRE);
+		JoinNewsgroup(GlobalMessageIDs::REPARSE_SCRIPTS_PRE);
 	}
 
 	void GOCAnimatedCharacter::Create(Ogre::String meshname, Ogre::Vector3 scale)
@@ -86,8 +87,7 @@ namespace Ice
 	{
 		mRagdoll->setControlToActors();
 		Msg msg;
-		GameObjectPtr owner = mOwnerGO.lock();
-		if (owner.get()) owner->SendMessage(msg);
+		BroadcastObjectMessage(msg);
 	}
 
 	void GOCAnimatedCharacter::SerialiseBoneObjects(Ogre::String filename)
@@ -135,14 +135,11 @@ namespace Ice
 	void GOCAnimatedCharacter::ReceiveMessage(Msg &msg)
 	{
 		if (mOwnerGO.expired()) return;
-		if (msg.type == GlobalMessageIDs::REPARSE_SCRIPTS_PRE)
+		if (msg.typeID == GlobalMessageIDs::REPARSE_SCRIPTS_PRE)
 			_destroyCreatedProcesses();
-	}
 
-	void GOCAnimatedCharacter::ReceiveObjectMessage(Msg &msg)
-	{
-		if (msg.type == "ENTER_FPS_MODE") mEntity->setVisible(false);
-		if (msg.type == "LEAVE_FPS_MODE") mEntity->setVisible(true);
+		if (msg.typeID == ObjectMessageIDs::ENTER_FPS_MODE) mEntity->setVisible(false);
+		if (msg.typeID == ObjectMessageIDs::LEAVE_FPS_MODE) mEntity->setVisible(true);
 	}
 
 	void GOCAnimatedCharacter::SetOwner(std::weak_ptr<GameObject> go)

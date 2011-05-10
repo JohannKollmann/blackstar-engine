@@ -8,7 +8,6 @@
 int main (int argc, char *argv[])
 {
 	Ice::Main::Instance().Run();
-	Ice::Main::Instance().StartMainLoop();
 	Ice::Main::Instance().Shutdown();
 };
 
@@ -18,6 +17,5 @@ int WINAPI WinMain(HINSTANCE hInstance,
                      int nCmdShow )
 {
 	Ice::Main::Instance().Run();
-	Ice::Main::Instance().StartMainLoop();
 	Ice::Main::Instance().Shutdown();
 }

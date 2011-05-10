@@ -194,8 +194,8 @@ namespace Ice
 		mDebugVisual = nullptr;
 		mConnectionLinesDebugVisual = nullptr;
 
-		MessageSystem::JoinNewsgroup(this, "ACTOR_ONSLEEP");
-		MessageSystem::JoinNewsgroup(this, "ACTOR_ONWAKE");
+		JoinNewsgroup(GlobalMessageIDs::ACTOR_ONSLEEP);
+		JoinNewsgroup(GlobalMessageIDs::ACTOR_ONWAKE);
 	}
 	NavigationMesh::~NavigationMesh()
 	{
@@ -687,7 +687,7 @@ namespace Ice
 	void NavigationMesh::ReceiveMessage(Msg &msg)
 	{
 		if (!mPathNodeTree) return;
-		if (msg.type == "ACTOR_ONSLEEP")
+		if (msg.typeID == GlobalMessageIDs::ACTOR_ONSLEEP)
 		{
 			NxActor *a = (NxActor*)msg.rawData;
 			if (!a || a->getNbShapes() == 0) return;
@@ -697,7 +697,7 @@ namespace Ice
 			Ogre::AxisAlignedBox box = OgrePhysX::Convert::toOgre(nxBounds);
 			mPathNodeTree->InjectObstacle(a, box);
 		}
-		if (msg.type == "ACTOR_ONWAKE")
+		if (msg.typeID == GlobalMessageIDs::ACTOR_ONWAKE)
 		{
 			NxActor *a = (NxActor*)msg.rawData;
 			if (!a || a->getNbShapes() == 0) return;

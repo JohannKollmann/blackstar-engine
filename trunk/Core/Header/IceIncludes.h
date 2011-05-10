@@ -80,6 +80,27 @@ namespace Ice
 		V_DEFAULT = 0xFFFFFFE0
 	};
 
+	enum AccessPermitions
+	{
+		ACCESS_VIEW = 0,		//access Ogre
+		ACCESS_PHYSICS = 1,		//access physics engine
+		ACCESS_NONE = 2,		//access nothing, only perform own computations (ai)
+		ACCESS_ALL = 3			//access everything (scripting)
+	};
+
+	enum GlobalMessageIDs
+	{
+		UPDATE_PER_FRAME = 0, RENDERING_BEGIN = 1,										//called per frame
+		PHYSICS_BEGIN = 2, PHYSICS_SUBSTEP = 3, PHYSICS_END = 4,						//called per physics update (can be multiple times per frame)
+		KEY_DOWN = 20, KEY_UP = 21, MOUSE_DOWN = 22, MOUSE_UP = 23, MOUSE_MOVE = 24,	//user input
+		ACTOR_ONSLEEP = 30, ACTOR_ONWAKE = 31, MATERIAL_ONCONTACT = 32,					//physics callbacks
+		REPARSE_SCRIPTS_PRE = 40, REPARSE_SCRIPTS_POST = 41,							//reload scripts, reload materials
+		LOADLEVEL_BEGIN = 50, LOADLEVEL_END = 51,	SAVELEVEL_BEGIN = 52, SAVELEVEL_END = 53,
+		ENABLE_GAME_CLOCK = 60,
+		GAMESTATE_ENTER = 10, GAMESTATE_LEAVE = 11,
+		CONSOLE_INGAME = 70
+	};
+
 	#define DllExport __declspec(dllexport)
 
 	class Main;
@@ -112,6 +133,7 @@ namespace Ice
 	class GOCCameraController;
 	class FreeFlightCameraController;
 	class ObjectReference;
+	class MainLoopThread;
 
 	typedef DllExport std::shared_ptr<ObjectReference> ObjectReferencePtr;
 	typedef DllExport std::shared_ptr<GameObject> GameObjectPtr;

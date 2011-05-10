@@ -14,7 +14,7 @@
 namespace Ice
 {
 
-	class DllExport GOCAI : public GOCEditorInterface, public CharacterControllerInput, public SimulationMessageListener
+	class DllExport GOCAI : public GOCEditorInterface, public CharacterControllerInput
 	{
 
 	private:
@@ -31,6 +31,8 @@ namespace Ice
 	public:
 		GOCAI(void);
 		~GOCAI(void);
+
+		AccessPermitionID GetAccessPermitionID() { return AccessPermitions::ACCESS_PHYSICS; }
 
 		//Scripting
 		std::vector<ScriptParam> Npc_AddState(Script& caller, std::vector<ScriptParam> &vParams);
@@ -59,11 +61,9 @@ namespace Ice
 
 		void Update(float time);
 
-		void ReceiveObjectMessage(Msg &msg);
-
 		void ReceiveMessage(Msg &msg);
 
-		GOComponent::goc_id_type& GetComponentID() const { static std::string name = "AI"; return name; }
+		GOComponent::TypeID& GetComponentID() const { static std::string name = "AI"; return name; }
 
 		void SetParameters(DataMap *parameters);
 		void GetParameters(DataMap *parameters);

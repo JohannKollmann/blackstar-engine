@@ -61,6 +61,13 @@ namespace Ice
 		{
 			PARENT = 11235813
 		};
+		enum MessageIDs
+		{
+			UPDATE_COMPONENT_POSITION = 5500,
+			UPDATE_COMPONENT_ORIENTATION = 5501,
+			UPDATE_COMPONENT_SCALE = 5502,
+			UPDATE_COMPONENT_TRANSFORM = 5503
+		};
 
 	protected:
 		int mID;
@@ -71,6 +78,8 @@ namespace Ice
 
 		bool mSelectable;
 		bool mFreezed;
+
+		bool mComponentsNeedUpdate;
 
 		bool mTransformingReferencedObjects;
 
@@ -83,9 +92,6 @@ namespace Ice
 
 		//Components
 		std::vector<GOComponentPtr> mComponents;
-
-		//Messaging
-		std::vector<Msg> mCurrentMessages;
 
 		//Referenced objects
 		std::vector<ObjectReferencePtr> mReferencedObjects;
@@ -123,13 +129,16 @@ namespace Ice
 		Ogre::String GetIDStr() { return Ogre::StringConverter::toString(mID); }
 
 		///Broadcasts a message to all components.
-		void SendMessage(Msg &msg);
+		void BroadcastObjectMessage(Msg &msg);
 
-		///Broadcasts a messe too all components without any delay.
-		void SendInstantMessage(Msg &msg);
+		///Broadcasts a message to all components except sender.
+		void BroadcastObjectMessage(Msg &msg, GOComponent *sender);
 
-		///Dispatches all waiting message requests created using SendMessage.
-		void ProcessMessages();
+		///Sends a message to a component of a certain family, if existent.
+		void SendObjectMessage(Msg &msg, GOComponent::FamilyID &familyID);
+
+		///Sends a message to a component of a certain family, if existent.
+		void SendObjectMessage(Msg &msg, GOComponent::FamilyID &familyID, GOComponent *sender);
 
 		/**
 		* Attaches a component to the object.
@@ -138,7 +147,7 @@ namespace Ice
 		void AddComponent(GOComponentPtr component);
 
 		///Removes the component of family familyID.
-		void RemoveComponent(const GOComponent::goc_id_family& familyID);
+		void RemoveComponent(const GOComponent::FamilyID& familyID);
 
 		///Returns the component of type T if it exists, otherwise nullptr.
 		template<class T>
@@ -153,10 +162,13 @@ namespace Ice
 		}
 
 		///Returns the component of family familyID if it exists, otherwise nullptr.
-		GOComponent* GetComponent(const GOComponent::goc_id_family& familyID);
+		GOComponent* GetComponent(const GOComponent::FamilyID& familyID);
+
+		///Returns the shared component ptr of family familyID if it exists, otherwise an empty GOComponentPtr().
+		GOComponentPtr GetComponentPtr(const GOComponent::FamilyID& familyID);
 
 		///Returns the component of family familyID and type typeID if it exists, otherwise nullptr.
-		GOComponent* GetComponent(const GOComponent::goc_id_family& familyID, GOComponent::goc_id_type typeID);
+		GOComponent* GetComponent(const GOComponent::FamilyID& familyID, GOComponent::TypeID typeID);
 
 		///Provides a mechanism to iterate over the components attached to the object.
 		std::vector<GOComponentPtr>::iterator GetComponentIterator() { return mComponents.begin(); }
@@ -234,10 +246,10 @@ namespace Ice
 		* @param referenceBlacklist	Pass an empty std::set<GameObject*> if you want to be sure that an object referenced transitively is not moved twice.
 									This Parameter is only relevant when moveReferences is true.
 		*/
-		void SetGlobalPosition(const Ogre::Vector3 &pos, bool moveReferences, bool moveChildren = true, std::set<GameObject*> *referenceBlacklist = nullptr);
+		void SetGlobalPosition(const Ogre::Vector3 &pos, bool updateComponents, bool moveReferences, bool moveChildren = true, std::set<GameObject*> *referenceBlacklist = nullptr);
 
 		///Sets the global position of the object.
-		void SetGlobalPosition(const Ogre::Vector3 &pos) { SetGlobalPosition(pos, false, true); }
+		void SetGlobalPosition(const Ogre::Vector3 &pos) { SetGlobalPosition(pos, true, false, true); }
 
 		/** Sets the global orientation of the object.
 		* @param moveReferences Specifies whether object references with the flag MOVEIT_USER shall be moved relatively.
@@ -245,26 +257,27 @@ namespace Ice
 		* @param referenceBlacklist	Pass an empty std::set<GameObject*> if you want to be sure that an object referenced transitively is not moved twice.
 									This Parameter is only relevant when moveReferences is true.
 		*/
-		void SetGlobalOrientation(const Ogre::Quaternion &quat, bool moveReferences, bool moveChildren = true, std::set<GameObject*> *referenceBlacklist = nullptr);
+		void SetGlobalOrientation(const Ogre::Quaternion &quat, bool updateComponents, bool moveReferences, bool moveChildren = true, std::set<GameObject*> *referenceBlacklist = nullptr);
 
 		///Sets the global orientation of the object.
-		void SetGlobalOrientation(const Ogre::Quaternion &quat) { SetGlobalOrientation(quat, false, true); }
+		void SetGlobalOrientation(const Ogre::Quaternion &quat) { SetGlobalOrientation(quat, true, false, true); }
 
 		/** Translates the object in global space of the object.
 		* @see SetGlobalPosition
 		*/
-		void Translate(Ogre::Vector3 vec, bool moveReferences = false, bool moveChildren = true, std::set<GameObject*> *referenceBlacklist = nullptr) { SetGlobalPosition(mPosition + vec, moveReferences, moveChildren, referenceBlacklist); }
+		void Translate(Ogre::Vector3 vec, bool moveReferences = false, bool moveChildren = true, std::set<GameObject*> *referenceBlacklist = nullptr) { SetGlobalPosition(mPosition + vec, true, moveReferences, moveChildren, referenceBlacklist); }
 
 		/** Translates the object in global space of the object.
 		* @see SetGlobalOrientation
 		*/
-		void Rotate(Ogre::Vector3 axis, Ogre::Radian angle, bool moveReferences = false, bool moveChildren = true, std::set<GameObject*> *referenceBlacklist = nullptr) { Ogre::Quaternion q; q.FromAngleAxis(angle, axis); SetGlobalOrientation(mOrientation * q, moveReferences, moveChildren, referenceBlacklist); }
+		void Rotate(Ogre::Vector3 axis, Ogre::Radian angle, bool moveReferences = false, bool moveChildren = true, std::set<GameObject*> *referenceBlacklist = nullptr) { Ogre::Quaternion q; q.FromAngleAxis(angle, axis); SetGlobalOrientation(mOrientation * q, true, moveReferences, moveChildren, referenceBlacklist); }
 
 		///Sets the scale of the object.
-		void SetGlobalScale(const Ogre::Vector3 &scale);
+		void SetGlobalScale(const Ogre::Vector3 &scale, bool updateComponents);
+		void SetGlobalScale(const Ogre::Vector3 &scale) { SetGlobalScale(scale, true); }
 
 		///Changes the scale of the object. scaleoffset is added to the current scale.
-		void Rescale(Ogre::Vector3 scaleoffset) { SetGlobalScale(mScale + scaleoffset); }
+		void Rescale(Ogre::Vector3 scaleoffset) { SetGlobalScale(mScale + scaleoffset, true); }
 
 		///Retrieves wether the object is currently transforming referenced objects.
 		bool GetTransformingReferencedObjects() { return mTransformingReferencedObjects; }

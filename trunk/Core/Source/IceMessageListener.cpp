@@ -8,35 +8,37 @@ namespace Ice
 
 	MessageListener::MessageListener()
 	{
+		mAccessPermitionID = 0;
 	};
 	MessageListener::~MessageListener()
 	{
-		MessageSystem::QuitAllNewsgroups(this);
+		MessageSystem::Instance().QuitAllNewsgroups(this, mAccessPermitionID);
 	};
 
-	void MessageListener::JoinNewsgroup(NewsgroupID groupID)
+	void MessageListener::JoinNewsgroup(MsgTypeID groupID)
 	{
-		MessageSystem::JoinNewsgroup(this, groupID);
+		MessageSystem::Instance().JoinNewsgroup(this, groupID);
+		mAccessPermitionID = GetAccessPermitionID();
 	}
 
-	void MessageListener::QuitNewsgroup(NewsgroupID groupID)
+	void MessageListener::QuitNewsgroup(MsgTypeID groupID)
 	{
-		MessageSystem::QuitNewsgroup(this, groupID);
+		MessageSystem::Instance().QuitNewsgroup(this, groupID);
 	}
 
 	void MessageListener::QuitAllNewsgroups()
 	{
-		MessageSystem::QuitAllNewsgroups(this);
+		MessageSystem::Instance().QuitAllNewsgroups(this, mAccessPermitionID);
 	}
 
-	void MessageListener::SendMessage(Msg &msg, MessageListener *receiver)
+	void MessageListener::SendMessage(Msg &msg, std::shared_ptr<MessageListener> &receiver)
 	{
-		MessageSystem::SendMessage(msg, GetJobContextID(), receiver);
+		MessageSystem::Instance().SendMessage(msg, GetAccessPermitionID(), receiver);
 	}
 
-	void MessageListener::MulticastMessage(Msg &msg, NewsgroupID groupID)
+	void MessageListener::MulticastMessage(Msg &msg)
 	{
-		MessageSystem::MulticastMessage(msg, GetJobContextID(), groupID);
+		MessageSystem::Instance().MulticastMessage(msg, GetAccessPermitionID());
 	}
 
 };

@@ -19,7 +19,7 @@ namespace Ice
 		void UpdateOrientation(Ogre::Quaternion orientation);
 		void UpdateScale(Ogre::Vector3 position);
 
-		virtual goc_id_family& GetComponentID() const { static std::string name = "OgreNode"; return name; }
+		virtual GOComponent::FamilyID& GetComponentID() const { static std::string name = "OgreNode"; return name; }
 
 		bool _getIsSaveable() const { return false; }
 

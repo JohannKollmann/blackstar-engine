@@ -34,7 +34,7 @@ namespace Ice
 
 		void SetActorObjects(GameObjectPtr actor1, GameObjectPtr actor2);
 
-		goc_id_type& GetFamilyID() const { static std::string name = "Joint"; return name; }
+		GOComponent::TypeID& GetFamilyID() const { static std::string name = "Joint"; return name; }
 
 		Ogre::String GetEditorVisualMeshName() { return "sphere.50cm.mesh"; }
 
@@ -49,7 +49,7 @@ namespace Ice
 	class DllExport GOCFixedJoint : public GOCJoint, public GOCStaticEditorInterface
 	{
 	public:
-		goc_id_type& GetComponentID() const { static std::string name = "Fixed Joint"; return name; }
+		GOComponent::TypeID& GetComponentID() const { static std::string name = "Fixed Joint"; return name; }
 
 		BEGIN_GOCEDITORINTERFACE(GOCFixedJoint, "Fixed Joint")
 			PROPERTY_FLOAT(mMaxForce, "Max Force", NX_MAX_REAL);

@@ -141,12 +141,6 @@
     <ClCompile Include="Source\IceCameraController.cpp" />
     <ClCompile Include="Source\IceConsole.cpp" />
     <ClCompile Include="Source\IceDataMap.cpp" />
-    <ClCompile Include="Source\IceGameState.cpp">
-      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
-      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
-      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
-      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
-    </ClCompile>
     <ClCompile Include="Source\IceInput.cpp" />
     <ClCompile Include="Source\IceLevelMesh.cpp" />
     <ClCompile Include="Source\IceMain.cpp" />
@@ -207,6 +201,7 @@
   <ItemGroup>
     <ClInclude Include="Header\IceDepthSchemeHandler.h" />
     <ClInclude Include="Header\IceGOCJoint.h" />
+    <ClInclude Include="Header\IceObjectMessageIDs.h" />
     <ClInclude Include="Header\IceOrientationBlendProcess.h" />
     <ClInclude Include="Header\IcePlayAnimationProcess.h" />
     <ClInclude Include="Header\IceGOCForceField.h" />
@@ -239,7 +234,6 @@
     <ClInclude Include="Header\IceConsole.h" />
     <ClInclude Include="Header\IceDataMap.h" />
     <ClInclude Include="Header\IceDirectionBlender.h" />
-    <ClInclude Include="Header\IceGameState.h" />
     <ClInclude Include="Header\IceIncludes.h" />
     <ClInclude Include="Header\IceInput.h" />
     <ClInclude Include="Header\IceLevelMesh.h" />

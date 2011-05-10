@@ -2,12 +2,11 @@
 #pragma once
 
 #include "IceIncludes.h"
-#include "Ogre.h"
-#include "IceMessageListener.h"
+#include "IceDataMap.h"
 
 namespace Ice
 {
-	typedef int MsgType;
+	typedef int MsgTypeID;
 
 	class DllExport Msg
 	{
@@ -19,8 +18,8 @@ namespace Ice
 		}
 		virtual ~Msg() { }
 
-		Ogre::Any params[8];
-		MsgType typeID;
+		DataMap params;
+		MsgTypeID typeID;
 		void *rawData;
 	};
 };

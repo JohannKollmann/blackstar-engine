@@ -50,9 +50,6 @@ Input::Input(size_t windowHnd, int width, int height, bool freeCursor)
 
 	mEnabled = true;
 
-	MessageSystem::CreateNewsgroup("CONTROL_DOWN");
-	MessageSystem::CreateNewsgroup("CONTROL_UP");
-
 	Ogre::LogManager::getSingleton().logMessage("Input wurde erfolgreich initialisiert!");
 };
 
@@ -88,19 +85,19 @@ EMouseButtons Input::getMouseButton()
 bool Input::keyPressed( const OIS::KeyEvent &arg )
 {
 	Msg msg;
-	msg.type = GlobalMessageIDs::KEY_DOWN;
+	msg.typeID = GlobalMessageIDs::KEY_DOWN;
 	msg.params.AddInt("KEY_ID_OIS", arg.key);
 	msg.params.AddInt("KEY_ID", arg.text);
-	MessageSystem::SendMessage(msg);
+	MessageSystem::Instance().MulticastMessage(msg);
 
 	if(m_mKeyControls.find(arg.key)!=m_mKeyControls.end())
 	{
 		for(unsigned int iControl=0; iControl<m_mKeyControls[arg.key].size(); iControl++)
 		{
 			Msg msgControl;
-			msgControl.type= "CONTROL_DOWN";
+			msgControl.typeID = GlobalMessageIDs::KEY_DOWN;
 			msgControl.params.AddOgreString("CONTROL_NAME", m_mKeyControls[arg.key][iControl]);
-			MessageSystem::SendMessage(msgControl);
+			MessageSystem::Instance().MulticastMessage(msgControl);
 		}
 	}
 
@@ -110,19 +107,19 @@ bool Input::keyPressed( const OIS::KeyEvent &arg )
 bool Input::keyReleased( const OIS::KeyEvent &arg )
 {
 	Msg msg;
-	msg.type = GlobalMessageIDs::KEY_UP;
+	msg.typeID = GlobalMessageIDs::KEY_UP;
 	msg.params.AddInt("KEY_ID_OIS", arg.key);
 	msg.params.AddInt("KEY_ID", arg.text);
-	MessageSystem::SendMessage(msg);
+	MessageSystem::Instance().MulticastMessage(msg);
 
 	if(m_mKeyControls.find(arg.key)!=m_mKeyControls.end())
 	{
 		for(unsigned int iControl=0; iControl<m_mKeyControls[arg.key].size(); iControl++)
 		{
 			Msg msgControl;
-			msgControl.type= "CONTROL_UP";
+			msgControl.typeID = GlobalMessageIDs::KEY_UP;
 			msgControl.params.AddOgreString("CONTROL_NAME", m_mKeyControls[arg.key][iControl]);
-			MessageSystem::SendMessage(msgControl);
+			MessageSystem::Instance().MulticastMessage(msgControl);
 		}
 	}
 	return true;
@@ -131,32 +128,32 @@ bool Input::keyReleased( const OIS::KeyEvent &arg )
 bool Input::mouseMoved(const OIS::MouseEvent &e)
 {
 	Msg msg;
-	msg.type = GlobalMessageIDs::MOUSE_MOVE;
+	msg.typeID = GlobalMessageIDs::MOUSE_MOVE;
 	msg.params.AddInt("ROT_X_ABS", e.state.X.abs);
 	msg.params.AddInt("ROT_X_REL", e.state.X.rel);
 	msg.params.AddInt("ROT_Y_ABS", e.state.Y.abs);
 	msg.params.AddInt("ROT_Y_REL", e.state.Y.rel);
 	msg.params.AddInt("ROT_Z_ABS", e.state.Z.abs);
 	msg.params.AddInt("ROT_Z_REL", e.state.Z.rel);
-	MessageSystem::SendMessage(msg);
+	MessageSystem::Instance().MulticastMessage(msg);
 	return true;
 };
 
 bool Input::mousePressed (const OIS::MouseEvent &,OIS::MouseButtonID id)
 {
 	Msg msg;
-	msg.type = "MOUSE_DOWN";
+	msg.typeID = GlobalMessageIDs::MOUSE_DOWN;
 	msg.params.AddInt("MOUSE_ID", id);
-	MessageSystem::SendMessage(msg);
+	MessageSystem::Instance().MulticastMessage(msg);
 	
 	if(m_mMouseControls.find(id)!=m_mMouseControls.end())
 	{
 		for(unsigned int iControl=0; iControl<m_mMouseControls[id].size(); iControl++)
 		{
 			Msg msgControl;
-			msgControl.type= "CONTROL_DOWN";
+			msgControl.typeID = GlobalMessageIDs::KEY_DOWN;
 			msgControl.params.AddOgreString("CONTROL_NAME", m_mMouseControls[id][iControl]);
-			MessageSystem::SendMessage(msgControl);
+			MessageSystem::Instance().MulticastMessage(msgControl);
 		}
 	}
 	return true;
@@ -165,17 +162,17 @@ bool Input::mousePressed (const OIS::MouseEvent &,OIS::MouseButtonID id)
 bool Input::mouseReleased (const OIS::MouseEvent &,OIS::MouseButtonID id)
 {
 	Msg msg;
-	msg.type = "MOUSE_UP";
+	msg.typeID = GlobalMessageIDs::MOUSE_UP;
 	msg.params.AddInt("MOUSE_ID", id);
-	MessageSystem::SendMessage(msg);
+	MessageSystem::Instance().MulticastMessage(msg);
 	if(m_mMouseControls.find(id)!=m_mMouseControls.end())
 	{
 		for(unsigned int iControl=0; iControl<m_mMouseControls[id].size(); iControl++)
 		{
 			Msg msgControl;
-			msgControl.type= "CONTROL_UP";
+			msgControl.typeID = GlobalMessageIDs::KEY_UP;
 			msgControl.params.AddOgreString("CONTROL_NAME", m_mMouseControls[id][iControl]);
-			MessageSystem::SendMessage(msgControl);
+			MessageSystem::Instance().MulticastMessage(msgControl);
 		}
 	}
 	return true;
