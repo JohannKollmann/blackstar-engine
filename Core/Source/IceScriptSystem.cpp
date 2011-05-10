@@ -267,16 +267,14 @@ namespace Ice
 		std::vector<ScriptParam> ret;
 		if (params.size() < 2)
 		{
-			Utils::LogParameterErrors(caller, "Too few parameters!");
-			return ret;
+			SCRIPT_RETURNERROR("Too few parameters!")
 		}
-		if (params[0].getType() != ScriptParam::PARM_TYPE_STRING || params[1].getType() != ScriptParam::PARM_TYPE_FUNCTION)
+		if (!params[0].hasInt() || params[1].getType() != ScriptParam::PARM_TYPE_FUNCTION)
 		{
-			Utils::LogParameterErrors(caller, "Wrong parameters!");
-			return ret;
+			SCRIPT_RETURNERROR("Wrong parameters!")
 		}
 		ScriptMessageListener *listener = ICE_NEW ScriptMessageListener(params[1]);
-		MessageSystem::JoinNewsgroup(listener, params[0].getString());
+		listener->JoinNewsgroup(params[0].getInt());
 		ScriptSystem::GetInstance().mScriptMessageListeners.push_back(listener);
 		return ret;
 	}
@@ -284,13 +282,13 @@ namespace Ice
 	void ScriptSystem::ReparseAllScripts()
 	{
 		Ice::Msg msg;
-		msg.type = GlobalMessageIDs::REPARSE_SCRIPTS_PRE;
-		Ice::MessageSystem::SendInstantMessage(msg);
+		msg.typeID = GlobalMessageIDs::REPARSE_SCRIPTS_PRE;
+		Ice::MessageSystem::Instance().MulticastMessage(msg, AccessPermitions::ACCESS_ALL);
 		Ice::ScriptSystem::GetInstance().Clear();
 		//Call init script
 		Ice::Script script = Ice::ScriptSystem::GetInstance().CreateInstance("InitEngine.lua");
-		msg.type = GlobalMessageIDs::REPARSE_SCRIPTS_POST;
-		Ice::MessageSystem::SendInstantMessage(msg);
+		msg.typeID = GlobalMessageIDs::REPARSE_SCRIPTS_POST;
+		Ice::MessageSystem::Instance().MulticastMessage(msg, AccessPermitions::ACCESS_ALL);
 	}
 
 	ScriptUser* ScriptSystem::GetScriptableObject(int scriptID)

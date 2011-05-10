@@ -12,8 +12,8 @@ ScriptedControls::GetInstance()
 
 ScriptedControls::ScriptedControls()
 {
-	Ice::MessageSystem::JoinNewsgroup(this, "CONTROL_DOWN");
-	Ice::MessageSystem::JoinNewsgroup(this, "CONTROL_UP");
+	JoinNewsgroup(Ice::GlobalMessageIDs::KEY_DOWN);
+	JoinNewsgroup(Ice::GlobalMessageIDs::KEY_UP);
 
 	Ice::ScriptSystem::GetInstance().ShareCFunction("input_set_control", SetControl);
 	Ice::ScriptSystem::GetInstance().ShareCFunction("input_get_control", GetControl);
@@ -24,14 +24,14 @@ ScriptedControls::ScriptedControls()
 void
 ScriptedControls::ReceiveMessage(Ice::Msg &msg)
 {
-	if(msg.type == "CONTROL_DOWN")
+	if(msg.typeID == Ice::GlobalMessageIDs::KEY_DOWN)
 	{
 		if(m_mControlDownCallbacks.find(msg.params.GetOgreString("CONTROL_NAME"))!=m_mControlDownCallbacks.end())
 		{
 			Ice::ScriptSystem::RunCallbackFunction(m_mControlDownCallbacks[msg.params.GetOgreString("CONTROL_NAME")], std::vector<Ice::ScriptParam>(1, Ice::ScriptParam(msg.params.GetOgreString("CONTROL_NAME"))));
 		}
 	}
-	if(msg.type == "CONTROL_UP")
+	if(msg.typeID == Ice::GlobalMessageIDs::KEY_UP)
 	{
 		if(m_mControlUpCallbacks.find(msg.params.GetOgreString("CONTROL_NAME"))!=m_mControlUpCallbacks.end())
 		{

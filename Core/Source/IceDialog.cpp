@@ -21,8 +21,8 @@ namespace Ice
 	void Dialog::OnEnter()
 	{
 		Msg startDialog;
-		startDialog.type = "StartDialog";
-		mAIObject->GetOwner()->SendMessage(startDialog);
+		/*startDialog.type = "StartDialog";
+		mAIObject->GetOwner()->SendMessage(startDialog);*/
 		if (SceneManager::Instance().GetPlayer())
 		{
 			Ogre::Vector3 oldDir = mAIObject->GetOwner()->GetGlobalOrientation() * Ogre::Vector3::UNIT_Z;

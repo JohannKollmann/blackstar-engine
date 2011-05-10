@@ -10,7 +10,7 @@
 namespace Ice
 {
 
-class DllExport Console : public SimulationMessageListener
+class DllExport Console : public SynchronizedMessageListener
 {
 private:
 	std::map<Ogre::String, std::vector<Ogre::String> > mCommands;

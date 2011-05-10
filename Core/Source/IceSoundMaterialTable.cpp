@@ -9,8 +9,8 @@ namespace Ice
 {
 	SoundMaterialTable::SoundMaterialTable()
 	{
-		MessageSystem::JoinNewsgroup(this, GlobalMessageIDs::REPARSE_SCRIPTS_PRE);
-		MessageSystem::JoinNewsgroup(this, GlobalMessageIDs::REPARSE_SCRIPTS_POST);
+		JoinNewsgroup(GlobalMessageIDs::REPARSE_SCRIPTS_PRE);
+		JoinNewsgroup(GlobalMessageIDs::REPARSE_SCRIPTS_POST);
 	}
 
 	void SoundMaterialTable::InitBindingsFromCfg(Ogre::String cfgFile)
@@ -138,11 +138,11 @@ namespace Ice
 
 	void SoundMaterialTable::ReceiveMessage(Msg &msg)
 	{
-		if (msg.type == GlobalMessageIDs::REPARSE_SCRIPTS_PRE)
+		if (msg.typeID == GlobalMessageIDs::REPARSE_SCRIPTS_PRE)
 		{
 			Clear();
 		}
-		else if (msg.type == GlobalMessageIDs::REPARSE_SCRIPTS_POST)
+		else if (msg.typeID == GlobalMessageIDs::REPARSE_SCRIPTS_POST)
 		{
 			InitBindingsFromCfg("OgreMaterialSoundBindings.cfg");
 		}

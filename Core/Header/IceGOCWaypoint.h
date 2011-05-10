@@ -15,8 +15,8 @@ namespace Ice
 		GOCWaypoint(void);
 		~GOCWaypoint(void);
 
-		goc_id_family& GetFamilyID() const { static std::string name = "Waypoint"; return name; }
-		GOComponent::goc_id_type& GetComponentID() const { static std::string name = "Waypoint"; return name; }
+		GOComponent::FamilyID& GetFamilyID() const { static std::string name = "Waypoint"; return name; }
+		GOComponent::TypeID& GetComponentID() const { static std::string name = "Waypoint"; return name; }
 
 		void UpdatePosition(Ogre::Vector3 position);
 

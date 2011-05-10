@@ -25,7 +25,7 @@ MusicSystem::MusicSystem()
 	Ice::ScriptSystem::GetInstance().ShareCFunction("music_set_mood", Lua_SetMood);
 	Ice::ScriptSystem::GetInstance().ShareCFunction("music_post_event", Lua_PostEvent);
 
-	Ice::MessageSystem::JoinNewsgroup(this, GlobalMessageIDs::UPDATE_PER_FRAME);
+	JoinNewsgroup(Ice::GlobalMessageIDs::UPDATE_PER_FRAME);
 }
 
 MusicSystem&
@@ -38,7 +38,7 @@ MusicSystem::GetInstance()
 void
 MusicSystem::ReceiveMessage(Ice::Msg &msg)
 {
-	if (msg.type == GlobalMessageIDs::UPDATE_PER_FRAME)
+	if (msg.typeID == Ice::GlobalMessageIDs::UPDATE_PER_FRAME)
 	{
 		float time = msg.params.GetFloat("TIME_TOTAL");
 		m_fCurrTime=time;

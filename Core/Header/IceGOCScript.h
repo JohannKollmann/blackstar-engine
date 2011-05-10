@@ -37,7 +37,7 @@ namespace Ice
 		void Create();
 
 		int GetThisID() { GameObjectPtr owner = mOwnerGO.lock(); IceAssert(owner.get()); return owner->GetID(); }
-		GOComponent::goc_id_type& GetComponentID() const { static std::string name = "Script"; return name; }
+		GOComponent::TypeID& GetComponentID() const { static std::string name = "Script"; return name; }
 
 		void SetParameters(DataMap *parameters);
 		void GetParameters(DataMap *parameters);
@@ -64,22 +64,23 @@ namespace Ice
 		void Load(LoadSave::LoadSystem& mgr);
 	};
 
-	class DllExport GOCScriptMessageCallback : public GOComponent, public SynchronizedMessageListener
+	class DllExport GOCScriptMessageCallback : public GOComponent
 	{
 	private:
-		std::map< Ogre::String, std::vector<ScriptParam> > mObjectMsgCallbacks;
+		std::map< MsgTypeID, std::vector<ScriptParam> > mObjectMsgCallbacks;
 
 	public:
 		GOCScriptMessageCallback();
 		~GOCScriptMessageCallback() {}
 
-		GOComponent::goc_id_type& GetComponentID() const { static std::string name = "ScriptCallback"; return name; }
+		AccessPermitionID GetAccessPermitionID() { return AccessPermitions::ACCESS_ALL; }
+
+		GOComponent::TypeID& GetComponentID() const { static std::string name = "ScriptCallback"; return name; }
 
 		void ReceiveMessage(Msg &msg);
-		void ReceiveObjectMessage(Msg &msg);
 
-		bool HasListener(const Ogre::String &msgType);
-		void AddListener(const Ogre::String &msgType, ScriptParam callback);
+		bool HasListener(MsgTypeID msgType);
+		void AddListener(MsgTypeID msgType, ScriptParam callback);
 
 		std::string& TellName() { static std::string name = "ScriptCallback"; return name; };
 		static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "ScriptCallback"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };

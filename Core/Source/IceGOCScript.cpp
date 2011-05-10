@@ -1,5 +1,6 @@
 
 #include "IceGOCScript.h"
+#include "IceObjectMessageIDs.h"
 
 namespace Ice
 {
@@ -81,23 +82,20 @@ namespace Ice
 
 	GOCScriptMessageCallback::GOCScriptMessageCallback()
 	{
-		MessageSystem::JoinNewsgroup(this, GlobalMessageIDs::REPARSE_SCRIPTS_PRE);
+		JoinNewsgroup(GlobalMessageIDs::REPARSE_SCRIPTS_PRE);
 	}
 
 	void GOCScriptMessageCallback::ReceiveMessage(Msg &msg)
 	{
-		if (msg.type == GlobalMessageIDs::REPARSE_SCRIPTS_PRE) mObjectMsgCallbacks.clear();
-	}
+		if (msg.typeID == GlobalMessageIDs::REPARSE_SCRIPTS_PRE) mObjectMsgCallbacks.clear();
 
-	void GOCScriptMessageCallback::ReceiveObjectMessage(Msg &msg)
-	{
-		if (msg.type == "INTERN_RESET")
+		if (msg.typeID == ObjectMessageIDs::INTERN_RESET)
 		{
 			mObjectMsgCallbacks.clear();
 			return;
 		}
 
-		auto i = mObjectMsgCallbacks.find(msg.type);
+		auto i = mObjectMsgCallbacks.find(msg.typeID);
 		if (i == mObjectMsgCallbacks.end()) return;
 
 		std::vector<ScriptParam> params;
@@ -111,12 +109,12 @@ namespace Ice
 		}
 	}
 
-	bool GOCScriptMessageCallback::HasListener(const Ogre::String &msgType)
+	bool GOCScriptMessageCallback::HasListener(MsgTypeID msgType)
 	{
 		auto i = mObjectMsgCallbacks.find(msgType);
 		return (i != mObjectMsgCallbacks.end());
 	}
-	void GOCScriptMessageCallback::AddListener(const Ogre::String &msgType, ScriptParam callback)
+	void GOCScriptMessageCallback::AddListener(MsgTypeID msgType, ScriptParam callback)
 	{
 		auto i = mObjectMsgCallbacks.find(msgType);
 		if (i == mObjectMsgCallbacks.end())

@@ -21,7 +21,7 @@ namespace Ice
 		WrappedVector() : mCurrentIndex(0) {}
 		~WrappedVector() {}
 
-		std::vector<T>& GetVector() { return mVector; }
+		std::vector<T>* GetVector() { return &mVector; }
 
 		void Remove(unsigned int index)
 		{

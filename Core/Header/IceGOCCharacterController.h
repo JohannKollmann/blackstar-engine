@@ -61,12 +61,12 @@ namespace Ice
 		void BroadcastMovementState();
 
 	public:
-		goc_id_family& GetFamilyID() const { static std::string name = "CharacterInput"; return name; }
+		GOComponent::FamilyID& GetFamilyID() const { static std::string name = "CharacterInput"; return name; }
 		void BroadcastMovementState(int state);
 		int GetMovementState() { return mCharacterMovementState; }
 	};
 
-	class DllExport GOCCharacterController : public GOCPhysics, public SimulationMessageListener, public GOCEditorInterface
+	class DllExport GOCCharacterController : public GOCPhysics, public GOCEditorInterface
 	{
 	private:
 		OgrePhysX::Actor *mActor;
@@ -99,7 +99,9 @@ namespace Ice
 		GOCCharacterController(Ogre::Vector3 dimensions);
 		~GOCCharacterController(void);
 
-		GOComponent::goc_id_type& GetComponentID() const { static std::string name = "CharacterController"; return name; }
+		AccessPermitionID GetAccessPermitionID() { return AccessPermitions::ACCESS_PHYSICS; }
+
+		GOComponent::TypeID& GetComponentID() const { static std::string name = "CharacterController"; return name; }
 
 		void UpdatePosition(Ogre::Vector3 position);
 		void UpdateOrientation(Ogre::Quaternion orientation);
@@ -107,7 +109,6 @@ namespace Ice
 
 		void SetSpeedFactor(float factor);
 
-		void ReceiveObjectMessage(Msg &msg);
 		void ReceiveMessage(Msg &msg);
 
 		void Freeze(bool freeze);

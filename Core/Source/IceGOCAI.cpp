@@ -13,8 +13,8 @@ namespace Ice
 	{
 		mCharacterMovementState = 0;
 		AIManager::Instance().RegisterAIObject(this);
-		MessageSystem::JoinNewsgroup(this, "ENABLE_GAME_CLOCK");
-		MessageSystem::JoinNewsgroup(this, GlobalMessageIDs::REPARSE_SCRIPTS_PRE);
+		JoinNewsgroup(GlobalMessageIDs::ENABLE_GAME_CLOCK);
+		JoinNewsgroup(GlobalMessageIDs::REPARSE_SCRIPTS_PRE);
 	}
 
 	GOCAI::~GOCAI(void)
@@ -159,18 +159,10 @@ namespace Ice
 		return out;
 	}
 
-	void GOCAI::ReceiveObjectMessage(Msg &msg)
-	{
-		if (msg.type == "CharacterCollisionReport")
-		{
-			NxU32 collisionFlags = msg.params.GetInt("collisionFlags");
-		}
-	}
-
 	void GOCAI::ReceiveMessage(Msg &msg)
 	{
 		if (mOwnerGO.expired()) return;
-		if (msg.type == "ENABLE_GAME_CLOCK")
+		if (msg.typeID == GlobalMessageIDs::ENABLE_GAME_CLOCK)
 		{
 			bool enable = msg.params.GetBool("enable");
 			if (!enable)
@@ -178,7 +170,7 @@ namespace Ice
 				BroadcastMovementState(0);
 			}
 		}
-		else if (msg.type == GlobalMessageIDs::REPARSE_SCRIPTS_PRE)
+		else if (msg.typeID == GlobalMessageIDs::REPARSE_SCRIPTS_PRE)
 		{
 			ClearActionQueue();
 			ClearIdleQueue();

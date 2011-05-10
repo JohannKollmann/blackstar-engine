@@ -3,6 +3,7 @@
 #include "OIS/OIS.h"
 #include "IceMessageSystem.h"
 #include "IceGameObject.h"
+#include "IceObjectMessageIDs.h"
 
 #include "IceMain.h"
 
@@ -26,11 +27,11 @@ void GOCPlayerInput::SetActive(bool active)
 {
 	if (active)
 	{
-		MessageSystem::QuitAllNewsgroups(this);
-		MessageSystem::JoinNewsgroup(this, GlobalMessageIDs::KEY_DOWN);
-		//MessageSystem::JoinNewsgroup(this, GlobalMessageIDs::KEY_UP);
-		MessageSystem::JoinNewsgroup(this, GlobalMessageIDs::MOUSE_MOVE);
-		MessageSystem::JoinNewsgroup(this, GlobalMessageIDs::UPDATE_PER_FRAME);
+		QuitAllNewsgroups();
+		JoinNewsgroup(GlobalMessageIDs::KEY_DOWN);
+		//JoinNewsgroup(GlobalMessageIDs::KEY_UP);
+		JoinNewsgroup(GlobalMessageIDs::MOUSE_MOVE);
+		JoinNewsgroup(GlobalMessageIDs::UPDATE_PER_FRAME);
 	}
 
 	mActive = active;
@@ -54,11 +55,11 @@ void GOCPlayerInput::ReceiveMessage(Msg &msg)
 {
 	if (!mActive) return;
 
-	if (msg.type == GlobalMessageIDs::MOUSE_MOVE)
+	if (msg.typeID == GlobalMessageIDs::MOUSE_MOVE)
 	{
 		mOwnerGO.lock()->Rotate(Ogre::Vector3(0,1,0), Ogre::Radian((Ogre::Degree(-msg.params.GetInt("ROT_X_REL") * 0.2f))));
 	}
-	if (msg.type == GlobalMessageIDs::UPDATE_PER_FRAME)
+	if (msg.typeID == GlobalMessageIDs::UPDATE_PER_FRAME)
 	{
 		int newState = 0;
 		if (Main::Instance().GetInputManager()->isKeyDown(OIS::KC_W))
@@ -75,22 +76,17 @@ void GOCPlayerInput::ReceiveMessage(Msg &msg)
 
 		BroadcastMovementState(newState);
 	}
-	if (msg.type == GlobalMessageIDs::KEY_DOWN)
+	if (msg.typeID == GlobalMessageIDs::KEY_DOWN)
 	{
 		if (msg.params.GetInt("KEY_ID_OIS") == OIS::KC_SPACE)
 		{
 			Msg msg;
-			msg.type = "INPUT_START_JUMP";
-			mOwnerGO.lock()->SendInstantMessage(msg);
+			msg.typeID = ObjectMessageIDs::INPUT_START_JUMP;
+			BroadcastObjectMessage(msg);
 		}
 	}
-}
 
-#include "NxController.h"
-
-void GOCPlayerInput::ReceiveObjectMessage(Msg &msg)
-{
-	if (msg.type == "CharacterCollisionReport")
+	if (msg.typeID == ObjectMessageIDs::CHARACTER_COLLISION)
 	{
 		NxU32 collisionFlags = msg.params.GetInt("collisionFlags");
 	}

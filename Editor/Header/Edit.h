@@ -16,13 +16,9 @@
 #include "wx/msw/winundef.h"
 #include "boost/thread.hpp"
 
-#define STOP_MAINLOOP { \
-		wxEdit::Instance().GetMainNotebook()->GetOgreWindow()->GetLoopMutex().lock(); \
-		wxEdit::Instance().GetMainNotebook()->GetOgreWindow()->IncBlockingCounter(); \
-		wxEdit::Instance().GetMainNotebook()->GetOgreWindow()->GetLoopMutex().unlock(); \
-	}
+#define STOP_MAINLOOP wxEdit::Instance().GetOgrePane()->IncBlockEngineLoop();
 
-#define RESUME_MAINLOOP wxEdit::Instance().GetMainNotebook()->GetOgreWindow()->DecBlockingCounter();
+#define RESUME_MAINLOOP wxEdit::Instance().GetOgrePane()->DecBlockEngineLoop();
 
 class IEditorSelection
 {
@@ -41,7 +37,7 @@ struct MaterialSelection
 	Ogre::String mOriginalMaterialName;
 };
 
-class Edit : public wxOgre, public Ice::ViewMessageListener
+class Edit : public wxOgre, public Ice::SynchronizedMessageListener
 {
 	DECLARE_CLASS(Edit)
 
@@ -51,6 +47,9 @@ protected:
 	void OnRender();
 
 	void OnSize(wxSizeEvent& event);
+
+	boost::mutex mBlockEngineLoopCond;
+	int mEngineLoopBlockers;
 
 public:
 
@@ -73,6 +72,9 @@ public:
 		Ogre::Vector3 ResetPos;
 		Ogre::Quaternion ResetQuat;
 	};
+
+	void IncBlockEngineLoop();
+	void DecBlockEngineLoop();
 
 	void PostInit();
 

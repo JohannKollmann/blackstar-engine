@@ -4,6 +4,7 @@
 #include "NxBoxController.h"
 #include "NxCapsuleController.h"
 #include "IceMessageSystem.h"
+#include "IceObjectMessageIDs.h"
 #include "IceMain.h"
 #include "IceGameObject.h"
 #include "OgrePhysX.h"
@@ -17,10 +18,10 @@ namespace Ice
 
 	void CharacterControllerInput::BroadcastMovementState()
 	{
-		Msg objmsg;
-		objmsg.type = "UPDATE_CHARACTER_MOVEMENTSTATE";
-		objmsg.params.AddInt("CharacterMovementState", mCharacterMovementState);
-		mOwnerGO.lock()->SendInstantMessage(objmsg);
+		Msg msg;
+		msg.typeID = ObjectMessageIDs::UPDATE_CHARACTER_MOVEMENTSTATE;
+		msg.params.AddInt("CharacterMovementState", mCharacterMovementState);
+		BroadcastObjectMessage(msg);
 	}
 
 #define BROADCAST_MOVEMENTCHANGE(movementType, newState) \
@@ -28,10 +29,10 @@ namespace Ice
 	int dif = mCharacterMovementState ^ newState; \
 	if (dif & movementType) \
 	{ \
-		Msg objmsg; \
-		objmsg.type = ((newState & movementType) ? "ENTER_MOVEMENT_STATE" : "LEAVE_MOVEMENT_STATE"); \
-		objmsg.params.AddOgreString("state", #movementType); \
-		mOwnerGO.lock()->SendInstantMessage(objmsg); \
+		Msg msg; \
+		msg.typeID = ((newState & movementType) ? ObjectMessageIDs::ENTER_MOVEMENT_STATE : ObjectMessageIDs::LEAVE_MOVEMENT_STATE); \
+		msg.params.AddOgreString("state", #movementType); \
+		BroadcastObjectMessage(msg); \
 	} \
 } \
 
@@ -69,9 +70,9 @@ namespace Ice
 		if (mActor)
 		{
 			Msg msg;
-			msg.type = "ACTOR_ONWAKE";
+			msg.typeID = GlobalMessageIDs::ACTOR_ONWAKE;
 			msg.rawData = mActor->getNxActor();
-			MessageSystem::SendInstantMessage(msg);
+			MulticastMessage(msg);
 			Main::Instance().GetPhysXScene()->destroyActor(mActor);
 			mActor = nullptr;
 			Main::Instance().GetPhysXScene()->getNxScene()->releaseSweepCache(mSweepCache);
@@ -81,9 +82,9 @@ namespace Ice
 
 	void GOCCharacterController::Create(Ogre::Vector3 dimensions)
 	{
-		MessageSystem::QuitAllNewsgroups(this);
-		MessageSystem::JoinNewsgroup(this, "START_PHYSICS");
-		MessageSystem::JoinNewsgroup(this, "END_PHYSICS");
+		QuitAllNewsgroups();
+		JoinNewsgroup(GlobalMessageIDs::PHYSICS_BEGIN);
+		JoinNewsgroup(GlobalMessageIDs::PHYSICS_END);
 
 		if (dimensions.x == 0 || dimensions.y == 0 || dimensions.z == 0) dimensions = Ogre::Vector3(1,1,1);
 
@@ -130,7 +131,7 @@ namespace Ice
 
 	void GOCCharacterController::ReceiveMessage(Msg &msg)
 	{
-		if (msg.type == "START_PHYSICS" && !mFreezed)
+		if (msg.typeID == GlobalMessageIDs::PHYSICS_SUBSTEP && !mFreezed)
 		{
 			float time = msg.params.GetFloat("TIME");
 			//if (mJump.mJumping) jumpDelta = mJump.GetHeight(time);
@@ -198,24 +199,22 @@ namespace Ice
 			{
 				mJumping = false;
 				Msg jump_response;
-				jump_response.type = "END_JUMP";
-				mOwnerGO.lock()->SendInstantMessage(jump_response);
+				jump_response.typeID = ObjectMessageIDs::END_JUMP;
+				BroadcastObjectMessage(jump_response);
 			}
 			/*Msg collision_response;
 			collision_response.type = "CharacterCollisionReport";
 			collision_response.params.AddInt("collisionFlags", collisionFlags);
 			mOwnerGO.lock()->SendMessage(collision_response);*/
 		}
-		if (msg.type == "END_PHYSICS" && !mFreezed)
+		if (msg.typeID == GlobalMessageIDs::PHYSICS_END && !mFreezed)
 		{
 			SetOwnerPosition(mActor->getGlobalPosition());
 			//SetOwnerOrientation(mActor->getGlobalOrientation());
 		}
-	}
 
-	void GOCCharacterController::ReceiveObjectMessage(Msg &msg)
-	{
-		if (msg.type == "UPDATE_CHARACTER_MOVEMENTSTATE")
+
+		if (msg.typeID == ObjectMessageIDs::UPDATE_CHARACTER_MOVEMENTSTATE)
 		{
 			mDirection = Ogre::Vector3(0,0,0);
 			int movementFlags = msg.params.GetInt("CharacterMovementState");
@@ -227,7 +226,7 @@ namespace Ice
 			mDirection.normalise();
 			mDirection*=(mMovementSpeed*mSpeedFactor);
 		}
-		if (msg.type == "INPUT_START_JUMP")
+		if (msg.typeID == ObjectMessageIDs::INPUT_START_JUMP)
 		{
 			if (mTouchesGround && !mJumping)
 			{
@@ -235,15 +234,16 @@ namespace Ice
 				mJumpStartTime = timeGetTime();
 				mActor->getNxActor()->addForce(NxVec3(0, 400, 0), NxForceMode::NX_IMPULSE);
 				Msg msg;
-				msg.type = "START_JUMP";
-				mOwnerGO.lock()->SendInstantMessage(msg);
+				msg.typeID = ObjectMessageIDs::START_JUMP;
+				BroadcastObjectMessage(msg);
 			}
 		}
-		if (msg.type == "KillCharacter")
+		if (msg.typeID == ObjectMessageIDs::CHARACTER_KILL)
 		{
 			mFreezed = true;
 		}
 	}
+
 
 	void GOCCharacterController::SetOwner(std::weak_ptr<GameObject> go)
 	{

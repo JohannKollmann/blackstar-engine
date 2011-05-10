@@ -135,6 +135,14 @@ namespace Ice
 			return defaultVal;
 		}
 
+		///Retrieves the data of the item at the given index.
+		template <class templateType>
+		templateType GetValue(unsigned int index)	const
+		{
+			IceAssert(index < mItems.size())
+			return mItems[index]->Data->Get<templateType>();
+		}
+
 		//Typed get methods
 		int GetInt(const Ogre::String &keyname, int defaultVal = 0)														const;
 		bool GetBool(const Ogre::String &keyname, bool defaultVal = false)												const;

@@ -7,7 +7,7 @@ namespace Ice
 
 	AIManager::AIManager(void)
 	{
-		MessageSystem::JoinNewsgroup(this, GlobalMessageIDs::REPARSE_SCRIPTS_POST);
+		JoinNewsgroup(GlobalMessageIDs::REPARSE_SCRIPTS_POST);
 		mNavigationMesh = ICE_NEW NavigationMesh();
 		mLoadWayMeshAsObjects = false;
 	}

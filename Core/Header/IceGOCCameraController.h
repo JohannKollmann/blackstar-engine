@@ -22,10 +22,10 @@ namespace Ice
 		virtual void AttachCamera(Ogre::Camera *camera);
 		virtual void DetachCamera();
 
-		virtual void ReceiveObjectMessage(Msg &msg);
+		virtual void ReceiveMessage(Msg &msg);
 
-		goc_id_family& GetFamilyID() const { static std::string name = "Camera"; return name; }
-		virtual GOComponent::goc_id_type& GetComponentID() const { static std::string name = "SimpleCamera"; return name; }
+		GOComponent::FamilyID& GetFamilyID() const { static std::string name = "Camera"; return name; }
+		virtual GOComponent::TypeID& GetComponentID() const { static std::string name = "SimpleCamera"; return name; }
 
 		static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "SimpleCamera"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };
 		static LoadSave::Saveable* NewInstance() { return new GOCSimpleCameraController; };
@@ -34,7 +34,7 @@ namespace Ice
 		Ogre::String GetLabel() { return "Simple Camera"; }
 	};
 	
-	class DllExport GOCCameraController : public GOCSimpleCameraController, public ViewMessageListener
+	class DllExport GOCCameraController : public GOCSimpleCameraController
 	{
 	private:
 		Ogre::Camera *mCamera;
@@ -57,11 +57,13 @@ namespace Ice
 
 		void SetOwner(std::weak_ptr<GameObject> go);
 
+		AccessPermitionID GetAccessPermitionID() { return AccessPermitions::ACCESS_VIEW; }
+
 		void ReceiveMessage(Msg &msg);
 
 		void UpdateOrientation(Ogre::Quaternion orientation);
 
-		GOComponent::goc_id_type& GetComponentID() const { static std::string name = "CameraController"; return name; }
+		GOComponent::TypeID& GetComponentID() const { static std::string name = "CameraController"; return name; }
 
 		static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "CameraController"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };
 		static LoadSave::Saveable* NewInstance() { return new GOCCameraController; };

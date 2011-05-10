@@ -208,8 +208,7 @@ void wxEdit::PostCreate()
 		ToolbarPane().Right().Layer(1).Position(0));*/
 
 	wxEdit::Instance().GetExplorerToolbar()->SetGroupStatus("ResourceMgr", false);	//Hack
-	Ice::MainLoop::Instance().doLoop();
-	Ice::SceneManager::Instance().EnableClock(false);
+	//Ice::SceneManager::Instance().EnableClock(false);
 
 	mObjectPreviewWindow->initOgre("PreviewWindow");
 
@@ -290,6 +289,7 @@ void wxEdit::OnLoadWorld(wxCommandEvent& WXUNUSED(event))
 
 void wxEdit::OnSaveWorld(wxCommandEvent& WXUNUSED(event))
 {
+	STOP_MAINLOOP
 	wxEdit::Instance().GetOgrePane()->DeselectAllObjects();
 
 	//Ogre::LogManager::getSingleton().logMessage("OnSaveWorld");
@@ -314,10 +314,12 @@ void wxEdit::OnSaveWorld(wxCommandEvent& WXUNUSED(event))
 	}
 	wxEdit::Instance().GetProgressBar()->Reset();
 	Ice::SceneManager::Instance().ShowEditorMeshes(mMenuBar->IsChecked(wxMainMenu_EditorMeshes));
+	RESUME_MAINLOOP
 };
 
 void wxEdit::OnLoadMesh(wxCommandEvent& WXUNUSED(event))
 {
+	STOP_MAINLOOP
 	//Ogre::LogManager::getSingleton().logMessage("OnLoadMesh");
     wxFileDialog dialog
                  (
@@ -353,6 +355,7 @@ void wxEdit::OnLoadMesh(wxCommandEvent& WXUNUSED(event))
 		Ice::AIManager::Instance().GetNavigationMesh()->ImportOgreMesh(Ice::SceneManager::Instance().GetLevelMesh()->GetEntity()->getMesh());
     }
 	wxEdit::Instance().GetProgressBar()->Reset();
+	RESUME_MAINLOOP
 };
 
 void wxEdit::OnExit(wxCommandEvent& WXUNUSED(event))
@@ -419,7 +422,7 @@ void wxEdit::OnEnableMaterialMode(wxCommandEvent& WXUNUSED(event))
 
 void wxEdit::OnEnablePhysics(wxCommandEvent& WXUNUSED(event))
 {
-	Ice::MainLoop::Instance().SetPhysics(mMenuBar->IsChecked(wxMainMenu_Physics));
+	Ice::Main::Instance().GetMainLoopThread("Physics")->SetPaused(mMenuBar->IsChecked(wxMainMenu_Physics));
 	wxEdit::Instance().GetProgressBar()->Reset();
 }
 

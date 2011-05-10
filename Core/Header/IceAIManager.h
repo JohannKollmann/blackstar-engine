@@ -13,7 +13,7 @@ Verwaltet AI Objekte, vergibt IDs und entscheidet, was aktualisiert wird und was
 namespace Ice
 {
 
-class DllExport AIManager : public SimulationMessageListener
+class DllExport AIManager : public IndependantMessageListener
 {
 	friend class SceneManager;
 

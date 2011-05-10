@@ -13,6 +13,8 @@ Initialisiert alle Subsysteme.
 
 #include "Ogre.h"
 
+#include "boost/thread.hpp"
+
 namespace Ice
 {
 
@@ -28,10 +30,11 @@ namespace Ice
 			Ogre::String Val;
 		};
 
-		Main();
 		~Main();
 
 	protected:
+
+		Main();
 
 		Ogre::Root* mRoot;
 		Ogre::RenderSystem* mRenderSystem;
@@ -64,6 +67,14 @@ namespace Ice
 		int winHeight;
 		int winWidth;
 
+		struct MainLoopItem
+		{
+			boost::thread *thread;
+			MainLoopThread *mainLoopThread;
+		};
+
+		std::map<Ogre::String, MainLoopItem> mMainLoopThreads;
+
 	public:
 
 		void InitCompositor();
@@ -73,6 +84,11 @@ namespace Ice
 
 		// Settings
 		std::map<Ogre::String, std::vector<KeyVal> > mSettings;
+
+		void CreateMainLoopThreads();
+		void AddMainLoopThread(Ogre::String name, MainLoopThread *thread, bool createThread = true);
+		void PauseAllMainLoopThreads(bool paused);
+		MainLoopThread* GetMainLoopThread(Ogre::String name);
 
 		bool Run();	//Eigenes Fenster erstellen
 		bool Run(Ogre::RenderWindow *window, size_t OISInputWindow);
@@ -93,8 +109,6 @@ namespace Ice
 		void createInputSystem(size_t windowHnd, bool freeCursor = false);
 
 		void Shutdown();
-
-		void StartMainLoop();
 		
 		Ogre::RenderWindow* GetWindow() { return mWindow; };
 		OgrePhysX::Scene* GetPhysXScene() { return mPhysXScene; };

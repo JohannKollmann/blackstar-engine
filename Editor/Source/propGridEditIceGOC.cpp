@@ -5,6 +5,7 @@
 #include "IceGOCView.h"
 #include "Edit.h"
 #include "wx/msw/winundef.h"
+#include "IceObjectMessageIDs.h"
 
  
 /*void  
@@ -196,8 +197,8 @@ void wxEditIceGameObject::OnApply()
 		wxEdit::Instance().GetOgrePane()->DeselectObject(object);
 	}
 
-	Ice::Msg msg;msg.type = "INTERN_RESET";
-	object->SendInstantMessage(msg);
+	Ice::Msg msg;msg.typeID = Ice::ObjectMessageIDs::INTERN_RESET;
+	object->BroadcastObjectMessage(msg);
 
 	std::list<Ice::GOCEditorInterface*> existingGOCs;
 	for (auto ci = object->GetComponentIterator(); ci != object->GetComponentIteratorEnd(); ci++)
@@ -213,9 +214,9 @@ void wxEditIceGameObject::OnApply()
 		{
 			object->SetName((*i)->mSectionData.GetOgreString("Name"));
 			std::set<Ice::GameObject*> blacklist;
-			object->SetGlobalPosition((*i)->mSectionData.GetOgreVec3("Position"), true, true, &blacklist);
+			object->SetGlobalPosition((*i)->mSectionData.GetOgreVec3("Position"), true, true, true, &blacklist);
 			blacklist.clear();
-			object->SetGlobalOrientation((*i)->mSectionData.GetOgreQuat("Orientation"), true, true, &blacklist);
+			object->SetGlobalOrientation((*i)->mSectionData.GetOgreQuat("Orientation"), true, true, true, &blacklist);
 			object->SetGlobalScale((*i)->mSectionData.GetOgreVec3("Scale"));
 			continue;
 		}     

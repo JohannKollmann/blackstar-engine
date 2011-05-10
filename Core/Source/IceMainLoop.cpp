@@ -2,120 +2,142 @@
 #include "IceMainLoop.h"
 #include "IceMain.h"
 #include "IceMessageSystem.h"
+#include "OgreOggSound.h"
+#include "IceInput.h"
 
 namespace Ice
 {
 
-MainLoop::MainLoop()
-{
-	mTimeSinceLastFrame = 0.0f;
-	mTotalTimeElapsed = 0.0f;
-	mTotalLastFrameTime = timeGetTime();
-	mRunning = true;
-	mPaused = false;
-	mRunPhysics = true;
-	mCurrentState = 0;
-	AddState((GameState*)(ICE_NEW Game()));
-	AddState((GameState*)(ICE_NEW DefaultMenu()));
-	AddState((GameState*)(ICE_NEW Editor()));
-	Main::Instance().GetPhysXScene()->setSimulationListener(&mPhysicsListener);
-};
-
-void MainLoop::AddState(GameState* state)
-{
-	mStates.push_back(state);
-}
-
-void MainLoop::SetState(Ogre::String name)
-{
-	for (std::vector<GameState*>::iterator i = mStates.begin(); i != mStates.end(); i++)
+	void MainLoopThread::operator() ()
 	{
-		if ((*i)->GetName() == name)
+		for (;;)
 		{
-			mCurrentState = (*i);
-			mCurrentState->OnEnter();
-			return;
+			mFinishedStepMutex.lock();
+			if (mTerminate) break;
+			Step();
+			mFinishedStepMutex.unlock();
 		}
 	}
-}
 
-
-void MainLoop::startLoop()
-{
-	mPaused = false;
-	mTimeSinceLastFrame = 0.0f;
-	mTotalTimeElapsed = 0.0f;
-	mTotalLastFrameTime = timeGetTime();
-	while (true)
+	void MainLoopThread::Step()
 	{
-		Ogre::WindowEventUtilities::messagePump();
-		if (!doLoop()) break;;
-	}
-};
+		if (!mPaused)
+		{
+			DWORD time = timeGetTime();
+			DWORD difference = time - mTotalLastFrameTime;
+			mTimeSinceLastFrame = difference < 100 ? difference : 100;	//Max frame time: 100 ms
+			if (mFixedTimeStep && mTimeSinceLastFrame < mFixedTimeStepMiliSeconds)
+			{
+				boost::this_thread::sleep(boost::posix_time::milliseconds(mFixedTimeStepMiliSeconds - mTimeSinceLastFrame));
+				mTimeSinceLastFrame = mFixedTimeStepMiliSeconds;
+				time = timeGetTime();
+			}
 
-bool MainLoop::doLoop()
-{
-	if (!mPaused && mCurrentState)
+			mTotalTimeElapsed += mTimeSinceLastFrame;	
+
+			if (!mFixedTimeStep || mTimeSinceLastFrame >= mFixedTimeStepMiliSeconds)
+			{
+				mTotalLastFrameTime = time;
+				mTimeSinceLastFrameSeconds = static_cast<float>(mTimeSinceLastFrame * 0.001);
+				mTotalTimeElapsedSeconds = static_cast<float>(mTotalTimeElapsed * 0.001);
+				doLoop();
+			}
+		}	
+	}
+
+	void MainLoopThread::SetFixedTimeStep(DWORD stepMiliSeconds)
 	{
-		DWORD time = timeGetTime();
-		DWORD difference = time - mTotalLastFrameTime;
-		difference = difference < 100 ? difference : 100;	//Max frame time: 100 ms
-		mTotalLastFrameTime = time;
-		mTimeSinceLastFrame = static_cast<float>(difference * 0.001f);
-		mTotalTimeElapsed += mTimeSinceLastFrame;
-
-		return mCurrentState->OnUpdate(mTimeSinceLastFrame, mTotalTimeElapsed);
+		mFixedTimeStep = true;
+		mFixedTimeStepMiliSeconds = stepMiliSeconds;
 	}
-	return true;
-};
 
-void MainLoop::quitLoop()
-{
-	mRunning = false;
-	mCurrentState = 0;
-};
+	void MainLoopThread::SetPaused(bool paused)
+	{
+		mFinishedStepMutex.lock();		//wait until current frame step is finished
+		mPaused = paused;
+		mFinishedStepMutex.unlock();
+	}
 
-void MainLoop::pauseLoop()
-{
-	mPaused = true;
-};
+	void MainLoopThread::Terminate()
+	{
+		mFinishedStepMutex.lock();		//wait until current frame step is finished
+		mTerminate = true;
+		mFinishedStepMutex.unlock();
+	}
 
-void MainLoop::SetPhysics(bool enable)
-{
-	mRunPhysics = enable;
-}
+	void MainLoopThread::doLoop()
+	{
+		MessageSystem::Instance().ProcessMessages(mAccessPermitionID, mSynchronized);
+	}
 
-void MainLoop::continueLoop()
-{
-	mPaused = false;
-};
+	void MainLoopThreadSender::MsgProcessingListener::OnFinishSending(AccessPermitionID accessPermitionID)
+	{
+		Msg msg;
+		msg.typeID = mPerLoopMsg;
+		msg.params.AddFloat("TIME", mMainLoopThread->mTimeSinceLastFrameSeconds);
+		msg.params.AddFloat("TIME_TOTAL", mMainLoopThread->mTotalTimeElapsedSeconds);
+		MessageSystem::Instance().SendMessage(msg, accessPermitionID, mMsgReceiver);
+	}
 
-MainLoop& MainLoop::Instance()
-{
-	static MainLoop TheOneAndOnly;
-	return TheOneAndOnly;
-};
+	void MainLoopThreadSender::doLoop()
+	{
+		MessageSystem::Instance().ProcessMessages(mAccessPermitionID, mSynchronized, &mProcessingListener);
+	}
 
-	void MainLoop::PhysicsListener::onBeginSimulate(float time)
+	void RenderThread::ReceiveMessage(Msg &msg)
+	{
+		if (msg.typeID == GlobalMessageIDs::RENDERING_BEGIN)
+		{
+			Msg updateMsg = msg;
+			updateMsg.typeID = GlobalMessageIDs::UPDATE_PER_FRAME;
+			MulticastMessage(updateMsg);
+
+			//Sound
+			Main::Instance().GetSoundManager()->update();
+
+			//Input
+			Main::Instance().GetInputManager()->Update();
+
+			//Graphics
+			//Ogre::WindowEventUtilities::messagePump();
+			Ogre::Root::getSingleton().renderOneFrame();
+		}
+	}
+
+	PhysicsThread::PhysicsThread()
+	{
+		Main::Instance().GetPhysXScene()->setSimulationListener(&mPhysicsListener);
+	}
+	
+	void PhysicsThread::ReceiveMessage(Msg &msg)
+	{
+		if (msg.typeID == GlobalMessageIDs::PHYSICS_BEGIN)
+		{
+			OgrePhysX::World::getSingleton().startSimulate(msg.params.GetValue<float>(0));
+			OgrePhysX::World::getSingleton().syncRenderables();
+		}
+	}
+
+	void PhysicsThread::PhysicsListener::onBeginSimulate(float time)
 	{
 		Msg msg;
 		msg.params.AddFloat("TIME", time);
-		msg.type = "START_PHYSICS";
-		MessageSystem::SendInstantMessage(msg);
+		msg.typeID = GlobalMessageIDs::PHYSICS_BEGIN;
+		MessageSystem::Instance().MulticastMessage(msg, AccessPermitions::ACCESS_PHYSICS);
 	}
-	void MainLoop::PhysicsListener::onSimulate(float time)
+	void PhysicsThread::PhysicsListener::onSimulate(float time)
 	{
 		Msg msg;
 		msg.params.AddFloat("TIME", time);
-		msg.type = "SIMULATING_PHYSICS";
-		MessageSystem::SendInstantMessage(msg);
+		msg.typeID = GlobalMessageIDs::PHYSICS_SUBSTEP;
+		MessageSystem::Instance().MulticastMessage(msg, AccessPermitions::ACCESS_PHYSICS);
 	}
-	void MainLoop::PhysicsListener::onEndSimulate(float time)
+	void PhysicsThread::PhysicsListener::onEndSimulate(float time)
 	{
 		Msg msg;
 		msg.params.AddFloat("TIME", time);
-		msg.type = "END_PHYSICS";
-		MessageSystem::SendInstantMessage(msg);
+		msg.typeID = GlobalMessageIDs::PHYSICS_END;
+		MessageSystem::Instance().MulticastMessage(msg, AccessPermitions::ACCESS_PHYSICS);
 	}
 
 };

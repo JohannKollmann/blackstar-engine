@@ -16,7 +16,7 @@
 #include "IceMessageListener.h"
 #include "IceWeatherController.h"
 
-class __declspec(dllexport) GOCHydrax : public Ice::GOComponent, public Ice::GOCStaticEditorInterface, public Ice::ViewMessageListener
+class __declspec(dllexport) GOCHydrax : public Ice::GOComponent, public Ice::GOCStaticEditorInterface
 {
 private:
 	Hydrax::Hydrax *mHydrax;
@@ -118,6 +118,8 @@ public:
 		Ice::SceneManager::Instance().RegisterGOCPrototype("E", std::make_shared<GOCHydrax>());
 	}
 
+	Ice::AccessPermitionID GetAccessPermitionID() { return Ice::AccessPermitions::ACCESS_VIEW; }
+
 	GOCHydrax(void)
 	{
 		mModule = nullptr;
@@ -126,14 +128,14 @@ public:
 		mModuleTypeEnum.choices.push_back("Rectangle");
 		mModuleTypeEnum.choices.push_back("Radial");
 		mModuleTypeEnum.selection = 0;
-		Ice::MessageSystem::Instance().JoinNewsgroup(this, "START_RENDERING");
+		JoinNewsgroup(Ice::GlobalMessageIDs::UPDATE_PER_FRAME);
 	}
 	~GOCHydrax(void)
 	{
 		_clear();
 	}
 
-	goc_id_type& GetComponentID() const { static std::string name = "Hydrax"; return name; }
+	GOComponent::TypeID& GetComponentID() const { static std::string name = "Hydrax"; return name; }
 
 	void UpdatePosition(Ogre::Vector3 position)
 	{
@@ -166,7 +168,7 @@ public:
 
 	void ReceiveMessage(Ice::Msg &msg)
 	{
-		if (mHydrax && msg.type == "START_RENDERING")
+		if (mHydrax && msg.typeID == Ice::GlobalMessageIDs::UPDATE_PER_FRAME)
 		{
 			if (Ice::SceneManager::Instance().GetWeatherController())
 			{

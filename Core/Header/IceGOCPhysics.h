@@ -17,9 +17,11 @@ namespace Ice
 
 	public:
 		virtual ~GOCPhysics(void) {};
-		goc_id_family& GetFamilyID() const { static std::string name = "Physics"; return name; }
+		GOComponent::FamilyID& GetFamilyID() const { static std::string name = "Physics"; return name; }
 
 		virtual OgrePhysX::Actor* GetActor() = 0;
+
+		AccessPermitionID GetAccessPermitionID() { return AccessPermitions::ACCESS_PHYSICS; }
 
 		std::vector<ScriptParam> Body_GetSpeed(Script& caller, std::vector<ScriptParam> &vParams);
 		std::vector<ScriptParam> Body_AddImpulse(Script& caller, std::vector<ScriptParam> &vParams);
@@ -77,7 +79,7 @@ namespace Ice
 		GOCRigidBody(Ogre::String collision_mesh, float density, int shapetype);
 		~GOCRigidBody(void);
 
-		GOComponent::goc_id_type& GetComponentID() const { static std::string name = "RigidBody"; return name; }
+		GOComponent::TypeID& GetComponentID() const { static std::string name = "RigidBody"; return name; }
 
 		void UpdatePosition(Ogre::Vector3 position);
 		void UpdateOrientation(Ogre::Quaternion orientation);
@@ -119,7 +121,7 @@ namespace Ice
 		GOCStaticBody(Ogre::String collision_mesh);
 		~GOCStaticBody(void);
 
-		GOComponent::goc_id_type& GetComponentID() const { static std::string name = "StaticBody"; return name; }
+		GOComponent::TypeID& GetComponentID() const { static std::string name = "StaticBody"; return name; }
 
 		void UpdatePosition(Ogre::Vector3 position);
 		void UpdateOrientation(Ogre::Quaternion orientation);
@@ -166,7 +168,7 @@ namespace Ice
 		GOCTrigger(float sphereRadius);
 		~GOCTrigger(void);
 
-		GOComponent::goc_id_type& GetComponentID() const { static std::string name = "Trigger"; return name; }
+		GOComponent::TypeID& GetComponentID() const { static std::string name = "Trigger"; return name; }
 
 		void UpdatePosition(Ogre::Vector3 position);
 		void UpdateOrientation(Ogre::Quaternion orientation);

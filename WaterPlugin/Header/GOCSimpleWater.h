@@ -93,7 +93,7 @@ public:
 		_clear();
 	}
 
-	goc_id_type& GetComponentID() const { static std::string name = "SimpleWater"; return name; }
+	GOComponent::TypeID& GetComponentID() const { static std::string name = "SimpleWater"; return name; }
 
 	void UpdatePosition(Ogre::Vector3 position)
 	{

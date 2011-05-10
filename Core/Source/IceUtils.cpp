@@ -141,7 +141,7 @@ namespace Ice
 	void Utils::ScriptParamsToDataMap(const Script& caller, const std::vector<ScriptParam> &params, DataMap* data, int param_start_index)
 	{
 		IceAssert(data);
-		for (int i = param_start_index; i < params.size(); i++)
+		for (unsigned int i = param_start_index; i < params.size(); i++)
 		{
 			if (params[i].getType() != ScriptParam::PARM_TYPE_STRING)
 			{

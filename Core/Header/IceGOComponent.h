@@ -6,6 +6,7 @@
 #include "Ogre.h"
 #include "IceDataMap.h"
 #include "IceGOCEditorInterface.h"
+#include "IceMessageListener.h"
 
 namespace Ice
 {
@@ -13,15 +14,10 @@ namespace Ice
 	/**
 	* A component provides a certain functionality that can be attached to a game object.
 	*/
-	class DllExport GOComponent : public LoadSave::Saveable
+	class DllExport GOComponent : public LoadSave::Saveable, public MessageListener
 	{
 		friend class GameObject;
 	private:
-		//Called by GO Owner
-		void _updatePosition(const Ogre::Vector3 &position);
-		void _updateOrientation(const Ogre::Quaternion &quat);
-		void _updateScale(const Ogre::Vector3 &scale);
-		bool mTransformingOwner;
 
 		virtual bool _getIsSaveable() const { return true; }
 
@@ -33,13 +29,11 @@ namespace Ice
 		virtual void NotifyPostInit() {}
 
 	public:
-		typedef std::string goc_id_type;
-		typedef std::string goc_id_family;
+		typedef std::string TypeID;
+		typedef std::string FamilyID;
 
-		GOComponent() : mTransformingOwner(false) {}
+		GOComponent() {}
 		virtual ~GOComponent() {}
-
-		virtual int GetThreadContext() = 0;
 
 		///Sets the position of the component's owner object.
 		void SetOwnerPosition(const Ogre::Vector3 &position, bool updateReferences = false, bool updateChildren = true);
@@ -47,8 +41,11 @@ namespace Ice
 		///Sets the orientation of the component's owner object.
 		void SetOwnerOrientation(const Ogre::Quaternion &orientation, bool updateReferences = false, bool updateChildren = true);
 
+		///Sets both position and orientation of the owner object.
+		void SetOwnerTransform(const Ogre::Vector3 &position, const Ogre::Quaternion &orientation, bool updateReferences = false, bool updateChildren = true);
+
 		///Retrieves the component type identifier.
-		virtual goc_id_type& GetComponentID() const = 0;
+		virtual GOComponent::TypeID& GetComponentID() const = 0;
 
 		virtual void FreeResources(bool free) {};
 
@@ -57,7 +54,7 @@ namespace Ice
 		* @return the family name of the component.
 		* @remarks Only one component of the same family can be attached to the same object.
 		*/		
-		virtual goc_id_family& GetFamilyID() const { return GetComponentID(); }
+		virtual GOComponent::FamilyID& GetFamilyID() const { return GetComponentID(); }
 
 		///Sets the component owner object.
 		virtual void SetOwner(std::weak_ptr<GameObject> go);
@@ -82,9 +79,18 @@ namespace Ice
 
 		///Retrieves whether the component is static (movable) or not.
 		virtual bool IsStatic() { return true; }
+		
+		//Default: access everything.
+		virtual AccessPermitionID GetAccessPermitionID() { return AccessPermitions::ACCESS_ALL; }
 
-		///Dispatches an object message
-		virtual void ReceiveObjectMessage(Msg &msg) {}
+		///MessageListener default implementation
+		virtual void ReceiveMessage(Msg &msg);
+
+		///Sends a message to a component of the owner object of a certain family, if existent.
+		void SendObjectMessage(Msg &msg, GOComponent::FamilyID &familyID);
+
+		///Broadcasts a message to all other components of the owner object.
+		void BroadcastObjectMessage(Msg &msg);
 
 		///Freezes the component
 		virtual void Freeze(bool freeze) {};

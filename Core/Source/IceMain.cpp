@@ -3,7 +3,6 @@
 #include "OgreOggSound.h"
 
 #include "IceMain.h"
-#include "IceGameState.h"
 #include "IceInput.h"
 #include "IceMessageSystem.h"
 #include "IceCameraController.h"
@@ -93,8 +92,6 @@ bool Main::Run()
 
 	initScene();
 
-	MainLoop::Instance().SetState("Game");
-
 	return true;
 }
 
@@ -119,10 +116,44 @@ bool Main::Run(Ogre::RenderWindow *window, size_t OISInputWindow)
 
 	initScene();
 
-	MainLoop::Instance().SetState("Editor");
-
 	return true;
 };
+
+void  Main::CreateMainLoopThreads()
+{
+	MainLoopThread *physicsThread = new MainLoopThreadSender(new PhysicsThread(), Ice::GlobalMessageIDs::PHYSICS_BEGIN);
+	physicsThread->SetFixedTimeStep(40);
+	AddMainLoopThread("Physics", physicsThread);
+
+	MainLoopThread *renderThread = new MainLoopThreadSender(new RenderThread(), Ice::GlobalMessageIDs::RENDERING_BEGIN);
+	AddMainLoopThread("View", renderThread);
+
+	MainLoopThread *indyThread = new MainLoopThread(Ice::AccessPermitions::ACCESS_NONE);
+	indyThread->SetFixedTimeStep(40);
+	AddMainLoopThread("Independant", indyThread);
+
+	MainLoopThread *synchronized = new MainLoopThread(Ice::AccessPermitions::ACCESS_ALL);
+	synchronized->SetFixedTimeStep(40);
+	synchronized->SetSynchronized(true);
+	AddMainLoopThread("Synchronized", synchronized);
+}
+
+void Main::AddMainLoopThread(Ogre::String name, MainLoopThread *loopThread, bool createThread)
+{
+	MainLoopItem item;
+	item.mainLoopThread = loopThread;
+	item.thread = createThread ? new boost::thread(boost::ref(*loopThread)) : nullptr;
+	mMainLoopThreads[name] = item;
+}
+void Main::PauseAllMainLoopThreads(bool paused)
+{
+	ITERATE(i, mMainLoopThreads)
+		i->second.mainLoopThread->SetPaused(paused);
+}
+MainLoopThread* Main::GetMainLoopThread(Ogre::String name)
+{
+	return mMainLoopThreads[name].mainLoopThread;
+}
 
 void Main::AddOgreResourcePath(Ogre::String dir, Ogre::String resourceGroup)
 {
@@ -149,6 +180,38 @@ void Main::InitOgreResources()
 void Main::initScene()
 {
 	Ogre::LogManager::getSingleton().logMessage("Main initScene");
+
+	Ice::MessageSystem::Instance().CreateNewsgroup(GlobalMessageIDs::UPDATE_PER_FRAME);
+	Ice::MessageSystem::Instance().CreateNewsgroup(GlobalMessageIDs::RENDERING_BEGIN);
+
+	Ice::MessageSystem::Instance().CreateNewsgroup(GlobalMessageIDs::PHYSICS_BEGIN);
+	Ice::MessageSystem::Instance().CreateNewsgroup(GlobalMessageIDs::PHYSICS_SUBSTEP);
+	Ice::MessageSystem::Instance().CreateNewsgroup(GlobalMessageIDs::PHYSICS_END);
+
+	Ice::MessageSystem::Instance().CreateNewsgroup(GlobalMessageIDs::KEY_DOWN);
+	Ice::MessageSystem::Instance().CreateNewsgroup(GlobalMessageIDs::KEY_UP);
+	Ice::MessageSystem::Instance().CreateNewsgroup(GlobalMessageIDs::MOUSE_DOWN);
+	Ice::MessageSystem::Instance().CreateNewsgroup(GlobalMessageIDs::MOUSE_UP);
+	Ice::MessageSystem::Instance().CreateNewsgroup(GlobalMessageIDs::MOUSE_MOVE);
+
+	Ice::MessageSystem::Instance().CreateNewsgroup(GlobalMessageIDs::GAMESTATE_ENTER);
+	Ice::MessageSystem::Instance().CreateNewsgroup(GlobalMessageIDs::GAMESTATE_LEAVE);
+
+	Ice::MessageSystem::Instance().CreateNewsgroup(GlobalMessageIDs::CONSOLE_INGAME);
+
+	Ice::MessageSystem::Instance().CreateNewsgroup(GlobalMessageIDs::LOADLEVEL_BEGIN);
+	Ice::MessageSystem::Instance().CreateNewsgroup(GlobalMessageIDs::LOADLEVEL_END);
+	Ice::MessageSystem::Instance().CreateNewsgroup(GlobalMessageIDs::SAVELEVEL_BEGIN);
+	Ice::MessageSystem::Instance().CreateNewsgroup(GlobalMessageIDs::SAVELEVEL_END);
+
+	Ice::MessageSystem::Instance().CreateNewsgroup(GlobalMessageIDs::ACTOR_ONSLEEP);
+	Ice::MessageSystem::Instance().CreateNewsgroup(GlobalMessageIDs::ACTOR_ONWAKE);
+	Ice::MessageSystem::Instance().CreateNewsgroup(GlobalMessageIDs::MATERIAL_ONCONTACT);
+
+	Ice::MessageSystem::Instance().CreateNewsgroup(GlobalMessageIDs::REPARSE_SCRIPTS_PRE);
+	Ice::MessageSystem::Instance().CreateNewsgroup(GlobalMessageIDs::REPARSE_SCRIPTS_POST);
+
+	MessageSystem::Instance().CreateNewsgroup(GlobalMessageIDs::ENABLE_GAME_CLOCK);
 
 	//Start up OgrePhysX
 	OgrePhysX::World::getSingleton().init();
@@ -514,7 +577,13 @@ void Main::Shutdown()
 			Ogre::LogManager::getSingleton().logMessage(*i);
 		delete mRoot;
 		mRoot = nullptr;
-		MainLoop::Instance().quitLoop();
+		ITERATE(i, mMainLoopThreads)
+		{
+			i->second.mainLoopThread->Terminate();
+			i->second.thread->join();
+			delete i->second.mainLoopThread;
+			if (i->second.thread) delete i->second.thread;
+		}
 	}
 }
 
@@ -613,12 +682,6 @@ void Main::ClearPlugins()
 	}
 	mPluginLibs.clear();
 }
-
-void Main::StartMainLoop()
-{
-	MainLoop::Instance().startLoop();
-}
-
 
 Main& Main::Instance()
 {

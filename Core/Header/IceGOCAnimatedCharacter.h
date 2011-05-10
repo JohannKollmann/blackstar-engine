@@ -17,7 +17,7 @@ namespace Ice
 		GOCAnimatedCharacter *mGOCRagdoll;
 	};
 
-	class DllExport GOCAnimatedCharacter : public GOCEditorInterface, public GOCOgreNodeUser, public ViewMessageListener
+	class DllExport GOCAnimatedCharacter : public GOCEditorInterface, public GOCOgreNodeUser
 	{
 	private:
 		Ogre::Entity *mEntity;
@@ -41,6 +41,8 @@ namespace Ice
 		GOCAnimatedCharacter(Ogre::String meshname, Ogre::Vector3 scale = Ogre::Vector3(1,1,1));
 		~GOCAnimatedCharacter(void);
 
+		AccessPermitionID GetAccessPermitionID() { return AccessPermitions::ACCESS_VIEW; }
+
 		OgrePhysX::Ragdoll* GetRagdoll() { return mRagdoll; }
 
 		std::list<GameObject*> mBoneObjects;
@@ -50,11 +52,10 @@ namespace Ice
 
 		void Kill();
 
-		goc_id_family& GetFamilyID() const { static std::string name = "View"; return name; }
-		GOComponent::goc_id_type& GetComponentID() const { static std::string name = "Skeleton"; return name; }
+		GOComponent::FamilyID& GetFamilyID() const { static std::string name = "View"; return name; }
+		GOComponent::TypeID& GetComponentID() const { static std::string name = "Skeleton"; return name; }
 
 		void ReceiveMessage(Msg &msg);
-		void ReceiveObjectMessage(Msg &msg);
 
 		void SetOwner(std::weak_ptr<GameObject> go);
 		void SetParameters(DataMap *parameters);
@@ -99,7 +100,7 @@ namespace Ice
 		void Init();
 		~GOCAnimatedCharacterBone(void);
 
-		GOComponent::goc_id_type& GetComponentID() const { static std::string name = "AnimatedCharacterBone"; return name; }
+		GOComponent::TypeID& GetComponentID() const { static std::string name = "AnimatedCharacterBone"; return name; }
 
 		void SetParameters(DataMap *parameters);
 		void GetParameters(DataMap *parameters);

@@ -5,7 +5,7 @@
 #include "OgrePlugin.h"
 #include "IceMessageListener.h"
 
-class __declspec(dllexport) ScriptExtensions : public Ogre::Plugin, public Ice::SimulationMessageListener
+class __declspec(dllexport) ScriptExtensions : public Ogre::Plugin, public Ice::SynchronizedMessageListener
 {
 public:
 	static ScriptExtensions& GetInstance();

@@ -40,7 +40,7 @@
 namespace Ice
 {
 
-	SceneManager::SceneManager(void)
+	SceneManager::SceneManager()
 	{
 		mWeatherController = 0;
 		mIndoorRendering = false;
@@ -55,21 +55,10 @@ namespace Ice
 
 		mClearingScene = false;
 
-		MessageSystem::CreateNewsgroup("ENABLE_GAME_CLOCK");
-		MessageSystem::JoinNewsgroup(this, GlobalMessageIDs::UPDATE_PER_FRAME);
-
-		Ice::MessageSystem::CreateNewsgroup("LOADLEVEL_BEGIN");
-		Ice::MessageSystem::CreateNewsgroup("LOADLEVEL_END");
-		Ice::MessageSystem::CreateNewsgroup("SAVELEVEL_BEGIN");
-		Ice::MessageSystem::CreateNewsgroup("SAVELEVEL_END");
-
-		Ice::MessageSystem::CreateNewsgroup("ACTOR_ONSLEEP");
-		Ice::MessageSystem::CreateNewsgroup("ACTOR_ONWAKE");
-
-		Ice::MessageSystem::CreateNewsgroup("MATERIAL_ONCONTACT");
+		JoinNewsgroup(GlobalMessageIDs::UPDATE_PER_FRAME);
 	}
 
-	SceneManager::~SceneManager(void)
+	SceneManager::~SceneManager()
 	{
 	}
 
@@ -86,17 +75,6 @@ namespace Ice
 	void SceneManager::RegisterPlayer(GameObjectPtr player)
 	{
 		mPlayer = player;
-	}
-
-	void SceneManager::UpdateGameObjects()
-	{
-		auto cpy = mObjectMessageQueue;
-		mObjectMessageQueue.clear();
-		for (unsigned int i = 0; i < cpy.size(); i++)
-		{
-			GameObjectPtr object = cpy[i].lock();
-			if (object.get()) object->ProcessMessages();
-		}
 	}
 
 	void SceneManager::RegisterComponentDefaultParams(Ogre::String editFamily, Ogre::String type, DataMap &params)
@@ -476,8 +454,8 @@ namespace Ice
 	void SceneManager::LoadLevel(Ogre::String levelfile, bool load_dynamic)
 	{
 		Msg msg;
-		msg.type = "LOADLEVEL_BEGIN";
-		MessageSystem::SendInstantMessage(msg);
+		msg.typeID = GlobalMessageIDs::LOADLEVEL_BEGIN;
+		MessageSystem::Instance().MulticastMessage(msg, true);
 
 		ClearGameObjects();
 
@@ -492,15 +470,15 @@ namespace Ice
 		ls->CloseFile();
 		delete ls;
 
-		msg.type = "LOADLEVEL_END";
-		MessageSystem::SendInstantMessage(msg);
+		msg.typeID = GlobalMessageIDs::LOADLEVEL_BEGIN;
+		MessageSystem::Instance().MulticastMessage(msg, true);
 	}
 
 	void SceneManager::SaveLevel(Ogre::String levelfile)
 	{
 		Msg msg;
-		msg.type = "SAVELEVEL_BEGIN";
-		MessageSystem::SendInstantMessage(msg);
+		msg.typeID = GlobalMessageIDs::SAVELEVEL_BEGIN;
+		MessageSystem::Instance().MulticastMessage(msg, true);
 
 		ShowEditorMeshes(false);
 		LoadSave::SaveSystem *ss=LoadSave::LoadSave::Instance().CreateSaveFile(levelfile, levelfile + ".xml");
@@ -515,8 +493,8 @@ namespace Ice
 		ss->CloseFiles();
 		ICE_DELETE ss;
 
-		msg.type = "SAVELEVEL_END";
-		MessageSystem::SendInstantMessage(msg);
+		msg.typeID = GlobalMessageIDs::SAVELEVEL_END;
+		MessageSystem::Instance().MulticastMessage(msg, true);
 	}
 
 	void SceneManager::SetParameters(DataMap *parameters)
@@ -755,7 +733,7 @@ namespace Ice
 
 	void SceneManager::ReceiveMessage(Msg &msg)
 	{
-		if (msg.type == GlobalMessageIDs::UPDATE_PER_FRAME)
+		if (msg.typeID == GlobalMessageIDs::UPDATE_PER_FRAME)
 		{
 			float time = msg.params.GetFloat("TIME");
 			if (mClockEnabled)
@@ -774,9 +752,9 @@ namespace Ice
 	{
 		mClockEnabled = enable;
 		Msg msg;
-		msg.type = "ENABLE_GAME_CLOCK";
+		msg.typeID = GlobalMessageIDs::ENABLE_GAME_CLOCK;
 		msg.params.AddBool("enable", enable);
-		MessageSystem::SendInstantMessage(msg);
+		MessageSystem::Instance().MulticastMessage(msg);
 	}
 
 	void SceneManager::SetTimeScale(float scale)
@@ -1006,7 +984,7 @@ namespace Ice
 	}
 	SceneManager::OggCamSync::OggCamSync()
 	{
-		MessageSystem::JoinNewsgroup(this, GlobalMessageIDs::UPDATE_PER_FRAME);
+		JoinNewsgroup(GlobalMessageIDs::UPDATE_PER_FRAME);
 	}
 	void SceneManager::OggCamSync::ReceiveMessage(Msg &msg)
 	{

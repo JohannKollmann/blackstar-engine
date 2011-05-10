@@ -11,7 +11,7 @@
 namespace Ice
 {
 
-	class DllExport NavigationMesh : public LoadSave::Saveable, public SimulationMessageListener
+	class DllExport NavigationMesh : public LoadSave::Saveable, public PhysicsMessageListener
 	{
 	private:
 		static const float NODE_DIST;

@@ -106,6 +106,8 @@ Edit::Edit(wxWindow* parent) : wxOgre(parent, -1)
 	mMovSpeed = 10.0f;
 	mRotSpeed = 0.2f;
 
+	mEngineLoopBlockers = 0;
+
 	mCurrentMaterialSelection.mSubEntity = NULL;
 	mCurrentMaterialSelection.mBillboardSet = NULL;
 	mCurrentMaterialSelection.mOriginalMaterialName = "";
@@ -116,7 +118,7 @@ Edit::Edit(wxWindow* parent) : wxOgre(parent, -1)
 void Edit::PostInit()
 {
 	wxEdit::Instance().GetMainToolbar()->RegisterTool("Physics", "WorldSettings", "Data/Editor/Intern/Editor_gewicht_04.png", Edit::OnToolbarEvent, "Enables/Disables Physics simulation", true, true);
-	wxEdit::Instance().GetMainToolbar()->RegisterTool("TimeCycle", "WorldSettings", "Data/Editor/Intern/editor_clock.png", Edit::OnToolbarEvent, "Enables/Disables game clock", true);
+	wxEdit::Instance().GetMainToolbar()->RegisterTool("TimeCycle", "WorldSettings", "Data/Editor/Intern/editor_clock.png", Edit::OnToolbarEvent, "Enables/Disables game clock", true, true);
 	wxEdit::Instance().GetMainToolbar()->SetGroupStatus("WorldSettings", true);
 
 	wxEdit::Instance().GetMainToolbar()->RegisterTool("XAxisLock", "Transform", "Data/Editor/Intern/xAxis.png", Edit::OnToolbarEvent, "Enables/Disables X Axis lock for object movements/rotations", true);
@@ -155,12 +157,12 @@ void Edit::PostInit()
 	mPivotNode = Ice::Main::Instance().GetOgreSceneMgr()->getRootSceneNode()->createChildSceneNode();
 	mPivotOffsetNode = mPivotNode->createChildSceneNode();
 
-	Ice::MessageSystem::JoinNewsgroup(this, GlobalMessageIDs::MOUSE_MOVE);
-	Ice::MessageSystem::JoinNewsgroup(this, GlobalMessageIDs::UPDATE_PER_FRAME);
+	JoinNewsgroup(Ice::GlobalMessageIDs::MOUSE_MOVE);
+	JoinNewsgroup(Ice::GlobalMessageIDs::UPDATE_PER_FRAME);
 
 	Ice::Main::Instance().GetPreviewSceneMgr()->getRootSceneNode()->createChildSceneNode("EditorPreview");
 
-	Ice::SceneManager().Instance().ShowEditorMeshes(true);
+	Ice::SceneManager::Instance().ShowEditorMeshes(true);
 }
 
 void Edit::OnToolbarEvent(int toolID, Ogre::String toolname)
@@ -185,15 +187,11 @@ void Edit::OnToolbarEvent(int toolID, Ogre::String toolname)
 
 	if (toolname == "Physics")
 	{
-		STOP_MAINLOOP
-		Ice::MainLoop::Instance().SetPhysics(checked);
-		RESUME_MAINLOOP
+		Ice::Main::Instance().GetMainLoopThread("Physics")->SetPaused(!checked);
 	}
 	if (toolname == "TimeCycle")
 	{
-		STOP_MAINLOOP
 		Ice::SceneManager::Instance().EnableClock(checked);
-		RESUME_MAINLOOP
 	}
 	if (toolname == "BrushMode")
 	{
@@ -739,20 +737,24 @@ void Edit::OnSelectResource()
 
 void Edit::ClearPreviewObject()
 {
+	STOP_MAINLOOP
 	for (auto i = mPreviewObjects.begin(); i != mPreviewObjects.end(); i++)
 	{
 		Ice::SceneManager::Instance().RemoveGameObject((*i)->GetID());
 	}
 	mPreviewObjects.clear();
+	RESUME_MAINLOOP
 }
 void Edit::CreatePreviewObject()
 {
+	STOP_MAINLOOP
 	Ice::GameObjectPtr preview = InsertObject(0, true, true);
 	if (preview)
 	{
 		if (preview->GetComponent("Physics")) preview->RemoveComponent("Physics");
 		mPreviewObjects.push_back(preview);
 	}
+	RESUME_MAINLOOP
 }
 
 void Edit::OnLoadWorld(Ogre::String fileName)
@@ -852,7 +854,7 @@ Ice::GameObjectPtr Edit::InsertObject(Ice::GameObjectPtr parent, bool align, boo
 
 	std::set<Ice::GameObject*> blacklist;
 	if (align) AlignObjectWithMesh(object);
-	else object->SetGlobalPosition(GetInsertPosition(), true, true, &blacklist); 
+	else object->SetGlobalPosition(GetInsertPosition(), true, true, true, &blacklist); 
 
 	if (!create_only)
 	{
@@ -903,7 +905,7 @@ void Edit::OnInsertObjectAsChild( wxCommandEvent& WXUNUSED(event) )
 
 void Edit::OnDeleteObject( wxCommandEvent& WXUNUSED(event) )
 {
-	wxEdit::Instance().GetMainNotebook()->GetOgreWindow()->SetPaused(true);
+	STOP_MAINLOOP
 
 	wxEditIceGameObject *propgrid_page = dynamic_cast<wxEditIceGameObject*>(wxEdit::Instance().GetpropertyWindow()->GetCurrentPage());
 	if (propgrid_page)
@@ -950,7 +952,11 @@ void Edit::OnDeleteObject( wxCommandEvent& WXUNUSED(event) )
 				if (object.get() == mMoverReset.Mover.lock().get()) mMoverReset.Mover.reset();
 				Ice::SceneManager::Instance().RemoveGameObject(object->GetID());
 			}
-			else if (input == wxID_CANCEL) return;
+			else if (input == wxID_CANCEL)
+			{
+				RESUME_MAINLOOP
+				return;
+			}
 		}
 	}
 	if (!skip)
@@ -963,7 +969,7 @@ void Edit::OnDeleteObject( wxCommandEvent& WXUNUSED(event) )
 	mSelectedObjects.clear();
 	wxEdit::Instance().GetWorldExplorer()->GetSceneTree()->Update();
 	wxEdit::Instance().GetWorldExplorer()->GetMaterialTree()->Update();
-	wxEdit::Instance().GetMainNotebook()->GetOgreWindow()->SetPaused(false);
+	RESUME_MAINLOOP
 }
 
 void Edit::OnCreateObjectGroup( wxCommandEvent& WXUNUSED(event) )
@@ -1006,11 +1012,11 @@ void Edit::OnSaveObjectGroup( wxCommandEvent& WXUNUSED(event) )
 			DeselectAllObjects();
 			Ogre::Vector3 position = go->GetGlobalPosition();
 			std::set<Ice::GameObject*> blacklist;
-			go->SetGlobalPosition(Ogre::Vector3(0,0,0), true, true, &blacklist);
+			go->SetGlobalPosition(Ogre::Vector3(0,0,0), true, true, true, &blacklist);
 			blacklist.clear();
 			ss->SaveObject(go.get(), "Root");
 			ss->CloseFiles();
-			go->SetGlobalPosition(position, true, true, &blacklist);
+			go->SetGlobalPosition(position, true, true, true, &blacklist);
 			SelectObject(go);
 			delete ss;
 		}
@@ -1247,6 +1253,7 @@ void Edit::DeselectObject(Ice::GameObjectPtr object)
 
 void Edit::DeselectAllObjects()
 {
+	STOP_MAINLOOP		
 	wxEdit::Instance().GetMainToolbar()->SetGroupStatus("Game", false);
 	//Ogre::LogManager::getSingleton().logMessage("Deselect all Objects");
 	for (std::list<EditorSelection>::iterator i = mSelectedObjects.begin(); i != mSelectedObjects.end(); i++)
@@ -1261,6 +1268,7 @@ void Edit::DeselectAllObjects()
 		DeselectChildren((*i).mObject);
 	}
 	mSelectedObjects.clear();
+	RESUME_MAINLOOP
 }
 
 void Edit::AlignObjectWithMesh(const Ice::GameObjectPtr &object, bool rotate)
@@ -1304,7 +1312,7 @@ void Edit::AlignObjectWithMesh(const Ice::GameObjectPtr &object, bool rotate)
 			else offset = (visuals->GetNode()->getScale() * 0.5f) * normal;//object->GetVisual()->getBoundingBox().getSize()
 		}
 		std::set<Ice::GameObject*> blacklist;
-		object->SetGlobalPosition(position + offset, true, true, &blacklist);
+		object->SetGlobalPosition(position + offset, true, true, true, &blacklist);
 	}
 
 }
@@ -1334,11 +1342,11 @@ void Edit::SetObjectRotationSpeed(float factor)
 
 void Edit::ReceiveMessage(Ice::Msg &msg)
 {
-	if (msg.type == GlobalMessageIDs::MOUSE_MOVE)
+	if (msg.typeID == Ice::GlobalMessageIDs::MOUSE_MOVE)
 	{
 		OnMouseMove(Ogre::Degree(msg.params.GetInt("ROT_X_REL")), Ogre::Degree(msg.params.GetInt("ROT_Y_REL")));
 	}
-	if (msg.type == GlobalMessageIDs::UPDATE_PER_FRAME)
+	if (msg.typeID == Ice::GlobalMessageIDs::UPDATE_PER_FRAME)
 	{
 		Ice::GameObjectPtr mover = mMoverReset.Mover.lock();
 		if (mover.get())
@@ -1505,10 +1513,31 @@ Ogre::Vector3 Edit::GetInsertPosition()
 
 void Edit::OnRender()
 {
-	Ice::MainLoop::Instance().doLoop();
+	mBlockEngineLoopCond.lock();
+	if (mEngineLoopBlockers == 0) 
+	{
+		Ice::Main::Instance().GetMainLoopThread("Synchronized")->Step();
+		Ice::Main::Instance().GetMainLoopThread("View")->Step();
+	}
+	mBlockEngineLoopCond.unlock();
 }
 
 void Edit::OnSize(wxSizeEvent& event)
 {
 	wxOgre::OnSize(event);
+}
+
+void Edit::IncBlockEngineLoop()
+{
+	mBlockEngineLoopCond.lock();
+	if (mEngineLoopBlockers == 0) Ice::MessageSystem::Instance().LockMessageProcessing();
+	mEngineLoopBlockers++;
+	mBlockEngineLoopCond.unlock();
+}
+void Edit::DecBlockEngineLoop()
+{
+	mBlockEngineLoopCond.lock();
+	if (mEngineLoopBlockers > 0) mEngineLoopBlockers--;
+	if (mEngineLoopBlockers == 0) Ice::MessageSystem::Instance().UnlockMessageProcessing();
+	mBlockEngineLoopCond.unlock();
 }
