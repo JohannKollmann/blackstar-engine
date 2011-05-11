@@ -663,7 +663,7 @@ namespace Ice
 	void
 	SceneManager::LogMessage(std::string strError)
 	{
-		Ogre::LogManager::getSingleton().logMessage(strError);
+		Log::Instance().LogMessage(strError);
 	}
 
 	std::vector<ScriptParam>

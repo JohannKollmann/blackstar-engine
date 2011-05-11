@@ -12,7 +12,7 @@
 #include "IceLeakWatch.h"
 #include "OgreString.h"
 #include "OgreStringConverter.h"
-#include "OgreLogManager.h"
+#include "IceLog.h"
 
 namespace OgrePhysX
 {
@@ -39,27 +39,27 @@ class NxControllerManager;
 	#define IceAssert(expression) \
 	if (!(expression)) \
 	{ \
-		Ogre::LogManager::getSingleton().logMessage(Ogre::String("Assertion failed: ") + #expression + Ogre::String(", function ") + __FUNCTION__ + Ogre::String(", file ") + __FILE__ +  Ogre::String(", line ") + Ogre::StringConverter::toString(__LINE__)); \
+		Ice::Log::Instance().LogCriticalError(Ogre::String("Assertion failed: ") + #expression + Ogre::String(", function ") + __FUNCTION__ + Ogre::String(", file ") + __FILE__ +  Ogre::String(", line ") + Ogre::StringConverter::toString(__LINE__)); \
 		__debugbreak();	\
 	}
 #else
 	#define IceAssert(expression) \
 	if (!(expression)) \
 	{ \
-		Ogre::LogManager::getSingleton().logMessage(Ogre::String("Assertion failed: ") + #expression + Ogre::String(", function ") + __FUNCTION__ + Ogre::String(", file ") + __FILE__ +  Ogre::String(", line ") + Ogre::StringConverter::toString(__LINE__)); \
+		Ice::Log::Instance().LogCriticalError(Ogre::String("Assertion failed: ") + #expression + Ogre::String(", function ") + __FUNCTION__ + Ogre::String(", file ") + __FILE__ +  Ogre::String(", line ") + Ogre::StringConverter::toString(__LINE__)); \
 	}
 #endif
 
 #if ICE_NOWARNINGS
 	#define IceWarning(message)
 #else
-	#define IceWarning(message) Ogre::LogManager::getSingleton().logMessage(Ogre::String("Warning: ") + message + Ogre::String(" (") + __FUNCTION__ + Ogre::String(", file ") + __FILE__ +  Ogre::String(")"));
+	#define IceWarning(message) Ice::Log::Instance().LogWarning(message + Ogre::String(" (") + __FUNCTION__ + Ogre::String(", file ") + __FILE__ +  Ogre::String(")"));
 #endif
 
 #if ICE_NONOTES
 	#define IceNote(message)
 #else
-	#define IceNote(message) Ogre::LogManager::getSingleton().logMessage(message + Ogre::String(", function ") + __FUNCTION__);
+	#define IceNote(message) Ice::Log::Instance().LogMessage(message + Ogre::String(", function ") + __FUNCTION__);
 #endif
 
 

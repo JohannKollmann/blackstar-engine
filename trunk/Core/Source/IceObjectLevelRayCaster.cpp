@@ -21,7 +21,7 @@ GameObject* ObjectLevelRayCaster::GetFirstHit(bool include_all)
 	mResultsIterator = mResults.begin();
 	if (mResultsIterator != mResults.end())
 	{
-		//Ogre::LogManager::getSingleton().logMessage("GetFirstHit: " + (*mResultsIterator).movable->getParentNode()->getName() + " "  + (*mResultsIterator).movable->getMovableType());
+		//Log::Instance().LogMessage("GetFirstHit: " + (*mResultsIterator).movable->getParentNode()->getName() + " "  + (*mResultsIterator).movable->getMovableType());
 		if ((*mResultsIterator).movable->getMovableType() == "Entity" || (*mResultsIterator).movable->getMovableType() == "BillboardSet")
 		{
 			if (!(*mResultsIterator).movable->getUserAny().isEmpty())
@@ -33,7 +33,7 @@ GameObject* ObjectLevelRayCaster::GetFirstHit(bool include_all)
 		}
 		else return GetNextHit(include_all);
 	}
-	//Ogre::LogManager::getSingleton().logMessage("Warning: ObjectLevelRayCaster::GetFirstHit() - return NULL");
+	//Log::Instance().LogMessage("Warning: ObjectLevelRayCaster::GetFirstHit() - return NULL");
 	return NULL;
 }
 
@@ -42,7 +42,7 @@ GameObject* ObjectLevelRayCaster::GetNextHit(bool include_all)
 	mResultsIterator++;
 	if (mResultsIterator != mResults.end())
 	{
-		//Ogre::LogManager::getSingleton().logMessage("GetNextHit: " + (*mResultsIterator).movable->getParentNode()->getName() + " " + (*mResultsIterator).movable->getMovableType());
+		//Log::Instance().LogMessage("GetNextHit: " + (*mResultsIterator).movable->getParentNode()->getName() + " " + (*mResultsIterator).movable->getMovableType());
 		if ((*mResultsIterator).movable->getMovableType() == "Entity")
 		{
 			if (!(*mResultsIterator).movable->getUserAny().isEmpty())
@@ -54,7 +54,7 @@ GameObject* ObjectLevelRayCaster::GetNextHit(bool include_all)
 		}
 		else return GetNextHit(include_all);
 	}
-	//Ogre::LogManager::getSingleton().logMessage("Warning: ObjectLevelRayCaster::GetNextHit() - return NULL");
+	//Log::Instance().LogMessage("Warning: ObjectLevelRayCaster::GetNextHit() - return NULL");
 	return NULL;
 }
 

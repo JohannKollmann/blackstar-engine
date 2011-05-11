@@ -11,11 +11,9 @@ namespace Ice
 	void MainLoopThread::operator() ()
 	{
 		for (;;)
-		{
-			mFinishedStepMutex.lock();
+		{		
 			if (mTerminate) break;
 			Step();
-			mFinishedStepMutex.unlock();
 		}
 	}
 
@@ -23,6 +21,7 @@ namespace Ice
 	{
 		if (!mPaused)
 		{
+			mDoingStep = true;
 			DWORD time = timeGetTime();
 			DWORD difference = time - mTotalLastFrameTime;
 			mTimeSinceLastFrame = difference < 100 ? difference : 100;	//Max frame time: 100 ms
@@ -42,7 +41,9 @@ namespace Ice
 				mTotalTimeElapsedSeconds = static_cast<float>(mTotalTimeElapsed * 0.001);
 				doLoop();
 			}
+			mDoingStep = false;
 		}	
+		else boost::this_thread::sleep(boost::posix_time::milliseconds(20));
 	}
 
 	void MainLoopThread::SetFixedTimeStep(DWORD stepMiliSeconds)
@@ -53,16 +54,14 @@ namespace Ice
 
 	void MainLoopThread::SetPaused(bool paused)
 	{
-		mFinishedStepMutex.lock();		//wait until current frame step is finished
 		mPaused = paused;
-		mFinishedStepMutex.unlock();
+		while (mPaused && mDoingStep) boost::this_thread::yield();
 	}
 
 	void MainLoopThread::Terminate()
 	{
-		mFinishedStepMutex.lock();		//wait until current frame step is finished
 		mTerminate = true;
-		mFinishedStepMutex.unlock();
+		while (mDoingStep) boost::this_thread::yield();
 	}
 
 	void MainLoopThread::doLoop()
@@ -113,8 +112,12 @@ namespace Ice
 	{
 		if (msg.typeID == GlobalMessageIDs::PHYSICS_BEGIN)
 		{
+			MulticastMessage(msg);
 			OgrePhysX::World::getSingleton().startSimulate(msg.params.GetValue<float>(0));
 			OgrePhysX::World::getSingleton().syncRenderables();
+			Msg endPhysicsMsg = msg;
+			msg.typeID = GlobalMessageIDs::PHYSICS_END;
+			MulticastMessage(msg);
 		}
 	}
 
@@ -122,22 +125,14 @@ namespace Ice
 	{
 		Msg msg;
 		msg.params.AddFloat("TIME", time);
-		msg.typeID = GlobalMessageIDs::PHYSICS_BEGIN;
+		msg.typeID = GlobalMessageIDs::PHYSICS_SUBSTEP;
 		MessageSystem::Instance().MulticastMessage(msg, AccessPermitions::ACCESS_PHYSICS);
 	}
 	void PhysicsThread::PhysicsListener::onSimulate(float time)
 	{
-		Msg msg;
-		msg.params.AddFloat("TIME", time);
-		msg.typeID = GlobalMessageIDs::PHYSICS_SUBSTEP;
-		MessageSystem::Instance().MulticastMessage(msg, AccessPermitions::ACCESS_PHYSICS);
 	}
 	void PhysicsThread::PhysicsListener::onEndSimulate(float time)
 	{
-		Msg msg;
-		msg.params.AddFloat("TIME", time);
-		msg.typeID = GlobalMessageIDs::PHYSICS_END;
-		MessageSystem::Instance().MulticastMessage(msg, AccessPermitions::ACCESS_PHYSICS);
 	}
 
 };

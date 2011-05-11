@@ -12,7 +12,7 @@ LevelMesh::LevelMesh(Ogre::String mesh)
 	mNode = Main::Instance().GetOgreSceneMgr()->getRootSceneNode()->createChildSceneNode("LevelMesh");
 	if (!Ogre::ResourceGroupManager::getSingleton().resourceExists("General", mesh))
 	{
-		Ogre::LogManager::getSingleton().logMessage("Error: Resource \"" + mesh + "\" does not exist. Loading dummy Resource...");
+		Log::Instance().LogMessage("Error: Resource \"" + mesh + "\" does not exist. Loading dummy Resource...");
 		mesh = "DummyMesh.mesh";
 	}
 	mEntity = Main::Instance().GetOgreSceneMgr()->createEntity("LevelMesh-entity", mesh);

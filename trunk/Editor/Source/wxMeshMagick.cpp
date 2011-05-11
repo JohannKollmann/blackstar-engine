@@ -129,7 +129,7 @@ void wxMeshMagick::OnApply(wxCommandEvent& event)
 			Ogre::StringVector components = Ogre::StringUtil::split(Ogre::String(mScaleEdt->GetLineText(0).c_str()), "/");
 			if (components.size() != 3)
 			{
-				Ogre::LogManager::getSingleton().logMessage("Wrong Params for Ogre::Vector3!");
+				Ice::Log::Instance().LogMessage("Wrong Params for Ogre::Vector3!");
 				return;
 			}
 			Ogre::Any value = Ogre::Any(Ogre::Vector3(
@@ -163,7 +163,7 @@ void wxMeshMagick::OnApply(wxCommandEvent& event)
 			Ogre::StringVector components = Ogre::StringUtil::split(Ogre::String(mRotateEdt->GetLineText(0).c_str()), "/");
 			if (components.size() != 4)
 			{
-				Ogre::LogManager::getSingleton().logMessage("Wrong Params for Ogre::Quaternion!");
+				Ice::Log::Instance().LogMessage("Wrong Params for Ogre::Quaternion!");
 				return;
 			}
 			Ogre::Any value = Ogre::Any(Ogre::Quaternion(

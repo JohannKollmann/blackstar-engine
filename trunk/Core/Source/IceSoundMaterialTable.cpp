@@ -53,7 +53,7 @@ namespace Ice
 		auto test = mMatNxBinds.find(mat);
 		if (test == mMatNxBinds.end())
 		{
-			Ogre::LogManager::getSingleton().logMessage("Error in SoundMaterialTable::SetOgreBinding: Material " + mat + " does not exist!");
+			Log::Instance().LogMessage("Error in SoundMaterialTable::SetOgreBinding: Material " + mat + " does not exist!");
 			return;
 		}
 		auto x = mOgreBindings.find(ogreMat);
@@ -71,7 +71,7 @@ namespace Ice
 		auto x = mMatNxBinds.find(name);
 		if (x != mMatNxBinds.end())
 		{
-			Ogre::LogManager::getSingleton().logMessage("Error in SoundMaterialTable::AddMaterialProfile: Material " + name + " already exists!");
+			Log::Instance().LogMessage("Error in SoundMaterialTable::AddMaterialProfile: Material " + name + " already exists!");
 			return;
 		}
 		mMatNxBinds.insert(std::make_pair<Ogre::String, NxMatID>(name, matID));
@@ -93,7 +93,7 @@ namespace Ice
 		auto i = mOgreBindings.find(ogreMat);
 		if (i == mOgreBindings.end())
 		{
-			//Ogre::LogManager::getSingleton().logMessage("Error in SoundMaterialTable::GetMaterialNameByOgreMaterial: Invalid material (" + ogreMat + ")");
+			//Log::Instance().LogMessage("Error in SoundMaterialTable::GetMaterialNameByOgreMaterial: Invalid material (" + ogreMat + ")");
 			return "DefaultMaterial";
 		}
 		return i->second;
@@ -104,7 +104,7 @@ namespace Ice
 		auto i = mNxMatBinds.find(id);
 		if (i == mNxMatBinds.end())
 		{
-			//Ogre::LogManager::getSingleton().logMessage("Error in SoundMaterialTable::GetMaterialNameByOgreMaterial: Invalid material id (" + Ogre::StringConverter::toString(id) + ")");
+			//Log::Instance().LogMessage("Error in SoundMaterialTable::GetMaterialNameByOgreMaterial: Invalid material id (" + Ogre::StringConverter::toString(id) + ")");
 			return "DefaultMaterial";
 		}
 		return i->second;
@@ -115,7 +115,7 @@ namespace Ice
 		auto i = mMatNxBinds.find(mat);
 		if (i == mMatNxBinds.end())
 		{
-			Ogre::LogManager::getSingleton().logMessage("Error in SoundMaterialTable::GetMaterialNameByOgreMaterial: Invalid material (" + mat + ")");
+			Log::Instance().LogMessage("Error in SoundMaterialTable::GetMaterialNameByOgreMaterial: Invalid material (" + mat + ")");
 			return 0;
 		}
 		return i->second;

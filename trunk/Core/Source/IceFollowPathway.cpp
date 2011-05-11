@@ -131,7 +131,7 @@ namespace Ice
 		Ogre::Vector3 targetPosXZ = mPath[0]->GetGlobalPosition();
 		targetPosXZ.y = 0;
 		float dist = currPosXZ.distance(targetPosXZ);
-		//Ogre::LogManager::getSingleton().logMessage(Ogre::StringConverter::toString(dist));
+		//Log::Instance().LogMessage(Ogre::StringConverter::toString(dist));
 		if (dist < mRadius)
 		{
 			Ogre::Vector3 oldDir = mPath[0]->GetGlobalPosition()-currPos;

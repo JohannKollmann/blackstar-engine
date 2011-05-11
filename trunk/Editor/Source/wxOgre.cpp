@@ -38,7 +38,7 @@ wxOgre::wxOgre(wxWindow* parent, wxWindowID id,
 	mInitialized(false),
 	mPaused(false)
 {
-	//Ogre::LogManager::getSingleton().logMessage("new wxOgre");
+	//Ice::Log::Instance().LogMessage("new wxOgre");
 }
 
 
@@ -46,7 +46,7 @@ void wxOgre::initOgre(Ogre::String renderWindowName)
 {
     if (!mInitialized)
     {
-		Ogre::LogManager::getSingleton().logMessage("initOgre");
+		Ice::Log::Instance().LogMessage("initOgre");
 
 		mRoot = Ogre::Root::getSingletonPtr();
 
@@ -64,7 +64,7 @@ void wxOgre::initOgre(Ogre::String renderWindowName)
 
 void wxOgre::createOgreRenderWindow(Ogre::String renderWindowName)
 {
-	Ogre::LogManager::getSingleton().logMessage("createOgreRenderWindow 1");
+	Ice::Log::Instance().LogMessage("createOgreRenderWindow 1");
 
 	// --------------------
 	// Create a new parameters list according to compiled OS
@@ -108,9 +108,9 @@ void wxOgre::createOgreRenderWindow(Ogre::String renderWindowName)
 	/*width -= width%4;
 	height -= height%4;*/
 	// Create the render window
-	Ogre::LogManager::getSingleton().logMessage("createOgreRenderWindow 3");
+	Ice::Log::Instance().LogMessage("createOgreRenderWindow 3");
 	mRenderWindow = Ogre::Root::getSingleton().createRenderWindow(renderWindowName, width, height, false, &params);
-	Ogre::LogManager::getSingleton().logMessage("createOgreRenderWindow 4");
+	Ice::Log::Instance().LogMessage("createOgreRenderWindow 4");
 
 	OnInit();
 }
@@ -120,7 +120,7 @@ void wxOgre::toggleTimerRendering()
 	// Toggle Start/Stop
 	if (mTimer.IsRunning())
 		mTimer.Stop();
-	mTimer.Start(10);
+	mTimer.Start(20);
 }
 
 wxOgre::~wxOgre()

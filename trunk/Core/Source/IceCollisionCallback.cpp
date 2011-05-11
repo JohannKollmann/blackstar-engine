@@ -68,14 +68,14 @@ namespace Ice
 
 	bool PhysXUserCallback::onJointBreak(NxReal breakingImpulse, NxJoint& brokenJoint)
 	{
-		Ogre::LogManager::getSingleton().logMessage("Joint break!");
+		//IceNote("Joint break!");
 		return false;
 	}
 
 
 	void ActorContactReport::onMaterialContact(Ogre::String material1, Ogre::String material2, Ogre::Vector3 position, float force )
 	{
-		//Ogre::LogManager::getSingleton().logMessage("OnMaterialContact: " + material1 + " - " + material2 + "  Force: " + Ogre::StringConverter::toString(force));
+		//Log::Instance().LogMessage("OnMaterialContact: " + material1 + " - " + material2 + "  Force: " + Ogre::StringConverter::toString(force));
 		Msg msg;
 		msg.typeID = GlobalMessageIDs::MATERIAL_ONCONTACT;
 		msg.params.AddOgreVec3("Position", position);

@@ -71,22 +71,35 @@ namespace Ice
 
 	void MessageSystem::LockMessageProcessing()
 	{
-		mProcessingMsg.lock();
+		mNumWaitingSynchronized++;
+		boost::unique_lock<boost::mutex> lock(mNoMessageProcessingMutex);
+		while (mNumProcessingMessages > 0 || mSynchronizedProcessing)
+		{
+			mNoMessageProcessing.wait(lock);	//wait until no other thread processes messages
+		}
+		mNumWaitingSynchronized--;
+		mSynchronizedProcessing = true;
 	}
 	void MessageSystem::UnlockMessageProcessing()
 	{
-		mProcessingMsg.unlock();
+		mConcurrentMessageProcessingMutex.lock();
+		mSynchronizedProcessing = false;
+		if (mNumWaitingSynchronized == 0) mConcurrentMessageProcessing.notify_all();
+		else mNoMessageProcessing.notify_one();
+		mConcurrentMessageProcessingMutex.unlock();
 	}
 
 	void MessageSystem::ProcessMessages(AccessPermitionID accessPermitionID, bool synchronized, ProcessingListener *listener)
 	{
-		if (synchronized) mProcessingMsg.lock();	//wait until no other thread processes messages
+		if (synchronized) LockMessageProcessing();
 		else
 		{
-			mProcessingMsgCond.lock();
-			if (mNumProcessingMessages == 0) mProcessingMsg.lock();		//indicate set a thread is processing messages right now
+			boost::unique_lock<boost::mutex> lock(mConcurrentMessageProcessingMutex);
+			while (mNumWaitingSynchronized > 0 || mSynchronizedProcessing)
+			{
+				mConcurrentMessageProcessing.wait(lock);	//wait until no other thread processes messages
+			}
 			mNumProcessingMessages++;
-			mProcessingMsgCond.unlock();
 		}
 
 		if (listener) listener->OnStartSending(accessPermitionID);
@@ -109,13 +122,13 @@ namespace Ice
 
 		if (listener) listener->OnFinishSending(accessPermitionID);
 
-		if (synchronized) mProcessingMsg.unlock();
+		if (synchronized) UnlockMessageProcessing();
 		else
 		{
-			mProcessingMsgCond.lock();
+			mNoMessageProcessingMutex.lock();
 			mNumProcessingMessages--;
-			if (mNumProcessingMessages == 0) mProcessingMsg.unlock();
-			mProcessingMsgCond.unlock();
+			if (mNumProcessingMessages == 0) mNoMessageProcessing.notify_one();
+			mNoMessageProcessingMutex.unlock();
 		}
 	}
 

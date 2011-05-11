@@ -59,7 +59,7 @@ private:
 		//create Entity
 		if (!Ogre::MeshManager::getSingleton().resourceExists(mWaterMesh) && !Ogre::ResourceGroupManager::getSingleton().resourceExists("General", mWaterMesh))
 		{
-			Ogre::LogManager::getSingleton().logMessage("Error: Resource \"" + mWaterMesh + "\" does not exist. Loading dummy Resource...");
+			Ice::Log::Instance().LogMessage("Error: Resource \"" + mWaterMesh + "\" does not exist. Loading dummy Resource...");
 			mWaterMesh = "DummyMesh.mesh";
 		}
 		mEntity = Ice::Main::Instance().GetOgreSceneMgr()->createEntity(id, mWaterMesh);

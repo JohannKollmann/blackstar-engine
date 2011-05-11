@@ -37,7 +37,7 @@ namespace Ice
 		{
 			if ((*i)->GetOwner()->GetName() == name) return (*i);
 		}
-		Ogre::LogManager::getSingleton().logMessage("Error: Waypoint " + name + " doesn't exist!");
+		Log::Instance().LogMessage("Error: Waypoint " + name + " doesn't exist!");
 		return 0;
 	}
 	void AIManager::FindPath(Ogre::Vector3 origin, Ogre::String targetWP, std::vector<AStarNode3D*> &oPath)
@@ -45,7 +45,7 @@ namespace Ice
 		GOCWaypoint *target = GetWPByName(targetWP);
 		if (!target)
 		{
-			Ogre::LogManager::getSingleton().logMessage("Error in AIManager::FindPath: Target Point '" + targetWP + "' does not exist!");
+			Log::Instance().LogMessage("Error in AIManager::FindPath: Target Point '" + targetWP + "' does not exist!");
 			return;
 		}
 		mNavigationMesh->ShortestPath(origin, target->GetOwner()->GetGlobalPosition(), oPath);

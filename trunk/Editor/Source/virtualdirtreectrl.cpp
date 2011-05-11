@@ -208,7 +208,7 @@ void wxVirtualDirTreeCtrl::GetFiles(VdtcTreeItemBase *parent, VdtcTreeItemBaseAr
 	// no nodes present yet, we should start scanning this dir
 	// scan files first in this directory, with all extensions in this array
 
-	//Ogre::LogManager::getSingleton().logMessage("GetFiles:" + Ogre::StringConverter::toString(_extensions.size()));
+	//Ice::Log::Instance().LogMessage("GetFiles:" + Ogre::StringConverter::toString(_extensions.size()));
 
 	for(size_t i = 0; i < _extensions.Count(); i++)
 	{
@@ -216,7 +216,7 @@ void wxVirtualDirTreeCtrl::GetFiles(VdtcTreeItemBase *parent, VdtcTreeItemBaseAr
 
 		if(fdir.IsOpened())
 		{
-			//Ogre::LogManager::getSingleton().logMessage(_extensions[i].c_str());
+			//Ice::Log::Instance().LogMessage(_extensions[i].c_str());
 			bool bOk = fdir.GetFirst(&fname, _extensions[i], wxDIR_FILES | wxDIR_HIDDEN);
 			while(bOk)
 			{

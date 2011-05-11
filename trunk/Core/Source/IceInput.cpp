@@ -50,7 +50,7 @@ Input::Input(size_t windowHnd, int width, int height, bool freeCursor)
 
 	mEnabled = true;
 
-	Ogre::LogManager::getSingleton().logMessage("Input wurde erfolgreich initialisiert!");
+	Log::Instance().LogMessage("Input wurde erfolgreich initialisiert!");
 };
 
 Input::~Input(void)

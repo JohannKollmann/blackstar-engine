@@ -230,7 +230,7 @@ namespace Ice
 			evt.source->copyContentsToMemory(pbx);
 			mLastTimeUpdated = time;
 		}
-		//Ogre::LogManager::getSingleton().logMessage(Ogre::StringConverter::toString(avgLuminence));
+		//Log::Instance().LogMessage(Ogre::StringConverter::toString(avgLuminence));
 	}
 
 };

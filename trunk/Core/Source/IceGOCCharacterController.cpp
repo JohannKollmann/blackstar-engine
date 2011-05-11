@@ -162,10 +162,10 @@ namespace Ice
 
 			NxU32 numHits = Main::Instance().GetPhysXScene()->getNxScene()->linearCapsuleSweep(bodyVolume, OgrePhysX::Convert::toNx(Ogre::Vector3(userDir*time*2)), NX_SF_STATICS|NX_SF_DYNAMICS, 0, 1, sqh_result, nullptr, 1<<CollisionGroups::DEFAULT | 1<<CollisionGroups::LEVELMESH);
  			bool bodyHit = (numHits > 0);
-			//Ogre::LogManager::getSingleton().logMessage("Body hit: " + Ogre::StringConverter::toString(bodyHit));
+			//Log::Instance().LogMessage("Body hit: " + Ogre::StringConverter::toString(bodyHit));
 			numHits = Main::Instance().GetPhysXScene()->getNxScene()->linearCapsuleSweep(feetVolume, OgrePhysX::Convert::toNx(Ogre::Vector3(userDir*time*2)), NX_SF_STATICS|NX_SF_DYNAMICS, 0, 1, sqh_result, nullptr, 1<<CollisionGroups::DEFAULT | 1<<CollisionGroups::LEVELMESH);//, mSweepCache);
  			bool feetHit = (numHits > 0);
-			//Ogre::LogManager::getSingleton().logMessage("Feet hit: " + Ogre::StringConverter::toString(feetHit));
+			//Log::Instance().LogMessage("Feet hit: " + Ogre::StringConverter::toString(feetHit));
 
 			NxCapsule playerCapsule;
 			playerCapsule.radius = mRadius;
@@ -176,7 +176,7 @@ namespace Ice
 			//if (!mTouchesGround) finalDir += Ogre::Vector3(0, -9.81f, 0);	//add gravity
 
 			/*if(!mTouchesGround)
-				Ogre::LogManager::getSingleton().logMessage("in the air!");*/
+				Log::Instance().LogMessage("in the air!");*/
 
 
 			if (!bodyHit)
@@ -194,7 +194,7 @@ namespace Ice
 
 			mActor->getNxActor()->wakeUp();
 
-			//Ogre::LogManager::getSingleton().logMessage(Ogre::StringConverter::toString(mTouchesGround));
+			//Log::Instance().LogMessage(Ogre::StringConverter::toString(mTouchesGround));
 			if (mJumping && mTouchesGround && (timeGetTime() - mJumpStartTime > 400))
 			{
 				mJumping = false;

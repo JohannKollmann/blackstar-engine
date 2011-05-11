@@ -135,7 +135,7 @@ namespace Ice
 	{
 		Ogre::String log = "[Script] Error in \"" + caller.GetScriptName() + "\": " + msg;
 		if (line >= 0) log = log + " (line " + Ogre::StringConverter::toString(line) + ")";
-		Ogre::LogManager::getSingleton().logMessage(log);
+		Log::Instance().LogMessage(log);
 	}
 
 	void Utils::ScriptParamsToDataMap(const Script& caller, const std::vector<ScriptParam> &params, DataMap* data, int param_start_index)
