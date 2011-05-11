@@ -68,7 +68,7 @@ namespace Ice
 		GetNode()->setScale(scale);
 		if (!Ogre::ResourceGroupManager::getSingleton().resourceExists("General", meshname))
 		{
-			Ogre::LogManager::getSingleton().logMessage("Error: Resource \"" + meshname + "\" does not exist. Loading dummy Resource...");
+			Log::Instance().LogMessage("Error: Resource \"" + meshname + "\" does not exist. Loading dummy Resource...");
 			meshname = "DummyMesh.mesh";
 		}
 		mEntity = Main::Instance().GetOgreSceneMgr()->createEntity(SceneManager::Instance().RequestIDStr(), meshname);

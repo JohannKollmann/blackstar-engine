@@ -89,7 +89,7 @@ namespace Ice
 				return;
 			}
 		}
-		Ogre::LogManager::getSingleton().logMessage("nah");
+		Log::Instance().LogMessage("nah");
 	}
 	void NavigationMesh::PathNodeTreeNode::GetPathNodes(const Ogre::AxisAlignedBox &box, std::vector<AStarNode3D*> &oResult, bool getBlocked)
 	{
@@ -269,7 +269,7 @@ namespace Ice
 		mPathNodeTree->GetPathNodes(boxTo, toNodes);
 		if (fromNodes.empty() || toNodes.empty())
 		{
-			Ogre::LogManager::getSingleton().logMessage("Error in NavigationMesh::ShortestPath: No start/end path nodes found!");
+			Log::Instance().LogMessage("Error in NavigationMesh::ShortestPath: No start/end path nodes found!");
 			return;
 		}
 		AStarNode3D *fromNode = nullptr;

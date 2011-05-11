@@ -77,7 +77,7 @@ namespace Ice
 		NxMaterialIndex nxID = SceneManager::Instance().GetSoundMaterialTable().GetMaterialID(mMaterialName);
 		if (!Ogre::ResourceGroupManager::getSingleton().resourceExists("General", mCollisionMeshName))
 		{
-			Ogre::LogManager::getSingleton().logMessage("Error: Resource \"" + mCollisionMeshName + "\" does not exist. Loading dummy Resource...");
+			Log::Instance().LogMessage("Error: Resource \"" + mCollisionMeshName + "\" does not exist. Loading dummy Resource...");
 			mCollisionMeshName = "DummyMesh.mesh";
 		}
 		Ogre::Entity *entity = Main::Instance().GetOgreSceneMgr()->createEntity(internname, mCollisionMeshName);
@@ -255,7 +255,7 @@ namespace Ice
 		mCollisionMeshName = collision_mesh;
 		if (!Ogre::ResourceGroupManager::getSingleton().resourceExists("General", mCollisionMeshName))
 		{
-			Ogre::LogManager::getSingleton().logMessage("Error: Resource \"" + mCollisionMeshName + "\" does not exist. Loading dummy Resource...");
+			Log::Instance().LogMessage("Error: Resource \"" + mCollisionMeshName + "\" does not exist. Loading dummy Resource...");
 			mCollisionMeshName = "DummyMesh.mesh";
 		}
 		Ogre::Entity *entity = Main::Instance().GetOgreSceneMgr()->createEntity("tempCollisionModell", mCollisionMeshName);

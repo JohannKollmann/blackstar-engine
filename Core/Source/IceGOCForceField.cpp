@@ -32,7 +32,7 @@ namespace Ice
 		if (!mActive) return;
 		if (!Ogre::ResourceGroupManager::getSingleton().resourceExists("General", mCollisionMeshName))
 		{
-			Ogre::LogManager::getSingleton().logMessage("Error: Resource \"" + mCollisionMeshName + "\" does not exist. Loading dummy Resource...");
+			Log::Instance().LogMessage("Error: Resource \"" + mCollisionMeshName + "\" does not exist. Loading dummy Resource...");
 			mCollisionMeshName = "DummyMesh.mesh";
 		}
 		Ogre::Entity *entity = Main::Instance().GetOgreSceneMgr()->createEntity("tmpCollisionEnt", mCollisionMeshName);

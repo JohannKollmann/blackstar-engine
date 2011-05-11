@@ -48,7 +48,7 @@ void wxSimpleOgreView::ShowMesh(Ogre::String meshFileName)
 	Reset();
 	if (!Ogre::ResourceGroupManager::getSingleton().resourceExists("General", meshFileName))
 	{
-		Ogre::LogManager::getSingleton().logMessage("Error: Resource \"" + meshFileName + "\" does not exist. Loading dummy Resource...");
+		Ice::Log::Instance().LogMessage("Error: Resource \"" + meshFileName + "\" does not exist. Loading dummy Resource...");
 		meshFileName = "DummyMesh.mesh";
 	}
 	Ogre::Entity *ent = mSceneMgr->createEntity(meshFileName);

@@ -113,6 +113,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Source\IceGOCJoint.cpp" />
+    <ClCompile Include="Source\IceLog.cpp" />
     <ClCompile Include="Source\IceOrientationBlendProcess.cpp" />
     <ClCompile Include="Source\IcePlayAnimationProcess.cpp" />
     <ClCompile Include="Source\IceGOCForceField.cpp" />
@@ -201,6 +202,7 @@
   <ItemGroup>
     <ClInclude Include="Header\IceDepthSchemeHandler.h" />
     <ClInclude Include="Header\IceGOCJoint.h" />
+    <ClInclude Include="Header\IceLog.h" />
     <ClInclude Include="Header\IceObjectMessageIDs.h" />
     <ClInclude Include="Header\IceOrientationBlendProcess.h" />
     <ClInclude Include="Header\IcePlayAnimationProcess.h" />

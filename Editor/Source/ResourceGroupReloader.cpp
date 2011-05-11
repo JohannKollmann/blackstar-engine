@@ -35,7 +35,7 @@ void ResourceGroupReloader::UpdateMaterialRenderableVisitor::visit(
 		{
 			// this can happen if there was error during the reloading of the material.
 			// in that case, we keep the ancient one.
-			// Ogre::LogManager::getSingleton().logMessage(newMatName+" : new material is null!");
+			// Ice::Log::Instance().LogMessage(newMatName+" : new material is null!");
 			return;
 		}
 
@@ -68,7 +68,7 @@ void ResourceGroupReloader::UpdateMaterialRenderableVisitor::visit(
 		}
 	}else{
 		// was there for debug...
-		// Ogre::LogManager::getSingleton().logMessage("material of renderable is null!");
+		// Ice::Log::Instance().LogMessage("material of renderable is null!");
 	}
 }
 

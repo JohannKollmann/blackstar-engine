@@ -56,7 +56,7 @@ OgreFileLoader(lua_State* pState, std::string strFile)
 void
 ScriptLogFn(std::string strScript, int iLine, std::string strError)
 {
-	Ogre::LogManager::getSingleton().logMessage(std::string("[Script]Error ") + (strScript.length() ? (std::string("in \"") + strScript + std::string("\"")) : std::string("")) + (iLine==-1 ? std::string("") : (std::string(", line ") + Ogre::StringConverter::toString(iLine))) + std::string(": ") + strError);
+	Log::Instance().LogMessage(std::string("[Script]Error ") + (strScript.length() ? (std::string("in \"") + strScript + std::string("\"")) : std::string("")) + (iLine==-1 ? std::string("") : (std::string(", line ") + Ogre::StringConverter::toString(iLine))) + std::string(": ") + strError);
 }
 
 Main::Main()
@@ -82,7 +82,7 @@ bool Main::Run()
 
 	setupRenderSystem();
 
-	Ogre::LogManager::getSingleton().logMessage("Main Run");
+	Log::Instance().LogMessage("Main Run");
 
 	mWindow = mRoot->initialise(true, "Blackstar Engine");
 
@@ -108,7 +108,7 @@ void Main::ExternInit()
 
 bool Main::Run(Ogre::RenderWindow *window, size_t OISInputWindow)
 {
-	Ogre::LogManager::getSingleton().logMessage("Main (Embedded) Run");
+	Log::Instance().LogMessage("Main (Embedded) Run");
 
 	mWindow = window;
 
@@ -179,7 +179,7 @@ void Main::InitOgreResources()
 
 void Main::initScene()
 {
-	Ogre::LogManager::getSingleton().logMessage("Main initScene");
+	Log::Instance().LogMessage("Main initScene");
 
 	Ice::MessageSystem::Instance().CreateNewsgroup(GlobalMessageIDs::UPDATE_PER_FRAME);
 	Ice::MessageSystem::Instance().CreateNewsgroup(GlobalMessageIDs::RENDERING_BEGIN);
@@ -474,7 +474,7 @@ void Main::setupRenderSystem()
 	{
 		mRenderSystem->setConfigOption("Allow NVPerfHUD", perfhud);
 
-		Ogre::LogManager::getSingleton().logMessage("setup Rendersystem: " + width + " " + height);
+		Log::Instance().LogMessage("setup Rendersystem: " + width + " " + height);
 		mRenderSystem->setConfigOption("Video Mode", 
 										width
 										+ " x " +  height
@@ -565,16 +565,16 @@ void Main::Shutdown()
 		mDirectionalShadowCameraSetup.setNull();
 		mSpotShadowCameraSetup.setNull();
 		mPointShadowCameraSetup.setNull();
-		Ogre::LogManager::getSingleton().logMessage("Ogre shutdown!");
+		Log::Instance().LogMessage("Ogre shutdown!");
 		//Console::Instance().Shutdown();
 		SceneManager::Instance().Shutdown();
 		ClearPlugins();
 		ICE_DELETE mCameraController;
 		OgrePhysX::World::getSingleton().shutdown();
 		auto report = LeakManager::getInstance().reportLeaks();
-		Ogre::LogManager::getSingleton().logMessage("Memory leaks: " + Ogre::StringConverter::toString(report.size()));
+		Log::Instance().LogMessage("Memory leaks: " + Ogre::StringConverter::toString(report.size()));
 		for (auto i = report.begin(); i != report.end(); i++)
-			Ogre::LogManager::getSingleton().logMessage(*i);
+			Log::Instance().LogMessage(*i);
 		delete mRoot;
 		mRoot = nullptr;
 		ITERATE(i, mMainLoopThreads)
@@ -605,19 +605,19 @@ void Main::LoadPlugins()
 
 void Main::InstallPlugin(Ogre::Plugin* plugin)
 {
-	Ogre::LogManager::getSingleton().logMessage("Installing  plugin: " + plugin->getName());
+	Log::Instance().LogMessage("Installing  plugin: " + plugin->getName());
 
 	mPlugins.push_back(plugin);
 	plugin->install();
 
 	plugin->initialise();
 
-	Ogre::LogManager::getSingleton().logMessage(" Plugin successfully installed");
+	Log::Instance().LogMessage(" Plugin successfully installed");
 }
 //---------------------------------------------------------------------
 void Main::UninstallPlugin(Ogre::Plugin* plugin)
 {
-	Ogre::LogManager::getSingleton().logMessage("Uninstalling  plugin: " + plugin->getName());
+	Log::Instance().LogMessage("Uninstalling  plugin: " + plugin->getName());
 	std::vector<Ogre::Plugin*>::iterator i = std::find(mPlugins.begin(), mPlugins.end(), plugin);
 	if (i != mPlugins.end())
 	{
@@ -625,7 +625,7 @@ void Main::UninstallPlugin(Ogre::Plugin* plugin)
 		mPlugins.erase(i);
 	}
 
-	Ogre::LogManager::getSingleton().logMessage(" Plugin successfully uninstalled");
+	Log::Instance().LogMessage(" Plugin successfully uninstalled");
 
 }
 //-----------------------------------------------------------------------
@@ -640,7 +640,7 @@ void Main::LoadPlugin(const Ogre::String& pluginName)
 	DLL_START_PLUGIN pFunc = (DLL_START_PLUGIN)lib->getSymbol("dllStartPlugin");
 
 	if (!pFunc)
-		Ogre::LogManager::getSingleton().logMessage("Cannot find symbol dllStartPlugin in library " + pluginName);
+		Log::Instance().LogMessage("Cannot find symbol dllStartPlugin in library " + pluginName);
 
 	// This must call installPlugin
 	pFunc();

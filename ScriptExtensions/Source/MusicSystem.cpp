@@ -173,7 +173,7 @@ MusicSystem::Lua_DeleteSound(Ice::Script& caller, std::vector<Ice::ScriptParam> 
 	}
 	OgreOggSound::OgreOggSoundManager::getSingleton().destroySound(pSound);
 	GetInstance().m_mProperties.erase(GetInstance().m_mProperties.find(vParams[0].getString()));
-	//Ogre::LogManager::getSingleton().logMessage("Successfully deleted sound object " + vParams[0].getString()  + " !");
+	//Ice::Log::Instance().LogMessage("Successfully deleted sound object " + vParams[0].getString()  + " !");
 	return std::vector<Ice::ScriptParam>();
 }
 

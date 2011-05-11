@@ -106,11 +106,16 @@ namespace Ice
 
 		std::map<MsgTypeID, Newsgroup > mNewsgroupReceivers;
 
-		boost::mutex mProcessingMsgCond;
-		boost::mutex mProcessingMsg;
-		int mNumProcessingMessages;
 
-		MessageSystem() : mNumProcessingMessages(0) {}
+		int mNumProcessingMessages;
+		int mNumWaitingSynchronized;
+		bool mSynchronizedProcessing;
+		boost::condition_variable mNoMessageProcessing;
+		boost::mutex mNoMessageProcessingMutex;	
+		boost::condition_variable mConcurrentMessageProcessing;
+		boost::mutex mConcurrentMessageProcessingMutex;
+
+		MessageSystem() : mNumProcessingMessages(0), mNumWaitingSynchronized(0), mSynchronizedProcessing(false) {}
 
 		/**
 		* Registers a message listener in a newsgroup.

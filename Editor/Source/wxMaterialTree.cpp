@@ -177,7 +177,7 @@ void wxMaterialTree::Update()
 
 void wxMaterialTree::AddItemsToTreeCtrl(OgreMaterialTreeItemBase *item, OgreMaterialTreeItemBaseArray &items)
 {
-	//Ogre::LogManager::getSingleton().logMessage("AddItemsToTreeCtrl " + Ogre::String(item->GetName().c_str()) + " " + Ogre::StringConverter::toString(items.GetCount()));
+	//Ice::Log::Instance().LogMessage("AddItemsToTreeCtrl " + Ogre::String(item->GetName().c_str()) + " " + Ogre::StringConverter::toString(items.GetCount()));
 	wxCHECK2(item, return);
 
 	// now loop through all elements on this level and add them
@@ -389,7 +389,7 @@ void wxMaterialTree::ShowMenu(OgreMaterialTreeItemBase *item, const wxPoint& pt)
 };
 void wxMaterialTree::ExpandToMaterial(Ogre::String mesh, Ogre::String material)
 {
-	//Ogre::LogManager::getSingleton().logMessage("ExpandToMaterial - " + mesh + " - " + material);
+	//Ice::Log::Instance().LogMessage("ExpandToMaterial - " + mesh + " - " + material);
 	wxTreeItemIdValue cookie = 0;
 	OgreMaterialTreeItemBase *b;
 	wxTreeItemId child = GetFirstChild(mStart->GetId(), cookie);

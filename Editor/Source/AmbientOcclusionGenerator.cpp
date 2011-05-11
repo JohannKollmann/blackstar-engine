@@ -219,7 +219,7 @@ void AmbientOcclusionGenerator::computeAO(Ogre::Vector3 position, Ogre::Vector3 
  		for(float v=0; v<2*Ogre::Math::PI; v+=Ogre::Math::PI/2/(c*Ogre::Math::Cos(h)))
  		{
   			Ogre::Vector3 castVector = Ogre::Vector3(Ogre::Math::Cos(h)*Ogre::Math::Sin(v),Ogre::Math::Sin(h),Ogre::Math::Cos(h)*Ogre::Math::Cos(v));
-			//Ogre::LogManager::getSingleton().logMessage(Ogre::StringConverter::toString(castVector));
+			//Ice::Log::Instance().LogMessage(Ogre::StringConverter::toString(castVector));
 			castVector.normalise();
 			Ogre::Quaternion q = Ogre::Vector3::UNIT_Y.getRotationTo(normal);
 			castVector = q * castVector;

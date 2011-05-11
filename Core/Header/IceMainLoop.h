@@ -33,13 +33,13 @@ namespace Ice
 
 		AccessPermitionID mAccessPermitionID;
 
-		boost::mutex mFinishedStepMutex;
+		bool mDoingStep;
 
 		virtual void doLoop();
 
 	public:
 		MainLoopThread(AccessPermitionID accessPermitionID) : 
-			mAccessPermitionID(accessPermitionID), mSynchronized(false), mFixedTimeStep(false), mPaused(false), mTerminate(false), mTotalTimeElapsed(0), mTotalLastFrameTime(timeGetTime()), mTimeSinceLastFrame(0) {}
+			mAccessPermitionID(accessPermitionID), mDoingStep(false), mSynchronized(false), mFixedTimeStep(false), mPaused(false), mTerminate(false), mTotalTimeElapsed(0), mTotalLastFrameTime(timeGetTime()), mTimeSinceLastFrame(0) {}
 
 		virtual ~MainLoopThread() {}
 

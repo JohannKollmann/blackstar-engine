@@ -86,7 +86,7 @@ namespace Ice
 			}
 			if (!found)
 			{
-				//Ogre::LogManager::getSingleton().logMessage("Error: Could not find path for " + start->GetOwner()->GetName() + " - " + target->GetOwner()->GetName());
+				//Log::Instance().LogMessage("Error: Could not find path for " + start->GetOwner()->GetName() + " - " + target->GetOwner()->GetName());
 				return false;
 			}
 		}

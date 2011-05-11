@@ -264,7 +264,7 @@ void wxEdit::OnClose(wxCloseEvent &event)
 
 void wxEdit::OnLoadWorld(wxCommandEvent& WXUNUSED(event))
 {
-	//Ogre::LogManager::getSingleton().logMessage("OnLoadWorld");
+	//Ice::Log::Instance().LogMessage("OnLoadWorld");
 	STOP_MAINLOOP
     wxFileDialog dialog
                  (
@@ -280,7 +280,9 @@ void wxEdit::OnLoadWorld(wxCommandEvent& WXUNUSED(event))
 
     if (dialog.ShowModal() == wxID_OK)
     {
+		wxEdit::Instance().GetProgressBar()->SetStatusMessage("Loading level...");
 		GetOgrePane()->OnLoadWorld(dialog.GetPath().c_str().AsChar());
+		wxEdit::Instance().GetProgressBar()->Reset();
 	}
 	wxEdit::Instance().GetProgressBar()->Reset();
 	Ice::SceneManager::Instance().ShowEditorMeshes(mMenuBar->IsChecked(wxMainMenu_EditorMeshes));
@@ -292,7 +294,7 @@ void wxEdit::OnSaveWorld(wxCommandEvent& WXUNUSED(event))
 	STOP_MAINLOOP
 	wxEdit::Instance().GetOgrePane()->DeselectAllObjects();
 
-	//Ogre::LogManager::getSingleton().logMessage("OnSaveWorld");
+	//Ice::Log::Instance().LogMessage("OnSaveWorld");
     wxFileDialog dialog
                  (
                     this,
@@ -310,7 +312,9 @@ void wxEdit::OnSaveWorld(wxCommandEvent& WXUNUSED(event))
 
     if (dialog.ShowModal() == wxID_OK)
     {
+		wxEdit::Instance().GetProgressBar()->SetStatusMessage("Saving level...");
 		GetOgrePane()->OnSaveWorld(dialog.GetPath().c_str().AsChar());
+		wxEdit::Instance().GetProgressBar()->Reset();
 	}
 	wxEdit::Instance().GetProgressBar()->Reset();
 	Ice::SceneManager::Instance().ShowEditorMeshes(mMenuBar->IsChecked(wxMainMenu_EditorMeshes));
@@ -320,7 +324,7 @@ void wxEdit::OnSaveWorld(wxCommandEvent& WXUNUSED(event))
 void wxEdit::OnLoadMesh(wxCommandEvent& WXUNUSED(event))
 {
 	STOP_MAINLOOP
-	//Ogre::LogManager::getSingleton().logMessage("OnLoadMesh");
+	//Ice::Log::Instance().LogMessage("OnLoadMesh");
     wxFileDialog dialog
                  (
                     this,
@@ -360,7 +364,7 @@ void wxEdit::OnLoadMesh(wxCommandEvent& WXUNUSED(event))
 
 void wxEdit::OnExit(wxCommandEvent& WXUNUSED(event))
 {
-	Ogre::LogManager::getSingleton().logMessage("wxEdit::OnExit");
+	Ice::Log::Instance().LogMessage("wxEdit::OnExit");
 	Close();
 };
 

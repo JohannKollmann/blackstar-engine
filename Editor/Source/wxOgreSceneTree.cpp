@@ -118,7 +118,7 @@ void wxOgreSceneTree::ScanFromNode(std::queue<OgreTreeItemBase*> &expandQueue, s
 		expandQueue.pop();
 		Ice::GameObjectPtr currObject = currItem->GetGameObject();
 		OgreTreeItemBase *item = nullptr;
-		//Ogre::LogManager::getSingleton().logMessage(scanFrom->GetName() + " " + Ogre::StringConverter::toString(scanFrom->GetNumChildren()));
+		//Ice::Log::Instance().LogMessage(scanFrom->GetName() + " " + Ogre::StringConverter::toString(scanFrom->GetNumChildren()));
 		currObject->ResetObjectReferenceIterator();
 		while (currObject->HasNextObjectReference())
 		{

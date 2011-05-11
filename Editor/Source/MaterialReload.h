@@ -14,7 +14,7 @@ void UnloadResource(Ogre::ResourceManager* resMgr, const std::string& resourceNa
 	{
 		StringUtil::StrStreamType msg;
 		msg << "Resource no longer exists: " << resourceName;
-		//Ogre::LogManager::getSingleton().logMessage(msg.str());
+		//Ice::Log::Instance().LogMessage(msg.str());
 		return;
 	}
 
@@ -23,13 +23,13 @@ void UnloadResource(Ogre::ResourceManager* resMgr, const std::string& resourceNa
 	{
 		StringUtil::StrStreamType msg;
 		msg << "Resource was not unloaded: " << resourceName;
-		//Ogre::LogManager::getSingleton().logMessage(msg.str());
+		//Ice::Log::Instance().LogMessage(msg.str());
 	}
 	else
 	{
 		StringUtil::StrStreamType msg;
 		msg << "Resource was unloaded: " << resourceName;
-		//Ogre::LogManager::getSingleton().logMessage(msg.str());
+		//Ice::Log::Instance().LogMessage(msg.str());
 	}
 	
 	resMgr->remove(resourceName);
@@ -38,26 +38,26 @@ void UnloadResource(Ogre::ResourceManager* resMgr, const std::string& resourceNa
 	{
 		StringUtil::StrStreamType msg;
 		msg << "Resource was removed: " << resourceName;
-		//Ogre::LogManager::getSingleton().logMessage(msg.str());
+		//Ice::Log::Instance().LogMessage(msg.str());
 	}
 	else
 	{
 		StringUtil::StrStreamType msg;
 		msg << "Resource was not removed: " << resourceName;
-		//Ogre::LogManager::getSingleton().logMessage(msg.str());
+		//Ice::Log::Instance().LogMessage(msg.str());
 	}
 
 	if (resMgr->resourceExists(resourceName))
 	{
 		StringUtil::StrStreamType msg;
 		msg << "Resource still exists: " << resourceName;
-		//Ogre::LogManager::getSingleton().logMessage(msg.str());
+		//Ice::Log::Instance().LogMessage(msg.str());
 	}
 	else
 	{
 		StringUtil::StrStreamType msg;
 		msg << "Resource no longer exists: " << resourceName;
-		//Ogre::LogManager::getSingleton().logMessage(msg.str());
+		//Ice::Log::Instance().LogMessage(msg.str());
 	}
 }
 
@@ -68,7 +68,7 @@ void LoadResource(Ogre::ResourceManager* resMgr, const std::string& resourceName
 	{
 		StringUtil::StrStreamType msg;
 		msg << "Resource no longer exists: " << resourceName;
-		//Ogre::LogManager::getSingleton().logMessage(msg.str());
+		//Ice::Log::Instance().LogMessage(msg.str());
 		return;
 	}
 
@@ -77,26 +77,26 @@ void LoadResource(Ogre::ResourceManager* resMgr, const std::string& resourceName
 	{
 		StringUtil::StrStreamType msg;
 		msg << "Resource was reloaded: " << resourceName;
-		//Ogre::LogManager::getSingleton().logMessage(msg.str());
+		//Ice::Log::Instance().LogMessage(msg.str());
 	}
 	else
 	{
 		StringUtil::StrStreamType msg;
 		msg << "Resource was not reloaded: " << resourceName;
-		//Ogre::LogManager::getSingleton().logMessage(msg.str());
+		//Ice::Log::Instance().LogMessage(msg.str());
 	}
 
 	if (resMgr->resourceExists(resourceName))
 	{
 		StringUtil::StrStreamType msg;
 		msg << "Resource still exists: " << resourceName;
-		//Ogre::LogManager::getSingleton().logMessage(msg.str());
+		//Ice::Log::Instance().LogMessage(msg.str());
 	}
 	else
 	{
 		StringUtil::StrStreamType msg;
 		msg << "Resource no longer exists: " << resourceName;
-		//Ogre::LogManager::getSingleton().logMessage(msg.str());
+		//Ice::Log::Instance().LogMessage(msg.str());
 	}
 }
 
@@ -104,7 +104,7 @@ void UnloadMaterials(const std::string& filename)
 {
 	if (filename.empty())
 	{
-		//Ogre::LogManager::getSingleton().logMessage("Filename is empty.");
+		//Ice::Log::Instance().LogMessage("Filename is empty.");
 		return;
 	}
 
@@ -147,7 +147,7 @@ void UnloadMaterials(const std::string& filename)
 		{
 			StringUtil::StrStreamType msg;
 			msg << "Exception: FILE: " << __FILE__ << " LINE: " << __LINE__ << " DESC: " << e.getFullDescription() << std::endl;
-			Ogre::LogManager::getSingleton().logMessage(msg.str());
+			Ice::Log::Instance().LogMessage(msg.str());
 		}
 	}
 	stream->close();
@@ -157,7 +157,7 @@ void UnloadVertexPrograms(const std::string& filename)
 {
 	if (filename.empty())
 	{
-		//Ogre::LogManager::getSingleton().logMessage("Material filename is empty.");
+		//Ice::Log::Instance().LogMessage("Material filename is empty.");
 		return;
 	}
 
@@ -200,7 +200,7 @@ void UnloadVertexPrograms(const std::string& filename)
 		{
 			StringUtil::StrStreamType msg;
 			msg << "Exception: FILE: " << __FILE__ << " LINE: " << __LINE__ << " DESC: " << e.getFullDescription() << std::endl;
-			Ogre::LogManager::getSingleton().logMessage(msg.str());
+			Ice::Log::Instance().LogMessage(msg.str());
 		}
 	}
 	stream->close();
@@ -210,7 +210,7 @@ void UnloadFragmentPrograms(const std::string& filename)
 {
 	if (filename.empty())
 	{
-		//Ogre::LogManager::getSingleton().logMessage("Material filename is empty.");
+		//Ice::Log::Instance().LogMessage("Material filename is empty.");
 		return;
 	}
 
@@ -253,7 +253,7 @@ void UnloadFragmentPrograms(const std::string& filename)
 		{
 			StringUtil::StrStreamType msg;
 			msg << "Exception: FILE: " << __FILE__ << " LINE: " << __LINE__ << " DESC: " << e.getFullDescription() << std::endl;
-			Ogre::LogManager::getSingleton().logMessage(msg.str());
+			Ice::Log::Instance().LogMessage(msg.str());
 		}
 	}
 	stream->close();
@@ -263,19 +263,19 @@ void ReloadMaterial(const std::string& materialName, const std::string& groupNam
 {
 	if (materialName.empty())
 	{
-		//Ogre::LogManager::getSingleton().logMessage("Material name is empty.");
+		//Ice::Log::Instance().LogMessage("Material name is empty.");
 		return;
 	}
 
 	if (groupName.empty())
 	{
-		//Ogre::LogManager::getSingleton().logMessage("Group name is empty.");
+		//Ice::Log::Instance().LogMessage("Group name is empty.");
 		return;
 	}
 
 	if (filename.empty())
 	{
-		//Ogre::LogManager::getSingleton().logMessage("Filename is empty.");
+		//Ice::Log::Instance().LogMessage("Filename is empty.");
 		return;
 	}
 
@@ -302,7 +302,7 @@ void ReloadMaterial(const std::string& materialName, const std::string& groupNam
 			{
 				StringUtil::StrStreamType msg;
 				msg << "Exception: FILE: " << __FILE__ << " LINE: " << __LINE__ << " DESC: " << e.getFullDescription() << std::endl;
-				Ogre::LogManager::getSingleton().logMessage(msg.str());
+				Ice::Log::Instance().LogMessage(msg.str());
 			}
 		}
 		stream->close();
@@ -397,7 +397,7 @@ void ReloadMaterial(const std::string& materialName, const std::string& groupNam
 			{
 				StringUtil::StrStreamType msg;
 				msg << "Exception: FILE: " << __FILE__ << " LINE: " << __LINE__ << " DESC: " << e.getFullDescription() << std::endl;
-				Ogre::LogManager::getSingleton().logMessage(msg.str());
+				Ice::Log::Instance().LogMessage(msg.str());
 			}
 		}
 		stream->close();
@@ -415,7 +415,7 @@ void ReloadMaterial(const std::string& materialName, const std::string& groupNam
 			StringUtil::StrStreamType msg;
 			msg << "Render test failed. Unloading vertex programs." << std::endl;
 			msg << "Exception: FILE: " << __FILE__ << " LINE: " << __LINE__ << " DESC: " << e.getFullDescription() << std::endl;
-			Ogre::LogManager::getSingleton().logMessage(msg.str());
+			Ice::Log::Instance().LogMessage(msg.str());
 		}
 
 		try
@@ -431,7 +431,7 @@ void ReloadMaterial(const std::string& materialName, const std::string& groupNam
 			StringUtil::StrStreamType msg;
 			msg << "Render test failed. Unloading materials." << std::endl;
 			msg << "Exception: FILE: " << __FILE__ << " LINE: " << __LINE__ << " DESC: " << e.getFullDescription() << std::endl;
-			Ogre::LogManager::getSingleton().logMessage(msg.str());
+			Ice::Log::Instance().LogMessage(msg.str());
 		}
 	}
 }

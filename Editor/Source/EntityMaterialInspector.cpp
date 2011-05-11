@@ -134,7 +134,7 @@ std::vector<SubMeshInformation*> EntityMaterialInspector::GetSubMeshes(const Ogr
 
 Ogre::SubEntity* EntityMaterialInspector::GetSubEntity(Ogre::Ray ray)
 {
-	//Ogre::LogManager::getSingleton().logMessage("GetSubmesh 1");
+	//Ice::Log::Instance().LogMessage("GetSubmesh 1");
 	std::vector<SubMeshInformation*> submeshes = GetSubMeshes(mEntity->getParentNode()->_getDerivedPosition(), mEntity->getParentNode()->_getDerivedOrientation(), mEntity->getParentNode()->_getDerivedScale());
 	float closest_distance = 99999;
 	SubMeshInformation *closest_submesh = NULL;
@@ -142,7 +142,7 @@ Ogre::SubEntity* EntityMaterialInspector::GetSubEntity(Ogre::Ray ray)
 	{
 		for (int i = 0; i < static_cast<int>((*mesh)->mIndex_count); i += 3)
 		{
-			//Ogre::LogManager::getSingleton().logMessage("muh");
+			//Ice::Log::Instance().LogMessage("muh");
 			std::pair<bool, Ogre::Real> hit = Ogre::Math::intersects(ray, (*mesh)->mVertices[(*mesh)->mIndices[i]],
 				(*mesh)->mVertices[(*mesh)->mIndices[i+1]], (*mesh)->mVertices[(*mesh)->mIndices[i+2]], true, false);
 
@@ -162,7 +162,7 @@ Ogre::SubEntity* EntityMaterialInspector::GetSubEntity(Ogre::Ray ray)
 	{
 		returner = mEntity->getSubEntity(closest_submesh->mIndex);
 	}
-	//else Ogre::LogManager::getSingleton().logMessage("Warning: EntityMaterialInspector::GetSubEntity(Ogre::Ray ray) - return NULL");
+	//else Ice::Log::Instance().LogMessage("Warning: EntityMaterialInspector::GetSubEntity(Ogre::Ray ray) - return NULL");
 	for (std::vector<SubMeshInformation*>::iterator mesh = submeshes.begin(); mesh != submeshes.end(); mesh++)
 	{
 		delete (*mesh);

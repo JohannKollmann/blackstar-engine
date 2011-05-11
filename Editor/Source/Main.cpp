@@ -23,7 +23,7 @@ public:
 		r_it = renderSystems->begin();
 		ogre->setRenderSystem(*r_it);*/
 
-		Ogre::LogManager::getSingleton().logMessage("new wxEdit");
+		Ice::Log::Instance().LogMessage("new wxEdit");
 		Ice::Main::Instance().ExternInit();
 		mFrame = new wxEdit();
 		SetTopWindow(mFrame);

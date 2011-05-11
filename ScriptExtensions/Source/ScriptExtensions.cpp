@@ -39,22 +39,22 @@ ScriptExtensions::getName() const
 void
 ScriptExtensions::install()
 {
-	Ogre::LogManager::getSingleton().logMessage("Script Extensions installed");
+	Ice::Log::Instance().LogMessage("Script Extensions installed");
 }
 
 
 void
 ScriptExtensions::initialise()
 {
-	Ogre::LogManager::getSingleton().logMessage("ScriptExtensions: initializing resident variables");
+	Ice::Log::Instance().LogMessage("ScriptExtensions: initializing resident variables");
 	ResidentManager::GetInstance();
-	Ogre::LogManager::getSingleton().logMessage("ScriptExtensions: initializing scriptable instances");
+	Ice::Log::Instance().LogMessage("ScriptExtensions: initializing scriptable instances");
 	ScriptableInstances::GetInstance();
-	Ogre::LogManager::getSingleton().logMessage("ScriptExtensions: initializing GUI");
+	Ice::Log::Instance().LogMessage("ScriptExtensions: initializing GUI");
 	GUISystem::GetInstance();
-	Ogre::LogManager::getSingleton().logMessage("ScriptExtensions: initializing scripted controls");
+	Ice::Log::Instance().LogMessage("ScriptExtensions: initializing scripted controls");
 	ScriptedControls::GetInstance();
-	Ogre::LogManager::getSingleton().logMessage("ScriptExtensions: initializing music system");
+	Ice::Log::Instance().LogMessage("ScriptExtensions: initializing music system");
 	MusicSystem::GetInstance();
 
 	TextureDebugger::Instance();
@@ -65,14 +65,14 @@ ScriptExtensions::initialise()
 void
 ScriptExtensions::shutdown()
 {
-	Ogre::LogManager::getSingleton().logMessage("Script Extensions shut down");
+	Ice::Log::Instance().LogMessage("Script Extensions shut down");
 }
 
 
 void
 ScriptExtensions::uninstall()
 {
-	Ogre::LogManager::getSingleton().logMessage("Script Extensions uninstalled");
+	Ice::Log::Instance().LogMessage("Script Extensions uninstalled");
 }
 
 void

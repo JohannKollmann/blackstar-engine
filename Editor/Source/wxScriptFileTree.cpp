@@ -68,7 +68,7 @@ void wxScriptFileTree::OnMenuCallback(int id)
 	{
 		STOP_MAINLOOP
 		Ogre::String scriptFile = mCurrentItem->GetName().c_str();
-		Ogre::LogManager::getSingleton().logMessage("Scriptfile: " + scriptFile);
+		Ice::Log::Instance().LogMessage("Scriptfile: " + scriptFile);
 		Ice::Script script = Ice::ScriptSystem::GetInstance().CreateInstance(scriptFile);
 		RESUME_MAINLOOP
 //		Ice::ScriptSystem::GetInstance().KillScript(scriptFile);

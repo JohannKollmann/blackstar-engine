@@ -104,7 +104,7 @@ void wxMediaTree::OnMenuCallback(int id)
 	{
 		Ogre::Entity *ent = Ice::Main::Instance().GetOgreSceneMgr()->createEntity(mCurrentItem->GetName().c_str().AsChar());
 		Ogre::String path = GetFullPath(mCurrentItem->GetId()).GetFullPath().c_str().AsChar();
-		Ogre::LogManager::getSingleton().logMessage(path);
+		Ice::Log::Instance().LogMessage(path);
 		AmbientOcclusionGenerator::Instance().bakeAmbientOcclusion(ent->getMesh(), path);
 	}
 }
@@ -226,7 +226,7 @@ void wxMediaTree::OnDropExternFilesCallback(const wxArrayString& filenames)
 			}
 			catch (std::exception e)
 			{
-				Ogre::LogManager::getSingleton().logMessage(Ogre::String("Exception: ") + e.what());
+				Ice::Log::Instance().LogMessage(Ogre::String("Exception: ") + e.what());
 			}
 		}
 

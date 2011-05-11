@@ -305,7 +305,7 @@ void wxMaterialEditor::EditMaterial(Ogre::MaterialPtr material, bool detect_temp
 	if (detect_template) mCurrentTemplate = "";
 
 	if (detect_template) wxEdit::Instance().GetAuiManager().GetPane("Properties").Caption("Drop Maps here or choose template");
-	//Ogre::LogManager::getSingleton().logMessage("Edit Material: " + mCurrentFile);
+	//Ice::Log::Instance().LogMessage("Edit Material: " + mCurrentFile);
 
 	std::fstream f;
 	char cstring[256];

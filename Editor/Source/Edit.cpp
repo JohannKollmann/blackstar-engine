@@ -497,6 +497,7 @@ void Edit::OnMouseEvent(wxMouseEvent &ev)
 					{
 						visuals->GetNode()->showBoundingBox(true);
 					}*/
+				STOP_MAINLOOP
 				mPerformingObjMov = true;
 				Ogre::Vector3 scaleaxis = Ogre::Vector3((mXAxisLock == AxisLock::UNLOCKED) ? 1.0f : 0.0f, (mYAxisLock == AxisLock::UNLOCKED) ? 1.0f : 0.0f, (mZAxisLock == AxisLock::UNLOCKED) ? 1.0f : 0.0f);
 				scaleaxis = (*i).mObject->GetGlobalOrientation().Inverse() * scaleaxis;
@@ -506,6 +507,7 @@ void Edit::OnMouseEvent(wxMouseEvent &ev)
 				(*i).mObject->Rescale(scaleaxis * ev.m_wheelRotation * mObjectScaleSpeed);
 				(*i).mObject->Freeze(true);
 				AttachAxisObject((*i).mObject);
+				RESUME_MAINLOOP
 			}
 		}
 	}
@@ -1070,7 +1072,7 @@ void Edit::OnSelectMaterial(float MouseX, float MouseY)
 		Ogre::SubEntity *ent = emi.GetSubEntity(ray);
 		if (ent)
 		{
-			//Ogre::LogManager::getSingleton().logMessage("change material: " + ent->getMaterialName());
+			//Ice::Log::Instance().LogMessage("change material: " + ent->getMaterialName());
 			mCurrentMaterialSelection.mSubEntity = ent;
 			mCurrentMaterialSelection.mOriginalMaterialName = ent->getMaterialName();
 			ent->setMaterialName("Editor_Submesh_Selected");
@@ -1103,7 +1105,7 @@ void Edit::DeselectMaterial()
 
 void Edit::OnSelectObject(float MouseX, float MouseY)
 {
-	//Ogre::LogManager::getSingleton().logMessage("OnSelectObject");
+	//Ice::Log::Instance().LogMessage("OnSelectObject");
 	Ice::ObjectLevelRayCaster rc(Ice::Main::Instance().GetCamera()->getCameraToViewportRay(MouseX, MouseY));
 	Ice::GameObject *object = rc.GetFirstHit();
 	//the user is capable to iterate through the ray direction array
@@ -1140,7 +1142,7 @@ void Edit::SelectObject(Ice::GameObjectPtr object)
 {
 	if (!object.get()) return;
 
-	//Ogre::LogManager::getSingleton().logMessage("Select Object " + object->GetName());
+	//Ice::Log::Instance().LogMessage("Select Object " + object->GetName());
 	if (!mMultiSelect) DeselectAllObjects();
 	else DeselectObject(object);
 
@@ -1169,12 +1171,12 @@ void Edit::SelectObject(Ice::GameObjectPtr object)
 	AttachAxisObject(object);
 	mSelectedObjects.push_back(sel);
 	SelectChildren(object);
-	//Ogre::LogManager::getSingleton().logMessage("SelectObject " + object->GetName());
+	//Ice::Log::Instance().LogMessage("SelectObject " + object->GetName());
 }
 
 void Edit::SelectChildren(Ice::GameObjectPtr object)
 {
-	//Ogre::LogManager::getSingleton().logMessage("select Children " + object->GetName());
+	//Ice::Log::Instance().LogMessage("select Children " + object->GetName());
 	object->ResetObjectReferenceIterator();
 	while (object->HasNextObjectReference())
 	{
@@ -1195,7 +1197,7 @@ void Edit::SelectChildren(Ice::GameObjectPtr object)
 
 void Edit::DeselectChildren(Ice::GameObjectPtr object)
 {
-	//Ogre::LogManager::getSingleton().logMessage("Deselect Children " + object->GetName());
+	//Ice::Log::Instance().LogMessage("Deselect Children " + object->GetName());
 	object->ResetObjectReferenceIterator();
 	while (object->HasNextObjectReference())
 	{
@@ -1232,7 +1234,7 @@ void Edit::DeselectObject(Ice::GameObjectPtr object)
 	{
 		wxEdit::Instance().GetMainToolbar()->SetGroupStatus("Game", false);
 	}
-	//Ogre::LogManager::getSingleton().logMessage("Deselect Object " + object->GetName());
+	//Ice::Log::Instance().LogMessage("Deselect Object " + object->GetName());
 	DeselectChildren(object);
 	for (std::list<EditorSelection>::iterator i = mSelectedObjects.begin(); i != mSelectedObjects.end(); i++)
 	{
@@ -1255,7 +1257,7 @@ void Edit::DeselectAllObjects()
 {
 	STOP_MAINLOOP		
 	wxEdit::Instance().GetMainToolbar()->SetGroupStatus("Game", false);
-	//Ogre::LogManager::getSingleton().logMessage("Deselect all Objects");
+	//Ice::Log::Instance().LogMessage("Deselect all Objects");
 	for (std::list<EditorSelection>::iterator i = mSelectedObjects.begin(); i != mSelectedObjects.end(); i++)
 	{
 		DetachAxisObject((*i).mObject);

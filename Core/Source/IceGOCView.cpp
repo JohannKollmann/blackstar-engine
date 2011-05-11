@@ -58,7 +58,7 @@ namespace Ice
 		_clear();
 		if (!Ogre::ResourceGroupManager::getSingleton().resourceExists("General", meshname))
 		{
-			Ogre::LogManager::getSingleton().logMessage("Error: Resource \"" + meshname + "\" does not exist. Loading dummy Resource...");
+			Log::Instance().LogMessage("Error: Resource \"" + meshname + "\" does not exist. Loading dummy Resource...");
 			meshname = "DummyMesh.mesh";
 		}
 		mEntity = Main::Instance().GetOgreSceneMgr()->createEntity(Ogre::StringConverter::toString(SceneManager::Instance().RequestID()), meshname);
@@ -138,7 +138,7 @@ namespace Ice
 		for(unsigned int iSubEnt=0; iSubEnt<mEntity->getNumSubEntities(); iSubEnt++)
 		{
 			Ogre::SubEntity* pSubEnt=mEntity->getSubEntity(iSubEnt);
-			//Ogre::LogManager::getSingleton().logMessage(pSubEnt->getMaterialName());
+			//Log::Instance().LogMessage(pSubEnt->getMaterialName());
 			if(!pSubEnt->getMaterialName().compare(params[0].getString()))
 			{//replace this material
 				pSubEnt->setMaterialName(params[1].getString());
@@ -242,7 +242,7 @@ namespace Ice
 		int id = SceneManager::Instance().RequestID();
 		if (!Ogre::ParticleSystemManager::getSingleton().getTemplate(mParticleResource))
 		{
-			Ogre::LogManager::getSingleton().logMessage("Error: Resource \"" + mParticleResource + "\" does not exist. Loading dummy Resource...");
+			Log::Instance().LogMessage("Error: Resource \"" + mParticleResource + "\" does not exist. Loading dummy Resource...");
 			mParticleResource = "DummyParticle";
 		}
 		else

@@ -166,7 +166,7 @@ void Console::ExecCommand(Ogre::String command)
 		}
 	}
 	Print("Error: Unknown Command!");
-	Ogre::LogManager::getSingleton().logMessage("Console::ExecCommand: Unknown Command (" + command + ")");
+	Log::Instance().LogMessage("Console::ExecCommand: Unknown Command (" + command + ")");
 
 }
 
