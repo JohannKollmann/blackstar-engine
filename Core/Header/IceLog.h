@@ -10,12 +10,22 @@
 
 namespace Ice
 {
+	class MessageListener;
+
 	class __declspec(dllexport) Log
 	{
 	private:
-		boost::mutex mMutex;
+		MessageListener* mLogMessageListener;
 
 	public:
+		Log();
+		~Log();
+
+		enum MessageIDs
+		{
+			LOG_MESSAGE = 210, LOG_CRITICALERROR = 213
+		};
+
 		void LogMessage(Ogre::String message);
 		void LogWarning(Ogre::String message);
 		void LogError(Ogre::String message);
