@@ -1,37 +1,45 @@
 
 #include "IceLog.h"
 #include "IceMessageSystem.h"
+#include "IceLogMessageListener.h"
 
 namespace Ice
 {
 
+	Log::Log()
+	{
+		mLogMessageListener = new LogMessageListener();
+	}
+	Log::~Log()
+	{
+		delete mLogMessageListener;
+	}
+
 	void Log::LogMessage(Ogre::String message)
 	{
-		mMutex.lock();
-		Ogre::LogManager::getSingleton().logMessage(message);
-		mMutex.unlock();
+		Msg msg;
+		msg.typeID = MessageIDs::LOG_MESSAGE;
+		msg.params.AddOgreString("Message", message);
+		MessageSystem::Instance().SendMessage(msg, mLogMessageListener);
 	}
 
 	void Log::LogWarning(Ogre::String message)
 	{
-		mMutex.lock();
-		Ogre::LogManager::getSingleton().logMessage("Warning: " + message);
-		mMutex.unlock();
+		LogMessage("Warning: " + message);
 	}
 
 
 	void Log::LogError(Ogre::String message)
 	{
-		mMutex.lock();
-		Ogre::LogManager::getSingleton().logMessage("Error: " + message);
-		mMutex.unlock();
+		LogMessage("Error: " + message);
 	}
 
 	void Log::LogCriticalError(Ogre::String message)
 	{
-		mMutex.lock();
-		Ogre::LogManager::getSingleton().logMessage("Critical error: " + message, Ogre::LML_CRITICAL);
-		mMutex.unlock();
+		Msg msg;
+		msg.typeID = MessageIDs::LOG_CRITICALERROR;
+		msg.params.AddOgreString("Message", "Critical error: " + message);
+		MessageSystem::Instance().SendMessage(msg, mLogMessageListener);
 	}
 
 	Log& Log::Instance()

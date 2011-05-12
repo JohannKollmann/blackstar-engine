@@ -203,6 +203,7 @@
     <ClInclude Include="Header\IceDepthSchemeHandler.h" />
     <ClInclude Include="Header\IceGOCJoint.h" />
     <ClInclude Include="Header\IceLog.h" />
+    <ClInclude Include="Header\IceLogMessageListener.h" />
     <ClInclude Include="Header\IceObjectMessageIDs.h" />
     <ClInclude Include="Header\IceOrientationBlendProcess.h" />
     <ClInclude Include="Header\IcePlayAnimationProcess.h" />

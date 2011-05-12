@@ -68,7 +68,7 @@ namespace Ice
 
 	bool PhysXUserCallback::onJointBreak(NxReal breakingImpulse, NxJoint& brokenJoint)
 	{
-		//IceNote("Joint break!");
+		IceNote("Joint break!");
 		return false;
 	}
 

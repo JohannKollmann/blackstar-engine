@@ -653,6 +653,9 @@
     <ClInclude Include="Header\IceLog.h">
       <Filter>Utils</Filter>
     </ClInclude>
+    <ClInclude Include="Header\IceLogMessageListener.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Header\Messaging.txt">
