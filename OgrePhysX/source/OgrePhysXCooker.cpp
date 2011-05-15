@@ -338,7 +338,10 @@ namespace OgrePhysX
 		//extract indextable and vertex list
 		int nNewVertices=ExtractOctree(&root, 0, aiIndexTable, aNewVertices);
 		for(int iIndex=0; iIndex<(int)meshInfo.numTriangles*3; iIndex++)
+		{
 			meshInfo.indices[iIndex]=aiIndexTable[meshInfo.indices[iIndex]];
+			assert(meshInfo.indices[iIndex]<(int)nNewVertices && meshInfo.indices[iIndex]>=0);
+		}
 		
 		meshInfo.numVertices=nNewVertices;
 		meshInfo.vertices.resize(nNewVertices);
@@ -361,8 +364,7 @@ namespace OgrePhysX
 			if(index1==index2 || index3==index2 || index1==index3)
 				//degenerate tri: two or more vertices are the same
 				continue;
-			vTris[nTrisCopied]=STri(index1,index2,index3, meshInfo.materialIndices[iTri]);
-			nTrisCopied++;
+			vTris[nTrisCopied++]=STri(index1,index2,index3, meshInfo.materialIndices[iTri]);
 		}
 		vTris.resize(nTrisCopied);
 		std::sort(vTris.begin(), vTris.end());//sort tris to find duplicates easily
