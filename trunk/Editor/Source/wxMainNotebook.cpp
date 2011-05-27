@@ -49,10 +49,12 @@ void wxMainNotebook::OnNotebookChanged(wxAuiNotebookEvent& event)
 		wxEdit::Instance().GetMainToolbar()->SetGroupStatus("ObjectMgr", true);
 
 		wxEdit::Instance().GetMainToolbar()->SetGroupStatus("ScriptEditor", false);
-		mOgreWindow->SetPaused(false);
+		mOgreWindow->DecBlockEngineLoop();//SetPaused(false);
+		
 	}
 	else if (event.old_selection == 0)
 	{
+		mOgreWindow->IncBlockEngineLoop();
 		ToggleWindowStyle(wxAUI_NB_CLOSE_ON_ACTIVE_TAB);
 		wxEdit::Instance().GetMainToolbar()->SetGroupStatus("WorldSettings", false);
 		wxEdit::Instance().GetMainToolbar()->SetGroupStatus("Transform", false);
@@ -60,7 +62,6 @@ void wxMainNotebook::OnNotebookChanged(wxAuiNotebookEvent& event)
 		wxEdit::Instance().GetMainToolbar()->SetGroupStatus("ObjectMgr", false);
 
 		wxEdit::Instance().GetMainToolbar()->SetGroupStatus("ScriptEditor", true);
-		mOgreWindow->SetPaused(true);
 
 	}
 }

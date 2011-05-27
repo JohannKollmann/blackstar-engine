@@ -145,7 +145,7 @@ void AmbientOcclusionGenerator::processVertexData(Ogre::VertexData *targetData, 
 	if (aoBufferSource == -1)
 	{
 		aoBufferSource = inputData->vertexBufferBinding->getBufferCount();
-		vd->addElement(aoBufferSource, 0, Ogre::VertexElementType::VET_COLOUR, Ogre::VertexElementSemantic::VES_DIFFUSE, 0); 
+		vd->addElement(aoBufferSource, 0, Ogre::VertexElementType::VET_COLOUR_ARGB, Ogre::VertexElementSemantic::VES_DIFFUSE, 0); 
 	}
 
 	//Clone existing buffers
@@ -171,7 +171,8 @@ void AmbientOcclusionGenerator::processVertexData(Ogre::VertexData *targetData, 
 	Ogre::Real* pReal;
 
 	//Compute AO and add ao buffer
-	Ogre::RGBA *aoBuffer = new Ogre::RGBA[targetData->vertexCount];
+	unsigned char *aoBuffer = new unsigned char[targetData->vertexCount*4];
+	memset(aoBuffer, 0, targetData->vertexCount*4);
 	Ogre::RenderSystem* rs = Ogre::Root::getSingleton().getRenderSystem();
 	//AO Calculation
 	for (unsigned int i = 0; i < targetData->vertexCount; i++)
@@ -188,28 +189,26 @@ void AmbientOcclusionGenerator::processVertexData(Ogre::VertexData *targetData, 
 		normal.z = (*pReal++);
 		pVertices += vPosBuf->getVertexSize();
 
-		Ogre::ColourValue ao;
 		if (baseNode)
 		{
 			pos = baseNode->_getDerivedPosition() + baseNode->_getDerivedOrientation()*(pos*baseNode->_getDerivedScale());
 			normal = baseNode->_getDerivedOrientation()*normal;
 		}
-		computeAO(pos, normal, rayCollisionGroups, ao);
-		rs->convertColourValue(ao, &aoBuffer[i]);
+		char aoFactor = (char)(computeAO(pos, normal, rayCollisionGroups) * 255);
+		aoBuffer[i*4+3] = aoFactor;
+		//rs->convertColourValue(Ogre::ColourValue(aoFactor, aoFactor, aoFactor, 1), &aoBuffer[i]);
 	}
 	vPosBuf->unlock();
 
 	Ogre::HardwareVertexBufferSharedPtr vAOBuf = Ogre::HardwareBufferManager::getSingleton().createVertexBuffer(
-			Ogre::VertexElement::getTypeSize(Ogre::VertexElementType::VET_COLOUR), targetData->vertexCount, Ogre::HardwareBuffer::HBU_STATIC_WRITE_ONLY);
+		Ogre::VertexElement::getTypeSize(Ogre::VertexElementType::VET_COLOUR_ARGB), targetData->vertexCount, Ogre::HardwareBuffer::HBU_DYNAMIC);
 	vAOBuf->writeData(0, vAOBuf->getSizeInBytes(), aoBuffer, true);
 	targetData->vertexBufferBinding->setBinding(aoBufferSource, vAOBuf);
 	delete aoBuffer;
 }
 
-void AmbientOcclusionGenerator::computeAO(Ogre::Vector3 position, Ogre::Vector3 normal, int rayCollisionGroups, Ogre::ColourValue &target )
+float AmbientOcclusionGenerator::computeAO(Ogre::Vector3 position, Ogre::Vector3 normal, int rayCollisionGroups)
 {
-	//position += normal*0.01f;
-	target.r = 0; target.g = 0; target.b = 0; target.a = 1;
 	const float c = 4;
 	float fNumSamples = 0;
 	float sum = 0;
@@ -243,8 +242,6 @@ void AmbientOcclusionGenerator::computeAO(Ogre::Vector3 position, Ogre::Vector3 
 	if (avg > 1) avg = 1;
 
 	float aoOffset = 1-avg;
+	return aoOffset;
 	//if (aoOffset < 0.1f) aoOffset = 0.1f;
-	target.r = aoOffset;
-	target.g = aoOffset;
-	target.b = aoOffset;
 }

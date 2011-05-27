@@ -16,6 +16,7 @@
 #include "IceGOCOgreNode.h"
 #include "AmbientOcclusionGenerator.h"
 #include "IceGOCJoint.h"
+#include "VertexMultitextureWeightBrusher.h"
 
 #include "ResourceGroupReloader.h"
 
@@ -84,6 +85,7 @@ Edit::Edit(wxWindow* parent) : wxOgre(parent, -1)
 
 	mMaterialMode = false;
 	mBrushMode = false;
+	mMultitextureBrushMode = false;
 
 	mFreezeCamera = false;
 
@@ -221,8 +223,10 @@ void Edit::OnToolbarEvent(int toolID, Ogre::String toolname)
 	}
 	if (toolname == "ReloadOgreResources")
 	{
+		STOP_MAINLOOP
 		ResourceGroupReloader rgh;
 		rgh.reloadResourceGroup("General");
+		RESUME_MAINLOOP
 	}
 }
 
@@ -593,6 +597,10 @@ void Edit::OnMouseMove(Ogre::Radian RotX,Ogre::Radian RotY)
 				}
 			}
 		}
+		else
+		{
+			BrushMultitexture(0);
+		}
 	}
 	else if (mRightDown == true)
 	{
@@ -642,6 +650,20 @@ void Edit::OnMouseMove(Ogre::Radian RotX,Ogre::Radian RotY)
 		}
 	}
 };
+
+void Edit::BrushMultitexture(unsigned int textureLayer)
+{
+	Ogre::Ray ray = Ice::Main::Instance().GetCamera()->getCameraToViewportRay(mMousePosition.x, mMousePosition.y);
+	if (Ice::SceneManager::Instance().HasLevelMesh())
+	{
+		Ogre::Entity *levelMeshEnt = Ice::Main::Instance().GetOgreSceneMgr()->getEntity("LevelMesh-entity");
+		if (levelMeshEnt)
+		{
+			VertexMultitextureWeightBrusher::SetMultitextureWeight(levelMeshEnt, ray, 2.0f, textureLayer);
+		}
+	}
+	
+}
 
 void Edit::OnKeyDown(wxKeyEvent& key)
 {
@@ -1049,8 +1071,8 @@ void Edit::OnSelectMaterial(float MouseX, float MouseY)
 		Ice::GOCMeshRenderable *gocmesh = object->GetComponent<Ice::GOCMeshRenderable>();
 		if (gocmesh != 0)
 		{
-			EntityMaterialInspector emi(gocmesh->GetEntity());
-			Ogre::SubEntity *ent = emi.GetSubEntity(ray);
+			EntityMaterialInspector emi(gocmesh->GetEntity(), ray);
+			Ogre::SubEntity *ent = emi.GetSubEntity();
 			if (!ent)
 			{
 				RESUME_MAINLOOP
@@ -1068,8 +1090,8 @@ void Edit::OnSelectMaterial(float MouseX, float MouseY)
 
 	if (Ice::SceneManager::Instance().HasLevelMesh())
 	{
-		EntityMaterialInspector emi(Ice::Main::Instance().GetOgreSceneMgr()->getEntity("LevelMesh-entity"));
-		Ogre::SubEntity *ent = emi.GetSubEntity(ray);
+		EntityMaterialInspector emi(Ice::Main::Instance().GetOgreSceneMgr()->getEntity("LevelMesh-entity"), ray);
+		Ogre::SubEntity *ent = emi.GetSubEntity();
 		if (ent)
 		{
 			//Ice::Log::Instance().LogMessage("change material: " + ent->getMaterialName());
@@ -1482,7 +1504,9 @@ void Edit::OnComputeAO( wxCommandEvent& WXUNUSED(event) /*= wxCommandEvent()*/ )
 
     if (dialog.ShowModal() == wxID_OK)
     {
+		STOP_MAINLOOP
 		AmbientOcclusionGenerator::Instance().bakeAmbientOcclusion(mesh->GetEntity(), dialog.GetPath().c_str().AsChar());
+		RESUME_MAINLOOP
 	}
 }
 
@@ -1540,6 +1564,9 @@ void Edit::DecBlockEngineLoop()
 {
 	mBlockEngineLoopCond.lock();
 	if (mEngineLoopBlockers > 0) mEngineLoopBlockers--;
-	if (mEngineLoopBlockers == 0) Ice::MessageSystem::Instance().UnlockMessageProcessing();
+	if (mEngineLoopBlockers == 0)
+	{
+		Ice::MessageSystem::Instance().UnlockMessageProcessing();
+	}
 	mBlockEngineLoopCond.unlock();
 }

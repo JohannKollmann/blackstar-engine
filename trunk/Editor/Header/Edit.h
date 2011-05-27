@@ -130,6 +130,8 @@ public:
 	void DeselectAllObjects();
 	bool ObjectIsSelected(Ice::GameObjectPtr object);
 
+	void BrushMultitexture(unsigned int textureLayer);
+
 	void ReceiveMessage(Ice::Msg &msg);
 
 	void SetCameraMoveSpeed(float factor);
@@ -150,6 +152,7 @@ public:
 	bool mIsActive;		//Wird für Steuerung gebraucht und wird von wxOgre gesetzt.
 	bool mBrushMode;	//Public, da es aus Main Menu gesetzt wird!
 	bool mMaterialMode;
+	bool mMultitextureBrushMode;
 
 private:
 	std::list<EditorSelection> mSelectedObjects;	//Liste der angeklickten Objekte

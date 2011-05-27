@@ -8,7 +8,7 @@ class AmbientOcclusionGenerator
 {
 private:
 	void processVertexData(Ogre::VertexData *targetData, Ogre::VertexData *inputData, int rayCollisionGroups, Ogre::Node *baseNode = nullptr);
-	void computeAO(Ogre::Vector3 position, Ogre::Vector3 normal, int rayCollisionGroups, Ogre::ColourValue &target);
+	float computeAO(Ogre::Vector3 position, Ogre::Vector3 normal, int rayCollisionGroups);
 
 public:
 	AmbientOcclusionGenerator(void);

@@ -17,8 +17,8 @@ namespace Ice
 	        | Caelum::CaelumSystem::CaelumComponent::CAELUM_COMPONENT_MOON
 	        //| Caelum::CaelumSystem::CaelumComponent::CAELUM_COMPONENT_SUN
 	        | Caelum::CaelumSystem::CaelumComponent::CAELUM_COMPONENT_POINT_STARFIELD
-	        | Caelum::CaelumSystem::CaelumComponent::CAELUM_COMPONENT_CLOUDS
-			| Caelum::CaelumSystem::CaelumComponent::CAELUM_COMPONENT_PRECIPITATION);
+	        | Caelum::CaelumSystem::CaelumComponent::CAELUM_COMPONENT_CLOUDS);
+			//| Caelum::CaelumSystem::CaelumComponent::CAELUM_COMPONENT_PRECIPITATION);
 	        //| Caelum::CaelumSystem::CaelumComponent::CAELUM_COMPONENT_SCREEN_SPACE_FOG
 			//| Caelum::CaelumSystem::CaelumComponent::CAELUM_COMPONENT_GROUND_FOG);
 
