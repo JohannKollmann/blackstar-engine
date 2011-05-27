@@ -102,10 +102,12 @@ void wxMediaTree::OnMenuCallback(int id)
 {
 	if (id == AssetTree_bakeAO)
 	{
+		STOP_MAINLOOP
 		Ogre::Entity *ent = Ice::Main::Instance().GetOgreSceneMgr()->createEntity(mCurrentItem->GetName().c_str().AsChar());
 		Ogre::String path = GetFullPath(mCurrentItem->GetId()).GetFullPath().c_str().AsChar();
 		Ice::Log::Instance().LogMessage(path);
 		AmbientOcclusionGenerator::Instance().bakeAmbientOcclusion(ent->getMesh(), path);
+		RESUME_MAINLOOP
 	}
 }
 

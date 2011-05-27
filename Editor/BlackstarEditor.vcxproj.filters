@@ -120,6 +120,9 @@
     <ClInclude Include="Header\ResourceGroupReloader.h">
       <Filter>Editor</Filter>
     </ClInclude>
+    <ClInclude Include="Header\VertexMultitextureWeightBrusher.h">
+      <Filter>Editor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\virtualdirtreectrl.cpp">
@@ -222,6 +225,9 @@
       <Filter>Editor</Filter>
     </ClCompile>
     <ClCompile Include="Source\ResourceGroupReloader.cpp">
+      <Filter>Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\VertexMultitextureWeightBrusher.cpp">
       <Filter>Editor</Filter>
     </ClCompile>
   </ItemGroup>

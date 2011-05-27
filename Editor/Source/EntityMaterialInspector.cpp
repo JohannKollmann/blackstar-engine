@@ -2,9 +2,11 @@
 
 #include "EntityMaterialInspector.h"
 
-EntityMaterialInspector::EntityMaterialInspector(Ogre::Entity *entity)
+EntityMaterialInspector::EntityMaterialInspector(Ogre::Entity *entity, Ogre::Ray ray)
 {
 	mEntity = entity;
+	mSubEntity = nullptr;
+	inspect(ray);
 }
 
 EntityMaterialInspector::~EntityMaterialInspector(void)
@@ -12,7 +14,7 @@ EntityMaterialInspector::~EntityMaterialInspector(void)
 }
 
 
-std::vector<SubMeshInformation*> EntityMaterialInspector::GetSubMeshes(const Ogre::Vector3 &position, const Ogre::Quaternion &orient, const Ogre::Vector3 &scale)
+std::vector<SubMeshInformation*> EntityMaterialInspector::getSubMeshes(const Ogre::Vector3 &position, const Ogre::Quaternion &orient, const Ogre::Vector3 &scale)
 {
 	SubMeshInformation* currentSubMesh;
 	std::vector<SubMeshInformation*> returner; 
@@ -43,7 +45,7 @@ std::vector<SubMeshInformation*> EntityMaterialInspector::GetSubMeshes(const Ogr
 		vbuf->unlock();
 	}
 
-    // Calculate how many currentSubMesh.mVertices and currentSubMesh.mIndices we're going to need
+    //calculate how many currentSubMesh.mVertices and currentSubMesh.mIndices we will need
 	for (unsigned short i = 0; i < mEntity->getMesh()->getNumSubMeshes(); ++i)
 	{
 		currentSubMesh = new SubMeshInformation();
@@ -132,10 +134,10 @@ std::vector<SubMeshInformation*> EntityMaterialInspector::GetSubMeshes(const Ogr
 
 }
 
-Ogre::SubEntity* EntityMaterialInspector::GetSubEntity(Ogre::Ray ray)
+void EntityMaterialInspector::inspect(const Ogre::Ray &ray)
 {
 	//Ice::Log::Instance().LogMessage("GetSubmesh 1");
-	std::vector<SubMeshInformation*> submeshes = GetSubMeshes(mEntity->getParentNode()->_getDerivedPosition(), mEntity->getParentNode()->_getDerivedOrientation(), mEntity->getParentNode()->_getDerivedScale());
+	std::vector<SubMeshInformation*> submeshes = getSubMeshes(mEntity->getParentNode()->_getDerivedPosition(), mEntity->getParentNode()->_getDerivedOrientation(), mEntity->getParentNode()->_getDerivedScale());
 	float closest_distance = 99999;
 	SubMeshInformation *closest_submesh = NULL;
 	for (std::vector<SubMeshInformation*>::iterator mesh = submeshes.begin(); mesh != submeshes.end(); mesh++)
@@ -152,27 +154,28 @@ Ogre::SubEntity* EntityMaterialInspector::GetSubEntity(Ogre::Ray ray)
 				{
 					closest_distance = hit.second;
 					closest_submesh = (*mesh);
+					mHitTriangleIndices[0] = (*mesh)->mIndices[i];
+					mHitTriangleIndices[1] = (*mesh)->mIndices[i+1];
+					mHitTriangleIndices[2] = (*mesh)->mIndices[i+2];
 				}
 			}
 		}
 	}
 
-	Ogre::SubEntity *returner = NULL;
 	if (closest_submesh)
 	{
-		returner = mEntity->getSubEntity(closest_submesh->mIndex);
+		mSubEntity = mEntity->getSubEntity(closest_submesh->mIndex);
+		mHitPos = ray.getPoint(closest_distance);
 	}
 	//else Ice::Log::Instance().LogMessage("Warning: EntityMaterialInspector::GetSubEntity(Ogre::Ray ray) - return NULL");
 	for (std::vector<SubMeshInformation*>::iterator mesh = submeshes.begin(); mesh != submeshes.end(); mesh++)
 	{
 		delete (*mesh);
 	}
-	return returner;
 }
 
-Ogre::String EntityMaterialInspector::GetMaterialName(Ogre::Ray ray)
+Ogre::String EntityMaterialInspector::GetMaterialName()
 {
-	Ogre::SubEntity *mesh = GetSubEntity(ray);
-	if (mesh) return mesh->getMaterialName();
-	return "NORESULT";
+	if (mSubEntity) return mSubEntity->getMaterialName();
+	return "";
 }

@@ -38,17 +38,21 @@ public:
 
 class EntityMaterialInspector
 {
-
-
 private:
 	Ogre::Entity *mEntity;
+	Ogre::SubEntity *mSubEntity;
+	Ogre::Vector3 mHitPos;
+	int mHitTriangleIndices[3];
 
-	std::vector<SubMeshInformation*> GetSubMeshes(const Ogre::Vector3 &position, const Ogre::Quaternion &orient, const Ogre::Vector3 &scale);
+	std::vector<SubMeshInformation*> getSubMeshes(const Ogre::Vector3 &position, const Ogre::Quaternion &orient, const Ogre::Vector3 &scale);
+	void inspect(const Ogre::Ray &ray);
 
 public:
-	EntityMaterialInspector(Ogre::Entity *entity);
-	Ogre::SubEntity* GetSubEntity(Ogre::Ray ray);
-	Ogre::String GetMaterialName(Ogre::Ray ray);
-
+	EntityMaterialInspector(Ogre::Entity *entity, Ogre::Ray ray);
 	~EntityMaterialInspector(void);
+
+	Ogre::String GetMaterialName();
+	Ogre::SubEntity* GetSubEntity() { return mSubEntity; }
+	Ogre::Vector3 GetHitPosition() { return mHitPos; }
+	int* GetHitTriangleIndices() { return mHitTriangleIndices; }
 };

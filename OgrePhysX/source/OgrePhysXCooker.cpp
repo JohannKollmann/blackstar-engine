@@ -219,7 +219,7 @@ namespace OgrePhysX
 			if (vertex_data) index_offset += vertex_data->vertexCount;
 
 		}
-		mergeVertices(outInfo);
+		//mergeVertices(outInfo);
 	}
 
 	struct OctreeNode

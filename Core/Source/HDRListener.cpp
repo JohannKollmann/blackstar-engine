@@ -184,14 +184,20 @@ namespace Ice
 		{
 			if (!SceneManager::Instance().GetWeatherController()) return;
 			Ogre::Matrix4 viewproj = Ice::Main::Instance().GetCamera()->getProjectionMatrix() * Ice::Main::Instance().GetCamera()->getViewMatrix();
-			Ogre::Vector3 sunDir = SceneManager::Instance().GetWeatherController()->GetCaelumSystem()->getSun()->getLightDirection();
-			float camDotLight = Ice::Main::Instance().GetCamera()->getDerivedDirection().dotProduct(-sunDir);
-			Ogre::Vector3 sunPos = (-sunDir) * 10000;
-			Ogre::Vector3 sunUV = viewproj * sunPos;
+			Ogre::Vector3 lightDir = SceneManager::Instance().GetWeatherController()->GetCaelumSystem()->getSun()->getLightDirection();
+			Ogre::ColourValue lightCol = SceneManager::Instance().GetWeatherController()->GetCaelumSystem()->getSun()->getMainLight()->getDiffuseColour();
+			if (SceneManager::Instance().GetWeatherController()->GetCaelumSystem()->getSun()->getForceDisable())
+			{
+				lightDir = SceneManager::Instance().GetWeatherController()->GetCaelumSystem()->getMoon()->getLightDirection();
+				lightCol = SceneManager::Instance().GetWeatherController()->GetCaelumSystem()->getMoon()->getMainLight()->getDiffuseColour();
+			}
+			float camDotLight = Ice::Main::Instance().GetCamera()->getDerivedDirection().dotProduct(-lightDir);
+			Ogre::Vector3 lightPos = (-lightDir) * 10000;
+			Ogre::Vector3 lightUV = viewproj * lightPos;
 
 			//saturate and convert to image space
 			//calc climb rate
-			float fSlope,fInverseSlope;
+			/*float fSlope,fInverseSlope;
 			if(sunUV.x!=0)
 				fSlope=sunUV.y/sunUV.x;
 			if(sunUV.y!=0)
@@ -205,18 +211,19 @@ namespace Ice
 			{
 				if (sunUV.y < -1){ sunUV.y = -1;sunUV.x=-fInverseSlope;}
 				if (sunUV.y > 1){ sunUV.y = 1;sunUV.x=fInverseSlope;}
-			}
+			}*/
 
-			sunUV.y *= -1;
-			sunUV += Ogre::Vector3(1, 1, 0);
-			sunUV *= 0.5;
-			sunUV.z = camDotLight;
+			lightUV.y *= -1;
+			lightUV += Ogre::Vector3(1, 1, 0);
+			lightUV *= 0.5;
+			lightUV.z = camDotLight;
 
 			//IceNote(Ogre::StringConverter::toString(camDotLight));
 			mat->load();
 			Ogre::GpuProgramParametersSharedPtr fparams =
 			mat->getBestTechnique()->getPass(0)->getFragmentProgramParameters();
-			fparams->setNamedConstant("sunUV", sunUV);
+			if (fparams->_findNamedConstantDefinition("lightUV")) fparams->setNamedConstant("lightUV", lightUV);
+			if (fparams->_findNamedConstantDefinition("lightColor")) fparams->setNamedConstant("lightColor", lightCol);
 		}
 	}
 
