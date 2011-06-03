@@ -149,6 +149,9 @@ namespace Ice
 		void SetParameters(DataMap *parameters);
 		void GetParameters(DataMap *parameters);
 
+		void SetWeatherParameters(DataMap *parameters);
+		void GetWeatherParameters(DataMap *parameters);
+
 		void RegisterComponentDefaultParams(Ogre::String editFamily, Ogre::String type, DataMap &params);
 
 		void RegisterGOCPrototype(GOCEditorInterfacePtr prototype);

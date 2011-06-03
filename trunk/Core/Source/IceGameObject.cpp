@@ -648,6 +648,31 @@ namespace Ice
 		else SCRIPT_RETURNERROR("invalid object id")
 	}
 
+	std::vector<ScriptParam> GameObject::Object_SetProperty(Script& caller, std::vector<ScriptParam> &vParams)
+	{
+		std::vector<ScriptParam> out;
+		Ogre::String key = vParams[0].getString().c_str();
+		mScriptProperties[key] = vParams[1];
+		return out;
+	}
+	std::vector<ScriptParam> GameObject::Object_GetProperty(Script& caller, std::vector<ScriptParam> &vParams)
+	{
+		std::vector<ScriptParam> out;
+		Ogre::String key = vParams[0].getString().c_str();
+		auto i = mScriptProperties.find(key);
+		if (i == mScriptProperties.end()) return out;
+		out.push_back(i->second);
+		return out;
+	}
+	std::vector<ScriptParam> GameObject::Object_HasProperty(Script& caller, std::vector<ScriptParam> &vParams)
+	{
+		std::vector<ScriptParam> out;
+		Ogre::String key = vParams[0].getString().c_str();
+		auto i = mScriptProperties.find(key);
+		out.push_back(i != mScriptProperties.end());
+		return out;
+	}
+
 	DEFINE_TYPEDGOLUAMETHOD_CPP(AddComponent, "string string")
 	DEFINE_TYPEDGOLUAMETHOD_CPP(SetParent, "int")
 	DEFINE_TYPEDGOLUAMETHOD_CPP(SetObjectPosition, "float float float")
@@ -662,5 +687,8 @@ namespace Ice
 	DEFINE_GOLUAMETHOD_CPP(IsNpc)
 	DEFINE_TYPEDGOLUAMETHOD_CPP(Object_Play3DSound, "string float float")		//audio file, range, loudness
 	DEFINE_TYPEDGOLUAMETHOD_CPP(Object_GetDistToObject, "int")
+	DEFINE_TYPEDGOLUAMETHOD_CPP(Object_SetProperty, "string")
+	DEFINE_TYPEDGOLUAMETHOD_CPP(Object_GetProperty, "string")
+	DEFINE_TYPEDGOLUAMETHOD_CPP(Object_HasProperty, "string")
 
 };

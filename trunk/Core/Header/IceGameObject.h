@@ -294,9 +294,9 @@ namespace Ice
 		//Scripting
 		std::vector<ScriptParam> AddComponent(Script& caller, std::vector<ScriptParam> &vParams);
 		std::vector<ScriptParam> SetParent(Script& caller, std::vector<ScriptParam> &vParams);
-		std::vector<ScriptParam> SetObjectProperty(Script& caller, std::vector<ScriptParam> &vParams);
-		std::vector<ScriptParam> GetObjectProperty(Script& caller, std::vector<ScriptParam> &vParams);
-		std::vector<ScriptParam> HasObjectProperty(Script& caller, std::vector<ScriptParam> &vParams);
+		std::vector<ScriptParam> Object_SetProperty(Script& caller, std::vector<ScriptParam> &vParams);
+		std::vector<ScriptParam> Object_GetProperty(Script& caller, std::vector<ScriptParam> &vParams);
+		std::vector<ScriptParam> Object_HasProperty(Script& caller, std::vector<ScriptParam> &vParams);
 		std::vector<ScriptParam> SetObjectPosition(Script& caller, std::vector<ScriptParam> &vParams);
 		std::vector<ScriptParam> SetObjectOrientation(Script& caller, std::vector<ScriptParam> &vParams);
 		std::vector<ScriptParam> SetObjectScale(Script& caller, std::vector<ScriptParam> &vParams);
@@ -312,9 +312,9 @@ namespace Ice
 
 		DEFINE_GOLUAMETHOD_H(AddComponent)
 		DEFINE_GOLUAMETHOD_H(SetParent)
-		DEFINE_GOLUAMETHOD_H(SetObjectProperty)
-		DEFINE_GOLUAMETHOD_H(GetObjectProperty)
-		DEFINE_GOLUAMETHOD_H(HasObjectProperty)
+		DEFINE_GOLUAMETHOD_H(Object_SetProperty)
+		DEFINE_GOLUAMETHOD_H(Object_GetProperty)
+		DEFINE_GOLUAMETHOD_H(Object_HasProperty)
 		DEFINE_GOLUAMETHOD_H(SetObjectPosition)
 		DEFINE_GOLUAMETHOD_H(SetObjectOrientation)
 		DEFINE_GOLUAMETHOD_H(SetObjectScale)
@@ -327,6 +327,9 @@ namespace Ice
 		DEFINE_GOLUAMETHOD_H(FreeResources)
 		DEFINE_GOLUAMETHOD_H(Object_Play3DSound)
 		DEFINE_GOLUAMETHOD_H(Object_GetDistToObject)
+
+		//properties
+		std::map<Ogre::String, ScriptParam> mScriptProperties;
 
 		//Editor stuff
 

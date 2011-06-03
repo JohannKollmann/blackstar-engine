@@ -40,7 +40,6 @@ namespace Ice
 	        mCaelumSystem->getPrecipitationController ()->setIntensity (0);
 		}*/
 
-
 		mCaelumSystem->getUniversalClock ()->setTimeScale (0);
 
 	    mCaelumSystem->setManageSceneFog(false);
@@ -135,6 +134,14 @@ namespace Ice
 		Ogre::Vector3 offset(0, -500, 0);
 		mCaelumSystem->getCaelumCameraNode()->setPosition(Main::Instance().GetCamera()->getDerivedPosition() + offset);
 		mCaelumSystem->updateSubcomponents(time);
+
+		Ogre::GpuSharedParametersPtr weatherParams = Ogre::GpuProgramManager::getSingleton().getSharedParameters("FogParams");
+		Caelum::LongReal julDay = mCaelumSystem->getUniversalClock()->getJulianDay ();
+        Caelum::LongReal relDayTime = fmod(julDay, 1);
+		Ogre::Vector3 sunDir = mCaelumSystem->getSunDirection(julDay);   
+		Ogre::ColourValue fogColour = mCaelumSystem->getFogColour(relDayTime, sunDir);
+		weatherParams->setNamedConstant("fogColour", fogColour);
+
 	};
 
 	void WeatherController::UpdateViewport()

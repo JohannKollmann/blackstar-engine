@@ -340,7 +340,7 @@ void Main::initScene()
 	mSpotShadowCameraSetup = Ogre::ShadowCameraSetupPtr(spotSetup);
 
 	Ogre::PSSMShadowCameraSetup* pssmSetup = ICE_NEW Ogre::PSSMShadowCameraSetup();
-	pssmSetup->calculateSplitPoints(3, 0.4f, 150, 0.95f);
+	pssmSetup->calculateSplitPoints(3, 0.4f, 200, 0.95f);
 	pssmSetup->setSplitPadding(1);
 	pssmSetup->setOptimalAdjustFactor(0, 2);
 	pssmSetup->setOptimalAdjustFactor(1, 0.6f);
