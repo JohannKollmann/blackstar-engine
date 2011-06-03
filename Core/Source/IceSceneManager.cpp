@@ -512,65 +512,69 @@ namespace Ice
 			mLevelMesh = nullptr;
 		}
 
+		SetWeatherParameters(parameters);
+
 		mStartupScriptName = parameters->GetValue<Ogre::String>("Startup Script", "");
 		if (mStartupScriptName != "") ScriptSystem::GetInstance().CreateInstance(mStartupScriptName);
-
-		bool indoor = parameters->GetBool("Indoor");
-		if (indoor) SetToIndoor();
-		else
-		{
-			SetToOutdoor();
-			mWeatherController->GetCaelumSystem()->getSun()->setAmbientMultiplier(parameters->GetOgreCol("AmbientLight"));
-			mWeatherController->GetCaelumSystem()->getSun()->setDiffuseMultiplier(parameters->GetOgreCol("Sun_DiffuseLight"));
-			mWeatherController->GetCaelumSystem()->getSun()->setSpecularMultiplier(parameters->GetOgreCol("Sun_SpecularLight"));
-			mWeatherController->Update(0);
-		}
-
-		Ogre::GpuSharedParametersPtr hdrParams = Ogre::GpuProgramManager::getSingleton().getSharedParameters("HDRParams");
-		/*hdrParams->removeAllConstantDefinitions();
-		hdrParams->addConstantDefinition("Luminence_Factor", Ogre::GpuConstantType::GCT_FLOAT4);
-		hdrParams->addConstantDefinition("Tonemap_White", Ogre::GpuConstantType::GCT_FLOAT1);
-		hdrParams->addConstantDefinition("Brightpass_Threshold", Ogre::GpuConstantType::GCT_FLOAT4);
-		hdrParams->addConstantDefinition("LinearTonemap_KeyLumScale", Ogre::GpuConstantType::GCT_FLOAT1);
-		hdrParams->addConstantDefinition("LinearTonemap_KeyMax", Ogre::GpuConstantType::GCT_FLOAT1);
-		hdrParams->addConstantDefinition("LinearTonemap_KeyMaxOffset", Ogre::GpuConstantType::GCT_FLOAT1);
-		hdrParams->addConstantDefinition("LinearTonemap_KeyMin", Ogre::GpuConstantType::GCT_FLOAT1);*/
-
-		Ogre::ColourValue col = parameters->GetOgreCol("Luminence_Factor"); col.a = 0;
-		hdrParams->setNamedConstant("Luminence_Factor", col);
-		hdrParams->setNamedConstant("Tonemap_White", parameters->GetFloat("Tonemap_White"));
-		col = parameters->GetOgreCol("Brightpass_Threshold"); col.a = 0;
-		hdrParams->setNamedConstant("Brightpass_Threshold", col);
-
-		try { col = parameters->GetOgreCol("BrightpassAmbient_Threshold");} catch(Ogre::Exception) {col = Ogre::ColourValue(1,1,1,0); }
-		col.a = 0;hdrParams->setNamedConstant("BrightpassAmbient_Threshold", col);
-		hdrParams->setNamedConstant("BloomAmbient_GlareScale", parameters->GetValue<float>("BloomAmbient_GlareScale", 0.5f));
-		hdrParams->setNamedConstant("BloomAmbient_GlarePower", parameters->GetValue<float>("BloomAmbient_GlarePower", 0.5f));
-
-		hdrParams->setNamedConstant("Bloom_GlareScale", parameters->GetValue<float>("Bloom_GlareScale", 1.0f));
-		hdrParams->setNamedConstant("Bloom_GlarePower", parameters->GetValue<float>("Bloom_GlarePower", 1.0f));
-		hdrParams->setNamedConstant("Bloom_StarScale", parameters->GetValue<float>("Bloom_StarScale", 1.0f));
-		hdrParams->setNamedConstant("Bloom_StarPower", parameters->GetValue<float>("Bloom_StarPower", 1.0f));
-
-		hdrParams->setNamedConstant("LinearTonemap_KeyLumScale", parameters->GetFloat("LinearTonemap_KeyLumScale"));
-		hdrParams->setNamedConstant("LinearTonemap_KeyMax", parameters->GetFloat("LinearTonemap_KeyMax"));
-		hdrParams->setNamedConstant("LinearTonemap_KeyMaxOffset", parameters->GetFloat("LinearTonemap_KeyMaxOffset"));
-		hdrParams->setNamedConstant("LinearTonemap_KeyMin", parameters->GetFloat("LinearTonemap_KeyMin"));
-
-		hdrParams->setNamedConstant("LightAdaption_Exponent", parameters->GetValue<float>("LightAdaption_Exponent", 2.0f));
-		hdrParams->setNamedConstant("LightAdaption_Factor", parameters->GetValue<float>("LightAdaption_Factor", 0.1f));
-		hdrParams->setNamedConstant("ShadowAdaption_Exponent", parameters->GetValue<float>("ShadowAdaption_Exponent", 2));
-		hdrParams->setNamedConstant("ShadowAdaption_Factor", parameters->GetValue<float>("ShadowAdaption_Factor", 0.1f));
 	}
 
 	void SceneManager::GetParameters(DataMap *parameters)
 	{
 		if (mLevelMesh) parameters->AddOgreString("LevelMesh", mLevelMesh->GetMeshFileName());
 		else parameters->AddOgreString("LevelMesh", "");
-		parameters->AddBool("Indoor", mIndoorRendering);
 
 		parameters->AddOgreString("Startup Script", mStartupScriptName);
 
+		GetWeatherParameters(parameters);
+	}
+
+	void SceneManager::SetWeatherParameters(DataMap *parameters)
+	{
+		DataMap currParams;
+		GetWeatherParameters(&currParams);
+
+		bool indoor = parameters->GetBool("Indoor", currParams.GetBool("Indoor"));
+		if (indoor) SetToIndoor();
+		else
+		{
+			SetToOutdoor();
+			mWeatherController->GetCaelumSystem()->getSun()->setAmbientMultiplier(parameters->GetOgreCol("AmbientLight", currParams.GetOgreCol("AmbientLight")));
+			mWeatherController->GetCaelumSystem()->getSun()->setDiffuseMultiplier(parameters->GetOgreCol("Sun_DiffuseLight", currParams.GetOgreCol("Sun_DiffuseLight")));
+			mWeatherController->GetCaelumSystem()->getSun()->setSpecularMultiplier(parameters->GetOgreCol("Sun_SpecularLight", currParams.GetOgreCol("Sun_SpecularLight")));
+			mWeatherController->Update(0);
+		}
+
+		Ogre::GpuSharedParametersPtr hdrParams = Ogre::GpuProgramManager::getSingleton().getSharedParameters("HDRParams");
+
+		Ogre::ColourValue col = parameters->GetOgreCol("Luminence_Factor", currParams.GetOgreCol("Luminence_Factor")); col.a = 0;
+		hdrParams->setNamedConstant("Luminence_Factor", col);
+		hdrParams->setNamedConstant("Tonemap_White", parameters->GetFloat("Tonemap_White"));
+		col = parameters->GetOgreCol("Brightpass_Threshold", currParams.GetOgreCol("Brightpass_Threshold")); col.a = 0;
+		hdrParams->setNamedConstant("Brightpass_Threshold", col);
+
+		col = parameters->GetOgreCol("BrightpassAmbient_Threshold", currParams.GetOgreCol("BrightpassAmbient_Threshold")); col.a = 0;
+		hdrParams->setNamedConstant("BrightpassAmbient_Threshold", col);
+		hdrParams->setNamedConstant("BloomAmbient_GlareScale", parameters->GetValue<float>("BloomAmbient_GlareScale", 0.5f));
+		hdrParams->setNamedConstant("BloomAmbient_GlarePower", parameters->GetValue<float>("BloomAmbient_GlarePower", 0.5f));
+
+		hdrParams->setNamedConstant("Bloom_GlareScale", parameters->GetValue<float>("Bloom_GlareScale", parameters->GetFloat("Bloom_GlareScale")));
+		hdrParams->setNamedConstant("Bloom_GlarePower", parameters->GetValue<float>("Bloom_GlarePower", parameters->GetFloat("Bloom_GlarePower")));
+		hdrParams->setNamedConstant("Bloom_StarScale", parameters->GetValue<float>("Bloom_StarScale", parameters->GetFloat("Bloom_StarScale")));
+		hdrParams->setNamedConstant("Bloom_StarPower", parameters->GetValue<float>("Bloom_StarPower", parameters->GetFloat("Bloom_StarPower")));
+
+		hdrParams->setNamedConstant("LinearTonemap_KeyLumScale", parameters->GetFloat("LinearTonemap_KeyLumScale", parameters->GetFloat("LinearTonemap_KeyLumScale")));
+		hdrParams->setNamedConstant("LinearTonemap_KeyMax", parameters->GetFloat("LinearTonemap_KeyMax", parameters->GetFloat("LinearTonemap_KeyMax")));
+		hdrParams->setNamedConstant("LinearTonemap_KeyMaxOffset", parameters->GetFloat("LinearTonemap_KeyMaxOffset", parameters->GetFloat("LinearTonemap_KeyMaxOffset")));
+		hdrParams->setNamedConstant("LinearTonemap_KeyMin", parameters->GetFloat("LinearTonemap_KeyMin", parameters->GetFloat("LinearTonemap_KeyMin")));
+
+		hdrParams->setNamedConstant("LightAdaption_Exponent", parameters->GetValue<float>("LightAdaption_Exponent", parameters->GetFloat("LightAdaption_Exponent")));
+		hdrParams->setNamedConstant("LightAdaption_Factor", parameters->GetValue<float>("LightAdaption_Factor", parameters->GetFloat("LightAdaption_Factor")));
+		hdrParams->setNamedConstant("ShadowAdaption_Exponent", parameters->GetValue<float>("ShadowAdaption_Exponent", parameters->GetFloat("ShadowAdaption_Exponent")));
+		hdrParams->setNamedConstant("ShadowAdaption_Factor", parameters->GetValue<float>("ShadowAdaption_Factor", parameters->GetFloat("ShadowAdaption_Factor")));
+	}
+	void SceneManager::GetWeatherParameters(DataMap *parameters)
+	{
+		parameters->AddBool("Indoor", mIndoorRendering);
 		if (mWeatherController)
 		{
 			parameters->AddOgreCol("AmbientLight", mWeatherController->GetCaelumSystem()->getSun()->getAmbientMultiplier());
