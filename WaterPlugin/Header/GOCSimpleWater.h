@@ -151,6 +151,7 @@ public:
 		mgr.SaveAtom("float", &mHeight, "Height");
 		mgr.SaveAtom("Ogre::String", &mWaterMesh, "Water Mesh");
 		mgr.SaveAtom("Ogre::Vector3", &mUpVector, "Up Vector");
+		mgr.SaveAtom("Ogre::String", &mRefMaterial, "Material");
 	}
 	void Load(LoadSave::LoadSystem& mgr)
 	{
@@ -159,6 +160,7 @@ public:
 		mgr.LoadAtom("float", &mHeight);
 		mgr.LoadAtom("Ogre::String", &mWaterMesh);
 		mgr.LoadAtom("Ogre::Vector3", &mUpVector);
+		mgr.LoadAtom("Ogre::String", &mRefMaterial);
 		_create();
 	}
 	static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "SimpleWater"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };

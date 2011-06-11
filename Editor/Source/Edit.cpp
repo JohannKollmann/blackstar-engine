@@ -559,7 +559,6 @@ void Edit::OnMouseMove(Ogre::Radian RotX,Ogre::Radian RotY)
 			if (mXAxisLock == AxisLock::UNLOCKED || mXAxisLock == AxisLock::UNLOCKED_SKIPCHILDREN)
 			{
 				mPerformingObjMov = true;
-				LockAndHideMouse();
 				for (std::list<EditorSelection>::iterator i = mSelectedObjects.begin(); i != mSelectedObjects.end(); i++)
 				{
 					std::set<Ice::GameObject*> blacklist;
@@ -569,7 +568,6 @@ void Edit::OnMouseMove(Ogre::Radian RotX,Ogre::Radian RotY)
 			if (mYAxisLock == AxisLock::UNLOCKED || mYAxisLock == AxisLock::UNLOCKED_SKIPCHILDREN)
 			{
 				mPerformingObjMov = true;
-				LockAndHideMouse();
 				for (std::list<EditorSelection>::iterator i = mSelectedObjects.begin(); i != mSelectedObjects.end(); i++)
 				{
 					std::set<Ice::GameObject*> blacklist;
@@ -579,7 +577,6 @@ void Edit::OnMouseMove(Ogre::Radian RotX,Ogre::Radian RotY)
 			if (mZAxisLock == AxisLock::UNLOCKED || mZAxisLock == AxisLock::UNLOCKED_SKIPCHILDREN)
 			{
 				mPerformingObjMov = true;
-				LockAndHideMouse();
 				for (std::list<EditorSelection>::iterator i = mSelectedObjects.begin(); i != mSelectedObjects.end(); i++)
 				{
 					Ogre::Vector3 movaxis = Ice::Main::Instance().GetCamera()->getDerivedDirection() * -1.0f;
@@ -609,7 +606,6 @@ void Edit::OnMouseMove(Ogre::Radian RotX,Ogre::Radian RotY)
 			if (mXAxisLock == AxisLock::UNLOCKED || mXAxisLock == AxisLock::UNLOCKED_SKIPCHILDREN)
 			{
 				mPerformingObjRot = true;
-				LockAndHideMouse();
 				for (std::list<EditorSelection>::iterator i = mSelectedObjects.begin(); i != mSelectedObjects.end(); i++)
 				{
 					std::set<Ice::GameObject*> blacklist;
@@ -619,7 +615,6 @@ void Edit::OnMouseMove(Ogre::Radian RotX,Ogre::Radian RotY)
 			if (mYAxisLock == AxisLock::UNLOCKED || mYAxisLock == AxisLock::UNLOCKED_SKIPCHILDREN)
 			{
 				mPerformingObjRot = true;
-				LockAndHideMouse();
 				for (std::list<EditorSelection>::iterator i = mSelectedObjects.begin(); i != mSelectedObjects.end(); i++)
 				{
 					std::set<Ice::GameObject*> blacklist;
@@ -629,7 +624,6 @@ void Edit::OnMouseMove(Ogre::Radian RotX,Ogre::Radian RotY)
 			if (mZAxisLock == AxisLock::UNLOCKED || mZAxisLock == AxisLock::UNLOCKED_SKIPCHILDREN)
 			{
 				mPerformingObjRot = true;
-				LockAndHideMouse();
 				for (std::list<EditorSelection>::iterator i = mSelectedObjects.begin(); i != mSelectedObjects.end(); i++)
 				{
 					Ogre::Vector3 rotaxis = Ice::Main::Instance().GetCamera()->getDerivedDirection() * -1.0f;
@@ -906,6 +900,9 @@ void Edit::OnInsertObject( wxCommandEvent& WXUNUSED(event) )
 
 void Edit::OnKillFocus( wxFocusEvent& event )
 {
+	mCamRotating = false;
+	mPerformingObjMov = false;
+	mPerformingObjRot = false;
 	if (mPlaying)
 		PauseGame();
 	if (!mShowMouse) ShowCursor(true);
@@ -1539,6 +1536,12 @@ Ogre::Vector3 Edit::GetInsertPosition()
 
 void Edit::OnRender()
 {
+	if (mCamRotating || mPerformingObjMov || mPerformingObjRot)
+	{
+		if (mShowMouse) LockAndHideMouse();
+	}
+	else if (!mShowMouse) FreeAndShowMouse();
+
 	mBlockEngineLoopCond.lock();
 	if (mEngineLoopBlockers == 0) 
 	{

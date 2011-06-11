@@ -4,6 +4,7 @@
 
 namespace Ice
 {
+	const long MAX_WAITTIME_SECONDS = 5l;
 
 	void MessageSystem::SendMessage(Msg &msg, AccessPermitionID senderAccessPermitionID, std::shared_ptr<MessageListener> &receiver)
 	{
@@ -73,20 +74,23 @@ namespace Ice
 	{
 		mNumWaitingSynchronized++;
 		boost::unique_lock<boost::mutex> lock(mNoMessageProcessingMutex);
-		while (mNumProcessingMessages > 0 || mSynchronizedProcessing)
-		{
-			mNoMessageProcessing.wait(lock);	//wait until no other thread processes messages
+		while (mNumProcessingMessages > 0 || mSynchronizedProcessing)	
+		{	//wait until no other thread processes messages
+			if (!mNoMessageProcessing.timed_wait(lock, boost::posix_time::seconds(MAX_WAITTIME_SECONDS)))
+			{
+				IceWarning("Locking timeout - possible deadlock!")
+			}
 		}
 		mNumWaitingSynchronized--;
 		mSynchronizedProcessing = true;
 	}
 	void MessageSystem::UnlockMessageProcessing()
 	{
-		mConcurrentMessageProcessingMutex.lock();
+		mAtomicHelperMutex.lock();
 		mSynchronizedProcessing = false;
 		if (mNumWaitingSynchronized == 0) mConcurrentMessageProcessing.notify_all();
 		else mNoMessageProcessing.notify_one();
-		mConcurrentMessageProcessingMutex.unlock();
+		mAtomicHelperMutex.unlock();
 	}
 
 	void MessageSystem::ProcessMessages(AccessPermitionID accessPermitionID, bool synchronized, ProcessingListener *listener)
@@ -96,8 +100,11 @@ namespace Ice
 		{
 			boost::unique_lock<boost::mutex> lock(mConcurrentMessageProcessingMutex);
 			while (mNumWaitingSynchronized > 0 || mSynchronizedProcessing)
-			{
-				mConcurrentMessageProcessing.wait(lock);	//wait until no other thread processes messages
+			{	//wait until no other thread processes messages
+				if (!mConcurrentMessageProcessing.timed_wait(lock, boost::posix_time::seconds(MAX_WAITTIME_SECONDS)))
+				{
+					IceWarning("Locking timeout - possible deadlock!")
+				}
 			}
 			mNumProcessingMessages++;
 		}
@@ -125,10 +132,10 @@ namespace Ice
 		if (synchronized) UnlockMessageProcessing();
 		else
 		{
-			mNoMessageProcessingMutex.lock();
+			mAtomicHelperMutex.lock();
 			mNumProcessingMessages--;
 			if (mNumProcessingMessages == 0) mNoMessageProcessing.notify_one();
-			mNoMessageProcessingMutex.unlock();
+			mAtomicHelperMutex.unlock();
 		}
 	}
 

@@ -267,7 +267,7 @@ void Main::initScene()
 	Ogre::MaterialManager::getSingleton().setDefaultTextureFiltering(Ogre::TFO_ANISOTROPIC);
 	Ogre::MaterialManager::getSingleton().setDefaultAnisotropy(8); 
 
-	Ogre::MaterialManager::getSingleton().addListener(new DepthSchemeHandler(), "Depth");
+	Ogre::MaterialManager::getSingleton().addListener(new DepthSchemeHandler(), "depth");
 
 	//mPreviewSceneMgr->setSkyBox(true, "Sky/ClubTropicana", 2000);
 	mPreviewSceneMgr->setAmbientLight(Ogre::ColourValue(0.8f, 0.8f, 0.8f));
@@ -340,7 +340,7 @@ void Main::initScene()
 	mSpotShadowCameraSetup = Ogre::ShadowCameraSetupPtr(spotSetup);
 
 	Ogre::PSSMShadowCameraSetup* pssmSetup = ICE_NEW Ogre::PSSMShadowCameraSetup();
-	pssmSetup->calculateSplitPoints(3, 0.4f, 200, 0.95f);
+	pssmSetup->calculateSplitPoints(3, 0.4f, 300, 0.95f);
 	pssmSetup->setSplitPadding(1);
 	pssmSetup->setOptimalAdjustFactor(0, 2);
 	pssmSetup->setOptimalAdjustFactor(1, 0.6f);

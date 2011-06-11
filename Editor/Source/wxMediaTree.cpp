@@ -14,7 +14,10 @@
 
 enum
 {
-	AssetTree_bakeAO = 4570
+	AssetTree_bakeAO = 4570,
+	AssetTree_ScaleWizard = 4571,
+	AssetTree_MeshMagick = 4572,
+	AssetTree_ApplyDefaultLighting = 4573
 };
 
 
@@ -91,22 +94,53 @@ void wxMediaTree::OnRenameItemCallback(Ogre::String oldPath, Ogre::String newPat
 
 void wxMediaTree::OnShowMenuCallback(wxMenu *menu, VdtcTreeItemBase *item)
 {
-	if (item->IsFile() && item->GetName().EndsWith(".mesh"))
+	if (item->IsFile())
 	{
-		menu->Append(AssetTree_bakeAO, "Bake Ambient Occlusion");
-		menu->AppendSeparator();
+		if (IsMesh(item->GetName()))
+		{
+			menu->Append(AssetTree_bakeAO, "Bake Ambient Occlusion");
+			menu->Append(AssetTree_ScaleWizard, "Scale Wizard");
+			menu->Append(AssetTree_MeshMagick, "Mesh Magick");
+			menu->AppendSeparator();
+		}
+		else if (IsMaterial(item->GetName()))
+		{
+			menu->Append(AssetTree_ApplyDefaultLighting, "Apply default lighting");
+			menu->AppendSeparator();
+		}
 	}
 }
 
 void wxMediaTree::OnMenuCallback(int id)
 {
+	Ogre::String fileName = mCurrentItem->GetName().c_str().AsChar();
+	Ogre::String path = GetFullPath(mCurrentItem->GetId()).GetFullPath().c_str().AsChar();
+
 	if (id == AssetTree_bakeAO)
 	{
 		STOP_MAINLOOP
-		Ogre::Entity *ent = Ice::Main::Instance().GetOgreSceneMgr()->createEntity(mCurrentItem->GetName().c_str().AsChar());
-		Ogre::String path = GetFullPath(mCurrentItem->GetId()).GetFullPath().c_str().AsChar();
+		Ogre::Entity *ent = Ice::Main::Instance().GetOgreSceneMgr()->createEntity(fileName);
 		Ice::Log::Instance().LogMessage(path);
 		AmbientOcclusionGenerator::Instance().bakeAmbientOcclusion(ent->getMesh(), path);
+		RESUME_MAINLOOP
+	}
+	else if (id == AssetTree_ScaleWizard)
+	{
+		STOP_MAINLOOP
+		UnitConversionWizard(fileName, "Unit conversion wizard", "Which height sounds realistic to you?");
+		RESUME_MAINLOOP
+	}
+	else if (id == AssetTree_MeshMagick)
+	{
+		STOP_MAINLOOP
+		RESUME_MAINLOOP
+	}
+	else if (id == AssetTree_ApplyDefaultLighting)
+	{
+		ApplyDefaultLightning(path);
+		STOP_MAINLOOP
+		Ogre::DataStreamPtr stream = Ogre::ResourceGroupManager::getSingleton().openResource(fileName);
+		Ogre::ScriptCompilerManager::getSingleton().parseScript(stream, "General");
 		RESUME_MAINLOOP
 	}
 }
@@ -191,6 +225,44 @@ void wxMediaTree::OnCreateFolderCallback(Ogre::String path)
 	Ogre::ResourceGroupManager::getSingleton().addResourceLocation("Data/Media/" + path, "FileSystem");
 }
 
+void wxMediaTree::UnitConversionWizard(Ogre::String meshFileName, Ogre::String title, Ogre::String message)
+{
+	Ogre::MeshPtr meshpt = Ogre::MeshManager::getSingleton().load(meshFileName, "General");
+	float height = meshpt->getBounds().getSize().y;
+	float scale_factor = 1.0f;
+	const wxString choices[] = { (Ogre::StringConverter::toString(height) + "m [Original]"), (Ogre::StringConverter::toString(height*10.0f)+"m"), (Ogre::StringConverter::toString(height*100.0f)+"m"), (Ogre::StringConverter::toString(height*39.3700787f)+"m")} ;
+
+	wxSingleChoiceDialog dialog(this,
+		message,
+		title,
+		WXSIZEOF(choices), choices);
+
+	dialog.SetSelection(1);
+
+	if (dialog.ShowModal() == wxID_OK)
+	{
+		if (dialog.GetSelection() == 1) scale_factor = 10.0f;
+		if (dialog.GetSelection() == 2) scale_factor = 100.0f;
+		if (dialog.GetSelection() == 3) scale_factor = 39.3700787f;
+	}
+
+	if (scale_factor != 1.0f)
+	{
+		meshmagick::OptionList transformOptions;
+		Ogre::Any value = Ogre::Any(Ogre::Vector3(scale_factor, scale_factor, scale_factor));
+		transformOptions.push_back(meshmagick::Option("scale", value));
+		transformOptions.push_back(meshmagick::Option("xalign", Ogre::Any(Ogre::String("center"))));
+		transformOptions.push_back(meshmagick::Option("yalign", Ogre::Any(Ogre::String("center"))));
+		transformOptions.push_back(meshmagick::Option("zalign", Ogre::Any(Ogre::String("center"))));
+		meshmagick::TransformTool tt;
+		meshmagick::OptionList globalOptions;
+		Ogre::StringVector sv;
+		sv.push_back(meshFileName);
+		tt.invoke(globalOptions, transformOptions, sv, sv);
+		meshpt->reload();
+	}
+}
+
 void wxMediaTree::OnDropExternFilesCallback(const wxArrayString& filenames)
 {
 	if (mCurrentItem->IsFile()) return;
@@ -243,60 +315,15 @@ void wxMediaTree::OnDropExternFilesCallback(const wxArrayString& filenames)
 				boost::filesystem::remove(target);
 				return;
 			}
+
+			//unit check
 			Ogre::MeshPtr meshpt = Ogre::MeshManager::getSingleton().load(target.leaf().c_str(), "General");
 			float height = meshpt->getBounds().getSize().y;
-			float scale_factor = 1.0f;
 			if (height < 0.3f)
-			{
-				const wxString choices[] = { (Ogre::StringConverter::toString(height) + "m [Original]"), (Ogre::StringConverter::toString(height*10.0f)+"m"), (Ogre::StringConverter::toString(height*100.0f)+"m"), (Ogre::StringConverter::toString(height*39.3700787f)+"m")} ;
-
-				wxSingleChoiceDialog dialog(this,
-											(meshpt->getName() + " is really small!\nWhich height sounds realistic to you?"),
-											("Epic exporter fail - Rescale?"),
-											WXSIZEOF(choices), choices);
-
-				dialog.SetSelection(1);
-
-				if (dialog.ShowModal() == wxID_OK)
-				{
-					if (dialog.GetSelection() == 1) scale_factor = 10.0f;
-					if (dialog.GetSelection() == 2) scale_factor = 100.0f;
-					if (dialog.GetSelection() == 3) scale_factor = 39.3700787f;
-				}
-			}
+				UnitConversionWizard(target.leaf().c_str(), "Unit conversion wizard", (meshpt->getName() + " is really small!\nWhich height sounds realistic to you?"));
 			else if (height > 10.0f)
-			{
-				const wxString choices[] = { Ogre::StringConverter::toString(height) + "m [Original]", Ogre::StringConverter::toString(height/10.0f)+"m", Ogre::StringConverter::toString(height/100.0f)+"m", Ogre::StringConverter::toString(height*0.0254f)+"m"} ;
+				UnitConversionWizard(target.leaf().c_str(), "Unit conversion wizard", (meshpt->getName() + " is really big!\nWhich height sounds realistic to you?"));
 
-				wxSingleChoiceDialog dialog(this,
-					meshpt->getName() + " is really big!\nWhich height sounds realistic to you?",
-											"Epic exporter fail - Rescale?",
-											WXSIZEOF(choices), choices);
-
-				dialog.SetSelection(1);
-
-				if (dialog.ShowModal() == wxID_OK)
-				{
-					if (dialog.GetSelection() == 1) scale_factor = 0.1f;
-					if (dialog.GetSelection() == 2) scale_factor = 0.01f;
-					if (dialog.GetSelection() == 3) scale_factor = 0.0254f;
-				}
-			}
-			if (scale_factor != 1.0f)
-			{
-				meshmagick::OptionList transformOptions;
-				Ogre::Any value = Ogre::Any(Ogre::Vector3(scale_factor, scale_factor, scale_factor));
-				transformOptions.push_back(meshmagick::Option("scale", value));
-				transformOptions.push_back(meshmagick::Option("xalign", Ogre::Any(Ogre::String("center"))));
-				transformOptions.push_back(meshmagick::Option("yalign", Ogre::Any(Ogre::String("center"))));
-				transformOptions.push_back(meshmagick::Option("zalign", Ogre::Any(Ogre::String("center"))));
-				meshmagick::TransformTool tt;
-				meshmagick::OptionList globalOptions;
-				Ogre::StringVector sv;
-				sv.push_back(target.file_string().c_str());
-				tt.invoke(globalOptions, transformOptions, sv, sv);
-				meshpt->reload();
-			}
 		}
 		else if (IsTexture(source.leaf()))
 		{
@@ -377,6 +404,11 @@ void wxMediaTree::ApplyDefaultLightning(Ogre::String materialfile)
 	std::fstream f;
 	char cstring[256];
 	f.open(materialfile.c_str(), std::ios::in);
+	if (f.fail())
+	{
+		IceWarning("Could not open file " + materialfile)
+		return;
+	}
 	std::vector<Ogre::String> newfile;
 	int bracket_counter = 0;
 	Ogre::String curmat = "";
@@ -394,6 +426,7 @@ void wxMediaTree::ApplyDefaultLightning(Ogre::String materialfile)
 				newfile.push_back("{");
 				newfile.push_back("\tset $scale 1.0");
 				newfile.push_back("\tset $specular_factor 1.0");
+				newfile.push_back("\tset $rim_factor 1.0");
 			}
 		}
 		if (curmat == "") newfile.push_back(line);

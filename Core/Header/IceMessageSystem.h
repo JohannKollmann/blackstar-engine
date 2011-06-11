@@ -114,6 +114,7 @@ namespace Ice
 		boost::mutex mNoMessageProcessingMutex;	
 		boost::condition_variable mConcurrentMessageProcessing;
 		boost::mutex mConcurrentMessageProcessingMutex;
+		boost::mutex mAtomicHelperMutex;	
 
 		MessageSystem() : mNumProcessingMessages(0), mNumWaitingSynchronized(0), mSynchronizedProcessing(false) {}
 
