@@ -8,17 +8,25 @@ namespace Ice
 {
 	class DepthSchemeHandler : public Ogre::MaterialManager::Listener
 	{
+	private:
+		Ogre::Technique *mDepthTechnique;
+		Ogre::MaterialPtr mRefMaterial;
+
 	public:
+		DepthSchemeHandler()
+		{
+			mDepthTechnique = nullptr;
+			mRefMaterial = Ogre::MaterialManager::getSingleton().getByName("DepthBase");
+			if (!mRefMaterial.isNull())
+			{
+				mDepthTechnique = mRefMaterial->getTechnique(0);
+			}
+		}
 		Ogre::Technique* handleSchemeNotFound(unsigned short schemeIndex, 
 			const Ogre::String& schemeName, Ogre::Material* originalMaterial, unsigned short lodIndex, 
 			const Ogre::Renderable* rend)
 		{
-			Ogre::Technique *ret = new Ogre::Technique(originalMaterial);
-			ret->setSchemeName("Depth");
-			Ogre::Pass *pass = ret->createPass();
-			pass->setVertexProgram("DepthOnly_vp");
-			pass->setFragmentProgram("DepthNoRefraction_fp");
-			return ret;
+			return mDepthTechnique;
 		}
 	};
 }

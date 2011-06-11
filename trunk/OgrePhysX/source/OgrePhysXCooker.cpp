@@ -222,7 +222,7 @@ namespace OgrePhysX
 		//mergeVertices(outInfo);
 	}
 
-	struct OctreeNode
+	struct OgrePhysXClass OctreeNode
 	{
 		OctreeNode(){vPos.x=0.0f;vPos.y=0.0f;vPos.z=0.0f;
 			aSubNodes[0]=0;aSubNodes[1]=0;aSubNodes[2]=0;aSubNodes[3]=0;aSubNodes[4]=0;aSubNodes[5]=0;aSubNodes[6]=0;aSubNodes[7]=0;}
@@ -291,6 +291,7 @@ namespace OgrePhysX
 			{
 				iVertexCount=ExtractOctree(pNode->aSubNodes[iSubNode], iVertexCount, aiIndexTable, aNewVertices);
 				delete pNode->aSubNodes[iSubNode];
+				pNode->aSubNodes[iSubNode] = nullptr;
 			}
 		return iVertexCount;
 	}
@@ -307,6 +308,7 @@ namespace OgrePhysX
 		OctreeNode root;
 		root.vPos=meshInfo.vertices[0];
 		int iVertex=0;
+		int numAdded = 0;
 		
 		for(;iVertex<(int)meshInfo.numVertices; iVertex++)
 		{
@@ -329,6 +331,7 @@ namespace OgrePhysX
 						pCurrNode->aSubNodes[iSubNode]=new OctreeNode;
 						pCurrNode=pCurrNode->aSubNodes[iSubNode];
 						pCurrNode->vPos=meshInfo.vertices[iVertex];
+						numAdded++;
 					}
 				}//pCurrNode is now one level lower in the tree
 			}
@@ -340,7 +343,8 @@ namespace OgrePhysX
 		for(int iIndex=0; iIndex<(int)meshInfo.numTriangles*3; iIndex++)
 		{
 			meshInfo.indices[iIndex]=aiIndexTable[meshInfo.indices[iIndex]];
-			assert(meshInfo.indices[iIndex]<(int)nNewVertices && meshInfo.indices[iIndex]>=0);
+			assert(meshInfo.indices[iIndex]<(int)nNewVertices);
+			assert(meshInfo.indices[iIndex]>=0);
 		}
 		
 		meshInfo.numVertices=nNewVertices;
@@ -530,6 +534,7 @@ namespace OgrePhysX
 	{
 		NXU::MemoryWriteBuffer stream;
 		cookNxTriangleMesh(mesh, stream, params);
+		if (stream.data == nullptr) return nullptr;
 		return World::getSingleton().getSDK()->createTriangleMesh(NXU::MemoryReadBuffer(stream.data));
 	}
 

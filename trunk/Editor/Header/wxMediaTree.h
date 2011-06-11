@@ -44,6 +44,8 @@ public:
 	bool IsExternFileDropTarget() { return true; }
 	void OnSetupDragCursor(wxDropSource &dropSource);
 
+	void UnitConversionWizard(Ogre::String meshFileName, Ogre::String title, Ogre::String message);
+
 	static void OnToolbarEvent(int toolID, Ogre::String toolname);
 
 	wxString GetDragName() { return "MediaDragged"; }

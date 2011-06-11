@@ -773,6 +773,7 @@ namespace Ice
 	{
 		NxArray<bool> neededVertices;
 		neededVertices.resize(meshInfo.numVertices, false);
+
 		NxArray<NxVec3> newVertices(meshInfo.numVertices);
 		int newVertexCount = 0;
 		NxArray<NxU32> newIndices(meshInfo.numTriangles*3);
@@ -790,7 +791,8 @@ namespace Ice
 				newTriCount++;
 			}
 		}
-		/*for (unsigned int i = 0; i < meshInfo.numVertices; i++)
+		NxArray<NxU32> finalIndices = newIndices;
+		for (unsigned int i = 0; i < meshInfo.numVertices; i++)
 		{
 			if (neededVertices[i])
 			{
@@ -800,13 +802,14 @@ namespace Ice
 			else		//decrement indices above the deletes vertex
 			{
 				for (unsigned int x = 0; x < newTriCount*3; x++)
-					if (newIndices[x] >= i) newIndices[x]--;
+					if (newIndices[x] >= i) finalIndices[x]--;
 			}
 		}
 		meshInfo.numVertices = newVertexCount;
-		meshInfo.vertices = newVertices;*/
+		meshInfo.vertices = newVertices;
 		meshInfo.numTriangles = newTriCount;
-		meshInfo.indices = newIndices;
+		finalIndices.resize(newTriCount*3);
+		meshInfo.indices = finalIndices;
 	}
 
 	Ogre::MeshPtr NavigationMesh::_createOgreMesh(const Ogre::String &resourceName)

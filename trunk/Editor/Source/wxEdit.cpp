@@ -34,7 +34,7 @@ BEGIN_EVENT_TABLE(wxEdit, wxFrame)
 END_EVENT_TABLE() 
 
 
-wxEdit::wxEdit() : wxFrame(nullptr, -1, _("Blackspace Editor"),
+wxEdit::wxEdit() : wxFrame(nullptr, -1, _("Ice Editor"),
 		wxDefaultPosition, wxSize(1280,900),
 		wxDEFAULT_FRAME_STYLE)
 {
@@ -356,7 +356,8 @@ void wxEdit::OnLoadMesh(wxCommandEvent& WXUNUSED(event))
 		wxEdit::Instance().GetProgressBar()->SetProgress(0.3f);
 		wxEdit::Instance().GetWorldExplorer()->GetMaterialTree()->Update();
 		wxEdit::Instance().GetProgressBar()->SetStatusMessage("Generating navigation mesh...");
-		Ice::AIManager::Instance().GetNavigationMesh()->ImportOgreMesh(Ice::SceneManager::Instance().GetLevelMesh()->GetEntity()->getMesh());
+		if (Ice::SceneManager::Instance().GetLevelMesh())
+			Ice::AIManager::Instance().GetNavigationMesh()->ImportOgreMesh(Ice::SceneManager::Instance().GetLevelMesh()->GetEntity()->getMesh());
     }
 	wxEdit::Instance().GetProgressBar()->Reset();
 	RESUME_MAINLOOP
@@ -469,8 +470,8 @@ void wxEdit::OnShowLog(wxCommandEvent& WXUNUSED(event))
 
 void wxEdit::OnAbout(wxCommandEvent& WXUNUSED(event))
 {
-	wxMessageBox("Blackspacer (C) 2011 Andreas Henne (Caphalor)\nBlackspace Engine (C) 2011 Benedikt (1nsane) / Andreas Henne\n\nDependencies: Ogre 1.8, PhysX 2.8, wxWidgets 2.87, Caelum, OpenAL, OgreOggSound, boost, Lua, MeshMagick\n\nContact: heandreas@live.de\nJOIN US! ;)",
-                       "About Blackspace Editor 'Weathertop' PRE ALPHA",
+	wxMessageBox("Ice Editor (C) 2011 Andreas Henne (Caphalor)\nBlackspace Engine (C) 2011 Benedikt (1nsane) / Andreas Henne\n\nDependencies: Ogre 1.8, PhysX 2.8, wxWidgets 2.87, Caelum, OpenAL, OgreOggSound, boost, Lua, MeshMagick\n\nContact: heandreas@live.de\nJOIN US! ;)",
+                       "About Ice Editor 'Weathertop' PRE ALPHA",
                        wxICON_INFORMATION);
 	wxEdit::Instance().GetProgressBar()->Reset();
 }

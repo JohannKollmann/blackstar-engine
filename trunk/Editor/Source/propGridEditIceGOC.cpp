@@ -186,6 +186,7 @@ Ice::GameObjectPtr wxEditIceGameObject::GetGameObject()
 
 void wxEditIceGameObject::OnApply()
 {
+	STOP_MAINLOOP
 	Ice::GameObjectPtr object = mGameObject.lock();
 	IceAssert(object.get())
 	std::vector<ComponentSectionPtr> sections;
@@ -243,6 +244,7 @@ void wxEditIceGameObject::OnApply()
 			object->RemoveComponent(editor_interface->GetGOComponent()->GetFamilyID());
 			object->AddComponent(Ice::GOComponentPtr(editor_interface->GetGOComponent()));
 		}
+		RESUME_MAINLOOP
 	}
 
 	for (auto i = existingGOCs.begin(); i != existingGOCs.end(); i++)
