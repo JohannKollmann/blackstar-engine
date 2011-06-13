@@ -119,10 +119,10 @@ bool Main::Run(Ogre::RenderWindow *window, size_t OISInputWindow)
 	return true;
 };
 
-void  Main::CreateMainLoopThreads()
+void Main::CreateMainLoopThreads()
 {
 	MainLoopThread *physicsThread = new MainLoopThreadSender(new PhysicsThread(), Ice::GlobalMessageIDs::PHYSICS_BEGIN);
-	physicsThread->SetFixedTimeStep(40);
+	physicsThread->SetFixedTimeStep(20);
 	AddMainLoopThread("Physics", physicsThread);
 
 	MainLoopThread *renderThread = new MainLoopThreadSender(new RenderThread(), Ice::GlobalMessageIDs::RENDERING_BEGIN);

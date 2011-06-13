@@ -111,9 +111,8 @@ namespace Ice
 		int mNumWaitingSynchronized;
 		bool mSynchronizedProcessing;
 		boost::condition_variable mNoMessageProcessing;
-		boost::mutex mNoMessageProcessingMutex;	
 		boost::condition_variable mConcurrentMessageProcessing;
-		boost::mutex mConcurrentMessageProcessingMutex;
+		boost::mutex mMonitorMutex;
 		boost::mutex mAtomicHelperMutex;	
 
 		MessageSystem() : mNumProcessingMessages(0), mNumWaitingSynchronized(0), mSynchronizedProcessing(false) {}
@@ -178,6 +177,8 @@ namespace Ice
 		*/
 		void ProcessMessages(AccessPermitionID accessPermitionID, bool synchronized = false, ProcessingListener *listener = nullptr);
 
+		void EnterMessageProcessing();
+		void LeaveMessageProcessing();
 		void LockMessageProcessing();
 		void UnlockMessageProcessing();
 
