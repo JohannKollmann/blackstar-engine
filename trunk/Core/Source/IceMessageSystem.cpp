@@ -72,42 +72,56 @@ namespace Ice
 
 	void MessageSystem::LockMessageProcessing()
 	{
+		boost::unique_lock<boost::mutex> lock(mMonitorMutex);
+
 		mNumWaitingSynchronized++;
-		boost::unique_lock<boost::mutex> lock(mNoMessageProcessingMutex);
 		while (mNumProcessingMessages > 0 || mSynchronizedProcessing)	
 		{	//wait until no other thread processes messages
 			if (!mNoMessageProcessing.timed_wait(lock, boost::posix_time::seconds(MAX_WAITTIME_SECONDS)))
 			{
-				IceWarning("Locking timeout - possible deadlock!")
+				std::cout << "Locking timeout - possible deadlock!" << std::endl;
 			}
 		}
+		mAtomicHelperMutex.lock();
 		mNumWaitingSynchronized--;
 		mSynchronizedProcessing = true;
+		mAtomicHelperMutex.unlock();
 	}
+	void MessageSystem::EnterMessageProcessing()
+	{
+		boost::unique_lock<boost::mutex> lock(mMonitorMutex);
+		while (mNumWaitingSynchronized > 0 || mSynchronizedProcessing)
+		{	//wait until no other thread processes messages
+			if (!mConcurrentMessageProcessing.timed_wait(lock, boost::posix_time::seconds(MAX_WAITTIME_SECONDS)))
+			{
+				std::cout << "Locking timeout - possible deadlock!" << std::endl;
+			}
+		}
+		mAtomicHelperMutex.lock();
+		mNumProcessingMessages++;
+		mAtomicHelperMutex.unlock();
+	}
+
 	void MessageSystem::UnlockMessageProcessing()
 	{
-		mAtomicHelperMutex.lock();
+		boost::lock_guard<boost::mutex> lock(mMonitorMutex);
+
 		mSynchronizedProcessing = false;
 		if (mNumWaitingSynchronized == 0) mConcurrentMessageProcessing.notify_all();
 		else mNoMessageProcessing.notify_one();
-		mAtomicHelperMutex.unlock();
+	}
+	void MessageSystem::LeaveMessageProcessing()
+	{
+		boost::lock_guard<boost::mutex> lock(mMonitorMutex);
+
+		mNumProcessingMessages--;
+		if (mNumProcessingMessages == 0) mNoMessageProcessing.notify_one();
 	}
 
 	void MessageSystem::ProcessMessages(AccessPermitionID accessPermitionID, bool synchronized, ProcessingListener *listener)
 	{
 		if (synchronized) LockMessageProcessing();
-		else
-		{
-			boost::unique_lock<boost::mutex> lock(mConcurrentMessageProcessingMutex);
-			while (mNumWaitingSynchronized > 0 || mSynchronizedProcessing)
-			{	//wait until no other thread processes messages
-				if (!mConcurrentMessageProcessing.timed_wait(lock, boost::posix_time::seconds(MAX_WAITTIME_SECONDS)))
-				{
-					IceWarning("Locking timeout - possible deadlock!")
-				}
-			}
-			mNumProcessingMessages++;
-		}
+		else EnterMessageProcessing();
 
 		if (listener) listener->OnStartSending(accessPermitionID);
 
@@ -130,13 +144,7 @@ namespace Ice
 		if (listener) listener->OnFinishSending(accessPermitionID);
 
 		if (synchronized) UnlockMessageProcessing();
-		else
-		{
-			mAtomicHelperMutex.lock();
-			mNumProcessingMessages--;
-			if (mNumProcessingMessages == 0) mNoMessageProcessing.notify_one();
-			mAtomicHelperMutex.unlock();
-		}
+		else LeaveMessageProcessing();
 	}
 
 	void MessageSystem::CreateNewsgroup(MsgTypeID groupID)
