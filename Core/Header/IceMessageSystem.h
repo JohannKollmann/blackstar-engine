@@ -11,27 +11,6 @@
 
 namespace Ice
 {
-	/*
-	render thread (variable timestep)
-	while (1)
-	{
-		MessageSystem::Instance().MulticastMessage(simulateMsg, Newsgroups::BEGIN_RENDERING);
-		MessageSystem::Instance().ProcessMessages(AccessPermitionIDs::ACCESS_VIEW);
-		MessageSystem::Instance().MulticastMessage(simulateMsg, Newsgroups::END_RENDERING);
-		MessageSystem::Instance().ProcessMessages(AccessPermitionIDs::ACCESS_VIEW);
-	}
-
-	simulation thread (fixed timestep)
-	while (1)
-	{
-		MessageSystem::Instance().ProcessMessages(AccessPermitionIDs::ACCESS_PHYSICS);
-		MessageSystem::Instance().MulticastMessage(simulateMsg, AccessPermitionIDs::ACCESS_PHYSICS, Newsgroups::BEGIN_PHYSICS);
-		MessageSystem::Instance().MulticastMessage(simulateMsg, AccessPermitionIDs::ACCESS_PHYSICS, Newsgroups::END_PHYSICS);
-		MessageSystem::Instance().ProcessMessages(AccessPermitionIDs::ACCESS_ALL, true);	//exclusive
-	}
-
-	*/
-
 	class DllExport MessageSystem
 	{
 		friend class MessageListener;

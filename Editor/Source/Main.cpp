@@ -32,11 +32,11 @@ public:
 		mFrame->PostCreate();
 
 		//Ice::Main::Instance().CreateMainLoopThreads();
-		Ice::MainLoopThread *physicsThread = new Ice::MainLoopThreadSender(new Ice::PhysicsThread(), Ice::GlobalMessageIDs::PHYSICS_BEGIN);
+		Ice::MainLoopThread *physicsThread = new Ice::MainLoopThreadSender(new Ice::PhysicsThread());
 		physicsThread->SetFixedTimeStep(20);
 		Ice::Main::Instance().AddMainLoopThread("Physics", physicsThread);
 
-		Ice::MainLoopThread *renderThread = new Ice::MainLoopThreadSender(new Ice::RenderThread(), Ice::GlobalMessageIDs::RENDERING_BEGIN);
+		Ice::MainLoopThread *renderThread = new Ice::MainLoopThreadSender(new Ice::RenderThread());
 		Ice::Main::Instance().AddMainLoopThread("View", renderThread, false);
 
 		Ice::MainLoopThread *indyThread = new Ice::MainLoopThread(Ice::AccessPermitions::ACCESS_NONE);

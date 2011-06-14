@@ -62,7 +62,6 @@ namespace Ice
 		class  DllExport MsgProcessingListener : public MessageSystem::ProcessingListener
 		{
 		public:
-			MsgTypeID mPerLoopMsg;
 			MessageListener *mMsgReceiver;
 			MainLoopThreadSender *mMainLoopThread;
 
@@ -73,7 +72,10 @@ namespace Ice
 		virtual void doLoop();
 
 	public:
-		MainLoopThreadSender(MessageListener *msgReceiver, MsgTypeID perLoopMsg) : MainLoopThread(msgReceiver->GetAccessPermitionID()) { mProcessingListener.mMainLoopThread = this; mProcessingListener.mMsgReceiver = msgReceiver; mProcessingListener.mPerLoopMsg = perLoopMsg; }
+
+		static const MsgTypeID FINISH_MESSAGEPROCESSING = 112358;
+
+		MainLoopThreadSender(MessageListener *msgReceiver) : MainLoopThread(msgReceiver->GetAccessPermitionID()) { mProcessingListener.mMainLoopThread = this; mProcessingListener.mMsgReceiver = msgReceiver; }
 		virtual ~MainLoopThreadSender() {}
 	};
 
