@@ -199,7 +199,7 @@ private:
 	float mMovSpeed;
 	float mRotSpeed;
 
-	bool mCamRotating;
+	int mCamRotating;	//0 = not rotating, 1 = right mouse pressed, but no movement yet, 2 = rotating
 	bool mLeftDown;
 	bool mRightDown;
 	bool mAltIsDown;

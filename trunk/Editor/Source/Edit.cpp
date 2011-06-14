@@ -72,7 +72,7 @@ Edit::Edit(wxWindow* parent) : wxOgre(parent, -1)
 {
 	mEdit = &wxEdit::Instance();
 
-	mCamRotating = false;
+	mCamRotating = 0;
 	mLeftDown = false;
 	mRightDown = false;
 	mMultiSelect = false;
@@ -277,8 +277,15 @@ void Edit::LockAndHideMouse()
 	if (mShowMouse) ShowCursor(false);
 	POINT p;
 	GetCursorPos(&p);
+
+	wxPoint winPos = GetScreenPosition();
+	wxSize winSize = GetSize();
 	mWinMousePosition.x = p.x;
+	if (mWinMousePosition.x < winPos.x) mWinMousePosition = winPos.x + 5;
+	if (mWinMousePosition.x > winPos.x + winSize.GetX()) mWinMousePosition.x = winPos.x + winSize.GetX() - 5;
 	mWinMousePosition.y = p.y;
+	if (mWinMousePosition.y < winPos.y) mWinMousePosition.y = winPos.y + 1;
+	if (mWinMousePosition.y > winPos.y + winSize.GetY()) mWinMousePosition.y = winPos.y + winSize.GetY() - 1;
 	mMouseLocked = true;
 	mShowMouse = false;
 }
@@ -308,18 +315,21 @@ void Edit::OnMouseEvent(wxMouseEvent &ev)
 	/*
 	Sicherstellen, dass keine Kamerarotation vorliegt oder gerade abgeschlossen wird (sonst Abbruch)
 	*/
-	if (ev.LeftIsDown() && ev.RightIsDown() && mCamRotating == false)
+	if (mRightDown && mCamRotating == 0)
 	{
-		mCamRotating = true;
-		LockAndHideMouse();
+		mCamRotating = 1;
 	}
-	else if (mCamRotating == true && mLeftDown == false && mRightDown == false)
-	{
-		mCamRotating = false;
-		FreeAndShowMouse();
-		return;
+	else if (mRightDown == false)
+	{	
+		if (mCamRotating == 2)
+		{
+			mCamRotating = 0;
+			FreeAndShowMouse();
+			return;
+		}
+		mCamRotating = 0;
 	}
-	if (mCamRotating == true) return;
+	if (mCamRotating == 2) return;
 
 	mMousePosition.x = (float)(ev.GetX()) / Ice::Main::Instance().GetWindow()->getWidth();
 	mMousePosition.y = (float)(ev.GetY()) / Ice::Main::Instance().GetWindow()->getHeight();
@@ -538,21 +548,8 @@ void Edit::OnMouseMove(Ogre::Radian RotX,Ogre::Radian RotY)
 		if (mPlaying) return;
 	}
 	if (mFreezeCamera) return;
-	if (mLeftDown && mRightDown && !mAltIsDown)
-	{
-		Ice::Main::Instance().GetCamera()->yaw(-RotX * mRotSpeed);
-		Ice::Main::Instance().GetCamera()->pitch(-RotY * mRotSpeed);
-	}
-	else if (mLeftDown && mRightDown && mAltIsDown)
-	{
-		mPivotNode->rotate(mPivotNode->getOrientation().Inverse() * Ogre::Vector3(0,1,0), -RotX * mRotSpeed);
-		mPivotNode->rotate(mPivotNode->getOrientation().Inverse() * Ogre::Vector3(1,0,0), -RotY * mRotSpeed);
-		mPivotOffsetNode->needUpdate(true);
-		Ice::Main::Instance().GetCamera()->setPosition(mPivotOffsetNode->_getDerivedPosition());
-		Ice::Main::Instance().GetCamera()->lookAt(mPivotNode->getPosition());
-	}
 
-	else if (mLeftDown == true)
+	if (mLeftDown == true)
 	{
 		if (mSelectedObjects.size() > 0)
 		{
@@ -599,49 +596,62 @@ void Edit::OnMouseMove(Ogre::Radian RotX,Ogre::Radian RotY)
 			BrushMultitexture(0);
 		}
 	}
-	else if (mRightDown == true)
+	else if (mRightDown == true && mSelectedObjects.size() > 0)
 	{
-		if (mSelectedObjects.size() > 0)
+		if (mXAxisLock == AxisLock::UNLOCKED || mXAxisLock == AxisLock::UNLOCKED_SKIPCHILDREN)
 		{
-			if (mXAxisLock == AxisLock::UNLOCKED || mXAxisLock == AxisLock::UNLOCKED_SKIPCHILDREN)
+			mPerformingObjRot = true;
+			for (std::list<EditorSelection>::iterator i = mSelectedObjects.begin(); i != mSelectedObjects.end(); i++)
 			{
-				mPerformingObjRot = true;
-				for (std::list<EditorSelection>::iterator i = mSelectedObjects.begin(); i != mSelectedObjects.end(); i++)
-				{
-					std::set<Ice::GameObject*> blacklist;
-					(*i).mObject->Rotate((*i).mObject->GetGlobalOrientation().Inverse() * Ice::Main::Instance().GetCamera()->getDerivedOrientation().xAxis(), RotY * mObjectRotSpeed, mXAxisLock == AxisLock::UNLOCKED, mXAxisLock == AxisLock::UNLOCKED, &blacklist);
-				}
+				std::set<Ice::GameObject*> blacklist;
+				(*i).mObject->Rotate((*i).mObject->GetGlobalOrientation().Inverse() * Ice::Main::Instance().GetCamera()->getDerivedOrientation().xAxis(), RotY * mObjectRotSpeed, mXAxisLock == AxisLock::UNLOCKED, mXAxisLock == AxisLock::UNLOCKED, &blacklist);
 			}
-			if (mYAxisLock == AxisLock::UNLOCKED || mYAxisLock == AxisLock::UNLOCKED_SKIPCHILDREN)
+		}
+		if (mYAxisLock == AxisLock::UNLOCKED || mYAxisLock == AxisLock::UNLOCKED_SKIPCHILDREN)
+		{
+			mPerformingObjRot = true;
+			for (std::list<EditorSelection>::iterator i = mSelectedObjects.begin(); i != mSelectedObjects.end(); i++)
 			{
-				mPerformingObjRot = true;
-				for (std::list<EditorSelection>::iterator i = mSelectedObjects.begin(); i != mSelectedObjects.end(); i++)
-				{
-					std::set<Ice::GameObject*> blacklist;
-					(*i).mObject->Rotate((*i).mObject->GetGlobalOrientation().Inverse() * Ogre::Vector3::UNIT_Y, RotX * mObjectRotSpeed, mYAxisLock == AxisLock::UNLOCKED, mYAxisLock == AxisLock::UNLOCKED, &blacklist);
-				}
+				std::set<Ice::GameObject*> blacklist;
+				(*i).mObject->Rotate((*i).mObject->GetGlobalOrientation().Inverse() * Ogre::Vector3::UNIT_Y, RotX * mObjectRotSpeed, mYAxisLock == AxisLock::UNLOCKED, mYAxisLock == AxisLock::UNLOCKED, &blacklist);
 			}
-			if (mZAxisLock == AxisLock::UNLOCKED || mZAxisLock == AxisLock::UNLOCKED_SKIPCHILDREN)
+		}
+		if (mZAxisLock == AxisLock::UNLOCKED || mZAxisLock == AxisLock::UNLOCKED_SKIPCHILDREN)
+		{
+			mPerformingObjRot = true;
+			for (std::list<EditorSelection>::iterator i = mSelectedObjects.begin(); i != mSelectedObjects.end(); i++)
 			{
-				mPerformingObjRot = true;
-				for (std::list<EditorSelection>::iterator i = mSelectedObjects.begin(); i != mSelectedObjects.end(); i++)
-				{
-					Ogre::Vector3 rotaxis = Ice::Main::Instance().GetCamera()->getDerivedDirection() * -1.0f;
-					rotaxis.y = 0;
-					rotaxis.normalise();
-					std::set<Ice::GameObject*> blacklist;
-					(*i).mObject->Rotate((*i).mObject->GetGlobalOrientation().Inverse() * rotaxis, RotX * mObjectRotSpeed, mZAxisLock == AxisLock::UNLOCKED, mZAxisLock == AxisLock::UNLOCKED, &blacklist);
-				}
+				Ogre::Vector3 rotaxis = Ice::Main::Instance().GetCamera()->getDerivedDirection() * -1.0f;
+				rotaxis.y = 0;
+				rotaxis.normalise();
+				std::set<Ice::GameObject*> blacklist;
+				(*i).mObject->Rotate((*i).mObject->GetGlobalOrientation().Inverse() * rotaxis, RotX * mObjectRotSpeed, mZAxisLock == AxisLock::UNLOCKED, mZAxisLock == AxisLock::UNLOCKED, &blacklist);
 			}
 		}
 	}
-	else
+	if (!mPerformingObjRot && mCamRotating > 0 && !mAltIsDown)
 	{
-		for (auto i = mPreviewObjects.begin(); i != mPreviewObjects.end(); i++)
-		{
-			(*i)->SetGlobalOrientation(Ogre::Quaternion());
-			AlignObjectWithMesh(*i);
-		}
+		mCamRotating = 2;
+		LockAndHideMouse();
+		Ice::Main::Instance().GetCamera()->yaw(-RotX * mRotSpeed);
+		Ice::Main::Instance().GetCamera()->pitch(-RotY * mRotSpeed);
+	}
+	else if (!mPerformingObjRot && mCamRotating > 0 && mAltIsDown)
+	{
+		mCamRotating = 2;
+		LockAndHideMouse();
+		mPivotNode->rotate(mPivotNode->getOrientation().Inverse() * Ogre::Vector3(0,1,0), -RotX * mRotSpeed);
+		mPivotNode->rotate(mPivotNode->getOrientation().Inverse() * Ogre::Vector3(1,0,0), -RotY * mRotSpeed);
+		mPivotOffsetNode->needUpdate(true);
+		Ice::Main::Instance().GetCamera()->setPosition(mPivotOffsetNode->_getDerivedPosition());
+		Ice::Main::Instance().GetCamera()->lookAt(mPivotNode->getPosition());
+	}
+
+	//move the preview object
+	for (auto i = mPreviewObjects.begin(); i != mPreviewObjects.end(); i++)
+	{
+		(*i)->SetGlobalOrientation(Ogre::Quaternion());
+		AlignObjectWithMesh(*i);
 	}
 };
 
@@ -900,7 +910,7 @@ void Edit::OnInsertObject( wxCommandEvent& WXUNUSED(event) )
 
 void Edit::OnKillFocus( wxFocusEvent& event )
 {
-	mCamRotating = false;
+	mCamRotating = 0;
 	mPerformingObjMov = false;
 	mPerformingObjRot = false;
 	if (mPlaying)
@@ -1536,7 +1546,7 @@ Ogre::Vector3 Edit::GetInsertPosition()
 
 void Edit::OnRender()
 {
-	if (mCamRotating || mPerformingObjMov || mPerformingObjRot)
+	if (mCamRotating == 2 || mPerformingObjMov || mPerformingObjRot)
 	{
 		if (mShowMouse) LockAndHideMouse();
 	}
