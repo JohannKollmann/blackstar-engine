@@ -92,6 +92,8 @@ bool Main::Run()
 
 	initScene();
 
+	CreateMainLoopThreads();
+
 	return true;
 }
 
@@ -121,11 +123,11 @@ bool Main::Run(Ogre::RenderWindow *window, size_t OISInputWindow)
 
 void Main::CreateMainLoopThreads()
 {
-	MainLoopThread *physicsThread = new MainLoopThreadSender(new PhysicsThread(), Ice::GlobalMessageIDs::PHYSICS_BEGIN);
+	MainLoopThread *physicsThread = new MainLoopThreadSender(new PhysicsThread());
 	physicsThread->SetFixedTimeStep(20);
 	AddMainLoopThread("Physics", physicsThread);
 
-	MainLoopThread *renderThread = new MainLoopThreadSender(new RenderThread(), Ice::GlobalMessageIDs::RENDERING_BEGIN);
+	MainLoopThread *renderThread = new MainLoopThreadSender(new RenderThread());
 	AddMainLoopThread("View", renderThread);
 
 	MainLoopThread *indyThread = new MainLoopThread(Ice::AccessPermitions::ACCESS_NONE);
