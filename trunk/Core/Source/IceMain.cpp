@@ -154,7 +154,9 @@ void Main::PauseAllMainLoopThreads(bool paused)
 }
 MainLoopThread* Main::GetMainLoopThread(Ogre::String name)
 {
-	return mMainLoopThreads[name].mainLoopThread;
+	auto i = mMainLoopThreads.find(name);
+	if (i == mMainLoopThreads.end()) return nullptr;
+	return i->second.mainLoopThread;
 }
 
 void Main::AddOgreResourcePath(Ogre::String dir, Ogre::String resourceGroup)

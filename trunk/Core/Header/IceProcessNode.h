@@ -17,13 +17,14 @@ namespace Ice
 		std::list<int> mDependencies;		//list of process ids
 		std::vector<int> mTriggerOnFinish;
 		bool mIsActive;
+		bool mIsPaused;
 
 		int mProcessID;
 
 		void Init(int id);
 
 	public:
-		ProcessNode() : mProcessID(0), mIsActive(true) {}
+		ProcessNode() : mProcessID(0), mIsActive(true), mIsPaused(false) {}
 		virtual ~ProcessNode();
 
 		/**
@@ -64,7 +65,18 @@ namespace Ice
 		Pauses/Unpauses the process, for example because a dependency was added / finished.
 		@param active unpause or pause
 		*/
-		void SetActive(bool active);
+		void _setActive(bool active);
+
+		/**
+		Calls _setActive(true) if all requirements are met.
+		*/
+		void _refreshIsActive();
+
+		/**
+		Pauses/Unpauses the process. This may result in a call to _setActive, if all other requirements are met (no active dependencies).
+		@param active unpause or pause
+		*/
+		void SetPaused(bool paused);
 
 		/**
 		Retrieves whether the process is active or not.
@@ -73,12 +85,18 @@ namespace Ice
 		bool GetIsActive() { return mIsActive; }
 
 		/**
+		Retrieves whether the process is active or not.
+		@return active yes/no
+		*/
+		bool GetIsPaused() { return mIsPaused; }
+
+		/**
 		Retrieves the process ID.
 		*/
 		int GetProcessID() const;
 
 		static std::vector<ScriptParam> Lua_AddDependency(Script& caller, std::vector<ScriptParam> vParams);
-		static std::vector<ScriptParam> Lua_SetActive(Script& caller, std::vector<ScriptParam> vParams);
+		static std::vector<ScriptParam> Lua_SetPaused(Script& caller, std::vector<ScriptParam> vParams);
 		static std::vector<ScriptParam> Lua_TriggerWaiting(Script& caller, std::vector<ScriptParam> vParams);
 		static std::vector<ScriptParam> Lua_KillProcess(Script& caller, std::vector<ScriptParam> vParams);
 

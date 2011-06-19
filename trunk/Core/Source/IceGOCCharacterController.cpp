@@ -83,7 +83,7 @@ namespace Ice
 	void GOCCharacterController::Create(Ogre::Vector3 dimensions)
 	{
 		QuitAllNewsgroups();
-		JoinNewsgroup(GlobalMessageIDs::PHYSICS_BEGIN);
+		JoinNewsgroup(GlobalMessageIDs::PHYSICS_SUBSTEP);
 		JoinNewsgroup(GlobalMessageIDs::PHYSICS_END);
 
 		if (dimensions.x == 0 || dimensions.y == 0 || dimensions.z == 0) dimensions = Ogre::Vector3(1,1,1);
@@ -131,6 +131,7 @@ namespace Ice
 
 	void GOCCharacterController::ReceiveMessage(Msg &msg)
 	{
+		GOComponent::ReceiveMessage(msg);
 		if (msg.typeID == GlobalMessageIDs::PHYSICS_SUBSTEP && !mFreezed)
 		{
 			float time = msg.params.GetFloat("TIME");

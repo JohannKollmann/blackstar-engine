@@ -56,6 +56,7 @@ namespace Ice
 	{
 		mPaused = paused;
 		while (mPaused && mDoingStep) boost::this_thread::yield();
+		MessageSystem::Instance().SetSendAllMessagesInstantly(mAccessPermitionID, paused);
 	}
 
 	void MainLoopThread::Terminate()

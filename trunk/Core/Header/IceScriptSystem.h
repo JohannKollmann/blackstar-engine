@@ -3,6 +3,7 @@
 #include "IceScript.h"
 #include "IceScriptUser.h"
 #include "IceIncludes.h"
+#include "IceMessageSystem.h"
 
 namespace Ice
 {
@@ -19,7 +20,7 @@ namespace Ice
 	macro_errout.push_back(ScriptParam(msg)); \
 	return macro_errout; }
 
-class __declspec(dllexport) ScriptSystem
+class __declspec(dllexport) ScriptSystem : public SynchronizedMessageListener
 {
 public:
 	ScriptSystem();
@@ -49,6 +50,7 @@ public:
 	void UnregisterScriptUser(int scriptID);
 
 	void ReparseAllScripts();
+	void ReceiveMessage(Msg &msg);
 
 private:
 	friend class ScriptParam;//needs these maps for callbacks

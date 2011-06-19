@@ -290,6 +290,9 @@ namespace Ice
 		msg.typeID = GlobalMessageIDs::REPARSE_SCRIPTS_POST;
 		Ice::MessageSystem::Instance().MulticastMessage(msg, AccessPermitions::ACCESS_ALL);
 	}
+	void ScriptSystem::ReceiveMessage(Msg &msg)
+	{
+	}
 
 	ScriptUser* ScriptSystem::GetScriptableObject(int scriptID)
 	{

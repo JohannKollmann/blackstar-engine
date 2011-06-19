@@ -6,16 +6,30 @@ namespace Ice
 {
 	const long MAX_WAITTIME_SECONDS = 5l;
 
+	MessageSystem::MessageSystem()
+		: mNumProcessingMessages(0), mNumWaitingSynchronized(0), mSynchronizedProcessing(false)
+	{
+		for (int i = 0; i < MAX_NUM_JOBQUEUES; i++)
+			mCurrentJobs[i].sendAllMessagesInstantly = false;
+	}
+
+	void MessageSystem::SetSendAllMessagesInstantly(AccessPermitionID receiverAccessPermitionID, bool sendAllMessagesInstantly)
+	{
+		mCurrentJobs[receiverAccessPermitionID].sendAllMessagesInstantly = sendAllMessagesInstantly;
+	}
+
 	void MessageSystem::SendMessage(Msg &msg, AccessPermitionID senderAccessPermitionID, std::shared_ptr<MessageListener> &receiver)
 	{
 		MsgPacket packet(msg, std::weak_ptr<MessageListener>(receiver));
-		if (senderAccessPermitionID == receiver->GetAccessPermitionID() || senderAccessPermitionID == AccessPermitions::ACCESS_ALL) packet.Send();
+		if (senderAccessPermitionID == receiver->GetAccessPermitionID() || senderAccessPermitionID == AccessPermitions::ACCESS_ALL
+			|| mCurrentJobs[receiver->GetAccessPermitionID()].sendAllMessagesInstantly) packet.Send();
 		else mCurrentJobs[receiver->GetAccessPermitionID()].cachedPackets[senderAccessPermitionID].push_back(packet);
 	};
 	void MessageSystem::SendMessage(Msg &msg, AccessPermitionID senderAccessPermitionID, MessageListener *receiver)
 	{
 		MsgPacket packet(msg, receiver);
-		if (senderAccessPermitionID == receiver->GetAccessPermitionID() || senderAccessPermitionID == AccessPermitions::ACCESS_ALL) packet.Send();
+		if (senderAccessPermitionID == receiver->GetAccessPermitionID() || senderAccessPermitionID == AccessPermitions::ACCESS_ALL
+			|| mCurrentJobs[receiver->GetAccessPermitionID()].sendAllMessagesInstantly) packet.Send();
 		else mCurrentJobs[receiver->GetAccessPermitionID()].cachedPackets[senderAccessPermitionID].push_back(packet);
 	};
 
@@ -46,7 +60,8 @@ namespace Ice
 		ITERATE(i, find->second.receivers)
 		{
 			MsgPacket packet(msg,  &i->second);
-			if (i->first == senderAccessPermitionID || senderAccessPermitionID == AccessPermitions::ACCESS_ALL)
+			if (i->first == senderAccessPermitionID || senderAccessPermitionID == AccessPermitions::ACCESS_ALL
+				|| mCurrentJobs[i->first].sendAllMessagesInstantly)
 				packet.Send();
 			else mCurrentJobs[i->first].cachedPackets[senderAccessPermitionID].push_back(packet);
 		}
@@ -147,6 +162,26 @@ namespace Ice
 		else LeaveMessageProcessing();
 	}
 
+	void MessageSystem::ProcessAllMessagesNow()
+	{
+		LockMessageProcessing();
+		for (int accessPermitionID = 0; accessPermitionID < MAX_NUM_JOBQUEUES; accessPermitionID++)
+		{
+			std::vector<MsgPacket> msgCopy = mCurrentJobs[accessPermitionID].packets;	//copy
+			mCurrentJobs[accessPermitionID].packets.clear();	//flush
+
+			ITERATE(i, msgCopy) i->Send();		//deliver messages
+
+			//send cached messages
+			for (int i = 0; i < MAX_NUM_JOBQUEUES; i++)
+			{
+				mCurrentJobs[i].packets.insert(mCurrentJobs[i].packets.end(), mCurrentJobs[i].cachedPackets[accessPermitionID].begin(), mCurrentJobs[i].cachedPackets[accessPermitionID].end());
+				mCurrentJobs[i].cachedPackets[accessPermitionID].clear();
+			}
+		}
+		UnlockMessageProcessing();
+	}
+
 	void MessageSystem::CreateNewsgroup(MsgTypeID groupID)
 	{
 		auto find = mNewsgroupReceivers.find(groupID);
@@ -186,14 +221,15 @@ namespace Ice
 			return;
 		}
 
-		WrappedVector<MessageListener*> receivers =  find->second.receivers[listener->GetAccessPermitionID()];
+		WrappedVector<MessageListener*> *receivers = &find->second.receivers[listener->GetAccessPermitionID()];
 
 		unsigned int index = 0;
-		for (unsigned int i = 0; i < receivers.GetVector()->size(); i++)
+		std::vector<MessageListener*> *pRecVec = receivers->GetVector();
+		for (unsigned int i = 0; i < pRecVec->size(); i++)
 		{
-			if ((*receivers.GetVector())[i] == listener)
+			if ((*pRecVec)[i] == listener)
 			{
-				receivers.Remove(i);
+				receivers->Remove(i);
 				break;
 			}
 			index++;
@@ -204,13 +240,14 @@ namespace Ice
 	{
 		for (auto ni = mNewsgroupReceivers.begin(); ni != mNewsgroupReceivers.end(); ++ni)
 		{
-			WrappedVector<MessageListener*> receivers = ni->second.receivers[accessPermitionID];
+			WrappedVector<MessageListener*> *receivers = &ni->second.receivers[accessPermitionID];
 			unsigned int index = 0;
-			for (unsigned int i = 0; i < receivers.GetVector()->size(); i++)
+			std::vector<MessageListener*> *pRecVec = receivers->GetVector();
+			for (unsigned int i = 0; i < pRecVec->size(); i++)
 			{
-				if ((*receivers.GetVector())[i] == listener)
+				if ((*pRecVec)[i] == listener)
 				{
-					receivers.Remove(i);
+					receivers->Remove(i);
 					break;
 				}
 				index++;

@@ -57,7 +57,7 @@ namespace Ice
 	{
 		auto i = mProcessNodes.find(processID);
 		if (i == mProcessNodes.end()) return;
-		i->second->SetActive(false);
+		i->second->_setActive(false);
 		mProcessNodes.erase(i);
 	}
 
