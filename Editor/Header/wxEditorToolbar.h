@@ -45,5 +45,6 @@ public:
 	void SetGroupStatus(Ogre::String groupname, bool active);
 	void SetToolStatus(Ogre::String tool, bool active);
 	void CheckTool(Ogre::String toolname, bool check = true);
+	bool GetToolIsChecked(Ogre::String toolname);
 	void RefreshAll();
 };

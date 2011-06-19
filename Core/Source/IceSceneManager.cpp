@@ -318,7 +318,7 @@ namespace Ice
 		ScriptSystem::GetInstance().ShareCFunction("AnimProcess_Create", &GOCAnimatedCharacter::Lua_AnimProcess_Create);
 		ScriptSystem::GetInstance().ShareCFunction("Process_AddDependency", &ProcessNode::Lua_AddDependency);
 		ScriptSystem::GetInstance().ShareCFunction("Process_Kill", &ProcessNode::Lua_KillProcess);
-		ScriptSystem::GetInstance().ShareCFunction("Process_SetActive", &ProcessNode::Lua_SetActive);
+		ScriptSystem::GetInstance().ShareCFunction("Process_SetPaused", &ProcessNode::Lua_SetPaused);
 		ScriptSystem::GetInstance().ShareCFunction("Process_FireFinish", &ProcessNode::Lua_TriggerWaiting);
 		ScriptSystem::GetInstance().ShareCFunction("ProcessQueue_Create", &ProcessNodeQueue::Lua_ProcessQueue_Create);
 		ScriptSystem::GetInstance().ShareCFunction("ProcessQueue_Enqueue", &ProcessNodeQueue::Lua_ProcessQueue_Enqueue);

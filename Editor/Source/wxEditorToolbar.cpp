@@ -114,6 +114,15 @@ void wxEditorToolbar::CheckTool(Ogre::String toolname, bool check)
 	}
 }
 
+bool wxEditorToolbar::GetToolIsChecked(Ogre::String toolname)
+{
+	for (std::vector<EDTToolGroup>::iterator i = mToolGroups.begin(); i != mToolGroups.end(); i++)
+		for (std::vector<EDTTool>::iterator x = i->mTools.begin(); x != i->mTools.end(); x++)
+			if (x->mName == toolname)
+				return x->mChecked;
+	return false;
+}
+
 void wxEditorToolbar::RefreshAll()
 {
 	ClearTools();

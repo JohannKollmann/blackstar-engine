@@ -80,7 +80,7 @@ void wxScriptFileTree::OnToolbarEvent(int toolID, Ogre::String toolname)
 	if (toolname == "ReloadScripts")
 	{
 		STOP_MAINLOOP
-		Ice::ScriptSystem::GetInstance().ReparseAllScripts();				
+		Ice::ScriptSystem::GetInstance().ReparseAllScripts();
 		RESUME_MAINLOOP
 	}
 	if (toolname == "NewScript" || toolname == "NewObjectScript")

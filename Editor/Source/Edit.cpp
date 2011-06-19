@@ -1569,17 +1569,27 @@ void Edit::OnSize(wxSizeEvent& event)
 void Edit::IncBlockEngineLoop()
 {
 	mBlockEngineLoopCond.lock();
-	if (mEngineLoopBlockers == 0) Ice::MessageSystem::Instance().LockMessageProcessing();
+	if (mEngineLoopBlockers == 0 && Ice::Main::Instance().GetMainLoopThread("Physics") != nullptr)
+	{
+		Ice::Main::Instance().GetMainLoopThread("Independant")->SetPaused(true);
+		Ice::Main::Instance().GetMainLoopThread("Physics")->SetPaused(true);
+		std::cout << "lock" << std::endl;
+	}
 	mEngineLoopBlockers++;
 	mBlockEngineLoopCond.unlock();
 }
 void Edit::DecBlockEngineLoop()
 {
 	mBlockEngineLoopCond.lock();
-	if (mEngineLoopBlockers > 0) mEngineLoopBlockers--;
-	if (mEngineLoopBlockers == 0)
+	if (mEngineLoopBlockers > 0)
 	{
-		Ice::MessageSystem::Instance().UnlockMessageProcessing();
+		mEngineLoopBlockers--;
+		if (mEngineLoopBlockers == 0 && Ice::Main::Instance().GetMainLoopThread("Physics") != nullptr)
+		{
+			Ice::Main::Instance().GetMainLoopThread("Independant")->SetPaused(false);
+			Ice::Main::Instance().GetMainLoopThread("Physics")->SetPaused(!wxEdit::Instance().GetMainToolbar()->GetToolIsChecked("Physics"));
+			std::cout << "unlock" << std::endl;
+		}
 	}
 	mBlockEngineLoopCond.unlock();
 }

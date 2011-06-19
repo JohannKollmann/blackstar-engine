@@ -48,7 +48,7 @@ protected:
 
 	void OnSize(wxSizeEvent& event);
 
-	boost::mutex mBlockEngineLoopCond;
+	boost::recursive_mutex mBlockEngineLoopCond;
 	int mEngineLoopBlockers;
 
 public:

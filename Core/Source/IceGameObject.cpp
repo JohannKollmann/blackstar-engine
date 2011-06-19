@@ -446,8 +446,8 @@ namespace Ice
 
 	void GameObject::FirePostInit()
 	{
-		ITERATE(i, mComponents)
-			(*i)->NotifyPostInit();
+		for(int i = 0; i < mComponents.size(); i++)
+			mComponents[i]->NotifyPostInit();
 
 		ResetObjectReferenceIterator();
 		while (HasNextObjectReference())

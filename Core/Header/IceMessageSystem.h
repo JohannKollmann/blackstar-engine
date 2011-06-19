@@ -76,6 +76,7 @@ namespace Ice
 	
 		struct JobQueue
 		{
+			bool sendAllMessagesInstantly;
 			boost::mutex flushingMutex;
 			std::vector<MsgPacket> cachedPackets[MAX_NUM_JOBQUEUES];
 			std::vector<MsgPacket> packets;
@@ -94,7 +95,7 @@ namespace Ice
 		boost::mutex mMonitorMutex;
 		boost::mutex mAtomicHelperMutex;	
 
-		MessageSystem() : mNumProcessingMessages(0), mNumWaitingSynchronized(0), mSynchronizedProcessing(false) {}
+		MessageSystem();
 
 		/**
 		* Registers a message listener in a newsgroup.
@@ -140,6 +141,11 @@ namespace Ice
 		*/
 		void MulticastMessage(Msg &msg);
 
+		/**
+		Turns asynchronous message dispatching for a job queue on or off (by default on).
+		*/
+		void SetSendAllMessagesInstantly(AccessPermitionID receiverAccessPermitionID, bool sendAllMessagesInstantly);
+
 
 		class DllExport ProcessingListener
 		{
@@ -155,6 +161,13 @@ namespace Ice
 		* @remarks This method must be called from "outside" (mainloop or similar). NEVER call this as a message listener inside ReceiveMessage.
 		*/
 		void ProcessMessages(AccessPermitionID accessPermitionID, bool synchronized = false, ProcessingListener *listener = nullptr);
+
+		/**
+		* Locks all message processing, processes all messages and unlocks message processing.
+		* @remarks	Intended for special cases like reloading scripts/resources.
+					This method must be called from "outside" (mainloop or similar). NEVER call this as a message listener inside ReceiveMessage.
+		*/
+		void ProcessAllMessagesNow();
 
 		void EnterMessageProcessing();
 		void LeaveMessageProcessing();
