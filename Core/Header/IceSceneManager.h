@@ -55,7 +55,6 @@ namespace Ice
 
 		LevelMesh *mLevelMesh;
 
-		std::vector< std::weak_ptr<GameObject> > mObjectMessageQueue;
 		std::map<int, GameObjectPtr> mGameObjects;
 
 		std::list<TimeListener*> mTimeListeners;
@@ -106,8 +105,6 @@ namespace Ice
 
 		///Tells the system that the current camera controller has done its job.
 		void TerminateCurrentCameraController();
-
-		void AddToMessageQueue(std::weak_ptr<GameObject> object);
 
 		std::map<Ogre::String, std::map<Ogre::String, DataMap> > mGOCDefaultParameters; //For Editors
 
