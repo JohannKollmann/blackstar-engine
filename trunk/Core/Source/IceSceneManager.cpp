@@ -634,11 +634,6 @@ namespace Ice
 		return GameObjectPtr();
 	}
 
-	void SceneManager::AddToMessageQueue(std::weak_ptr<GameObject> object)
-	{
-		mObjectMessageQueue.push_back(object);
-	}
-
 	std::vector<ScriptParam> SceneManager::Lua_LoadLevel(Script& caller, std::vector<ScriptParam> vParams)
 	{
 		std::vector<ScriptParam> out;
