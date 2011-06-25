@@ -31,6 +31,8 @@ namespace Ice
 		void LogError(Ogre::String message);
 		void LogCriticalError(Ogre::String message);
 
+		void Shutdown();
+
 		static Log& Instance();
 	};
 }

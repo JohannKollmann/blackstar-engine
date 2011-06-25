@@ -566,6 +566,13 @@ void Main::Shutdown()
 {
 	if (mRoot)
 	{
+		ITERATE(i, mMainLoopThreads)
+		{
+			i->second.mainLoopThread->Terminate();
+			if (i->second.thread) i->second.thread->join();
+			delete i->second.mainLoopThread;
+			if (i->second.thread) delete i->second.thread;
+		}
 		mDirectionalShadowCameraSetup.setNull();
 		mSpotShadowCameraSetup.setNull();
 		mPointShadowCameraSetup.setNull();
@@ -576,18 +583,12 @@ void Main::Shutdown()
 		ICE_DELETE mCameraController;
 		OgrePhysX::World::getSingleton().shutdown();
 		auto report = LeakManager::getInstance().reportLeaks();
-		Log::Instance().LogMessage("Memory leaks: " + Ogre::StringConverter::toString(report.size()));
+		Ogre::LogManager::getSingleton().logMessage("Memory leaks: " + Ogre::StringConverter::toString(report.size()));
 		for (auto i = report.begin(); i != report.end(); i++)
-			Log::Instance().LogMessage(*i);
+			Ogre::LogManager::getSingleton().logMessage(*i);
 		delete mRoot;
 		mRoot = nullptr;
-		ITERATE(i, mMainLoopThreads)
-		{
-			i->second.mainLoopThread->Terminate();
-			i->second.thread->join();
-			delete i->second.mainLoopThread;
-			if (i->second.thread) delete i->second.thread;
-		}
+		Log::Instance().Shutdown();
 	}
 }
 

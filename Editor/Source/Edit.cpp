@@ -1546,7 +1546,7 @@ Ogre::Vector3 Edit::GetInsertPosition()
 
 void Edit::OnRender()
 {
-	if (mCamRotating == 2 || mPerformingObjMov || mPerformingObjRot)
+	if (mCamRotating == 2 || mPerformingObjMov || mPerformingObjRot || mPlaying)
 	{
 		if (mShowMouse) LockAndHideMouse();
 	}
@@ -1573,7 +1573,6 @@ void Edit::IncBlockEngineLoop()
 	{
 		Ice::Main::Instance().GetMainLoopThread("Independant")->SetPaused(true);
 		Ice::Main::Instance().GetMainLoopThread("Physics")->SetPaused(true);
-		std::cout << "lock" << std::endl;
 	}
 	mEngineLoopBlockers++;
 	mBlockEngineLoopCond.unlock();
@@ -1588,7 +1587,6 @@ void Edit::DecBlockEngineLoop()
 		{
 			Ice::Main::Instance().GetMainLoopThread("Independant")->SetPaused(false);
 			Ice::Main::Instance().GetMainLoopThread("Physics")->SetPaused(!wxEdit::Instance().GetMainToolbar()->GetToolIsChecked("Physics"));
-			std::cout << "unlock" << std::endl;
 		}
 	}
 	mBlockEngineLoopCond.unlock();
