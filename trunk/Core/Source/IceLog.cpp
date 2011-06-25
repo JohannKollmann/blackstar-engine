@@ -12,7 +12,7 @@ namespace Ice
 	}
 	Log::~Log()
 	{
-		delete mLogMessageListener;
+		Shutdown();
 	}
 
 	void Log::LogMessage(Ogre::String message)
@@ -40,6 +40,15 @@ namespace Ice
 		msg.typeID = MessageIDs::LOG_CRITICALERROR;
 		msg.params.AddOgreString("Message", "Critical error: " + message);
 		MessageSystem::Instance().SendMessage(msg, mLogMessageListener);
+	}
+
+	void Log::Shutdown()
+	{
+		if (mLogMessageListener)
+		{
+			delete mLogMessageListener;
+			mLogMessageListener = nullptr;
+		}
 	}
 
 	Log& Log::Instance()
