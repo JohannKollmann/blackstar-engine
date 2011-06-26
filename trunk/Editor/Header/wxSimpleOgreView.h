@@ -7,8 +7,10 @@ class wxSimpleOgreView : public wxOgre
 {
 private:
 	Ogre::SceneNode *mNode;
+	Ogre::SceneNode *mScaleNode;
 	Ogre::SceneManager *mSceneMgr;
 	Ogre::Viewport *mViewport;
+	Ogre::MaterialPtr mShowTextureBaseMat;
 
 protected:
 	void OnRender();
