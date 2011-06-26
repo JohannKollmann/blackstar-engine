@@ -7,6 +7,7 @@ wxSimpleOgreView::wxSimpleOgreView(wxWindow* parent, wxWindowID id, const wxPoin
 	: wxOgre(parent, -1, pos, size, style)
 {
 	mNode = nullptr;
+	mScaleNode = nullptr;
 }
 
 wxSimpleOgreView::~wxSimpleOgreView(void)
@@ -37,6 +38,9 @@ void wxSimpleOgreView::OnInit()
 	mCamera->setAspectRatio(Ogre::Real(mViewport->getActualWidth()) / Ogre::Real(mViewport->getActualHeight()));
 
 	mNode = mSceneMgr->getRootSceneNode()->createChildSceneNode(Ogre::Vector3(0, 0, 5));
+	mScaleNode = mNode->createChildSceneNode();
+
+	mShowTextureBaseMat = Ogre::MaterialManager::getSingleton().getByName("Editor_SimpleOneTexture");
 }
 
 void wxSimpleOgreView::OnRender()
@@ -52,16 +56,17 @@ void wxSimpleOgreView::ShowMesh(Ogre::String meshFileName)
 		meshFileName = "DummyMesh.mesh";
 	}
 	Ogre::Entity *ent = mSceneMgr->createEntity(meshFileName);
-	mNode->attachObject(ent);
+	mScaleNode->attachObject(ent);
 
 	Ogre::Vector3 center = ent->getBoundingBox().getCenter();
 	Ogre::Vector3 dimensions = ent->getBoundingBox().getSize();
 	float max = dimensions.x > dimensions.y ? dimensions.x : dimensions.y;
 	max = max > dimensions.z ? max : dimensions.z;
 	float scale_factor = 1.0f / max;
-	float z_offset = (1.0f - (dimensions.z * scale_factor)) * 0.5f;
-	mNode->setScale(scale_factor, scale_factor, scale_factor);
-	mNode->setPosition( Ogre::Vector3(0, 0, 1.9f-z_offset) + (scale_factor * center * -1.0f));
+	float z_offset = (dimensions.z * scale_factor) - 1.0f;
+	if (z_offset < 0) z_offset = 0;
+	mNode->setPosition( Ogre::Vector3(0, 0, 1.6f+z_offset) + (scale_factor * center * -1.0f));
+	mScaleNode->setScale(scale_factor, scale_factor, scale_factor);
 }
 
 void wxSimpleOgreView::ShowParticleEffect(Ogre::String pfxName)
@@ -72,16 +77,19 @@ void wxSimpleOgreView::ShowParticleEffect(Ogre::String pfxName)
 void wxSimpleOgreView::ShowTexture(Ogre::String texFileName)
 {
 	Reset();
+	ShowMesh("sphere.50cm.mesh");
+	((Ogre::Entity*)mScaleNode->getAttachedObject(0))->getSubEntity(0)->setMaterial(mShowTextureBaseMat);
+	mShowTextureBaseMat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName(texFileName);
 }
 
 void wxSimpleOgreView::Reset()
 {
-	if (!mNode) return;
-	for (unsigned int i = 0; i < mNode->numAttachedObjects(); i++)
+	if (!mScaleNode) return;
+	for (unsigned int i = 0; i < mScaleNode->numAttachedObjects(); i++)
 	{
-		mNode->getCreator()->destroyMovableObject(mNode->getAttachedObject(i));
+		mScaleNode->getCreator()->destroyMovableObject(mScaleNode->getAttachedObject(i));
 	}
-	mNode->setScale(1,1,1);
+	mScaleNode->setScale(1,1,1);
 	mNode->setPosition(0,0,5);
 }
 

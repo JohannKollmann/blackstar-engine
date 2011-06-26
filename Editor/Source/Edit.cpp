@@ -165,6 +165,8 @@ void Edit::PostInit()
 	Ice::Main::Instance().GetPreviewSceneMgr()->getRootSceneNode()->createChildSceneNode("EditorPreview");
 
 	Ice::SceneManager::Instance().ShowEditorMeshes(true);
+
+	setCamera(Ice::Main::Instance().GetCamera());
 }
 
 void Edit::OnToolbarEvent(int toolID, Ogre::String toolname)
@@ -1563,7 +1565,13 @@ void Edit::OnRender()
 
 void Edit::OnSize(wxSizeEvent& event)
 {
-	wxOgre::OnSize(event);
+	if (mInitialized && !mPaused)
+	{
+		STOP_MAINLOOP
+		wxOgre::OnSize(event);
+		if (Ice::SceneManager::Instance().GetWeatherController()) Ice::SceneManager::Instance().GetWeatherController()->UpdateViewport();
+		RESUME_MAINLOOP
+	}
 }
 
 void Edit::IncBlockEngineLoop()

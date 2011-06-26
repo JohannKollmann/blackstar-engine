@@ -130,21 +130,17 @@ wxOgre::~wxOgre()
 void wxOgre::OnSize(wxSizeEvent& event)
 {
 	if (mInitialized && !mPaused)
-	{
-		STOP_MAINLOOP
+	{	
 		// Setting new size;
 		int width;
 		int height;
 		GetSize(&width, &height);
-		Ice::Main::Instance().GetWindow()->resize( width, height );
+		mRenderWindow->resize( width, height );
 		// Letting Ogre know the window has been resized;
-		Ice::Main::Instance().GetWindow()->windowMovedOrResized();
+		mRenderWindow->windowMovedOrResized();
 		// Set the aspect ratio for the new size;
-		if (Ice::Main::Instance().GetCamera())
-			Ice::Main::Instance().GetCamera()->setAspectRatio(Ogre::Real(width) / Ogre::Real(height));
-
-		if (Ice::SceneManager::Instance().GetWeatherController()) Ice::SceneManager::Instance().GetWeatherController()->UpdateViewport();
-		RESUME_MAINLOOP
+		if (mCamera)
+			mCamera->setAspectRatio(Ogre::Real(width) / Ogre::Real(height));
 	}
 }
 void wxOgre::OnPaint(wxPaintEvent& event)
