@@ -347,7 +347,7 @@ void Edit::OnMouseEvent(wxMouseEvent &ev)
 			{	
 				std::vector<ComponentSectionPtr> sections;
 
-				if (mEdit->GetWorldExplorer()->GetResourceTree()->GetSelectedResource() != "None")
+				if (mEdit->GetWorldExplorer()->GetSelection() > 0 && mEdit->GetWorldExplorer()->GetResourceTree()->GetSelectedResource() != "None")
 				{
 					bool skip = false;
 					if (mEdit->GetWorldExplorer()->GetResourceTree()->GetSelectedResource().find(".ot") == Ogre::String::npos)
@@ -375,6 +375,10 @@ void Edit::OnMouseEvent(wxMouseEvent &ev)
 							menu.Append(EVT_InsertObjectAsChild, "Insert " + mEdit->GetWorldExplorer()->GetResourceTree()->GetSelectedResource() + " as Child of " +  mSelectedObjects.end()._Mynode()->_Prev->_Myval.mObject->GetName());
 						}
 					}
+				}
+				else if (mEdit->GetWorldExplorer()->GetSelection() == 0 && mEdit->GetWorldExplorer()->GetMediaTree()->GetSelectedResource().find(".mesh")+5 == mEdit->GetWorldExplorer()->GetMediaTree()->GetSelectedResource().length())
+				{
+					menu.Append(EVT_InsertObject, "Insert " + mEdit->GetWorldExplorer()->GetMediaTree()->GetSelectedResource());
 				}
 
 				if (mSelectedObjects.size() > 1) menu.Append(EVT_CreateObjectgroup, "Merge");
@@ -544,6 +548,8 @@ void Edit::DetachAxisObject(Ice::GameObjectPtr object)
 
 void Edit::OnMouseMove(Ogre::Radian RotX,Ogre::Radian RotY)
 {
+	if (mCamRotating == 100) return;	//hack to skip first mouse move after window gets focus
+
 	if (mMouseLocked)
 	{
 		SetCursorPos(mWinMousePosition.x, mWinMousePosition.y);
@@ -854,32 +860,45 @@ Ice::GameObjectPtr Edit::InsertObject(Ice::GameObjectPtr parent, bool align, boo
 	STOP_MAINLOOP
 	Ice::GameObjectPtr object;
 	Ogre::String sResource = wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->GetSelectedResource().c_str();
-	if (sResource == "None") return object;
-	if (sResource.find("Waypoint.static") != Ogre::String::npos)
+	if (sResource == "None")
 	{
-		return InsertWaypoint(align, create_only);
+		Ogre::String meshFile = mEdit->GetWorldExplorer()->GetMediaTree()->GetSelectedResource();
+		if (meshFile.find(".mesh")+5 == meshFile.length())
+		{
+			meshFile = meshFile.substr(meshFile.find_last_of(PATH_SEPERATOR)+1, meshFile.length());
+			object = Ice::SceneManager::Instance().CreateGameObject();
+			object->AddComponent(std::make_shared<Ice::GOCMeshRenderable>(meshFile, true));
+		}
+		else return object;
 	}
-	else if (sResource.find(".") != Ogre::String::npos)
+	else
 	{
-		LoadSave::LoadSystem *ls=LoadSave::LoadSave::Instance().LoadFile(sResource);
-		if (sResource.find(".ot") != Ogre::String::npos)
+		if (sResource.find("Waypoint.static") != Ogre::String::npos)
 		{
-			object = ls->LoadTypedObject<Ice::GameObject>();
-
-			if (parent.get()) object->SetParent(parent);
+			return InsertWaypoint(align, create_only);
 		}
-		else
+		else if (sResource.find(".") != Ogre::String::npos)
 		{
-			std::vector<ComponentSectionPtr> sections;
-			ls->LoadAtom("vector<ComponentSectionPtr>", (void*)(&sections));
+			LoadSave::LoadSystem *ls=LoadSave::LoadSave::Instance().LoadFile(sResource);
+			if (sResource.find(".ot") != Ogre::String::npos)
+			{
+				object = ls->LoadTypedObject<Ice::GameObject>();
 
-			object = CreateGameObject(sections);
-			object->SetParent(parent);
+				if (parent.get()) object->SetParent(parent);
+			}
+			else
+			{
+				std::vector<ComponentSectionPtr> sections;
+				ls->LoadAtom("vector<ComponentSectionPtr>", (void*)(&sections));
 
+				object = CreateGameObject(sections);
+				object->SetParent(parent);
+
+			}
+
+			ls->CloseFile();
+			delete ls;
 		}
-
-		ls->CloseFile();
-		delete ls;
 	}
 
 	std::set<Ice::GameObject*> blacklist;
@@ -915,8 +934,7 @@ void Edit::OnKillFocus( wxFocusEvent& event )
 	mCamRotating = 0;
 	mPerformingObjMov = false;
 	mPerformingObjRot = false;
-	if (mPlaying)
-		PauseGame();
+	if (mPlaying) PauseGame();
 	if (!mShowMouse) ShowCursor(true);
 	mMouseLocked = false;
 	mShowMouse = true;
@@ -925,10 +943,20 @@ void Edit::OnKillFocus( wxFocusEvent& event )
 
 void Edit::OnSetFocus( wxFocusEvent& event )
 {
+	STOP_MAINLOOP
+	mCamRotating = 100;
 	Ice::Main::Instance().GetInputManager()->SetEnabled(true);
+	Ice::Main::Instance().GetInputManager()->Update();
+	RESUME_MAINLOOP
+	Ice::MessageSystem::Instance().ProcessAllMessagesNow();	//process input messages to avoid bugges mouse movement
+
+	mCamRotating = 0;
 	if (!mShowMouse) ShowCursor(true);
 	mMouseLocked = false;
 	mShowMouse = true;
+
+	//if we're still playing the game when the focus was lost previously something went wrong
+	if (mPlaying) PauseGame();
 }
 
 void Edit::OnInsertObjectAsChild( wxCommandEvent& WXUNUSED(event) )
@@ -1166,7 +1194,7 @@ void Edit::OnSelectObject(float MouseX, float MouseY)
 
 void Edit::OnBrush()
 {
-	InsertObject(0, true);
+	InsertObject(Ice::GameObjectPtr(), true);
 }
 
 void Edit::SelectObject(Ice::GameObjectPtr object)

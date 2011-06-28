@@ -34,11 +34,13 @@ namespace Ice
 			mBlendingIn = true;
 			mBlendingOut = false;
 			mAnimationState->setEnabled(true);
+			IceNote("Blend in " + mAnimationState->getAnimationName());
 		}
 		else
 		{
 			mBlendingIn = false;
 			mBlendingOut = true;
+			IceNote("Blend out " + mAnimationState->getAnimationName());
 		}
 	}
 	void PlayAnimationProcess::AddCallback(float timePos, ScriptParam callback)
