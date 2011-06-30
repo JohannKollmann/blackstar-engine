@@ -139,7 +139,7 @@ namespace Ice
 	public:
 
 		std::vector<int> mIndexBuffer;
-		std::vector<Ice::Point3D*> mVertexBuffer;
+		std::vector<Ogre::Vector3> mVertexBuffer;
 
 		NavigationMesh();
 		~NavigationMesh();
@@ -171,17 +171,7 @@ namespace Ice
 		/*
 		Adds an ogre mesh to the nav mesh.
 		*/
-		void ImportOgreMesh(Ogre::MeshPtr mesh);
-
-		/*
-		Adds the vertices to the vertex buffer if needed and adds the triangle to the indexbuffer
-		*/
-		void AddTriangle(Ice::Point3D* vertex1, Ice::Point3D* vertex2, Ice::Point3D* vertex3);
-
-		/*
-		Removes the vertex from the mesh and all Triangles using it
-		*/
-		void RemoveVertex(Ice::Point3D* vertex);
+		void AddOgreMesh(Ogre::MeshPtr mesh, Transformable3D *transform = nullptr);
 
 		void ReceiveMessage(Msg &msg);
 

@@ -39,9 +39,6 @@ public:
 	void RegisterAIObject(GOCAI* object);
 	void UnregisterAIObject(GOCAI* object);
 
-	void SetWayMeshLoadingMode(bool loadAsObjects) { mLoadWayMeshAsObjects = loadAsObjects; }
-	bool GetWayMeshLoadingMode() { return mLoadWayMeshAsObjects; }
-
 	NavigationMesh* GetNavigationMesh();
 	void SetNavigationMesh(NavigationMesh *mesh);
 

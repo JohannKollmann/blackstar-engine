@@ -53,8 +53,6 @@ namespace Ice
 
 		bool mIndoorRendering;
 
-		LevelMesh *mLevelMesh;
-
 		std::map<int, GameObjectPtr> mGameObjects;
 
 		std::list<TimeListener*> mTimeListeners;
@@ -129,10 +127,10 @@ namespace Ice
 		void SetToIndoor();
 		void SetToOutdoor();
 
-		bool HasLevelMesh();
-		LevelMesh* GetLevelMesh();
+		GameObjectPtr AddLevelMesh(Ogre::String meshname);
 
-		void LoadLevelMesh(Ogre::String meshname);
+		///Setups the navigation mesh by adding all static actors to it.
+		void CreateNavigationMesh();
 
 		void LoadLevel(Ogre::String levelfile, bool load_dynamic = true);
 		void SaveLevel(Ogre::String levelfile);

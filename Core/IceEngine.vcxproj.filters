@@ -72,9 +72,6 @@
     <ClCompile Include="Source\IceInput.cpp">
       <Filter>System</Filter>
     </ClCompile>
-    <ClCompile Include="Source\IceLevelMesh.cpp">
-      <Filter>System</Filter>
-    </ClCompile>
     <ClCompile Include="Source\IceMain.cpp">
       <Filter>System</Filter>
     </ClCompile>
@@ -336,9 +333,6 @@
       <Filter>System</Filter>
     </ClInclude>
     <ClInclude Include="Header\IceInput.h">
-      <Filter>System</Filter>
-    </ClInclude>
-    <ClInclude Include="Header\IceLevelMesh.h">
       <Filter>System</Filter>
     </ClInclude>
     <ClInclude Include="Header\IceMain.h">

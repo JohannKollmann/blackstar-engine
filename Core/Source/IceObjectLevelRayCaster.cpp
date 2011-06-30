@@ -22,13 +22,11 @@ GameObject* ObjectLevelRayCaster::GetFirstHit(bool include_all)
 	if (mResultsIterator != mResults.end())
 	{
 		//Log::Instance().LogMessage("GetFirstHit: " + (*mResultsIterator).movable->getParentNode()->getName() + " "  + (*mResultsIterator).movable->getMovableType());
-		if ((*mResultsIterator).movable->getMovableType() == "Entity" || (*mResultsIterator).movable->getMovableType() == "BillboardSet")
+		if (((*mResultsIterator).movable->getMovableType() == "Entity" || (*mResultsIterator).movable->getMovableType() == "BillboardSet")
+			&& !(*mResultsIterator).movable->getUserAny().isEmpty())
 		{
-			if (!(*mResultsIterator).movable->getUserAny().isEmpty())
-			{
-				GameObject *object = Ogre::any_cast<GameObject*>((*mResultsIterator).movable->getUserAny());
-				if (include_all || object->IsSelectable()) return object;
-			}
+			GameObject *object = Ogre::any_cast<GameObject*>((*mResultsIterator).movable->getUserAny());
+			if (include_all || object->IsSelectable()) return object;
 			else return GetNextHit(include_all);
 		}
 		else return GetNextHit(include_all);
@@ -43,13 +41,11 @@ GameObject* ObjectLevelRayCaster::GetNextHit(bool include_all)
 	if (mResultsIterator != mResults.end())
 	{
 		//Log::Instance().LogMessage("GetNextHit: " + (*mResultsIterator).movable->getParentNode()->getName() + " " + (*mResultsIterator).movable->getMovableType());
-		if ((*mResultsIterator).movable->getMovableType() == "Entity")
+		if (((*mResultsIterator).movable->getMovableType() == "Entity" || (*mResultsIterator).movable->getMovableType() == "BillboardSet")
+			&& !(*mResultsIterator).movable->getUserAny().isEmpty())
 		{
-			if (!(*mResultsIterator).movable->getUserAny().isEmpty())
-			{
-				GameObject *object =  Ogre::any_cast<GameObject*>((*mResultsIterator).movable->getUserAny());
-				if (include_all || object->IsSelectable()) return object;
-			}
+			GameObject *object =  Ogre::any_cast<GameObject*>((*mResultsIterator).movable->getUserAny());
+			if (include_all || object->IsSelectable()) return object;
 			else return GetNextHit(include_all);
 		}
 		else return GetNextHit(include_all);
@@ -64,7 +60,7 @@ bool ObjectLevelRayCaster::HasMoreHits()
 	mResultsIterator++;
 	if (mResultsIterator != mResults.end())
 	{
-		if ((*mResultsIterator).movable->getMovableType() == "Entity")
+		if ((*mResultsIterator).movable->getMovableType() == "Entity" || (*mResultsIterator).movable->getMovableType() == "BillboardSet")
 		{
 			mResultsIterator--;
 			return true;

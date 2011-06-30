@@ -96,12 +96,6 @@ void wxMaterialTree::Update()
 
 		std::vector<Ogre::String> added;
 
-		if (Ice::SceneManager::Instance().HasLevelMesh())
-		{
-			Ogre::Entity *ent = Ice::Main::Instance().GetOgreSceneMgr()->getEntity("LevelMesh-entity");	
-			AddEntity(ent);
-		}
-
 		std::vector<Ogre::String> other_materials_added;
 
 		for (auto i = Ice::SceneManager::Instance().GetGameObjects().begin(); i != Ice::SceneManager::Instance().GetGameObjects().end(); i++)

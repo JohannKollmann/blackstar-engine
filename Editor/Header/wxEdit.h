@@ -48,6 +48,7 @@ public:
 
 	enum
 	{
+		wxMainMenu_clearWorld,
 		wxMainMenu_loadWorld,
 		wxMainMenu_saveWorld,
 		wxMainMenu_exit,
@@ -113,6 +114,7 @@ protected:
 	void OnLoadWorld(wxCommandEvent& WXUNUSED(event));
 	void OnSaveWorld(wxCommandEvent& WXUNUSED(event));
 	void OnLoadMesh(wxCommandEvent& WXUNUSED(event));
+	void OnClearWorld(wxCommandEvent& WXUNUSED(event));
 	void OnExit(wxCommandEvent& WXUNUSED(event));
 
 	void OnEnableBrushMode(wxCommandEvent& WXUNUSED(event));

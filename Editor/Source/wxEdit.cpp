@@ -8,13 +8,13 @@
 #include "propGridEditIceGOC.h"
 #include "DotSceneLoader.h"
 #include "IceAIManager.h"
-#include "IceLevelMesh.h"
 #include "IceSaveableVectorHandler.h"
 
 BEGIN_EVENT_TABLE(wxEdit, wxFrame)
     EVT_ACTIVATE(wxEdit::OnActivate)
 	EVT_CLOSE(wxEdit::OnClose)
 
+	EVT_MENU(wxMainMenu_clearWorld, wxEdit::OnClearWorld)
 	EVT_MENU(wxMainMenu_loadWorld, wxEdit::OnLoadWorld)
 	EVT_MENU(wxMainMenu_saveWorld, wxEdit::OnSaveWorld)
 	EVT_MENU(wxMainMenu_loadMesh, wxEdit::OnLoadMesh)
@@ -132,6 +132,8 @@ wxEdit::wxEdit() : wxFrame(nullptr, -1, _("Ice Editor"),
 	mFileMenu->Append(wxMainMenu_saveWorld, "Save World");
 	mFileMenu->AppendSeparator();
 	mFileMenu->Append(wxMainMenu_loadMesh, "Import world");
+	mFileMenu->AppendSeparator();
+	mFileMenu->Append(wxMainMenu_clearWorld, "Clear World");
 	mFileMenu->AppendSeparator();
 	mFileMenu->Append(wxMainMenu_exit, "Exit");
 	mToolsMenu = new wxMenu;
@@ -321,6 +323,17 @@ void wxEdit::OnSaveWorld(wxCommandEvent& WXUNUSED(event))
 	RESUME_MAINLOOP
 };
 
+void wxEdit::OnClearWorld(wxCommandEvent& WXUNUSED(event))
+{
+	STOP_MAINLOOP
+	wxMessageDialog dialog(this, "Do you really want to clear?", "Clear Scene", wxYES_NO);
+	if (dialog.ShowModal() == wxID_YES)
+    {
+		Ice::SceneManager::Instance().Reset();
+	}
+	RESUME_MAINLOOP
+}
+
 void wxEdit::OnLoadMesh(wxCommandEvent& WXUNUSED(event))
 {
 	STOP_MAINLOOP
@@ -344,10 +357,10 @@ void wxEdit::OnLoadMesh(wxCommandEvent& WXUNUSED(event))
 		wxEdit::Instance().GetProgressBar()->SetStatusMessage("Importing world...");
 		wxEdit::Instance().GetProgressBar()->SetProgress(0.1);
 		Ogre::String extension = sFile.substr(sFile.find_last_of("."), sFile.size());
-		if (extension == ".mesh")
-		{
-			Ice::SceneManager::Instance().LoadLevelMesh(sFile);
-		}
+
+		Ice::SceneManager::Instance().Reset();
+
+		if (extension == ".mesh") Ice::SceneManager::Instance().AddLevelMesh(sFile);
 		else DotSceneLoader::Instance().ImportScene(sFile);
 
 		wxEdit::Instance().GetpropertyWindow()->SetPage("None");
@@ -356,8 +369,7 @@ void wxEdit::OnLoadMesh(wxCommandEvent& WXUNUSED(event))
 		wxEdit::Instance().GetProgressBar()->SetProgress(0.3f);
 		wxEdit::Instance().GetWorldExplorer()->GetMaterialTree()->Update();
 		wxEdit::Instance().GetProgressBar()->SetStatusMessage("Generating navigation mesh...");
-		if (Ice::SceneManager::Instance().GetLevelMesh())
-			Ice::AIManager::Instance().GetNavigationMesh()->ImportOgreMesh(Ice::SceneManager::Instance().GetLevelMesh()->GetEntity()->getMesh());
+		Ice::AIManager::Instance().GetNavigationMesh()->Update();
     }
 	wxEdit::Instance().GetProgressBar()->Reset();
 	RESUME_MAINLOOP

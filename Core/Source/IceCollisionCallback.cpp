@@ -5,7 +5,6 @@
 #include "IceGOCPhysics.h"
 #include "IceMessageSystem.h"
 #include "IceSceneManager.h"
-#include "IceLevelMesh.h"
 #include "IceIncludes.h"
 #include "OgreOggSound.h"
 #include "IceScriptSystem.h"
@@ -135,11 +134,7 @@ namespace Ice
 					if (meshShape)
 					{
 						Ogre::Entity *ent = nullptr;
-						if (!meshShape->getActor().userData)
-						{
-							ent = SceneManager::Instance().GetLevelMesh()->GetEntity();
-						}
-						else
+						if (meshShape->getActor().userData)
 						{
 							GameObject *object = (GameObject*)meshShape->getActor().userData;
 							GOCMeshRenderable *gocMesh = nullptr;
