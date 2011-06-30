@@ -4,6 +4,7 @@
 #include "IceSceneManager.h"
 #include "IceGOCView.h"
 #include "IceGOCPhysics.h"
+#include "IceAIManager.h"
 
 DotSceneLoader::DotSceneLoader(void)
 {
@@ -132,10 +133,11 @@ void DotSceneLoader::LoadNode(TiXmlElement* objectElement)
 		Ice::GameObjectPtr object = Ice::SceneManager::Instance().CreateGameObject();
 		object->AddComponent(Ice::GOComponentPtr(new Ice::GOCMeshRenderable(meshname, true)));
 		object->AddComponent(Ice::GOComponentPtr(new Ice::GOCStaticBody(meshname)));
+		object->SetSelectable(false);
 		object->SetGlobalPosition(position);
 		object->SetGlobalScale(scale);
 		object->SetGlobalOrientation(rotation);
-		object->SetSelectable(false);
+		Ice::AIManager::Instance().GetNavigationMesh()->AddOgreMesh(object->GetComponent<Ice::GOCMeshRenderable>()->GetEntity()->getMesh(), object.get());
 	}
 }
 

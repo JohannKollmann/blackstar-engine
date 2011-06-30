@@ -146,8 +146,6 @@ void Edit::PostInit()
 	wxEdit::Instance().GetMainToolbar()->RegisterTool("ReloadOgreResources", "Reload", "Data/Editor/Intern/editor_scriptreload_01.png", Edit::OnToolbarEvent, "Reload all Ogre resources");
 	wxEdit::Instance().GetMainToolbar()->SetGroupStatus("Reload", true);
 
-	Ice::AIManager::Instance().SetWayMeshLoadingMode(false);
-
 	SetCameraMoveSpeed(mMovSpeed);
 	SetCameraRotationSpeed(mRotSpeed);
 
@@ -666,14 +664,15 @@ void Edit::OnMouseMove(Ogre::Radian RotX,Ogre::Radian RotY)
 void Edit::BrushMultitexture(unsigned int textureLayer)
 {
 	Ogre::Ray ray = Ice::Main::Instance().GetCamera()->getCameraToViewportRay(mMousePosition.x, mMousePosition.y);
-	if (Ice::SceneManager::Instance().HasLevelMesh())
+	//TODO
+	/*if (Ice::SceneManager::Instance().HasLevelMesh())
 	{
 		Ogre::Entity *levelMeshEnt = Ice::Main::Instance().GetOgreSceneMgr()->getEntity("LevelMesh-entity");
 		if (levelMeshEnt)
 		{
 			VertexMultitextureWeightBrusher::SetMultitextureWeight(levelMeshEnt, ray, 2.0f, textureLayer);
 		}
-	}
+	}*/
 	
 }
 
@@ -1122,21 +1121,6 @@ void Edit::OnSelectMaterial(float MouseX, float MouseY)
 			wxEdit::Instance().GetOgrePane()->SetFocus();
 			RESUME_MAINLOOP
 			return;
-		}
-	}
-
-	if (Ice::SceneManager::Instance().HasLevelMesh())
-	{
-		EntityMaterialInspector emi(Ice::Main::Instance().GetOgreSceneMgr()->getEntity("LevelMesh-entity"), ray);
-		Ogre::SubEntity *ent = emi.GetSubEntity();
-		if (ent)
-		{
-			//Ice::Log::Instance().LogMessage("change material: " + ent->getMaterialName());
-			mCurrentMaterialSelection.mSubEntity = ent;
-			mCurrentMaterialSelection.mOriginalMaterialName = ent->getMaterialName();
-			ent->setMaterialName("Editor_Submesh_Selected");
-			wxEdit::Instance().GetWorldExplorer()->GetMaterialTree()->ExpandToMaterial(Ice::Main::Instance().GetOgreSceneMgr()->getEntity("LevelMesh-entity")->getMesh()->getName(), mCurrentMaterialSelection.mOriginalMaterialName);
-			wxEdit::Instance().GetOgrePane()->SetFocus();
 		}
 	}
 	RESUME_MAINLOOP

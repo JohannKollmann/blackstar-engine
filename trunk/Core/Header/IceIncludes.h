@@ -106,7 +106,6 @@ namespace Ice
 	class Main;
 	class MainLoop;
 	class SceneManager;
-	class LevelMesh;
 	class Input;
 	class CameraController;
 	class Msg;

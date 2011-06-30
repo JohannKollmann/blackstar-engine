@@ -4,7 +4,6 @@
 #include "LoadSave.h"
 #include "IceWeatherController.h"
 #include "Saveable.h"
-#include "IceLevelMesh.h"
 #include "shellapi.h"
 #include "IceScriptSystem.h"
 #include "standard_atoms.h"
@@ -17,7 +16,6 @@
 #include "IceGOCAI.h"
 #include "IceAIManager.h"
 #include "IceFollowPathway.h"
-#include "IceLevelMesh.h"
 #include "IceGOCMover.h"
 #include "IceGOCScript.h"
 #include "IceGOCForceField.h"
@@ -45,7 +43,6 @@ namespace Ice
 		mWeatherController = 0;
 		mIndoorRendering = false;
 		mClockEnabled = true;
-		mLevelMesh = 0;
 		mNextID = 0;
 		mDayTime = 0.0f;
 		mMaxDayTime = 86400.0f;
@@ -377,12 +374,8 @@ namespace Ice
 
 	void SceneManager::Reset()
 	{
+		AIManager::Instance().GetNavigationMesh()->Reset();
 		ClearGameObjects();
-		if (mLevelMesh)
-		{
-			ICE_DELETE mLevelMesh;
-			mLevelMesh = nullptr;
-		}
 		SetToOutdoor();
 	}
 
@@ -424,31 +417,30 @@ namespace Ice
 		mIndoorRendering = false;
 	}
 
-	bool SceneManager::HasLevelMesh()
+	GameObjectPtr SceneManager::AddLevelMesh(Ogre::String meshname)
 	{
-		return (mLevelMesh == nullptr ? false : true);
-	}
-
-	LevelMesh* SceneManager::GetLevelMesh()
-	{
-		return mLevelMesh;
-	}
-
-
-	void SceneManager::LoadLevelMesh(Ogre::String meshname)
-	{
-		if (mLevelMesh)
-		{
-			if (mLevelMesh->GetMeshFileName() == meshname) return;
-		}
-
-		if (mLevelMesh) ICE_DELETE mLevelMesh;
-		mLevelMesh = ICE_NEW LevelMesh(meshname);
+		Ice::GameObjectPtr object = CreateGameObject();
+		object->AddComponent(Ice::GOComponentPtr(new Ice::GOCMeshRenderable(meshname, true)));
+		object->AddComponent(Ice::GOComponentPtr(new Ice::GOCStaticBody(meshname)));
+		object->SetSelectable(false);
+		AIManager::Instance().GetNavigationMesh()->AddOgreMesh(object->GetComponent<GOCMeshRenderable>()->GetEntity()->getMesh());
+		return object;
 	}
 
 	void SceneManager::RegisterGameObject(GameObjectPtr object)
 	{
 		mGameObjects.insert(std::make_pair<int, GameObjectPtr>(object->GetID(), object));
+	}
+
+	void SceneManager::CreateNavigationMesh()
+	{
+		AIManager::Instance().GetNavigationMesh()->Reset();
+		ITERATE(i, mGameObjects)
+		{
+			if (i->second->GetComponent<GOCMeshRenderable>() && i->second->GetComponent<GOCStaticBody>())
+				AIManager::Instance().GetNavigationMesh()->AddOgreMesh(i->second->GetComponent<GOCMeshRenderable>()->GetEntity()->getMesh());
+		}
+		AIManager::Instance().GetNavigationMesh()->Update();
 	}
 
 	void SceneManager::LoadLevel(Ogre::String levelfile, bool load_dynamic)
@@ -470,7 +462,9 @@ namespace Ice
 		ls->CloseFile();
 		delete ls;
 
-		msg.typeID = GlobalMessageIDs::LOADLEVEL_BEGIN;
+		CreateNavigationMesh();
+
+		msg.typeID = GlobalMessageIDs::LOADLEVEL_END;
 		MessageSystem::Instance().MulticastMessage(msg, true);
 	}
 
@@ -499,30 +493,13 @@ namespace Ice
 
 	void SceneManager::SetParameters(DataMap *parameters)
 	{
-		Ogre::String levelmesh = parameters->GetOgreString("LevelMesh");
-		if (levelmesh != "")
-		{
-			LoadLevelMesh(levelmesh.c_str());
-			//AIManager::Instance().SetNavigationMesh((NavigationMesh*)ls->LoadObject());
-			Ice::AIManager::Instance().GetNavigationMesh()->ImportOgreMesh(Ice::SceneManager::Instance().GetLevelMesh()->GetEntity()->getMesh());
-		}
-		else if (mLevelMesh)
-		{
-			ICE_DELETE mLevelMesh;
-			mLevelMesh = nullptr;
-		}
-
 		SetWeatherParameters(parameters);
-
 		mStartupScriptName = parameters->GetValue<Ogre::String>("Startup Script", "");
 		if (mStartupScriptName != "") ScriptSystem::GetInstance().CreateInstance(mStartupScriptName);
 	}
 
 	void SceneManager::GetParameters(DataMap *parameters)
 	{
-		if (mLevelMesh) parameters->AddOgreString("LevelMesh", mLevelMesh->GetMeshFileName());
-		else parameters->AddOgreString("LevelMesh", "");
-
 		parameters->AddOgreString("Startup Script", mStartupScriptName);
 
 		GetWeatherParameters(parameters);

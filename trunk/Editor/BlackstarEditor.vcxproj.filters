@@ -4,14 +4,14 @@
     <Filter Include="View">
       <UniqueIdentifier>{df7ea032-6a51-4aeb-96b5-2845ab1d6ab0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="View\TinyXML">
-      <UniqueIdentifier>{5b3f7196-1904-4d0a-908f-83bf4ce33049}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Main">
       <UniqueIdentifier>{70c9bc4e-a46c-4524-a78b-d46eed1b2e61}</UniqueIdentifier>
     </Filter>
     <Filter Include="Editor">
       <UniqueIdentifier>{e0f41c3e-ff15-4ee4-a40f-c77beed03d9b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TinyXML">
+      <UniqueIdentifier>{5b3f7196-1904-4d0a-908f-83bf4ce33049}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -82,10 +82,10 @@
       <Filter>View</Filter>
     </ClInclude>
     <ClInclude Include="Header\DotSceneLoader.h">
-      <Filter>View\TinyXML</Filter>
+      <Filter>TinyXML</Filter>
     </ClInclude>
     <ClInclude Include="TinyXML\tinyxml.h">
-      <Filter>View\TinyXML</Filter>
+      <Filter>TinyXML</Filter>
     </ClInclude>
     <ClInclude Include="Header\EDTIncludes.h">
       <Filter>Main</Filter>
@@ -186,16 +186,16 @@
       <Filter>View</Filter>
     </ClCompile>
     <ClCompile Include="Source\DotSceneLoader.cpp">
-      <Filter>View\TinyXML</Filter>
+      <Filter>TinyXML</Filter>
     </ClCompile>
     <ClCompile Include="TinyXML\tinyxml.cpp">
-      <Filter>View\TinyXML</Filter>
+      <Filter>TinyXML</Filter>
     </ClCompile>
     <ClCompile Include="TinyXML\tinyxmlerror.cpp">
-      <Filter>View\TinyXML</Filter>
+      <Filter>TinyXML</Filter>
     </ClCompile>
     <ClCompile Include="TinyXML\tinyxmlparser.cpp">
-      <Filter>View\TinyXML</Filter>
+      <Filter>TinyXML</Filter>
     </ClCompile>
     <ClCompile Include="Source\Main.cpp">
       <Filter>Main</Filter>

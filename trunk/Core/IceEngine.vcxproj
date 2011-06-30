@@ -143,7 +143,6 @@
     <ClCompile Include="Source\IceConsole.cpp" />
     <ClCompile Include="Source\IceDataMap.cpp" />
     <ClCompile Include="Source\IceInput.cpp" />
-    <ClCompile Include="Source\IceLevelMesh.cpp" />
     <ClCompile Include="Source\IceMain.cpp" />
     <ClCompile Include="Source\IceMainLoop.cpp" />
     <ClCompile Include="Source\IceScriptUser.cpp" />
@@ -239,7 +238,6 @@
     <ClInclude Include="Header\IceDirectionBlender.h" />
     <ClInclude Include="Header\IceIncludes.h" />
     <ClInclude Include="Header\IceInput.h" />
-    <ClInclude Include="Header\IceLevelMesh.h" />
     <ClInclude Include="Header\IceMain.h" />
     <ClInclude Include="Header\IceMainLoop.h" />
     <ClInclude Include="Header\IceScriptUser.h" />
