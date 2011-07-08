@@ -45,6 +45,8 @@ namespace Ice
 
 		void operator() ();
 
+		AccessPermitionID GetAccessPermitionID() { return mAccessPermitionID; }
+
 		void Step();
 
 		void SetSynchronized(bool synchronized) { mSynchronized = synchronized; }

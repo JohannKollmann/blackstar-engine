@@ -29,7 +29,8 @@ namespace Ice
 	{
 		if (mBody)
 		{
-			mBody->SetOwnerTransform(position, rotation);
+			if (!mBody->GetActor()->getNxActor()->readBodyFlag(NX_BF_FROZEN))
+				mBody->SetOwnerTransform(position, rotation);
 		}
 	}
 
@@ -55,7 +56,7 @@ namespace Ice
 			Msg msg;
 			msg.typeID = GlobalMessageIDs::ACTOR_ONWAKE;
 			msg.rawData = mActor->getNxActor();
-			MulticastMessage(msg);
+			Ice::MessageSystem::Instance().MulticastMessage(msg, true);
 			Main::Instance().GetPhysXScene()->destroyRenderedActor((OgrePhysX::RenderedActor*)mActor);
 			mActor = nullptr;
 			//This also destroys the renderable!
@@ -150,11 +151,12 @@ namespace Ice
 	}
 	void GOCRigidBody::UpdateScale(Ogre::Vector3 scale)
 	{
-		if (mActor) Main::Instance().GetPhysXScene()->destroyRenderedActor((OgrePhysX::RenderedActor*)mActor);
-		mRenderable = nullptr;
+		bool freezed = mActor->getNxActor()->readBodyFlag(NX_BF_FROZEN);
+		_clear();
 		Create(mCollisionMeshName, mDensity, mShapeType, scale);
 		mActor->setGlobalOrientation(mOwnerGO.lock()->GetGlobalOrientation());
 		mActor->setGlobalPosition(mOwnerGO.lock()->GetGlobalPosition());
+		Freeze(freezed);
 	}
 
 	void GOCRigidBody::SetOwner(std::weak_ptr<GameObject> go)

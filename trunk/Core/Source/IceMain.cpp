@@ -144,7 +144,12 @@ void Main::AddMainLoopThread(Ogre::String name, MainLoopThread *loopThread, bool
 {
 	MainLoopItem item;
 	item.mainLoopThread = loopThread;
-	item.thread = createThread ? new boost::thread(boost::ref(*loopThread)) : nullptr;
+	item.thread = nullptr;
+	if (createThread)
+	{
+		item.thread = new boost::thread(boost::ref(*loopThread));
+		MessageSystem::Instance().RegisterThread(item.thread->get_id(), loopThread->GetAccessPermitionID());
+	}
 	mMainLoopThreads[name] = item;
 }
 void Main::PauseAllMainLoopThreads(bool paused)
@@ -183,6 +188,17 @@ void Main::InitOgreResources()
 
 void Main::initScene()
 {
+	Ogre::LogManager::getSingleton().logMessage("Testing boost::mutex performance...");
+	DWORD start = timeGetTime();
+	for (int i = 0; i < 100000; i++)
+	{
+		//boost::thread::id id = boost::this_thread::get_id();
+		boost::mutex testMutex;
+		testMutex.lock();
+		testMutex.unlock();
+	}
+	Ogre::LogManager::getSingleton().logMessage("Time needed: " + Ogre::StringConverter::toString(timeGetTime()-start));
+
 	Log::Instance().LogMessage("Main initScene");
 
 	Ice::MessageSystem::Instance().CreateNewsgroup(GlobalMessageIDs::UPDATE_PER_FRAME);
@@ -573,6 +589,7 @@ void Main::Shutdown()
 			delete i->second.mainLoopThread;
 			if (i->second.thread) delete i->second.thread;
 		}
+		SceneManager::Instance().Reset();
 		mDirectionalShadowCameraSetup.setNull();
 		mSpotShadowCameraSetup.setNull();
 		mPointShadowCameraSetup.setNull();

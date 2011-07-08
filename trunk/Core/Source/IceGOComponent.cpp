@@ -72,7 +72,7 @@ namespace Ice
 	{
 		GameObjectPtr owner = mOwnerGO.lock();
 		IceAssert(owner.get())
-		owner->SendObjectMessage(msg, familyID, this);
+		owner->SendObjectMessage(msg, familyID);
 	}
 
 	void GOComponent::BroadcastObjectMessage(Msg &msg)

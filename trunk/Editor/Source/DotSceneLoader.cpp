@@ -137,7 +137,7 @@ void DotSceneLoader::LoadNode(TiXmlElement* objectElement)
 		object->SetGlobalPosition(position);
 		object->SetGlobalScale(scale);
 		object->SetGlobalOrientation(rotation);
-		Ice::AIManager::Instance().GetNavigationMesh()->AddOgreMesh(object->GetComponent<Ice::GOCMeshRenderable>()->GetEntity()->getMesh(), object.get());
+		//Ice::AIManager::Instance().GetNavigationMesh()->AddOgreMesh(object->GetComponent<Ice::GOCMeshRenderable>()->GetEntity()->getMesh(), object.get());
 	}
 }
 

@@ -10,45 +10,128 @@ namespace Ice
 		: mNumProcessingMessages(0), mNumWaitingSynchronized(0), mSynchronizedProcessing(false)
 	{
 		for (int i = 0; i < MAX_NUM_JOBQUEUES; i++)
+		{
 			mCurrentJobs[i].sendAllMessagesInstantly = false;
+			mCurrentJobs[i].processingMessages = false;
+		}
 	}
 
-	void MessageSystem::SetSendAllMessagesInstantly(AccessPermitionID receiverAccessPermitionID, bool sendAllMessagesInstantly)
+	void MessageSystem::AddThisThreadAccessPermition(AccessPermitionID accessPermitionID)
 	{
-		mCurrentJobs[receiverAccessPermitionID].sendAllMessagesInstantly = sendAllMessagesInstantly;
+		mThreadAccessPermitions[accessPermitionID].insert(boost::this_thread::get_id());
 	}
 
-	void MessageSystem::SendMessage(Msg &msg, AccessPermitionID senderAccessPermitionID, std::shared_ptr<MessageListener> &receiver)
+	void MessageSystem::RegisterThread(boost::thread::id threadID, AccessPermitionID accessPermitionID)
+	{
+		auto existing = mThreadBindings.find(threadID);
+		if (existing != mThreadBindings.end())
+		{
+			IceWarning("Changing existing thread binding!")
+			existing->second.accessPermitionID = accessPermitionID;
+		}
+
+		ThreadBinding tb;
+		tb.accessPermitionID = accessPermitionID;
+		tb.lockedMessageProcessing = false;
+		mThreadBindings.insert(std::make_pair<boost::thread::id, ThreadBinding>(threadID, tb));
+
+		mThreadAccessPermitions[accessPermitionID].insert(threadID);
+	}
+
+	void MessageSystem::RegisterThisThread(AccessPermitionID accessPermitionID)
+	{
+		RegisterThread(boost::this_thread::get_id(), accessPermitionID);
+	}
+
+	void MessageSystem::SetSendAllMessagesInstantly(AccessPermitionID accessPermitionID, bool instant)
+	{
+		mCurrentJobs[accessPermitionID].sendAllMessagesInstantly = instant;
+	}
+
+	bool MessageSystem::testThreadAccessPermition(AccessPermitionID receiverID)
+	{
+		auto i = mThreadBindings.find(boost::this_thread::get_id());
+		if (i == mThreadBindings.end() || i->second.accessPermitionID < 0) return false;
+
+		AccessPermitionID senderAccessPermitionID = i->second.accessPermitionID;
+		if (mCurrentJobs[senderAccessPermitionID].sendAllMessagesInstantly)
+			return true;
+
+		auto allowedThreads = mThreadAccessPermitions.find(receiverID);
+		if (allowedThreads == mThreadAccessPermitions.end())
+			return false;
+
+		return (allowedThreads->second.find(boost::this_thread::get_id()) != allowedThreads->second.end());
+	}
+
+	bool MessageSystem::isThreadProcessingMessages()
+	{
+		auto i = mThreadBindings.find(boost::this_thread::get_id());
+		if (i == mThreadBindings.end() || i->second.accessPermitionID < 0) return false;
+		else return mCurrentJobs[i->second.accessPermitionID].processingMessages;
+	}
+
+	bool MessageSystem::updateThreadLockedMessageProcessing(bool lock)
+	{
+		//boost::thread::id threadID = boost::this_thread::get_id();
+		auto i = mThreadBindings.find(boost::this_thread::get_id());
+		if (i == mThreadBindings.end())
+		{
+			ThreadBinding tb;
+			tb.accessPermitionID = -1;
+			tb.lockedMessageProcessing = lock;
+			mThreadBindings.insert(std::make_pair<boost::thread::id, ThreadBinding>(boost::this_thread::get_id(), tb));
+			return false;
+		}
+		else
+		{
+			bool ret = i->second.lockedMessageProcessing;
+			i->second.lockedMessageProcessing = lock;
+			return ret;
+		}
+	}
+
+	void MessageSystem::sendMsgPacket(MsgPacket &packet, AccessPermitionID receiverAccessPermition)
+	{
+		if (testThreadAccessPermition(receiverAccessPermition)) packet.Send();
+		else
+		{
+			auto iSenderAccessPermitionID = mThreadBindings.find(boost::this_thread::get_id());
+			if (iSenderAccessPermitionID != mThreadBindings.end() && iSenderAccessPermitionID->second.accessPermitionID > 0)
+				mCurrentJobs[receiverAccessPermition].cachedPackets[iSenderAccessPermitionID->second.accessPermitionID].push_back(packet);
+			else
+			{
+				mCurrentJobs[receiverAccessPermition].flushingMutex.lock();
+				mCurrentJobs[receiverAccessPermition].packets.push_back(packet);
+				mCurrentJobs[receiverAccessPermition].flushingMutex.unlock();
+			}
+		}
+	}
+
+	void MessageSystem::SendMessage(Msg &msg, std::shared_ptr<MessageListener> &receiver, bool sendInstantly)
 	{
 		MsgPacket packet(msg, std::weak_ptr<MessageListener>(receiver));
-		if (senderAccessPermitionID == receiver->GetAccessPermitionID() || senderAccessPermitionID == AccessPermitions::ACCESS_ALL
-			|| mCurrentJobs[receiver->GetAccessPermitionID()].sendAllMessagesInstantly) packet.Send();
-		else mCurrentJobs[receiver->GetAccessPermitionID()].cachedPackets[senderAccessPermitionID].push_back(packet);
+		if (sendInstantly)
+		{
+			LockMessageProcessing();
+			packet.Send();
+			UnlockMessageProcessing();
+		}
+		else sendMsgPacket(packet, receiver->GetAccessPermitionID());
 	};
-	void MessageSystem::SendMessage(Msg &msg, AccessPermitionID senderAccessPermitionID, MessageListener *receiver)
+	void MessageSystem::SendMessage(Msg &msg, MessageListener *receiver, bool sendInstantly)
 	{
 		MsgPacket packet(msg, receiver);
-		if (senderAccessPermitionID == receiver->GetAccessPermitionID() || senderAccessPermitionID == AccessPermitions::ACCESS_ALL
-			|| mCurrentJobs[receiver->GetAccessPermitionID()].sendAllMessagesInstantly) packet.Send();
-		else mCurrentJobs[receiver->GetAccessPermitionID()].cachedPackets[senderAccessPermitionID].push_back(packet);
+		if (sendInstantly)
+		{
+			LockMessageProcessing();
+			packet.Send();
+			UnlockMessageProcessing();
+		}
+		else sendMsgPacket(packet, receiver->GetAccessPermitionID());
 	};
 
-	void MessageSystem::SendMessage(Msg &msg, std::shared_ptr<MessageListener> &receiver)
-	{
-		MsgPacket packet(msg, std::weak_ptr<MessageListener>(receiver));
-		mCurrentJobs[receiver->GetAccessPermitionID()].flushingMutex.lock();
-		mCurrentJobs[receiver->GetAccessPermitionID()].packets.push_back(packet);
-		mCurrentJobs[receiver->GetAccessPermitionID()].flushingMutex.unlock();
-	};
-	void MessageSystem::SendMessage(Msg &msg, MessageListener *receiver)
-	{
-		MsgPacket packet(msg, receiver);
-		mCurrentJobs[receiver->GetAccessPermitionID()].flushingMutex.lock();
-		mCurrentJobs[receiver->GetAccessPermitionID()].packets.push_back(packet);
-		mCurrentJobs[receiver->GetAccessPermitionID()].flushingMutex.unlock();
-	};
-
-	void MessageSystem::MulticastMessage(Msg &msg, AccessPermitionID senderAccessPermitionID)
+	void MessageSystem::MulticastMessage(Msg &msg, bool sendInstantly)
 	{
 		auto find = mNewsgroupReceivers.find(msg.typeID);
 		if (find == mNewsgroupReceivers.end())
@@ -56,40 +139,37 @@ namespace Ice
 			IceWarning("Group ID '" + Ogre::StringConverter::toString(msg.typeID) + "' does not exist!");
 			return;
 		}
-
-		ITERATE(i, find->second.receivers)
+		if (sendInstantly)
 		{
-			MsgPacket packet(msg,  &i->second);
-			if (i->first == senderAccessPermitionID || senderAccessPermitionID == AccessPermitions::ACCESS_ALL
-				|| mCurrentJobs[i->first].sendAllMessagesInstantly)
+			LockMessageProcessing();
+			ITERATE(i, find->second.receivers)
+			{
+				MsgPacket packet(msg,  &i->second);
 				packet.Send();
-			else mCurrentJobs[i->first].cachedPackets[senderAccessPermitionID].push_back(packet);
+			}
+			UnlockMessageProcessing();
 		}
-	};
-
-	void MessageSystem::MulticastMessage(Msg &msg)
-	{
-		auto find = mNewsgroupReceivers.find(msg.typeID);
-		if (find == mNewsgroupReceivers.end())
+		else
 		{
-			IceWarning("Group ID '" + Ogre::StringConverter::toString(msg.typeID) + "' does not exist!");
-			return;
-		}
-
-		ITERATE(i, find->second.receivers)
-		{
-			MsgPacket packet(msg,  &i->second);
-			mCurrentJobs[i->first].flushingMutex.lock();
-			mCurrentJobs[i->first].packets.push_back(packet);
-			mCurrentJobs[i->first].flushingMutex.unlock();
+			ITERATE(i, find->second.receivers)
+			{
+				if (i->second.GetVector()->size() > 0)
+				{
+					MsgPacket packet(msg,  &i->second);
+					sendMsgPacket(packet, i->first);
+				}
+			}
 		}
 	};
 
 	void MessageSystem::LockMessageProcessing()
 	{
+		if (updateThreadLockedMessageProcessing(true)) return;
+
 		boost::unique_lock<boost::mutex> lock(mMonitorMutex);
 
 		mNumWaitingSynchronized++;
+		if (isThreadProcessingMessages()) mNumProcessingMessages--;
 		while (mNumProcessingMessages > 0 || mSynchronizedProcessing)	
 		{	//wait until no other thread processes messages
 			if (!mNoMessageProcessing.timed_wait(lock, boost::posix_time::seconds(MAX_WAITTIME_SECONDS)))
@@ -98,6 +178,7 @@ namespace Ice
 			}
 		}
 		mAtomicHelperMutex.lock();
+		if (isThreadProcessingMessages()) mNumProcessingMessages++;
 		mNumWaitingSynchronized--;
 		mSynchronizedProcessing = true;
 		mAtomicHelperMutex.unlock();
@@ -119,6 +200,8 @@ namespace Ice
 
 	void MessageSystem::UnlockMessageProcessing()
 	{
+		if (!updateThreadLockedMessageProcessing(false)) return;
+
 		boost::lock_guard<boost::mutex> lock(mMonitorMutex);
 
 		mSynchronizedProcessing = false;
@@ -135,6 +218,8 @@ namespace Ice
 
 	void MessageSystem::ProcessMessages(AccessPermitionID accessPermitionID, bool synchronized, ProcessingListener *listener)
 	{
+		mCurrentJobs[accessPermitionID].processingMessages = true;
+
 		if (synchronized) LockMessageProcessing();
 		else EnterMessageProcessing();
 
@@ -160,6 +245,8 @@ namespace Ice
 
 		if (synchronized) UnlockMessageProcessing();
 		else LeaveMessageProcessing();
+
+		mCurrentJobs[accessPermitionID].processingMessages = false;
 	}
 
 	void MessageSystem::ProcessAllMessagesNow()
@@ -241,7 +328,6 @@ namespace Ice
 		for (auto ni = mNewsgroupReceivers.begin(); ni != mNewsgroupReceivers.end(); ++ni)
 		{
 			WrappedVector<MessageListener*> *receivers = &ni->second.receivers[accessPermitionID];
-			unsigned int index = 0;
 			std::vector<MessageListener*> *pRecVec = receivers->GetVector();
 			for (unsigned int i = 0; i < pRecVec->size(); i++)
 			{
@@ -250,7 +336,6 @@ namespace Ice
 					receivers->Remove(i);
 					break;
 				}
-				index++;
 			}
 		}
 	}

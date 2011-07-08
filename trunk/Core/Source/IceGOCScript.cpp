@@ -87,7 +87,11 @@ namespace Ice
 
 	void GOCScriptMessageCallback::ReceiveMessage(Msg &msg)
 	{
-		if (msg.typeID == GlobalMessageIDs::REPARSE_SCRIPTS_PRE) mObjectMsgCallbacks.clear();
+		if (msg.typeID == GlobalMessageIDs::REPARSE_SCRIPTS_PRE)
+		{
+			mObjectMsgCallbacks.clear();
+			return;
+		}
 
 		if (msg.typeID == ObjectMessageIDs::INTERN_RESET)
 		{

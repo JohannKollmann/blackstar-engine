@@ -54,7 +54,7 @@ namespace Ice
 	Every entity in 3D space is a game object. A game object has a position, rotation and scale (Transformable3D) and provides parent-child support.
 	A game object also consists of a set of components, which provide special functionality like mesh, sound, ai etc.
 	*/
-	class DllExport GameObject : public LoadSave::Saveable, public Transformable3D
+	class DllExport GameObject : public LoadSave::Saveable, public Transformable3D, public IndependantMessageListener
 	{
 	public:
 		enum ReferenceTypes
@@ -128,17 +128,11 @@ namespace Ice
 		*/
 		Ogre::String GetIDStr() { return Ogre::StringConverter::toString(mID); }
 
-		///Broadcasts a message to all components.
-		void BroadcastObjectMessage(Msg &msg);
-
-		///Broadcasts a message to all components except sender.
-		void BroadcastObjectMessage(Msg &msg, GOComponent *sender);
+		///Broadcasts a message to all components except sender (optional).
+		void BroadcastObjectMessage(Msg &msg, GOComponent *sender = nullptr, bool sendInstantly = false);
 
 		///Sends a message to a component of a certain family, if existent.
-		void SendObjectMessage(Msg &msg, GOComponent::FamilyID &familyID);
-
-		///Sends a message to a component of a certain family, if existent.
-		void SendObjectMessage(Msg &msg, GOComponent::FamilyID &familyID, GOComponent *sender);
+		void SendObjectMessage(Msg &msg, GOComponent::FamilyID &familyID, bool sendInstantly = false);
 
 		/**
 		* Attaches a component to the object.
@@ -290,6 +284,8 @@ namespace Ice
 
 		///Tells all components to change to an inactive state, where say don't use any resources.
 		void FreeResources(bool free);
+
+		void ReceiveMessage(Msg &msg);
 
 		//Scripting
 		std::vector<ScriptParam> AddComponent(Script& caller, std::vector<ScriptParam> &vParams);

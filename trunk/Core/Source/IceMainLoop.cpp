@@ -76,7 +76,7 @@ namespace Ice
 		msg.typeID = FINISH_MESSAGEPROCESSING;
 		msg.params.AddFloat("TIME", mMainLoopThread->mTimeSinceLastFrameSeconds);
 		msg.params.AddFloat("TIME_TOTAL", mMainLoopThread->mTotalTimeElapsedSeconds);
-		MessageSystem::Instance().SendMessage(msg, accessPermitionID, mMsgReceiver);
+		MessageSystem::Instance().SendMessage(msg, mMsgReceiver);
 	}
 
 	void MainLoopThreadSender::doLoop()
@@ -88,6 +88,8 @@ namespace Ice
 	{
 		if (msg.typeID == MainLoopThreadSender::FINISH_MESSAGEPROCESSING)
 		{
+			OgrePhysX::World::getSingleton().syncRenderables();
+
 			Msg updateMsg = msg;
 			updateMsg.typeID = GlobalMessageIDs::UPDATE_PER_FRAME;
 			MulticastMessage(updateMsg);
@@ -116,7 +118,7 @@ namespace Ice
 			msg.typeID = GlobalMessageIDs::PHYSICS_BEGIN;
 			MulticastMessage(msg);
 			OgrePhysX::World::getSingleton().startSimulate(msg.params.GetValue<float>(0));
-			OgrePhysX::World::getSingleton().syncRenderables();
+			//OgrePhysX::World::getSingleton().syncRenderables();
 			Msg endPhysicsMsg = msg;
 			msg.typeID = GlobalMessageIDs::PHYSICS_END;
 			MulticastMessage(msg);
@@ -128,7 +130,7 @@ namespace Ice
 		Msg msg;
 		msg.params.AddFloat("TIME", time);
 		msg.typeID = GlobalMessageIDs::PHYSICS_SUBSTEP;
-		MessageSystem::Instance().MulticastMessage(msg, AccessPermitions::ACCESS_PHYSICS);
+		MessageSystem::Instance().MulticastMessage(msg);
 	}
 	void PhysicsThread::PhysicsListener::onSimulate(float time)
 	{

@@ -47,25 +47,25 @@ namespace Ice
 		mWeakThis = std::weak_ptr<GameObject>(std::static_pointer_cast<GameObject, LoadSave::Saveable>(wThis.lock()));
 	}
 
-	void GameObject::BroadcastObjectMessage(Msg &msg, GOComponent *sender)
+	void GameObject::BroadcastObjectMessage(Msg &msg, GOComponent *sender, bool sendInstantly)
 	{
-		ITERATE(i, mComponents)
-			if (i->get() != sender) MessageSystem::Instance().SendMessage(msg, sender->GetAccessPermitionID(), std::static_pointer_cast<MessageListener, GOComponent>(*i));
+		if (sendInstantly)
+		{
+			Ice::MessageSystem::Instance().LockMessageProcessing();
+			ITERATE(i, mComponents)
+				(*i)->ReceiveMessage(msg);
+			Ice::MessageSystem::Instance().UnlockMessageProcessing();
+		}
+		else
+		{
+			ITERATE(i, mComponents)
+				if (i->get() != sender) MessageSystem::Instance().SendMessage(msg, std::static_pointer_cast<MessageListener, GOComponent>(*i));
+		}
 	}
-	void GameObject::BroadcastObjectMessage(Msg &msg)
-	{
-		ITERATE(i, mComponents)
-			MessageSystem::Instance().SendMessage(msg, std::static_pointer_cast<MessageListener, GOComponent>(*i));
-	}
-	void GameObject::SendObjectMessage(Msg &msg, GOComponent::FamilyID &familyID, GOComponent *sender)
+	void GameObject::SendObjectMessage(Msg &msg, GOComponent::FamilyID &familyID, bool sendInstantly)
 	{
 		GOComponentPtr receiver = GetComponentPtr(familyID);
-		if (receiver) MessageSystem::Instance().SendMessage(msg, sender->GetAccessPermitionID(), std::static_pointer_cast<MessageListener, GOComponent>(receiver));
-	}
-	void GameObject::SendObjectMessage(Msg &msg, GOComponent::FamilyID &familyID)
-	{
-		GOComponentPtr receiver = GetComponentPtr(familyID);
-		if (receiver) MessageSystem::Instance().SendMessage(msg, std::static_pointer_cast<MessageListener, GOComponent>(receiver));
+		if (receiver) MessageSystem::Instance().SendMessage(msg, std::static_pointer_cast<MessageListener, GOComponent>(receiver), sendInstantly);
 	}
 
 	void GameObject::AddComponent(GOComponentPtr component)
@@ -410,6 +410,10 @@ namespace Ice
 			msg.params.AddOgreVec3("Scale", mScale);
 			BroadcastObjectMessage(msg);
 		}
+	}
+
+	void GameObject::ReceiveMessage(Msg &msg)
+	{
 	}
 
 	void GameObject::Freeze(bool freeze)
