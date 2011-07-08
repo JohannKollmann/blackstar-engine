@@ -199,7 +199,7 @@ void wxEditIceGameObject::OnApply()
 	}
 
 	Ice::Msg msg;msg.typeID = Ice::ObjectMessageIDs::INTERN_RESET;
-	object->BroadcastObjectMessage(msg);
+	object->BroadcastObjectMessage(msg, nullptr, true);
 
 	std::list<Ice::GOCEditorInterface*> existingGOCs;
 	for (auto ci = object->GetComponentIterator(); ci != object->GetComponentIteratorEnd(); ci++)
@@ -244,7 +244,6 @@ void wxEditIceGameObject::OnApply()
 			object->RemoveComponent(editor_interface->GetGOComponent()->GetFamilyID());
 			object->AddComponent(Ice::GOComponentPtr(editor_interface->GetGOComponent()));
 		}
-		RESUME_MAINLOOP
 	}
 
 	for (auto i = existingGOCs.begin(); i != existingGOCs.end(); i++)
@@ -263,6 +262,8 @@ void wxEditIceGameObject::OnApply()
 	wxEdit::Instance().GetWorldExplorer()->GetMaterialTree()->Update();
 	wxEdit::Instance().GetWorldExplorer()->GetSceneTree()->UpdateObject(object);
 	wxEdit::Instance().GetOgrePane()->SetFocus();
+
+	RESUME_MAINLOOP
 }
 
 void wxEditGOResource::OnApply()

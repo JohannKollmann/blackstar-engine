@@ -2,6 +2,7 @@
 #pragma once
 
 #include <map>
+#include <set>
 #include "Ogre.h"
 #include "IceIncludes.h"
 #include "IceMsg.h"
@@ -73,10 +74,17 @@ namespace Ice
 		};
 
 		static const int MAX_NUM_JOBQUEUES = 10;
+
+		struct ThreadBinding
+		{
+			AccessPermitionID accessPermitionID;
+			bool lockedMessageProcessing;
+		};
 	
 		struct JobQueue
 		{
 			bool sendAllMessagesInstantly;
+			bool processingMessages;			
 			boost::mutex flushingMutex;
 			std::vector<MsgPacket> cachedPackets[MAX_NUM_JOBQUEUES];
 			std::vector<MsgPacket> packets;
@@ -85,6 +93,9 @@ namespace Ice
 		JobQueue mCurrentJobs[MAX_NUM_JOBQUEUES];
 
 		std::map<MsgTypeID, Newsgroup > mNewsgroupReceivers;
+
+		std::map<boost::thread::id, ThreadBinding> mThreadBindings;
+		std::map<AccessPermitionID, std::set<boost::thread::id> > mThreadAccessPermitions;
 
 
 		int mNumProcessingMessages;
@@ -96,6 +107,18 @@ namespace Ice
 		boost::mutex mAtomicHelperMutex;	
 
 		MessageSystem();
+
+		///Tests whether the calling thread has the permition to access receiverID.
+		bool testThreadAccessPermition(AccessPermitionID receiverID);
+
+		///Sends a MsgPacket.
+		void sendMsgPacket(MsgPacket &packet, AccessPermitionID receiverAccessPermition);
+
+		///Retrieves whether the caller thread is currently processing messages.
+		bool isThreadProcessingMessages();
+
+		///Retrieves whether the caller thread has called LockMessageProcessing before and sets the lock status to a new value.
+		bool updateThreadLockedMessageProcessing(bool lock);
 
 		/**
 		* Registers a message listener in a newsgroup.
@@ -116,36 +139,32 @@ namespace Ice
 	public:
 
 		/**
-		* Send a message to a message listener.
-		* The message is delivered instantly when senderAccessPermitionID == receiver.AccessPermitionID or when ProcessMessages(receiver.AccessPermitionID) ist called.
-		* @param lock specifies whether the receiver queue shall be locked, when senderAccessPermitionID != receiver.AccessPermitionID)
+		* Specifies that senders from the caller thread can access receiver with accessPermitionID directly.
 		*/
-		void SendMessage(Msg &msg, AccessPermitionID senderAccessPermitionID, std::shared_ptr<MessageListener> &receiver);
-		void SendMessage(Msg &msg, AccessPermitionID senderAccessPermitionID, MessageListener *receiver);
+		void AddThisThreadAccessPermition(AccessPermitionID accessPermitionID);
+
+		/**
+		* Specifies that all messages sent from the thread that is associated with accessPermitionID are sent directly.
+		*/
+		void SetSendAllMessagesInstantly(AccessPermitionID accessPermitionID, bool instant);
+
+		/**
+		* Registers an accessPermitionID to the caller thread.
+		*/
+		void RegisterThread(boost::thread::id threadID, AccessPermitionID accessPermitionID);
+		void RegisterThisThread(AccessPermitionID accessPermitionID);
 
 		/**
 		* Sends a message to a message listener.
-		* @param synchronized If set to true, the message es processed immediately and it is ensured that now other messages are processed in the meantime (avoid this if you can). 
 		*/
-		void SendMessage(Msg &msg, std::shared_ptr<MessageListener> &receiver);
-		void SendMessage(Msg &msg, MessageListener *receiver);
+		void SendMessage(Msg &msg, std::shared_ptr<MessageListener> &receiver, bool sendInstantly = false);
+		void SendMessage(Msg &msg, MessageListener *receiver, bool sendInstantly = false);
 
 		/**
 		* Multicasts a message to all Message listeners that are registered member of groupID.
 		* The message is delivered instantly when senderAccessPermitionID == group.AccessPermitionID or when ProcessMessages(group.AccessPermitionID) ist called.
 		*/
-		void MulticastMessage(Msg &msg, AccessPermitionID senderAccessPermitionID);
-
-		/**
-		* Multicasts a message to all Message listeners that are registered member of groupID (always asynchron).
-		*/
-		void MulticastMessage(Msg &msg);
-
-		/**
-		Turns asynchronous message dispatching for a job queue on or off (by default on).
-		*/
-		void SetSendAllMessagesInstantly(AccessPermitionID receiverAccessPermitionID, bool sendAllMessagesInstantly);
-
+		void MulticastMessage(Msg &msg, bool sendInstantly = false);
 
 		class DllExport ProcessingListener
 		{

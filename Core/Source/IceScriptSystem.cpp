@@ -283,12 +283,12 @@ namespace Ice
 	{
 		Ice::Msg msg;
 		msg.typeID = GlobalMessageIDs::REPARSE_SCRIPTS_PRE;
-		Ice::MessageSystem::Instance().MulticastMessage(msg, AccessPermitions::ACCESS_ALL);
+		Ice::MessageSystem::Instance().MulticastMessage(msg, true);
 		Ice::ScriptSystem::GetInstance().Clear();
 		//Call init script
 		Ice::Script script = Ice::ScriptSystem::GetInstance().CreateInstance("InitEngine.lua");
 		msg.typeID = GlobalMessageIDs::REPARSE_SCRIPTS_POST;
-		Ice::MessageSystem::Instance().MulticastMessage(msg, AccessPermitions::ACCESS_ALL);
+		Ice::MessageSystem::Instance().MulticastMessage(msg, true);
 	}
 	void ScriptSystem::ReceiveMessage(Msg &msg)
 	{

@@ -20,14 +20,14 @@ namespace Ice
 	{
 		_destroyCreatedProcesses();
 		GameObjectPtr owner = mOwnerGO.lock();
-		if (owner.get())
+		/*if (owner.get())
 		{
 			if (GOCScriptMessageCallback *c = owner->GetComponent<GOCScriptMessageCallback>())
 			{
 				Msg msg; msg.typeID = GlobalMessageIDs::REPARSE_SCRIPTS_PRE;
 				c->ReceiveMessage(msg);		//HACK - damit script objekt message listener gelöscht werden
 			}
-		}
+		}*/
 		std::list<GameObject*>::iterator i = mBoneObjects.begin();
 		while (i != mBoneObjects.end())
 		{

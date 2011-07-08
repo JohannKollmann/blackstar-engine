@@ -33,12 +33,12 @@ namespace Ice
 
 	void MessageListener::SendMessage(Msg &msg, std::shared_ptr<MessageListener> &receiver)
 	{
-		MessageSystem::Instance().SendMessage(msg, GetAccessPermitionID(), receiver);
+		MessageSystem::Instance().SendMessage(msg, receiver);
 	}
 
 	void MessageListener::MulticastMessage(Msg &msg)
 	{
-		MessageSystem::Instance().MulticastMessage(msg, GetAccessPermitionID());
+		MessageSystem::Instance().MulticastMessage(msg);
 	}
 
 };

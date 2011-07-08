@@ -208,6 +208,8 @@ private:
 	bool mInsertAsChild;
 	bool mStrgPressed;
 
+	bool mOneTimeInit;
+
 	void SelectChildren(Ice::GameObjectPtr object);
 	void DeselectChildren(Ice::GameObjectPtr object);
 

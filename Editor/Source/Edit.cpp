@@ -72,6 +72,8 @@ Edit::Edit(wxWindow* parent) : wxOgre(parent, -1)
 {
 	mEdit = &wxEdit::Instance();
 
+	mOneTimeInit = true;
+
 	mCamRotating = 0;
 	mLeftDown = false;
 	mRightDown = false;
@@ -858,8 +860,7 @@ Ice::GameObjectPtr Edit::InsertObject(Ice::GameObjectPtr parent, bool align, boo
 {
 	STOP_MAINLOOP
 	Ice::GameObjectPtr object;
-	Ogre::String sResource = wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->GetSelectedResource().c_str();
-	if (sResource == "None")
+	if (mEdit->GetWorldExplorer()->GetSelection() == 0)
 	{
 		Ogre::String meshFile = mEdit->GetWorldExplorer()->GetMediaTree()->GetSelectedResource();
 		if (meshFile.find(".mesh")+5 == meshFile.length())
@@ -869,9 +870,10 @@ Ice::GameObjectPtr Edit::InsertObject(Ice::GameObjectPtr parent, bool align, boo
 			object->AddComponent(std::make_shared<Ice::GOCMeshRenderable>(meshFile, true));
 		}
 		else return object;
-	}
+	}	
 	else
 	{
+		Ogre::String sResource = wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->GetSelectedResource().c_str();
 		if (sResource.find("Waypoint.static") != Ogre::String::npos)
 		{
 			return InsertWaypoint(align, create_only);
@@ -917,6 +919,11 @@ Ice::GameObjectPtr Edit::InsertObject(Ice::GameObjectPtr parent, bool align, boo
 	object->FirePostInit();
 
 	object->ShowEditorVisuals(true);
+
+	//in case physics is turned off
+	Ice::Main::Instance().GetPhysXScene()->getNxScene()->simulate(0);
+	Ice::Main::Instance().GetPhysXScene()->getNxScene()->flushStream();
+	Ice::Main::Instance().GetPhysXScene()->getNxScene()->fetchResults(NX_RIGID_BODY_FINISHED, true);
 
 	RESUME_MAINLOOP
 
@@ -1183,7 +1190,13 @@ void Edit::OnBrush()
 
 void Edit::SelectObject(Ice::GameObjectPtr object)
 {
-	if (!object.get()) return;
+	STOP_MAINLOOP
+
+	if (!object.get())
+	{
+		RESUME_MAINLOOP
+		return;
+	}
 
 	//Ice::Log::Instance().LogMessage("Select Object " + object->GetName());
 	if (!mMultiSelect) DeselectAllObjects();
@@ -1214,6 +1227,8 @@ void Edit::SelectObject(Ice::GameObjectPtr object)
 	AttachAxisObject(object);
 	mSelectedObjects.push_back(sel);
 	SelectChildren(object);
+
+	RESUME_MAINLOOP
 	//Ice::Log::Instance().LogMessage("SelectObject " + object->GetName());
 }
 
@@ -1560,6 +1575,12 @@ Ogre::Vector3 Edit::GetInsertPosition()
 
 void Edit::OnRender()
 {
+	if (mOneTimeInit)
+	{
+		mOneTimeInit = false;
+		Ice::MessageSystem::Instance().RegisterThisThread(Ice::AccessPermitions::ACCESS_VIEW);
+	}
+
 	if (mCamRotating == 2 || mPerformingObjMov || mPerformingObjRot || mPlaying)
 	{
 		if (mShowMouse) LockAndHideMouse();

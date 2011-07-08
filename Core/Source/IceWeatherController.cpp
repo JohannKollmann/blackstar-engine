@@ -79,6 +79,8 @@ namespace Ice
 
 		mCaelumSystem->forceSubcomponentVisibilityFlags( Ice::VisibilityFlags::V_SKY);
 
+		mCaelumSystem->setSceneFogColourMultiplier(Ogre::ColourValue(1.0f, 1.0f, 1.0f, 1));
+
 		JoinNewsgroup(GlobalMessageIDs::UPDATE_PER_FRAME);
 		JoinNewsgroup(GlobalMessageIDs::KEY_UP);
 	};
