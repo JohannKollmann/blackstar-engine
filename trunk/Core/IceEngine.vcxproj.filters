@@ -294,6 +294,12 @@
     <ClCompile Include="Source\IceLog.cpp">
       <Filter>Utils</Filter>
     </ClCompile>
+    <ClCompile Include="Source\IceTextIDs.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\IceObjectMessageIDs.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header\IceMessageListener.h">
@@ -649,6 +655,9 @@
     </ClInclude>
     <ClInclude Include="Header\IceLogMessageListener.h">
       <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceTextIDs.h">
+      <Filter>Components</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

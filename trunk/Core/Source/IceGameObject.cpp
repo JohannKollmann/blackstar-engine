@@ -6,6 +6,7 @@
 #include "IceGOCAI.h"
 #include "IceProcessNodeManager.h"
 #include "IceMessageSystem.h"
+#include "IceObjectMessageIDs.h"
 
 namespace Ice
 {
@@ -598,7 +599,21 @@ namespace Ice
 			callback = new GOCScriptMessageCallback();
 			AddComponent(GOComponentPtr(callback));
 		}
-		callback->AddListener(vParams[0].getInt(), vParams[1]);
+
+		int iMsgType;
+		switch(vParams[0].getType())
+		{
+		case ScriptParam::PARM_TYPE_STRING:
+			iMsgType=getObjectMessageIDs().lookup(vParams[0].getString());
+			break;
+		case ScriptParam::PARM_TYPE_FLOAT:
+		case ScriptParam::PARM_TYPE_INT:
+			iMsgType=vParams[0].getInt();
+			break;
+		default:
+			return out;
+		}
+		callback->AddListener(iMsgType, vParams[1]);
 		return out;
 	}
 
