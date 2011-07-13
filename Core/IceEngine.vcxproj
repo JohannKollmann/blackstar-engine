@@ -114,6 +114,7 @@
   <ItemGroup>
     <ClCompile Include="Source\IceGOCJoint.cpp" />
     <ClCompile Include="Source\IceLog.cpp" />
+    <ClCompile Include="Source\IceObjectMessageIDs.cpp" />
     <ClCompile Include="Source\IceOrientationBlendProcess.cpp" />
     <ClCompile Include="Source\IcePlayAnimationProcess.cpp" />
     <ClCompile Include="Source\IceGOCForceField.cpp" />
@@ -149,6 +150,7 @@
     <ClCompile Include="Source\IceScriptMessageListener.cpp" />
     <ClCompile Include="Source\IceSoundMaterialTable.cpp" />
     <ClCompile Include="Source\IceSpline.cpp" />
+    <ClCompile Include="Source\IceTextIDs.cpp" />
     <ClCompile Include="Source\IceUtils.cpp" />
     <ClCompile Include="Source\IceAIManager.cpp" />
     <ClCompile Include="Source\IceAStar.cpp" />
@@ -245,6 +247,7 @@
     <ClInclude Include="Header\IceScriptMessageListener.h" />
     <ClInclude Include="Header\IceSoundMaterialTable.h" />
     <ClInclude Include="Header\IceSpline.h" />
+    <ClInclude Include="Header\IceTextIDs.h" />
     <ClInclude Include="Header\IceTimerProcess.h" />
     <ClInclude Include="Header\IceUtils.h" />
     <ClInclude Include="Header\IceAIManager.h" />

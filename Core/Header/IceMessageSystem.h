@@ -201,4 +201,4 @@ namespace Ice
 		static MessageSystem& Instance();
 	};
 
-};
+}

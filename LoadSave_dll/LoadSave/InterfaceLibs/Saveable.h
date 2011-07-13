@@ -10,22 +10,48 @@ class LoadSystem;
 class SaveSystem;
 class Saveable;
 
-//define readable names for the pointers
+/**
+ * function pointer for the instantiation function
+ * @return freshly created saveable object
+ */
 typedef Saveable* (*SaveableInstanceFn)();
+/**
+ * function pointer for the registration of a saveable 
+ * @param string* pointer to registration name
+ * @param SaveableInstanceFn* instantiation function pointer
+ */
 typedef void (*SaveableRegisterFn)(std::string*, SaveableInstanceFn*);
 
+/**
+ * interface class for LoadSave system
+ */
 class Saveable
 {
 public: 
 	virtual ~Saveable() {}
+	/**
+	 * load and save class members in these functions using the managers
+	 */
 	virtual void Save(SaveSystem& myManager) = 0;//the central function
 	virtual void Load(LoadSystem& mgr) = 0;
 	virtual void SetWeakThis(std::weak_ptr<Saveable> wThis) {}
-	static Saveable* NewInstance();//overload this one
-	static void Register(std::string* pstrName, SaveableInstanceFn* pFn);//and this one too
-	virtual std::string& TellName() = 0;//return the name
+	/**
+	 * return an instance
+	 */
+	static Saveable* NewInstance();
+	/**
+	 * registration function for the system
+	 */
+	static void Register(std::string* pstrName, SaveableInstanceFn* pFn);
+	/**
+	 * return the registration name
+	 */
+	virtual std::string& TellName() = 0;
 };
 
+/**
+ * reference implementation of saveable class
+ */
 class SaveableDummy : public Saveable
 {
 private:
