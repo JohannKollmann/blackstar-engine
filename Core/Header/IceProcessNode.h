@@ -58,6 +58,7 @@ namespace Ice
 
 		/**
 		Terminates the process.
+		@param erase Specifies whether to process shall be removed forever (ID becomes invalid).
 		*/
 		virtual void TerminateProcess();
 
@@ -72,11 +73,11 @@ namespace Ice
 		*/
 		void _refreshIsActive();
 
-		/**
-		Pauses/Unpauses the process. This may result in a call to _setActive, if all other requirements are met (no active dependencies).
-		@param active unpause or pause
-		*/
-		void SetPaused(bool paused);
+		///Notifies all processes waiting for this one, clears all dependencies and pauses this process.
+		void Suspend();
+
+		///Unpauses the process.
+		void Activate();
 
 		/**
 		Retrieves whether the process is active or not.
@@ -96,8 +97,8 @@ namespace Ice
 		int GetProcessID() const;
 
 		static std::vector<ScriptParam> Lua_AddDependency(Script& caller, std::vector<ScriptParam> vParams);
-		static std::vector<ScriptParam> Lua_SetPaused(Script& caller, std::vector<ScriptParam> vParams);
-		static std::vector<ScriptParam> Lua_TriggerWaiting(Script& caller, std::vector<ScriptParam> vParams);
+		static std::vector<ScriptParam> Lua_Activate(Script& caller, std::vector<ScriptParam> vParams);
+		static std::vector<ScriptParam> Lua_Suspend(Script& caller, std::vector<ScriptParam> vParams);
 		static std::vector<ScriptParam> Lua_KillProcess(Script& caller, std::vector<ScriptParam> vParams);
 
 	 protected:

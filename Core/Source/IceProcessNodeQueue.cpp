@@ -10,6 +10,15 @@ namespace Ice
 	{
 		ITERATE(i, mQueue)
 		{
+			if (*i == processNode->GetProcessID())
+			{
+				IceWarning("Process is already in queue!")
+				return;
+			}
+		}
+
+		ITERATE(i, mQueue)
+		{
 			auto curr = ProcessNodeManager::Instance().GetProcessNode(*i);
 			if (curr.get()) curr->AddDependencyConnection(processNode.get());
 		}
@@ -21,6 +30,15 @@ namespace Ice
 	{
 		ITERATE(i, mQueue)
 		{
+			if (*i == processNode->GetProcessID())
+			{
+				IceWarning("Process is already in queue!")
+				return;
+			}
+		}
+
+		ITERATE(i, mQueue)
+		{
 			auto curr = ProcessNodeManager::Instance().GetProcessNode(*i);
 			if (curr.get()) processNode->AddDependencyConnection(curr.get());
 		}
@@ -28,19 +46,25 @@ namespace Ice
 		processNode->_addTriggerOnFinish(GetProcessID());
 		mQueue.push_back(processNode->GetProcessID());
 	}
+
+	void ProcessNodeQueue::Remove(std::shared_ptr<ProcessNode> processNode)
+	{
+		if (!mIsActive) processNode->_notifyFinish(GetProcessID());
+		_notifyFinish(processNode->GetProcessID());
+	}
+
 	void ProcessNodeQueue::_notifyFinish(int pID)
 	{
 		ITERATE(i, mQueue)
 		{
 			if (*i == pID)
 			{
-				mQueue.erase(i);
+				mQueue.erase(i);			
 				if (mQueue.empty()) TriggerWaitingProcesses();
 				return;
 			}
 		}
 		ProcessNode::_notifyFinish(pID);	//pID is a regular dependency, invoke parent method
-
 	}
 	void ProcessNodeQueue::OnSetActive(bool active)
 	{
@@ -48,14 +72,17 @@ namespace Ice
 		{
 			ITERATE(i, mQueue)
 			{
-				if (ProcessNodeManager::Instance().GetProcessNode(*i).get())
-					ProcessNodeManager::Instance().GetProcessNode(*i)->_notifyFinish(GetProcessID());
+				auto curr = ProcessNodeManager::Instance().GetProcessNode(*i);
+				if (curr.get()) ProcessNodeManager::Instance().GetProcessNode(*i)->_notifyFinish(GetProcessID());
 			}
 		}
 		else if (!mQueue.empty())
 		{
-			auto curr = ProcessNodeManager::Instance().GetProcessNode(mQueue.front());
-			if (curr.get()) curr->_addDependency(GetProcessID());
+			ITERATE(i, mQueue)
+			{
+				auto curr = ProcessNodeManager::Instance().GetProcessNode(*i);
+				if (curr.get()) curr->_addDependency(GetProcessID());
+			}
 		}
 	}
 
