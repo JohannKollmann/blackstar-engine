@@ -90,15 +90,15 @@ namespace Ice
 
 	enum GlobalMessageIDs
 	{
-		UPDATE_PER_FRAME = 0, RENDERING_BEGIN = 1,										//called per frame
-		PHYSICS_BEGIN = 2, PHYSICS_SUBSTEP = 3, PHYSICS_END = 4,						//called per physics update (can be multiple times per frame)
-		KEY_DOWN = 20, KEY_UP = 21, MOUSE_DOWN = 22, MOUSE_UP = 23, MOUSE_MOVE = 24,	//user input
-		ACTOR_ONSLEEP = 30, ACTOR_ONWAKE = 31, MATERIAL_ONCONTACT = 32,					//physics callbacks
-		REPARSE_SCRIPTS_PRE = 40, REPARSE_SCRIPTS_POST = 41,							//reload scripts, reload materials
-		LOADLEVEL_BEGIN = 50, LOADLEVEL_END = 51,	SAVELEVEL_BEGIN = 52, SAVELEVEL_END = 53,
-		ENABLE_GAME_CLOCK = 60,
-		GAMESTATE_ENTER = 10, GAMESTATE_LEAVE = 11,
-		CONSOLE_INGAME = 70
+		UPDATE_PER_FRAME = 1001, RENDERING_BEGIN,										//called per frame
+		PHYSICS_BEGIN, PHYSICS_SUBSTEP, PHYSICS_END,						//called per physics update (can be multiple times per frame)
+		KEY_DOWN, KEY_UP, MOUSE_DOWN, MOUSE_UP, MOUSE_MOVE,	//user input
+		ACTOR_ONSLEEP, ACTOR_ONWAKE, MATERIAL_ONCONTACT,					//physics callbacks
+		REPARSE_SCRIPTS_PRE, REPARSE_SCRIPTS_POST ,							//reload scripts, reload materials
+		LOADLEVEL_BEGIN, LOADLEVEL_END,	SAVELEVEL_BEGIN, SAVELEVEL_END,
+		ENABLE_GAME_CLOCK,
+		GAMESTATE_ENTER, GAMESTATE_LEAVE,
+		CONSOLE_INGAME
 	};
 
 	#define DllExport __declspec(dllexport)

@@ -591,6 +591,8 @@ namespace Ice
 
 	std::vector<ScriptParam> GameObject::ReceiveObjectMessage(Script& caller, std::vector<ScriptParam> &vParams)
 	{
+		if (vParams.size() < 2) SCRIPT_RETURNERROR("Expected 2 parameters!")
+
 		std::vector<ScriptParam> out;
 
 		GOCScriptMessageCallback *callback = GetComponent<GOCScriptMessageCallback>();
@@ -607,11 +609,13 @@ namespace Ice
 			iMsgType=getObjectMessageIDs().lookup(vParams[0].getString());
 			break;
 		case ScriptParam::PARM_TYPE_FLOAT:
+			iMsgType=vParams[0].getInt();
+			break;
 		case ScriptParam::PARM_TYPE_INT:
 			iMsgType=vParams[0].getInt();
 			break;
 		default:
-			return out;
+			SCRIPT_RETURNERROR("Expected parameter 1 to be o type int or string!")
 		}
 		callback->AddListener(iMsgType, vParams[1]);
 		return out;
@@ -699,7 +703,7 @@ namespace Ice
 	DEFINE_TYPEDGOLUAMETHOD_CPP(SetObjectScale, "float float float")
 	DEFINE_GOLUAMETHOD_CPP(GetObjectName)
 	DEFINE_TYPEDGOLUAMETHOD_CPP(SendObjectMessage, "int")
-	DEFINE_TYPEDGOLUAMETHOD_CPP(ReceiveObjectMessage, "int function")
+	DEFINE_GOLUAMETHOD_CPP(ReceiveObjectMessage)
 	DEFINE_TYPEDGOLUAMETHOD_CPP(GetReferencedObjectByName, "string")
 	DEFINE_TYPEDGOLUAMETHOD_CPP(HasScriptListener, "int")
 	DEFINE_TYPEDGOLUAMETHOD_CPP(FreeResources, "bool")
