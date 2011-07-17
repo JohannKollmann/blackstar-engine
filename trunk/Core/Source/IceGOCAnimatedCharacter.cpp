@@ -140,6 +140,9 @@ namespace Ice
 
 		if (msg.typeID == ObjectMessageIDs::ENTER_FPS_MODE) mEntity->setVisible(false);
 		if (msg.typeID == ObjectMessageIDs::LEAVE_FPS_MODE) mEntity->setVisible(true);
+
+		if (msg.typeID == GlobalMessageIDs::PHYSICS_BEGIN) 
+			if (!mRagdoll->isControlledByActors()) mRagdoll->updateBoneActors();
 	}
 
 	void GOCAnimatedCharacter::SetOwner(std::weak_ptr<GameObject> go)
