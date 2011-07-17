@@ -88,17 +88,16 @@ namespace OgrePhysX
 		*/
 		void createSkeleton(std::vector<sBoneActorBindConfig> &config, NxCollisionGroup boneCollisionGroup);
 
-		void updateBoneActors();
-		void updateVisualBones();
-		void setAllBonesToManualControl(bool manual);
-
-
 	public:
 
 		void setControlToActors();
 		void setControlToBones();
 		bool isControlledByActors() { return mControlledByActors; }
 		void resetBones();
+
+		void updateBoneActors();
+		void updateVisualBones();
+		void setAllBonesToManualControl(bool manual);
 
 		void setActorUserData(void *data);
 

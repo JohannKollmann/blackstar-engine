@@ -41,7 +41,7 @@ namespace Ice
 		GOCAnimatedCharacter(Ogre::String meshname, Ogre::Vector3 scale = Ogre::Vector3(1,1,1));
 		~GOCAnimatedCharacter(void);
 
-		AccessPermitionID GetAccessPermitionID() { return AccessPermitions::ACCESS_VIEW; }
+		AccessPermitionID GetAccessPermitionID() { return AccessPermitions::ACCESS_PHYSICS; }
 
 		OgrePhysX::Ragdoll* GetRagdoll() { return mRagdoll; }
 

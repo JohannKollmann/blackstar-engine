@@ -568,8 +568,8 @@ namespace OgrePhysX
 	{
 		if (mControlledByActors)
 			updateVisualBones();
-		else
-			updateBoneActors();
+		/*else
+			updateBoneActors();*/
 	}
 
 }
