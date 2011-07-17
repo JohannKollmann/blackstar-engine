@@ -4,7 +4,7 @@
 
 The message system provides:
   # Message sending from A to a specific listener B.
-  # Multicasts: Message listeners can listen to a "newsgroup" (for example mouse input events) and get informed when something happens.
+  # Multicasts: Message listeners can listen to a "newsgroup" (for example mouse input events) and get informed when something happens. Senders can multicast message to a certain newsgroup.
   # Concurrency support: Message listeners specify when (inside what thread) they want to get their messages. For example if a Thread A sends or multicasts a message which is received by a listener that runs in Thread B, the message is delivered asynchronously when Thread B decides to process messages.
 
 = Writing a message listener =
