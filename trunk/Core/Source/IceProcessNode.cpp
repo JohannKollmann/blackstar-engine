@@ -52,10 +52,18 @@ namespace Ice
 		ProcessNodeManager::Instance().RemoveProcessNode(GetProcessID());
 	}
 
-	void ProcessNode::SetPaused(bool paused)
+	void ProcessNode::Activate()
 	{
-		mIsPaused = paused;
+		mIsPaused = false;
 		_refreshIsActive();
+	}
+
+	void ProcessNode::Suspend()
+	{
+		mIsPaused = true;
+		_refreshIsActive();
+		mDependencies.clear();
+		TriggerWaitingProcesses();				
 	}
 
 	void ProcessNode::_setActive(bool active)
@@ -103,25 +111,25 @@ namespace Ice
 		return out;
 	}
 
-	std::vector<ScriptParam> ProcessNode::Lua_SetPaused(Script& caller, std::vector<ScriptParam> vParams)
-	{
-		auto err = Utils::TestParameters(vParams, "int bool");
-		if (err == "")
-		{
-			auto node = ProcessNodeManager::Instance().GetProcessNode(vParams[0].getInt());
-			if (node) node->SetPaused(vParams[1].getBool());
-		}
-		else SCRIPT_RETURNERROR(err) 
-		std::vector<ScriptParam> out;
-		return out;
-	}
-	std::vector<ScriptParam> ProcessNode::Lua_TriggerWaiting(Script& caller, std::vector<ScriptParam> vParams)
+	std::vector<ScriptParam> ProcessNode::Lua_Activate(Script& caller, std::vector<ScriptParam> vParams)
 	{
 		auto err = Utils::TestParameters(vParams, "int");
 		if (err == "")
 		{
 			auto node = ProcessNodeManager::Instance().GetProcessNode(vParams[0].getInt());
-			if (node) node->TriggerWaitingProcesses();
+			if (node) node->Activate();
+		}
+		else SCRIPT_RETURNERROR(err) 
+		std::vector<ScriptParam> out;
+		return out;
+	}
+	std::vector<ScriptParam> ProcessNode::Lua_Suspend(Script& caller, std::vector<ScriptParam> vParams)
+	{
+		auto err = Utils::TestParameters(vParams, "int");
+		if (err == "")
+		{
+			auto node = ProcessNodeManager::Instance().GetProcessNode(vParams[0].getInt());
+			if (node) node->Suspend();
 		}
 		else SCRIPT_RETURNERROR(err) 
 		std::vector<ScriptParam> out;

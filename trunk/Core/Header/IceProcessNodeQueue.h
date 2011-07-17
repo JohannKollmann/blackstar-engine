@@ -21,6 +21,7 @@ namespace Ice
 		void PushFront(std::shared_ptr<ProcessNode> processNode);
 		void Enqueue(std::shared_ptr<ProcessNode> processNode);
 		void OnSetActive(bool active) override;
+		void Remove(std::shared_ptr<ProcessNode> processNode);
 
 		static std::vector<ScriptParam> Lua_ProcessQueue_Create(Script& caller, std::vector<ScriptParam> vParams);
 		static std::vector<ScriptParam> Lua_ProcessQueue_PushFront(Script& caller, std::vector<ScriptParam> vParams);
