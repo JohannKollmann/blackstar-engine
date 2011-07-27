@@ -35,7 +35,7 @@ namespace Ice
 		virtual ~GOCOgreNodeUser();
 		Ogre::SceneNode* GetNode();
 
-		virtual AccessPermitionID GetAccessPermitionID() { return AccessPermitions::ACCESS_VIEW; }
+		virtual AccessPermissionID GetAccessPermissionID() { return AccessPermissions::ACCESS_VIEW; }
 	};
 
 	class DllExport GOCOgreNodeUserEditable : public GOCOgreNodeUser, public GOCEditorInterface

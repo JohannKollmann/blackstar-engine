@@ -39,11 +39,11 @@ public:
 		Ice::MainLoopThread *renderThread = new Ice::MainLoopThreadSender(new Ice::RenderThread());
 		Ice::Main::Instance().AddMainLoopThread("View", renderThread, false);
 
-		Ice::MainLoopThread *indyThread = new Ice::MainLoopThread(Ice::AccessPermitions::ACCESS_NONE);
+		Ice::MainLoopThread *indyThread = new Ice::MainLoopThread(Ice::AccessPermissions::ACCESS_NONE);
 		indyThread->SetFixedTimeStep(30);
 		Ice::Main::Instance().AddMainLoopThread("Independant", indyThread);
 
-		Ice::MainLoopThread *synchronized = new Ice::MainLoopThread(Ice::AccessPermitions::ACCESS_ALL);
+		Ice::MainLoopThread *synchronized = new Ice::MainLoopThread(Ice::AccessPermissions::ACCESS_ALL);
 		synchronized->SetSynchronized(true);
 		Ice::Main::Instance().AddMainLoopThread("Synchronized", synchronized, false);
 

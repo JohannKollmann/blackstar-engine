@@ -81,7 +81,7 @@ namespace Ice
 		virtual bool IsStatic() { return true; }
 		
 		//Default: access everything.
-		virtual AccessPermitionID GetAccessPermitionID() { return AccessPermitions::ACCESS_ALL; }
+		virtual AccessPermissionID GetAccessPermissionID() { return AccessPermissions::ACCESS_ALL; }
 
 		///MessageListener default implementation
 		virtual void ReceiveMessage(Msg &msg);

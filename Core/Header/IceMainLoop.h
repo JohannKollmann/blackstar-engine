@@ -31,21 +31,21 @@ namespace Ice
 		
 		bool mSynchronized;
 
-		AccessPermitionID mAccessPermitionID;
+		AccessPermissionID mAccessPermissionID;
 
 		bool mDoingStep;
 
 		virtual void doLoop();
 
 	public:
-		MainLoopThread(AccessPermitionID accessPermitionID) : 
-			mAccessPermitionID(accessPermitionID), mDoingStep(false), mSynchronized(false), mFixedTimeStep(false), mPaused(false), mTerminate(false), mTotalTimeElapsed(0), mTotalLastFrameTime(timeGetTime()), mTimeSinceLastFrame(0) {}
+		MainLoopThread(AccessPermissionID accessPermissionID) : 
+			mAccessPermissionID(accessPermissionID), mDoingStep(false), mSynchronized(false), mFixedTimeStep(false), mPaused(false), mTerminate(false), mTotalTimeElapsed(0), mTotalLastFrameTime(timeGetTime()), mTimeSinceLastFrame(0) {}
 
 		virtual ~MainLoopThread() {}
 
 		void operator() ();
 
-		AccessPermitionID GetAccessPermitionID() { return mAccessPermitionID; }
+		AccessPermissionID GetAccessPermissionID() { return mAccessPermissionID; }
 
 		void Step();
 
@@ -67,7 +67,7 @@ namespace Ice
 			MessageListener *mMsgReceiver;
 			MainLoopThreadSender *mMainLoopThread;
 
-			void OnFinishSending(AccessPermitionID accessPermitionID);
+			void OnFinishSending(AccessPermissionID accessPermissionID);
 		};
 		MsgProcessingListener mProcessingListener;
 
@@ -77,7 +77,7 @@ namespace Ice
 
 		static const MsgTypeID FINISH_MESSAGEPROCESSING = 112358;
 
-		MainLoopThreadSender(MessageListener *msgReceiver) : MainLoopThread(msgReceiver->GetAccessPermitionID()) { mProcessingListener.mMainLoopThread = this; mProcessingListener.mMsgReceiver = msgReceiver; }
+		MainLoopThreadSender(MessageListener *msgReceiver) : MainLoopThread(msgReceiver->GetAccessPermissionID()) { mProcessingListener.mMainLoopThread = this; mProcessingListener.mMsgReceiver = msgReceiver; }
 		virtual ~MainLoopThreadSender() {}
 	};
 

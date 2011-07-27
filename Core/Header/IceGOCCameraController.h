@@ -57,7 +57,7 @@ namespace Ice
 
 		void SetOwner(std::weak_ptr<GameObject> go);
 
-		AccessPermitionID GetAccessPermitionID() { return AccessPermitions::ACCESS_VIEW; }
+		AccessPermissionID GetAccessPermissionID() { return AccessPermissions::ACCESS_VIEW; }
 
 		void ReceiveMessage(Msg &msg);
 

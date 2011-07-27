@@ -49,7 +49,7 @@ namespace Ice
 
 					if (mScriptCallback.getType() == ScriptParam::PARM_TYPE_FUNCTION)
 					{
-						std::vector<ScriptParam> in = ScriptSystem::GetInstance().RunCallbackFunction(mScriptCallback, std::vector<ScriptParam>());
+						std::vector<ScriptParam> in = ScriptSystem::GetInstance().RunCallbackFunction(mScriptCallback, std::vector<ScriptParam>(1, ScriptParam(this->GetProcessID())));
 						if (in.size() == 1)
 							if (in[0].getType() == ScriptParam::PARM_TYPE_BOOL) terminate = !in[0].getBool();
 					}

@@ -73,7 +73,7 @@ namespace Ice
 		GOCScriptMessageCallback();
 		~GOCScriptMessageCallback() {}
 
-		AccessPermitionID GetAccessPermitionID() { return AccessPermitions::ACCESS_ALL; }
+		AccessPermissionID GetAccessPermissionID() { return AccessPermissions::ACCESS_ALL; }
 
 		GOComponent::TypeID& GetComponentID() const { static std::string name = "ScriptCallback"; return name; }
 

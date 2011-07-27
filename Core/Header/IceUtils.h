@@ -7,6 +7,12 @@
 #include "IceScriptParam.h"
 #include "Ogre.h"
 
+#define UTIL_TEST_PARAMS(errstring, testparams, ...)\
+{\
+	const int _aiRefParams[]={__VA_ARGS__};\
+	errstring=Utils::TestParameters(testparams, _aiRefParams, sizeof(_aiRefParams)/sizeof(int));\
+}
+
 namespace Ice
 {
 	namespace Utils
@@ -29,6 +35,7 @@ namespace Ice
 		DllExport std::string GetTypeName(ScriptParam param);
 		DllExport std::string TestParameters(std::vector<ScriptParam> testparams, std::vector<ScriptParam> refparams, bool bAllowMore=false);
 		DllExport std::string TestParameters(std::vector<ScriptParam> testparams, std::string refParams, bool bAllowMore=false);
+		DllExport std::string TestParameters(std::vector<ScriptParam> testparams, const int* aiRefParams, int nParams);
 
 		DllExport void LogParameterErrors(const Script& caller, Ogre::String msg, int line = -1);
 

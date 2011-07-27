@@ -99,7 +99,7 @@ namespace Ice
 		GOCCharacterController(Ogre::Vector3 dimensions);
 		~GOCCharacterController(void);
 
-		AccessPermitionID GetAccessPermitionID() { return AccessPermitions::ACCESS_PHYSICS; }
+		AccessPermissionID GetAccessPermissionID() { return AccessPermissions::ACCESS_PHYSICS; }
 
 		GOComponent::TypeID& GetComponentID() const { static std::string name = "CharacterController"; return name; }
 

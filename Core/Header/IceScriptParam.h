@@ -14,12 +14,14 @@ class __declspec(dllexport) ScriptParam
 public:
 	enum ETypes
 	{
-		PARM_TYPE_INT,
-		PARM_TYPE_STRING,
-		PARM_TYPE_BOOL,
-		PARM_TYPE_FLOAT,
-		PARM_TYPE_FUNCTION,
-		PARM_TYPE_NONE //unknown or uninitialized
+		PARM_TYPE_NONE=0x0, //unknown or uninitialized
+		PARM_TYPE_INT=0x1,
+		PARM_TYPE_STRING=0x2,
+		PARM_TYPE_BOOL=0x4,
+		PARM_TYPE_FLOAT=0x8,
+		PARM_TYPE_FUNCTION=0x10,
+		PARM_TYPE_ANY=0xffff,
+		PARM_TYPE_MORE=0x10000 //used to indicate variadic arguments
 	};
 	ETypes getType() const;
 	bool hasInt() const;

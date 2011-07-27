@@ -32,7 +32,7 @@ namespace Ice
 		GOCAI(void);
 		~GOCAI(void);
 
-		AccessPermitionID GetAccessPermitionID() { return AccessPermitions::ACCESS_PHYSICS; }
+		AccessPermissionID GetAccessPermissionID() { return AccessPermissions::ACCESS_PHYSICS; }
 
 		//Scripting
 		std::vector<ScriptParam> Npc_AddState(Script& caller, std::vector<ScriptParam> &vParams);

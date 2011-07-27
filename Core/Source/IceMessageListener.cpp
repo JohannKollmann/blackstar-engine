@@ -8,17 +8,17 @@ namespace Ice
 
 	MessageListener::MessageListener()
 	{
-		mAccessPermitionID = 0;
+		mAccessPermissionID = 0;
 	};
 	MessageListener::~MessageListener()
 	{
-		MessageSystem::Instance().QuitAllNewsgroups(this, mAccessPermitionID);
+		MessageSystem::Instance().QuitAllNewsgroups(this, mAccessPermissionID);
 	};
 
 	void MessageListener::JoinNewsgroup(MsgTypeID groupID)
 	{
 		MessageSystem::Instance().JoinNewsgroup(this, groupID);
-		mAccessPermitionID = GetAccessPermitionID();
+		mAccessPermissionID = GetAccessPermissionID();
 	}
 
 	void MessageListener::QuitNewsgroup(MsgTypeID groupID)
@@ -28,7 +28,7 @@ namespace Ice
 
 	void MessageListener::QuitAllNewsgroups()
 	{
-		MessageSystem::Instance().QuitAllNewsgroups(this, mAccessPermitionID);
+		MessageSystem::Instance().QuitAllNewsgroups(this, mAccessPermissionID);
 	}
 
 	void MessageListener::SendMessage(Msg &msg, std::shared_ptr<MessageListener> &receiver)

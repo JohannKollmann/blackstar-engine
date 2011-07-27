@@ -90,7 +90,7 @@ namespace Ice
 		GOCMover(void);
 		~GOCMover(void);
 
-		AccessPermitionID GetAccessPermitionID() { return AccessPermitions::ACCESS_PHYSICS; }
+		AccessPermissionID GetAccessPermissionID() { return AccessPermissions::ACCESS_PHYSICS; }
 
 		void Init();
 

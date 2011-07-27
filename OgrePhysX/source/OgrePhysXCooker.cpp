@@ -343,7 +343,7 @@ namespace OgrePhysX
 		for(int iIndex=0; iIndex<(int)meshInfo.numTriangles*3; iIndex++)
 		{
 			meshInfo.indices[iIndex]=aiIndexTable[meshInfo.indices[iIndex]];
-			assert(meshInfo.indices[iIndex]<(int)nNewVertices);
+			assert(((int)meshInfo.indices[iIndex])<(int)nNewVertices);
 			assert(meshInfo.indices[iIndex]>=0);
 		}
 		

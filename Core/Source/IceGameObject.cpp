@@ -582,8 +582,26 @@ namespace Ice
 
 	std::vector<ScriptParam> GameObject::SendObjectMessage(Script& caller, std::vector<ScriptParam> &vParams)
 	{
+		if (vParams.size() != 2) SCRIPT_RETURNERROR("Expected 2 parameters!");
+
+		int iMsgType;
+		switch(vParams[0].getType())
+		{
+		case ScriptParam::PARM_TYPE_STRING:
+			iMsgType=getObjectMessageIDs().lookup(vParams[0].getString());
+			break;
+		case ScriptParam::PARM_TYPE_FLOAT:
+			iMsgType=vParams[0].getInt();
+			break;
+		case ScriptParam::PARM_TYPE_INT:
+			iMsgType=vParams[0].getInt();
+			break;
+		default:
+			SCRIPT_RETURNERROR("Expected parameter 1 to be of type int or string!")
+		}
+
 		Msg msg;
-		msg.typeID = vParams[0].getInt();
+		msg.typeID = iMsgType;
 		Utils::ScriptParamsToDataMap(caller, vParams, &msg.params, 1);
 		BroadcastObjectMessage(msg);
 		return std::vector<ScriptParam>();
@@ -615,7 +633,7 @@ namespace Ice
 			iMsgType=vParams[0].getInt();
 			break;
 		default:
-			SCRIPT_RETURNERROR("Expected parameter 1 to be o type int or string!")
+			SCRIPT_RETURNERROR("Expected parameter 1 to be of type int or string!")
 		}
 		callback->AddListener(iMsgType, vParams[1]);
 		return out;
@@ -702,10 +720,10 @@ namespace Ice
 	DEFINE_TYPEDGOLUAMETHOD_CPP(SetObjectOrientation, "float float float")
 	DEFINE_TYPEDGOLUAMETHOD_CPP(SetObjectScale, "float float float")
 	DEFINE_GOLUAMETHOD_CPP(GetObjectName)
-	DEFINE_TYPEDGOLUAMETHOD_CPP(SendObjectMessage, "int")
+	DEFINE_GOLUAMETHOD_CPP(SendObjectMessage)
 	DEFINE_GOLUAMETHOD_CPP(ReceiveObjectMessage)
 	DEFINE_TYPEDGOLUAMETHOD_CPP(GetReferencedObjectByName, "string")
-	DEFINE_TYPEDGOLUAMETHOD_CPP(HasScriptListener, "int")
+	DEFINE_GOLUAMETHOD_CPP(HasScriptListener)
 	DEFINE_TYPEDGOLUAMETHOD_CPP(FreeResources, "bool")
 	DEFINE_GOLUAMETHOD_CPP(IsNpc)
 	DEFINE_TYPEDGOLUAMETHOD_CPP(Object_Play3DSound, "string float float")		//audio file, range, loudness
