@@ -21,7 +21,7 @@ namespace Ice
 
 		virtual OgrePhysX::Actor* GetActor() = 0;
 
-		AccessPermitionID GetAccessPermitionID() { return AccessPermitions::ACCESS_PHYSICS; }
+		AccessPermissionID GetAccessPermissionID() { return AccessPermissions::ACCESS_PHYSICS; }
 
 		std::vector<ScriptParam> Body_GetSpeed(Script& caller, std::vector<ScriptParam> &vParams);
 		std::vector<ScriptParam> Body_AddImpulse(Script& caller, std::vector<ScriptParam> &vParams);

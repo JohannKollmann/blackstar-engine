@@ -1578,7 +1578,7 @@ void Edit::OnRender()
 	if (mOneTimeInit)
 	{
 		mOneTimeInit = false;
-		Ice::MessageSystem::Instance().RegisterThisThread(Ice::AccessPermitions::ACCESS_VIEW);
+		Ice::MessageSystem::Instance().RegisterThisThread(Ice::AccessPermissions::ACCESS_VIEW);
 	}
 
 	if (mCamRotating == 2 || mPerformingObjMov || mPerformingObjRot || mPlaying)

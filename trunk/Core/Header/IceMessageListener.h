@@ -6,12 +6,12 @@
 
 namespace Ice
 {
-	typedef int AccessPermitionID;
+	typedef int AccessPermissionID;
 
 	class DllExport MessageListener
 	{
 	private:
-		AccessPermitionID mAccessPermitionID;
+		AccessPermissionID mAccessPermissionID;
 
 	public:
 
@@ -38,7 +38,7 @@ namespace Ice
 		* This specifies what part of the engine you are allowed to access thread-safe inside ReceiveMessage.
 		* It determines when you receive your messages, it also determines whether your sended messages are delivered immediately.
 		*/
-		virtual AccessPermitionID GetAccessPermitionID() = 0;
+		virtual AccessPermissionID GetAccessPermissionID() = 0;
 
 		/**
 		* Handler for receiving a message. It is guaranteed that this is only called from th thread that processes your job context.
@@ -51,7 +51,7 @@ namespace Ice
 	public:
 		virtual ~ViewMessageListener() {}
 
-		AccessPermitionID GetAccessPermitionID() { return AccessPermitions::ACCESS_VIEW; }
+		AccessPermissionID GetAccessPermissionID() { return AccessPermissions::ACCESS_VIEW; }
 	};
 
 	class IndependantMessageListener : public MessageListener
@@ -59,7 +59,7 @@ namespace Ice
 	public:
 		virtual ~IndependantMessageListener() {}
 
-		AccessPermitionID GetAccessPermitionID() { return AccessPermitions::ACCESS_NONE; }
+		AccessPermissionID GetAccessPermissionID() { return AccessPermissions::ACCESS_NONE; }
 	};
 
 	class PhysicsMessageListener : public MessageListener
@@ -67,7 +67,7 @@ namespace Ice
 	public:
 		virtual ~PhysicsMessageListener() {}
 
-		AccessPermitionID GetAccessPermitionID() { return AccessPermitions::ACCESS_PHYSICS; }
+		AccessPermissionID GetAccessPermissionID() { return AccessPermissions::ACCESS_PHYSICS; }
 	};
 
 	class SynchronizedMessageListener : public MessageListener
@@ -75,6 +75,6 @@ namespace Ice
 	public:
 		virtual ~SynchronizedMessageListener() {}
 
-		AccessPermitionID GetAccessPermitionID() { return AccessPermitions::ACCESS_ALL; }
+		AccessPermissionID GetAccessPermissionID() { return AccessPermissions::ACCESS_ALL; }
 	};
 };

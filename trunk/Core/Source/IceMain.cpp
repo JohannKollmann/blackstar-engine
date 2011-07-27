@@ -130,11 +130,11 @@ void Main::CreateMainLoopThreads()
 	MainLoopThread *renderThread = new MainLoopThreadSender(new RenderThread());
 	AddMainLoopThread("View", renderThread);
 
-	MainLoopThread *indyThread = new MainLoopThread(Ice::AccessPermitions::ACCESS_NONE);
+	MainLoopThread *indyThread = new MainLoopThread(Ice::AccessPermissions::ACCESS_NONE);
 	indyThread->SetFixedTimeStep(40);
 	AddMainLoopThread("Independant", indyThread);
 
-	MainLoopThread *synchronized = new MainLoopThread(Ice::AccessPermitions::ACCESS_ALL);
+	MainLoopThread *synchronized = new MainLoopThread(Ice::AccessPermissions::ACCESS_ALL);
 	synchronized->SetFixedTimeStep(40);
 	synchronized->SetSynchronized(true);
 	AddMainLoopThread("Synchronized", synchronized);
@@ -148,7 +148,7 @@ void Main::AddMainLoopThread(Ogre::String name, MainLoopThread *loopThread, bool
 	if (createThread)
 	{
 		item.thread = new boost::thread(boost::ref(*loopThread));
-		MessageSystem::Instance().RegisterThread(item.thread->get_id(), loopThread->GetAccessPermitionID());
+		MessageSystem::Instance().RegisterThread(item.thread->get_id(), loopThread->GetAccessPermissionID());
 	}
 	mMainLoopThreads[name] = item;
 }

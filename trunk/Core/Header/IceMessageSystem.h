@@ -20,7 +20,7 @@ namespace Ice
 		struct Newsgroup
 		{
 			MsgTypeID groupID;
-			std::map<AccessPermitionID, WrappedVector<MessageListener*> > receivers;
+			std::map<AccessPermissionID, WrappedVector<MessageListener*> > receivers;
 		};
 
 		class DllExport MsgPacket
@@ -77,7 +77,7 @@ namespace Ice
 
 		struct ThreadBinding
 		{
-			AccessPermitionID accessPermitionID;
+			AccessPermissionID accessPermissionID;
 			bool lockedMessageProcessing;
 		};
 	
@@ -95,7 +95,7 @@ namespace Ice
 		std::map<MsgTypeID, Newsgroup > mNewsgroupReceivers;
 
 		std::map<boost::thread::id, ThreadBinding> mThreadBindings;
-		std::map<AccessPermitionID, std::set<boost::thread::id> > mThreadAccessPermitions;
+		std::map<AccessPermissionID, std::set<boost::thread::id> > mThreadAccessPermissions;
 
 
 		int mNumProcessingMessages;
@@ -108,11 +108,11 @@ namespace Ice
 
 		MessageSystem();
 
-		///Tests whether the calling thread has the permition to access receiverID.
-		bool testThreadAccessPermition(AccessPermitionID receiverID);
+		///Tests whether the calling thread has the permission to access receiverID.
+		bool testThreadAccessPermission(AccessPermissionID receiverID);
 
 		///Sends a MsgPacket.
-		void sendMsgPacket(MsgPacket &packet, AccessPermitionID receiverAccessPermition);
+		void sendMsgPacket(MsgPacket &packet, AccessPermissionID receiverAccessPermission);
 
 		///Retrieves whether the caller thread is currently processing messages.
 		bool isThreadProcessingMessages();
@@ -133,26 +133,26 @@ namespace Ice
 		/**
 		* removes a message listener from all newsgroups.
 		*/
-		void QuitAllNewsgroups(MessageListener *listener) { QuitAllNewsgroups(listener, listener->GetAccessPermitionID()); }
-		void QuitAllNewsgroups(MessageListener *listener, AccessPermitionID accessPermitionID);
+		void QuitAllNewsgroups(MessageListener *listener) { QuitAllNewsgroups(listener, listener->GetAccessPermissionID()); }
+		void QuitAllNewsgroups(MessageListener *listener, AccessPermissionID accessPermissionID);
 
 	public:
 
 		/**
-		* Specifies that senders from the caller thread can access receiver with accessPermitionID directly.
+		* Specifies that senders from the caller thread can access receiver with accessPermissionID directly.
 		*/
-		void AddThisThreadAccessPermition(AccessPermitionID accessPermitionID);
+		void AddThisThreadAccessPermission(AccessPermissionID accessPermissionID);
 
 		/**
-		* Specifies that all messages sent from the thread that is associated with accessPermitionID are sent directly.
+		* Specifies that all messages sent from the thread that is associated with accessPermissionID are sent directly.
 		*/
-		void SetSendAllMessagesInstantly(AccessPermitionID accessPermitionID, bool instant);
+		void SetSendAllMessagesInstantly(AccessPermissionID accessPermissionID, bool instant);
 
 		/**
-		* Registers an accessPermitionID to the caller thread.
+		* Registers an accessPermissionID to the caller thread.
 		*/
-		void RegisterThread(boost::thread::id threadID, AccessPermitionID accessPermitionID);
-		void RegisterThisThread(AccessPermitionID accessPermitionID);
+		void RegisterThread(boost::thread::id threadID, AccessPermissionID accessPermissionID);
+		void RegisterThisThread(AccessPermissionID accessPermissionID);
 
 		/**
 		* Sends a message to a message listener.
@@ -162,7 +162,7 @@ namespace Ice
 
 		/**
 		* Multicasts a message to all Message listeners that are registered member of groupID.
-		* The message is delivered instantly when senderAccessPermitionID == group.AccessPermitionID or when ProcessMessages(group.AccessPermitionID) ist called.
+		* The message is delivered instantly when senderAccessPermissionID == group.AccessPermissionID or when ProcessMessages(group.AccessPermissionID) ist called.
 		*/
 		void MulticastMessage(Msg &msg, bool sendInstantly = false);
 
@@ -170,16 +170,16 @@ namespace Ice
 		{
 		public:
 			virtual ~ProcessingListener() {}
-			virtual void OnStartSending(AccessPermitionID accessPermitionID) {}
-			virtual void OnFinishSending(AccessPermitionID accessPermitionID) {}
+			virtual void OnStartSending(AccessPermissionID accessPermissionID) {}
+			virtual void OnFinishSending(AccessPermissionID accessPermissionID) {}
 		};
 
 		/**
-		* Processes messages for all receivers with the AccessPermitionID accessPermitionID.
+		* Processes messages for all receivers with the AccessPermissionID accessPermissionID.
 		* @param synchronized If set to true it is ensured that no other messages are processed in the meantime.
 		* @remarks This method must be called from "outside" (mainloop or similar). NEVER call this as a message listener inside ReceiveMessage.
 		*/
-		void ProcessMessages(AccessPermitionID accessPermitionID, bool synchronized = false, ProcessingListener *listener = nullptr);
+		void ProcessMessages(AccessPermissionID accessPermissionID, bool synchronized = false, ProcessingListener *listener = nullptr);
 
 		/**
 		* Locks all message processing, processes all messages and unlocks message processing.

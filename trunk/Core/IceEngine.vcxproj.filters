@@ -295,10 +295,10 @@
       <Filter>Utils</Filter>
     </ClCompile>
     <ClCompile Include="Source\IceTextIDs.cpp">
-      <Filter>Components</Filter>
+      <Filter>Utils</Filter>
     </ClCompile>
-    <ClCompile Include="Source\IceObjectMessageIDs.cpp">
-      <Filter>Components</Filter>
+    <ClCompile Include="Source\IceDefineTextIDs.cpp">
+      <Filter>System</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -657,7 +657,7 @@
       <Filter>Utils</Filter>
     </ClInclude>
     <ClInclude Include="Header\IceTextIDs.h">
-      <Filter>Components</Filter>
+      <Filter>Utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

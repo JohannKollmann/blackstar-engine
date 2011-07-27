@@ -18,7 +18,7 @@ public:
 	GOCPlayerInput(void);
 	~GOCPlayerInput(void);
 
-	AccessPermitionID GetAccessPermitionID() { return AccessPermitions::ACCESS_PHYSICS; }
+	AccessPermissionID GetAccessPermissionID() { return AccessPermissions::ACCESS_PHYSICS; }
 
 	void ReceiveMessage(Msg &msg);
 

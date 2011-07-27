@@ -114,7 +114,7 @@
   <ItemGroup>
     <ClCompile Include="Source\IceGOCJoint.cpp" />
     <ClCompile Include="Source\IceLog.cpp" />
-    <ClCompile Include="Source\IceObjectMessageIDs.cpp" />
+    <ClCompile Include="Source\IceDefineTextIDs.cpp" />
     <ClCompile Include="Source\IceOrientationBlendProcess.cpp" />
     <ClCompile Include="Source\IcePlayAnimationProcess.cpp" />
     <ClCompile Include="Source\IceGOCForceField.cpp" />

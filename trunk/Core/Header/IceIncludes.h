@@ -13,6 +13,8 @@
 #include "OgreString.h"
 #include "OgreStringConverter.h"
 #include "IceLog.h"
+#include "IceTextIDs.h"
+
 
 namespace OgrePhysX
 {
@@ -68,6 +70,8 @@ class NxControllerManager;
 	#define IceAssert(expression)
 #endif
 
+#define GLOBAL_MESSAGE_ID_FIRST 0x1000
+
 namespace Ice
 {
 	enum VisibilityFlags
@@ -80,7 +84,7 @@ namespace Ice
 		V_DEFAULT = 0xFFFFFFE0
 	};
 
-	enum AccessPermitions
+	enum AccessPermissions
 	{
 		ACCESS_VIEW = 0,		//access Ogre
 		ACCESS_PHYSICS = 1,		//access physics engine
@@ -88,9 +92,11 @@ namespace Ice
 		ACCESS_ALL = 3			//access everything (scripting)
 	};
 
+
+
 	enum GlobalMessageIDs
 	{
-		UPDATE_PER_FRAME = 1001, RENDERING_BEGIN,										//called per frame
+		UPDATE_PER_FRAME = GLOBAL_MESSAGE_ID_FIRST, RENDERING_BEGIN,										//called per frame
 		PHYSICS_BEGIN, PHYSICS_SUBSTEP, PHYSICS_END,						//called per physics update (can be multiple times per frame)
 		KEY_DOWN, KEY_UP, MOUSE_DOWN, MOUSE_UP, MOUSE_MOVE,	//user input
 		ACTOR_ONSLEEP, ACTOR_ONWAKE, MATERIAL_ONCONTACT,					//physics callbacks
@@ -98,8 +104,11 @@ namespace Ice
 		LOADLEVEL_BEGIN, LOADLEVEL_END,	SAVELEVEL_BEGIN, SAVELEVEL_END,
 		ENABLE_GAME_CLOCK,
 		GAMESTATE_ENTER, GAMESTATE_LEAVE,
-		CONSOLE_INGAME
+		CONSOLE_INGAME,
+		GLOBAL_MESSAGE_ID_LAST
 	};
+	//class TextID;
+	TextID& getGlobalMessageIDs();
 
 	#define DllExport __declspec(dllexport)
 

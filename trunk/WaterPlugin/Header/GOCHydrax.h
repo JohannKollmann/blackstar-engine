@@ -118,7 +118,7 @@ public:
 		Ice::SceneManager::Instance().RegisterGOCPrototype("E", std::make_shared<GOCHydrax>());
 	}
 
-	Ice::AccessPermitionID GetAccessPermitionID() { return Ice::AccessPermitions::ACCESS_VIEW; }
+	Ice::AccessPermissionID GetAccessPermissionID() { return Ice::AccessPermissions::ACCESS_VIEW; }
 
 	GOCHydrax(void)
 	{

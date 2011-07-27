@@ -56,7 +56,7 @@ namespace Ice
 	{
 		mPaused = paused;
 		while (mPaused && mDoingStep) boost::this_thread::yield();
-		MessageSystem::Instance().SetSendAllMessagesInstantly(mAccessPermitionID, paused);
+		MessageSystem::Instance().SetSendAllMessagesInstantly(mAccessPermissionID, paused);
 	}
 
 	void MainLoopThread::Terminate()
@@ -67,10 +67,10 @@ namespace Ice
 
 	void MainLoopThread::doLoop()
 	{
-		MessageSystem::Instance().ProcessMessages(mAccessPermitionID, mSynchronized);
+		MessageSystem::Instance().ProcessMessages(mAccessPermissionID, mSynchronized);
 	}
 
-	void MainLoopThreadSender::MsgProcessingListener::OnFinishSending(AccessPermitionID accessPermitionID)
+	void MainLoopThreadSender::MsgProcessingListener::OnFinishSending(AccessPermissionID accessPermissionID)
 	{
 		Msg msg;
 		msg.typeID = FINISH_MESSAGEPROCESSING;
@@ -81,7 +81,7 @@ namespace Ice
 
 	void MainLoopThreadSender::doLoop()
 	{
-		MessageSystem::Instance().ProcessMessages(mAccessPermitionID, mSynchronized, &mProcessingListener);
+		MessageSystem::Instance().ProcessMessages(mAccessPermissionID, mSynchronized, &mProcessingListener);
 	}
 
 	void RenderThread::ReceiveMessage(Msg &msg)

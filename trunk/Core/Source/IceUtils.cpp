@@ -37,6 +37,10 @@ namespace Ice
 			return std::string("int");
 		case ScriptParam::PARM_TYPE_STRING:
 			return std::string("string");
+		case ScriptParam::PARM_TYPE_ANY:
+			return std::string("any");
+		case ScriptParam::PARM_TYPE_MORE:
+			return std::string("more");
 		default:
 			return std::string("unknown type");
 		}
@@ -103,6 +107,103 @@ namespace Ice
 		return TestParameters(testparams, vRefParams, bAllowMore);
 	}
 
+	const int aiTest[]={ScriptParam::PARM_TYPE_INT, ScriptParam::PARM_TYPE_STRING|ScriptParam::PARM_TYPE_INT};
+
+
+	//NONE=0
+	//ALL=~MORE
+	std::string
+	Utils::TestParameters(std::vector<ScriptParam> testparams, const int* aiRefParams, int nParams)
+	{
+		std::string strOut("");
+		//int nMin=min(nParams, testparams.size());
+		int variadicType;
+		bool bVariadic=false;
+		if(aiRefParams[nParams-1]&ScriptParam::PARM_TYPE_MORE)
+		{
+			bVariadic=true;
+			variadicType=aiRefParams[nParams-1]&(~ScriptParam::PARM_TYPE_MORE);
+		}
+		bool bErr=false;
+	
+		//check if too few arguments were given
+		if(testparams.size()<nParams-(bVariadic?1:0))
+		{
+			std::stringstream sstr;
+			std::string strNum;
+			std::string strErr=std::string("expecting ") +
+					(bVariadic ? std::string("at least ") : std::string(""));
+			sstr<<nParams-(bVariadic?1:0);
+			sstr>>strNum;
+			sstr.clear();
+			strErr=strErr + strNum + std::string(" , not ");
+			sstr<<testparams.size();
+			sstr>>strNum;
+			strErr=strErr + strNum + std::string(" parameters! ");
+			strOut=strOut + strErr;
+		}
+		//iterate given parms
+		for(unsigned int iParam=0; iParam<testparams.size(); iParam++)
+		{
+			int reftype;
+			if(iParam>=nParams)
+			{
+				if(bVariadic)
+					reftype=variadicType;
+				else
+				{
+					bErr=true;
+					//error, too many arguments
+					std::stringstream sstr;
+					std::string strNum;
+					std::string strErr=std::string("expecting ");
+					sstr<<nParams;
+					sstr>>strNum;
+					sstr.clear();
+					strErr=strErr + strNum + std::string(" , not ");
+					sstr<<testparams.size();
+					sstr>>strNum;
+					strErr=strErr + strNum + std::string(" parameters! ");
+					strOut=strOut + strErr;
+				}
+			}
+			else
+				reftype=aiRefParams[iParam];
+
+			if(!(reftype&testparams[iParam].getType()))
+			{
+				bErr=true;
+				std::stringstream sstr;
+				std::string strErr;
+				sstr<<iParam;
+				sstr>>strErr;
+				strErr=std::string("expecting parameter ") + strErr + std::string(" to be of type ") +
+						GetTypeName(reftype) + std::string(", not ") +
+						GetTypeName(testparams[iParam]) + std::string("! ");
+				strOut+=strErr;
+			
+			}
+		}
+		if(bErr)
+		{
+			strOut+=std::string("\nUsage: (");
+			for(int i=0; i<nParams; i++)
+			{
+				strOut+=std::string("{");
+				for(int j=1; j<(1<<20); j<<=1)
+				{
+					if(!(aiRefParams[i]&j))
+						continue;
+					strOut+=GetTypeName(aiRefParams[i]&j);
+					if(i!=(nParams-1))
+						strOut+=std::string(", ");
+				}
+				strOut+=std::string("}");
+			}
+			strOut+=std::string(")");
+		}
+		return strOut;
+	}
 
 	void Utils::LogParameterErrors(const Script& caller, Ogre::String msg, int line)
 	{
