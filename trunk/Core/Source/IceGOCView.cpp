@@ -21,6 +21,7 @@ namespace Ice
 		if (show && !mEditorVisual)
 		{
 			mEditorVisual = Main::Instance().GetOgreSceneMgr()->createEntity(GetEditorVisualMeshName());
+			mEditorVisual->setVisibilityFlags(Ice::VisibilityFlags::V_DEFAULT);
 			mEditorVisual->setUserAny(Ogre::Any(GetOwner().get()));
 			GetNode()->attachObject(mEditorVisual);
 		}
