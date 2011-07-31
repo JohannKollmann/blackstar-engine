@@ -299,9 +299,11 @@ LuaScript::CallFunction(Script &caller, std::string strName, std::vector<ScriptP
 
 	lua_getglobal(m_pState, strName.c_str());//push the function
 	
+	int iStackSize=lua_gettop(m_pState);
+
 	PutArguments(m_pState, params, caller, pShareCallInstanceHack);
 	
-	int iStackSize=lua_gettop(m_pState);
+	
 	if(lua_pcall(m_pState, params.size(), LUA_MULTRET,0 )!=0)
 	{
 		const char* pcErr=lua_tostring(m_pState, -1);
