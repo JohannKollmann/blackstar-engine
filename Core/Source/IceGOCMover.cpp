@@ -397,18 +397,7 @@ namespace Ice
 
 	void GOCMover::ShowEditorVisual(bool show)
 	{
-		if (show && !mEditorVisual)
-		{
-			mEditorVisual = Main::Instance().GetOgreSceneMgr()->createEntity(GetEditorVisualMeshName());
-			mEditorVisual->setUserAny(Ogre::Any(GetOwner().get()));
-			GetNode()->attachObject(mEditorVisual);
-		}
-		else if (!show && mEditorVisual)
-		{
-			GetNode()->detachObject(mEditorVisual);
-			Main::Instance().GetOgreSceneMgr()->destroyEntity(mEditorVisual);
-			mEditorVisual = nullptr;
-		}
+		GOCEditorVisualised::ShowEditorVisual(show);
 
 		if (mSplineObject) mSplineObject->setVisible(show);
 
