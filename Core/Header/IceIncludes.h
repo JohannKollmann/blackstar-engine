@@ -131,8 +131,6 @@ namespace Ice
 	class GOCViewListener;
 	class GOCRigidBody;
 	class GOCAI;
-	class ScriptedAIState;
-	class DayCycle;
 	class AIManager;
 	class AStarEdge;
 	class AStarNode;

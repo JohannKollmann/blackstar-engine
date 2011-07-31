@@ -155,6 +155,23 @@ namespace Ice
 			return nullptr;
 		}
 
+		/**
+		* Returns the component of type T if it exists, otherwise it creates the component, attaches it to the object and retrieves it.
+		* T must have a default constructor.
+		*/
+		template<class T>
+		T* CreateOrRetrieveComponent()
+		{
+			for (auto i = mComponents.begin(); i != mComponents.end(); i++)
+			{
+				T *rtti = dynamic_cast<T*>((*i).get());
+				if (rtti) return rtti;
+			}
+			std::shared_ptr<T> goc = std::make_shared<T>();
+			AddComponent(goc);
+			return goc.get();
+		}
+
 		///Returns the component of family familyID if it exists, otherwise nullptr.
 		GOComponent* GetComponent(const GOComponent::FamilyID& familyID);
 

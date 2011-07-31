@@ -42,11 +42,7 @@ namespace Ice
 		GameObjectPtr owner = mOwnerGO.lock();
 		IceAssert(owner.get())
 
-		GOCOgreNode *gocNode = owner->GetComponent<GOCOgreNode>();
-		if (gocNode) return gocNode->GetNode();
-
-		gocNode = new GOCOgreNode();
-		owner->AddComponent(GOComponentPtr(gocNode));
+		GOCOgreNode *gocNode = owner->CreateOrRetrieveComponent<GOCOgreNode>();
 		return gocNode->GetNode();
 	}
 }

@@ -4,28 +4,30 @@
 #include "IceIncludes.h"
 #include "IceGOCAI.h"
 #include "IceScriptSystem.h"
-#include "IceAIState.h"
 
 namespace Ice
 {
 
-	class ScriptedAIState : public AIState
+	class ScriptedAIProcess : public ProcessNode, public IndependantMessageListener
 	{
 	protected:
-		Script mScript;
-		ScriptedAIState() {}
 		float mLastUpdateCall;
-		virtual bool OnSimulate(float time) { return false; }
+		std::weak_ptr<GameObject> mGameObject;
 
 	public:
-		ScriptedAIState(GOCAI* ai, Ogre::String scriptFileName);
-		~ScriptedAIState();
+		ScriptedAIProcess(std::weak_ptr<GameObject> &gameObject);
+		~ScriptedAIProcess();
 
-		virtual void OnEnter();
-		virtual bool Update(float time);
+		void OnSetActive(bool active) override;
+
+		void FireEnter();
+		void FireLeave();
+		void FireUpdate();
+
+		void ReceiveMessage(Msg &msg);
 	};
 
-	class DayCycle : public ScriptedAIState
+	class DayCycleProcess : public ScriptedAIProcess
 	{
 	protected:
 		std::vector<ScriptParam> mScriptParams;
@@ -37,8 +39,8 @@ namespace Ice
 
 
 	public:
-		DayCycle(GOCAI* ai, Ogre::String scriptFileName, std::vector<ScriptParam> params, int endtimeH, int endtimeM, bool time_abs);
-		~DayCycle();
+		DayCycleProcess(std::weak_ptr<GameObject> &object, std::vector<ScriptParam> params, int endtimeH, int endtimeM, bool time_abs);
+		~DayCycleProcess();
 
 		void OnEnter();
 		bool Update(float time);
