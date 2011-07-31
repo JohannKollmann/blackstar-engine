@@ -4,29 +4,33 @@
 #include "IceGOComponent.h"
 #include "IceIncludes.h"
 #include "IceGOCCharacterController.h"
-#include "IceAIState.h"
-#include "IceScriptedAIState.h"
+#include "IceAIProcess.h"
 #include "IceDataMap.h"
 #include "IceScriptSystem.h"
 #include "IceGOCScriptMakros.h"
 #include "IceScriptUser.h"
+#include "IceProcessOwner.h"
+#include "IceProcessNodeQueue.h"
 
 namespace Ice
 {
 
-	class DllExport GOCAI : public GOCEditorInterface, public CharacterControllerInput
+	class DayCycleProcess;
+	class AIProcess;
+
+	class DllExport GOCAI : public GOCEditorInterface, public CharacterControllerInput, public ProcessOwner
 	{
 
 	private:
 		/*
-		Die Idle-Routine des AI Objekts (Tagesablauf), wird immer gelooped.
+		Die Idle-Queue des AI Objekts (Tagesablauf), wird immer gelooped.
 		*/
-		std::vector<DayCycle*> mIdleQueue;
+		std::shared_ptr<ProcessNodeQueue> mIdleQueue;
 
 		/*
-		Priority Queue von Events, ueberlagert immer Idle-Routine.
+		Event-Queue, überlagert immer Idle-Queue.
 		*/
-		std::vector<AIState*> mActionQueue;
+		std::shared_ptr<ProcessNodeQueue> mActionQueue;
 
 	public:
 		GOCAI(void);
@@ -48,8 +52,7 @@ namespace Ice
 		DEFINE_TYPEDGOCLUAMETHOD(GOCAI, Npc_GotoWP, "string")
 		DEFINE_GOCLUAMETHOD(GOCAI, Npc_OpenDialog)
 
-		void AddState(AIState *state);
-		void AddDayCycleState(DayCycle *state);
+		void AddDayCycleProcess(DayCycleProcess *state);
 		void ClearActionQueue();
 		void ClearIdleQueue();
 		void SelectState();

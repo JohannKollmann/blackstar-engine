@@ -1,24 +1,22 @@
 #pragma once
 
-#include "IceAIState.h"
+#include "IceAIProcess.h"
 #include "IceDirectionBlender.h"
 
 namespace Ice
 {
 
-	class DllExport Dialog : public AIState
+	class DllExport Dialog : public AIProcess
 	{
 	private:
 		DirectionYawBlender mDirectionBlender;
 
+	protected:
+		void OnSetActive(bool active);
+		void OnReceiveMessage(Msg &msg);
+
 	public:
 		Dialog(GOCAI *ai);
-		~Dialog(void);
-
-		float GetPriority() const { return 1.0f; }
-
-		void OnEnter();
-		bool Update(float time);
-		void Leave();
+		~Dialog(void);	
 	};
 }

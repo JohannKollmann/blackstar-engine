@@ -21,6 +21,8 @@ namespace Ice
 
 		//Sweep cache for dynamic obstacle avoiding
 		mSweepCache = Main::Instance().GetPhysXScene()->getNxScene()->createSweepCache(); 
+
+		JoinNewsgroup(GlobalMessageIDs::PHYSICS_BEGIN);
 	};
 
 	FollowPathway::~FollowPathway()
@@ -50,22 +52,20 @@ namespace Ice
 		return 0;
 	}
 	
-	void FollowPathway::Leave()
+	void FollowPathway::OnSetActive(bool active)
 	{
-		Pause();
-	}
-	void FollowPathway::Pause()
-	{
-		mAIObject->BroadcastMovementState(0);
-	}
+		if (active)
+		{
+			GOCCharacterController *character = (GOCCharacterController*)mAIObject->GetOwner()->GetComponent("Physics", "CharacterController");
+			mSweepActor = 0;
+			if (character) mSweepActor = character->GetActor()->getNxActor();
 
-	void FollowPathway::OnEnter()
-	{
-		GOCCharacterController *character = (GOCCharacterController*)mAIObject->GetOwner()->GetComponent("Physics", "CharacterController");
-		mSweepActor = 0;
-		if (character) mSweepActor = character->GetActor()->getNxActor();
-
-		computePath();
+			computePath();
+		}
+		else
+		{
+			mAIObject->BroadcastMovementState(0);
+		}
 	}
 
 	void FollowPathway::computePath()
@@ -113,13 +113,20 @@ namespace Ice
 		if (erase) mPath.erase(mPath.begin(), endErase);
 	}
 
-	bool FollowPathway::Update(float time)
+	void FollowPathway::OnReceiveMessage(Msg &msg)
+	{
+		if (msg.typeID == GlobalMessageIDs::PHYSICS_BEGIN)
+			Update(msg.params.GetValue<float>(0));
+	}
+
+	void FollowPathway::Update(float time)
 	{
 		verifyPath();
 		if (mPath.empty())
 		{
 			mAIObject->BroadcastMovementState(0);
-			return true;
+			TerminateProcess();
+			return;
 		}
 
 		Ogre::Vector3 currPos = mAIObject->GetOwner()->GetGlobalPosition();
@@ -139,7 +146,8 @@ namespace Ice
 			if (mPath.empty())
 			{
 				mAIObject->BroadcastMovementState(0);
-				return true;
+				TerminateProcess();
+				return;
 			}
 			//optimizePath();
 			Ogre::Vector3 targetDir = mPath[0]->GetGlobalPosition()-currPos;
@@ -220,7 +228,6 @@ namespace Ice
 		Ogre::Quaternion quat = Ogre::Vector3::UNIT_Z.getRotationTo(direction);
 		mAIObject->GetOwner()->SetGlobalOrientation(quat);
 		mAIObject->BroadcastMovementState(movementstate);
-		return false;
 	}
 
 }

@@ -58,7 +58,6 @@ namespace Ice
 
 		/**
 		Terminates the process.
-		@param erase Specifies whether to process shall be removed forever (ID becomes invalid).
 		*/
 		virtual void TerminateProcess();
 
@@ -86,7 +85,8 @@ namespace Ice
 		bool GetIsActive() { return mIsActive; }
 
 		/**
-		Retrieves whether the process is active or not.
+		Retrieves whether the process is paused or not.
+		GetIsPaused implies !GetIsActive. 
 		@return active yes/no
 		*/
 		bool GetIsPaused() { return mIsPaused; }

@@ -40,74 +40,24 @@ namespace Ice
 		UpdateOrientation(owner->GetGlobalOrientation());
 	}
 
-	void GOCAI::AddState(AIState *state)
+	void GOCAI::AddDayCycleProcess(DayCycleProcess *state)
 	{
-		AIState *old = 0;
-		if (mActionQueue.size() > 0) old = mActionQueue[0];
-		mActionQueue.push_back(state);
-		std::push_heap(mActionQueue.begin(), mActionQueue.end(), AIState::PointerCompare_Less());
-		if (old != mActionQueue[0])
-		{
-			if (old) old->Pause();
-			mActionQueue[0]->Enter();
-		}
-	}
-
-	void GOCAI::AddDayCycleState(DayCycle *state)
-	{
-		mIdleQueue.push_back(state);
-		if (mIdleQueue.size() == 1) (*mIdleQueue.begin())->Enter();
 	}
 
 	void GOCAI::ClearActionQueue()
 	{
-		for (std::vector<AIState*>::iterator i = mActionQueue.begin(); i != mActionQueue.end(); i++)
-		{
-			ICE_DELETE (*i);
-		}
-		mActionQueue.clear();
 	}
 
 	void GOCAI::LeaveActiveActionState()
 	{
-		if (mActionQueue.size() == 0) return;
-		std::pop_heap(mActionQueue.begin(), mActionQueue.end(), AIState::PointerCompare_Less());
-		AIState *tmp = mActionQueue.back();
-		mActionQueue.pop_back();
-		tmp->Leave();
-		ICE_DELETE tmp;
-
-		if (mActionQueue.size() > 0) mActionQueue[0]->Enter();
 	}
 
 	void GOCAI::ClearIdleQueue()
 	{
-		for (std::vector<DayCycle*>::iterator i = mIdleQueue.begin(); i != mIdleQueue.end(); i++)
-		{
-			ICE_DELETE (*i);
-		}
-		mIdleQueue.clear();
 	}
 
 	void GOCAI::Update(float time)
 	{
-		if (mOwnerGO.expired()) return;
-		if (mActionQueue.size() > 0)
-		{
-			bool finished = mActionQueue[0]->Update(time);
-			if (finished)
-				LeaveActiveActionState();
-		}
-		else if (mIdleQueue.size() > 0)
-		{
-			DayCycle *state = *mIdleQueue.begin();
-			if (state->Update(0))
-			{
-				mIdleQueue.erase(mIdleQueue.begin());
-				mIdleQueue.push_back(state);
-				(*mIdleQueue.begin())->Enter();
-			}
-		}	
 	}
 
 	std::vector<ScriptParam> GOCAI::Npc_AddState(Script& caller, std::vector<ScriptParam> &vParams)
@@ -142,20 +92,16 @@ namespace Ice
 			miscparams.push_back((*i));
 		}
 		
-		AddDayCycleState(ICE_NEW DayCycle(this, ta_script, miscparams, end_timeH, end_timeM, time_abs));
 		return out;
 	}
 	std::vector<ScriptParam> GOCAI::Npc_GotoWP(Script& caller, std::vector<ScriptParam> &vParams)
 	{
 		std::vector<ScriptParam> out;
-		Ogre::String wp = vParams[0].getString().c_str();
-		AddState(ICE_NEW FollowPathway(this, wp));
 		return out;
 	}
 	std::vector<ScriptParam> GOCAI::Npc_OpenDialog(Script& caller, std::vector<ScriptParam> &vParams)
 	{
 		std::vector<ScriptParam> out;
-		AddState(ICE_NEW Dialog(this));
 		return out;
 	}
 

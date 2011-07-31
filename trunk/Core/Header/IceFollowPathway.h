@@ -2,7 +2,7 @@
 #pragma once
 
 #include "Ogre.h"
-#include "IceAIState.h"
+#include "IceAIProcess.h"
 #include "NxPhysics.h"
 #include "IceDirectionBlender.h"
 #include "IceNavigationMesh.h"
@@ -10,7 +10,7 @@
 namespace Ice
 {
 
-	class FollowPathway : public AIState
+	class FollowPathway : public AIProcess
 	{
 	private:
 		std::vector<AStarNode3D*> mPath;
@@ -37,10 +37,10 @@ namespace Ice
 		FollowPathway(GOCAI *ai, Ogre::String target, float radius = 0.5f);
 		~FollowPathway();
 
-		void OnEnter();
-		void Leave();
-		void Pause();
-		bool Update(float time);
+	protected:
+		void OnSetActive(bool active);
+		void OnReceiveMessage(Msg &msg);
+		void Update(float time);
 	};
 
 }

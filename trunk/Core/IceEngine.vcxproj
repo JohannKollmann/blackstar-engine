@@ -112,6 +112,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\IceProcessOwner.cpp" />
     <ClCompile Include="Source\IceGOCJoint.cpp" />
     <ClCompile Include="Source\IceLog.cpp" />
     <ClCompile Include="Source\IceDefineTextIDs.cpp" />
@@ -201,6 +202,7 @@
     <ClCompile Include="Source\HDRListener.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Header\IceProcessOwner.h" />
     <ClInclude Include="Header\IceDepthSchemeHandler.h" />
     <ClInclude Include="Header\IceGOCJoint.h" />
     <ClInclude Include="Header\IceLog.h" />
@@ -251,7 +253,7 @@
     <ClInclude Include="Header\IceTimerProcess.h" />
     <ClInclude Include="Header\IceUtils.h" />
     <ClInclude Include="Header\IceAIManager.h" />
-    <ClInclude Include="Header\IceAIState.h" />
+    <ClInclude Include="Header\IceAIProcess.h" />
     <ClInclude Include="Header\IceAStar.h" />
     <ClInclude Include="Header\IceDialog.h" />
     <ClInclude Include="Header\IceFollowPathway.h" />

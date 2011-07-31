@@ -23,29 +23,29 @@ std::vector<SubMeshInformation*> EntityMaterialInspector::getSubMeshes(const Ogr
 	Ogre::VertexData* shared_vertex_data = mEntity->getMesh()->sharedVertexData;
 	if (shared_vertex_data != NULL)
 	{
-            const Ogre::VertexElement* posElem =
-                shared_vertex_data->vertexDeclaration->findElementBySemantic(Ogre::VES_POSITION);
+			const Ogre::VertexElement* posElem =
+				shared_vertex_data->vertexDeclaration->findElementBySemantic(Ogre::VES_POSITION);
 
-            Ogre::HardwareVertexBufferSharedPtr vbuf =
-                shared_vertex_data->vertexBufferBinding->getBuffer(posElem->getSource());
+			Ogre::HardwareVertexBufferSharedPtr vbuf =
+				shared_vertex_data->vertexBufferBinding->getBuffer(posElem->getSource());
 
-            unsigned char* vertex =
-                static_cast<unsigned char*>(vbuf->lock(Ogre::HardwareBuffer::HBL_READ_ONLY));
+			unsigned char* vertex =
+				static_cast<unsigned char*>(vbuf->lock(Ogre::HardwareBuffer::HBL_READ_ONLY));
 
 			float* pReal;
 
 		for(size_t j = 0; j < shared_vertex_data->vertexCount; ++j, vertex += vbuf->getVertexSize())
-        {
+		{
 			posElem->baseVertexPointerToElement(vertex, &pReal);
 
-            Ogre::Vector3 pt(pReal[0], pReal[1], pReal[2]);
+			Ogre::Vector3 pt(pReal[0], pReal[1], pReal[2]);
 
 			shared_vertices.push_back((orient * (pt * scale)) + position);
 		}
 		vbuf->unlock();
 	}
 
-    //calculate how many currentSubMesh.mVertices and currentSubMesh.mIndices we will need
+	//calculate how many currentSubMesh.mVertices and currentSubMesh.mIndices we will need
 	for (unsigned short i = 0; i < mEntity->getMesh()->getNumSubMeshes(); ++i)
 	{
 		currentSubMesh = new SubMeshInformation();
@@ -72,63 +72,63 @@ std::vector<SubMeshInformation*> EntityMaterialInspector::getSubMeshes(const Ogr
 		}
 		if (vertex_data)
 		{
-            const Ogre::VertexElement* posElem =
-                vertex_data->vertexDeclaration->findElementBySemantic(Ogre::VES_POSITION);
+			const Ogre::VertexElement* posElem =
+				vertex_data->vertexDeclaration->findElementBySemantic(Ogre::VES_POSITION);
 
-            Ogre::HardwareVertexBufferSharedPtr vbuf =
-                vertex_data->vertexBufferBinding->getBuffer(posElem->getSource());
+			Ogre::HardwareVertexBufferSharedPtr vbuf =
+				vertex_data->vertexBufferBinding->getBuffer(posElem->getSource());
 
-            unsigned char* vertex =
-                static_cast<unsigned char*>(vbuf->lock(Ogre::HardwareBuffer::HBL_READ_ONLY));
+			unsigned char* vertex =
+				static_cast<unsigned char*>(vbuf->lock(Ogre::HardwareBuffer::HBL_READ_ONLY));
 
-            // There is _no_ baseVertexPointerToElement() which takes an Ogre::Real or a double
-            //  as second argument. So make it float, to avoid trouble when Ogre::Real will
-            //  be comiled/typedefed as double:
-            //      Ogre::Real* pReal;
-            float* pReal;
+			// There is _no_ baseVertexPointerToElement() which takes an Ogre::Real or a double
+			//  as second argument. So make it float, to avoid trouble when Ogre::Real will
+			//  be comiled/typedefed as double:
+			//      Ogre::Real* pReal;
+			float* pReal;
 
 			for( size_t j = shared_vertices.size(); j < currentSubMesh->mVertex_count; ++j, vertex += vbuf->getVertexSize())
-            {
-                posElem->baseVertexPointerToElement(vertex, &pReal);
+			{
+				posElem->baseVertexPointerToElement(vertex, &pReal);
 
-                Ogre::Vector3 pt(pReal[0], pReal[1], pReal[2]);
+				Ogre::Vector3 pt(pReal[0], pReal[1], pReal[2]);
 
-                currentSubMesh->mVertices[j] = (orient * (pt * scale)) + position;
-            }
+				currentSubMesh->mVertices[j] = (orient * (pt * scale)) + position;
+			}
 
-            vbuf->unlock();
+			vbuf->unlock();
 		}
 
 
-        Ogre::IndexData* index_data = currentSubMesh->mSubMesh->indexData;
-        size_t numTris = index_data->indexCount / 3;
-        Ogre::HardwareIndexBufferSharedPtr ibuf = index_data->indexBuffer;
+		Ogre::IndexData* index_data = currentSubMesh->mSubMesh->indexData;
+		size_t numTris = index_data->indexCount / 3;
+		Ogre::HardwareIndexBufferSharedPtr ibuf = index_data->indexBuffer;
 
-        bool use32bitindexes = (ibuf->getType() == Ogre::HardwareIndexBuffer::IT_32BIT);
+		bool use32bitindexes = (ibuf->getType() == Ogre::HardwareIndexBuffer::IT_32BIT);
 
-        unsigned long*  pLong = static_cast<unsigned long*>(ibuf->lock(Ogre::HardwareBuffer::HBL_READ_ONLY));
-        unsigned short* pShort = reinterpret_cast<unsigned short*>(pLong);
+		unsigned long*  pLong = static_cast<unsigned long*>(ibuf->lock(Ogre::HardwareBuffer::HBL_READ_ONLY));
+		unsigned short* pShort = reinterpret_cast<unsigned short*>(pLong);
 
-        if ( use32bitindexes )
-        {
-            for ( size_t k = 0; k < numTris*3; ++k)
-            {
-                currentSubMesh->mIndices[k] = pLong[k];
-            }
-        }
-        else
-        {
-            for ( size_t k = 0; k < numTris*3; ++k)
-            {
-                currentSubMesh->mIndices[k] = static_cast<unsigned long>(pShort[k]);
-            }
-        }
+		if ( use32bitindexes )
+		{
+			for ( size_t k = 0; k < numTris*3; ++k)
+			{
+				currentSubMesh->mIndices[k] = pLong[k];
+			}
+		}
+		else
+		{
+			for ( size_t k = 0; k < numTris*3; ++k)
+			{
+				currentSubMesh->mIndices[k] = static_cast<unsigned long>(pShort[k]);
+			}
+		}
 
-        ibuf->unlock();
+		ibuf->unlock();
 
 		returner.push_back(currentSubMesh);
 
-    }
+	}
 
 	return returner;
 

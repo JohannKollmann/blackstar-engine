@@ -6,47 +6,41 @@
 namespace Ice
 {
 
-	ScriptedAIState::ScriptedAIState(GOCAI* ai, Ogre::String scriptFileName)
+	ScriptedAIProcess::ScriptedAIProcess(std::weak_ptr<GameObject> &gameObject)
 	{
 		mLastUpdateCall = 0.0f;
-		mAIObject = ai;
-		mScript = ScriptSystem::GetInstance().CreateInstance(scriptFileName);
+		mGameObject = gameObject;
 	}
 
-	ScriptedAIState::~ScriptedAIState()
+	ScriptedAIProcess::~ScriptedAIProcess()
 	{
 	}
 
-	void ScriptedAIState::OnEnter()
+	void ScriptedAIProcess::OnSetActive(bool active)
 	{
-		std::vector<ScriptParam> params;
-		params.push_back(ScriptParam((int)mAIObject->GetID()));
-		mScript.CallFunction("onEnter", params);
+		if (active) FireEnter();
+		else FireLeave();
 	}
 
-	bool ScriptedAIState::Update(float time)
+	void ScriptedAIProcess::FireEnter()
 	{
-		if (OnSimulate(time)) return true;
-		if (timeGetTime() - mLastUpdateCall > 0.2f)
-		{
-			mLastUpdateCall = (float)timeGetTime();
-			std::vector<ScriptParam> params;
-			params.push_back(ScriptParam((int)mAIObject->GetID()));
-			std::vector<ScriptParam> returns = mScript.CallFunction("onUpdate", params);
-			if (returns.size() == 0) return false;
-			if ((*returns.begin()).getType() != ScriptParam::PARM_TYPE_BOOL) return false;
-			return (*returns.begin()).getBool();
-		}
-		return false;
+	}
+	void ScriptedAIProcess::FireUpdate()
+	{
+	}
+	void ScriptedAIProcess::FireLeave()
+	{
+	}
+
+	void ScriptedAIProcess::ReceiveMessage(Msg &msg)
+	{
 	}
 
 
-
-	DayCycle::DayCycle(GOCAI* ai, Ogre::String scriptFileName, std::vector<ScriptParam> params, int endtimeH, int endtimeM, bool time_abs)
+	DayCycleProcess::DayCycleProcess(std::weak_ptr<GameObject> &object, std::vector<ScriptParam> params, int endtimeH, int endtimeM, bool time_abs)
+	: ScriptedAIProcess(object)
 	{
 		mLastUpdateCall = 0.0f;
-		mAIObject = ai;
-		mScript = ScriptSystem::GetInstance().CreateInstance(scriptFileName);
 		mScriptParams = params;
 		mEndTimeH = endtimeH;
 		mEndTimeM = endtimeM;
@@ -65,24 +59,23 @@ namespace Ice
 		}
 	}
 
-	DayCycle::~DayCycle()
+	DayCycleProcess::~DayCycleProcess()
 	{
 	}
 
-	void DayCycle::OnEnter()
+	void DayCycleProcess::OnEnter()
 	{
 		std::vector<ScriptParam> params;
-		params.push_back(ScriptParam((int)mAIObject->GetID()));
+		params.push_back(ScriptParam((int)mGameObject.lock()->GetID()));
 		for (std::vector<ScriptParam>::iterator i = mScriptParams.begin(); i != mScriptParams.end(); i++)
 		{
 			params.push_back((*i));
 		}
 		mScriptParams.clear();
 		mScriptParams = params;
-		mScript.CallFunction("onEnter", mScriptParams);
 	}
 
-	bool DayCycle::Update(float time)
+	bool DayCycleProcess::Update(float time)
 	{
 		int hour = SceneManager::Instance().GetHour();
 		int minutes = SceneManager::Instance().GetMinutes();
@@ -91,11 +84,6 @@ namespace Ice
 		if (timeGetTime() - mLastUpdateCall > 0.1f)
 		{
 			mLastUpdateCall = (float)timeGetTime();
-			std::vector<ScriptParam> returns = mScript.CallFunction("onUpdate", mScriptParams);
-
-			if (returns.size() == 0) return false;
-			if ((*returns.begin()).getType() != ScriptParam::PARM_TYPE_BOOL) return false;
-			return (*returns.begin()).getBool();
 		}
 		return false;
 	}

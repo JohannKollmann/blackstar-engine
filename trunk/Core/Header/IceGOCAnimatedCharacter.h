@@ -6,6 +6,7 @@
 #include "IceMessageSystem.h"
 #include "IceGOCScriptMakros.h"
 #include "IcePlayAnimationProcess.h"
+#include "IceProcessOwner.h"
 
 namespace Ice
 {
@@ -17,7 +18,7 @@ namespace Ice
 		GOCAnimatedCharacter *mGOCRagdoll;
 	};
 
-	class DllExport GOCAnimatedCharacter : public GOCEditorInterface, public GOCOgreNodeUser
+	class DllExport GOCAnimatedCharacter : public GOCEditorInterface, public GOCOgreNodeUser, public ProcessOwner
 	{
 	private:
 		Ogre::Entity *mEntity;
@@ -27,10 +28,6 @@ namespace Ice
 		bool mEditorMode;
 		Ogre::String mMeshName;
 		bool mShadowCaster;
-
-		//We need this list because we have to shut down the processes when the entity ist destroyed
-		std::vector<int> mCreatedProcesses;
-		void _destroyCreatedProcesses();
 
 		void _clear();
 

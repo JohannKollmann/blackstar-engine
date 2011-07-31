@@ -18,7 +18,7 @@ namespace Ice
 
 	void GOCAnimatedCharacter::_clear()
 	{
-		_destroyCreatedProcesses();
+		destroyAllProcesses();
 		GameObjectPtr owner = mOwnerGO.lock();
 		/*if (owner.get())
 		{
@@ -136,7 +136,7 @@ namespace Ice
 	{
 		if (mOwnerGO.expired()) return;
 		if (msg.typeID == GlobalMessageIDs::REPARSE_SCRIPTS_PRE)
-			_destroyCreatedProcesses();
+			destroyAllProcesses();
 
 		if (msg.typeID == ObjectMessageIDs::ENTER_FPS_MODE) mEntity->setVisible(false);
 		if (msg.typeID == ObjectMessageIDs::LEAVE_FPS_MODE) mEntity->setVisible(true);
@@ -220,13 +220,6 @@ namespace Ice
 		mgr.LoadAtom("bool", &mShadowCaster);
 	}
 
-	void GOCAnimatedCharacter::_destroyCreatedProcesses()
-	{
-		ITERATE(i, mCreatedProcesses)
-			ProcessNodeManager::Instance().RemoveProcessNode(*i);
-		mCreatedProcesses.clear();
-	}
-
 	std::vector<ScriptParam> GOCAnimatedCharacter::AnimProcess_Create(Script& caller, std::vector<ScriptParam> &vParams)
 	{
 		std::vector<ScriptParam> out;
@@ -245,7 +238,7 @@ namespace Ice
 			if (vParams.size() > 3 && vParams[3].getType() == ScriptParam::PARM_TYPE_FLOAT) timeScale = vParams[3].getFloat();
 
 			std::shared_ptr<PlayAnimationProcess> process = ProcessNodeManager::Instance().CreatePlayAnimationProcess(ogreAnimState);
-			mCreatedProcesses.push_back(process->GetProcessID());
+			registerProcess(process->GetProcessID());
 			process->SetLooped(looped);
 			process->SetInBlendDuration(blendTime);
 			process->SetOutBlendDuration(blendTime);
