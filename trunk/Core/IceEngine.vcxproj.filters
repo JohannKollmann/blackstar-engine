@@ -298,7 +298,7 @@
       <Filter>Utils</Filter>
     </ClCompile>
     <ClCompile Include="Source\IceDefineTextIDs.cpp">
-      <Filter>System</Filter>
+      <Filter>Utils</Filter>
     </ClCompile>
     <ClCompile Include="Source\IceProcessOwner.cpp">
       <Filter>ProcessNodeSystem</Filter>

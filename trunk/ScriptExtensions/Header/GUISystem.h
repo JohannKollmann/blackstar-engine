@@ -62,7 +62,28 @@ public:
 private:
 	//scripting stuff
 
+	/**
+	 * create a window
+	 * @param x x-coordinate of window
+	 * @param y y-coordinate of window
+	 * @param w w-coordinate of window
+	 * @param h h-coordinate of window
+	 * 
+	 * @return id id of the created window
+	*/
 	static std::vector<Ice::ScriptParam> Lua_CreateWindow(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
+	/**
+	 * create a sub window
+	 * @param parent parent window of the subwindow to create
+	 * @param x x-coordinate of window
+	 * @param y y-coordinate of window
+	 * @param w w-coordinate of window
+	 * @param h h-coordinate of window
+	 * @param uscale scaling of window content in x direction (optional)
+	 * @param vscale scaling of window content in y direction (optional)
+	 * 
+	 * @return id id of the created window
+	*/
 	static std::vector<Ice::ScriptParam> Lua_CreateSubWindow(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
 	static std::vector<Ice::ScriptParam> Lua_BakeWindow(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
 	static std::vector<Ice::ScriptParam> Lua_DeleteWindow(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
@@ -82,10 +103,46 @@ private:
 	static std::vector<Ice::ScriptParam> Lua_SetCursor(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
 
 	//font system
+	/**
+	 * create material for font texture
+	 * @param spacing_file file containing font spacings for the used font
+	 * @param texture_name name of the ogre texture
+	 * @param base_material_name special material which will be copied by the system to make it use the font texture
+	 * @param pass_name pass in base material to replace the texture in
+	 * @param target_texture_name name of the texture to replace in base material
+	 * @param maxwidth maxwidth parameter from {@link GUISystem::Lua_CreateFontTexture}
+	 * @param maxheight maxheight parameter from {@link GUISystem::Lua_CreateFontTexture}
+	 * parameters 8 through 13 are optional and define a 3x2 matrix used to transform the text
+	 *
+	 * @return material_name name of the created ogre material
+	*/
 	static std::vector<Ice::ScriptParam> Lua_CreateFontMaterial(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
+	/**
+	 * create a compressed font texture
+	 * @param spacing_file file containing font spacings for the used font
+	 * @param text actual text for the texture
+	 * @param maxwidth maximum width of the texture (in width units of spacing file)
+	 * @param maxheight maximum height of the texture (in lines)
+	 *
+	 * @return texture_name name of the created ogre texture
+	 * @return actual_width width of the ogre texture
+	 * @return actual_height height of the ogre texture
+	*/
 	static std::vector<Ice::ScriptParam> Lua_CreateFontTexture(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
+	/**
+	 * change material for font texture
+	 * see {@link GUISystem::Lua_CreateFontMaterial}
+	*/
 	static std::vector<Ice::ScriptParam> Lua_ChangeFontMaterial(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
+	/**
+	 * deletes ogre texture
+	 * @param texture texture to delete
+	*/
 	static std::vector<Ice::ScriptParam> Lua_DeleteTexture(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
+	/**
+	 * deletes ogre material
+	 * @param material material to delete
+	*/
 	static std::vector<Ice::ScriptParam> Lua_DeleteMaterial(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams);
 
 	//window callbacks

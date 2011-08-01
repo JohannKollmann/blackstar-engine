@@ -772,22 +772,15 @@ GUISystem::Clear()
 
 std::vector<Ice::ScriptParam>
 GUISystem::Lua_CreateFontTexture(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams)
-{//arguments: spacing file, text, maxwidth, maxheight
-//outputs: texture name, actual width, actual height
-	std::vector<Ice::ScriptParam> ret;
-	ret.push_back(Ice::ScriptParam(std::string("")));
-	ret.push_back(Ice::ScriptParam(std::string("")));
-	ret.push_back(Ice::ScriptParam(0.0));
-	ret.push_back(Ice::ScriptParam(0.0));
-	
-	std::string strError=Ice::Utils::TestParameters(vParams, ret, false);
-	ret.clear();
-	ret.push_back(Ice::ScriptParam());
-	if(strError.size())
-	{
-		ret.push_back(Ice::ScriptParam(strError));
-		return ret;
-	}
+{
+	std::string strError;
+	UTIL_TEST_PARAMS(strError, vParams,
+		Ice::ScriptParam::PARM_TYPE_STRING,
+		Ice::ScriptParam::PARM_TYPE_STRING,
+		Ice::ScriptParam::PARM_TYPE_FLOAT,
+		Ice::ScriptParam::PARM_TYPE_FLOAT);
+		
+	UTIL_REPORT_ERROR(strError);
 
 	std::map<std::string, FontTextures>::iterator it=GetInstance().m_mFontTextures.find(vParams[0].getString());
 	if(it==GetInstance().m_mFontTextures.end())
@@ -808,42 +801,23 @@ GUISystem::Lua_CreateFontTexture(Ice::Script& caller, std::vector<Ice::ScriptPar
 
 std::vector<Ice::ScriptParam>
 GUISystem::Lua_CreateFontMaterial(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams)
-{//arguments: spacing file, texture name, base material name, pass name, target texture name, maxwidth, maxheight
-//outputs: material name
-
-	std::vector<Ice::ScriptParam> ret;
-	ret.push_back(Ice::ScriptParam(std::string("")));
-	ret.push_back(Ice::ScriptParam(std::string("")));
-	ret.push_back(Ice::ScriptParam(std::string("")));
-	ret.push_back(Ice::ScriptParam(std::string("")));
-	ret.push_back(Ice::ScriptParam(std::string("")));
-	ret.push_back(Ice::ScriptParam(0.0));
-	ret.push_back(Ice::ScriptParam(0.0));
+{
+	std::string strError;
+	UTIL_TEST_PARAMS(strError, vParams,
+		Ice::ScriptParam::PARM_TYPE_STRING,
+		Ice::ScriptParam::PARM_TYPE_STRING,
+		Ice::ScriptParam::PARM_TYPE_STRING,
+		Ice::ScriptParam::PARM_TYPE_STRING,
+		Ice::ScriptParam::PARM_TYPE_STRING,
+		Ice::ScriptParam::PARM_TYPE_FLOAT,
+		Ice::ScriptParam::PARM_TYPE_FLOAT,
+		Ice::ScriptParam::PARM_TYPE_FLOAT|Ice::ScriptParam::PARM_TYPE_MORE);
+		
+	UTIL_REPORT_ERROR(strError);
 	
-	std::string strError=Ice::Utils::TestParameters(vParams, ret, true);
-	ret.clear();
-	ret.push_back(Ice::ScriptParam());
-	if(strError.size())
-	{
-		ret.push_back(Ice::ScriptParam(strError));
-		return ret;
-	}
 	if(vParams.size()!=7 && vParams.size()!=13)
-	{
-		ret.push_back(Ice::ScriptParam(std::string("function expects 7 or 11 parameters")));
-		return ret;
-	}
-	if(vParams.size()==13)
-		if(vParams[7].getType()!=Ice::ScriptParam::PARM_TYPE_FLOAT ||
-			vParams[8].getType()!=Ice::ScriptParam::PARM_TYPE_FLOAT ||
-			vParams[9].getType()!=Ice::ScriptParam::PARM_TYPE_FLOAT ||
-			vParams[10].getType()!=Ice::ScriptParam::PARM_TYPE_FLOAT ||
-			vParams[11].getType()!=Ice::ScriptParam::PARM_TYPE_FLOAT ||
-			vParams[12].getType()!=Ice::ScriptParam::PARM_TYPE_FLOAT)
-		{
-			ret.push_back(Ice::ScriptParam(std::string("parameters 8 through 11 have to be floats")));
-			return ret;
-		}
+		UTIL_REPORT_ERROR(std::string("function expects 7 or 13 parameters"));
+	
 	
 	std::map<std::string, FontTextures>::iterator it=GetInstance().m_mFontTextures.find(vParams[0].getString());
 	if(it==GetInstance().m_mFontTextures.end())
@@ -862,40 +836,24 @@ GUISystem::Lua_CreateFontMaterial(Ice::Script& caller, std::vector<Ice::ScriptPa
 
 std::vector<Ice::ScriptParam>
 GUISystem::Lua_ChangeFontMaterial(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams)
-{//arguments: spacing file, material name, texture name, pass name, target texture name, maxwidth, maxheight
-//outputs: none
+{
 
-		std::vector<Ice::ScriptParam> ret;
-	ret.push_back(Ice::ScriptParam(std::string("")));
-	ret.push_back(Ice::ScriptParam(std::string("")));
-	ret.push_back(Ice::ScriptParam(std::string("")));
-	ret.push_back(Ice::ScriptParam(std::string("")));
-	ret.push_back(Ice::ScriptParam(std::string("")));
-	ret.push_back(Ice::ScriptParam(0.0));
-	ret.push_back(Ice::ScriptParam(0.0));
+	std::string strError;
+	UTIL_TEST_PARAMS(strError, vParams,
+		Ice::ScriptParam::PARM_TYPE_STRING,
+		Ice::ScriptParam::PARM_TYPE_STRING,
+		Ice::ScriptParam::PARM_TYPE_STRING,
+		Ice::ScriptParam::PARM_TYPE_STRING,
+		Ice::ScriptParam::PARM_TYPE_STRING,
+		Ice::ScriptParam::PARM_TYPE_FLOAT,
+		Ice::ScriptParam::PARM_TYPE_FLOAT,
+		Ice::ScriptParam::PARM_TYPE_FLOAT|Ice::ScriptParam::PARM_TYPE_MORE);
+		
+	UTIL_REPORT_ERROR(strError);
 	
-	std::string strError=Ice::Utils::TestParameters(vParams, ret, true);
-	ret.clear();
-	ret.push_back(Ice::ScriptParam());
-	if(strError.size())
-	{
-		ret.push_back(Ice::ScriptParam(strError));
-		return ret;
-	}
-	if(vParams.size()!=7 && vParams.size()!=11)
-	{
-		ret.push_back(Ice::ScriptParam(std::string("function expects 7 or 11 parameters")));
-		return ret;
-	}
-	if(vParams.size()==11)
-		if(vParams[7].getType()!=Ice::ScriptParam::PARM_TYPE_FLOAT ||
-			vParams[8].getType()!=Ice::ScriptParam::PARM_TYPE_FLOAT ||
-			vParams[9].getType()!=Ice::ScriptParam::PARM_TYPE_FLOAT ||
-			vParams[10].getType()!=Ice::ScriptParam::PARM_TYPE_FLOAT)
-		{
-			ret.push_back(Ice::ScriptParam(std::string("parameters 8 through 11 have to be floats")));
-			return ret;
-		}
+	if(vParams.size()!=7 && vParams.size()!=13)
+		UTIL_REPORT_ERROR(std::string("function expects 7 or 13 parameters"));
+	
 
 
 	std::map<std::string, FontTextures>::iterator it=GetInstance().m_mFontTextures.find(vParams[0].getString());
@@ -927,14 +885,20 @@ GUISystem::Lua_ChangeFontMaterial(Ice::Script& caller, std::vector<Ice::ScriptPa
 
 std::vector<Ice::ScriptParam>
 GUISystem::Lua_DeleteTexture(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams)
-{//arguments: texture name
+{
+	std::string strError;
+	UTIL_TEST_PARAMS(strError, vParams, Ice::ScriptParam::PARM_TYPE_STRING);
+	UTIL_REPORT_ERROR(strError);
 	Ogre::TextureManager::getSingleton().remove(vParams[0].getString());
 	return std::vector<Ice::ScriptParam>();
 }
 
 std::vector<Ice::ScriptParam>
 GUISystem::Lua_DeleteMaterial(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams)
-{//arguments: texture name
+{
+	std::string strError;
+	UTIL_TEST_PARAMS(strError, vParams, Ice::ScriptParam::PARM_TYPE_STRING);
+	UTIL_REPORT_ERROR(strError);
 	Ogre::ResourcePtr p;
 	if(!(p=Ogre::MaterialManager::getSingleton().getByName(vParams[0].getString())).isNull())
 		Ogre::MaterialManager::getSingleton().remove(p);
@@ -943,16 +907,15 @@ GUISystem::Lua_DeleteMaterial(Ice::Script& caller, std::vector<Ice::ScriptParam>
 
 std::vector<Ice::ScriptParam>
 GUISystem::Lua_CreateWindow(Ice::Script &caller, std::vector<Ice::ScriptParam> vParams)
-{//input: x,y,w,h
-//return: window-id
+{
+	std::string strError;
+	UTIL_TEST_PARAMS(strError, vParams,
+		Ice::ScriptParam::PARM_TYPE_FLOAT,
+		Ice::ScriptParam::PARM_TYPE_FLOAT,
+		Ice::ScriptParam::PARM_TYPE_FLOAT,
+		Ice::ScriptParam::PARM_TYPE_FLOAT);
+	UTIL_REPORT_ERROR(strError);
 	std::vector<Ice::ScriptParam> ret;
-	if(vParams.size()!=4)
-		return ret;
-	if(vParams[0].getType()!=Ice::ScriptParam::PARM_TYPE_FLOAT ||
-		vParams[1].getType()!=Ice::ScriptParam::PARM_TYPE_FLOAT ||
-		vParams[2].getType()!=Ice::ScriptParam::PARM_TYPE_FLOAT ||
-		vParams[3].getType()!=Ice::ScriptParam::PARM_TYPE_FLOAT)
-		return ret;
 	ret.push_back(GUISystem::GetInstance().MakeWindow(vParams[0].getFloat(), vParams[1].getFloat(), vParams[2].getFloat(), vParams[3].getFloat()).GetHandle());
 	return ret;
 }
@@ -961,30 +924,19 @@ std::vector<Ice::ScriptParam>
 GUISystem::Lua_CreateSubWindow(Ice::Script &caller, std::vector<Ice::ScriptParam> vParams)
 {//input: x,y,w,h,parent
 //return: window-id
-	std::vector<Ice::ScriptParam> ret;
-	for(int iParm=0; iParm<5; iParm++)
-		ret.push_back(Ice::ScriptParam(0.0));
-	std::string strError=Ice::Utils::TestParameters(vParams, ret, true);
-	ret.clear();
-	ret.push_back(Ice::ScriptParam());
-	if(strError.size())
-	{
-		ret.push_back(Ice::ScriptParam(strError));
-		return ret;
-	}
+	std::string strError;
+	UTIL_TEST_PARAMS(strError, vParams,
+		Ice::ScriptParam::PARM_TYPE_FLOAT,
+		Ice::ScriptParam::PARM_TYPE_FLOAT,
+		Ice::ScriptParam::PARM_TYPE_FLOAT,
+		Ice::ScriptParam::PARM_TYPE_FLOAT,
+		Ice::ScriptParam::PARM_TYPE_FLOAT,
+		Ice::ScriptParam::PARM_TYPE_FLOAT|Ice::ScriptParam::PARM_TYPE_MORE);
+	UTIL_REPORT_ERROR(strError);
 	if(vParams.size()!=5 && vParams.size()!=7)
-	{
-		ret.push_back(Ice::ScriptParam(std::string("function expects 5 or 7 parameters")));
-		return ret;
-	}
-	if(vParams.size()==7)
-		if(vParams[5].getType()!=Ice::ScriptParam::PARM_TYPE_FLOAT ||
-			vParams[6].getType()!=Ice::ScriptParam::PARM_TYPE_FLOAT)
-		{
-			ret.push_back(Ice::ScriptParam(std::string("parameters 5 and 6 have to be floats")));
-			return ret;
-		}
-	
+		UTIL_REPORT_ERROR(std::string("function expects 5 or 7 parameters"));
+
+	std::vector<Ice::ScriptParam> ret;
 	ret.clear();
 	if(vParams.size()==5)
 		ret.push_back(GetInstance().CreateSubWindow((int)vParams[0].getFloat(), vParams[1].getFloat(), vParams[2].getFloat(), vParams[3].getFloat(), vParams[4].getFloat()).GetHandle());
@@ -1008,19 +960,12 @@ GUISystem::Lua_BakeWindow(Ice::Script &caller, std::vector<Ice::ScriptParam> vPa
 std::vector<Ice::ScriptParam>
 GUISystem::Lua_DeleteWindow(Ice::Script &caller, std::vector<Ice::ScriptParam> vParams)
 {
-	std::vector<Ice::ScriptParam> errout;
-	errout.push_back(Ice::ScriptParam());
-	std::string strErrString=Ice::Utils::TestParameters(vParams, std::vector<Ice::ScriptParam>(1, Ice::ScriptParam(0.1)), false);
-	if(strErrString.length())
-	{
-		errout.push_back(strErrString);
-		return errout;
-	}
+	std::string strError;
+	UTIL_TEST_PARAMS(strError, vParams, Ice::ScriptParam::PARM_TYPE_FLOAT);
+	UTIL_REPORT_ERROR(strError);
 	GetInstance().DeleteWindow((int)vParams[0].getFloat());
 	return std::vector<Ice::ScriptParam>();
 }
-
-
 
 std::vector<Ice::ScriptParam>
 GUISystem::Lua_SetMaterial(Ice::Script& caller, std::vector<Ice::ScriptParam> vParams)

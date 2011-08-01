@@ -1,9 +1,3 @@
-/*
- * idconst.cpp
- *
- *  Created on: Jul 11, 2011
- *      Author: insi
- */
 #include "assert.h"
 #include "IceTextIDs.h"
 
