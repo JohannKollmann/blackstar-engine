@@ -25,7 +25,12 @@ namespace Ice
 
 	std::string Utils::GetTypeName(ScriptParam param)
 	{
-		switch(param.getType())
+		return GetTypeName(param.getType());
+	}
+	
+	std::string Utils::GetTypeName(int type)
+	{
+		switch(type)
 		{
 		case ScriptParam::PARM_TYPE_BOOL:
 			return std::string("bool");
@@ -45,6 +50,8 @@ namespace Ice
 			return std::string("unknown type");
 		}
 	}
+	
+	
 	std::string Utils::TestParameters(std::vector<ScriptParam> testparams, std::vector<ScriptParam> refparams, bool bAllowMore)
 	{
 		std::string strOut("");
@@ -107,13 +114,33 @@ namespace Ice
 		return TestParameters(testparams, vRefParams, bAllowMore);
 	}
 
-	const int aiTest[]={ScriptParam::PARM_TYPE_INT, ScriptParam::PARM_TYPE_STRING|ScriptParam::PARM_TYPE_INT};
+	std::string Utils::GetMultiTypeName(int type)
+	{
+		std::string strOut("");
+		if(type&ScriptParam::PARM_TYPE_MORE)
+			strOut+=std::string("zero or more ");
+		int nTypes=0;
+		if((type&ScriptParam::PARM_TYPE_ANY)==ScriptParam::PARM_TYPE_ANY)
+			strOut+=std::string("<all types>");
+		else
+		{
+			for(int j=1; j<ScriptParam::PARM_TYPE_MORE; j<<=1)
+			{
+				if(!(type&j))
+					continue;
+				if(nTypes++)
+					strOut+=std::string(", ");
+				strOut+=GetTypeName(type&j);
+			}
+		}
+		if(nTypes>1)
+			strOut=std::string("{") + strOut + std::string("}");
+		return strOut;
+	}
 
-
-	//NONE=0
-	//ALL=~MORE
+	
 	std::string
-	Utils::TestParameters(std::vector<ScriptParam> testparams, const int* aiRefParams, int nParams)
+	Utils::TestParameters(std::vector<ScriptParam> testparams, const int* aiRefParams, unsigned int nParams)
 	{
 		std::string strOut("");
 		//int nMin=min(nParams, testparams.size());
@@ -178,7 +205,7 @@ namespace Ice
 				sstr<<iParam;
 				sstr>>strErr;
 				strErr=std::string("expecting parameter ") + strErr + std::string(" to be of type ") +
-						GetTypeName(reftype) + std::string(", not ") +
+						GetMultiTypeName(reftype) + std::string(", not ") +
 						GetTypeName(testparams[iParam]) + std::string("! ");
 				strOut+=strErr;
 			
@@ -186,19 +213,12 @@ namespace Ice
 		}
 		if(bErr)
 		{
-			strOut+=std::string("\nUsage: (");
-			for(int i=0; i<nParams; i++)
+			strOut+=std::string("Usage: (");
+			for(unsigned int i=0; i<nParams; i++)
 			{
-				strOut+=std::string("{");
-				for(int j=1; j<(1<<20); j<<=1)
-				{
-					if(!(aiRefParams[i]&j))
-						continue;
-					strOut+=GetTypeName(aiRefParams[i]&j);
-					if(i!=(nParams-1))
-						strOut+=std::string(", ");
-				}
-				strOut+=std::string("}");
+				if(i)
+					strOut+=std::string(", ");
+				strOut+=GetMultiTypeName(aiRefParams[i]);
 			}
 			strOut+=std::string(")");
 		}

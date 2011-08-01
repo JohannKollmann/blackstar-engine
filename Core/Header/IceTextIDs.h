@@ -2,7 +2,6 @@
 #include <map>
 #include <vector>
 #include <string>
-//#include "IceIncludes.h"
 
 #define TEXTID_BEGIN_DEF(arr_name) std::pair<int, std::string> arr_name[]={
 #define TEXTID_DEFINE_CONSTANT(c) std::make_pair(c, #c),

@@ -10,7 +10,18 @@
 #define UTIL_TEST_PARAMS(errstring, testparams, ...)\
 {\
 	const int _aiRefParams[]={__VA_ARGS__};\
-	errstring=Utils::TestParameters(testparams, _aiRefParams, sizeof(_aiRefParams)/sizeof(int));\
+	errstring=Ice::Utils::TestParameters(testparams, _aiRefParams, sizeof(_aiRefParams)/sizeof(int));\
+}
+
+#define UTIL_REPORT_ERROR(errstring)\
+{\
+	if(errstring.size())\
+	{\
+		std::vector<Ice::ScriptParam> ret;\
+		ret.push_back(Ice::ScriptParam());\
+		ret.push_back(Ice::ScriptParam(errstring));\
+		return ret;\
+	}\
 }
 
 namespace Ice
@@ -31,11 +42,13 @@ namespace Ice
 		Sucht rekursiv in einem Verzeichnis nach einer Datei und liefert, wenn erfolgreich, den Pfad zurück.
 		*/
 		DllExport Ogre::String FindResourcePath(Ogre::String path, Ogre::String filename);
-
+		
+		DllExport std::string GetTypeName(int type);
 		DllExport std::string GetTypeName(ScriptParam param);
+		DllExport std::string GetMultiTypeName(int type);
 		DllExport std::string TestParameters(std::vector<ScriptParam> testparams, std::vector<ScriptParam> refparams, bool bAllowMore=false);
 		DllExport std::string TestParameters(std::vector<ScriptParam> testparams, std::string refParams, bool bAllowMore=false);
-		DllExport std::string TestParameters(std::vector<ScriptParam> testparams, const int* aiRefParams, int nParams);
+		DllExport std::string TestParameters(std::vector<ScriptParam> testparams, const int* aiRefParams, unsigned int nParams);
 
 		DllExport void LogParameterErrors(const Script& caller, Ogre::String msg, int line = -1);
 
