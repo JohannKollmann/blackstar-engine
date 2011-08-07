@@ -158,7 +158,7 @@
     <ClCompile Include="Source\IceDialog.cpp" />
     <ClCompile Include="Source\IceFollowPathway.cpp" />
     <ClCompile Include="Source\IceNavigationMesh.cpp" />
-    <ClCompile Include="Source\IceScriptedAIState.cpp" />
+    <ClCompile Include="Source\IceScriptedProcess.cpp" />
     <ClCompile Include="Source\IceSceneListener.cpp" />
     <ClCompile Include="Source\IceWeatherController.cpp" />
     <ClCompile Include="Source\IceCollisionCallback.cpp" />
@@ -202,6 +202,7 @@
     <ClCompile Include="Source\HDRListener.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Header\IceAIProcess.h" />
     <ClInclude Include="Header\IceProcessOwner.h" />
     <ClInclude Include="Header\IceDepthSchemeHandler.h" />
     <ClInclude Include="Header\IceGOCJoint.h" />
@@ -253,12 +254,11 @@
     <ClInclude Include="Header\IceTimerProcess.h" />
     <ClInclude Include="Header\IceUtils.h" />
     <ClInclude Include="Header\IceAIManager.h" />
-    <ClInclude Include="Header\IceAIProcess.h" />
     <ClInclude Include="Header\IceAStar.h" />
     <ClInclude Include="Header\IceDialog.h" />
     <ClInclude Include="Header\IceFollowPathway.h" />
     <ClInclude Include="Header\IceNavigationMesh.h" />
-    <ClInclude Include="Header\IceScriptedAIState.h" />
+    <ClInclude Include="Header\IceScriptedProcess.h" />
     <ClInclude Include="Header\HDRListener.h" />
     <ClInclude Include="Header\IceSceneListener.h" />
     <ClInclude Include="Header\IceWeatherController.h" />

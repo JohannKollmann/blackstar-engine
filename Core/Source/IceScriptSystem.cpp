@@ -182,8 +182,7 @@ namespace Ice
 		}
 	}
 
-	Script
-	ScriptSystem::CreateInstance(std::string strFileName, bool callCreate)
+	Script ScriptSystem::CreateInstance(std::string strFileName, bool callCreate)
 	{
 		return CreateInstance(strFileName, std::vector<ScriptParam>(), callCreate);
 	}

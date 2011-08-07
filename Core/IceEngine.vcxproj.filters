@@ -93,9 +93,6 @@
     <ClCompile Include="Source\IceNavigationMesh.cpp">
       <Filter>AI</Filter>
     </ClCompile>
-    <ClCompile Include="Source\IceScriptedAIState.cpp">
-      <Filter>AI</Filter>
-    </ClCompile>
     <ClCompile Include="Source\IceSceneListener.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
@@ -303,6 +300,9 @@
     <ClCompile Include="Source\IceProcessOwner.cpp">
       <Filter>ProcessNodeSystem</Filter>
     </ClCompile>
+    <ClCompile Include="Source\IceScriptedProcess.cpp">
+      <Filter>AI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header\IceMessageListener.h">
@@ -363,9 +363,6 @@
       <Filter>AI</Filter>
     </ClInclude>
     <ClInclude Include="Header\IceNavigationMesh.h">
-      <Filter>AI</Filter>
-    </ClInclude>
-    <ClInclude Include="Header\IceScriptedAIState.h">
       <Filter>AI</Filter>
     </ClInclude>
     <ClInclude Include="Header\HDRListener.h">
@@ -661,6 +658,9 @@
     </ClInclude>
     <ClInclude Include="Header\IceProcessOwner.h">
       <Filter>ProcessNodeSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceScriptedProcess.h">
+      <Filter>AI</Filter>
     </ClInclude>
     <ClInclude Include="Header\IceAIProcess.h">
       <Filter>AI</Filter>

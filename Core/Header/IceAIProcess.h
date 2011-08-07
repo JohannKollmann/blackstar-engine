@@ -22,11 +22,6 @@ namespace Ice
 		virtual ~AIProcess() {};
 
 		void SetAI(GOCAI *ai) { mAIObject = ai; };
-
-		virtual void ReceiveMessage(Msg &msg)
-		{
-			if (mIsActive) OnReceiveMessage(msg);
-		}
 	};
 
 };
