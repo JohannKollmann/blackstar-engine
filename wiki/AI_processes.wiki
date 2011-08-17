@@ -1,0 +1,37 @@
+#summary [Vorschlag] AI-Prozesse
+
+= AI =
+
+== Inputs ==
+
+Sinne:
+
+  * Hören
+  * Sehen
+  * riechen? (vllt cool wenn minen mit grubengas gefüllt sind und explodieren können oder einen betäuben)
+  * fühlen
+
+== Outputs ==
+
+  * gehen/rennen (mit wegfindung)
+  * sprache
+  * kopf-ausrichtung (maximale sinnesempfindlichkeit)
+  * symbolische handlungen (z.b. "hände hoch", wirkt wie sprachnachricht)
+  * kampf-animationen (mit kampfsystem zusammen)
+  * spezial-animationen (für quests etc.)
+
+== Allgemeine Eigenschaften des Systems ==
+
+  * reize sind räumlich und zeitlich (jedenfalls größtenteils) begrenzt, sozusagen "bubbles", lassen sich mit einfachen physik-shapes abbilden
+  * wenn ein reiz ausgelöst wird:
+    * (1) alle receiver in maximaler reichweite des reizes ermitteln, diese testen, ob sie den reiz empfangen können. dieses im zeitlichen abstand widerholen
+    * (2) eine bubble erzeugen und im raum "schweben" lassen. npcs checken regelmäßig ihre umgebung.
+  * (denke beide verfahren sind in etwa gleichwertig, aber ich würde verfahren (1) favorisieren)
+  * es sollte einen mechanismus geben, der es npcs ermöglicht, einen reiz als "akzeptiert" zu markieren, sodass er keine ressouren auf dem npc verschwendet
+
+== Umsetzung ==
+
+  * sobald eine handlung einen reiz auslösen soll, wird dem ai-system ort, ausdehnung, dauer, auslöser, id gemeldet. das system legt eine bubble an.
+  * goc-sense führt regelmäßige sweeps durch, unter berücksichtigung der aktuellen kopf-ausrichtung. die größe der sweep-shapes hängen von den eigenschaften des npcs ab (ein adler wird eine größere visual-shape haben als ein maulwurf).
+  * bubbles werden für den jeweiligen sense erstellt und erhalten eine id für den stimulus.
+  * npc-scripte bekommen nachrichten von goc-sense, können jeweiligen stimulus "akzeptieren" und damit in zukunft unterdrücken. stimuli werden für ein npc-script abonniert und goc-sense sucht nur danach.
