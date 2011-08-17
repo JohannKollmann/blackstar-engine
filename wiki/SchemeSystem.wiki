@@ -1,3 +1,5 @@
+#summary [Vorschlag] System für Prozess-Schemata (Prozess-Editor)
+
 = SchemeSystem =
   * Reiter im Edit
   * GOComponent GOCScheme
