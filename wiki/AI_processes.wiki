@@ -63,14 +63,7 @@ postSenseEvent(sense_id, event_id, data_id)
 
 === Erstellen von bubbles ===
 
-bubbles existieren unendlich lang, die tatsächlichen shapes in der physik-welt werden aus den hinterlegten daten erzeugt, daher ist es auch möglich gleichzeitig mehrere events mit derselben bubble laufen zu haben
-
-{{{
-bubble_id=createSphereBubble(object_id, radius)
-bubble_id=createBoxBubble(object_id, size_x, size_y, size_z)
-}}}
-
-für verschiebungen einfach child-nodes anlegen, so sind z.b. bone-attachments möglich
+Bubbles sind PhysX-Objekte mit einem speziellen Flag. Das Script erstellt dazu ganz regulär Objekte mit GOCRigidBody Komponente oder verwendet existierende.
 
 === Use-case eventdata ===
 
