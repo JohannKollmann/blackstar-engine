@@ -56,7 +56,9 @@ namespace Ice
 		PropertyTypes Get(void *target) const;
 
 		///Converts the saved data to a ScriptParam.
-		void GetAsScriptParam(std::vector<ScriptParam> &params) const;
+		//void GetAsScriptParam(std::vector<ScriptParam> &params) const;
+		
+		ScriptParam GetAsScriptParam();
 
 		//Load Save methods
 		void Save(LoadSave::SaveSystem& myManager);

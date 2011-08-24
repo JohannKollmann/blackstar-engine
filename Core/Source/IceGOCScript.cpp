@@ -52,9 +52,8 @@ namespace Ice
 		{
 			auto item = parameters->GetNext();
 			if (item.Key == "Script Filenames") continue;
-			std::vector<ScriptParam> vParams;
-			item.Data->GetAsScriptParam(vParams);
-			if (vParams.size() == 1) mScriptProperties[item.Key] = vParams[0];
+			ScriptParam parm=item.Data->GetAsScriptParam();
+			mScriptProperties[item.Key] = parm;
 		}
 	}
 	void GOCScript::GetParameters(DataMap *parameters)
@@ -102,14 +101,10 @@ namespace Ice
 		auto i = mObjectMsgCallbacks.find(msg.typeID);
 		if (i == mObjectMsgCallbacks.end()) return;
 
-		std::vector<ScriptParam> params;
-		while (msg.params.HasNext())
-		{
-			msg.params.GetNext().Data->GetAsScriptParam(params);
-		}
+		ScriptParam parm=Utils::DataMapToTable(Script(), msg.params);
 		for (unsigned int c = 0; c < i->second.size(); c++)
 		{
-			ScriptSystem::RunCallbackFunction(i->second[c], params);
+			ScriptSystem::RunCallbackFunction(i->second[c], std::vector<ScriptParam>(1, parm));
 		}
 	}
 

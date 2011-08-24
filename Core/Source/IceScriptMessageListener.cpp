@@ -1,6 +1,7 @@
 
 #include "IceScriptMessageListener.h"
 #include "IceScriptSystem.h"
+#include "IceUtils.h"
 
 namespace Ice
 {
@@ -19,12 +20,13 @@ namespace Ice
 
 	void ScriptMessageListener::ReceiveMessage(Msg &msg)
 	{
-		std::vector<ScriptParam> params;
+		/*std::vector<ScriptParam> params;
 		while (msg.params.HasNext())
 		{
 			msg.params.GetNext().Data->GetAsScriptParam(params);
-		}
-		ScriptSystem::RunCallbackFunction(mScriptCallback, params);
+		}*/
+		ScriptParam parm=Utils::DataMapToTable(Script(), msg.params);
+		ScriptSystem::RunCallbackFunction(mScriptCallback, std::vector<ScriptParam>(1, parm));
 	}
 
 }

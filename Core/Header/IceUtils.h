@@ -53,6 +53,16 @@ namespace Ice
 		DllExport void LogParameterErrors(const Script& caller, Ogre::String msg, int line = -1);
 
 		DllExport void ScriptParamsToDataMap(const Script& caller, const std::vector<ScriptParam> &params, DataMap* data, int param_start_index = 0);
+		
+		/**
+		 * converts a scriptparam with PARM_TYPE_TABLE to a datamap
+		 * the table needs to have string keys and supported values
+		 */
+		DllExport DataMap TableToDataMap(const Script& caller, const ScriptParam &param);
+		/**
+		 * converts a datamap to a scriptparam with PARM_TYPE_TABLE
+		 */
+		DllExport ScriptParam DataMapToTable(const Script& caller, DataMap &datamap);
 
 		DllExport Ogre::Quaternion ZDirToQuat(const Ogre::Vector3 &zDirNormalised, const Ogre::Vector3 &upVector = Ogre::Vector3::UNIT_Y);
 

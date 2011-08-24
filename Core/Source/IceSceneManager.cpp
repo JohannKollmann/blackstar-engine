@@ -660,17 +660,44 @@ namespace Ice
 		Ogre::String str = "";
 		for(unsigned int iArg=0; iArg<vParams.size(); iArg++)
 		{
-			if(vParams[iArg].getType()==ScriptParam::PARM_TYPE_STRING)
+			switch(vParams[iArg].getType())
+			{
+			case ScriptParam::PARM_TYPE_STRING:
 				str = str + vParams[iArg].getString().c_str();
-			else if(vParams[iArg].getType()==ScriptParam::PARM_TYPE_BOOL)
+				break;
+			case ScriptParam::PARM_TYPE_BOOL:
 				str = str + Ogre::StringConverter::toString(vParams[iArg].getBool());
-			else if(vParams[iArg].getType()==ScriptParam::PARM_TYPE_FLOAT)
+				break;
+			case ScriptParam::PARM_TYPE_FLOAT:
 			{
 				float val = static_cast<float>(vParams[iArg].getFloat());
 				str = str + Ogre::StringConverter::toString(val);
+				break;
 			}
-			else if(vParams[iArg].getType()==ScriptParam::PARM_TYPE_INT)
+			case ScriptParam::PARM_TYPE_INT:
 				str = str + Ogre::StringConverter::toString(vParams[iArg].getInt());
+				break;
+			case ScriptParam::PARM_TYPE_TABLE:
+			{
+				str = str + "{ ";
+				std::map<ScriptParam, ScriptParam> mTable=vParams[iArg].getTable();
+				for(std::map<ScriptParam, ScriptParam>::const_iterator it=mTable.begin(); it!=mTable.end();)
+				{
+					str = str + "[";
+					//stl-spam...
+					str = str + Lua_ConcatToString(caller, std::vector<ScriptParam>(1, it->first))[0].getString().c_str();
+					str = str + "]=";
+					str = str + Lua_ConcatToString(caller, std::vector<ScriptParam>(1, it->second))[0].getString().c_str();
+					it++;
+					if(it!=mTable.end())
+						str = str + ", ";
+				}
+				str = str + " }";
+				break;
+			}
+			default:
+				break;
+			}
 		}
 		SCRIPT_RETURNVALUE(str)
 	}

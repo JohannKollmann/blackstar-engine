@@ -106,26 +106,30 @@ LuaScript::GetArguments(lua_State* pState, int iStartIndex, Script& script)
 		{
 			std::string strFunctionName;
 			bool bFinished=false;
-			lua_pushnil(pState);  /* first key */
+			//iterate all global variables
+			
+			//required by lua
+			lua_pushnil(pState);
 			while(lua_next(pState, LUA_GLOBALSINDEX) != 0)
 			{
 				//function name is at -2, function at -1
+				//check if the iterated function is equal to the parameter.
+				//there is no way for lua to directly tell the name of the function
 				if(lua_equal(pState, -1, iParam))
 				{//found the function
 					vParams.push_back(ScriptParam(strFunctionName=std::string(lua_tostring(pState, -2)), script));
 					bFinished=true;
 					break;
 				}
-				//kill function. leaves fn name for further iteration.
+				//required by lua
 				lua_pop(pState, 1);
 			}
 			if(bFinished)
-			{
-				break;//the function is already in the args
-			}
+				//the function is already in the args
+				break;
 			else
 			{
-				//this must be a local function
+				//this must be a local (inline) function
 				//find a free name for the function
 				int iCounter=0;
 				std::stringstream strs;
@@ -140,10 +144,38 @@ LuaScript::GetArguments(lua_State* pState, int iStartIndex, Script& script)
 					lua_getglobal(pState, (std::string("_LuaScriptFunction") + strCounter).c_str());
 				}
 				lua_pop(pState, 1);
+				//create a global variable for this function
 				lua_pushvalue(pState, iParam);
 				lua_setglobal(pState, (std::string("_LuaScriptFunction") + strCounter).c_str());
 				vParams.push_back(ScriptParam(std::string("_LuaScriptFunction") + strCounter, script));
 			}
+			break;
+		}
+		case LUA_TTABLE:
+		{
+			//iterate the table
+			std::map<ScriptParam, ScriptParam> mTable;
+			//required by lua
+			lua_pushnil(pState);
+			while (lua_next(pState, iParam) != 0)
+			{
+				//key and value have been pushed onto the stack.
+				//simply recurse
+				//keep in mind, this can also lead to nested tables
+				std::vector<ScriptParam> keyvalue=GetArguments(pState, lua_gettop(pState)-1, script);
+				//check for error
+				if(keyvalue[0].getType()==ScriptParam::PARM_TYPE_NONE)
+				{//we produced an error
+					//error code is contained in the output of GetArguments
+					return keyvalue;
+				}
+				//no error occured
+				//key is at index 0, value at index 1
+				mTable.insert(std::make_pair(keyvalue[0], keyvalue[1]));
+				//required by lua
+				lua_pop(pState, 1);
+			}
+			vParams.push_back(ScriptParam(mTable));
 			break;
 		}
 		default:
@@ -164,6 +196,7 @@ LuaScript::GetArguments(lua_State* pState, int iStartIndex, Script& script)
 void
 LuaScript::PutArguments(lua_State *pState, std::vector<ScriptParam> params, Script& script,  Script* pShareCallInstanceHack)
 {
+	lua_checkstack(pState, params.size()*2);//make sure that the stack is sufficently big for the parameters
 	//push the parameters
 	for(unsigned int iParam=0; iParam<params.size(); iParam++)
 	{
@@ -213,6 +246,27 @@ LuaScript::PutArguments(lua_State *pState, std::vector<ScriptParam> params, Scri
 			lua_getglobal(pState, CLongCallHandler::GetInstance().TargetSet(iScriptID, targetscript.GetID(), strTargetFnName).c_str());
 			break;
 		}
+		case ScriptParam::PARM_TYPE_TABLE:
+		{
+			std::map<ScriptParam, ScriptParam> mTable=params[iParam].getTable();
+			//create anonymous table
+			lua_createtable(pState, mTable.size(),0);
+			for(std::map<ScriptParam, ScriptParam>::const_iterator it=mTable.begin(); it!=mTable.end(); it++)
+			{
+				//first push the key, then the value
+				std::vector<ScriptParam> vKeyValue(2);
+				vKeyValue[0]=it->first;
+				vKeyValue[1]=it->second;
+				//recurse to do so
+				PutArguments(pState, vKeyValue, script,  pShareCallInstanceHack);
+				//now that our arguments are pushed, we can use settable
+				//value is at -1, key at -2 and table at -3
+				lua_settable(pState, -3);
+				//lua erases both key and value from the stack, so the table is the top element now
+			}
+			break;
+		}
+		//kind of the 'default' case
 		case ScriptParam::PARM_TYPE_NONE:
 			lua_pushnil(pState);
 			break;

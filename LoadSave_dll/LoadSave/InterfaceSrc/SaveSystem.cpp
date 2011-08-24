@@ -20,7 +20,7 @@ void DoInit(CSaveManager* pSM)
 	}
 	while(++iAtom<atomMap.size());
 	pSM->DefineAtomSizes(aaiAtomSizes, atomMap.size());
-	delete aaiAtomSizes;
+	delete[] aaiAtomSizes;
 }
 
 SaveSystem::SaveSystem(std::string strBinaryFile, std::string strXMLFile)

@@ -68,6 +68,7 @@ namespace Ice
 		mfLastPos = 0;
 		JoinNewsgroup(GlobalMessageIDs::PHYSICS_SUBSTEP);
 	}
+	
 	void GOCMover::Init()
 	{
 		if (!mSplineObject)
@@ -79,6 +80,7 @@ namespace Ice
 		Reset();
 		if (mEnabled) Trigger();
 	}
+	
 	GOCMover::~GOCMover()
 	{
 		_destroyLookAtLine();
@@ -89,6 +91,7 @@ namespace Ice
 			Ice::Main::Instance().GetOgreSceneMgr()->destroyManualObject(mSplineObject);
 		}
 	}
+	
 	void GOCMover::OnSetParameters()
 	{
 		Init();
@@ -304,7 +307,7 @@ namespace Ice
 						{
 							//Send a message that a key passed.
 							Ice::Msg msg; msg.typeID = ObjectMessageIDs::MOVER_PASSING_KEY;
-							GameObjectPtr keyObj = GetKey(keyIndex);
+							GameObjectPtr keyObj = GetKey(keyIndex+1);
 							if (keyObj.get())
 							{
 								msg.params.AddOgreString("Keyname", keyObj->GetName());
@@ -523,7 +526,51 @@ namespace Ice
 		if (target.get()) owner->AddObjectReference(target, ObjectReference::PERSISTENT, ReferenceTypes::NORMALLOOKAT);
 		_updateLookAtLine();
 	}
-
+	
+	/**
+	scripting functions
+	*/
+	std::vector<ScriptParam>
+	GOCMover::AddKey(Script &caller, std::vector<ScriptParam> &params)
+	{
+		CreateKey(params[0].getInt());
+		return std::vector<ScriptParam>();
+	}
+	
+	std::vector<ScriptParam>
+	GOCMover::SetLookAtObject(Script &caller, std::vector<ScriptParam> &params)
+	{
+		SetLookAtObject(Ice::SceneManager::Instance().GetObjectByInternID(params[0].getInt()));
+		return std::vector<ScriptParam>();
+	}
+	
+	std::vector<ScriptParam>
+	GOCMover::SetNormalLookAtObject(Script &caller, std::vector<ScriptParam> &params)
+	{
+		SetNormalLookAtObject(Ice::SceneManager::Instance().GetObjectByInternID(params[0].getInt()));
+		return std::vector<ScriptParam>();
+	}
+	
+	std::vector<ScriptParam>
+	GOCMover::TriggerMover(Script &caller, std::vector<ScriptParam> &params)
+	{
+		Trigger();
+		return std::vector<ScriptParam>();
+	}
+	
+	std::vector<ScriptParam>
+	GOCMover::PauseMover(Script &caller, std::vector<ScriptParam> &params)
+	{
+		Pause();
+		return std::vector<ScriptParam>();
+	}
+	
+	std::vector<ScriptParam>
+	GOCMover::StopMover(Script &caller, std::vector<ScriptParam> &params) 	
+	{
+		Stop();
+		return std::vector<ScriptParam>();
+	}
 	/*void GOCMover::notifyKeyDelete(GOCAnimKey *key)
 	{
 		for (unsigned int i = 0; i < mAnimKeys.size(); i++)
