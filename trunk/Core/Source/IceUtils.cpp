@@ -263,6 +263,43 @@ namespace Ice
 		}
 	}
 
+	DataMap
+	Utils::TableToDataMap(const Script& caller, const ScriptParam &param)
+	{
+		if(param.getType()!=ScriptParam::PARM_TYPE_TABLE)
+		{
+			IceWarning("conversion to datamap requires a table as input!");
+			return DataMap();
+		}
+		std::map<ScriptParam, ScriptParam> mTable=param.getTable();
+		DataMap datamap;
+		GenericProperty prop;
+		for(std::map<ScriptParam, ScriptParam>::const_iterator it=mTable.begin(); it!=mTable.end(); it++)
+		{
+			//check if the key is a string
+			if(it->first.getType()!=ScriptParam::PARM_TYPE_STRING)
+			{
+				IceWarning("table keys have to be strings!");
+				return DataMap();
+			}
+			//convert value to generic property
+			prop.Set(it->second);
+			datamap.AddItem(it->first.getString(), prop);
+		}
+		return datamap;
+	}
+	
+	ScriptParam
+	Utils::DataMapToTable(const Script& caller, DataMap &datamap)
+	{
+		std::map<ScriptParam, ScriptParam> mTable;
+		while(datamap.HasNext())
+		{
+			DataMap::Item item=datamap.GetNext();
+			mTable[ScriptParam(item.Key)]=item.Data->GetAsScriptParam();
+		}
+		return ScriptParam(mTable);
+	}
 
 	Ogre::Quaternion Utils::ZDirToQuat(const Ogre::Vector3 &zDirNormalised, const Ogre::Vector3 &upVector)
 	{

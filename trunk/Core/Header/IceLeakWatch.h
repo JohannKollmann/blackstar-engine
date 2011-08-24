@@ -24,29 +24,11 @@ namespace Ice
 			return pPointer;
 		}
 
-		LeakWatch* setFile(std::string strFile)
-		{
-			m_strFile=strFile;
-			return this;
-		}
-		LeakWatch* setFunction(std::string strFunction)
-		{
-			m_strFunction=strFunction;
-			return this;
-		}
-		LeakWatch* setLine(int iLine)
-		{
-			m_iLine=iLine;
-			return this;
-		}
-		const void* getPointer(){return mPointer;}
-	
-		std::string getDesc()
-		{
-			std::stringstream out;
-			out << m_iLine;
-			return std::string("leak in ") + m_strFile + std::string(" @@ ") + m_strFunction + std::string(" l. ") + out.str();
-		}
+		LeakWatch* setFile(std::string strFile);
+		LeakWatch* setFunction(std::string strFunction);
+		LeakWatch* setLine(int iLine);
+		const void* getPointer();
+		std::string getDesc();
 	private:
 		void* mPointer;
 		std::string m_strFile, m_strFunction;
@@ -72,33 +54,13 @@ namespace Ice
 			delete pPointer;
 		}
 
-		LeakManager::~LeakManager()
-		{
-			/*for(std::map<void*, LeakWatch*>::iterator it=m_Pointers.begin(); it!=m_Pointers.end(); it++)
-			{
-				delete it->first;
-				delete it->second;
-			}*/
-		}
-	
+		LeakManager::~LeakManager();
 		static LeakManager& getInstance();
+		static LeakWatch* newWatch();
+
+		void addPointer(LeakWatch* pointer);
 	
-		void addPointer(LeakWatch* pointer)
-		{
-			m_Pointers[(void*)pointer->getPointer()]=pointer;
-		}
-	
-		static LeakWatch* newWatch(){return new LeakWatch;}
-	
-		std::vector<std::string> reportLeaks()
-		{
-			std::vector<std::string> leaks;
-			leaks.resize(m_Pointers.size());
-			int iLeak=0;
-			for(std::map<void*, LeakWatch*>::iterator it=m_Pointers.begin(); it!=m_Pointers.end(); it++)
-				leaks[iLeak++]=it->second->getDesc();
-			return leaks;
-		}
+		std::vector<std::string> reportLeaks();
 	
 	private:
 		std::map<void*, LeakWatch*> m_Pointers;

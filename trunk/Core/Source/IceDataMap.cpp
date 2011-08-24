@@ -1,6 +1,4 @@
-
 #include "IceDataMap.h"
-
 
 namespace Ice
 {
@@ -55,11 +53,60 @@ namespace Ice
 
 	void GenericProperty::Set(const ScriptParam &scriptParam)
 	{
-		if (scriptParam.getType() == ScriptParam::PARM_TYPE_BOOL) mData = scriptParam.getBool();
-		else if (scriptParam.getType() == ScriptParam::PARM_TYPE_FLOAT) mData = static_cast<float>(scriptParam.getFloat());
-		else if (scriptParam.getType() == ScriptParam::PARM_TYPE_INT) mData = scriptParam.getInt();
-		else if (scriptParam.getType() == ScriptParam::PARM_TYPE_STRING) mData = scriptParam.getString();
-		else IceWarning("Could not convert ScriptParam to GenericProperty!")
+		switch(scriptParam.getType())
+		{
+			case ScriptParam::PARM_TYPE_BOOL:
+				mData = scriptParam.getBool();
+				break;
+			case ScriptParam::PARM_TYPE_FLOAT:
+				mData = static_cast<float>(scriptParam.getFloat());
+				break;
+			case ScriptParam::PARM_TYPE_INT:
+				mData = scriptParam.getInt();
+				break;
+			case ScriptParam::PARM_TYPE_STRING:
+				mData = scriptParam.getString();
+				break;
+			//more tricky params: vectors
+			case ScriptParam::PARM_TYPE_TABLE:
+			{
+				std::map<ScriptParam, ScriptParam> mTable=scriptParam.getTable();
+				std::map<ScriptParam, ScriptParam>::const_iterator it;
+				float aCoords[4];
+				std::string aChars[4]={"x", "y", "z", "w"};
+				
+				int i=0;
+				for(; i<4; i++)
+				{
+					bool bFound=false;
+					if((it=mTable.find(ScriptParam(aChars[i])))!=mTable.end())
+						if(it->second.getType()==ScriptParam::PARM_TYPE_FLOAT)
+						{
+							aCoords[i]=it->second.getFloat();
+							bFound=true;
+						}
+					if(!bFound)
+						break;
+				}
+				bool bSetData=true;
+				switch(i)
+				{
+					case 3:
+						Set<Ogre::Vector3>(Ogre::Vector3(aCoords[0],aCoords[1],aCoords[2]));
+						break;
+					case 4:
+						Set<Ogre::Quaternion>(Ogre::Quaternion(aCoords[3],aCoords[0],aCoords[1],aCoords[2]));
+						break;
+					default:
+						bSetData=false;
+				}
+				if(bSetData)
+					break;
+				//else fall through
+			}
+			default:
+				IceWarning("Could not convert ScriptParam to GenericProperty!");
+		}
 	}
 
 	void GenericProperty::Save(LoadSave::SaveSystem& myManager)
@@ -148,32 +195,33 @@ namespace Ice
 	}
 
 
-	void GenericProperty::GetAsScriptParam(std::vector<ScriptParam> &params) const
+	ScriptParam GenericProperty::GetAsScriptParam()
 	{
 		int type = getType();
+		std::map<ScriptParam, ScriptParam> mTable;
 		switch (type)
 		{
 		case PropertyTypes::INT:
-			params.push_back(ScriptParam(Get<int>())); break;
+			return ScriptParam(Get<int>());
 		case PropertyTypes::BOOL:
-			params.push_back(ScriptParam(Get<bool>())); break;
+			return ScriptParam(Get<bool>());
 		case PropertyTypes::FLOAT:
-			params.push_back(ScriptParam(Get<float>())); break;
+			return ScriptParam(Get<float>());
 		case PropertyTypes::STRING:
-			params.push_back(ScriptParam(std::string(Get<Ogre::String>().c_str()))); break;
+			return ScriptParam(std::string(Get<Ogre::String>().c_str()));
 		case PropertyTypes::VECTOR3:
-			params.push_back(ScriptParam(Get<Ogre::Vector3>().x));
-			params.push_back(ScriptParam(Get<Ogre::Vector3>().y));
-			params.push_back(ScriptParam(Get<Ogre::Vector3>().z));
-			break;
+			mTable[ScriptParam(std::string("x"))]=ScriptParam(Get<Ogre::Vector3>().x);
+			mTable[ScriptParam(std::string("y"))]=ScriptParam(Get<Ogre::Vector3>().y);
+			mTable[ScriptParam(std::string("z"))]=ScriptParam(Get<Ogre::Vector3>().z);
+			return ScriptParam(mTable);
 		case PropertyTypes::QUATERNION:
-			params.push_back(ScriptParam(Get<Ogre::Quaternion>().w));
-			params.push_back(ScriptParam(Get<Ogre::Quaternion>().x));
-			params.push_back(ScriptParam(Get<Ogre::Quaternion>().y));
-			params.push_back(ScriptParam(Get<Ogre::Quaternion>().z));
-			break;
+			mTable[ScriptParam(std::string("w"))]=ScriptParam(Get<Ogre::Quaternion>().w);
+			mTable[ScriptParam(std::string("x"))]=ScriptParam(Get<Ogre::Quaternion>().x);
+			mTable[ScriptParam(std::string("y"))]=ScriptParam(Get<Ogre::Quaternion>().y);
+			mTable[ScriptParam(std::string("z"))]=ScriptParam(Get<Ogre::Quaternion>().z);
+			return ScriptParam(mTable);
 		case PropertyTypes::ENUM:
-			params.push_back(ScriptParam(static_cast<int>(Get<DataMap::Enum>().selection)));
+			return ScriptParam(static_cast<int>(Get<DataMap::Enum>().selection));
 			break;
 		}
 	}

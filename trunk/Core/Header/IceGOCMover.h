@@ -64,7 +64,7 @@ namespace Ice
 
 	private:
 		Ogre::String mKeyCallback;
-		bool mMoving;	//for intern use
+		bool mMoving;	//for internal use
 		bool mEnabled;	//for editor interface
 		bool mPerformingMovement;
 		bool mPaused;
@@ -140,12 +140,13 @@ namespace Ice
 		void SetOwner(std::weak_ptr<GameObject> go);
 
 		//Scripting
-		std::vector<ScriptParam> AddKey(Script &caller, std::vector<ScriptParam> &params) { CreateKey(params[0].getInt());  return std::vector<ScriptParam>(); };
-		std::vector<ScriptParam> SetLookAtObject(Script &caller, std::vector<ScriptParam> &params) { SetLookAtObject(Ice::SceneManager::Instance().GetObjectByInternID(params[0].getInt()));  return std::vector<ScriptParam>(); };
-		std::vector<ScriptParam> SetNormalLookAtObject(Script &caller, std::vector<ScriptParam> &params) { SetNormalLookAtObject(Ice::SceneManager::Instance().GetObjectByInternID(params[0].getInt()));  return std::vector<ScriptParam>(); };
-		std::vector<ScriptParam> TriggerMover(Script &caller, std::vector<ScriptParam> &params) { Trigger();  return std::vector<ScriptParam>(); };
-		std::vector<ScriptParam> PauseMover(Script &caller, std::vector<ScriptParam> &params) { Pause();  return std::vector<ScriptParam>(); };
-		std::vector<ScriptParam> StopMover(Script &caller, std::vector<ScriptParam> &params) { Stop();  return std::vector<ScriptParam>(); };
+		std::vector<ScriptParam> AddKey(Script &caller, std::vector<ScriptParam> &params);
+		std::vector<ScriptParam> SetLookAtObject(Script &caller, std::vector<ScriptParam> &params);
+		std::vector<ScriptParam> SetNormalLookAtObject(Script &caller, std::vector<ScriptParam> &params);
+		std::vector<ScriptParam> TriggerMover(Script &caller, std::vector<ScriptParam> &params);
+		std::vector<ScriptParam> PauseMover(Script &caller, std::vector<ScriptParam> &params);
+		std::vector<ScriptParam> StopMover(Script &caller, std::vector<ScriptParam> &params);
+		
 		DEFINE_TYPEDGOCLUAMETHOD(GOCMover, AddKey, "int")
 		DEFINE_TYPEDGOCLUAMETHOD(GOCMover, SetLookAtObject, "int")
 		DEFINE_TYPEDGOCLUAMETHOD(GOCMover, SetNormalLookAtObject, "int")
