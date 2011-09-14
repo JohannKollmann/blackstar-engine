@@ -423,6 +423,7 @@ namespace Ice
 	GameObjectPtr SceneManager::AddLevelMesh(Ogre::String meshname)
 	{
 		Ice::GameObjectPtr object = CreateGameObject();
+		//object->SetGlobalScale(Ogre::Vector3(0.1, 0.1, 0.1));	//test
 		object->AddComponent(Ice::GOComponentPtr(new Ice::GOCMeshRenderable(meshname, true)));
 		object->AddComponent(Ice::GOComponentPtr(new Ice::GOCStaticBody(meshname)));
 		object->SetSelectable(false);

@@ -8,7 +8,7 @@
 
 #define OGREPHYSX_CANMOVESTATICACTORS 1
 
-#define PX_SUPPORT_VISUAL_DEBUGGER		//remote debugger on
+#define PX_SUPPORT_VISUAL_DEBUGGER 1	//remote debugger on
 
 //forward declarations
 class PxDefaultAllocator;	

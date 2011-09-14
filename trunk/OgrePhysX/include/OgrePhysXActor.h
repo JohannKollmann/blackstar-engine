@@ -5,7 +5,10 @@
 namespace OgrePhysX
 {
 
-	///Helper class to keep code clean. Provides set/get position/orientation methods for Ogre on PxRigidActor.
+	/**
+	Helper class that wraps an PxRigidActor to keep code clean.
+	Provides set/get position/orientation methods that accept Ogre math types.
+	*/
 
 	template<class T>		//T extends PxRigidActor
 	class Actor
@@ -26,6 +29,13 @@ namespace OgrePhysX
 		T* getPxActor() const
 		{
 			return mActor;
+		}
+
+		PxShape* getFirstShape()
+		{
+			PxShape *shapes[1];
+			mActor->getShapes(shapes, 1);
+			return shapes[0];
 		}
 
 		void setGlobalPosition(const Ogre::Vector3 &position)

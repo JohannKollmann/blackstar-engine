@@ -77,15 +77,21 @@ namespace Ice
 	void GOCRigidBody::Freeze(bool freeze)
 	{
 		mIsFreezed = freeze;
-		if (!mActor.getPxActor()) return;
-		if (freeze)
+		if (!mActor.getPxActor()) return;		
+		mActor.getFirstShape()->setFlag(PxShapeFlag::eSIMULATION_SHAPE, !freeze);
+		mActor.getPxActor()->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, freeze);
+		if (!freeze)
 		{
-			mActor.getPxActor()->setRigidDynamicFlag(PxRigidDynamicFlag::eKINEMATIC, true);
+			mActor.getPxActor()->wakeUp();
 		}
-		else
-		{
-			mActor.getPxActor()->setRigidDynamicFlag(PxRigidDynamicFlag::eKINEMATIC, mIsKinematic);
-		}
+	}
+
+	void GOCRigidBody::UpdatePosition(Ogre::Vector3 position)
+	{
+		if (mActor.getPxActor()->getRigidDynamicFlags() & PxRigidDynamicFlag::eKINEMATIC)
+			mActor.getPxActor()->moveKinematic(PxTransform(OgrePhysX::toPx(position), mActor.getPxActor()->getGlobalPose().q));
+		else GOCPhysXActor::UpdatePosition(position);
+		//mActor.getPxActor()->wakeUp();
 	}
 
 	void GOCRigidBody::UpdateScale(Ogre::Vector3 scale)
