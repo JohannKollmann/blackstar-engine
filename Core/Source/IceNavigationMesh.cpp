@@ -1,17 +1,12 @@
 
 #include "IceNavigationMesh.h"
-#include "NXU_Streaming.h"
-#include "NXU_Streaming.cpp"
-#include "NXU_File.cpp"
-#include <NxShapeDesc.h> 
-#include <NxTriangleMeshShapeDesc.h> 
-#include <NxTriangleMeshShape.h>
 #include "IceGameObject.h"
 #include "IceAIManager.h"
 #include "IceMain.h"
 #include "IceGameObject.h"
 #include "IceGOCView.h"
 #include "IceGOCPhysics.h"
+#include "UserStream.h"
 
 namespace Ice
 {
@@ -189,7 +184,6 @@ namespace Ice
 		mNeedsUpdate = true;
 		mDestroyingNavMesh = false;
 		mPhysXActor = nullptr;
-		mPhysXMeshShape = nullptr;
 		mPathNodeTree = nullptr;
 		mDebugVisual = nullptr;
 		mConnectionLinesDebugVisual = nullptr;
@@ -213,7 +207,7 @@ namespace Ice
 	{
 		if (mPhysXActor)
 		{
-			Main::Instance().GetPhysXScene()->destroyActor(mPhysXActor);
+			Main::Instance().GetPhysXScene()->getPxScene()->removeActor(*mPhysXActor);
 			mPhysXActor = nullptr;
 		}
 		if (mPathNodeTree)
@@ -297,63 +291,63 @@ namespace Ice
 	{
 		if (mIndexBuffer.size() < 3) return;
 
-		NxArray<NxVec3> vertices(mVertexBuffer.size());
-		NxArray<NxU32> indices(mIndexBuffer.size() * 2);
-		int i = 0;
-		ITERATE(x, mVertexBuffer) vertices[i++] = OgrePhysX::Convert::toNx((*x));
-		i = 0;
-		for (int x = 0; x < ((int)mIndexBuffer.size())-2; x += 3)
+		PxTriangleMeshDesc desc;
+
+		desc.points.count = mVertexBuffer.size();
+		desc.points.stride = 12;
+		float *fVertices = new float[mVertexBuffer.size()*3];
+		for (unsigned int i = 0; i < mVertexBuffer.size(); ++i)
 		{
-			indices[i++] = mIndexBuffer[x];
-			indices[i++] = mIndexBuffer[x+1];
-			indices[i++] = mIndexBuffer[x+2];
-			indices[i++] = mIndexBuffer[x+2];	//Double sided
-			indices[i++] = mIndexBuffer[x+1];
-			indices[i++] = mIndexBuffer[x];
+			fVertices[i*3] = mVertexBuffer[i].x;
+			fVertices[i*3+1] = mVertexBuffer[i].y;
+			fVertices[i*3+2] = mVertexBuffer[i].z;
 		}
-
-		NxTriangleMeshDesc meshDesc;
-		meshDesc.numVertices                = vertices.size();
-		meshDesc.numTriangles               = indices.size() / 3;
-		meshDesc.materialIndexStride		= sizeof(NxMaterialIndex);
-		meshDesc.pointStrideBytes           = sizeof(NxVec3);
-		meshDesc.triangleStrideBytes        = 3 * sizeof(NxU32);
-		meshDesc.points = &vertices[0].x;
-		meshDesc.triangles = &indices[0];
-		meshDesc.materialIndices = 0;
-		meshDesc.flags = 0;
-
-		NXU::MemoryWriteBuffer stream;
-		OgrePhysX::World::getSingleton().getCookingInterface()->NxCookTriangleMesh(meshDesc, stream);
-		NxTriangleMesh *physXMesh = OgrePhysX::World::getSingleton().getSDK()->createTriangleMesh(NXU::MemoryReadBuffer(stream.data));
+		desc.points.data = fVertices;
 		
-		if (mPhysXActor) Main::Instance().GetPhysXScene()->destroyActor(mPhysXActor);
-		mPhysXActor = Main::Instance().GetPhysXScene()->createActor(OgrePhysX::CookedMeshShape(physXMesh).group(CollisionGroups::AI));
-		mPhysXMeshShape = (NxTriangleMeshShape*)mPhysXActor->getNxActor()->getShapes()[0];
+		desc.triangles.count = mIndexBuffer.size() / 3;
+		desc.triangles.stride = 12;
+		int *iIndices = new int[mIndexBuffer.size()];
+		for (unsigned int i = 0; i < mIndexBuffer.size(); ++i)
+			iIndices[i] = mIndexBuffer[i];
+		desc.triangles.data = iIndices;
+
+		PxToolkit::MemoryWriteBuffer stream;
+		OgrePhysX::World::getSingleton().getCookingInterface()->cookTriangleMesh(desc, stream);
+
+		delete fVertices;
+		delete iIndices;
+
+		mPhysXActor = OgrePhysX::getPxPhysics()->createRigidStatic(PxTransform());
+		mPhysXActor->createShape(PxTriangleMeshGeometry(OgrePhysX::getPxPhysics()->createTriangleMesh(PxToolkit::MemoryReadBuffer(stream.data))), OgrePhysX::World::getSingleton().getDefaultMaterial());
+	}
+
+	bool NavigationMesh::raycastClosest(const Ogre::Vector3 &origin, const Ogre::Vector3 &direction, float maxDist, PxRaycastHit &hit)
+	{
+		return (Ice::Main::Instance().GetPhysXScene()->getPxScene()->raycastSingle(OgrePhysX::Convert::toPx(origin),
+			OgrePhysX::Convert::toPx(direction),
+			maxDist,
+			PxSceneQueryFlag::eNORMAL,
+			hit));
 	}
 
 	bool NavigationMesh::borderTest(Ogre::Vector3 targetPoint, float size, float maxHeightDif)
 	{
 		targetPoint.y += maxHeightDif;
 		float rayDist = maxHeightDif*2;
-		OgrePhysX::Scene::QueryHit dummyQuery;
-		if (!Ice::Main::Instance().GetPhysXScene()->raycastClosestShape(dummyQuery, Ogre::Ray(targetPoint + Ogre::Vector3(size, 0, 0), Ogre::Vector3(0,-1,0)), NX_STATIC_SHAPES, 1<<CollisionGroups::AI, rayDist)) return false;
-		if (!Ice::Main::Instance().GetPhysXScene()->raycastClosestShape(dummyQuery, Ogre::Ray(targetPoint + Ogre::Vector3(-size, 0, 0), Ogre::Vector3(0,-1,0)), NX_STATIC_SHAPES, 1<<CollisionGroups::AI, rayDist)) return false;
-		if (!Ice::Main::Instance().GetPhysXScene()->raycastClosestShape(dummyQuery, Ogre::Ray(targetPoint + Ogre::Vector3(0, 0, size), Ogre::Vector3(0,-1,0)), NX_STATIC_SHAPES, 1<<CollisionGroups::AI, rayDist)) return false;
-		if (!Ice::Main::Instance().GetPhysXScene()->raycastClosestShape(dummyQuery, Ogre::Ray(targetPoint + Ogre::Vector3(0, 0, -size), Ogre::Vector3(0,-1,0)), NX_STATIC_SHAPES, 1<<CollisionGroups::AI, rayDist)) return false;
+		if (!raycastClosest(targetPoint + Ogre::Vector3(size, 0, 0), Ogre::Vector3(0,-1,0), rayDist)) return false;
+		if (!raycastClosest(targetPoint + Ogre::Vector3(-size, 0, 0), Ogre::Vector3(0,-1,0), rayDist)) return false;
+		if (!raycastClosest(targetPoint + Ogre::Vector3(0, 0, size), Ogre::Vector3(0,-1,0), rayDist)) return false;
+		if (!raycastClosest(targetPoint + Ogre::Vector3(0, 0, -size), Ogre::Vector3(0,-1,0), rayDist)) return false;
 		return true;
 	}
 
 	bool NavigationMesh::checkAgainstLevelMesh(Ogre::Vector3 targetPoint, float extent, float heightOffset)
 	{
 		//check if the node volume intersetcs with the levelmesh
-		Ogre::AxisAlignedBox testVolume = Ogre::AxisAlignedBox(targetPoint + Ogre::Vector3(-extent, heightOffset, -extent), 
-			targetPoint + Ogre::Vector3(extent, heightOffset+extent, extent));
-		if (Main::Instance().GetPhysXScene()->getNxScene()->checkOverlapAABB(OgrePhysX::Convert::toNx(testVolume), NX_STATIC_SHAPES, 1<<CollisionGroups::LEVELMESH))
-			return false;
-		testVolume = Ogre::AxisAlignedBox(targetPoint + Ogre::Vector3(-extent/2, heightOffset/2, -NODE_EXTENT/2), 
-			targetPoint + Ogre::Vector3(extent/2, heightOffset/2 + extent/2, extent/2));
-		if (Main::Instance().GetPhysXScene()->getNxScene()->checkOverlapAABB(OgrePhysX::Convert::toNx(testVolume), NX_STATIC_SHAPES, 1<<CollisionGroups::LEVELMESH))
+		targetPoint.y += heightOffset;
+		PxBoxGeometry testVolume(PxVec3(extent, extent, extent));
+		PxShape *hit;
+		if (Main::Instance().GetPhysXScene()->getPxScene()->overlapAny(testVolume, PxTransform(OgrePhysX::Convert::toPx(targetPoint)), hit))
 			return false;
 
 		return true;
@@ -391,19 +385,16 @@ namespace Ice
 
 	void NavigationMesh::rasterNodeRow(std::vector<AStarNode3D*> &result, Ogre::Vector3 rayOrigin, float subTest, float rayDist)
 	{
-		OgrePhysX::Scene::QueryHit query;
-		while (Ice::Main::Instance().GetPhysXScene()->raycastClosestShape(query, Ogre::Ray(rayOrigin, Ogre::Vector3(0,-1,0)), NX_STATIC_SHAPES, 1<<CollisionGroups::AI, rayDist))
+		PxRaycastHit hit;
+		while (raycastClosest(rayOrigin, Ogre::Vector3(0,-1,0), rayDist, hit))
 		{
-			AStarNode3D* node = rasterNode(query.point, subTest);
+			AStarNode3D* node = rasterNode(OgrePhysX::Convert::toOgre(hit.impact), subTest);
 			if (node)
 			{
 				mPathNodeTree->AddPathNode(node);
-				/*GameObject *go = ICE_NEW GameObject();
-				go->AddComponent(GOComponentPtr(new GOCMeshRenderable("sphere.25cm.mesh", false)));
-				go->SetGlobalPosition(node->GetGlobalPosition());*/
 				result.push_back(node);
 			}
-			rayOrigin.y = query.point.y - 1;
+			rayOrigin.y = hit.impact.y - 1;
 		}
 	}
 
@@ -433,17 +424,14 @@ namespace Ice
 			if ((*i)->IsBlocked()) return false;
 		}
 
-		OgrePhysX::Scene::QueryHit dummyQuery;
 		float rayDist = box.getMaximum().y - box.getMinimum().y;
 		for (float x = box.getMinimum().x; x < box.getMaximum().x; x += NODE_BORDER)
 		{
 			for (float z = box.getMinimum().z; z < box.getMaximum().z; z += NODE_BORDER)
 			{
-				if (!Ice::Main::Instance().GetPhysXScene()->raycastClosestShape(dummyQuery, Ogre::Ray(Ogre::Vector3(x, box.getMaximum().y, z), Ogre::Vector3(0, -1, 0)), NX_STATIC_SHAPES, 1<<CollisionGroups::AI, rayDist))
-					return false;
-				/*Ogre::AxisAlignedBox subBox(x, box.getMinimum().y, z, x+1.5f, box.getMaximum().y, z+1.0f);
-				if (!mPhysXMeshShape->checkOverlapAABB(OgrePhysX::Convert::toNx(subBox)))
-					return false;*/
+				if (raycastClosest(Ogre::Vector3(x, box.getMaximum().y, z),
+					Ogre::Vector3::NEGATIVE_UNIT_Y,
+					rayDist)) return false;
 			}
 		}
 		return true;
@@ -494,7 +482,9 @@ namespace Ice
 
 		//obstacle check
 		//stair sampling via raycasting
-		OgrePhysX::Scene::QueryHit dummyQuery;
+
+		PxRaycastHit hit;
+
 		Ogre::Vector3 rayOrigin = n1->GetGlobalPosition();
 		Ogre::Vector3 rayTarget = n2->GetGlobalPosition();
 		if (n2->GetGlobalPosition().y < n1->GetGlobalPosition().y)
@@ -517,15 +507,16 @@ namespace Ice
 				rayDir = (rayTarget - rayOrigin);
 				rayDir.y = 0;
 				rayDir.normalise();
-				if (Ice::Main::Instance().GetPhysXScene()->raycastClosestShape(dummyQuery, Ogre::Ray(rayOrigin, rayDir), NX_STATIC_SHAPES, 1<<CollisionGroups::LEVELMESH, rayDist))
+				
+				if (raycastClosest(rayOrigin, rayDir, rayDist))
 					return false;
-				if (!Ice::Main::Instance().GetPhysXScene()->raycastClosestShape(dummyQuery, Ogre::Ray(rayOrigin+(rayDir*rayDist), Ogre::Vector3::NEGATIVE_UNIT_Y), NX_STATIC_SHAPES, 1<<CollisionGroups::LEVELMESH, 2))
-					return false;	
-				rayOrigin = dummyQuery.point;
+
+				if (!raycastClosest(rayOrigin+(rayDir*rayDist), Ogre::Vector3(0, -1, 0), 2, hit))
+					return false;
+	
+				rayOrigin = OgrePhysX::Convert::toOgre(hit.impact);
 			}
 		}
-
-		//IceNote(Ogre::StringConverter::toString(rayDist))
 
 		if (!checkAgainstLevelMesh(mid, NODE_BORDER, ((NODE_BORDER*2)/NODE_DIST) * MAX_HEIGHT_DIST_BETWEEN_NODES)) return false;
 		mConnectionLinesDebugVisual->position(n1->GetGlobalPosition());
@@ -535,7 +526,7 @@ namespace Ice
 
 	void NavigationMesh::rasterNodes()
 	{
-		if (!mPhysXMeshShape) return;
+		if (!mPhysXMesh) return;
 
 		if (!mConnectionLinesDebugVisual) mConnectionLinesDebugVisual = Main::Instance().GetOgreSceneMgr()->createManualObject();
 		mConnectionLinesDebugVisual->begin("BlueLine", Ogre::RenderOperation::OT_LINE_LIST);
@@ -546,14 +537,13 @@ namespace Ice
 			mPathNodeTree = nullptr;
 		}
 
-		NxBounds3 aabb;
-		mPhysXMeshShape->getWorldBounds(aabb);
-		float maxX = (aabb.max.x > aabb.min.x) ? aabb.max.x : aabb.min.x;
-		float maxY = (aabb.max.y > aabb.min.y) ? aabb.max.y : aabb.min.y;
-		float maxZ = (aabb.max.z > aabb.min.z) ? aabb.max.z : aabb.min.z;
-		float minX = (aabb.max.x <= aabb.min.x) ? aabb.max.x : aabb.min.x;
-		float minY = (aabb.max.y <= aabb.min.y) ? aabb.max.y : aabb.min.y;
-		float minZ = (aabb.max.z <= aabb.min.z) ? aabb.max.z : aabb.min.z;
+		PxBounds3 aabb = mPhysXActor->getWorldBounds();
+		float maxX = (aabb.maximum.x > aabb.minimum.x) ? aabb.maximum.x : aabb.minimum.x;
+		float maxY = (aabb.maximum.y > aabb.minimum.y) ? aabb.maximum.y : aabb.minimum.y;
+		float maxZ = (aabb.maximum.z > aabb.minimum.z) ? aabb.maximum.z : aabb.minimum.z;
+		float minX = (aabb.maximum.x <= aabb.minimum.x) ? aabb.maximum.x : aabb.minimum.x;
+		float minY = (aabb.maximum.y <= aabb.minimum.y) ? aabb.maximum.y : aabb.minimum.y;
+		float minZ = (aabb.maximum.z <= aabb.minimum.z) ? aabb.maximum.z : aabb.minimum.z;
 		float castDist = (maxY - minY) + 0.2f;
 
 		Ogre::AxisAlignedBox oBox = OgrePhysX::Convert::toOgre(aabb);
@@ -611,21 +601,16 @@ namespace Ice
 		if (!mPathNodeTree) return;
 		if (msg.typeID == GlobalMessageIDs::ACTOR_ONSLEEP)
 		{
-			NxActor *a = (NxActor*)msg.rawData;
+			PxRigidActor *a = (PxRigidActor*)msg.rawData;
 			if (!a || a->getNbShapes() == 0) return;
-			//if (a->getGroup() != Ice::CollisionGroups::DEFAULT) return;
-			NxBounds3 nxBounds;
-			a->getShapes()[0]->getWorldBounds(nxBounds);
+			PxBounds3 nxBounds = a->getWorldBounds();
 			Ogre::AxisAlignedBox box = OgrePhysX::Convert::toOgre(nxBounds);
 			mPathNodeTree->InjectObstacle(a, box);
 		}
 		if (msg.typeID == GlobalMessageIDs::ACTOR_ONWAKE)
 		{
-			NxActor *a = (NxActor*)msg.rawData;
-			if (!a || a->getNbShapes() == 0) return;
-			//if (a->getGroup() != Ice::CollisionGroups::DEFAULT) return;
-			NxBounds3 nxBounds;
-			a->getShapes()[0]->getWorldBounds(nxBounds);
+			PxRigidActor *a = (PxRigidActor*)msg.rawData;
+			PxBounds3 nxBounds = a->getWorldBounds();
 			Ogre::AxisAlignedBox box = OgrePhysX::Convert::toOgre(nxBounds);
 			mPathNodeTree->RemoveObstacle(a, box);
 		}
@@ -656,8 +641,8 @@ namespace Ice
 		_cutBadPolys(meshInfo);
 		OgrePhysX::Cooker::getSingleton().mergeVertices(meshInfo);
 
-		mVertexBuffer.resize(mVertexBuffer.size() + meshInfo.numVertices);
-		mIndexBuffer.resize(mIndexBuffer.size() + meshInfo.numTriangles*3);
+		mVertexBuffer.resize(mVertexBuffer.size() + meshInfo.vertices.size());
+		mIndexBuffer.resize(mIndexBuffer.size() + meshInfo.indices.size());
 
 		Ogre::Vector3 position(0,0,0);
 		Ogre::Vector3 scale(1,1,1);
@@ -670,11 +655,11 @@ namespace Ice
 		}
 
 		unsigned int indexOffset = mVertexBuffer.size();
-		for (unsigned int i = 0; i < meshInfo.numVertices; i++)
+		for (unsigned int i = 0; i < meshInfo.vertices.size(); i++)
 		{
-			mVertexBuffer.push_back(position + (scale * (orientation * OgrePhysX::Convert::toOgre(meshInfo.vertices[i]))));
+			mVertexBuffer.push_back(position + (scale * (orientation * meshInfo.vertices[i])));
 		}
-		for (unsigned int i = 0; i < meshInfo.numTriangles*3; i++)
+		for (unsigned int i = 0; i < meshInfo.indices.size(); i++)
 		{
 			mIndexBuffer.push_back(meshInfo.indices[i]+indexOffset);
 		}
@@ -683,18 +668,18 @@ namespace Ice
 
 	void NavigationMesh::_cutBadPolys(OgrePhysX::Cooker::MeshInfo &meshInfo)
 	{
-		NxArray<bool> neededVertices;
-		neededVertices.resize(meshInfo.numVertices, false);
+		std::vector<bool> neededVertices;
+		neededVertices.resize(meshInfo.vertices.size(), false);
 
-		NxArray<NxVec3> newVertices(meshInfo.numVertices);
+		std::vector<Ogre::Vector3> newVertices(meshInfo.vertices.size());
 		unsigned int newVertexCount = 0;
-		NxArray<NxU32> newIndices(meshInfo.numTriangles*3);
+		std::vector<int> newIndices(meshInfo.indices.size());
 		unsigned int newTriCount = 0;
-		for (unsigned int i = 0; i < meshInfo.numTriangles*3; i+=3)
+		for (unsigned int i = 0; i < meshInfo.indices.size(); i+=3)
 		{
-			NxVec3 normal = (meshInfo.vertices[meshInfo.indices[i+1]]-meshInfo.vertices[meshInfo.indices[i]]).cross(meshInfo.vertices[meshInfo.indices[i+2]]-meshInfo.vertices[meshInfo.indices[i]]);
-			normal.normalize();
-			if (normal.dot(NxVec3(0,1,0)) > 0.75f)
+			Ogre::Vector3 normal = (meshInfo.vertices[meshInfo.indices[i+1]]-meshInfo.vertices[meshInfo.indices[i]]).crossProduct(meshInfo.vertices[meshInfo.indices[i+2]]-meshInfo.vertices[meshInfo.indices[i]]);
+			normal.normalise();
+			if (normal.dotProduct(Ogre::Vector3(0,1,0)) > 0.75f)
 			{
 				int indexOffset = newTriCount*3;
 				newIndices[indexOffset] = meshInfo.indices[i];		neededVertices[meshInfo.indices[i]] = true;
@@ -703,8 +688,8 @@ namespace Ice
 				newTriCount++;
 			}
 		}
-		NxArray<NxU32> finalIndices = newIndices;
-		for (unsigned int i = 0; i < meshInfo.numVertices; i++)
+		std::vector<int> finalIndices = newIndices;
+		for (unsigned int i = 0; i < meshInfo.vertices.size(); i++)
 		{
 			if (neededVertices[i])
 			{
@@ -717,9 +702,7 @@ namespace Ice
 					if (newIndices[x] >= i) finalIndices[x]--;
 			}
 		}
-		meshInfo.numVertices = newVertexCount;
 		meshInfo.vertices = newVertices;
-		meshInfo.numTriangles = newTriCount;
 		finalIndices.resize(newTriCount*3);
 		meshInfo.indices = finalIndices;
 	}

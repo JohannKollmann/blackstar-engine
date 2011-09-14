@@ -409,7 +409,7 @@ void wxMaterialEditor::EditMaterial(Ogre::MaterialPtr material, bool detect_temp
 		if (p->IsCategory()) continue;
 		if (p->GetName() == ("__MaterialProfile__"))
 		{
-			Ogre::String profileName = Ice::SceneManager::Instance().GetSoundMaterialTable().GetMaterialName(mCurrentMaterial->getName());
+			Ogre::String profileName = Ice::SceneManager::Instance().GetSoundMaterialTable().GetMaterialName(Ice::SceneManager::Instance().GetSoundMaterialTable().GetMaterialID(mCurrentMaterial->getName()));
 			auto matFind = mMaterialProfileEnumIds.find(profileName);
 			if (matFind != mMaterialProfileEnumIds.end())
 				p->SetValue(wxVariant(matFind->second));

@@ -102,7 +102,7 @@ namespace Ice
 		{
 			if (this != &rhs)
 			{
-				mItems = std::vector< std::shared_ptr<Item> >(rhs.mItems);
+				mItems = rhs.mItems;
 				mIterator = mItems.begin();
 			}
 			return *this;

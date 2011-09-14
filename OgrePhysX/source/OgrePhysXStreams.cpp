@@ -9,22 +9,22 @@ namespace OgrePhysX
 	}
 	OgreReadStream::~OgreReadStream() {}
 
-	NxU8 OgreReadStream::readByte() const
+	PxU8 OgreReadStream::readByte() const
 	{
-		NxU8 byte = 0;
-		mOgreDataStream->read(&byte, sizeof(NxU8));
+		PxU8 byte = 0;
+		mOgreDataStream->read(&byte, sizeof(PxU8));
 		return byte;
 	}
-	NxU16 OgreReadStream::readWord() const
+	PxU16 OgreReadStream::readWord() const
 	{
-		NxU16 word = 0;
-		mOgreDataStream->read(&word, sizeof(NxU16));
+		PxU16 word = 0;
+		mOgreDataStream->read(&word, sizeof(PxU16));
 		return word;
 	}
-	NxU32 OgreReadStream::readDword() const
+	PxU32 OgreReadStream::readDword() const
 	{
-		NxU32 dword = 0;
-		mOgreDataStream->read(&dword, sizeof(NxU32));
+		PxU32 dword = 0;
+		mOgreDataStream->read(&dword, sizeof(PxU32));
 		return dword;
 	}
 	float OgreReadStream::readFloat() const
@@ -39,7 +39,7 @@ namespace OgrePhysX
 		mOgreDataStream->read(&d, sizeof(double));
 		return d;
 	}
-	void OgreReadStream::readBuffer(void* buffer, NxU32 size) const
+	void OgreReadStream::readBuffer(void* buffer, PxU32 size) const
 	{
 		mOgreDataStream->read(buffer, size);
 	}

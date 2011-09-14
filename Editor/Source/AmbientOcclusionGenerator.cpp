@@ -31,11 +31,9 @@ void AmbientOcclusionGenerator::bakeAmbientOcclusion(Ogre::MeshPtr mesh, Ogre::S
 	wxEdit::Instance().GetAuiManager().Update();
 	//for (int i = 0; i < 1000; i++) wxEdit::Instance().GetProgressBar()->SetProgress(0.1f);	//Hack
 
-	//OgrePhysX::Actor *actor = Ice::Main::Instance().GetPhysXScene()->createActor(OgrePhysX::CookedMeshShape("Levelmesh_Orctown.mesh.nxs").group(Ice::CollisionGroups::TMP));
-	OgrePhysX::Actor *actor = Ice::Main::Instance().GetPhysXScene()->createActor(
-		OgrePhysX::RTMeshShape(mesh).backfaces(true).group(Ice::CollisionGroups::TMP));
+	OgrePhysX::Actor<PxRigidStatic> actor = Ice::Main::Instance().GetPhysXScene()->createRigidStatic(OgrePhysX::Geometry::triangleMeshGeometry(mesh, OgrePhysX::CookerParams().backfaces(true)));
 
-	OgrePhysX::World::getSingleton().startSimulate(0.1f);
+	OgrePhysX::World::getSingleton().simulate(0.1f);
 
 	wxEdit::Instance().GetProgressBar()->SetProgress(0.4f);
 
@@ -69,7 +67,7 @@ void AmbientOcclusionGenerator::bakeAmbientOcclusion(Ogre::MeshPtr mesh, Ogre::S
 	ms.exportMesh(aoMesh.getPointer(), outputFile);
 	Ogre::MeshManager::getSingleton().remove(aoMesh->getHandle());
 
-	Ice::Main::Instance().GetPhysXScene()->destroyActor(actor);
+	Ice::Main::Instance().GetPhysXScene()->removeActor(actor);
 	wxEdit::Instance().GetProgressBar()->Reset();
 }
 
@@ -215,9 +213,9 @@ float AmbientOcclusionGenerator::computeAO(Ogre::Vector3 position, Ogre::Vector3
 
 	for(float h=Ogre::Math::PI/4/c; h<Ogre::Math::PI/2; h+=Ogre::Math::PI/2/c)
 	{
- 		for(float v=0; v<2*Ogre::Math::PI; v+=Ogre::Math::PI/2/(c*Ogre::Math::Cos(h)))
- 		{
-  			Ogre::Vector3 castVector = Ogre::Vector3(Ogre::Math::Cos(h)*Ogre::Math::Sin(v),Ogre::Math::Sin(h),Ogre::Math::Cos(h)*Ogre::Math::Cos(v));
+		for(float v=0; v<2*Ogre::Math::PI; v+=Ogre::Math::PI/2/(c*Ogre::Math::Cos(h)))
+		{
+			Ogre::Vector3 castVector = Ogre::Vector3(Ogre::Math::Cos(h)*Ogre::Math::Sin(v),Ogre::Math::Sin(h),Ogre::Math::Cos(h)*Ogre::Math::Cos(v));
 			//Ice::Log::Instance().LogMessage(Ogre::StringConverter::toString(castVector));
 			castVector.normalise();
 			Ogre::Quaternion q = Ogre::Vector3::UNIT_Y.getRotationTo(normal);
@@ -231,10 +229,10 @@ float AmbientOcclusionGenerator::computeAO(Ogre::Vector3 position, Ogre::Vector3
 				continue;
 			}
 			//weight = 0.5f + 0.5f*weight;
-			if (test >= 0 && !Ice::Main::Instance().GetPhysXScene()->raycastAnyShape(ray, NX_STATIC_SHAPES, rayCollisionGroups, 20))//, 10))
+			if (test >= 0 && !Ice::Main::Instance().GetPhysXScene()->raycastAny(position + (castVector * 0.001f), castVector, 20))//, 10))
 				sum += 1*weight;
 			fNumSamples += 1*weight;
- 		}
+		}
 	}
 	if (fNumSamples < 1) fNumSamples = 1;
 	float avg = sum/fNumSamples;

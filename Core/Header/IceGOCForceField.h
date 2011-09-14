@@ -16,8 +16,6 @@ namespace Ice
 		Ogre::String mCollisionMeshName;
 		Ogre::Vector3 mForceDirection;
 		int mShapeType;
-		NxForceField *mForceField;
-		NxForceFieldLinearKernelDesc mFieldLinearKernelDesc;
 		float mForceMultiplier;
 		float mFalloff;
 		bool mActive;

@@ -4,7 +4,6 @@
 #include "IceIncludes.h"
 #include <list>
 #include "IceGOCWaypoint.h"
-#include "NxPhysics.h"
 #include "Ice3D.h"
 
 namespace Ice

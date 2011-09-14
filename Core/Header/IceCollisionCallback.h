@@ -5,38 +5,29 @@
 #include "IceScript.h"
 #include "IceMessageSystem.h"
 #include "IceIncludes.h"
+#include "PxPhysicsAPI.h"
 
 namespace Ice
 {
 
-	class DllExport ActorContactReport : public NxUserContactReport
+	class DllExport PhysXContactReport : public PxSimulationEventCallback
 	{
 	private:
+
 		void onMaterialContact(Ogre::String material1, Ogre::String material2, Ogre::Vector3 position, float force);
 
 	public:
-		ActorContactReport();
-		~ActorContactReport() {}
-		void onContactNotify(NxContactPair &pair, NxU32 events);
-	};
+		PhysXContactReport() {}
+		~PhysXContactReport() {}
 
-	class DllExport TriggerCallback : public OgrePhysX::TriggerReportListener
-	{
-	public:
-		TriggerCallback(void) {}
-		~TriggerCallback(void) {}
+		void onContact(PxContactPair &pair, PxU32 events);
 
-		void onEnter(NxActor &trigger, NxActor &other);
-		void onLeave(NxActor &trigger, NxActor &other);
-	};
+		void onSleep(PxActor** actors, PxU32 count);
+		void onWake(PxActor** actors, PxU32 count);
 
-	class DllExport PhysXUserCallback : public NxUserNotify
-	{
-        void onSleep(NxActor** actors, NxU32 count);
-		void onWake(NxActor** actors, NxU32 count);
+		void onTrigger(PxTriggerPair *pairs, PxU32 count);
 
-		bool onJointBreak(NxReal breakingImpulse, NxJoint& brokenJoint);
-
+		void onConstraintBreak(PxConstraintInfo *constraints, PxU32 count);
 	};
 
 };

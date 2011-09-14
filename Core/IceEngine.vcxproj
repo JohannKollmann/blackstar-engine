@@ -31,10 +31,12 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+    <Import Project="..\OgrePhysX\PhysXIncludes.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+    <Import Project="..\OgrePhysX\PhysXIncludes.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
@@ -52,7 +54,7 @@
     <ClCompile>
       <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>script\;..\..\Dependencies\OpenAL\include;..\..\Dependencies\OgreOggSound\include;..\..\Dependencies\Alut\include;..\Common\;..\..\Dependencies\Ogre3D\include\;..\..\Dependencies\Ogre3D\CEGUIRenderer\include\;..\..\Dependencies\Ogre3D\Dependencies\include;..\..\Dependencies\Caelum\include\;..\..\Dependencies\PhysX\SDKs\PhysXLoader\include;..\..\Dependencies\PhysX\SDKs\Physics\include;..\..\Dependencies\PhysX\SDKs\Foundation\include;..\..\Dependencies\PhysX\SDKs\Cooking\include;..\..\Dependencies\PhysX\SDKs\NxCharacter\include;..\..\Dependencies\PhysX\Tools\NxuStream2;Header\;..\LoadSave_dll\LoadSave\ExternalHeaders;../OgrePhysX/include/;..\..\Dependencies\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>script\;..\..\Dependencies\OpenAL\include;..\..\Dependencies\OgreOggSound\include;..\..\Dependencies\Alut\include;..\Common\;..\..\Dependencies\Ogre3D\include\;..\..\Dependencies\Ogre3D\CEGUIRenderer\include\;..\..\Dependencies\Ogre3D\Dependencies\include;..\..\Dependencies\Caelum\include\;Header\;..\LoadSave_dll\LoadSave\ExternalHeaders;../OgrePhysX/include/;..\..\Dependencies\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -63,9 +65,9 @@
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>OgreMain_d.lib;PhysXLoader.lib;PhysXCooking.lib;NxCharacter.lib;OgrePhysX_d.lib;ws2_32.lib;OgreOggSound_d.lib;caelum_d.lib;WinMM.lib;LoadSave_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OgreMain_d.lib;OgrePhysX_d.lib;ws2_32.lib;OgreOggSound_d.lib;caelum_d.lib;WinMM.lib;LoadSave_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(TargetName).dll</OutputFile>
-      <AdditionalLibraryDirectories>..\..\Dependencies\boost\lib\;..\..\Dependencies\OgreOggSound\lib\;..\..\Dependencies\Ogre3D\lib;..\..\Dependencies\Ogre3D\Dependencies\lib\Debug;..\..\Dependencies\PhysX\SDKs\lib\win32;..\..\Dependencies\wxWidgets\lib\vc_lib\;..\..\Dependencies\wxWidgets\wxthings\lib\;..\..\Dependencies\Caelum\lib\debug;..\..\Ogre3D\Dependencies\lib\Release\;..\..\lib\;..\..\Dependencies\Hydrax\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\Dependencies\boost\lib\;..\..\Dependencies\OgreOggSound\lib\;..\..\Dependencies\Ogre3D\lib;..\..\Dependencies\Ogre3D\Dependencies\lib\Debug;..\..\Dependencies\wxWidgets\lib\vc_lib\;..\..\Dependencies\wxWidgets\wxthings\lib\;..\..\Dependencies\Caelum\lib\debug;..\..\Ogre3D\Dependencies\lib\Release\;..\..\lib\;..\..\Dependencies\Hydrax\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(TargetDir)$(TargetName).pdb</ProgramDatabaseFile>
       <SubSystem>Console</SubSystem>
@@ -84,7 +86,7 @@
       <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
       <Optimization>MaxSpeed</Optimization>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>script\;..\..\Dependencies\OpenAL\include;..\..\Dependencies\Alut\include;..\Common\;..\..\Dependencies\Ogre3D\include\;..\..\Dependencies\Ogre3D\CEGUIRenderer\include\;..\..\Dependencies\Ogre3D\Dependencies\include;..\..\Dependencies\Caelum\include\;..\..\Dependencies\PhysX\SDKs\PhysXLoader\include;..\..\Dependencies\PhysX\SDKs\Physics\include;..\..\Dependencies\PhysX\SDKs\Foundation\include;..\..\Dependencies\PhysX\SDKs\Cooking\include;..\..\Dependencies\PhysX\Tools\NxuStream2;..\..\Dependencies\;..\..\Dependencies\PhysX\SDKs\NxCharacter\include;..\OgrePhysX\include;Header\;..\LoadSave_dll\LoadSave\ExternalHeaders;..\..\Dependencies\Hydrax\include;..\..\Dependencies\OgreOggSound\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>script\;..\..\Dependencies\OpenAL\include;..\..\Dependencies\Alut\include;..\Common\;..\..\Dependencies\Ogre3D\include\;..\..\Dependencies\Ogre3D\CEGUIRenderer\include\;..\..\Dependencies\Ogre3D\Dependencies\include;..\..\Dependencies\Caelum\include\;..\..\Dependencies\;..\OgrePhysX\include;Header\;..\LoadSave_dll\LoadSave\ExternalHeaders;..\..\Dependencies\Hydrax\include;..\..\Dependencies\OgreOggSound\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <PrecompiledHeader>
@@ -94,9 +96,9 @@
     </ClCompile>
     <Link>
       <RegisterOutput>false</RegisterOutput>
-      <AdditionalDependencies>OgreMain.lib;PhysXLoader.lib;PhysXCooking.lib;NxCharacter.lib;OgrePhysX.lib;ws2_32.lib;OgreOggSound.lib;caelum.lib;WinMM.lib;LoadSave.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OgreMain.lib;OgrePhysX.lib;ws2_32.lib;OgreOggSound.lib;caelum.lib;WinMM.lib;LoadSave.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(TargetName).dll</OutputFile>
-      <AdditionalLibraryDirectories>..\..\Dependencies\OgreOggSound\lib\;..\..\Dependencies\Ogre3D\lib;..\..\Dependencies\Ogre3D\Dependencies\lib\Release;..\..\Dependencies\PhysX\SDKs\lib\win32;..\..\Dependencies\Caelum\lib\release;..\..\Ogre3D\Dependencies\lib\Release\;..\..\lib\;..\..\Dependencies\Hydrax\lib;..\..\Dependencies\boost\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\Dependencies\OgreOggSound\lib\;..\..\Dependencies\Ogre3D\lib;..\..\Dependencies\Ogre3D\Dependencies\lib\Release;..\..\Dependencies\Caelum\lib\release;..\..\Ogre3D\Dependencies\lib\Release\;..\..\lib\;..\..\Dependencies\Hydrax\lib;..\..\Dependencies\boost\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <OptimizeReferences>false</OptimizeReferences>

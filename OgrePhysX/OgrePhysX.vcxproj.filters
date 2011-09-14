@@ -15,12 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="source\OgrePhysXActor.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="source\OgrePhysXContactReport.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="source\OgrePhysXCooker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -30,22 +24,19 @@
     <ClCompile Include="source\OgrePhysXRagdoll.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\OgrePhysXRenderedActor.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="source\OgrePhysXScene.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="source\OgrePhysXShapes.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\OgrePhysXStreams.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\OgrePhysXTriggerReport.cpp">
+    <ClCompile Include="source\OgrePhysXWorld.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\OgrePhysXWorld.cpp">
+    <ClCompile Include="source\UserStream.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\OgrePhysXRenderedActorBinding.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -53,13 +44,7 @@
     <ClInclude Include="include\OgrePhysX.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\OgrePhysXActor.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\OgrePhysXClasses.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\OgrePhysXContactReport.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\OgrePhysXConvert.h">
@@ -83,22 +68,25 @@
     <ClInclude Include="include\OgrePhysXRenderableBinding.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\OgrePhysXRenderedActor.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\OgrePhysXScene.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\OgrePhysXShapes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\OgrePhysXStreams.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\OgrePhysXTriggerReport.h">
+    <ClInclude Include="include\OgrePhysXWorld.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\OgrePhysXWorld.h">
+    <ClInclude Include="include\UserStream.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\OgrePhysXActor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\OgrePhysXGeometry.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\OgrePhysXRenderedActorBinding.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

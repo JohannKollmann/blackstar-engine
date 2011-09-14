@@ -27,6 +27,7 @@
 #include "IceDepthSchemeHandler.h"
 #include "IceMain.h"
 
+#include "PxVisualDebuggerExt.h"
 
 #define USE_REMOTEDEBUGGER 1
 
@@ -123,18 +124,18 @@ bool Main::Run(Ogre::RenderWindow *window, size_t OISInputWindow)
 
 void Main::CreateMainLoopThreads()
 {
-	MainLoopThread *physicsThread = new MainLoopThreadSender(new PhysicsThread());
+	MainLoopThread *physicsThread = new PhysicsThread();
 	physicsThread->SetFixedTimeStep(20);
 	AddMainLoopThread("Physics", physicsThread);
 
-	MainLoopThread *renderThread = new MainLoopThreadSender(new RenderThread());
+	MainLoopThread *renderThread = new RenderThread();
 	AddMainLoopThread("View", renderThread);
 
 	MainLoopThread *indyThread = new MainLoopThread(Ice::AccessPermissions::ACCESS_NONE);
 	indyThread->SetFixedTimeStep(40);
 	AddMainLoopThread("Independant", indyThread);
 
-	MainLoopThread *synchronized = new MainLoopThread(Ice::AccessPermissions::ACCESS_ALL);
+	MainLoopThread *synchronized = new SynchronisedThread();
 	synchronized->SetFixedTimeStep(40);
 	synchronized->SetSynchronized(true);
 	AddMainLoopThread("Synchronized", synchronized);
@@ -235,25 +236,18 @@ void Main::initScene()
 
 	//Start up OgrePhysX
 	OgrePhysX::World::getSingleton().init();
-#if USE_REMOTEDEBUGGER
-	OgrePhysX::World::getSingleton().getSDK()->getFoundationSDK().getRemoteDebugger()->connect("localhost", 5425);
-#endif
 
 	//Create Scene
-	NxSceneDesc desc;
-	desc.gravity = NxVec3(0, -9.81f, 0);
-	desc.simType = NX_SIMULATION_SW;
-	desc.userNotify = ICE_NEW PhysXUserCallback();
-	mPhysXScene = OgrePhysX::World::getSingleton().addScene("Main", desc);
-	OgrePhysX::World::getSingleton().getSDK()->setParameter(NxParameter::NX_BOUNCE_THRESHOLD, -1);
+	mPhysXScene = OgrePhysX::World::getSingleton().addScene("Main");
+	//OgrePhysX::World::getSingleton().getSDK()->setParameter(NxParameter::NX_BOUNCE_THRESHOLD, -1);
 	//OgrePhysX::World::getSingleton().getSDK()->setParameter(NxParameter::NX_ADAPTIVE_FORCE, 0.1f);
 	//OgrePhysX::World::getSingleton().getSDK()->setParameter(NxParameter::NX_CONTINUOUS_CD, 1);
 
 	//Ground
-	mPhysXScene->createActor(OgrePhysX::PlaneShape(Ogre::Vector3(0, 1, 0), -500));
+	//mPhysXScene->getPxScene()->addActor(OgrePhysX::getPxPhysics()->createRigidStatic(PxPlaneShape(OgrePhysX::PlaneShape(Ogre::Vector3(0, 1, 0), -500));
 
 	//Collision Callback
-	mPhysXScene->setTriggerReport(ICE_NEW TriggerCallback());
+	/*mPhysXScene->setTriggerReport(ICE_NEW TriggerCallback());
 
 	mPhysXScene->getNxScene()->setGroupCollisionFlag(CollisionGroups::CHARACTER, CollisionGroups::BONE, false);
 	mPhysXScene->getNxScene()->setGroupCollisionFlag(CollisionGroups::BONE, CollisionGroups::CHARACTER, false);
@@ -267,7 +261,7 @@ void Main::initScene()
 	mPhysXScene->getNxScene()->setGroupCollisionFlag(CollisionGroups::TRIGGER, CollisionGroups::AI, false);
 
 	mPhysXScene->getNxScene()->setActorGroupPairFlags(CollisionGroups::DEFAULT, CollisionGroups::DEFAULT, NX_NOTIFY_ON_START_TOUCH|NX_NOTIFY_FORCES);
-	mPhysXScene->getNxScene()->setActorGroupPairFlags(CollisionGroups::DEFAULT, CollisionGroups::LEVELMESH, NX_NOTIFY_ON_START_TOUCH|NX_NOTIFY_FORCES);
+	mPhysXScene->getNxScene()->setActorGroupPairFlags(CollisionGroups::DEFAULT, CollisionGroups::LEVELMESH, NX_NOTIFY_ON_START_TOUCH|NX_NOTIFY_FORCES);*/
 
 	mSceneMgr = mRoot->createSceneManager(Ogre::ST_GENERIC, "Esgaroth");
 	mCamera = mSceneMgr->createCamera("MainCamera");
@@ -280,6 +274,8 @@ void Main::initScene()
 	mCamera->setAspectRatio(Ogre::Real(mViewport->getActualWidth()) / Ogre::Real(mViewport->getActualHeight()));
 
 	mPreviewSceneMgr = mRoot->createSceneManager(Ogre::ST_GENERIC, "Esgaroth_Preview");
+
+	mPhysXScene->initVisualDebugger(mSceneMgr, VisibilityFlags::V_DEFAULT);
 
 	InitOgreResources();
 
@@ -321,8 +317,6 @@ void Main::initScene()
 	InitCompositor();
 
 	Ogre::MovableObject::setDefaultVisibilityFlags( Ice::VisibilityFlags::V_DEFAULT);
-	
-	mPhysXScene->getNxScene()->setUserContactReport(ICE_NEW ActorContactReport());
 
 	/*mCollisionCallback = ICE_NEW ScriptedCollisionCallback();
 	NxOgre::ActorGroup *dynamicbodies = mScene->createActorGroup("DynamicBody");
@@ -654,7 +648,7 @@ void Main::UninstallPlugin(Ogre::Plugin* plugin)
 void Main::LoadPlugin(const Ogre::String& pluginName)
 {
 	// Load plugin library
-    Ogre::DynLib* lib = Ogre::DynLibManager::getSingleton().load(pluginName);
+	Ogre::DynLib* lib = Ogre::DynLibManager::getSingleton().load(pluginName);
 	// Store for later unload
 	mPluginLibs.push_back(lib);
 
@@ -673,7 +667,7 @@ void Main::UnloadPlugin(const Ogre::String& pluginName)
 {
 	std::vector<Ogre::DynLib*>::iterator i;
 
-    for (i = mPluginLibs.begin(); i != mPluginLibs.end(); ++i)
+	for (i = mPluginLibs.begin(); i != mPluginLibs.end(); ++i)
 	{
 		if ((*i)->getName() == pluginName)
 		{

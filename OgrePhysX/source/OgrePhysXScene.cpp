@@ -2,137 +2,116 @@
 #include "OgrePhysXScene.h"
 #include "OgrePhysXWorld.h"
 #include "OgrePhysXRagdoll.h"
-#include "OgrePhysXContactReport.h"
-#include "OgrePhysXTriggerReport.h"
+#include "extensions/PxDefaultCpuDispatcher.h"
+#include "PxScene.h"
+#include "PxMaterial.h"
+#include "extensions/PxExtensionsAPI.h"
+#include "common/PxRenderBuffer.h" 
 
 namespace OgrePhysX
 {
 
 	Scene::Scene(void)
 	{
-		NxSceneDesc desc;
-		desc.gravity = NxVec3(0, -9.81f, 0);
-		desc.simType = NX_SIMULATION_SW;
+		mVisualDebuggerEnabled = false;
+		mDebugNode = nullptr;
+		PxSceneDesc desc(World::getSingleton().getSDK()->getTolerancesScale());
+		desc.gravity = PxVec3(0, -9.81f, 0);
+		desc.filterShader = &PxDefaultSimulationFilterShader;
 		create(desc);
 	}
-	Scene::Scene(NxSceneDesc &desc)
+	Scene::Scene(PxSceneDesc &desc)
 	{
+		mVisualDebuggerEnabled = false;
+		mDebugNode = nullptr;
 		create(desc);
 	}
 
 	Scene::~Scene(void)
 	{
-		if (!World::getSingleton().getSDK())
-			World::getSingleton().getSDK()->releaseScene(*mNxScene);
+		mPxScene->release();
 	}
 
-	void Scene::create(NxSceneDesc &desc)
+	void Scene::create(PxSceneDesc &desc)
 	{
+		desc.cpuDispatcher = PxDefaultCpuDispatcherCreate(4);
+		if(!desc.cpuDispatcher)
+		{
+			Ogre::LogManager::getSingleton().logMessage("PxDefaultCpuDispatcherCreate failed!");
+			return;
+		}
+
 		if (!World::getSingleton().getSDK())
 		{
 			Ogre::LogManager::getSingleton().logMessage("[OgrePhysX] Error: Cannot create scene because World is not initialised properly.");
 			return;
 		}
-		mNxScene = World::getSingleton().getSDK()->createScene(desc);
-		mNxScene->setTiming(1/80.0f, 12, NX_TIMESTEP_FIXED);
+		mPxScene = World::getSingleton().getSDK()->createScene(desc);
 		mTimeAccu = 0.0f;
 		mFrameTime = 1/80.0f;
 		mSimulationListener = nullptr;
-
-		NxMaterial* defaultMaterial = mNxScene->getMaterialFromIndex(0);
-		defaultMaterial->setRestitution(0.1f);
-		defaultMaterial->setStaticFriction(0.5f);
-		defaultMaterial->setDynamicFriction(0.5f);
 	}
 
-	void Scene::bindMaterial(Ogre::String matName, NxMaterialIndex physXMat)
+	Actor<PxRigidDynamic> Scene::createRigidDynamic(PxGeometry &geometry, float density, const Ogre::Vector3 &position, const Ogre::Quaternion &orientation)
 	{
-		std::map<Ogre::String, NxMaterialIndex>::iterator i  = mMaterialBindings.find(matName);
-		if (i != mMaterialBindings.end()) i->second = physXMat;
-		else 
-			mMaterialBindings.insert(std::make_pair<Ogre::String, NxMaterialIndex>(matName, physXMat));
+		return createRigidDynamic(geometry, density, World::getSingleton().getDefaultMaterial(), position, orientation);
 	}
-
-	NxMaterialIndex Scene::getMaterialBinding(Ogre::String matName)
+	Actor<PxRigidDynamic> Scene::createRigidDynamic(PxGeometry &geometry, float density, PxMaterial &material, const Ogre::Vector3 &position, const Ogre::Quaternion &orientation)
 	{
-		std::map<Ogre::String, NxMaterialIndex>::iterator i  = mMaterialBindings.find(matName);
-		if (i != mMaterialBindings.end()) return i->second;
-		return 0;
-	}
-
-	std::map<Ogre::String, NxMaterialIndex>& Scene::getMaterialBindings()
-	{
-		return mMaterialBindings;
-	}
-
-	Actor* Scene::createActor(PrimitiveShape& shape, Ogre::Vector3 position, Ogre::Quaternion orientation)
-	{
-		Actor *actor = new Actor(mNxScene, shape, position, orientation);
-		mActors.push_back(actor);
+		PxRigidDynamic *pxActor = PxCreateDynamic(*getPxPhysics(), PxTransform(toPx(position), toPx(orientation)), geometry, material, density);
+		pxActor->setActorFlag(PxActorFlag::eVISUALIZATION, true);
+		mPxScene->addActor(*pxActor);
+		Actor<PxRigidDynamic> actor(pxActor);
 		return actor;
 	}
-	RenderedActor* Scene::createRenderedActor(PointRenderable *pointRenderable, PrimitiveShape& shape, Ogre::Vector3 position, Ogre::Quaternion orientation)
+
+	Actor<PxRigidStatic> Scene::createRigidStatic(PxGeometry &geometry, const Ogre::Vector3 &position, const Ogre::Quaternion &orientation)
 	{
-		RenderedActor *actor = new RenderedActor(mNxScene, pointRenderable, shape, position, orientation);
-		mOgrePhysXBindings.push_back(actor);
+		return createRigidStatic(geometry, World::getSingleton().getDefaultMaterial(), position, orientation);
+	}
+	Actor<PxRigidStatic> Scene::createRigidStatic(PxGeometry &geometry, PxMaterial &material, const Ogre::Vector3 &position, const Ogre::Quaternion &orientation)
+	{
+		PxRigidStatic *pxActor = getPxPhysics()->createRigidStatic(PxTransform(toPx(position), toPx(orientation)));
+		pxActor->createShape(geometry, material);
+		pxActor->setActorFlag(PxActorFlag::eVISUALIZATION, true);
+		mPxScene->addActor(*pxActor);
+		Actor<PxRigidStatic> actor(pxActor);
 		return actor;
 	}
-	Actor* Scene::createActor(BaseMeshShape& shape, Ogre::Vector3 position, Ogre::Quaternion orientation)
+
+	void Scene::removeActor(PxActor *actor)
 	{
-		Actor *actor = new Actor(mNxScene, shape, position, orientation);
-		mActors.push_back(actor);
-		return actor;
+		mPxScene->removeActor(*actor);
 	}
-	RenderedActor* Scene::createRenderedActor(PointRenderable *pointRenderable, BaseMeshShape& shape, Ogre::Vector3 position, Ogre::Quaternion orientation)
+
+	RenderedActorBinding* Scene::createRenderedActorBinding(Actor<PxRigidDynamic> &actor, PointRenderable *pointRenderable)
 	{
-		RenderedActor *actor = new RenderedActor(mNxScene, pointRenderable, shape, position, orientation);
-		mOgrePhysXBindings.push_back(actor);
-		return actor;
+		return createRenderedActorBinding(actor.getPxActor(), pointRenderable);
 	}
-	void Scene::destroyActor(Actor* actor)
+	RenderedActorBinding* Scene::createRenderedActorBinding(PxRigidDynamic *actor, PointRenderable *pointRenderable)
 	{
-		for (std::list<Actor*>::iterator i = mActors.begin(); i != mActors.end(); i++)
-		{
-			if ((*i) == actor)
-			{
-				mActors.erase(i);
-				break;
-			}
-		}
-		delete actor;
+		RenderedActorBinding *renderedActor = new RenderedActorBinding(actor, pointRenderable);
+		mOgrePhysXBindings.push_back(renderedActor);
+		return renderedActor;
 	}
-	void Scene::destroyRenderedActor(RenderedActor* actor)
+	void Scene::destroyRenderableBinding(RenderableBinding* binding)
 	{
 		for (std::list<RenderableBinding*>::iterator i = mOgrePhysXBindings.begin(); i != mOgrePhysXBindings.end(); i++)
 		{
-			if ((*i) == actor)
+			if ((*i) == binding)
 			{
 				mOgrePhysXBindings.erase(i);
 				break;
 			}
 		}
-		delete actor;
+		delete binding;
 	}
 
-	void Scene::setContactReport(ContactReportListener *crl)
+	Ragdoll* Scene::createRagdollBinding(Ogre::Entity *entity, Ogre::SceneNode *node)
 	{
-		mNxScene->setUserContactReport(new ContactReport(crl));
-	}
-	void Scene::setTriggerReport(TriggerReportListener *trl)
-	{
-		mNxScene->setUserTriggerReport(new TriggerReport(trl));
-	}
-
-	Ragdoll* Scene::createRagdoll(Ogre::Entity *ent, Ogre::SceneNode *node, NxCollisionGroup boneCollisionGroup)
-	{
-		Ragdoll *rag = new Ragdoll(getNxScene(), ent, node, boneCollisionGroup);
-		mOgrePhysXBindings.push_back(rag);
-		return rag;
-	}
-	void Scene::destroyRagdoll(Ragdoll *rag)
-	{
-		mOgrePhysXBindings.remove(rag);
-		delete rag;
+		Ragdoll *ragdoll = new Ragdoll(getPxScene(), entity, node);
+		mOgrePhysXBindings.push_back(ragdoll);
+		return ragdoll;
 	}
 
 	void Scene::syncRenderables()
@@ -143,138 +122,9 @@ namespace OgrePhysX
 		}
 	}
 
-	bool Scene::raycastAnyBounds(const Ogre::Ray &ray, NxShapesType shapeTypes, NxU32 groups, NxReal maxDist, NxU32 hintFlags, const NxGroupsMask *groupsMask)
+	PxScene* Scene::getPxScene()
 	{
-		NxRay nRay(Convert::toNx(ray.getOrigin()), Convert::toNx(ray.getDirection()));
-		return mNxScene->raycastAnyBounds(nRay, shapeTypes, groups, maxDist, groupsMask);
-	}
-	bool Scene::raycastAnyShape(const Ogre::Ray &ray, NxShapesType shapeTypes, NxU32 groups, NxReal maxDist, NxU32 hintFlags, const NxGroupsMask *groupsMask)
-	{
-		NxRay nRay(Convert::toNx(ray.getOrigin()), Convert::toNx(ray.getDirection()));
-		return mNxScene->raycastAnyShape(nRay, shapeTypes, groups, maxDist, groupsMask);
-	}
-	bool Scene::raycastClosestBounds(QueryHit &result, const Ogre::Ray &ray, NxShapesType shapeTypes, NxU32 groups, NxReal maxDist, NxU32 hintFlags, const NxGroupsMask *groupsMask)
-	{
-		NxRay nRay(Convert::toNx(ray.getOrigin()), Convert::toNx(ray.getDirection()));
-		NxRaycastHit hit;
-		result.hitActor = nullptr;
-		NxShape *shape = mNxScene->raycastClosestBounds(nRay, shapeTypes, hit, groups, maxDist, hintFlags, groupsMask);
-		if (shape)
-		{
-			result.hitActor = &shape->getActor();
-			result.distance = hit.distance;
-			result.normal = Convert::toOgre(hit.worldNormal);
-			result.point = Convert::toOgre(hit.worldImpact);
-			return true;
-		}
-		return false;
-	}
-	bool Scene::raycastClosestShape(QueryHit &result, const Ogre::Ray &ray, NxShapesType shapeTypes, NxU32 groups, NxReal maxDist, NxU32 hintFlags, const NxGroupsMask *groupsMask)
-	{
-		NxRay nRay(Convert::toNx(ray.getOrigin()), Convert::toNx(ray.getDirection()));
-		NxRaycastHit hit;
-		result.hitActor = nullptr;
-		NxShape *shape = mNxScene->raycastClosestShape(nRay, shapeTypes, hit, groups, maxDist, hintFlags, groupsMask);
-		if (shape)
-		{
-			result.hitActor = &shape->getActor();
-			result.distance = hit.distance;
-			result.normal = Convert::toOgre(hit.worldNormal);
-			result.point = Convert::toOgre(hit.worldImpact);
-			return true;
-		}
-		return false;
-	}
-	void Scene::raycastAllBounds(std::vector<QueryHit> &result, const Ogre::Ray &ray, NxShapesType shapeTypes, NxU32 groups, NxReal maxDist, NxU32 hintFlags, const NxGroupsMask *groupsMask)
-	{
-		NxRay nRay(Convert::toNx(ray.getOrigin()), Convert::toNx(ray.getDirection()));
-		RaycastReport report(result);
-		mNxScene->raycastAllBounds(nRay, report, shapeTypes, groups, maxDist, hintFlags, groupsMask);
-	}
-	void Scene::raycastAllShapes(std::vector<QueryHit> &result, const Ogre::Ray &ray, NxShapesType shapeTypes, NxU32 groups, NxReal maxDist, NxU32 hintFlags, const NxGroupsMask *groupsMask)
-	{
-		NxRay nRay(Convert::toNx(ray.getOrigin()), Convert::toNx(ray.getDirection()));
-		RaycastReport report(result);
-		mNxScene->raycastAllShapes(nRay, report, shapeTypes, groups, maxDist, hintFlags, groupsMask);
-	}
-	bool Scene::RaycastReport::onHit(const NxRaycastHit &hit)
-	{
-		QueryHit sHit;
-		sHit.distance = hit.distance;
-		sHit.normal = Convert::toOgre(hit.worldNormal);
-		sHit.point = Convert::toOgre(hit.worldImpact);
-		sHit.hitActor = &hit.shape->getActor();
-		mReport->push_back(sHit);
-		return true;
-	}
-
-	NxForceField* Scene::createForceField(BoxShape &shape, NxForceFieldDesc &fieldDesc, NxForceFieldLinearKernelDesc &linearKernelDesc)
-	{
-		NxForceFieldLinearKernel* linearKernel = mNxScene->createForceFieldLinearKernel(linearKernelDesc);
-		fieldDesc.kernel = linearKernel;
-		NxForceField *forceField = mNxScene->createForceField(fieldDesc);
-
-		NxBoxForceFieldShapeDesc boxDesc;
-		NxBoxShapeDesc *desc = (NxBoxShapeDesc*)shape.getDesc();
-		boxDesc.dimensions = desc->dimensions;
-		boxDesc.pose = desc->localPose;
-		forceField->getIncludeShapeGroup().createShape(boxDesc);
-
-		return forceField;
-	}
-	NxForceField* Scene::createForceField(SphereShape &shape, NxForceFieldDesc &fieldDesc, NxForceFieldLinearKernelDesc &linearKernelDesc)
-	{
-		NxForceFieldLinearKernel* linearKernel = mNxScene->createForceFieldLinearKernel(linearKernelDesc);
-		fieldDesc.kernel = linearKernel;
-		NxForceField *forceField = mNxScene->createForceField(fieldDesc);
-
-		NxSphereForceFieldShapeDesc sphereDesc;
-		NxSphereShapeDesc *desc = (NxSphereShapeDesc*)shape.getDesc();
-		sphereDesc.radius = desc->radius;
-		sphereDesc.pose = desc->localPose;
-		forceField->getIncludeShapeGroup().createShape(sphereDesc);
-
-		return forceField;
-	}
-	NxForceField* Scene::createForceField(CapsuleShape &shape, NxForceFieldDesc &fieldDesc, NxForceFieldLinearKernelDesc &linearKernelDesc)
-	{
-		NxForceFieldLinearKernel* linearKernel = mNxScene->createForceFieldLinearKernel(linearKernelDesc);
-		fieldDesc.kernel = linearKernel;
-		NxForceField *forceField = mNxScene->createForceField(fieldDesc);
-
-		NxCapsuleForceFieldShapeDesc capsuleDesc;
-		NxCapsuleShapeDesc *desc = (NxCapsuleShapeDesc*)shape.getDesc();
-		capsuleDesc.radius = desc->radius;
-		capsuleDesc.height = desc->height;
-		capsuleDesc.pose = desc->localPose;
-		forceField->getIncludeShapeGroup().createShape(capsuleDesc);
-
-		return forceField;
-	}
-	NxForceField* Scene::createForceField(RTConvexMeshShape &shape, NxForceFieldDesc &fieldDesc, NxForceFieldLinearKernelDesc &linearKernelDesc)
-	{
-		NxForceFieldLinearKernel* linearKernel = mNxScene->createForceFieldLinearKernel(linearKernelDesc);
-		fieldDesc.kernel = linearKernel;
-		NxForceField *forceField = mNxScene->createForceField(fieldDesc);
-
-		NxConvexForceFieldShapeDesc convexDesc;
-		NxConvexShapeDesc *desc = (NxConvexShapeDesc*)shape.getDesc();
-		convexDesc.meshData = desc->meshData;
-		convexDesc.pose = desc->localPose;
-		forceField->getIncludeShapeGroup().createShape(convexDesc);
-
-		return forceField;
-	}
-	void Scene::destroyForcefield(NxForceField *forceField)
-	{
-		NxForceFieldLinearKernel *kernel = (NxForceFieldLinearKernel*)forceField->getForceFieldKernel();
-		mNxScene->releaseForceField(*forceField);
-		mNxScene->releaseForceFieldLinearKernel(*kernel);
-	}
-
-	NxScene* Scene::getNxScene()
-	{
-		return mNxScene;
+		return mPxScene;
 	}
 
 	void Scene::simulate(float time)
@@ -284,12 +134,171 @@ namespace OgrePhysX
 		while (mTimeAccu >= mFrameTime && numSubSteps < 12)
 		{
 			if (mSimulationListener) mSimulationListener->onBeginSimulate(mFrameTime);
-			mNxScene->simulate(mFrameTime);
+			mPxScene->simulate(mFrameTime);
 			if (mSimulationListener) mSimulationListener->onSimulate(mFrameTime);
-			mNxScene->flushStream();
-			mNxScene->fetchResults(NX_RIGID_BODY_FINISHED, true);
+			mPxScene->fetchResults(true);
 			mTimeAccu -= mFrameTime;
 			if (mSimulationListener) mSimulationListener->onEndSimulate(mFrameTime);
+		}
+	}
+
+	bool Scene::raycastClosest(const Ogre::Vector3 &origin, const Ogre::Vector3 &unitDir, float maxDistance, Scene::RaycastHit &outHit)
+	{
+		PxRaycastHit hit;
+		if (!mPxScene->raycastSingle(toPx(origin), toPx(unitDir), maxDistance, PxSceneQueryFlag::eIMPACT|PxSceneQueryFlag::eNORMAL|PxSceneQueryFlag::eDISTANCE, hit))
+			return false;
+		outHit.distance = hit.distance;
+		outHit.normal = toOgre(hit.normal);
+		outHit.position = toOgre(hit.impact);
+		outHit.hitActorUserData = hit.actor->userData;
+		return true;
+	}
+	bool Scene::raycastAny(const Ogre::Vector3 &origin, const Ogre::Vector3 &unitDir, float maxDistance)
+	{
+		PxRaycastHit hit;
+		return mPxScene->raycastAny(toPx(origin), toPx(unitDir), maxDistance, hit);
+	}
+
+	void Scene::initVisualDebugger(Ogre::SceneManager *sceneMgr, Ogre::uint32 debugGeometryVisibilityFlags, bool enabled)
+	{
+		mOgreSceneMgr = sceneMgr;
+		mVisualDebuggerVisibilityFlags = debugGeometryVisibilityFlags;
+
+		if (!mDebugNode)
+		{
+			mDebugNode = sceneMgr->getRootSceneNode()->createChildSceneNode();
+
+			//create debug line geometry
+			mDebugLines = sceneMgr->createManualObject();
+			mDebugLines->setCastShadows(false);
+			mDebugLines->setVisibilityFlags(mVisualDebuggerVisibilityFlags);
+			mDebugNode->attachObject(mDebugLines);
+
+			//create wire material if necessary
+			if (!Ogre::MaterialManager::getSingleton().resourceExists("OgrePhysXVisualDebugger_MeshMat"))
+			{
+				Ogre::MaterialPtr wireMat = Ogre::MaterialManager::getSingleton().create("OgrePhysXVisualDebugger_MeshMat", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+				wireMat->setAmbient(Ogre::ColourValue(0,0,1));
+				wireMat->setDiffuse(Ogre::ColourValue(0,0,1));
+				//wireMat->getTechnique(0)->getPass(0)->setPolygonMode(Ogre::PM_WIREFRAME);
+			}
+
+			//create mesh
+			mDebugMesh = Ogre::MeshManager::getSingleton().createManual("OgrePhysXVisualDebugger_Mesh", "General");
+			mDebugMesh->createSubMesh("main");
+
+			Ogre::VertexData* data = new Ogre::VertexData();
+			mDebugMesh->sharedVertexData = data;
+			data->vertexCount = 0;
+			Ogre::VertexDeclaration* decl = data->vertexDeclaration;
+			decl->addElement(0, 0, Ogre::VET_FLOAT3, Ogre::VES_POSITION);
+
+			mDebugMesh->getSubMesh(0)->indexData->indexStart = 0;
+			mDebugMesh->getSubMesh(0)->indexData->indexCount = 0;		
+			mDebugMesh->getSubMesh(0)->setMaterialName("OgrePhysXVisualDebugger_MeshMat");
+
+			Ogre::AxisAlignedBox bounds(Ogre::Vector3(-10000,-10000,-10000), Ogre::Vector3(10000,10000,10000));
+			mDebugMesh->_setBounds(bounds);
+
+			//create entity
+			mDebugMeshEntity = sceneMgr->createEntity("OgrePhysXDebugMeshEntity", "OgrePhysXVisualDebugger_Mesh");
+			mDebugMeshEntity->setCastShadows(false);
+			mDebugMeshEntity->setVisibilityFlags(mVisualDebuggerVisibilityFlags);
+
+			mDebugNode->attachObject(mDebugMeshEntity);
+		}
+
+		setVisualDebuggerEnabled(enabled);
+	}
+	void Scene::setVisualDebuggerEnabled(bool enabled)
+	{
+		mVisualDebuggerEnabled = enabled;
+
+		float factor = 0;
+		if (enabled) factor = 1.05f;
+		mPxScene->setVisualizationParameter(PxVisualizationParameter::eSCALE, factor);
+		mPxScene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_SHAPES, factor);
+	}
+
+	void Scene::renderDebugGeometry()
+	{
+		if (!mVisualDebuggerEnabled) return;
+
+		mPxScene->getRenderBuffer();
+
+		//update mesh
+		Ogre::VertexData* data = mDebugMesh->sharedVertexData;
+		Ogre::VertexDeclaration* decl = data->vertexDeclaration;
+
+		unsigned int numtriangles = mPxScene->getRenderBuffer().getNbTriangles();
+		unsigned int numIndices = mPxScene->getRenderBuffer().getNbTriangles()*3;
+		unsigned int numVertices = numIndices;
+
+		unsigned int numPoints = mPxScene->getRenderBuffer().getNbPoints();
+
+		unsigned int numLines = mPxScene->getRenderBuffer().getNbLines();
+
+		if (numLines > 0)
+		{
+			unsigned int numLineVertices = 0;
+			if (mDebugLines->getNumSections() == 1) numLineVertices = mDebugLines->getSection(0)->getRenderOperation()->vertexData->vertexCount;
+			if (numLines != numLineVertices / 2)
+			{
+				mDebugLines->clear();
+				mDebugLines->begin("OgrePhysXVisualDebugger_MeshMat", Ogre::RenderOperation::OT_LINE_LIST);
+				for (unsigned int i = 0; i < numLines; ++i)
+				{
+					mDebugLines->position(toOgre(mPxScene->getRenderBuffer().getLines()[i].pos0));
+					mDebugLines->position(toOgre(mPxScene->getRenderBuffer().getLines()[i].pos1));
+				}
+				mDebugLines->end();
+			}
+		}
+
+		if (numVertices > 0)
+		{
+			Ogre::HardwareVertexBufferSharedPtr vBuf;
+			if (data->vertexCount != numVertices)
+			{
+				Ogre::HardwareVertexBufferSharedPtr vBuf = Ogre::HardwareBufferManager::getSingleton().createVertexBuffer(
+				decl->getVertexSize(0), numVertices, Ogre::HardwareBuffer::HBU_STATIC_WRITE_ONLY);
+				Ogre::VertexBufferBinding* bind = data->vertexBufferBinding;
+				bind->setBinding(0, vBuf);
+			}
+			else vBuf = data->vertexBufferBinding->getBuffer(0);
+
+			data->vertexCount = mPxScene->getRenderBuffer().getNbPoints();
+
+			float* afVertexData=(float*)vBuf->lock(Ogre::HardwareBuffer::HBL_DISCARD);
+			unsigned int index = 0;
+			for (unsigned int i = 0; i < numtriangles; ++i)
+			{
+				PxVec3 pos0 = mPxScene->getRenderBuffer().getTriangles()[i].pos0;
+				PxVec3 pos1 = mPxScene->getRenderBuffer().getTriangles()[i].pos1;
+				PxVec3 pos2 = mPxScene->getRenderBuffer().getTriangles()[i].pos2;
+				afVertexData[index++] = pos0.x; afVertexData[index++] = pos0.y; afVertexData[index++] = pos0.z;
+				afVertexData[index++] = pos1.x; afVertexData[index++] = pos1.y; afVertexData[index++] = pos1.z;
+				afVertexData[index++] = pos2.x; afVertexData[index++] = pos2.y; afVertexData[index++] = pos2.z;
+			}
+			vBuf->unlock();
+
+			Ogre::HardwareIndexBufferSharedPtr iBuf;
+			if (mDebugMesh->getSubMesh(0)->indexData->indexCount != numIndices)
+			{
+				iBuf = Ogre::HardwareBufferManager::getSingleton().createIndexBuffer(
+					Ogre::HardwareIndexBuffer::IT_32BIT, numIndices, Ogre::HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
+				mDebugMesh->getSubMesh(0)->indexData->indexBuffer = iBuf;
+			}
+			else iBuf = mDebugMesh->getSubMesh(0)->indexData->indexBuffer;
+			mDebugMesh->getSubMesh(0)->indexData->indexCount = numIndices;
+
+			unsigned int* aiIndexBuf=(unsigned int*)iBuf->lock(Ogre::HardwareBuffer::HBL_DISCARD);
+			index = 0;
+			for (unsigned int i = 0; i < numIndices; ++i)
+			{
+				aiIndexBuf[i] = index++;
+			}
+			iBuf->unlock();
 		}
 	}
 

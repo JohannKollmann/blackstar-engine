@@ -10,6 +10,6 @@ namespace OgrePhysX
 	public:
 		virtual ~PointRenderable() {}
 
-		virtual void setTransform(Ogre::Vector3 position, Ogre::Quaternion rotation) = 0;
+		virtual void setTransform(Ogre::Vector3 &position, Ogre::Quaternion &rotation) = 0;
 	};
 }

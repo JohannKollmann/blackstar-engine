@@ -13,7 +13,7 @@
 namespace Ice
 {
 	/**
-	* Manages an infinite loop where it sends a specified message to a specified receiver.
+	* Runs an infinite loop. In every pass, the messages of a certain AccessPermissionID are processed.
 	* Can be used with boost::thread.
 	*/
 	class DllExport MainLoopThread
@@ -64,7 +64,6 @@ namespace Ice
 		class  DllExport MsgProcessingListener : public MessageSystem::ProcessingListener
 		{
 		public:
-			MessageListener *mMsgReceiver;
 			MainLoopThreadSender *mMainLoopThread;
 
 			void OnFinishSending(AccessPermissionID accessPermissionID);
@@ -73,16 +72,18 @@ namespace Ice
 
 		virtual void doLoop();
 
+		virtual void onDoLoop(float timeRel, float timeAbs) = 0;
+
 	public:
 
 		static const MsgTypeID FINISH_MESSAGEPROCESSING = 112358;
 
-		MainLoopThreadSender(MessageListener *msgReceiver) : MainLoopThread(msgReceiver->GetAccessPermissionID()) { mProcessingListener.mMainLoopThread = this; mProcessingListener.mMsgReceiver = msgReceiver; }
+		MainLoopThreadSender(AccessPermissionID accessPermissionID) : MainLoopThread(accessPermissionID) { mProcessingListener.mMainLoopThread = this; }
 		virtual ~MainLoopThreadSender() {}
 	};
 
 
-	class DllExport PhysicsThread : public PhysicsMessageListener
+	class DllExport PhysicsThread : public MainLoopThreadSender
 	{
 	private:
 		class DllExport PhysicsListener : public OgrePhysX::Scene::SimulationListener
@@ -95,12 +96,21 @@ namespace Ice
 
 	public:
 		PhysicsThread();
-		void ReceiveMessage(Msg &msg);
+
+		void onDoLoop(float timeRel, float timeAbs);
 	};
 
-	class DllExport RenderThread : public ViewMessageListener
+	class DllExport RenderThread : public MainLoopThreadSender
 	{
 	public:
-		void ReceiveMessage(Msg &msg);
+		RenderThread() : MainLoopThreadSender(AccessPermissions::ACCESS_VIEW) {}
+		void onDoLoop(float timeRel, float timeAbs);
+	};
+
+	class DllExport SynchronisedThread : public MainLoopThreadSender
+	{
+	public:
+		SynchronisedThread() : MainLoopThreadSender(AccessPermissions::ACCESS_ALL) {}
+		void onDoLoop(float timeRel, float timeAbs);
 	};
 };

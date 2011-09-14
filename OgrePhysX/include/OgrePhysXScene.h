@@ -1,10 +1,9 @@
 #pragma once
 
 #include "OgrePhysXClasses.h"
-#include "NxScene.h"
 #include "OgrePhysXRenderableBinding.h"
+#include "OgrePhysXRenderedActorBinding.h"
 #include "OgrePhysXActor.h"
-#include "OgrePhysXRenderedActor.h"
 
 namespace OgrePhysX
 {
@@ -23,120 +22,97 @@ namespace OgrePhysX
 		};
 
 	private:
-		NxScene *mNxScene;
+		PxScene *mPxScene;
+
+		Ogre::SceneManager *mOgreSceneMgr;
+		bool mVisualDebuggerEnabled;
+		Ogre::uint32 mVisualDebuggerVisibilityFlags;
+		Ogre::SceneNode *mDebugNode;
+		Ogre::MeshPtr mDebugMesh;
+		Ogre::Entity *mDebugMeshEntity;
+		Ogre::ManualObject *mDebugLines;
 
 		float mTimeAccu;
 		float mFrameTime;
 
 		std::list<RenderableBinding*> mOgrePhysXBindings;
 
-		std::list<Actor*> mActors;
-
 		SimulationListener *mSimulationListener;
 
-		std::map<Ogre::String, NxMaterialIndex> mMaterialBindings;
-
-		void create(NxSceneDesc &desc);
+		void create(PxSceneDesc &desc);
 		Scene(void);
-		Scene(NxSceneDesc &desc);
+		Scene(PxSceneDesc &desc);
 		~Scene(void);
 
 	public:
 		
-		NxScene* getNxScene();
+		PxScene* getPxScene();
 
-		/*
-		bindMaterial
-		Binds an ogre material to a PhysX material.
-		By default, all ogre materials are bound to the physX default material (0).
-		Setup your material binds BEFORE you cook meshes.
+		/**
+		Shortcut method. Creates a new rigid dynamic actor with a specified collision shape and adds it to the scene.
+		@return An Actor object wrapping the created PxActor.
 		*/
-		void bindMaterial(Ogre::String matName, NxMaterialIndex physXMat);
+		Actor<PxRigidDynamic> createRigidDynamic(PxGeometry &geometry, float density, const Ogre::Vector3 &position = Ogre::Vector3(0,0,0), const Ogre::Quaternion &orientation = Ogre::Quaternion());
+		Actor<PxRigidDynamic> createRigidDynamic(PxGeometry &geometry, float density, PxMaterial &material, const Ogre::Vector3 &position = Ogre::Vector3(0,0,0), const Ogre::Quaternion &orientation = Ogre::Quaternion());
 
-		/*
-		getMaterialBinding
-		returns the material index assigned to the Ogre material.
-		returns 0 by default.
+		/**
+		Shortcut method. Creates a new rigid static actor with a specified collision shape and adds it to the scene.
+		@return An Actor object wrapping the created PxActor.
 		*/
-		NxMaterialIndex getMaterialBinding(Ogre::String matName);
+		Actor<PxRigidStatic> createRigidStatic(PxGeometry &geometry, const Ogre::Vector3 &position = Ogre::Vector3(0,0,0), const Ogre::Quaternion &orientation = Ogre::Quaternion());
+		Actor<PxRigidStatic> createRigidStatic(PxGeometry &geometry, PxMaterial &material, const Ogre::Vector3 &position = Ogre::Vector3(0,0,0), const Ogre::Quaternion &orientation = Ogre::Quaternion());
 
-		/*
-		getMaterialBindings
-		return all material bindings.
+		///Shortcut method. Removes an actor from the scene.
+		template<class T>
+			void removeActor(Actor<T> &actor)
+			{
+				removeActor(actor.getPxActor());
+				actor.setPxActor(nullptr);
+			}
+
+		///Removes an from the scene.
+		void removeActor(PxActor *actor);
+
+		/**
+		Binds a PointRenderable to an actor.
 		*/
-		std::map<Ogre::String, NxMaterialIndex>& getMaterialBindings();
+		RenderedActorBinding* createRenderedActorBinding(Actor<PxRigidDynamic> &actor, PointRenderable *pointRenderable);
+		RenderedActorBinding* createRenderedActorBinding(PxRigidDynamic *actor, PointRenderable *pointRenderable);
 
-		/*
-		Creates an actor
+		/**
+		Binds an Ogre skeleton to a set of actors.
 		*/
-		Actor* createActor(PrimitiveShape& shape, Ogre::Vector3 position = Ogre::Vector3(0,0,0), Ogre::Quaternion orientation = Ogre::Quaternion());
-		Actor* createActor(BaseMeshShape& shape, Ogre::Vector3 position = Ogre::Vector3(0,0,0), Ogre::Quaternion orientation = Ogre::Quaternion());
+		Ragdoll* createRagdollBinding(Ogre::Entity *entity, Ogre::SceneNode *node);
 
-		/*
-		Creates an actor and binds a PointRenderable to it.
-		Example usage:
-		Ogre::SceneNode *node = ...
-		Ogre::Entity *ent = ...
-		node->attachObject(ent);
-		mScene->createRenderedActor(new NodeRenderable(node), PrimitiveShape::Box(ent).density(10));
+		/**
+		Destroys ONLY the renderable binding, not the physx actor.
 		*/
-		RenderedActor* createRenderedActor(PointRenderable *PointRenderable, PrimitiveShape& shape, Ogre::Vector3 position = Ogre::Vector3(0,0,0), Ogre::Quaternion orientation = Ogre::Quaternion());
-		RenderedActor* createRenderedActor(PointRenderable *PointRenderable, BaseMeshShape& shape, Ogre::Vector3 position = Ogre::Vector3(0,0,0), Ogre::Quaternion orientation = Ogre::Quaternion());
-
-		/*
-		Destroys an actor. 
-		*/
-		void destroyActor(Actor* actor);
-		void destroyRenderedActor(RenderedActor* actor);
-
-		void setContactReport(ContactReportListener *crl);
-		void setTriggerReport(TriggerReportListener *trl);
+		void destroyRenderableBinding(RenderableBinding* binding);
 
 		void setSimulationListener(SimulationListener *listener) { mSimulationListener = listener; }
-
-		/*
-		Experimental. Do not use this!
-		*/
-		Ragdoll* createRagdoll(Ogre::Entity *ent, Ogre::SceneNode *node, NxCollisionGroup boneCollisionGroup = 0);
-		void destroyRagdoll(Ragdoll *rag);
-
-		struct QueryHit
-		{
-			float distance;
-			NxActor *hitActor;
-			Ogre::Vector3 point;
-			Ogre::Vector3 normal;
-		};
-
-		//Raycasting - this is only basic wrapping, if you want full control use PhysX directly!
-		bool raycastAnyBounds(const Ogre::Ray &ray, NxShapesType shapeTypes = NX_ALL_SHAPES, NxU32 groups=0xffffffff, NxReal maxDist=NX_MAX_F32, NxU32 hintFlags=0xffffffff, const NxGroupsMask *groupsMask=0);
-		bool raycastAnyShape(const Ogre::Ray &ray, NxShapesType shapeTypes = NX_ALL_SHAPES, NxU32 groups=0xffffffff, NxReal maxDist=NX_MAX_F32, NxU32 hintFlags=0xffffffff, const NxGroupsMask *groupsMask=0);
-		bool raycastClosestBounds(QueryHit &result, const Ogre::Ray &ray, NxShapesType shapeTypes = NX_ALL_SHAPES, NxU32 groups=0xffffffff, NxReal maxDist=NX_MAX_F32, NxU32 hintFlags=0xffffffff, const NxGroupsMask *groupsMask=0);
-		bool raycastClosestShape(QueryHit &result, const Ogre::Ray &ray, NxShapesType shapeTypes = NX_ALL_SHAPES, NxU32 groups=0xffffffff, NxReal maxDist=NX_MAX_F32, NxU32 hintFlags=0xffffffff, const NxGroupsMask *groupsMask=0);
-		void raycastAllBounds(std::vector<QueryHit> &result, const Ogre::Ray &ray, NxShapesType shapeTypes = NX_ALL_SHAPES, NxU32 groups=0xffffffff, NxReal maxDist=NX_MAX_F32, NxU32 hintFlags=0xffffffff, const NxGroupsMask *groupsMask=0);
-		void raycastAllShapes(std::vector<QueryHit> &result, const Ogre::Ray &ray, NxShapesType shapeTypes = NX_ALL_SHAPES, NxU32 groups=0xffffffff, NxReal maxDist=NX_MAX_F32, NxU32 hintFlags=0xffffffff, const NxGroupsMask *groupsMask=0);
-		class RaycastReport : public NxUserRaycastReport
-		{
-		public:
-			std::vector<QueryHit> *mReport;
-			RaycastReport(std::vector<QueryHit> &report) : mReport(&report) {}
-			~RaycastReport() {}
-			bool onHit(const NxRaycastHit& hit);
-		};
-
-		//Forcefields - untested!
-		/*
-		Important note: You don't have to fill NxForceFieldDesc::kernel. This method does that for you.
-		*/
-		NxForceField* createForceField(BoxShape &shape, NxForceFieldDesc &fieldDesc, NxForceFieldLinearKernelDesc &linearKernelDesc);
-		NxForceField* createForceField(SphereShape &shape, NxForceFieldDesc &fieldDesc, NxForceFieldLinearKernelDesc &linearKernelDesc);
-		NxForceField* createForceField(CapsuleShape &shape, NxForceFieldDesc &fieldDesc, NxForceFieldLinearKernelDesc &linearKernelDesc);
-		NxForceField* createForceField(RTConvexMeshShape &shape, NxForceFieldDesc &fieldDesc, NxForceFieldLinearKernelDesc &linearKernelDesc);
-		void destroyForcefield(NxForceField *forceField);
 
 		void syncRenderables();
 
 		void simulate(float time);
+
+		struct RaycastHit
+		{
+			float distance;
+			Ogre::Vector3 position;
+			Ogre::Vector3 normal;
+			void *hitActorUserData;
+		};
+		/**
+		These methods only provide minimalistic functionality, for full power use PhysX directly.
+		@return true of the ray hit something, otherweise false.
+		*/
+		bool raycastClosest(const Ogre::Vector3 &origin, const Ogre::Vector3 &unitDir, float maxDistance, RaycastHit &outHit);
+		bool raycastAny(const Ogre::Vector3 &origin, const Ogre::Vector3 &unitDir, float maxDistance);
+
+		void initVisualDebugger(Ogre::SceneManager *sceneMgr, Ogre::uint32 debugGeometryVisibilityFlags, bool enabled = true);
+		void setVisualDebuggerEnabled(bool enabled);
+
+		void renderDebugGeometry();
 	};
 
 }

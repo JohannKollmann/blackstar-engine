@@ -88,7 +88,7 @@ void GOCPlayerInput::ReceiveMessage(Msg &msg)
 
 	if (msg.typeID == ObjectMessageIDs::CHARACTER_COLLISION)
 	{
-		NxU32 collisionFlags = msg.params.GetInt("collisionFlags");
+		int collisionFlags = msg.params.GetInt("collisionFlags");
 	}
 }
 

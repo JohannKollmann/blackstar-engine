@@ -30,10 +30,12 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+    <Import Project="..\OgrePhysX\PhysXIncludes.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+    <Import Project="..\OgrePhysX\PhysXIncludes.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
@@ -50,7 +52,7 @@
     <ClCompile>
       <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\Core\script;TinyXML;..\..\Dependencies\MeshMagick\include;..\..\Dependencies\wxWidgets\lib\vc_lib\mswud;..\..\Dependencies\wxWidgets\include\;..\LoadSave_dll\LoadSaveFrontend;..\..\Dependencies\OpenAL\include;..\..\Dependencies\OgreOggSound\include;..\..\Dependencies\Alut\include;..\Common\;..\..\Dependencies\Ogre3D\include\;..\..\Dependencies\Ogre3D\CEGUIRenderer\include\;..\..\Dependencies\Ogre3D\Dependencies\include;..\..\Dependencies\Caelum\include\;..\..\Dependencies\PhysX\SDKs\PhysXLoader\include;..\..\Dependencies\PhysX\SDKs\Physics\include;..\..\Dependencies\PhysX\SDKs\Foundation\include;..\..\Dependencies\PhysX\SDKs\Cooking\include;..\..\Dependencies\PhysX\SDKs\NxCharacter\include;..\OgrePhysX\include;..\Core\header\;..\LoadSave_dll\LoadSave\ExternalHeaders;Header;..\..\Dependencies\Hydrax\include\;..\..\Dependencies\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Core\script;TinyXML;..\..\Dependencies\MeshMagick\include;..\..\Dependencies\wxWidgets\lib\vc_lib\mswud;..\..\Dependencies\wxWidgets\include\;..\LoadSave_dll\LoadSaveFrontend;..\..\Dependencies\OpenAL\include;..\..\Dependencies\OgreOggSound\include;..\..\Dependencies\Alut\include;..\Common\;..\..\Dependencies\Ogre3D\include\;..\..\Dependencies\Ogre3D\CEGUIRenderer\include\;..\..\Dependencies\Ogre3D\Dependencies\include;..\..\Dependencies\Caelum\include\;..\OgrePhysX\include;..\Core\header\;..\LoadSave_dll\LoadSave\ExternalHeaders;Header;..\..\Dependencies\Hydrax\include\;..\..\Dependencies\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>__WXDEBUG__;__WXMSW__;_WINDOWS;_DEBUG;WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -61,9 +63,9 @@
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>OgreMain_d.lib;PhysXLoader.lib;PhysXCooking.lib;NxCharacter.lib;OgrePhysX_d.lib;ws2_32.lib;OgreOggSound_d.lib;caelum_d.lib;IceEngine_d.lib;LoadSave_d.lib;meshmagick_d.lib;wxmsw29ud_core.lib;wxbase29ud.lib;wxjpegd.lib;wxpngd.lib;wxzlibd.lib;wxexpatd.lib;winmm.lib;comctl32.lib;rpcrt4.lib;wsock32.lib;oleacc.lib;wxtiffd.lib;wxscintillad.lib;wxmsw29ud_adv.lib;wxmsw29ud_aui.lib;wxmsw29ud_stc.lib;wxmsw29ud_propgrid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OgreMain_d.lib;OgrePhysX_d.lib;ws2_32.lib;OgreOggSound_d.lib;caelum_d.lib;IceEngine_d.lib;LoadSave_d.lib;meshmagick_d.lib;wxmsw29ud_core.lib;wxbase29ud.lib;wxjpegd.lib;wxpngd.lib;wxzlibd.lib;wxexpatd.lib;winmm.lib;comctl32.lib;rpcrt4.lib;wsock32.lib;oleacc.lib;wxtiffd.lib;wxscintillad.lib;wxmsw29ud_adv.lib;wxmsw29ud_aui.lib;wxmsw29ud_stc.lib;wxmsw29ud_propgrid.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(TargetName).exe</OutputFile>
-      <AdditionalLibraryDirectories>..\..\Dependencies\boost\lib\;..\..\Dependencies\MeshMagick\lib;..\..\Dependencies\OgreOggSound\lib\;..\..\Dependencies\Ogre3D\lib;..\..\Dependencies\Ogre3D\Dependencies\lib\Debug;..\..\Dependencies\PhysX\SDKs\lib\win32;..\..\Dependencies\wxWidgets\lib\vc_lib\;..\..\Dependencies\Caelum\lib\debug;..\..\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\Dependencies\boost\lib\;..\..\Dependencies\MeshMagick\lib;..\..\Dependencies\OgreOggSound\lib\;..\..\Dependencies\Ogre3D\lib;..\..\Dependencies\Ogre3D\Dependencies\lib\Debug;..\..\Dependencies\wxWidgets\lib\vc_lib\;..\..\Dependencies\Caelum\lib\debug;..\..\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(TargetDir)$(TargetName).pdb</ProgramDatabaseFile>
       <SubSystem>Console</SubSystem>
@@ -82,7 +84,7 @@
     <ClCompile>
       <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
       <Optimization>MaxSpeed</Optimization>
-      <AdditionalIncludeDirectories>..\Core\script;TinyXML;..\..\Dependencies\MeshMagick\include;..\..\Dependencies\wxWidgets\lib\vc_lib\mswud;..\..\Dependencies\wxWidgets\include\;..\LoadSave_dll\LoadSaveFrontend;..\..\Dependencies\OpenAL\include;..\..\Dependencies\OgreOggSound\include;..\..\Dependencies\Alut\include;..\Common\;..\..\Dependencies\Ogre3D\include\;..\..\Dependencies\Ogre3D\CEGUIRenderer\include\;..\..\Dependencies\Ogre3D\Dependencies\include;..\..\Dependencies\Caelum\include\;..\..\Dependencies\PhysX\SDKs\PhysXLoader\include;..\..\Dependencies\PhysX\SDKs\Physics\include;..\..\Dependencies\PhysX\SDKs\Foundation\include;..\..\Dependencies\PhysX\SDKs\Cooking\include;..\..\Dependencies\PhysX\SDKs\NxCharacter\include;..\OgrePhysX\include;..\Core\header\;..\LoadSave_dll\LoadSave\ExternalHeaders;Header;..\..\Dependencies\Hydrax\include\;..\..\Dependencies\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Core\script;TinyXML;..\..\Dependencies\MeshMagick\include;..\..\Dependencies\wxWidgets\lib\vc_lib\mswud;..\..\Dependencies\wxWidgets\include\;..\LoadSave_dll\LoadSaveFrontend;..\..\Dependencies\OpenAL\include;..\..\Dependencies\OgreOggSound\include;..\..\Dependencies\Alut\include;..\Common\;..\..\Dependencies\Ogre3D\include\;..\..\Dependencies\Ogre3D\CEGUIRenderer\include\;..\..\Dependencies\Ogre3D\Dependencies\include;..\..\Dependencies\Caelum\include\;..\OgrePhysX\include;..\Core\header\;..\LoadSave_dll\LoadSave\ExternalHeaders;Header;..\..\Dependencies\Hydrax\include\;..\..\Dependencies\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <PrecompiledHeader>
@@ -92,9 +94,9 @@
     </ClCompile>
     <Link>
       <RegisterOutput>false</RegisterOutput>
-      <AdditionalDependencies>meshmagick.lib;OgreMain.lib;PhysXLoader.lib;PhysXCooking.lib;NxCharacter.lib;OgrePhysX.lib;ws2_32.lib;OgreOggSound.lib;caelum.lib;IceEngine.lib;LoadSave.lib;wxmsw29u_core.lib;wxbase29u.lib;wxjpeg.lib;wxpng.lib;wxzlib.lib;wxexpatd.lib;winmm.lib;comctl32.lib;rpcrt4.lib;wsock32.lib;oleacc.lib;wxtiff.lib;wxscintilla.lib;wxmsw29u_adv.lib;wxmsw29u_aui.lib;wxmsw29u_stc.lib;wxmsw29u_propgrid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>meshmagick.lib;OgreMain.lib;OgrePhysX.lib;ws2_32.lib;OgreOggSound.lib;caelum.lib;IceEngine.lib;LoadSave.lib;wxmsw29u_core.lib;wxbase29u.lib;wxjpeg.lib;wxpng.lib;wxzlib.lib;wxexpatd.lib;winmm.lib;comctl32.lib;rpcrt4.lib;wsock32.lib;oleacc.lib;wxtiff.lib;wxscintilla.lib;wxmsw29u_adv.lib;wxmsw29u_aui.lib;wxmsw29u_stc.lib;wxmsw29u_propgrid.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(TargetName).exe</OutputFile>
-      <AdditionalLibraryDirectories>..\..\Dependencies\MeshMagick\lib;..\..\Dependencies\boost\lib\;..\..\Dependencies\OgreOggSound\lib\;..\..\Dependencies\Ogre3D\lib;..\..\Dependencies\Ogre3D\Dependencies\lib\Release;..\..\Dependencies\PhysX\SDKs\lib\win32;..\..\Dependencies\wxWidgets\lib\vc_lib\;..\..\Dependencies\Caelum\lib\release;..\..\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\Dependencies\MeshMagick\lib;..\..\Dependencies\boost\lib\;..\..\Dependencies\OgreOggSound\lib\;..\..\Dependencies\Ogre3D\lib;..\..\Dependencies\Ogre3D\Dependencies\lib\Release;..\..\Dependencies\wxWidgets\lib\vc_lib\;..\..\Dependencies\Caelum\lib\release;..\..\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>false</OptimizeReferences>

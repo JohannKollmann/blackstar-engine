@@ -161,7 +161,6 @@ namespace Ice
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCStaticBody::Register);
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCTrigger::Register);
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCAnimatedCharacter::Register);
-		LoadSave::LoadSave::Instance().RegisterObject(&GOCAnimatedCharacterBone::Register);
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCCharacterController::Register);
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCPlayerInput::Register);
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCCameraController::Register);
@@ -191,7 +190,6 @@ namespace Ice
 		RegisterGOCPrototype("A", GOCEditorInterfacePtr(new GOCLocalLightRenderable()));
 		RegisterGOCPrototype("A", GOCEditorInterfacePtr(new GOCSound3D()));
 		RegisterGOCPrototype("A", GOCEditorInterfacePtr(new GOCAnimatedCharacter()));
-		RegisterGOCPrototype(GOCEditorInterfacePtr(new GOCAnimatedCharacterBone()));
 		RegisterGOCPrototype("A", GOCEditorInterfacePtr(new GOCBillboard()));
 
 		RegisterGOCPrototype("B_x", GOCEditorInterfacePtr(new GOCRigidBody()));
@@ -226,7 +224,7 @@ namespace Ice
 
 		/**
 		Joins a newsgroup.
-		Example usage: Listen(GlobalMessageIDs::UPDATE_PER_FRAME, myFunc)
+		Example usage: ReceiveGlobalMessage(GlobalMessageIDs::UPDATE_PER_FRAME, myFunc)
 		*/
 		ScriptSystem::GetInstance().ShareCFunction("ReceiveGlobalMessage", &ScriptSystem::Lua_JoinNewsgroup);
 
@@ -343,8 +341,8 @@ namespace Ice
 		ScriptSystem::GetInstance().ShareCFunction("Trigger_SetActive", &GOCTrigger::Lua_Trigger_SetActive);
 
 		//Physical Body
-		ScriptSystem::GetInstance().ShareCFunction("Body_GetSpeed", &GOCPhysics::Lua_Body_GetSpeed);
-		ScriptSystem::GetInstance().ShareCFunction("Body_AddImpulse", &GOCPhysics::Lua_Body_AddImpulse);
+		ScriptSystem::GetInstance().ShareCFunction("Body_GetSpeed", &GOCRigidBody::Lua_Body_GetSpeed);
+		ScriptSystem::GetInstance().ShareCFunction("Body_AddImpulse", &GOCRigidBody::Lua_Body_AddImpulse);
 
 		//Time get/set methods
 		ScriptSystem::GetInstance().ShareCFunction("GetGameTimeHour", &SceneManager::Lua_GetGameTimeHour);
@@ -877,27 +875,23 @@ namespace Ice
 
 	std::vector<ScriptParam> SceneManager::Lua_GetFocusObject(Script& caller, std::vector<ScriptParam> params)
 	{
-		OgrePhysX::Scene::QueryHit hit;
 		float maxDist = 5;
 		int id = -1;
 		Ogre::Vector3 origin = Main::Instance().GetCamera()->getDerivedPosition();
 		if (SceneManager::Instance().GetPlayer())
 			origin = SceneManager::Instance().GetPlayer()->GetGlobalPosition() + Ogre::Vector3(0, 2, 0);
 		Ogre::Vector3 dir = Main::Instance().GetCamera()->getDerivedDirection().normalisedCopy();
-		std::vector<OgrePhysX::Scene::QueryHit> query;
-		Main::Instance().GetPhysXScene()->raycastAllShapes(query, Ogre::Ray(origin, dir), NX_ALL_SHAPES, -1, maxDist);
-		float cdist = 10.0f;
-		for (std::vector<OgrePhysX::Scene::QueryHit>::iterator i = query.begin(); i != query.end(); i++)
+		PxRaycastHit buffer[10];
+		bool blockingHit;
+		PxU32 numHits = Main::Instance().GetPhysXScene()->getPxScene()->raycastMultiple(OgrePhysX::toPx(origin), OgrePhysX::toPx(dir), maxDist, PxSceneQueryFlag::eNORMAL, buffer, 10, blockingHit);
+		for (unsigned int i = 0; i < numHits; ++i)
 		{
-			if (i->hitActor->userData)
+			if (buffer[i].actor->userData)
 			{
-				GameObject *object = (GameObject*)i->hitActor->userData;
+				GameObject *object = (GameObject*)buffer[i].actor->userData;
 				if (object == SceneManager::Instance().GetPlayer().get()) continue;
-				if (i->distance < cdist)
-				{
-					cdist = i->distance;
-					id = object->GetID();
-				}
+				id = object->GetID();
+				break;
 			}
 		}
 
@@ -912,6 +906,7 @@ namespace Ice
 		std::vector<ScriptParam> ret;
 		std::vector<Ice::ScriptParam> vRef;
 		vRef.push_back(ScriptParam(std::string()));	//Name
+		vRef.push_back(ScriptParam(0.0f));	//index (TODO should not be specified by script)
 		std::string strErrString=Ice::Utils::TestParameters(vParams, vRef, true);
 		if (strErrString != "")
 		{
@@ -919,7 +914,7 @@ namespace Ice
 			ret.push_back(ScriptParam(0));
 			return ret;
 		}
-		NxMaterialDesc desc;
+		/*NxMaterialDesc desc;
 		desc.setToDefault();
 		desc.frictionCombineMode=NxCombineMode::NX_CM_AVERAGE;
 		NxMaterial* material = Main::Instance().GetPhysXScene()->getNxScene()->createMaterial(desc);
@@ -941,9 +936,8 @@ namespace Ice
 			material->setRestitution(vParams[1].getFloat());
 			material->setStaticFriction(vParams[2].getFloat());
 			material->setDynamicFriction(vParams[3].getFloat());
-		}
-		Instance().mSoundMaterialTable.AddMaterialProfile(vParams[0].getString().c_str(), material->getMaterialIndex());
-		ret.push_back(ScriptParam((int)material->getMaterialIndex()));
+		}*/
+		Instance().mSoundMaterialTable.AddMaterialProfile(vParams[0].getString().c_str(), vParams[0].getInt());
 		return ret;
 	}
 

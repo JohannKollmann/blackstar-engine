@@ -10,15 +10,14 @@ namespace Ice
 {
 	class DllExport SoundMaterialTable : public ViewMessageListener
 	{
-		typedef unsigned short NxMatID;
+	public:
+		typedef unsigned short MaterialIndex;
+
 	private:
-		std::map< Ogre::String, Ogre::String > mOgreBindings;
-		std::map< NxMatID, Ogre::String > mNxMatBinds;
-		std::map< Ogre::String, NxMatID > mMatNxBinds;
+		std::map< MaterialIndex, Ogre::String > mPxToMaterialProfiles;
+		std::map< Ogre::String, MaterialIndex > mMaterialProfilesToPx;
 
 	public:
-
-		std::map< Ogre::String, NxMatID > mOgreNxBinds;
 
 		SoundMaterialTable();
 		~SoundMaterialTable() {}
@@ -33,10 +32,9 @@ namespace Ice
 		void SetOgreBinding(Ogre::String ogreMat, Ogre::String mat);
 
 		std::vector<Ogre::String> GetMaterialProfiles();
-		void AddMaterialProfile(Ogre::String name, NxMatID matID);
+		void AddMaterialProfile(const Ogre::String &name, MaterialIndex matID);
 
-		NxMatID GetMaterialID(Ogre::String mat);
-		Ogre::String GetMaterialName(NxMatID id);
-		Ogre::String GetMaterialName(Ogre::String ogreMat);
+		MaterialIndex GetMaterialID(const Ogre::String &mat);
+		Ogre::String GetMaterialName(MaterialIndex id);
 	};
 }

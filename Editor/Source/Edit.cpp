@@ -10,7 +10,6 @@
 #include "IceGOCWaypoint.h"
 #include "IceGOCAnimatedCharacter.h"
 #include "OgrePhysX.h"
-#include "NxScene.h"
 #include "IceAIManager.h"
 #include "IceGOCMover.h"
 #include "IceGOCOgreNode.h"
@@ -921,9 +920,8 @@ Ice::GameObjectPtr Edit::InsertObject(Ice::GameObjectPtr parent, bool align, boo
 	object->ShowEditorVisuals(true);
 
 	//in case physics is turned off
-	Ice::Main::Instance().GetPhysXScene()->getNxScene()->simulate(0);
-	Ice::Main::Instance().GetPhysXScene()->getNxScene()->flushStream();
-	Ice::Main::Instance().GetPhysXScene()->getNxScene()->fetchResults(NX_RIGID_BODY_FINISHED, true);
+	Ice::Main::Instance().GetPhysXScene()->getPxScene()->simulate(0);
+	Ice::Main::Instance().GetPhysXScene()->getPxScene()->fetchResults(true);
 
 	RESUME_MAINLOOP
 
@@ -1334,24 +1332,12 @@ void Edit::DeselectAllObjects()
 void Edit::AlignObjectWithMesh(const Ice::GameObjectPtr &object, bool rotate)
 {
 	Ogre::Ray mouseRay = Ice::Main::Instance().GetCamera()->getCameraToViewportRay(mMousePosition.x, mMousePosition.y);
-	OgrePhysX::Scene::QueryHit report;
-	std::vector<OgrePhysX::Scene::QueryHit> lReport;
-	bool found = false;
-	float shortest = 999999;
-	Ice::Main::Instance().GetPhysXScene()->raycastAllShapes(lReport, mouseRay);
-	for (std::vector<OgrePhysX::Scene::QueryHit>::iterator i = lReport.begin(); i != lReport.end(); i++)
+
+	OgrePhysX::Scene::RaycastHit rayHit;
+	if (Ice::Main::Instance().GetPhysXScene()->raycastClosest(mouseRay.getOrigin(), mouseRay.getDirection(), 100, rayHit))
 	{
-		if ((*i).hitActor->userData != object.get() && i->distance < shortest)
-		{
-			report = *i;
-			found = true;
-			shortest = i->distance;
-		}
-	}
-  	if (found)
-	{
-		Ogre::Vector3 position = report.point;
-		Ogre::Vector3 normal = report.normal;
+		Ogre::Vector3 position = rayHit.position;
+		Ogre::Vector3 normal = rayHit.normal;
 		if (rotate)
 		{
 			object->Rotate(Ogre::Vector3::UNIT_X, Ogre::Radian(Ogre::Degree(normal.z * 90)));
@@ -1367,7 +1353,7 @@ void Edit::AlignObjectWithMesh(const Ice::GameObjectPtr &object, bool rotate)
 		{
 			if (visuals->GetNode()->getAttachedObject(0))
 			{
-  				offset = ((visuals->GetNode()->getScale() * visuals->GetNode()->getAttachedObject(0)->getBoundingBox().getSize()) * 0.475f) * normal;
+				offset = ((visuals->GetNode()->getScale() * visuals->GetNode()->getAttachedObject(0)->getBoundingBox().getSize()) * 0.475f) * normal;
 			}
 			else offset = (visuals->GetNode()->getScale() * 0.5f) * normal;//object->GetVisual()->getBoundingBox().getSize()
 		}
@@ -1523,23 +1509,23 @@ void Edit::OnComputeAO( wxCommandEvent& WXUNUSED(event) /*= wxCommandEvent()*/ )
 	if (mSelectedObjects.size() < 1) return;
 	Ice::GOCMeshRenderable *mesh = mSelectedObjects.front().mObject->GetComponent<Ice::GOCMeshRenderable>();
 	IceAssert(mesh);
-    wxFileDialog dialog
-                 (
-                    this,
-                    "Save Mesh",
-                    wxEmptyString,
-                    wxEmptyString,
-                    "Ogre Mesh files (*.mesh)|*.mesh",
+	wxFileDialog dialog
+				 (
+					this,
+					"Save Mesh",
+					wxEmptyString,
+					wxEmptyString,
+					"Ogre Mesh files (*.mesh)|*.mesh",
 					wxFD_SAVE|wxFD_OVERWRITE_PROMPT
-                 );
+				 );
 
-    dialog.CentreOnParent();
+	dialog.CentreOnParent();
 	dialog.SetPath("Data/Media/Meshes/");
 
 	dialog.SetFilterIndex(1);
 
-    if (dialog.ShowModal() == wxID_OK)
-    {
+	if (dialog.ShowModal() == wxID_OK)
+	{
 		STOP_MAINLOOP
 		AmbientOcclusionGenerator::Instance().bakeAmbientOcclusion(mesh->GetEntity(), dialog.GetPath().c_str().AsChar());
 		RESUME_MAINLOOP
@@ -1579,6 +1565,7 @@ void Edit::OnRender()
 	{
 		mOneTimeInit = false;
 		Ice::MessageSystem::Instance().RegisterThisThread(Ice::AccessPermissions::ACCESS_VIEW);
+		return;
 	}
 
 	if (mCamRotating == 2 || mPerformingObjMov || mPerformingObjRot || mPlaying)

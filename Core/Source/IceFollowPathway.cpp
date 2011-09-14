@@ -5,7 +5,6 @@
 #include "IceGOCCharacterController.h"
 #include "IceGameObject.h"
 #include "IceGOCCharacterController.h"
-#include "NxController.h"
 #include "IceMain.h"
 #include "IceAIManager.h"
 
@@ -20,7 +19,7 @@ namespace Ice
 		mAvoidingObstacle = false;
 
 		//Sweep cache for dynamic obstacle avoiding
-		mSweepCache = Main::Instance().GetPhysXScene()->getNxScene()->createSweepCache(); 
+		//mSweepCache = Main::Instance().GetPhysXScene()->getPxScene()->createSweepCache(); 
 
 		JoinNewsgroup(GlobalMessageIDs::PHYSICS_BEGIN);
 	};
@@ -28,28 +27,14 @@ namespace Ice
 	FollowPathway::~FollowPathway()
 	{
 		mPath.clear();
-		Main::Instance().GetPhysXScene()->getNxScene()->releaseSweepCache(mSweepCache);
+		//Main::Instance().GetPhysXScene()->getNxScene()->releaseSweepCache(mSweepCache);
 	};
 
-	NxActor* FollowPathway::ObstacleCheck(Ogre::Vector3 motion)
+	PxRigidDynamic* FollowPathway::ObstacleCheck(Ogre::Vector3 motion)
 	{
-		if (!mSweepActor) return 0;
+		//TODO: implement
 
-		int maxNumResult  = 10;
-		NxSweepQueryHit *sqh_result = ICE_NEW NxSweepQueryHit[maxNumResult];
-		NxU32 numHits = mSweepActor->linearSweep(OgrePhysX::Convert::toNx(motion), NX_SF_DYNAMICS|NX_SF_ALL_HITS, 0, maxNumResult, sqh_result, 0, mSweepCache);
-		bool obstacleHit = false;
-		for (NxU32 i = 0; i < numHits; i++)
-		{
-			NxSweepQueryHit hit = sqh_result[i];
-			if ((hit.hitShape->getGroup() == DEFAULT || hit.hitShape->getGroup() == CHARACTER) && !hit.hitShape->getActor().isSleeping())
-			{
-				return &hit.hitShape->getActor();
-			}
-		}
-		ICE_DELETE sqh_result;
-
-		return 0;
+		return nullptr;
 	}
 	
 	void FollowPathway::OnSetActive(bool active)
@@ -57,8 +42,6 @@ namespace Ice
 		if (active)
 		{
 			GOCCharacterController *character = (GOCCharacterController*)mAIObject->GetOwner()->GetComponent("Physics", "CharacterController");
-			mSweepActor = 0;
-			if (character) mSweepActor = character->GetActor()->getNxActor();
 
 			computePath();
 		}
@@ -183,7 +166,7 @@ namespace Ice
 		int movementstate = CharacterMovement::FORWARD;
 		mAIObject->GetOwner()->GetComponent<GOCCharacterController>()->SetSpeedFactor(1);
 
-		if (NxActor *obstacle = ObstacleCheck(direction * 4.0f))
+		if (PxRigidDynamic *obstacle = ObstacleCheck(direction * 4.0f))
 		{
 			GameObject *go = (GameObject*)obstacle->userData;
 			float dist = go->GetGlobalPosition().distance(currPos);

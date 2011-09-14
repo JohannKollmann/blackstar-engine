@@ -8,11 +8,9 @@ namespace Ice
 
 	GOCForceField::GOCForceField(void)
 	{
-		mForceField = nullptr;
 		mEditorVisual = nullptr;
 		mEditorVisual2 = nullptr;
 		mActive = false;
-		mFieldLinearKernelDesc.setToDefault();
 	}
 
 	GOCForceField::~GOCForceField(void)
@@ -23,12 +21,10 @@ namespace Ice
 	void GOCForceField::_clear()
 	{
 		ShowEditorVisual(false);
-		if (mForceField) Main::Instance().GetPhysXScene()->destroyForcefield(mForceField);
-		mForceField = nullptr;
 	}
 	void GOCForceField::_create()
 	{
-		_clear();
+		/*_clear();
 		if (!mActive) return;
 		if (!Ogre::ResourceGroupManager::getSingleton().resourceExists("General", mCollisionMeshName))
 		{
@@ -85,7 +81,7 @@ namespace Ice
 		}
 		Main::Instance().GetOgreSceneMgr()->destroyEntity(entity);
 
-		ShowEditorVisual(SceneManager::Instance().GetShowEditorVisuals());
+		ShowEditorVisual(SceneManager::Instance().GetShowEditorVisuals());*/
 	}
 
 	void GOCForceField::OnSetParameters()

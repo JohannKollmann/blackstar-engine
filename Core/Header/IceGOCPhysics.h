@@ -6,27 +6,39 @@
 #include "IceGOCEditorInterface.h"
 #include "OgrePhysX.h"
 #include "IceGOCScriptMakros.h"
+#include "PxPhysicsAPI.h"
 
 namespace Ice
 {
-
 	class DllExport GOCPhysics : public GOComponent
 	{
-	protected:
-		
-
 	public:
 		virtual ~GOCPhysics(void) {};
 		GOComponent::FamilyID& GetFamilyID() const { static std::string name = "Physics"; return name; }
 
-		virtual OgrePhysX::Actor* GetActor() = 0;
-
 		AccessPermissionID GetAccessPermissionID() { return AccessPermissions::ACCESS_PHYSICS; }
+	};
 
-		std::vector<ScriptParam> Body_GetSpeed(Script& caller, std::vector<ScriptParam> &vParams);
-		std::vector<ScriptParam> Body_AddImpulse(Script& caller, std::vector<ScriptParam> &vParams);
-		DEFINE_GOCLUAMETHOD(GOCPhysics, Body_GetSpeed)
-		DEFINE_TYPEDGOCLUAMETHOD(GOCPhysics, Body_AddImpulse, "float float float")
+	template<class T>
+	class DllExport GOCPhysXActor : public GOCPhysics
+	{
+	protected:
+		OgrePhysX::Actor<T> mActor;
+
+	public:
+		OgrePhysX::Actor<T>* GetActor()
+		{
+			return &mActor;
+		}
+
+		void UpdatePosition(Ogre::Vector3 position)
+		{
+			mActor.setGlobalPosition(position);
+		}
+		void UpdateOrientation(Ogre::Quaternion orientation)
+		{
+			mActor.setGlobalOrientation(orientation);
+		}
 	};
 
 	namespace Shapes
@@ -49,48 +61,36 @@ namespace Ice
 		TMP
 	};
 
-	class DllExport GOPhysXRenderable : public OgrePhysX::PointRenderable
+	class DllExport GOCRigidBody : public GOCEditorInterface, public GOCPhysXActor<PxRigidDynamic>, public OgrePhysX::PointRenderable
 	{
 	private:
-		GOCRigidBody *mBody;
-	public:
-		GOPhysXRenderable(GOCRigidBody *body) : mBody(body) {};
-		virtual ~GOPhysXRenderable() {}
-		void setTransform(Ogre::Vector3 position, Ogre::Quaternion rotation);
+		OgrePhysX::RenderedActorBinding *mRenderBinding;
 
-	};
-
-	class DllExport GOCRigidBody : public GOCEditorInterface, public GOCPhysics
-	{
-	private:
-		OgrePhysX::Actor *mActor;
-		GOPhysXRenderable *mRenderable;
 		void Create(Ogre::String collision_mesh, float density, int shapetype, Ogre::Vector3 scale);
 		Ogre::String mCollisionMeshName;
 		Ogre::String mMaterialName;
 		float mDensity;
 		int mShapeType;
 		bool mIsKinematic;
+		bool mIsFreezed;
 
 		void _clear();
 
 	public:
-		GOCRigidBody() : mActor(nullptr), mRenderable(nullptr), mIsKinematic(false) {}
+		GOCRigidBody();
 		GOCRigidBody(Ogre::String collision_mesh, float density, int shapetype);
 		~GOCRigidBody(void);
 
 		GOComponent::TypeID& GetComponentID() const { static std::string name = "RigidBody"; return name; }
 
-		void UpdatePosition(Ogre::Vector3 position);
-		void UpdateOrientation(Ogre::Quaternion orientation);
 		void UpdateScale(Ogre::Vector3 scale);
+
+		void setTransform(Ogre::Vector3 &position, Ogre::Quaternion &rotation);
 
 		void Freeze(bool freeze);
 
 		void SetOwner(std::weak_ptr<GameObject> go);
 		bool IsStatic() { return false; }
-
-		OgrePhysX::Actor* GetActor() { return mActor; }
 
 		void SetParameters(DataMap *parameters);
 		void GetParameters(DataMap *parameters);
@@ -104,30 +104,30 @@ namespace Ice
 		static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "RigidBody"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };
 		static LoadSave::Saveable* NewInstance() { return new GOCRigidBody; };
 		GOCEditorInterface* New() { return new GOCRigidBody(); }
+
+		std::vector<ScriptParam> Body_GetSpeed(Script& caller, std::vector<ScriptParam> &vParams);
+		std::vector<ScriptParam> Body_AddImpulse(Script& caller, std::vector<ScriptParam> &vParams);
+		DEFINE_GOCLUAMETHOD(GOCRigidBody, Body_GetSpeed)
+		DEFINE_TYPEDGOCLUAMETHOD(GOCRigidBody, Body_AddImpulse, "float float float")
 	};
 
 
-	class DllExport GOCStaticBody : public GOCEditorInterface, public GOCPhysics
+	class DllExport GOCStaticBody : public GOCEditorInterface, public GOCPhysXActor<PxRigidStatic>
 	{
 	private:
-		OgrePhysX::Actor *mActor;
 		void Create(Ogre::String collision_mesh, Ogre::Vector3 scale = Ogre::Vector3(1,1,1));
 		Ogre::String mCollisionMeshName;
 
 		void _clear();
 
 	public:
-		GOCStaticBody() { mActor = 0; mOwnerGO; }
+		GOCStaticBody() {}
 		GOCStaticBody(Ogre::String collision_mesh);
 		~GOCStaticBody(void);
 
 		GOComponent::TypeID& GetComponentID() const { static std::string name = "StaticBody"; return name; }
 
-		void UpdatePosition(Ogre::Vector3 position);
-		void UpdateOrientation(Ogre::Quaternion orientation);
 		void UpdateScale(Ogre::Vector3 scale);
-
-		OgrePhysX::Actor* GetActor() { return mActor; }
 
 		void SetOwner(std::weak_ptr<GameObject> go);
 
@@ -145,7 +145,7 @@ namespace Ice
 		GOCEditorInterface* New() { return new GOCStaticBody(); }
 	};
 
-	class DllExport GOCTrigger : public GOCEditorInterface, public GOCPhysics
+	class DllExport GOCTrigger : public GOCEditorInterface, public GOCPhysXActor<PxRigidStatic>
 	{
 		enum TriggerShapes
 		{
@@ -153,7 +153,6 @@ namespace Ice
 			SPHERE = 1
 		};
 	private:
-		OgrePhysX::Actor *mActor;
 		TriggerShapes mShapeType;
 		Ogre::Vector3 mBoxDimensions;
 		bool mActive;
@@ -163,23 +162,19 @@ namespace Ice
 		void _clear();
 
 	public:
-		GOCTrigger() { mActor = nullptr; mOwnerGO; mSphereRadius = -1; }
+		GOCTrigger() { mSphereRadius = -1; }
 		GOCTrigger(Ogre::Vector3 boxDimensions);
 		GOCTrigger(float sphereRadius);
 		~GOCTrigger(void);
 
 		GOComponent::TypeID& GetComponentID() const { static std::string name = "Trigger"; return name; }
 
-		void UpdatePosition(Ogre::Vector3 position);
-		void UpdateOrientation(Ogre::Quaternion orientation);
 		void UpdateScale(Ogre::Vector3 scale);
 
 		void onEnter(GameObject *object);
 		void onLeave(GameObject *object);
 
 		void SetOwner(std::weak_ptr<GameObject> go);
-
-		OgrePhysX::Actor* GetActor() { return mActor; }
 
 		void SetParameters(DataMap *parameters);
 		void GetParameters(DataMap *parameters);
