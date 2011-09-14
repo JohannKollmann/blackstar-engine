@@ -65,7 +65,8 @@ namespace OgrePhysX
 				return;
 			}
 
-			mCookingInterface = PxCreateCooking(PX_PHYSICS_VERSION, &mSDK->getFoundation(), PxCookingParams());
+			PxCookingParams params;
+			mCookingInterface = PxCreateCooking(PX_PHYSICS_VERSION, &mSDK->getFoundation(), params);
 			if (!mCookingInterface)
 			{
 				Ogre::LogManager::getSingleton().logMessage("[OgrePhysX] Error: Cooking initialisation failed.");

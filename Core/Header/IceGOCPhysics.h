@@ -31,11 +31,11 @@ namespace Ice
 			return &mActor;
 		}
 
-		void UpdatePosition(Ogre::Vector3 position)
+		virtual void UpdatePosition(Ogre::Vector3 position)
 		{
 			mActor.setGlobalPosition(position);
 		}
-		void UpdateOrientation(Ogre::Quaternion orientation)
+		virtual void UpdateOrientation(Ogre::Quaternion orientation)
 		{
 			mActor.setGlobalOrientation(orientation);
 		}
@@ -83,6 +83,7 @@ namespace Ice
 
 		GOComponent::TypeID& GetComponentID() const { static std::string name = "RigidBody"; return name; }
 
+		void UpdatePosition(Ogre::Vector3 position);
 		void UpdateScale(Ogre::Vector3 scale);
 
 		void setTransform(Ogre::Vector3 &position, Ogre::Quaternion &rotation);

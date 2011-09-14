@@ -528,7 +528,7 @@ namespace OgrePhysX
 
 		for (unsigned int i = 0; i < outInfo.numVertices; i++)
 			Ogre::LogManager::getSingleton().logMessage(Ogre::StringConverter::toString(Convert::toOgre(meshInfo.vertices[i])));*/
-
+		
 		World::getSingleton().getCookingInterface()->cookTriangleMesh(desc, outputStream);
 
 		delete fVertices;
