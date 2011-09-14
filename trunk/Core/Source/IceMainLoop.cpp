@@ -72,11 +72,7 @@ namespace Ice
 
 	void MainLoopThreadSender::MsgProcessingListener::OnFinishSending(AccessPermissionID accessPermissionID)
 	{
-		Msg msg;
-		msg.typeID = FINISH_MESSAGEPROCESSING;
-		msg.params.AddFloat("TIME", mMainLoopThread->mTimeSinceLastFrameSeconds);
-		msg.params.AddFloat("TIME_TOTAL", mMainLoopThread->mTotalTimeElapsedSeconds);
-		MessageSystem::Instance().SendMessage(msg, mMsgReceiver);
+		mMainLoopThread->onDoLoop(mMainLoopThread->mTimeSinceLastFrameSeconds, mMainLoopThread->mTotalTimeElapsedSeconds);
 	}
 
 	void MainLoopThreadSender::doLoop()
@@ -84,45 +80,42 @@ namespace Ice
 		MessageSystem::Instance().ProcessMessages(mAccessPermissionID, mSynchronized, &mProcessingListener);
 	}
 
-	void RenderThread::ReceiveMessage(Msg &msg)
+	void RenderThread::onDoLoop(float timeRel, float timeAbs)
 	{
-		if (msg.typeID == MainLoopThreadSender::FINISH_MESSAGEPROCESSING)
-		{
-			OgrePhysX::World::getSingleton().syncRenderables();
+		OgrePhysX::World::getSingleton().syncRenderables();
 
-			Msg updateMsg = msg;
-			updateMsg.typeID = GlobalMessageIDs::UPDATE_PER_FRAME;
-			MulticastMessage(updateMsg);
+		Msg updateMsg;
+		updateMsg.typeID = GlobalMessageIDs::UPDATE_PER_FRAME;
+		updateMsg.params.AddFloat("TIME", timeRel);
+		updateMsg.params.AddFloat("TIME_TOTAL", timeAbs);
+		MessageSystem::Instance().MulticastMessage(updateMsg);
 
-			//Sound
-			Main::Instance().GetSoundManager()->update();
+		//Sound
+		Main::Instance().GetSoundManager()->update();
 
-			//Input
-			Main::Instance().GetInputManager()->Update();
+		//Input
+		Main::Instance().GetInputManager()->Update();
 
-			//Graphics
-			//Ogre::WindowEventUtilities::messagePump();
-			Ogre::Root::getSingleton().renderOneFrame();
-		}
+		//Graphics
+		//Ogre::WindowEventUtilities::messagePump();
+		Ogre::Root::getSingleton().renderOneFrame();
 	}
 
-	PhysicsThread::PhysicsThread()
+	PhysicsThread::PhysicsThread() : MainLoopThreadSender(AccessPermissions::ACCESS_PHYSICS)
 	{
 		Main::Instance().GetPhysXScene()->setSimulationListener(&mPhysicsListener);
 	}
 	
-	void PhysicsThread::ReceiveMessage(Msg &msg)
+	void PhysicsThread::onDoLoop(float timeRel, float timeAbs)
 	{
-		if (msg.typeID == MainLoopThreadSender::FINISH_MESSAGEPROCESSING)
-		{
-			msg.typeID = GlobalMessageIDs::PHYSICS_BEGIN;
-			MulticastMessage(msg);
-			OgrePhysX::World::getSingleton().startSimulate(msg.params.GetValue<float>(0));
-			//OgrePhysX::World::getSingleton().syncRenderables();
-			Msg endPhysicsMsg = msg;
-			msg.typeID = GlobalMessageIDs::PHYSICS_END;
-			MulticastMessage(msg);
-		}
+		Msg msg;
+		msg.typeID = GlobalMessageIDs::PHYSICS_BEGIN;
+		MessageSystem::Instance().MulticastMessage(msg);
+		OgrePhysX::World::getSingleton().simulate(timeRel);
+		//OgrePhysX::World::getSingleton().syncRenderables();
+		Msg endPhysicsMsg = msg;
+		msg.typeID = GlobalMessageIDs::PHYSICS_END;
+		MessageSystem::Instance().MulticastMessage(msg);
 	}
 
 	void PhysicsThread::PhysicsListener::onBeginSimulate(float time)
@@ -137,6 +130,11 @@ namespace Ice
 	}
 	void PhysicsThread::PhysicsListener::onEndSimulate(float time)
 	{
+	}
+
+	void SynchronisedThread::onDoLoop(float timeRel, float timeAbs)
+	{
+		//OgrePhysX::World::getSingleton().renderDebugVisuals();
 	}
 
 };

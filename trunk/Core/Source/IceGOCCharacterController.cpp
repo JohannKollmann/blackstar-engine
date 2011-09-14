@@ -1,8 +1,6 @@
 
 #include "IceGOCCharacterController.h"
 
-#include "NxBoxController.h"
-#include "NxCapsuleController.h"
 #include "IceMessageSystem.h"
 #include "IceObjectMessageIDs.h"
 #include "IceMain.h"
@@ -67,15 +65,16 @@ namespace Ice
 
 	void GOCCharacterController::_clear()
 	{
-		if (mActor)
+		if (mActor.getPxActor())
 		{
 			Msg msg;
 			msg.typeID = GlobalMessageIDs::ACTOR_ONWAKE;
-			msg.rawData = mActor->getNxActor();
+			msg.rawData = mActor.getPxActor();
 			MulticastMessage(msg);
-			Main::Instance().GetPhysXScene()->destroyActor(mActor);
-			mActor = nullptr;
-			Main::Instance().GetPhysXScene()->getNxScene()->releaseSweepCache(mSweepCache);
+			Main::Instance().GetPhysXScene()->getPxScene()->removeActor(*mActor.getPxActor());
+			mActor.setPxActor(nullptr);
+
+			//TODO: destroy sweep cache
 			mSweepCache = nullptr;
 		}
 	}
@@ -94,21 +93,24 @@ namespace Ice
 		mSpeedFactor = 1;
 		mDirection = Ogre::Vector3(0,0,0);
 		mDimensions = dimensions;
-		NxMaterialIndex nxID = SceneManager::Instance().GetSoundMaterialTable().GetMaterialID(mMaterialName);
+		//PxMaterialIndex nxID = SceneManager::Instance().GetSoundMaterialTable().GetMaterialID(mMaterialName);
 
 		mRadius = mDimensions.x > mDimensions.z ? mDimensions.x : mDimensions.z;
 		float offset = 0.0f;
 		if (mDimensions.y - mRadius > 0.0f) offset = (mDimensions.y / mRadius) * 0.1f;
 		mHeight = mDimensions.y * 0.5f + offset;
 		mRadius *= 0.5f;
-		mActor = Main::Instance().GetPhysXScene()->createActor(
-			OgrePhysX::CapsuleShape(mRadius, mHeight).density(mDensity).group(CollisionGroups::CHARACTER).localPose(Ogre::Vector3(0, mDimensions.y * 0.5f, 0)).material(nxID));
-		//mActor->getNxActor()->raiseBodyFlag(NxBodyFlag::NX_BF_DISABLE_GRAVITY);
-		mActor->getNxActor()->setMassSpaceInertiaTensor(NxVec3(0,1,0));
-		mActor->getNxActor()->setSolverIterationCount(8);
-		//mActor->getNxActor()->setLinearDamping(5.0);
 
-		mSweepCache = Main::Instance().GetPhysXScene()->getNxScene()->createSweepCache();
+		PxMaterial *mat = &OgrePhysX::World::getSingleton().getDefaultMaterial();
+
+		mActor.setPxActor(OgrePhysX::getPxPhysics()->createRigidDynamic(PxTransform()));
+		
+		mActor.getPxActor()->createShape(PxCapsuleGeometry(mRadius, mHeight), *mat, PxTransform(PxVec3(0, mDimensions.y * 0.5f, 0)));
+
+		mActor.getPxActor()->setMassSpaceInertiaTensor(PxVec3(0,1,0));
+		mActor.getPxActor()->setSolverIterationCounts(8);
+
+		mSweepCache = Main::Instance().GetPhysXScene()->getPxScene()->createSweepCache();
 
 	}
 
@@ -119,11 +121,11 @@ namespace Ice
 
 	void GOCCharacterController::UpdatePosition(Ogre::Vector3 position)
 	{
-		mActor->setGlobalPosition(position);//Ogre::Vector3(position.x, position.y + mDimensions.y * 0.5, position.z));
+		mActor.setGlobalPosition(position);//Ogre::Vector3(position.x, position.y + mDimensions.y * 0.5, position.z));
 	}
 	void GOCCharacterController::UpdateOrientation(Ogre::Quaternion orientation)
 	{
-		mActor->setGlobalOrientation(orientation);
+		mActor.setGlobalOrientation(orientation);
 	}
 	void GOCCharacterController::UpdateScale(Ogre::Vector3 scale)
 	{
@@ -140,32 +142,20 @@ namespace Ice
 			Ogre::Vector3 userDir = mOwnerGO.lock()->GetGlobalOrientation() * (mDirection);
 
 			float maxStepHeight = 0.8f;
-			NxVec3 currPos = OgrePhysX::Convert::toNx(mOwnerGO.lock()->GetGlobalPosition());
+			PxVec3 currPos = OgrePhysX::Convert::toPx(mOwnerGO.lock()->GetGlobalPosition());
+
 			//feet capsule
-			NxCapsule feetVolume;
-			feetVolume.radius = mRadius*1.2f;
-			feetVolume.p0 = currPos + NxVec3(0, feetVolume.radius+0.01f, 0);
-			feetVolume.p1 = currPos + NxVec3(0, maxStepHeight, 0);
-			/*feetVolume.center = currPos + NxVec3(0, maxStepHeight*0.5f - mRadius + 0.2f, 0);
-			feetVolume.extents = NxVec3(mRadius, maxStepHeight*0.5f, mRadius);
-			feetVolume.rot.fromQuat(OgrePhysX::Convert::toNx(Ogre::Quaternion()));*/
+			PxCapsuleGeometry feetVolume(mRadius, maxStepHeight);
 
 			//body capsule
-			NxCapsule bodyVolume;
 			float bodyHeight = mDimensions.y-maxStepHeight;
-			bodyVolume.radius = mRadius*1.2f;
-			bodyVolume.p0 = currPos + NxVec3(0, maxStepHeight, 0);
-			bodyVolume.p1 = currPos + NxVec3(0, bodyHeight, 0);
-			/*bodyVolume.center = currPos + NxVec3(0, maxStepHeight+(bodyHeight*0.5f), 0);
-			bodyVolume.extents = NxVec3(mRadius, bodyHeight*0.5f, mRadius);
-			bodyVolume.rot.fromQuat(OgrePhysX::Convert::toNx(Ogre::Quaternion()));*/
-			NxSweepQueryHit sqh_result[1];
+			PxCapsuleGeometry bodyVolume(mRadius, bodyHeight);
 
-			NxU32 numHits = Main::Instance().GetPhysXScene()->getNxScene()->linearCapsuleSweep(bodyVolume, OgrePhysX::Convert::toNx(Ogre::Vector3(userDir*time*2)), NX_SF_STATICS|NX_SF_DYNAMICS, 0, 1, sqh_result, nullptr, 1<<CollisionGroups::DEFAULT | 1<<CollisionGroups::LEVELMESH);
- 			bool bodyHit = (numHits > 0);
+			/*Main::Instance().GetPhysXScene()->getPxScene()->sweepSingle(bodyVolume, OgrePhysX::Convert::toNx(Ogre::Vector3(userDir*time*2)), NX_SF_STATICS|NX_SF_DYNAMICS, 0, 1, sqh_result, nullptr, 1<<CollisionGroups::DEFAULT | 1<<CollisionGroups::LEVELMESH);
+			bool bodyHit = (numHits > 0);
 			//Log::Instance().LogMessage("Body hit: " + Ogre::StringConverter::toString(bodyHit));
 			numHits = Main::Instance().GetPhysXScene()->getNxScene()->linearCapsuleSweep(feetVolume, OgrePhysX::Convert::toNx(Ogre::Vector3(userDir*time*2)), NX_SF_STATICS|NX_SF_DYNAMICS, 0, 1, sqh_result, nullptr, 1<<CollisionGroups::DEFAULT | 1<<CollisionGroups::LEVELMESH);//, mSweepCache);
- 			bool feetHit = (numHits > 0);
+			bool feetHit = (numHits > 0);
 			//Log::Instance().LogMessage("Feet hit: " + Ogre::StringConverter::toString(feetHit));
 
 			NxCapsule playerCapsule;
@@ -173,12 +163,7 @@ namespace Ice
 			playerCapsule.p0 = currPos;
 			playerCapsule.p1 = currPos + NxVec3(0, mHeight, 0);
 			mTouchesGround = Main::Instance().GetPhysXScene()->getNxScene()->checkOverlapCapsule(playerCapsule, NX_ALL_SHAPES, 1<<CollisionGroups::DEFAULT | 1<<CollisionGroups::LEVELMESH);
-
-			//if (!mTouchesGround) finalDir += Ogre::Vector3(0, -9.81f, 0);	//add gravity
-
-			/*if(!mTouchesGround)
-				Log::Instance().LogMessage("in the air!");*/
-
+			
 
 			if (!bodyHit)
 			{
@@ -187,13 +172,10 @@ namespace Ice
 			if (!bodyHit && feetHit)
 			{
 				finalDir += Ogre::Vector3(0,3,0); //climb stairs
-			}
+			}*/
 
-			//mActor->getNxActor()->setLinearVelocity(OgrePhysX::Convert::toNx(finalDir));
 			if (finalDir != Ogre::Vector3(0,0,0))
-				mActor->getNxActor()->setGlobalPosition(currPos + OgrePhysX::Convert::toNx(finalDir*time));
-
-			mActor->getNxActor()->wakeUp();
+				mActor.getPxActor()->setGlobalPose(PxTransform(currPos + OgrePhysX::Convert::toPx(finalDir*time)));
 
 			//Log::Instance().LogMessage(Ogre::StringConverter::toString(mTouchesGround));
 			if (mJumping && mTouchesGround && (timeGetTime() - mJumpStartTime > 400))
@@ -210,7 +192,7 @@ namespace Ice
 		}
 		if (msg.typeID == GlobalMessageIDs::PHYSICS_END && !mFreezed)
 		{
-			SetOwnerPosition(mActor->getGlobalPosition());
+			SetOwnerPosition(mActor.getGlobalPosition());
 			//SetOwnerOrientation(mActor->getGlobalOrientation());
 		}
 
@@ -233,7 +215,7 @@ namespace Ice
 			{
 				mJumping = true;
 				mJumpStartTime = timeGetTime();
-				mActor->getNxActor()->addForce(NxVec3(0, 400, 0), NxForceMode::NX_IMPULSE);
+				mActor.getPxActor()->addForce(PxVec3(0, 400, 0), PxForceMode::eIMPULSE);
 				Msg msg;
 				msg.typeID = ObjectMessageIDs::START_JUMP;
 				BroadcastObjectMessage(msg);
@@ -251,9 +233,9 @@ namespace Ice
 		mOwnerGO = go;
 		GameObjectPtr owner = mOwnerGO.lock();
 		if (!owner.get()) return;
-		if (mActor)
+		if (mActor.getPxActor())
 		{
-			mActor->getNxActor()->userData = owner.get();
+			mActor.getPxActor()->userData = owner.get();
 			UpdatePosition(owner->GetGlobalPosition());
 		}
 	}
@@ -261,15 +243,8 @@ namespace Ice
 	void GOCCharacterController::Freeze(bool freeze)
 	{
 		mFreezed = freeze;
-		if (mFreezed)
-		{
-			mActor->getNxActor()->raiseBodyFlag(NX_BF_FROZEN);	
-		}
-		else
-		{
-			mActor->getNxActor()->clearBodyFlag(NX_BF_FROZEN);	
-			mActor->getNxActor()->wakeUp();
-		}
+		if (!mActor.getPxActor()) return;
+		mActor.getPxActor()->setRigidDynamicFlag(PxRigidDynamicFlag::eKINEMATIC, freeze);
 	}
 
 	void GOCCharacterController::SetParameters(DataMap *parameters)
@@ -281,7 +256,7 @@ namespace Ice
 		mDensity = parameters->GetValue<float>("Density", 10);
 		Create(mDimensions);
 		GameObjectPtr owner = mOwnerGO.lock();
-		if (owner.get()) mActor->getNxActor()->userData = owner.get();
+		if (owner.get()) mActor.getPxActor()->userData = owner.get();
 	}
 	void GOCCharacterController::GetParameters(DataMap *parameters)
 	{
@@ -318,11 +293,11 @@ namespace Ice
 	{
 		//TODO: Use code from IceCollisionCallback.cpp for per-triangle materials!
 		std::string mat = "None";
-		NxRaycastHit hit;
+		/*NxRaycastHit hit;
 		if (Main::Instance().GetPhysXScene()->getNxScene()->raycastClosestShape(NxRay(OgrePhysX::Convert::toNx(mOwnerGO.lock()->GetGlobalPosition() + Ogre::Vector3(0,1,0)), NxVec3(0,-1,0)), NX_ALL_SHAPES, hit, 1<<CollisionGroups::LEVELMESH|1<<CollisionGroups::DEFAULT, 1.5f, NX_RAYCAST_MATERIAL))
 		{
 			mat = SceneManager::Instance().GetSoundMaterialTable().GetMaterialName(hit.materialIndex);
-		}
+		}*/
 		std::vector<ScriptParam> out;
 		out.push_back(mat);
 		return out;

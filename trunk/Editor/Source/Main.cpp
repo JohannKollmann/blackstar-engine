@@ -32,18 +32,18 @@ public:
 		mFrame->PostCreate();
 
 		//Ice::Main::Instance().CreateMainLoopThreads();
-		Ice::MainLoopThread *physicsThread = new Ice::MainLoopThreadSender(new Ice::PhysicsThread());
+		Ice::MainLoopThread *physicsThread = new Ice::PhysicsThread();
 		physicsThread->SetFixedTimeStep(20);
 		Ice::Main::Instance().AddMainLoopThread("Physics", physicsThread);
 
-		Ice::MainLoopThread *renderThread = new Ice::MainLoopThreadSender(new Ice::RenderThread());
+		Ice::MainLoopThread *renderThread = new Ice::RenderThread();
 		Ice::Main::Instance().AddMainLoopThread("View", renderThread, false);
 
 		Ice::MainLoopThread *indyThread = new Ice::MainLoopThread(Ice::AccessPermissions::ACCESS_NONE);
 		indyThread->SetFixedTimeStep(30);
 		Ice::Main::Instance().AddMainLoopThread("Independant", indyThread);
 
-		Ice::MainLoopThread *synchronized = new Ice::MainLoopThread(Ice::AccessPermissions::ACCESS_ALL);
+		Ice::MainLoopThread *synchronized = new Ice::SynchronisedThread();
 		synchronized->SetSynchronized(true);
 		Ice::Main::Instance().AddMainLoopThread("Synchronized", synchronized, false);
 
@@ -65,9 +65,9 @@ int main(int argc, char *argv[])
 };
 
 int WINAPI WinMain(HINSTANCE hInstance,
-                     HINSTANCE hPrevInstance,
-                     LPSTR lpCmdLine,
-                     int nCmdShow )
+					 HINSTANCE hPrevInstance,
+					 LPSTR lpCmdLine,
+					 int nCmdShow )
 {
 	return wxEntry(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
 };

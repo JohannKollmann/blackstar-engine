@@ -1,41 +1,56 @@
 #pragma once
 
-#include "OgrePhysXClasses.h"
-#include "Ogre.h"
-#include "OgrePhysXRenderableBinding.h"
-#include "NxActor.h"
-#include "OgrePhysXShapes.h"
-#include "NxScene.h"
+#include "OgrePhysXConvert.h"
 
 namespace OgrePhysX
 {
 
-	/*
+	///Helper class to keep code clean. Provides set/get position/orientation methods for Ogre on PxRigidActor.
+
+	template<class T>		//T extends PxRigidActor
 	class Actor
-	Wraps an NxActor.
-	*/
-	class OgrePhysXClass Actor
 	{
-		friend class Scene;
-		friend class Ragdoll;
-
 	protected:
-		NxActor *mNxActor;
-
-		Actor(NxScene *scene, PrimitiveShape& shape, Ogre::Vector3 position = Ogre::Vector3(0,0,0), Ogre::Quaternion orientation = Ogre::Quaternion());
-		Actor(NxScene *scene, BaseMeshShape& shape, Ogre::Vector3 position = Ogre::Vector3(0,0,0), Ogre::Quaternion orientation = Ogre::Quaternion());
-		virtual ~Actor();
+		T *mActor;
 
 	public:
+		Actor() : mActor(nullptr) {}
+		Actor(T *actor) : mActor(actor) {}
+		virtual ~Actor() {}
 
-		NxActor* getNxActor();
+		void setPxActor(T *actor)
+		{
+			mActor = actor;
+		}
 
-		Ogre::Vector3 getGlobalPosition();
-		Ogre::Quaternion getGlobalOrientation();
+		T* getPxActor() const
+		{
+			return mActor;
+		}
 
-		void setGlobalPosition(Ogre::Vector3 position, bool moveKinematic = true);
-		void setGlobalOrientation(Ogre::Quaternion rotation);
-		void setGlobalPose(Ogre::Vector3 position, Ogre::Quaternion rotation, bool moveKinematic = true);
+		void setGlobalPosition(const Ogre::Vector3 &position)
+		{
+			mActor->setGlobalPose(PxTransform(Convert::toPx(position), mActor->getGlobalPose().q));
+		}
+
+		Ogre::Vector3 getGlobalPosition()
+		{
+			return Convert::toOgre(mActor->getGlobalPose().p);
+		}
+
+		void setGlobalOrientation(const Ogre::Quaternion &q)
+		{
+			mActor->setGlobalPose(PxTransform(mActor->getGlobalPose().p, Convert::toPx(q)));
+		}
+
+		Ogre::Quaternion getGlobalOrientation()
+		{
+			return Convert::toOgre(mActor->getGlobalPose().q);
+		}
+
+		void setGlobalTransform(const Ogre::Vector3 &position, const Ogre::Quaternion &q)
+		{
+			mActor->setGlobalPose(PxTransform(Convert::toPx(position), Convert::toPx(q)));
+		}
 	};
-
 }

@@ -3,7 +3,6 @@
 
 #include "Ogre.h"
 #include "IceAIProcess.h"
-#include "NxPhysics.h"
 #include "IceDirectionBlender.h"
 #include "IceNavigationMesh.h"
 
@@ -19,15 +18,15 @@ namespace Ice
 
 		DirectionYawBlender mDirectionBlender;
 
+		PxSweepCache *mSweepCache;
+
 		bool mAvoidingObstacle;
 		Ogre::Vector3 mAvoidObstacleVector;
 
-		NxActor *mSweepActor;
-		NxSweepCache *mSweepCache;
 		Ogre::String mTargetWP;
 		float mRadius;
 
-		NxActor* ObstacleCheck(Ogre::Vector3 motion);
+		PxRigidDynamic* ObstacleCheck(Ogre::Vector3 motion);
 
 		void computePath();
 		void verifyPath();

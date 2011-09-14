@@ -4,8 +4,8 @@
 #include "IceGOComponent.h"
 #include "IceGOCEditorInterface.h"
 #include "IceGOCView.h"
-#include "NxScene.h"
 #include "IceGOCScriptMakros.h"
+#include "PxJoint.h"
 
 namespace Ice
 {
@@ -20,16 +20,16 @@ namespace Ice
 		};
 
 	protected:
-		NxJoint *mPhysXJoint;
+		PxJoint *mPhysXJoint;
 
 		float mMaxTorque;
 		float mMaxForce;
 
-		void createJoint(NxJointDesc &desc);
+		void createJoint();
 		void clear();
 
 	public:
-		GOCJoint() : mPhysXJoint(nullptr), mMaxForce(NX_MAX_REAL), mMaxTorque(NX_MAX_REAL) {}
+		GOCJoint() : mPhysXJoint(nullptr), mMaxForce(PX_MAX_REAL), mMaxTorque(PX_MAX_REAL) {}
 		virtual ~GOCJoint();
 
 		void SetActorObjects(GameObjectPtr actor1, GameObjectPtr actor2);
@@ -52,8 +52,8 @@ namespace Ice
 		GOComponent::TypeID& GetComponentID() const { static std::string name = "Fixed Joint"; return name; }
 
 		BEGIN_GOCEDITORINTERFACE(GOCFixedJoint, "Fixed Joint")
-			PROPERTY_FLOAT(mMaxForce, "Max Force", NX_MAX_REAL);
-			PROPERTY_FLOAT(mMaxTorque, "Max Torque", NX_MAX_REAL);
+			PROPERTY_FLOAT(mMaxForce, "Max Force", PX_MAX_REAL);
+			PROPERTY_FLOAT(mMaxTorque, "Max Torque", PX_MAX_REAL);
 		END_GOCEDITORINTERFACE
 
 		void NotifyPostInit();

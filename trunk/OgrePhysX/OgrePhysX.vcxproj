@@ -29,9 +29,11 @@
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="PhysXIncludes.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="PhysXIncludes.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
@@ -45,7 +47,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\Dependencies\Ogre3D\include\;include/;..\..\Dependencies\PhysX\SDKs\PhysXLoader\include;..\..\Dependencies\PhysX\SDKs\Physics\include;..\..\Dependencies\PhysX\SDKs\Foundation\include;..\..\Dependencies\PhysX\SDKs\Cooking\include;..\..\Dependencies\PhysX\SDKs\NxCharacter\include;..\..\Dependencies\PhysX\Tools\NxuStream2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\Dependencies\Ogre3D\include\;include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -53,11 +55,12 @@
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>OgreMain_d.lib;PhysXLoader.lib;PhysXCooking.lib;NxCharacter.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OgreMain_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(TargetName).dll</OutputFile>
-      <AdditionalLibraryDirectories>..\..\Dependencies\Ogre3D\lib;..\..\Dependencies\PhysX\SDKs\lib\win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\Dependencies\Ogre3D\lib;..\..\Dependencies\PhysX\lib\win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <TargetMachine>MachineX86</TargetMachine>
+      <IgnoreSpecificDefaultLibraries>LIBCMT.lib</IgnoreSpecificDefaultLibraries>
     </Link>
     <PostBuildEvent>
       <Command>copy $(OutDir)$(TargetFileName) ..\..\bin\</Command>
@@ -69,55 +72,53 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>..\..\Dependencies\Ogre3D\include\;include/;..\..\Dependencies\PhysX\SDKs\PhysXLoader\include;..\..\Dependencies\PhysX\SDKs\Physics\include;..\..\Dependencies\PhysX\SDKs\Foundation\include;..\..\Dependencies\PhysX\SDKs\Cooking\include;..\..\Dependencies\PhysX\SDKs\NxCharacter\include;..\..\Dependencies\PhysX\Tools\NxuStream2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\Dependencies\Ogre3D\include\;include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>OgreMain.lib;PhysXLoader.lib;PhysXCooking.lib;NxCharacter.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\..\Dependencies\Ogre3D\lib;..\..\Dependencies\PhysX\SDKs\lib\win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>OgreMain_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\Dependencies\Ogre3D\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <OptimizeReferences>false</OptimizeReferences>
       <EnableCOMDATFolding>false</EnableCOMDATFolding>
       <TargetMachine>MachineX86</TargetMachine>
+      <IgnoreSpecificDefaultLibraries>LIBCMT.lib</IgnoreSpecificDefaultLibraries>
     </Link>
     <PostBuildEvent>
       <Command>copy $(OutDir)$(TargetFileName) ..\..\bin\</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="source\OgrePhysXActor.cpp" />
-    <ClCompile Include="source\OgrePhysXContactReport.cpp" />
     <ClCompile Include="source\OgrePhysXCooker.cpp" />
     <ClCompile Include="source\OgrePhysXNodeRenderable.cpp" />
     <ClCompile Include="source\OgrePhysXRagdoll.cpp" />
-    <ClCompile Include="source\OgrePhysXRenderedActor.cpp" />
+    <ClCompile Include="source\OgrePhysXRenderedActorBinding.cpp" />
     <ClCompile Include="source\OgrePhysXScene.cpp" />
-    <ClCompile Include="source\OgrePhysXShapes.cpp" />
     <ClCompile Include="source\OgrePhysXStreams.cpp" />
-    <ClCompile Include="source\OgrePhysXTriggerReport.cpp" />
     <ClCompile Include="source\OgrePhysXWorld.cpp" />
+    <ClCompile Include="source\UserStream.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\OgrePhysX.h" />
     <ClInclude Include="include\OgrePhysXActor.h" />
     <ClInclude Include="include\OgrePhysXClasses.h" />
-    <ClInclude Include="include\OgrePhysXContactReport.h" />
     <ClInclude Include="include\OgrePhysXConvert.h" />
     <ClInclude Include="include\OgrePhysXCooker.h" />
+    <ClInclude Include="include\OgrePhysXGeometry.h" />
     <ClInclude Include="include\OgrePhysXLogOutputStream.h" />
     <ClInclude Include="include\OgrePhysXNodeRenderable.h" />
     <ClInclude Include="include\OgrePhysXPointRenderable.h" />
     <ClInclude Include="include\OgrePhysXRagdoll.h" />
     <ClInclude Include="include\OgrePhysXRenderableBinding.h" />
-    <ClInclude Include="include\OgrePhysXRenderedActor.h" />
+    <ClInclude Include="include\OgrePhysXRenderedActorBinding.h" />
     <ClInclude Include="include\OgrePhysXScene.h" />
-    <ClInclude Include="include\OgrePhysXShapes.h" />
     <ClInclude Include="include\OgrePhysXStreams.h" />
-    <ClInclude Include="include\OgrePhysXTriggerReport.h" />
     <ClInclude Include="include\OgrePhysXWorld.h" />
+    <ClInclude Include="include\UserStream.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

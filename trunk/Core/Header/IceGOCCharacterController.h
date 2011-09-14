@@ -2,11 +2,10 @@
 #pragma once
 
 
-#include "NxControllerManager.h"
 #include "IceMessageListener.h"
 #include "IceGOCPhysics.h"
-#include <NxController.h> 
 #include "IceGOCScriptMakros.h"
+#include "PxPhysicsAPI.h"
 
 namespace Ice
 {
@@ -69,9 +68,8 @@ namespace Ice
 	class DllExport GOCCharacterController : public GOCPhysics, public GOCEditorInterface
 	{
 	private:
-		OgrePhysX::Actor *mActor;
-		OgrePhysX::Actor *mSweepActor;
-		NxSweepCache *mSweepCache;
+		OgrePhysX::Actor<PxRigidDynamic> mActor;
+		PxSweepCache *mSweepCache;
 		void Create(Ogre::Vector3 dimensions);
 		CharacterJump mJump;
 		Ogre::Vector3 mDirection;
@@ -115,7 +113,7 @@ namespace Ice
 
 		void SetOwner(std::weak_ptr<GameObject> go);
 
-		OgrePhysX::Actor* GetActor() { return mActor; }
+		OgrePhysX::Actor<PxRigidDynamic>* GetActor() { return &mActor; }
 
 		void SetParameters(DataMap *parameters);
 		void GetParameters(DataMap *parameters);

@@ -7,41 +7,15 @@
 
 namespace Ice
 {
-
-	std::vector<ScriptParam> GOCPhysics::Body_GetSpeed(Script& caller, std::vector<ScriptParam> &vParams)
+	GOCRigidBody::GOCRigidBody() : mIsKinematic(false), mRenderBinding(nullptr), mIsFreezed(false)
 	{
-		IceAssert(GetActor());
-		if (GetActor()->getNxActor()->isDynamic()) SCRIPT_RETURNVALUE(GetActor()->getNxActor()->getLinearVelocity().normalize())
-		else SCRIPT_RETURNERROR("Actor is static!")
 	}
-	std::vector<ScriptParam> GOCPhysics::Body_AddImpulse(Script& caller, std::vector<ScriptParam> &vParams)
-	{
-		IceAssert(GetActor());
-		if (GetActor()->getNxActor()->isDynamic())
-		{
-			GetActor()->getNxActor()->addForce(NxVec3(vParams[0].getFloat(), vParams[1].getFloat(), vParams[2].getFloat()), NxForceMode::NX_IMPULSE);
-			SCRIPT_RETURN()
-		}
-		else SCRIPT_RETURNERROR("Actor is static!")
-	}
-
-	void GOPhysXRenderable::setTransform(Ogre::Vector3 position, Ogre::Quaternion rotation)
-	{
-		if (mBody)
-		{
-			if (!mBody->GetActor()->getNxActor()->readBodyFlag(NX_BF_FROZEN))
-				mBody->SetOwnerTransform(position, rotation);
-		}
-	}
-
-
 	GOCRigidBody::GOCRigidBody(Ogre::String collision_mesh, float density, int shapetype)
 	{
 		mCollisionMeshName = collision_mesh;
 		mDensity = density;
 		mShapeType = shapetype;
-		mActor = nullptr;
-		mRenderable = nullptr;
+		mRenderBinding = nullptr;
 		mIsKinematic = false;
 	}
 
@@ -51,112 +25,77 @@ namespace Ice
 	}
 	void GOCRigidBody::_clear()
 	{
-		if (mActor)
+		if (mRenderBinding != nullptr)
 		{
+			Main::Instance().GetPhysXScene()->destroyRenderableBinding(mRenderBinding);
+			mRenderBinding = nullptr;
+			Main::Instance().GetPhysXScene()->removeActor(mActor);
+
 			Msg msg;
 			msg.typeID = GlobalMessageIDs::ACTOR_ONWAKE;
-			msg.rawData = mActor->getNxActor();
+			msg.rawData = mActor.getPxActor();
 			Ice::MessageSystem::Instance().MulticastMessage(msg, true);
-			Main::Instance().GetPhysXScene()->destroyRenderedActor((OgrePhysX::RenderedActor*)mActor);
-			mActor = nullptr;
-			//This also destroys the renderable!
-			mRenderable = nullptr;
 		}
 	}
 
 	void GOCRigidBody::Create(Ogre::String collision_mesh, float density, int shapetype, Ogre::Vector3 scale)
 	{
-		if (!mRenderable)
-		{
-			if (!mIsKinematic) mRenderable = ICE_NEW GOPhysXRenderable(this);
-			else mRenderable = ICE_NEW GOPhysXRenderable(nullptr);
-		}
-
 		Ogre::String internname = "RigidBody" + Ogre::StringConverter::toString(SceneManager::Instance().RequestID());
 		mCollisionMeshName = collision_mesh;
 		mDensity = density;
-		NxMaterialIndex nxID = SceneManager::Instance().GetSoundMaterialTable().GetMaterialID(mMaterialName);
+		PxMaterialTableIndex pxID = SceneManager::Instance().GetSoundMaterialTable().GetMaterialID(mMaterialName);
 		if (!Ogre::ResourceGroupManager::getSingleton().resourceExists("General", mCollisionMeshName))
 		{
 			Log::Instance().LogMessage("Error: Resource \"" + mCollisionMeshName + "\" does not exist. Loading dummy Resource...");
 			mCollisionMeshName = "DummyMesh.mesh";
 		}
 		Ogre::Entity *entity = Main::Instance().GetOgreSceneMgr()->createEntity(internname, mCollisionMeshName);
-		if (mShapeType ==  Shapes::SHAPE_SPHERE)
+
+		if (mShapeType == Shapes::SHAPE_SPHERE)
 		{
-			float sphereShapeRadius = entity->getBoundingRadius();
-			mActor = Main::Instance().GetPhysXScene()->createRenderedActor(
-				mRenderable,
-				OgrePhysX::SphereShape(sphereShapeRadius * ((scale.x + scale.y + scale.z) / 3)).density(mDensity).group(CollisionGroups::DEFAULT).material(nxID));
-		}
-		else if (mShapeType == Shapes::SHAPE_CAPSULE)
-		{
-			Ogre::Vector3 cubeShapeSize = entity->getBoundingBox().getSize();
-			cubeShapeSize = cubeShapeSize * scale;
-			float capsule_radius = cubeShapeSize.x > cubeShapeSize.z ? cubeShapeSize.x : cubeShapeSize.z;
-			float offset = 0.0f;
-			if (cubeShapeSize.y - capsule_radius > 0.0f) offset = (cubeShapeSize.y / capsule_radius) * 0.1f;
-			mActor = Main::Instance().GetPhysXScene()->createRenderedActor(
-				mRenderable,
-				OgrePhysX::CapsuleShape(capsule_radius * 0.5f, cubeShapeSize.y * 0.5f + offset).density(mDensity).group(CollisionGroups::DEFAULT).material(nxID));
+			mActor = Main::Instance().GetPhysXScene()->createRigidDynamic(OgrePhysX::Geometry::sphereGeometry(entity), mDensity);
 		}
 		else if (mShapeType == Shapes::SHAPE_CONVEX)
 		{
-			mActor = Main::Instance().GetPhysXScene()->createRenderedActor(
-				mRenderable,
-				OgrePhysX::RTConvexMeshShape(entity->getMesh()).scale(scale).density(mDensity).group(CollisionGroups::DEFAULT).material(nxID));
+			mActor = Main::Instance().GetPhysXScene()->createRigidDynamic((OgrePhysX::Geometry::convexMeshGeometry(entity->getMesh(), OgrePhysX::CookerParams().scale(scale))), mDensity);
 		}
 		else		//Default: Box
 		{
-			mActor = Main::Instance().GetPhysXScene()->createRenderedActor(
-				mRenderable,
-				OgrePhysX::BoxShape(entity, scale).density(mDensity).group(CollisionGroups::DEFAULT).material(nxID));
+			mActor = Main::Instance().GetPhysXScene()->createRigidDynamic(OgrePhysX::Geometry::boxGeometry(entity), mDensity);
 		}
-		mActor->getNxActor()->userData = mOwnerGO.lock().get();
-		mActor->getNxActor()->setGroup(CollisionGroups::DEFAULT);
+		mActor.getPxActor()->userData = mOwnerGO.lock().get();
 
-		if (mIsKinematic) mActor->getNxActor()->raiseBodyFlag(NxBodyFlag::NX_BF_KINEMATIC);
+		mActor.getPxActor()->setRigidDynamicFlag(PxRigidDynamicFlag::eKINEMATIC, mIsKinematic);
 
-		mActor->getNxActor()->setSolverIterationCount(8);
+		mActor.getPxActor()->setSolverIterationCounts(8);
 
-		/*mActor->getNxActor()->getShapes()[0]->setFlag(NxShapeFlag::NX_SF_DYNAMIC_DYNAMIC_CCD, true);
-		OgrePhysX::World::getSingleton().getSDK()->createCCDSkeleton();*/
+		mRenderBinding = Main::Instance().GetPhysXScene()->createRenderedActorBinding(mActor, this);
 
 		Main::Instance().GetOgreSceneMgr()->destroyEntity(entity);
 	}
 
 	void GOCRigidBody::Freeze(bool freeze)
 	{
-		if (!mActor) return;
+		mIsFreezed = freeze;
+		if (!mActor.getPxActor()) return;
 		if (freeze)
 		{
-			mActor->getNxActor()->raiseBodyFlag(NX_BF_DISABLE_GRAVITY);	
-			mActor->getNxActor()->raiseBodyFlag(NX_BF_FROZEN);	
+			mActor.getPxActor()->setRigidDynamicFlag(PxRigidDynamicFlag::eKINEMATIC, true);
 		}
 		else
 		{
-			mActor->getNxActor()->clearBodyFlag(NX_BF_DISABLE_GRAVITY);	
-			mActor->getNxActor()->clearBodyFlag(NX_BF_FROZEN);	
-			mActor->getNxActor()->wakeUp();
+			mActor.getPxActor()->setRigidDynamicFlag(PxRigidDynamicFlag::eKINEMATIC, mIsKinematic);
 		}
 	}
 
-	void GOCRigidBody::UpdatePosition(Ogre::Vector3 position)
-	{
-		if (mActor) mActor->setGlobalPosition(position);
-	}
-	void GOCRigidBody::UpdateOrientation(Ogre::Quaternion orientation)
-	{
-		if (mActor) mActor->setGlobalPose(mOwnerGO.lock()->GetGlobalPosition(), orientation);
-	}
 	void GOCRigidBody::UpdateScale(Ogre::Vector3 scale)
 	{
-		bool freezed = mActor->getNxActor()->readBodyFlag(NX_BF_FROZEN);
+		bool freezed = mActor.getPxActor()->getRigidDynamicFlags() & PxRigidDynamicFlag::eKINEMATIC;
 		_clear();
 		Create(mCollisionMeshName, mDensity, mShapeType, scale);
-		mActor->setGlobalOrientation(mOwnerGO.lock()->GetGlobalOrientation());
-		mActor->setGlobalPosition(mOwnerGO.lock()->GetGlobalPosition());
-		Freeze(freezed);
+		mActor.setGlobalOrientation(mOwnerGO.lock()->GetGlobalOrientation());
+		mActor.setGlobalPosition(mOwnerGO.lock()->GetGlobalPosition());
+		mActor.getPxActor()->setRigidDynamicFlag(PxRigidDynamicFlag::eKINEMATIC, freezed);
 	}
 
 	void GOCRigidBody::SetOwner(std::weak_ptr<GameObject> go)
@@ -164,14 +103,30 @@ namespace Ice
 		mOwnerGO = go;
 		GameObjectPtr owner = mOwnerGO.lock();
 		if (!owner.get()) return;
-		if (mActor)
+		if (mActor.getPxActor())
 		{
 			UpdateScale(owner->GetGlobalScale());
-			mActor->getNxActor()->userData = owner.get();
-			mActor->setGlobalOrientation(owner->GetGlobalOrientation());
-			mActor->setGlobalPosition(owner->GetGlobalPosition());
+			mActor.getPxActor()->userData = owner.get();
+			mActor.setGlobalOrientation(owner->GetGlobalOrientation());
+			mActor.setGlobalPosition(owner->GetGlobalPosition());
 		}
 		else if (mCollisionMeshName != "") Create(mCollisionMeshName, mDensity, mShapeType, owner->GetGlobalScale());
+	}
+
+	std::vector<ScriptParam> GOCRigidBody::Body_GetSpeed(Script& caller, std::vector<ScriptParam> &vParams)
+	{
+		SCRIPT_RETURNVALUE(mActor.getPxActor()->getLinearVelocity().normalize())
+	}
+	std::vector<ScriptParam> GOCRigidBody::Body_AddImpulse(Script& caller, std::vector<ScriptParam> &vParams)
+	{
+		mActor.getPxActor()->addForce(PxVec3(vParams[0].getFloat(), vParams[1].getFloat(), vParams[2].getFloat()), PxForceMode::eIMPULSE);
+		SCRIPT_RETURN()
+	}
+
+	void GOCRigidBody::setTransform(Ogre::Vector3 &position, Ogre::Quaternion &rotation)
+	{
+		if (!mIsFreezed)
+			SetOwnerTransform(position, rotation);
 	}
 
 	void GOCRigidBody::SetParameters(DataMap *parameters)
@@ -234,7 +189,6 @@ namespace Ice
 	GOCStaticBody::GOCStaticBody(Ogre::String collision_mesh)
 	{
 		mCollisionMeshName = collision_mesh;
-		mActor = nullptr;
 	}
 
 	GOCStaticBody::~GOCStaticBody(void)
@@ -243,10 +197,9 @@ namespace Ice
 	}
 	void GOCStaticBody::_clear()
 	{
-		if (mActor)
+		if (mActor.getPxActor())
 		{
-			Main::Instance().GetPhysXScene()->destroyActor(mActor);
-			mActor = nullptr;
+			Main::Instance().GetPhysXScene()->removeActor(mActor);
 		}
 	}
 
@@ -261,26 +214,20 @@ namespace Ice
 			mCollisionMeshName = "DummyMesh.mesh";
 		}
 		Ogre::Entity *entity = Main::Instance().GetOgreSceneMgr()->createEntity("tempCollisionModell", mCollisionMeshName);
-		mActor = Main::Instance().GetPhysXScene()->createActor(
-			OgrePhysX::RTMeshShape(entity->getMesh()).materials(SceneManager::Instance().GetSoundMaterialTable().mOgreNxBinds).scale(scale).group(CollisionGroups::DEFAULT), mOwnerGO.lock()->GetGlobalPosition(), mOwnerGO.lock()->GetGlobalOrientation());
-		mActor->getNxActor()->userData = mOwnerGO.lock().get();
+
+		GameObjectPtr owner = mOwnerGO.lock();
+		mActor = Main::Instance().GetPhysXScene()->createRigidStatic(OgrePhysX::Geometry::triangleMeshGeometry(entity->getMesh(), OgrePhysX::CookerParams().scale(scale)));
+
+		mActor.getPxActor()->userData = mOwnerGO.lock().get();
+
 		Main::Instance().GetOgreSceneMgr()->destroyEntity(entity);
 	}
 
-	void GOCStaticBody::UpdatePosition(Ogre::Vector3 position)
-	{
-		mActor->setGlobalPosition(position);
-	}
-	void GOCStaticBody::UpdateOrientation(Ogre::Quaternion orientation)
-	{
-		mActor->setGlobalOrientation(orientation);
-	}
 	void GOCStaticBody::UpdateScale(Ogre::Vector3 scale)
 	{
 		Create(mCollisionMeshName, scale);
-		mActor->getNxActor()->userData = mOwnerGO.lock().get();
-		mActor->setGlobalOrientation(mOwnerGO.lock()->GetGlobalOrientation());
-		mActor->setGlobalPosition(mOwnerGO.lock()->GetGlobalPosition());
+		mActor.setGlobalOrientation(mOwnerGO.lock()->GetGlobalOrientation());
+		mActor.setGlobalPosition(mOwnerGO.lock()->GetGlobalPosition());
 	}
 
 	void GOCStaticBody::SetOwner(std::weak_ptr<GameObject> go)
@@ -290,9 +237,7 @@ namespace Ice
 		if (!owner.get()) return;
 		if (mCollisionMeshName == "") return;
 
-		if (mActor) Main::Instance().GetPhysXScene()->destroyActor(mActor);
 		Create(mCollisionMeshName, owner->GetGlobalScale());
-		mActor->getNxActor()->userData = owner.get();
 	}
 
 	void GOCStaticBody::SetParameters(DataMap *parameters)
@@ -328,7 +273,6 @@ namespace Ice
 	{
 		mShapeType = TriggerShapes::BOX;
 		mBoxDimensions = boxDimensions;
-		mActor = nullptr;
 		mActive = true;
 	}
 
@@ -336,7 +280,6 @@ namespace Ice
 	{
 		mShapeType = TriggerShapes::SPHERE;
 		mSphereRadius = sphereRadius;
-		mActor = nullptr;
 		mActive = true;
 	}
 
@@ -346,26 +289,33 @@ namespace Ice
 	}
 	void GOCTrigger::_clear()
 	{
-		if (mActor)
+		if (mActor.getPxActor())
 		{
-			Main::Instance().GetPhysXScene()->destroyActor(mActor);
-			mActor = nullptr;
+			Main::Instance().GetPhysXScene()->removeActor(mActor);
 		}
 	}
 
 	void GOCTrigger::Create(Ogre::Vector3 scale)
 	{
+		GameObjectPtr owner = mOwnerGO.lock();
+		mActor.setPxActor(OgrePhysX::getPxPhysics()->createRigidStatic(PxTransform(OgrePhysX::Convert::toPx(owner->GetGlobalPosition()), OgrePhysX::Convert::toPx(owner->GetGlobalOrientation()))));
+
+		mActor.getPxActor()->userData = owner.get();
+
+		PxShape *shape;
+
 		if (mShapeType == TriggerShapes::BOX)
 		{
-			mActor = Main::Instance().GetPhysXScene()->createActor(
-				OgrePhysX::BoxShape(mBoxDimensions * scale).setTrigger().group(CollisionGroups::TRIGGER));
+			shape = mActor.getPxActor()->createShape(OgrePhysX::Geometry::boxGeometry(mBoxDimensions * scale), OgrePhysX::World::getSingleton().getDefaultMaterial());		
 		}
 		else
 		{
-			mActor = Main::Instance().GetPhysXScene()->createActor(
-				OgrePhysX::SphereShape(mSphereRadius * scale.length()).group(CollisionGroups::TRIGGER));
+			shape = mActor.getPxActor()->createShape(PxSphereGeometry(mSphereRadius), OgrePhysX::World::getSingleton().getDefaultMaterial());
 		}
-		mActor->getNxActor()->userData = mOwnerGO.lock().get();
+
+		shape->setFlag(PxShapeFlag::eTRIGGER_SHAPE, true);
+
+		Main::Instance().GetPhysXScene()->getPxScene()->addActor(*mActor.getPxActor());
 	}
 
 	void GOCTrigger::onEnter(GameObject *object)
@@ -393,31 +343,20 @@ namespace Ice
 		}
 	}
 
-	void GOCTrigger::UpdatePosition(Ogre::Vector3 position)
-	{
-		mActor->setGlobalPosition(position);
-	}
-	void GOCTrigger::UpdateOrientation(Ogre::Quaternion orientation)
-	{
-		mActor->setGlobalOrientation(orientation);
-	}
 	void GOCTrigger::UpdateScale(Ogre::Vector3 scale)
 	{
-		if (mActor) Main::Instance().GetPhysXScene()->destroyActor(mActor);
 		Create(scale);
-		mActor->setGlobalOrientation(mOwnerGO.lock()->GetGlobalOrientation());
-		mActor->setGlobalPosition(mOwnerGO.lock()->GetGlobalPosition());
+		mActor.setGlobalOrientation(mOwnerGO.lock()->GetGlobalOrientation());
+		mActor.setGlobalPosition(mOwnerGO.lock()->GetGlobalPosition());
 	}
 
 	void GOCTrigger::SetOwner(std::weak_ptr<GameObject> go)
 	{
 		mOwnerGO = go;
-		if (mSphereRadius == -1) return;
-		if (mActor) Main::Instance().GetPhysXScene()->destroyActor(mActor);
-		Create(mOwnerGO.lock()->GetGlobalScale());
-		mActor->getNxActor()->userData = mOwnerGO.lock().get();
-		mActor->setGlobalOrientation(mOwnerGO.lock()->GetGlobalOrientation());
-		mActor->setGlobalPosition(mOwnerGO.lock()->GetGlobalPosition());
+		GameObjectPtr owner = mOwnerGO.lock();
+		if (!owner.get()) return;
+
+		Create(owner->GetGlobalScale());
 	}
 
 	void GOCTrigger::SetParameters(DataMap *parameters)

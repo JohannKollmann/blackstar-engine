@@ -2,14 +2,14 @@
 
 #include "OgrePhysXClasses.h"
 #include <OgreDataStream.h>
-#include "NxPhysics.h"
-#include <NxStream.h> 
+#include "PxPhysics.h"
+#include "common/PxStream.h" 
 #include <streambuf>
 #include "OgreString.h"
 
 namespace OgrePhysX
 {
-	class OgrePhysXClass OgreReadStream : public NxStream
+	class OgrePhysXClass OgreReadStream : public PxStream
 	{
 	private:
 		Ogre::DataStreamPtr mOgreDataStream;
@@ -18,18 +18,18 @@ namespace OgrePhysX
 		OgreReadStream(Ogre::DataStreamPtr ds);
 		~OgreReadStream();
 
-		NxU8            readByte()                              const;
-		NxU16           readWord()                              const;
-		NxU32           readDword()                             const;
+		PxU8            readByte()                              const;
+		PxU16           readWord()                              const;
+		PxU32           readDword()                             const;
 		float           readFloat()                             const;
 		double          readDouble()                            const;
-		void            readBuffer(void* buffer, NxU32 size)    const;
+		void            readBuffer(void* buffer, PxU32 size)    const;
 
-		NxStream&       storeByte(NxU8 b) { return *this; }
-		NxStream&       storeWord(NxU16 w) { return *this; }
-		NxStream&       storeDword(NxU32 d) { return *this; }
-		NxStream&       storeFloat(NxReal f) { return *this; }
-		NxStream&       storeDouble(NxF64 f) { return *this; }
-		NxStream&       storeBuffer(const void* buffer, NxU32 size) { return *this; }
+		PxStream&       storeByte(PxU8 b) { return *this; }
+		PxStream&       storeWord(PxU16 w) { return *this; }
+		PxStream&       storeDword(PxU32 d) { return *this; }
+		PxStream&       storeFloat(PxReal f) { return *this; }
+		PxStream&       storeDouble(PxF64 f) { return *this; }
+		PxStream&       storeBuffer(const void* buffer, PxU32 size) { return *this; }
 	};
 }

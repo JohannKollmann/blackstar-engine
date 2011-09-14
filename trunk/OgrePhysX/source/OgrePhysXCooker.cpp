@@ -2,10 +2,10 @@
 #include "OgrePhysXCooker.h"
 #include "OgrePhysXStreams.h"
 #include "OgrePhysXWorld.h"
-#include "NXU_Streaming.h"
-#include "NXU_Streaming.cpp"
-#include "NXU_File.cpp"
 #include "OgrePhysXConvert.h"
+#include "UserStream.h"
+#include "PxPhysics.h"
+#include "PxPhysicsAPI.h"
 
 namespace OgrePhysX
 {
@@ -24,51 +24,51 @@ namespace OgrePhysX
 		mOgreResourceGroup = group;
 	}
 
-	bool Cooker::hasNxMesh(Ogre::String nxsFile)
+	bool Cooker::hasPxMesh(Ogre::String PxsFile)
 	{
-		return Ogre::ResourceGroupManager::getSingleton().resourceExists(mOgreResourceGroup, nxsFile);
+		return Ogre::ResourceGroupManager::getSingleton().resourceExists(mOgreResourceGroup, PxsFile);
 	}
 
-	NxTriangleMesh* Cooker::loadNxTriangleMeshFromFile(Ogre::String nxsFile)
+	PxTriangleMesh* Cooker::loadPxTriangleMeshFromFile(Ogre::String pxsFile)
 	{
-		if (!hasNxMesh(nxsFile))
+		if (!hasPxMesh(pxsFile))
 		{
 			//throw exception
 			return 0;
 		}
-		Ogre::DataStreamPtr ds = Ogre::ResourceGroupManager::getSingleton().openResource(nxsFile);
+		Ogre::DataStreamPtr ds = Ogre::ResourceGroupManager::getSingleton().openResource(pxsFile);
 		return World::getSingleton().getSDK()->createTriangleMesh(OgreReadStream(ds));
 	}
 
 	void Cooker::getMeshInfo(Ogre::MeshPtr mesh, CookerParams &params, MeshInfo &outInfo)
 	{
-		outInfo.numVertices = 0;
-		outInfo.numTriangles = 0;
+		//First, we compute the total number of vertices and indices and init the buffers.
+		unsigned int numVertices = 0;
+		unsigned int numIndices = 0;
 
-		//First, we compute the total number of vertices and indices and create the buffers.
-		if (mesh->sharedVertexData) outInfo.numVertices += mesh->sharedVertexData->vertexCount;
+		if (mesh->sharedVertexData) numVertices += mesh->sharedVertexData->vertexCount;
 		Ogre::Mesh::SubMeshIterator i = mesh->getSubMeshIterator();
 		bool indices32 = true;
 		while (i.hasMoreElements())
 		{
 			Ogre::SubMesh *subMesh = i.getNext();
-			if (subMesh->vertexData) outInfo.numVertices += subMesh->vertexData->vertexCount;
+			if (subMesh->vertexData) numVertices += subMesh->vertexData->vertexCount;
 			if (params.mAddBackfaces)
-				outInfo.numTriangles += ((subMesh->indexData->indexCount*2) / 3);
+				numIndices += subMesh->indexData->indexCount*2;
 			else
-				outInfo.numTriangles += (subMesh->indexData->indexCount / 3);
+				numIndices += subMesh->indexData->indexCount;
 				
 			//We assume that every submesh uses the same index format
 			indices32 = (subMesh->indexData->indexBuffer->getType() == Ogre::HardwareIndexBuffer::IT_32BIT);
 		}
 
-		outInfo.vertices.resize(outInfo.numVertices);
-		outInfo.indices.resize(outInfo.numTriangles * 3);
-		outInfo.materialIndices.resize(outInfo.numTriangles);
+		outInfo.vertices.resize(numVertices);
+		outInfo.indices.resize(numIndices);
+		outInfo.materials.resize(numIndices / 3);
 
-		size_t addedVertices = 0;
-		size_t addedIndices = 0;
-		size_t addedMaterialIndices = 0;
+		unsigned int addedVertices = 0;
+		unsigned int addedIndices = 0;
+		unsigned int addedMaterialIndices = 0;
 
 		/*
 		Read shared vertices
@@ -89,7 +89,7 @@ namespace OgrePhysX
 			for (size_t i = addedVertices; i < shared_vertex_data->vertexCount; i++)
 			{
 				posElem->baseVertexPointerToElement(pVertices, &pReal);
-				NxVec3 vec;
+				Ogre::Vector3 vec;
 				vec.x = (*pReal++) * params.mScale.x;
 				vec.y = (*pReal++) * params.mScale.y;
 				vec.z = (*pReal++) * params.mScale.z;
@@ -125,7 +125,7 @@ namespace OgrePhysX
 				for (size_t i = addedVertices; i < addedVertices+vertex_data->vertexCount; i++)
 				{
 					posElem->baseVertexPointerToElement(pVertices, &pReal);
-					NxVec3 vec;
+					Ogre::Vector3 vec;
 					vec.x = (*pReal++) * params.mScale.x;
 					vec.y = (*pReal++) * params.mScale.y;
 					vec.z = (*pReal++) * params.mScale.z;
@@ -143,16 +143,16 @@ namespace OgrePhysX
 			{
 				Ogre::HardwareIndexBufferSharedPtr ibuf = index_data->indexBuffer;
 
-				NxU32 *pIndices = 0;
+				PxU32 *pIndices = 0;
 				if (indices32)
 				{
-					pIndices = static_cast<NxU32*>(ibuf->lock(Ogre::HardwareBuffer::HBL_READ_ONLY));
+					pIndices = static_cast<PxU32*>(ibuf->lock(Ogre::HardwareBuffer::HBL_READ_ONLY));
 				}
 				else
 				{
-					NxU16 *pShortIndices = static_cast<NxU16*>(ibuf->lock(Ogre::HardwareBuffer::HBL_READ_ONLY));
-					pIndices = new NxU32[index_data->indexCount];
-					for (size_t k = 0; k < index_data->indexCount; k++) pIndices[k] = static_cast<NxU32>(pShortIndices[k]);
+					PxU16 *pShortIndices = static_cast<PxU16*>(ibuf->lock(Ogre::HardwareBuffer::HBL_READ_ONLY));
+					pIndices = new PxU32[index_data->indexCount];
+					for (size_t k = 0; k < index_data->indexCount; k++) pIndices[k] = static_cast<PxU32>(pShortIndices[k]);
 				}
 				unsigned int bufferIndex = 0;
 				if (params.mAddBackfaces)
@@ -207,34 +207,31 @@ namespace OgrePhysX
 
 				ibuf->unlock();
 
-				//All triangles of a submesh have the same material.
+				//All triangles of a submesh have the same material
 				unsigned int numTris = index_data->indexCount / 3;
 				if (params.mAddBackfaces) numTris *= 2;
-				std::map<Ogre::String, NxMaterialIndex>::iterator i = params.mMaterialBindings.find(subMesh->getMaterialName());
-				NxMaterialIndex physXMat = (i != params.mMaterialBindings.end()) ? i->second : 0;
-				for (size_t i = addedMaterialIndices; i < addedMaterialIndices+numTris; i++) outInfo.materialIndices[i] = physXMat;
+				for (size_t i = addedMaterialIndices; i < addedMaterialIndices+numTris; i++) outInfo.materials[i] = subMesh->getMaterialName();
 				addedMaterialIndices += numTris;
 			}
 
 			if (vertex_data) index_offset += vertex_data->vertexCount;
 
 		}
-		//mergeVertices(outInfo);
 	}
 
 	struct OgrePhysXClass OctreeNode
 	{
 		OctreeNode(){vPos.x=0.0f;vPos.y=0.0f;vPos.z=0.0f;
 			aSubNodes[0]=0;aSubNodes[1]=0;aSubNodes[2]=0;aSubNodes[3]=0;aSubNodes[4]=0;aSubNodes[5]=0;aSubNodes[6]=0;aSubNodes[7]=0;}
-		NxVec3 vPos;
+		Ogre::Vector3 vPos;
 		OctreeNode* aSubNodes[8];
 		std::list<int> liIndices;
 	};
 	
-	struct STri
+	struct OgrePhysXClass STri
 	{
 		STri(){i1=-1;i2=-1;i3=-1;}
-		STri(int iIndex1, int iIndex2, int iIndex3, NxMaterialIndex materialIndex, bool bSort=true)
+		STri(int iIndex1, int iIndex2, int iIndex3, Ogre::String material, bool bSort=true)
 		{
 			if(!bSort)
 			{
@@ -276,11 +273,11 @@ namespace OgrePhysX
 			return i3<op.i3;
 		}
 		int i1,i2,i3;
-		NxMaterialIndex mat;
+		Ogre::String mat;
 	};
 
 	//returns current vertex count
-	int ExtractOctree(OctreeNode* pNode, int iVertexCount, int* aiIndexTable, NxVec3* aNewVertices)
+	int OgrePhysXClass ExtractOctree(OctreeNode* pNode, int iVertexCount, int* aiIndexTable, Ogre::Vector3* aNewVertices)
 	{
 		for(std::list<int>::const_iterator it=pNode->liIndices.begin();
 			it!=pNode->liIndices.end(); it++)
@@ -310,7 +307,7 @@ namespace OgrePhysX
 		int iVertex=0;
 		int numAdded = 0;
 		
-		for(;iVertex<(int)meshInfo.numVertices; iVertex++)
+		for(;iVertex<(int)meshInfo.vertices.size(); iVertex++)
 		{
 			OctreeNode* pCurrNode=&root;
 			while(true)
@@ -336,18 +333,17 @@ namespace OgrePhysX
 				}//pCurrNode is now one level lower in the tree
 			}
 		}
-		int* aiIndexTable=new int[meshInfo.numTriangles*3];
-		NxVec3* aNewVertices=new NxVec3[meshInfo.numVertices];
+		int* aiIndexTable=new int[meshInfo.vertices.size()];		//maps old indices to new 		
+		Ogre::Vector3* aNewVertices=new Ogre::Vector3[meshInfo.vertices.size()];
 		//extract indextable and vertex list
 		int nNewVertices=ExtractOctree(&root, 0, aiIndexTable, aNewVertices);
-		for(int iIndex=0; iIndex<(int)meshInfo.numTriangles*3; iIndex++)
+		for(int iIndex=0; iIndex<(int)meshInfo.indices.size(); ++iIndex)
 		{
-			meshInfo.indices[iIndex]=aiIndexTable[meshInfo.indices[iIndex]];
-			assert(((int)meshInfo.indices[iIndex])<(int)nNewVertices);
-			assert(meshInfo.indices[iIndex]>=0);
+			assert(meshInfo.indices[iIndex] < meshInfo.indices.size());
+			assert(meshInfo.indices[iIndex] >= 0);
+			meshInfo.indices[iIndex] = aiIndexTable[meshInfo.indices[iIndex]];
 		}
 		
-		meshInfo.numVertices=nNewVertices;
 		meshInfo.vertices.resize(nNewVertices);
 		for(iVertex=0; iVertex<nNewVertices; iVertex++)
 			meshInfo.vertices[iVertex]=aNewVertices[iVertex];
@@ -357,10 +353,10 @@ namespace OgrePhysX
 		
 		//search for duplicated and degenerate tris
 		std::vector<STri> vTris;
-		vTris.resize(meshInfo.numTriangles);
+		vTris.resize(meshInfo.indices.size() / 3);
 		int nTrisCopied=0;
 		int iTri=0;
-		for(; iTri<(int)meshInfo.numTriangles; iTri++)
+		for(; iTri<(int)meshInfo.indices.size() / 3; iTri++)
 		{//check if this tri is degenerate
 			int index1=meshInfo.indices[iTri*3+0],
 				index2=meshInfo.indices[iTri*3+1],
@@ -368,7 +364,7 @@ namespace OgrePhysX
 			if(index1==index2 || index3==index2 || index1==index3)
 				//degenerate tri: two or more vertices are the same
 				continue;
-			vTris[nTrisCopied++]=STri(index1,index2,index3, meshInfo.materialIndices[iTri]);
+			vTris[nTrisCopied++]=STri(index1,index2,index3, meshInfo.materials[iTri]);
 		}
 		vTris.resize(nTrisCopied);
 		std::sort(vTris.begin(), vTris.end());//sort tris to find duplicates easily
@@ -381,14 +377,13 @@ namespace OgrePhysX
 				meshInfo.indices[nTrisCopied*3+0]=vTris[iTri].i1;
 				meshInfo.indices[nTrisCopied*3+1]=vTris[iTri].i2;
 				meshInfo.indices[nTrisCopied*3+2]=vTris[iTri].i3;
-				meshInfo.materialIndices[nTrisCopied]=vTris[iTri].mat;
+				meshInfo.materials[nTrisCopied]=vTris[iTri].mat;
 				lastTri=vTris[iTri];
 				nTrisCopied++;
 			}
 		}
-		meshInfo.materialIndices.resize(nTrisCopied);
+		meshInfo.materials.resize(nTrisCopied);
 		meshInfo.indices.resize(nTrisCopied*3);
-		meshInfo.numTriangles=nTrisCopied;
 	}
 
 	//function to generate ccd mesh
@@ -396,9 +391,9 @@ namespace OgrePhysX
 	{
 		//STri* tris= new STri[meshInfo.numTriangles];
 		std::vector<STri> vTris;
-		vTris.resize(meshInfo.numTriangles*3);//create rotated tris
+		vTris.resize(meshInfo.indices.size()/3);//create rotated tris
 		int iTri=0;
-		for(; iTri<(int)meshInfo.numTriangles; iTri++)
+		for(; iTri<(int)meshInfo.indices.size()/3; iTri++)
 		{
 			vTris[iTri*3]=STri(meshInfo.indices[iTri*3], meshInfo.indices[iTri*3+1], meshInfo.indices[iTri*3+2], 0, false);//no mat indices this time!
 			vTris[iTri*3+1]=STri(meshInfo.indices[iTri*3+2], meshInfo.indices[iTri*3], meshInfo.indices[iTri*3+1], 0, false);
@@ -407,36 +402,36 @@ namespace OgrePhysX
 		std::sort(vTris.begin(), vTris.end());
 		int iLastIndex=-1;
 		int nVertices;
-		NxVec3 vAccNomals;
-		NxVec3 vPos;
-		std::vector<NxVec3> vNewVertices;
-		vNewVertices.resize(meshInfo.numVertices);
+		Ogre::Vector3 vAccNomals;
+		Ogre::Vector3 vPos;
+		std::vector<Ogre::Vector3> vNewVertices;
+		vNewVertices.resize(meshInfo.vertices.size());
 		for(iTri=0; iTri<(int)vTris.size(); iTri++)
 		{
 			if(vTris[iTri].i1!=iLastIndex)
 			{
 				if(iLastIndex!=-1)
 				{
-					vAccNomals.normalize();
+					vAccNomals.normalise();
 					vNewVertices[iLastIndex]=meshInfo.vertices[iLastIndex]-fAmount*vAccNomals;
 				}
 				nVertices=0;
-				vAccNomals=NxVec3(0,0,0);
+				vAccNomals=Ogre::Vector3(0,0,0);
 				iLastIndex=vTris[iTri].i1;
 				vPos=meshInfo.vertices[iLastIndex];
 			}
-			NxVec3 v=(meshInfo.vertices[vTris[iTri].i2]-vPos).cross(meshInfo.vertices[vTris[iTri].i3]-vPos);
-			v.normalize();
+			Ogre::Vector3 v=(meshInfo.vertices[vTris[iTri].i2]-vPos).crossProduct(meshInfo.vertices[vTris[iTri].i3]-vPos);
+			v.normalise();
 			vAccNomals+=v;
 			nVertices++;
 		}
-		vAccNomals.normalize();
+		vAccNomals.normalise();
 		vNewVertices[iLastIndex]=meshInfo.vertices[iLastIndex]+fAmount*vAccNomals;
-		for(unsigned int iVertex=0; iVertex<meshInfo.numVertices; iVertex++)
+		for(unsigned int iVertex=0; iVertex<meshInfo.vertices.size(); iVertex++)
 			meshInfo.vertices[iVertex]=vNewVertices[iVertex];
 	}
 
-	void Cooker::cutMesh(MeshInfo &outInfo, NxVec3 vPlanePos, NxVec3 vPlaneDir)
+	void Cooker::cutMesh(MeshInfo &outInfo, PxVec3 vPlanePos, PxVec3 vPlaneDir)
 	{
 		/*
 		cutting an arbitrary closed triangle mesh
@@ -482,23 +477,50 @@ namespace OgrePhysX
 		*/
 	}
 
-	void Cooker::cookNxTriangleMesh(Ogre::MeshPtr mesh, NxStream& outputStream, CookerParams &params)		//Ogre::Vector3 scale, std::map<Ogre::String, NxMaterialIndex> &materialBindings)
+	void Cooker::cookPxTriangleMesh(Ogre::MeshPtr mesh, PxStream& outputStream, CookerParams &params)		//Ogre::Vector3 scale, std::map<Ogre::String, PxMaterialIndex> &materialBindings)
 	{
 		MeshInfo meshInfo;
 		getMeshInfo(mesh, params, meshInfo);
+		mergeVertices(meshInfo);
 
-		// Build the triangle mesh.
-		NxTriangleMeshDesc meshDesc;
-		meshDesc.numVertices                = meshInfo.numVertices;
-		meshDesc.numTriangles               = meshInfo.numTriangles;
-		meshDesc.materialIndexStride		= sizeof(NxMaterialIndex);
-		meshDesc.pointStrideBytes           = sizeof(NxVec3);
-		meshDesc.triangleStrideBytes        = 3 * sizeof(NxU32);
+		PxTriangleMeshDesc desc;
+		desc.setToDefault();
 
-		meshDesc.points = &meshInfo.vertices[0].x;
-		meshDesc.triangles = &meshInfo.indices[0];
-		meshDesc.materialIndices = &meshInfo.materialIndices[0];
-		meshDesc.flags = 0;
+		desc.points.count = meshInfo.vertices.size();
+		desc.points.stride = 12;
+		float *fVertices = new float[meshInfo.vertices.size()*3];
+		for (unsigned int i = 0; i < meshInfo.vertices.size(); ++i)
+		{
+			fVertices[i*3] = meshInfo.vertices[i].x;
+			fVertices[i*3+1] = meshInfo.vertices[i].y;
+			fVertices[i*3+2] = meshInfo.vertices[i].z;
+		}
+		desc.points.data = fVertices;
+		
+		desc.triangles.count = meshInfo.indices.size() / 3;
+		desc.triangles.stride = 12;
+		PxU32 *iIndices = new PxU32[meshInfo.indices.size()];
+		for (unsigned int i = 0; i < meshInfo.indices.size(); ++i)
+			iIndices[i] = meshInfo.indices[i];
+		desc.triangles.data = iIndices;
+
+		PxMaterialTableIndex *materialIndices = nullptr;
+		if (!params.mMaterialBindings.empty())
+		{
+			desc.materialIndices.stride = sizeof(PxMaterialTableIndex);
+			materialIndices = new PxMaterialTableIndex[meshInfo.indices.size() / 3];
+			for (unsigned int i = 0; i < meshInfo.indices.size() / 3; ++i)
+			{
+				auto matIndex = params.mMaterialBindings.find(meshInfo.materials[i]);
+				if (matIndex == params.mMaterialBindings.end())
+				{
+					Ogre::LogManager::getSingleton().logMessage("[OgrePhysX] Could not find material index for material: " + meshInfo.materials[i]);
+					materialIndices[i] = 0;
+				}
+				else materialIndices[i] = matIndex->second;
+			}	
+		}
+		desc.materialIndices.data = materialIndices;
 
 		//dump the fucking buffers!
 		/*for (unsigned int i = 0; i < outInfo.numTriangles*3; i+=3)
@@ -507,42 +529,62 @@ namespace OgrePhysX
 		for (unsigned int i = 0; i < outInfo.numVertices; i++)
 			Ogre::LogManager::getSingleton().logMessage(Ogre::StringConverter::toString(Convert::toOgre(meshInfo.vertices[i])));*/
 
-		World::getSingleton().getCookingInterface()->NxCookTriangleMesh(meshDesc, outputStream);
+		World::getSingleton().getCookingInterface()->cookTriangleMesh(desc, outputStream);
+
+		delete fVertices;
+		delete iIndices;
+		if (materialIndices) delete materialIndices;
+
 	}
 
-	void Cooker::cookNxConvexMesh(Ogre::MeshPtr mesh, NxStream& outputStream, CookerParams &params)		//Ogre::Vector3 scale, std::map<Ogre::String, NxMaterialIndex> &materialBindings)
+	void Cooker::cookPxConvexMesh(Ogre::MeshPtr mesh, PxStream& outputStream, CookerParams &params)		//Ogre::Vector3 scale, std::map<Ogre::String, PxMaterialIndex> &materialBindings)
 	{
 		MeshInfo meshInfo;
 		getMeshInfo(mesh, params, meshInfo);
 
-		// Build the triangle mesh.
-		NxConvexMeshDesc convexDesc;
-		convexDesc.numVertices = meshInfo.numVertices;
-		convexDesc.pointStrideBytes = sizeof(NxVec3);
-		convexDesc.points = &meshInfo.vertices[0].x;
-		convexDesc.flags = NX_CF_COMPUTE_CONVEX;
+		PxConvexMeshDesc desc;
+		desc.points.count = meshInfo.vertices.size();
+		desc.points.stride = 12;
+		float *fVertices = new float[meshInfo.vertices.size()*3];
+		for (unsigned int i = 0; i < meshInfo.vertices.size(); ++i)
+		{
+			fVertices[i*3] = meshInfo.vertices[i].x;
+			fVertices[i*3+1] = meshInfo.vertices[i].y;
+			fVertices[i*3+2] = meshInfo.vertices[i].z;
+		}
+		desc.points.data = fVertices;
+		
+		desc.triangles.count = meshInfo.indices.size() / 3;
+		desc.triangles.stride = 12;
+		int *iIndices = new int[meshInfo.indices.size()];
+		for (unsigned int i = 0; i < meshInfo.indices.size(); ++i)
+			iIndices[i] = meshInfo.indices[i];
+		desc.triangles.data = iIndices;
 
-		World::getSingleton().getCookingInterface()->NxCookConvexMesh(convexDesc, outputStream);
+		World::getSingleton().getCookingInterface()->cookConvexMesh(desc, outputStream);
+
+		delete fVertices;
+		delete iIndices;
 	}
 
-	void Cooker::cookNxTriangleMeshToFile(Ogre::MeshPtr mesh, Ogre::String nxsOutputFile, CookerParams &params)
+	void Cooker::cookPxTriangleMeshToFile(Ogre::MeshPtr mesh, Ogre::String pxsOutputFile, CookerParams &params)
 	{
-		cookNxTriangleMesh(mesh, NXU::UserStream(nxsOutputFile.c_str(), false), params);
+		cookPxTriangleMesh(mesh, PxToolkit::UserStream(pxsOutputFile.c_str(), true), params);
 	}
 
-	NxTriangleMesh* Cooker::createNxTriangleMesh(Ogre::MeshPtr mesh, CookerParams &params)	
+	PxTriangleMesh* Cooker::createPxTriangleMesh(Ogre::MeshPtr mesh, CookerParams &params)	
 	{
-		NXU::MemoryWriteBuffer stream;
-		cookNxTriangleMesh(mesh, stream, params);
+		PxToolkit::MemoryWriteBuffer stream;
+		cookPxTriangleMesh(mesh, stream, params);
 		if (stream.data == nullptr) return nullptr;
-		return World::getSingleton().getSDK()->createTriangleMesh(NXU::MemoryReadBuffer(stream.data));
+		return World::getSingleton().getSDK()->createTriangleMesh(PxToolkit::MemoryReadBuffer(stream.data));
 	}
 
-	NxConvexMesh* Cooker::createNxConvexMesh(Ogre::MeshPtr mesh, CookerParams &params)	
+	PxConvexMesh* Cooker::createPxConvexMesh(Ogre::MeshPtr mesh, CookerParams &params)	
 	{
-		NXU::MemoryWriteBuffer stream;
-		cookNxConvexMesh(mesh, stream, params);
-		return World::getSingleton().getSDK()->createConvexMesh(NXU::MemoryReadBuffer(stream.data));
+		PxToolkit::MemoryWriteBuffer stream;
+		cookPxConvexMesh(mesh, stream, params);
+		return World::getSingleton().getSDK()->createConvexMesh(PxToolkit::MemoryReadBuffer(stream.data));
 	}
 
 	Cooker& Cooker::getSingleton()

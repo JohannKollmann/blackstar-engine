@@ -2,6 +2,8 @@
 #include "IceGOCJoint.h"
 #include "IceGOCPhysics.h"
 #include "IceMain.h"
+#include "PxFixedJoint.h"
+#include "PxPhysicsAPI.h"
 
 namespace Ice
 {
@@ -11,7 +13,7 @@ namespace Ice
 		clear();
 	}
 
-	void GOCJoint::createJoint(NxJointDesc &desc)
+	void GOCJoint::createJoint()
 	{
 		clear();
 		GameObjectPtr owner = mOwnerGO.lock();
@@ -23,13 +25,13 @@ namespace Ice
 		GOCRigidBody *body2 = jointActors[1]->GetComponent<GOCRigidBody>();
 		IceAssert(body1 && body2)
 		IceAssert(body1 != body2)
-		body1->GetActor()->getNxActor()->setSolverIterationCount(16);
-		body2->GetActor()->getNxActor()->setSolverIterationCount(16);
-		desc.actor[0] = body1->GetActor()->getNxActor();
-		desc.actor[1] = body2->GetActor()->getNxActor();
-		desc.maxForce = mMaxForce;
-		desc.maxTorque = mMaxTorque;
-		mPhysXJoint = Main::Instance().GetPhysXScene()->getNxScene()->createJoint(desc);
+		body1->GetActor()->getPxActor()->setSolverIterationCounts(16);
+		body2->GetActor()->getPxActor()->setSolverIterationCounts(16);
+		mPhysXJoint = PxFixedJointCreate(*OgrePhysX::getPxPhysics(),
+			body1->GetActor()->getPxActor(), PxTransform(),
+			body2->GetActor()->getPxActor(), PxTransform());
+
+		mPhysXJoint->setBreakForce(mMaxForce, mMaxTorque);
 		mPhysXJoint->userData = owner.get();
 	}
 
@@ -37,7 +39,7 @@ namespace Ice
 	{
 		if (mPhysXJoint)
 		{
-			Main::Instance().GetPhysXScene()->getNxScene()->releaseJoint(*mPhysXJoint);
+			//TODO: remove joint
 			mPhysXJoint = nullptr;
 		}
 	}
@@ -90,8 +92,7 @@ namespace Ice
 		clear();
 		if (!mOwnerGO.expired())
 		{
-			NxFixedJointDesc desc;
-			createJoint(desc);
+			createJoint();
 		}
 	}
 

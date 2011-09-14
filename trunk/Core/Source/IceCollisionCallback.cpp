@@ -13,160 +13,136 @@
 namespace Ice
 {
 
-	void TriggerCallback::onEnter(NxActor &trigger, NxActor &other)
-	{
-		if (trigger.userData && other.userData)
+		void PhysXContactReport::onContact(PxContactPair &pair, PxU32 events)
 		{
-			GameObject *triggerObject = (GameObject*)trigger.userData;
-			IceAssert(triggerObject)
-			GOCTrigger *trigger = triggerObject->GetComponent<GOCTrigger>();
-			if (trigger)
+			// Iterate through contact points
+			PxContactStreamIterator i(pair.stream);
+			//user can call getNumPairs() here
+			while(i.goNextPair())
 			{
-				GameObject *otherObject = (GameObject*)other.userData;
-				trigger->onEnter(otherObject);
-			}
-		}
-	}
-	void TriggerCallback::onLeave(NxActor &trigger, NxActor &other)
-	{
-		if (trigger.userData && other.userData)
-		{
-			GameObject *triggerObject = (GameObject*)trigger.userData;
-			IceAssert(triggerObject)
-			GOCTrigger *trigger = triggerObject->GetComponent<GOCTrigger>();
-			if (trigger)
-			{
-				GameObject *otherObject = (GameObject*)other.userData;
-				trigger->onLeave(otherObject);
-			}
-		}
-	}
+				PxShape *shape1 = i.getShape(0);
+				PxShape *shape2 = i.getShape(1);
 
+				//First material callback
+				shape1->getMaterialFromInternalFaceIndex(0);
+				shape2->getMaterialFromInternalFaceIndex(0);
 
-	void PhysXUserCallback::onSleep(NxActor** actors, NxU32 count)
-	{
-		for (unsigned int i = 0; i < count; i++)
-		{
-			Msg msg;
-			msg.typeID = GlobalMessageIDs::ACTOR_ONSLEEP;
-			msg.rawData = actors[i];
-			MessageSystem::Instance().MulticastMessage(msg);
-		}
-	}
-
-	void PhysXUserCallback::onWake(NxActor** actors, NxU32 count)
-	{
-		for (unsigned int i = 0; i < count; i++)
-		{
-			Msg msg;
-			msg.typeID = GlobalMessageIDs::ACTOR_ONWAKE;
-			msg.rawData = actors[i];
-			MessageSystem::Instance().MulticastMessage(msg);
-		}
-	}
-
-	bool PhysXUserCallback::onJointBreak(NxReal breakingImpulse, NxJoint& brokenJoint)
-	{
-		IceNote("Joint break!");
-		return false;
-	}
-
-
-	void ActorContactReport::onMaterialContact(Ogre::String material1, Ogre::String material2, Ogre::Vector3 position, float force )
-	{
-		//Log::Instance().LogMessage("OnMaterialContact: " + material1 + " - " + material2 + "  Force: " + Ogre::StringConverter::toString(force));
-		Msg msg;
-		msg.typeID = GlobalMessageIDs::MATERIAL_ONCONTACT;
-		msg.params.AddOgreVec3("Position", position);
-		msg.params.AddOgreString("Material1", material1);
-		msg.params.AddOgreString("Material2", material2);
-		msg.params.AddFloat("Force", force);
-		MessageSystem::Instance().MulticastMessage(msg);
-	}
-
-
-	void ActorContactReport::onContactNotify(NxContactPair &pair, NxU32 events)
-	{
-		// Iterate through contact points
-		NxContactStreamIterator i(pair.stream);
-		//user can call getNumPairs() here
-		while(i.goNextPair())
-		{
-			NxShape *shape1 = i.getShape(0);
-			NxShape *shape2 = i.getShape(1);
-			if	((shape1->getGroup() == CollisionGroups::BONE || shape1->getGroup() == CollisionGroups::AI)
-				&& (shape2->getGroup() == CollisionGroups::BONE || shape2->getGroup() == CollisionGroups::AI))
-					continue;
-
-			//First material callback
-			Ogre::String material1 = SceneManager::Instance().GetSoundMaterialTable().GetMaterialName(shape1->getMaterial());
-			Ogre::String material2 = SceneManager::Instance().GetSoundMaterialTable().GetMaterialName(shape2->getMaterial());
-
-			float summed_force = 0.0f;
-			Ogre::Vector3 contactPoint;
-			while(i.goNextPatch())
-			{
-				//user can also call getPatchNormal() and getNumPoints() here
-				const NxVec3& contactNormal = i.getPatchNormal();
-				bool once = true;
-				while(i.goNextPoint())
+				float summed_force = 0.0f;
+				Ogre::Vector3 contactPoint;
+				while(i.goNextPatch())
 				{
-					//user can also call getPoint() and getSeparation() here
-					contactPoint = OgrePhysX::Convert::toOgre(i.getPoint());
-					summed_force += i.getPointNormalForce();
-					if (!once) continue;
-					once = false;
+					//user can also call getPatchNormal() and getNumPoints() here
+					const PxVec3& contactNormal = i.getPatchNormal();
+					bool once = true;
+					while(i.goNextPoint())
+					{
+						//user can also call getPoint() and getSeparation() here
+						contactPoint = OgrePhysX::Convert::toOgre(i.getPoint());
+						summed_force += i.getPointNormalForce();
+						if (!once) continue;
+						once = false;
 
-					NxTriangleMeshShape *meshShape = 0;
-					int triIndex = 0;
-					bool mat1 = true;
-					if (shape1->getType() == NxShapeType::NX_SHAPE_MESH)
-					{
-						meshShape = (NxTriangleMeshShape*)shape1;
-						triIndex = i.getFeatureIndex0();
-					}
-					else if (shape2->getType() == NxShapeType::NX_SHAPE_MESH)
-					{
-						mat1 = false;
-						meshShape = (NxTriangleMeshShape*)shape2;
-						triIndex = i.getFeatureIndex1();
-					}
-					if (meshShape)
-					{
-						Ogre::Entity *ent = nullptr;
-						if (meshShape->getActor().userData)
+						/*PxTriangleMeshShape *meshShape = 0;
+						int triIndex = 0;
+						bool mat1 = true;
+						if (shape1->getType() == NxShapeType::NX_SHAPE_MESH)
 						{
-							GameObject *object = (GameObject*)meshShape->getActor().userData;
-							GOCMeshRenderable *gocMesh = nullptr;
-							if (gocMesh = object->GetComponent<GOCMeshRenderable>())
-								ent = gocMesh->GetEntity();
+							meshShape = (NxTriangleMeshShape*)shape1;
+							triIndex = i.getFeatureIndex0();
 						}
-						if (ent)
+						else if (shape2->getType() == NxShapeType::NX_SHAPE_MESH)
 						{
-							int triCount = 0;
-							for (unsigned i = 0; i < ent->getMesh()->getNumSubMeshes(); i++)
+							mat1 = false;
+							meshShape = (NxTriangleMeshShape*)shape2;
+							triIndex = i.getFeatureIndex1();
+						}
+						if (meshShape)
+						{
+							Ogre::Entity *ent = nullptr;
+							if (meshShape->getActor().userData)
 							{
-								Ogre::SubMesh *subMesh = ent->getMesh()->getSubMesh(i);
-								int subMeshTriCount = subMesh->indexData->indexCount / 3;
-								if (triIndex >= triCount && triIndex < triCount+subMeshTriCount)
-								{
-									Ogre::String meshMat = SceneManager::Instance().GetSoundMaterialTable().GetMaterialName(subMesh->getMaterialName());
-									if (mat1) material1 = meshMat;
-									else material2 = meshMat;
-									break;
-								}
-								triCount += subMeshTriCount;
+								GameObject *object = (GameObject*)meshShape->getActor().userData;
+								GOCMeshRenderable *gocMesh = nullptr;
+								if (gocMesh = object->GetComponent<GOCMeshRenderable>())
+									ent = gocMesh->GetEntity();
 							}
-						}
+							if (ent)
+							{
+								int triCount = 0;
+								for (unsigned i = 0; i < ent->getMesh()->getNumSubMeshes(); i++)
+								{
+									Ogre::SubMesh *subMesh = ent->getMesh()->getSubMesh(i);
+									int subMeshTriCount = subMesh->indexData->indexCount / 3;
+									if (triIndex >= triCount && triIndex < triCount+subMeshTriCount)
+									{
+										Ogre::String meshMat = SceneManager::Instance().GetSoundMaterialTable().GetMaterialName(subMesh->getMaterialName());
+										if (mat1) material1 = meshMat;
+										else material2 = meshMat;
+										break;
+									}
+									triCount += subMeshTriCount;
+								}
+							}
+						}*/
 					}
 				}
+				//onMaterialContact(material1, material2, contactPoint, summed_force);
 			}
-			onMaterialContact(material1, material2, contactPoint, summed_force);
 		}
-	}
 
-	ActorContactReport::ActorContactReport()
-	{
-	}
+		void PhysXContactReport::onSleep(PxActor** actors, PxU32 count)
+		{
+			for (unsigned int i = 0; i < count; i++)
+			{
+				Msg msg;
+				msg.typeID = GlobalMessageIDs::ACTOR_ONSLEEP;
+				msg.rawData = actors[i];
+				MessageSystem::Instance().MulticastMessage(msg);
+			}
+		}
+
+		void PhysXContactReport::onWake(PxActor** actors, PxU32 count)
+		{
+			for (unsigned int i = 0; i < count; i++)
+			{
+				Msg msg;
+				msg.typeID = GlobalMessageIDs::ACTOR_ONWAKE;
+				msg.rawData = actors[i];
+				MessageSystem::Instance().MulticastMessage(msg);
+			}			
+		}
+
+		void PhysXContactReport::onTrigger(PxTriggerPair *pairs, PxU32 count)
+		{
+			if (pairs->triggerShape->getActor().userData && pairs->otherShape->getActor().userData)
+			{
+				GameObject *triggerObject = (GameObject*)pairs->triggerShape->getActor().userData;
+				IceAssert(triggerObject)
+				GOCTrigger *trigger = triggerObject->GetComponent<GOCTrigger>();
+				if (trigger)
+				{
+					GameObject *otherObject = (GameObject*)pairs->otherShape->getActor().userData;
+
+					if (pairs->status == PxPairFlag::eNOTIFY_TOUCH_FOUND) trigger->onEnter(otherObject);
+					else if (pairs->status == PxPairFlag::eNOTIFY_TOUCH_LOST) trigger->onLeave(otherObject);
+				}
+			}
+		}
+
+		void PhysXContactReport::onConstraintBreak(PxConstraintInfo *constraints, PxU32 count)
+		{
+		}
+
+
+		void PhysXContactReport::onMaterialContact(Ogre::String material1, Ogre::String material2, Ogre::Vector3 position, float force)
+		{
+			Msg msg;
+			msg.typeID = GlobalMessageIDs::MATERIAL_ONCONTACT;
+			msg.params.AddOgreVec3("Position", position);
+			msg.params.AddOgreString("Material1", material1);
+			msg.params.AddOgreString("Material2", material2);
+			msg.params.AddFloat("Force", force);
+			MessageSystem::Instance().MulticastMessage(msg);
+		}
 
 };

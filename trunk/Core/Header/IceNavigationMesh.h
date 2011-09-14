@@ -4,9 +4,9 @@
 #include "IceIncludes.h"
 #include "Ice3D.h"
 #include "IceAStar.h"
-#include "NxCooking.h"
 #include "OgrePhysX.h"
 #include "IceMessageSystem.h"
+#include "PxPhysicsAPI.h"
 
 namespace Ice
 {
@@ -102,8 +102,8 @@ namespace Ice
 
 		bool mNeedsUpdate;
 		bool mDestroyingNavMesh;
-		OgrePhysX::Actor *mPhysXActor;
-		NxTriangleMeshShape *mPhysXMeshShape;
+		PxRigidStatic *mPhysXActor;
+		PxTriangleMesh *mPhysXMesh;
 		PathNodeTree *mPathNodeTree;
 		Ogre::Entity *mDebugVisual;
 		Ogre::ManualObject *mConnectionLinesDebugVisual;
@@ -118,6 +118,8 @@ namespace Ice
 		};
 		MinMax getMinMax(const std::vector<float> &vals);
 
+		bool raycastClosest(const Ogre::Vector3 &origin, const Ogre::Vector3 &direction, float maxDist, PxRaycastHit &hit = PxRaycastHit());
+
 		void rasterNodes();
 		bool borderTest(Ogre::Vector3 targetPoint, float size, float maxHeightDif);
 		bool checkAgainstLevelMesh(Ogre::Vector3 targetPoint, float extent, float heightOffset);
@@ -127,14 +129,6 @@ namespace Ice
 		void addMatchingNeighbours(std::vector<AStarNode3D*> base, std::vector<AStarNode3D*> add);
 		AStarNode3D* rasterNode(Ogre::Vector3 targetPoint, float subTest);
 		void bakePhysXMesh();
-
-		class NxUserIntReport : public NxUserEntityReport<NxU32>
-		{
-			bool onEvent  (NxU32  nbEntities, NxU32 *entities)
-			{
-				return true;
-			}
-		};
 
 	public:
 

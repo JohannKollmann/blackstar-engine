@@ -8,16 +8,27 @@
 
 #define OGREPHYSX_CANMOVESTATICACTORS 1
 
+#define PX_SUPPORT_VISUAL_DEBUGGER		//remote debugger on
+
+//forward declarations
+class PxDefaultAllocator;	
+class PxPhysics;
+class PxScene;
+class PxSceneDesc;
+class PxCooking;
+class PxMaterial;
+class PxActor;
+class PxGeometry;
+
 namespace OgrePhysX
 {
-	class Convert;
 	class World;
 	class Scene;
+	class LogOutputStream;
 	class Cooker;
 	class CookerParams;
 	class PointRenderable;
-	class Actor;
-	class RenderedActor;
+	class RenderedActorBinding;
 	class Shape;
 	class BaseMeshShape;
 	class CookedMeshShape;

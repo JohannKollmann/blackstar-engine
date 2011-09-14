@@ -2,7 +2,6 @@
 #include "IceSoundMaterialTable.h"
 #include "IceMain.h"
 #include "OgrePhysX.h"
-#include "NxMaterialDesc.h"
 #include <fstream>
 
 namespace Ice
@@ -41,7 +40,8 @@ namespace Ice
 		std::fstream f;
 		f.open(cfgFile.c_str(), std::ios::out | std::ios::trunc);
 		f << "[OgreBindings]" << std::endl;
-		for (auto i = mOgreBindings.begin(); i != mOgreBindings.end(); i++)
+		auto matBindings = OgrePhysX::World::getSingleton().getOgreMaterialBindings();
+		for (auto i = matBindings.begin(); i != matBindings.end(); i++)
 		{
 			f << i->first << " = " << i->second << std::endl;
 		}
@@ -50,70 +50,50 @@ namespace Ice
 
 	void SoundMaterialTable::SetOgreBinding(Ogre::String ogreMat, Ogre::String mat)
 	{
-		auto test = mMatNxBinds.find(mat);
-		if (test == mMatNxBinds.end())
+		auto test = mMaterialProfilesToPx.find(mat);
+		if (test == mMaterialProfilesToPx.end())
 		{
 			Log::Instance().LogMessage("Error in SoundMaterialTable::SetOgreBinding: Material " + mat + " does not exist!");
 			return;
 		}
-		auto x = mOgreBindings.find(ogreMat);
-		if (x != mOgreBindings.end()) x->second = mat;
-		else mOgreBindings.insert(std::make_pair<Ogre::String, Ogre::String>(ogreMat, mat));
-
-		NxMatID id = test->second;
-		auto y = mOgreNxBinds.find(ogreMat);
-		if (y != mOgreNxBinds.end()) y->second = id;
-		else mOgreNxBinds.insert(std::make_pair<Ogre::String, NxMatID>(ogreMat, id));
+		OgrePhysX::World::getSingleton().bindOgreMaterial(ogreMat, test->second);
 	}
 
-	void SoundMaterialTable::AddMaterialProfile(Ogre::String name, NxMatID matID)
+	void SoundMaterialTable::AddMaterialProfile(const Ogre::String &name, MaterialIndex matID)
 	{
-		auto x = mMatNxBinds.find(name);
-		if (x != mMatNxBinds.end())
+		if (mMaterialProfilesToPx.find(name) != mMaterialProfilesToPx.end())
 		{
 			Log::Instance().LogMessage("Error in SoundMaterialTable::AddMaterialProfile: Material " + name + " already exists!");
 			return;
 		}
-		mMatNxBinds.insert(std::make_pair<Ogre::String, NxMatID>(name, matID));
-		mNxMatBinds.insert(std::make_pair<NxMatID, Ogre::String>(matID, name));
+		mMaterialProfilesToPx.insert(std::make_pair<Ogre::String, MaterialIndex>(name, matID));
+		mPxToMaterialProfiles.insert(std::make_pair<MaterialIndex, Ogre::String>(matID, name));
 	}
 
 	std::vector<Ogre::String> SoundMaterialTable::GetMaterialProfiles()
 	{
 		std::vector<Ogre::String> mats;
-		for (auto i = mMatNxBinds.begin(); i != mMatNxBinds.end(); i++)
+		for (auto i = mMaterialProfilesToPx.begin(); i != mMaterialProfilesToPx.end(); i++)
 		{
 			mats.push_back(i->first);
 		}
 		return mats;
 	}
 
-	Ogre::String SoundMaterialTable::GetMaterialName( Ogre::String ogreMat )
+	Ogre::String SoundMaterialTable::GetMaterialName(MaterialIndex matID)
 	{
-		auto i = mOgreBindings.find(ogreMat);
-		if (i == mOgreBindings.end())
+		auto i = mPxToMaterialProfiles.find(matID);
+		if (i == mPxToMaterialProfiles.end())
 		{
-			//Log::Instance().LogMessage("Error in SoundMaterialTable::GetMaterialNameByOgreMaterial: Invalid material (" + ogreMat + ")");
 			return "DefaultMaterial";
 		}
 		return i->second;
 	}
 
-	Ogre::String SoundMaterialTable::GetMaterialName( NxMatID id )
+	SoundMaterialTable::MaterialIndex SoundMaterialTable::GetMaterialID(const Ogre::String &mat)
 	{
-		auto i = mNxMatBinds.find(id);
-		if (i == mNxMatBinds.end())
-		{
-			//Log::Instance().LogMessage("Error in SoundMaterialTable::GetMaterialNameByOgreMaterial: Invalid material id (" + Ogre::StringConverter::toString(id) + ")");
-			return "DefaultMaterial";
-		}
-		return i->second;
-	}
-
-	SoundMaterialTable::NxMatID SoundMaterialTable::GetMaterialID( Ogre::String mat )
-	{
-		auto i = mMatNxBinds.find(mat);
-		if (i == mMatNxBinds.end())
+		auto i = mMaterialProfilesToPx.find(mat);
+		if (i == mMaterialProfilesToPx.end())
 		{
 			Log::Instance().LogMessage("Error in SoundMaterialTable::GetMaterialNameByOgreMaterial: Invalid material (" + mat + ")");
 			return 0;
@@ -123,16 +103,8 @@ namespace Ice
 
 	void SoundMaterialTable::Clear()
 	{
-		for (int i = mNxMatBinds.size(); i > 0; i--)
-		{
-			unsigned int index = i;
-			Main::Instance().GetPhysXScene()->getNxScene()->releaseMaterial(
-				*Main::Instance().GetPhysXScene()->getNxScene()->getMaterialFromIndex(index));
-		}
-		mOgreBindings.clear();
-		mNxMatBinds.clear();
-		mMatNxBinds.clear();
-		mOgreNxBinds.clear();
+		mMaterialProfilesToPx.clear();
+		mPxToMaterialProfiles.clear();
 
 	}
 

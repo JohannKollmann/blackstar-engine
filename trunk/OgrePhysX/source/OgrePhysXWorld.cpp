@@ -2,6 +2,11 @@
 #include "OgrePhysXWorld.h"
 #include "OgrePhysXLogOutputStream.h"
 #include "OgrePhysXScene.h"
+#include "PxPhysicsAPI.h"
+#include "cooking/PxCooking.h"
+#include "PxScene.h"
+#include "extensions/PxDefaultAllocator.h"
+#include "extensions/PxExtensionsAPI.h"
 
 namespace OgrePhysX
 {
@@ -16,17 +21,13 @@ namespace OgrePhysX
 	{
 	}
 
-	NxPhysicsSDK* World::getSDK()
+	PxPhysics* World::getSDK()
 	{
 		return mSDK;
 	}
-	NxCookingInterface* World::getCookingInterface()
+	PxCooking* World::getCookingInterface()
 	{
 		return mCookingInterface;
-	}
-	NxControllerManager* World::getControllerManager()
-	{
-		return mControllerManager;
 	}
 
 	World::OgreFrameListener* World::createFramelistener()
@@ -38,10 +39,14 @@ namespace OgrePhysX
 	{
 		if (mSDK)
 		{
-			World::getSingleton().getCookingInterface()->NxCloseCooking();
+			getCookingInterface()->release();
 			clearScenes();
 			mSDK->release();
-			mSDK = 0;
+			mSDK = nullptr;
+			delete mAllocator;
+			mAllocator = nullptr;
+			delete mErrorOutputStream;
+			mErrorOutputStream = nullptr;
 		}
 	}
 
@@ -49,7 +54,10 @@ namespace OgrePhysX
 	{
 		if (!mSDK)
 		{
-			mSDK = NxCreatePhysicsSDK(NX_PHYSICS_SDK_VERSION, 0, new LogOutputStream());
+			mAllocator = new PxDefaultAllocator();
+			mErrorOutputStream = new LogOutputStream();
+
+			mSDK = PxCreatePhysics(PX_PHYSICS_VERSION, *mAllocator, *mErrorOutputStream, PxTolerancesScale());
 
 			if (!mSDK)
 			{
@@ -57,22 +65,24 @@ namespace OgrePhysX
 				return;
 			}
 
-			mSDK->setParameter(NX_SKIN_WIDTH, 0.04f);
-
-			mCookingInterface = NxGetCookingLib(NX_PHYSICS_SDK_VERSION);
+			mCookingInterface = PxCreateCooking(PX_PHYSICS_VERSION, &mSDK->getFoundation(), PxCookingParams());
 			if (!mCookingInterface)
 			{
 				Ogre::LogManager::getSingleton().logMessage("[OgrePhysX] Error: Cooking initialisation failed.");
 				return;
 			}
-			mCookingInterface->NxInitCooking();
 
-			mControllerManager = NxCreateControllerManager(&mSDK->getFoundationSDK().getAllocator());
-			if (!mControllerManager)
+			if (!PxInitExtensions(*mSDK))
 			{
-				Ogre::LogManager::getSingleton().logMessage("[OgrePhysX] Error: Controller initialisation failed.");
+				Ogre::LogManager::getSingleton().logMessage("[OgrePhysX] Error: Extension initialisation failed.");
 				return;
 			}
+
+			if (mSDK->getPvdConnectionManager())
+				PxExtensionVisualDebugger::connect(mSDK->getPvdConnectionManager(), "localhost", 5425, 500, true);
+
+			//create default material
+			mDefaultMaterial = mSDK->createMaterial(0.5f, 0.5f, 0.5f);
 
 			Ogre::LogManager::getSingleton().logMessage("[OgrePhysX] SDK created.");
 		}
@@ -84,15 +94,15 @@ namespace OgrePhysX
 		mScenes.insert(std::make_pair<Ogre::String, Scene*>(name, scene));
 		return scene;
 	}
-	Scene* World::addScene(Ogre::String name, NxSceneDesc &desc)
+	Scene* World::addScene(Ogre::String name, PxSceneDesc *desc)
 	{
-		Scene *scene = new Scene(desc);
+		Scene *scene = new Scene(*desc);
 		mScenes.insert(std::make_pair<Ogre::String, Scene*>(name, scene));
 		return scene;
 	}
 	Scene* World::getScene(Ogre::String name)
 	{
-		std::map<Ogre::String, Scene*>::iterator i = mScenes.find(name);
+		auto i = mScenes.find(name);
 		if (i != mScenes.end()) return i->second;
 		else
 		{
@@ -102,7 +112,7 @@ namespace OgrePhysX
 	}
 	void World::destroyScene(Ogre::String name)
 	{
-		std::map<Ogre::String, Scene*>::iterator i = mScenes.find(name);
+		auto i = mScenes.find(name);
 		if (i != mScenes.end())
 		{
 			delete i->second;
@@ -115,14 +125,14 @@ namespace OgrePhysX
 	}
 	void World::clearScenes()
 	{
-		for (std::map<Ogre::String, Scene*>::iterator i = mScenes.begin(); i != mScenes.end(); i++)
+		for (auto i = mScenes.begin(); i != mScenes.end(); i++)
 		{
 			delete i->second;
 		}
 		mScenes.clear();
 	}
 
-	void World::startSimulate(float time)
+	void World::simulate(float time)
 	{
 		if (mSimulating)
 		{
@@ -130,15 +140,24 @@ namespace OgrePhysX
 		}
 
 		mSimulating = true;
-		for (std::map<Ogre::String, Scene*>::iterator i = mScenes.begin(); i != mScenes.end(); i++)
+		for (auto i = mScenes.begin(); i != mScenes.end(); i++)
 		{
 			i->second->simulate(time);
 		}
 		mSimulating = false;
 	}
+
+	void World::renderDebugVisuals()
+	{
+		for (auto i = mScenes.begin(); i != mScenes.end(); i++)
+		{
+			i->second->renderDebugGeometry();
+		}
+	}
+
 	void World::syncRenderables()
 	{
-		for (std::map<Ogre::String, Scene*>::iterator i = mScenes.begin(); i != mScenes.end(); i++)
+		for (auto i = mScenes.begin(); i != mScenes.end(); i++)
 		{
 			i->second->syncRenderables();
 		}
@@ -149,5 +168,27 @@ namespace OgrePhysX
 		static World instance;
 		return instance;
 	}
+
+	PxMaterial& World::getDefaultMaterial()
+	{
+		return *mDefaultMaterial;
+	}
+
+	void World::bindOgreMaterial(const Ogre::String &matName, MaterialIndex physXMat)
+	{
+		auto i = mMaterialBindings.find(matName);
+		if (i != mMaterialBindings.end()) i->second = physXMat;
+		else 
+			mMaterialBindings.insert(std::make_pair<Ogre::String, MaterialIndex>(matName, physXMat));
+	}
+
+	MaterialIndex World::getMaterialIndexByOgreMat(const Ogre::String &matName)
+	{
+		auto i  = mMaterialBindings.find(matName);
+		if (i != mMaterialBindings.end()) return i->second;
+		return 0;
+	}
+
+
 
 }
