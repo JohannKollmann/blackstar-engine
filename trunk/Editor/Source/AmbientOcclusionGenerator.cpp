@@ -31,7 +31,7 @@ void AmbientOcclusionGenerator::bakeAmbientOcclusion(Ogre::MeshPtr mesh, Ogre::S
 	wxEdit::Instance().GetAuiManager().Update();
 	//for (int i = 0; i < 1000; i++) wxEdit::Instance().GetProgressBar()->SetProgress(0.1f);	//Hack
 
-	OgrePhysX::Actor<PxRigidStatic> actor = Ice::Main::Instance().GetPhysXScene()->createRigidStatic(OgrePhysX::Geometry::triangleMeshGeometry(mesh, OgrePhysX::CookerParams().backfaces(true)));
+	OgrePhysX::Actor<PxRigidStatic> actor = Ice::Main::Instance().GetPhysXScene()->createRigidStatic(OgrePhysX::Geometry::triangleMeshGeometry(mesh, OgrePhysX::Cooker::Params().backfaces(true)));
 
 	OgrePhysX::World::getSingleton().simulate(0.1f);
 

@@ -252,9 +252,6 @@
     <ClCompile Include="Source\IceConsole.cpp">
       <Filter>Utils</Filter>
     </ClCompile>
-    <ClCompile Include="Source\IceSoundMaterialTable.cpp">
-      <Filter>Physics</Filter>
-    </ClCompile>
     <ClCompile Include="Source\IceCameraController.cpp">
       <Filter>System</Filter>
     </ClCompile>
@@ -302,6 +299,9 @@
     </ClCompile>
     <ClCompile Include="Source\IceScriptedProcess.cpp">
       <Filter>AI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\IceMaterialTable.cpp">
+      <Filter>Physics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -602,9 +602,6 @@
     <ClInclude Include="Header\IceConsole.h">
       <Filter>Utils</Filter>
     </ClInclude>
-    <ClInclude Include="Header\IceSoundMaterialTable.h">
-      <Filter>Physics</Filter>
-    </ClInclude>
     <ClInclude Include="Header\IceCameraController.h">
       <Filter>System</Filter>
     </ClInclude>
@@ -664,6 +661,9 @@
     </ClInclude>
     <ClInclude Include="Header\IceAIProcess.h">
       <Filter>AI</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceMaterialTable.h">
+      <Filter>Physics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

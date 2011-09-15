@@ -6,8 +6,6 @@
 
 namespace OgrePhysX
 {
-	typedef unsigned short MaterialIndex;
-
 	class OgrePhysXClass World
 	{
 		class OgrePhysXClass OgreFrameListener : public Ogre::FrameListener
@@ -42,7 +40,7 @@ namespace OgrePhysX
 
 		PxMaterial *mDefaultMaterial;
 
-		std::map<Ogre::String, MaterialIndex> mMaterialBindings;
+		std::map<Ogre::String, PxMaterial*> mMaterialBindings;
 
 	public:
 		~World();
@@ -77,25 +75,24 @@ namespace OgrePhysX
 		PxMaterial& getDefaultMaterial();
 
 		/**
-		Binds an ogre material to a PhysX material.
-		By default, all ogre materials are bound to the physX default material.
-		Setup your material binds BEFORE you cook meshes.
+		Binds a material name to a PhysX material.
+		By default, all material names are bound to the physX default material.
 		*/
-		void bindOgreMaterial(const Ogre::String &ogreMatName, MaterialIndex index);
+		void registerOgreMaterialName(const Ogre::String &matName, PxMaterial *material);
 
 		/**
-		Returns the material index assigned to the Ogre material if existing, or nullptr.
+		Returns the material index assigned to the material name if existing, or nullptr.
 		*/
-		MaterialIndex getMaterialIndexByOgreMat(const Ogre::String &ogreMaterialName);
+		PxMaterial* getOgreMaterialByName(const Ogre::String &materialName);
 
 		///Retrieves all material bindings.
-		std::map<Ogre::String, MaterialIndex>& getOgreMaterialBindings()
+		std::map<Ogre::String, PxMaterial*>& getOgreMaterialNames()
 		{
 			return mMaterialBindings;
 		}
 
 		//Sets the material bindings.
-		void setOgreMaterialBindings(const std::map<Ogre::String, MaterialIndex> &bindings)
+		void setOgreMaterialNames(const std::map<Ogre::String, PxMaterial*> &bindings)
 		{
 			mMaterialBindings = bindings;
 		}

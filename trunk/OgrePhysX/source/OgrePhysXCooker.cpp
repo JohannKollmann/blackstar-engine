@@ -40,7 +40,7 @@ namespace OgrePhysX
 		return World::getSingleton().getSDK()->createTriangleMesh(OgreReadStream(ds));
 	}
 
-	void Cooker::getMeshInfo(Ogre::MeshPtr mesh, CookerParams &params, MeshInfo &outInfo)
+	void Cooker::getMeshInfo(Ogre::MeshPtr mesh, Params &params, MeshInfo &outInfo)
 	{
 		//First, we compute the total number of vertices and indices and init the buffers.
 		unsigned int numVertices = 0;
@@ -337,9 +337,9 @@ namespace OgrePhysX
 		Ogre::Vector3* aNewVertices=new Ogre::Vector3[meshInfo.vertices.size()];
 		//extract indextable and vertex list
 		int nNewVertices=ExtractOctree(&root, 0, aiIndexTable, aNewVertices);
-		for(int iIndex=0; iIndex<(int)meshInfo.indices.size(); ++iIndex)
+		for (unsigned int iIndex=0; iIndex< meshInfo.indices.size(); ++iIndex)
 		{
-			assert(meshInfo.indices[iIndex] < meshInfo.indices.size());
+			assert(meshInfo.indices[iIndex] < (int)meshInfo.indices.size());
 			assert(meshInfo.indices[iIndex] >= 0);
 			meshInfo.indices[iIndex] = aiIndexTable[meshInfo.indices[iIndex]];
 		}
@@ -477,7 +477,7 @@ namespace OgrePhysX
 		*/
 	}
 
-	void Cooker::cookPxTriangleMesh(Ogre::MeshPtr mesh, PxStream& outputStream, CookerParams &params)		//Ogre::Vector3 scale, std::map<Ogre::String, PxMaterialIndex> &materialBindings)
+	void Cooker::cookPxTriangleMesh(Ogre::MeshPtr mesh, PxStream& outputStream, Params &params, AddedMaterials *out_addedMaterials)
 	{
 		MeshInfo meshInfo;
 		getMeshInfo(mesh, params, meshInfo);
@@ -504,6 +504,8 @@ namespace OgrePhysX
 			iIndices[i] = meshInfo.indices[i];
 		desc.triangles.data = iIndices;
 
+		std::unordered_map<PxMaterial*, PxMaterialTableIndex> materialIndicesMap;
+
 		PxMaterialTableIndex *materialIndices = nullptr;
 		if (!params.mMaterialBindings.empty())
 		{
@@ -511,16 +513,36 @@ namespace OgrePhysX
 			materialIndices = new PxMaterialTableIndex[meshInfo.indices.size() / 3];
 			for (unsigned int i = 0; i < meshInfo.indices.size() / 3; ++i)
 			{
-				auto matIndex = params.mMaterialBindings.find(meshInfo.materials[i]);
-				if (matIndex == params.mMaterialBindings.end())
+				auto mat = params.mMaterialBindings.find(meshInfo.materials[i]);
+				if (mat == params.mMaterialBindings.end())
 				{
 					Ogre::LogManager::getSingleton().logMessage("[OgrePhysX] Could not find material index for material: " + meshInfo.materials[i]);
 					materialIndices[i] = 0;
 				}
-				else materialIndices[i] = matIndex->second;
+				else
+				{
+					auto matIndex = materialIndicesMap.find(mat->second);
+					PxMaterialTableIndex index;
+					if (matIndex == materialIndicesMap.end())
+					{
+						index = materialIndicesMap.size();
+						materialIndicesMap.insert(std::make_pair<PxMaterial*, PxMaterialTableIndex>(mat->second, index));
+					}
+					else index = matIndex->second;
+					materialIndices[i] = index;
+				}
 			}	
 		}
 		desc.materialIndices.data = materialIndices;
+
+		if (out_addedMaterials)
+		{
+			out_addedMaterials->materialCount = materialIndicesMap.size();
+			out_addedMaterials->materials = new PxMaterial*[out_addedMaterials->materialCount];
+			int i = 0;
+			for (auto iter = materialIndicesMap.begin(); iter != materialIndicesMap.end(); ++iter)
+				out_addedMaterials->materials[i++] = iter->first;
+		}
 
 		//dump the fucking buffers!
 		/*for (unsigned int i = 0; i < outInfo.numTriangles*3; i+=3)
@@ -537,7 +559,7 @@ namespace OgrePhysX
 
 	}
 
-	void Cooker::cookPxConvexMesh(Ogre::MeshPtr mesh, PxStream& outputStream, CookerParams &params)		//Ogre::Vector3 scale, std::map<Ogre::String, PxMaterialIndex> &materialBindings)
+	void Cooker::cookPxConvexMesh(Ogre::MeshPtr mesh, PxStream& outputStream, Params &params)
 	{
 		MeshInfo meshInfo;
 		getMeshInfo(mesh, params, meshInfo);
@@ -567,20 +589,20 @@ namespace OgrePhysX
 		delete iIndices;
 	}
 
-	void Cooker::cookPxTriangleMeshToFile(Ogre::MeshPtr mesh, Ogre::String pxsOutputFile, CookerParams &params)
+	void Cooker::cookPxTriangleMeshToFile(Ogre::MeshPtr mesh, Ogre::String pxsOutputFile, Params &params, AddedMaterials *out_addedMaterials)
 	{
 		cookPxTriangleMesh(mesh, PxToolkit::UserStream(pxsOutputFile.c_str(), true), params);
 	}
 
-	PxTriangleMesh* Cooker::createPxTriangleMesh(Ogre::MeshPtr mesh, CookerParams &params)	
+	PxTriangleMesh* Cooker::createPxTriangleMesh(Ogre::MeshPtr mesh, Params &params, AddedMaterials *out_addedMaterial)	
 	{
 		PxToolkit::MemoryWriteBuffer stream;
-		cookPxTriangleMesh(mesh, stream, params);
+		cookPxTriangleMesh(mesh, stream, params, out_addedMaterial);
 		if (stream.data == nullptr) return nullptr;
 		return World::getSingleton().getSDK()->createTriangleMesh(PxToolkit::MemoryReadBuffer(stream.data));
 	}
 
-	PxConvexMesh* Cooker::createPxConvexMesh(Ogre::MeshPtr mesh, CookerParams &params)	
+	PxConvexMesh* Cooker::createPxConvexMesh(Ogre::MeshPtr mesh, Params &params)	
 	{
 		PxToolkit::MemoryWriteBuffer stream;
 		cookPxConvexMesh(mesh, stream, params);

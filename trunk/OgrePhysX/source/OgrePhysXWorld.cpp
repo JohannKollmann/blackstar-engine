@@ -175,19 +175,19 @@ namespace OgrePhysX
 		return *mDefaultMaterial;
 	}
 
-	void World::bindOgreMaterial(const Ogre::String &matName, MaterialIndex physXMat)
+	void World::registerOgreMaterialName(const Ogre::String &matName, PxMaterial *pxMat)
 	{
 		auto i = mMaterialBindings.find(matName);
-		if (i != mMaterialBindings.end()) i->second = physXMat;
+		if (i != mMaterialBindings.end()) i->second = pxMat;
 		else 
-			mMaterialBindings.insert(std::make_pair<Ogre::String, MaterialIndex>(matName, physXMat));
+			mMaterialBindings.insert(std::make_pair<Ogre::String, PxMaterial*>(matName, pxMat));
 	}
 
-	MaterialIndex World::getMaterialIndexByOgreMat(const Ogre::String &matName)
+	PxMaterial* World::getOgreMaterialByName(const Ogre::String &matName)
 	{
 		auto i  = mMaterialBindings.find(matName);
 		if (i != mMaterialBindings.end()) return i->second;
-		return 0;
+		return mDefaultMaterial;
 	}
 
 

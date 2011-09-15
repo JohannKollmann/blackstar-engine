@@ -7,6 +7,7 @@
 #include "IceUtils.h"
 #include "Edit.h"
 #include "IceSceneManager.h"
+#include "IceMaterialTable.h"
 
 wxMaterialEditor::wxMaterialEditor(void)
 {
@@ -169,8 +170,8 @@ void wxMaterialEditor::OnApply()
 			{
 				if (i->second == p->GetValue().GetInteger())
 				{
-					Ice::SceneManager::Instance().GetSoundMaterialTable().SetOgreBinding(mCurrentMaterial->getName(), i->first);
-					Ice::SceneManager::Instance().GetSoundMaterialTable().SaveBindingsToCfg("Data\\Scripts\\materials\\OgreMaterialSoundBindings.cfg");
+					Ice::MaterialTable::Instance().SetOgreBinding(mCurrentMaterial->getName(), i->first);
+					Ice::MaterialTable::Instance().SaveBindingsToCfg("Data\\Scripts\\materials\\OgreMaterialSoundBindings.cfg");
 				}
 			}
 			break;
@@ -284,7 +285,7 @@ void wxMaterialEditor::SetMaterialTemplate(Ogre::String Name, Ogre::String File)
 	mMaterialProfileEnumIds.clear();
 	wxPGProperty* soundParams = mPropGrid->Append( new wxPropertyCategory(("Physics")) );
 	wxArrayString materialProfiles;
-	std::vector<Ogre::String> mats = Ice::SceneManager::Instance().GetSoundMaterialTable().GetMaterialProfiles();
+	std::vector<Ogre::String> mats = Ice::MaterialTable::Instance().GetMaterialProfiles();
 	int id = 0;
 	for (auto i = mats.begin(); i != mats.end(); i++)
 	{
@@ -409,7 +410,7 @@ void wxMaterialEditor::EditMaterial(Ogre::MaterialPtr material, bool detect_temp
 		if (p->IsCategory()) continue;
 		if (p->GetName() == ("__MaterialProfile__"))
 		{
-			Ogre::String profileName = Ice::SceneManager::Instance().GetSoundMaterialTable().GetMaterialName(Ice::SceneManager::Instance().GetSoundMaterialTable().GetMaterialID(mCurrentMaterial->getName()));
+			Ogre::String profileName = Ice::MaterialTable::Instance().GetMaterialNameByOgreMaterial(mCurrentMaterial->getName());
 			auto matFind = mMaterialProfileEnumIds.find(profileName);
 			if (matFind != mMaterialProfileEnumIds.end())
 				p->SetValue(wxVariant(matFind->second));

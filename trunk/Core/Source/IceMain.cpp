@@ -27,6 +27,8 @@
 #include "IceDepthSchemeHandler.h"
 #include "IceMain.h"
 
+#include "IceMaterialTable.h"
+
 #include "PxVisualDebuggerExt.h"
 
 #define USE_REMOTEDEBUGGER 1
@@ -376,6 +378,8 @@ void Main::initScene()
 	LoadPlugins();
 	//initialize scripts
 	ScriptSystem::GetInstance().CreateInstance("InitEngine.lua");
+
+	MaterialTable::Instance().InitBindingsFromCfg("OgreMaterialSoundBindings.cfg");
 
 	SceneManager::Instance().PostInit();
 

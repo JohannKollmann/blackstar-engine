@@ -8,7 +8,6 @@
 #include "IceGOCEditorInterface.h"
 #include "IceMessageSystem.h"
 #include "IceScriptSystem.h"
-#include "IceSoundMaterialTable.h"
 #include "IceGameObject.h"
 #include "OgreOggSound.h"
 
@@ -65,8 +64,6 @@ namespace Ice
 
 		bool mClearingScene;
 
-		SoundMaterialTable mSoundMaterialTable;
-
 		class DllExport OggListener : public OgreOggSound::OgreOggISound::SoundListener
 		{
 			void soundStopped(OgreOggSound::OgreOggISound* sound);
@@ -89,8 +86,6 @@ namespace Ice
 		~SceneManager();
 
 		bool GetClearingScene() { return mClearingScene; }
-
-		SoundMaterialTable& GetSoundMaterialTable() { return mSoundMaterialTable; }
 
 		void RegisterPlayer(GameObjectPtr player);
 		GameObjectPtr GetPlayer() { return mPlayer; }
