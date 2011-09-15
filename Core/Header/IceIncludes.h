@@ -134,7 +134,7 @@ namespace Ice
 	class AIManager;
 	class AStarEdge;
 	class AStarNode;
-	class SoundMaterialTable;
+	class MaterialTable;
 	class GOCSimpleCameraController;
 	class GOCCameraController;
 	class FreeFlightCameraController;

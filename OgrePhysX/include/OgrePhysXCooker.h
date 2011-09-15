@@ -8,27 +8,37 @@
 
 namespace OgrePhysX
 {
-	class OgrePhysXClass CookerParams
-	{
-	public:
-		Ogre::Vector3 mScale;
-		std::map<Ogre::String, PxMaterialTableIndex> mMaterialBindings;
-		bool mAddBackfaces;
-
-		CookerParams() : mScale(Ogre::Vector3(1,1,1)), mAddBackfaces(false) {}
-		~CookerParams() {}
-
-		CookerParams& scale(Ogre::Vector3 &scale) { mScale = scale; return *this; }
-		CookerParams& materials(std::map<Ogre::String, PxMaterialTableIndex> &bindings) { mMaterialBindings = bindings; return *this; }
-		CookerParams& backfaces(bool addBackfaces) { mAddBackfaces = addBackfaces; return *this; }
-	};
-
 	class OgrePhysXClass Cooker
 	{
 	private:
 		Ogre::String mOgreResourceGroup;
 
 	public:
+
+		class OgrePhysXClass Params
+		{
+		public:
+			Ogre::Vector3 mScale;
+			std::map<Ogre::String, PxMaterial*> mMaterialBindings;
+			bool mAddBackfaces;
+
+			Params() : mScale(Ogre::Vector3(1,1,1)), mAddBackfaces(false) {}
+			~Params() {}
+
+			Params& scale(Ogre::Vector3 &scale) { mScale = scale; return *this; }
+			Params& materials(std::map<Ogre::String, PxMaterial*> &bindings) { mMaterialBindings = bindings; return *this; }
+			Params& backfaces(bool addBackfaces) { mAddBackfaces = addBackfaces; return *this; }
+		};
+
+		class AddedMaterials
+		{
+		public:
+			PxMaterial **materials;
+			PxU32  materialCount; 
+
+			AddedMaterials() : materials(nullptr) {}
+			~AddedMaterials() { if (materials) delete materials; }
+		};
 
 		struct MeshInfo
 		{
@@ -42,7 +52,7 @@ namespace OgrePhysX
 			std::vector<Ogre::String> materials;
 		};
 
-		void getMeshInfo(Ogre::MeshPtr mesh, CookerParams &params, MeshInfo &outInfo);
+		void getMeshInfo(Ogre::MeshPtr mesh, Params &params, MeshInfo &outInfo);
 		void mergeVertices(MeshInfo &outInfo, float fMergeDist = 1e-3f);
 		void insetMesh(MeshInfo &outInfo, float fAmount);
 		void cutMesh(MeshInfo &outInfo, physx::pubfnd::PxVec3 vPlanePos, physx::pubfnd::PxVec3 vPlaneDir);
@@ -71,23 +81,23 @@ namespace OgrePhysX
 		/*
 		cookPxTriangleMesh
 		cooks an PhysX triangle mesh from an Ogre mesh.
+		out_addedMaterials can be passed to obtain information about the used materials (for per triangle materials).
+		@see PxShape::setMaterials
 		*/
-		void cookPxTriangleMesh(Ogre::MeshPtr mesh, PxStream& outputStream, CookerParams &params = CookerParams());
-		void cookPxTriangleMeshToFile(Ogre::MeshPtr mesh, Ogre::String PxsOutputFile, CookerParams &params = CookerParams());
+		void cookPxTriangleMesh(Ogre::MeshPtr mesh, PxStream& outputStream, Params &params = Params(), AddedMaterials *out_addedMaterials = nullptr);
+		void cookPxTriangleMeshToFile(Ogre::MeshPtr mesh, Ogre::String PxsOutputFile, Params &params = Params(), AddedMaterials *out_addedMaterials = nullptr);
 
-		void cookPxConvexMesh(Ogre::MeshPtr mesh, PxStream& outputStream, CookerParams &params = CookerParams());
+		void cookPxConvexMesh(Ogre::MeshPtr mesh, PxStream& outputStream, Params &params = Params());
 
-		void cookPxCCDSkeleton(Ogre::MeshPtr mesh, PxStream& outputStream, CookerParams &params = CookerParams());
+		void cookPxCCDSkeleton(Ogre::MeshPtr mesh, PxStream& outputStream, Params &params = Params());
 
 		/*
 		createPxTriangleMesh
 		Cooks an Px mesh from an ogre mesh and returns it, does not save to file.
-		This is faster than getPxMesh(Ogre::MeshPtr, Ogre::String) if the mesh is not cooked yet, otherwise it is much slower.
-		Example use case: This method is useful, if you want to rescale an actor with a triangle mesh shape in realtime
 		*/
-		PxTriangleMesh* createPxTriangleMesh(Ogre::MeshPtr mesh, CookerParams &params = CookerParams());
+		PxTriangleMesh* createPxTriangleMesh(Ogre::MeshPtr mesh, Params &params = Params(), AddedMaterials *out_addedMaterials = nullptr);
 
-		PxConvexMesh* createPxConvexMesh(Ogre::MeshPtr mesh, CookerParams &params = CookerParams());
+		PxConvexMesh* createPxConvexMesh(Ogre::MeshPtr mesh, Params &params = Params());
 
 		//Singleton
 		static Cooker& getSingleton();

@@ -4,6 +4,7 @@
 #include "OgrePhysXRenderableBinding.h"
 #include "OgrePhysXRenderedActorBinding.h"
 #include "OgrePhysXActor.h"
+#include "OgrePhysXCooker.h"
 
 namespace OgrePhysX
 {
@@ -49,20 +50,37 @@ namespace OgrePhysX
 		PxScene* getPxScene();
 
 		/**
-		Shortcut method. Creates a new rigid dynamic actor with a specified collision shape and adds it to the scene.
+		Creates a new rigid dynamic actor with a specified collision shape and a default material and adds it to the scene.
 		@return An Actor object wrapping the created PxActor.
 		*/
 		Actor<PxRigidDynamic> createRigidDynamic(PxGeometry &geometry, float density, const Ogre::Vector3 &position = Ogre::Vector3(0,0,0), const Ogre::Quaternion &orientation = Ogre::Quaternion());
+	
+		/**
+		Creates a new rigid dynamic actor with a specified collision shape and material and adds it to the scene.
+		@return An Actor object wrapping the created PxActor.
+		*/
 		Actor<PxRigidDynamic> createRigidDynamic(PxGeometry &geometry, float density, PxMaterial &material, const Ogre::Vector3 &position = Ogre::Vector3(0,0,0), const Ogre::Quaternion &orientation = Ogre::Quaternion());
 
 		/**
-		Shortcut method. Creates a new rigid static actor with a specified collision shape and adds it to the scene.
+		Creates a new rigid static actor with a triangle mesh collision shape and adds it to the scene.
+		The material bindings specified via World::registerMaterialName are used for Ogre -> PhysX material mapping.
+		@return An Actor object wrapping the created PxActor.
+		*/
+		Actor<PxRigidStatic> createRigidStatic(Ogre::MeshPtr mesh, Cooker::Params &cookerParams = Cooker::Params(), const Ogre::Vector3 &position = Ogre::Vector3(0,0,0), const Ogre::Quaternion &orientation = Ogre::Quaternion());
+
+		/**
+		Creates a new rigid static actor with a specified collision shape and a default material and adds it to the scene.		
 		@return An Actor object wrapping the created PxActor.
 		*/
 		Actor<PxRigidStatic> createRigidStatic(PxGeometry &geometry, const Ogre::Vector3 &position = Ogre::Vector3(0,0,0), const Ogre::Quaternion &orientation = Ogre::Quaternion());
+
+		/**
+		Creates a new rigid static actor with a specified collision shape and material and adds it to the scene.
+		@return An Actor object wrapping the created PxActor.
+		*/
 		Actor<PxRigidStatic> createRigidStatic(PxGeometry &geometry, PxMaterial &material, const Ogre::Vector3 &position = Ogre::Vector3(0,0,0), const Ogre::Quaternion &orientation = Ogre::Quaternion());
 
-		///Shortcut method. Removes an actor from the scene.
+		///Removes an actor from the scene.
 		template<class T>
 			void removeActor(Actor<T> &actor)
 			{

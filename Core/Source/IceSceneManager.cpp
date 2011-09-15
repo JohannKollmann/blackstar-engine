@@ -24,6 +24,7 @@
 #include "IceProcessNodeManager.h"
 #include "IceGOCJoint.h"
 #include "IceScriptedProcess.h"
+#include "IceMaterialTable.h"
 
 #include "IceSaveableVectorHandler.h"
 
@@ -365,7 +366,6 @@ namespace Ice
 
 	void SceneManager::PostInit()
 	{
-		mSoundMaterialTable.InitBindingsFromCfg("OgreMaterialSoundBindings.cfg");
 	}
 
 	void SceneManager::ClearGameObjects()
@@ -915,31 +915,22 @@ namespace Ice
 			ret.push_back(ScriptParam(0));
 			return ret;
 		}
-		/*NxMaterialDesc desc;
-		desc.setToDefault();
-		desc.frictionCombineMode=NxCombineMode::NX_CM_AVERAGE;
-		NxMaterial* material = Main::Instance().GetPhysXScene()->getNxScene()->createMaterial(desc);
-		material->setRestitution(0.1f);
-		material->setStaticFriction(0.5f);
-		material->setDynamicFriction(0.5f);
 		if(vParams.size()!=1)
 		{
-			vRef.push_back(ScriptParam(1.0));	//restitution
 			vRef.push_back(ScriptParam(1.0));	//staticFriction
 			vRef.push_back(ScriptParam(1.0));	//dynamicFriction
+			vRef.push_back(ScriptParam(1.0));	//restitution
 			std::string strErrString=Ice::Utils::TestParameters(vParams, vRef);
 			if (strErrString != "")
 			{
-				Utils::LogParameterErrors(caller, strErrString);
-				ret.push_back(ScriptParam(0));
-				return ret;
+				SCRIPT_RETURNERROR(strErrString)
 			}
-			material->setRestitution(vParams[1].getFloat());
-			material->setStaticFriction(vParams[2].getFloat());
-			material->setDynamicFriction(vParams[3].getFloat());
-		}*/
-		Instance().mSoundMaterialTable.AddMaterialProfile(vParams[0].getString().c_str(), vParams[0].getInt());
-		return ret;
+
+			MaterialTable::Instance().AddMaterialProfile(vParams[0].getString().c_str(),
+				OgrePhysX::getPxPhysics()->createMaterial(vParams[1].getFloat(), vParams[2].getFloat(), vParams[3].getFloat()));
+		}
+		
+		SCRIPT_RETURN()
 	}
 
 	std::vector<ScriptParam> SceneManager::Lua_Play3DSound(Script& caller, std::vector<ScriptParam> vParams)

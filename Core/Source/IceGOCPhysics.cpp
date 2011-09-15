@@ -4,6 +4,7 @@
 #include "IceSceneManager.h"
 #include "IceGameObject.h"
 #include "IceObjectMessageIDs.h"
+#include "IceMaterialTable.h"
 
 namespace Ice
 {
@@ -43,7 +44,7 @@ namespace Ice
 		Ogre::String internname = "RigidBody" + Ogre::StringConverter::toString(SceneManager::Instance().RequestID());
 		mCollisionMeshName = collision_mesh;
 		mDensity = density;
-		PxMaterialTableIndex pxID = SceneManager::Instance().GetSoundMaterialTable().GetMaterialID(mMaterialName);
+		PxMaterial *pxMat = MaterialTable::Instance().GetMaterialByName(mMaterialName);	//get material by profile name
 		if (!Ogre::ResourceGroupManager::getSingleton().resourceExists("General", mCollisionMeshName))
 		{
 			Log::Instance().LogMessage("Error: Resource \"" + mCollisionMeshName + "\" does not exist. Loading dummy Resource...");
@@ -53,15 +54,15 @@ namespace Ice
 
 		if (mShapeType == Shapes::SHAPE_SPHERE)
 		{
-			mActor = Main::Instance().GetPhysXScene()->createRigidDynamic(OgrePhysX::Geometry::sphereGeometry(entity), mDensity);
+			mActor = Main::Instance().GetPhysXScene()->createRigidDynamic(OgrePhysX::Geometry::sphereGeometry(entity), mDensity, *pxMat);
 		}
 		else if (mShapeType == Shapes::SHAPE_CONVEX)
 		{
-			mActor = Main::Instance().GetPhysXScene()->createRigidDynamic((OgrePhysX::Geometry::convexMeshGeometry(entity->getMesh(), OgrePhysX::CookerParams().scale(scale))), mDensity);
+			mActor = Main::Instance().GetPhysXScene()->createRigidDynamic((OgrePhysX::Geometry::convexMeshGeometry(entity->getMesh(), OgrePhysX::Cooker::Params().scale(scale))), mDensity, *pxMat);
 		}
 		else		//Default: Box
 		{
-			mActor = Main::Instance().GetPhysXScene()->createRigidDynamic(OgrePhysX::Geometry::boxGeometry(entity), mDensity);
+			mActor = Main::Instance().GetPhysXScene()->createRigidDynamic(OgrePhysX::Geometry::boxGeometry(entity), mDensity, *pxMat);
 		}
 		mActor.getPxActor()->userData = mOwnerGO.lock().get();
 
@@ -222,7 +223,7 @@ namespace Ice
 		Ogre::Entity *entity = Main::Instance().GetOgreSceneMgr()->createEntity("tempCollisionModell", mCollisionMeshName);
 
 		GameObjectPtr owner = mOwnerGO.lock();
-		mActor = Main::Instance().GetPhysXScene()->createRigidStatic(OgrePhysX::Geometry::triangleMeshGeometry(entity->getMesh(), OgrePhysX::CookerParams().scale(scale)));
+		mActor = Main::Instance().GetPhysXScene()->createRigidStatic(entity->getMesh(), OgrePhysX::Cooker::Params().scale(scale));
 
 		mActor.getPxActor()->userData = mOwnerGO.lock().get();
 

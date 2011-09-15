@@ -633,7 +633,7 @@ namespace Ice
 
 	void NavigationMesh::AddOgreMesh(Ogre::MeshPtr mesh, Transformable3D *transform)
 	{
-		OgrePhysX::CookerParams cp;
+		OgrePhysX::Cooker::Params cp;
 		cp.backfaces(false);
 		OgrePhysX::Cooker::MeshInfo meshInfo;
 		OgrePhysX::Cooker::getSingleton().getMeshInfo(mesh, cp, meshInfo);

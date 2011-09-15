@@ -36,12 +36,12 @@ namespace OgrePhysX
 			return PxBoxGeometry(Convert::toPx(dimension));
 		}
 
-		static PxConvexMeshGeometry convexMeshGeometry(Ogre::MeshPtr mesh, CookerParams params = CookerParams())
+		static PxConvexMeshGeometry convexMeshGeometry(Ogre::MeshPtr mesh, Cooker::Params params = Cooker::Params())
 		{
 			return PxConvexMeshGeometry(Cooker::getSingleton().createPxConvexMesh(mesh, params));
 		}
 
-		static PxTriangleMeshGeometry triangleMeshGeometry(Ogre::MeshPtr mesh, CookerParams params = CookerParams())
+		static PxTriangleMeshGeometry triangleMeshGeometry(Ogre::MeshPtr mesh, Cooker::Params params = Cooker::Params())
 		{
 			return PxTriangleMeshGeometry(Cooker::getSingleton().createPxTriangleMesh(mesh, params));
 		}
