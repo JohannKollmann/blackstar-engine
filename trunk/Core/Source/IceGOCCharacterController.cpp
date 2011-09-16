@@ -119,15 +119,15 @@ namespace Ice
 		mSpeedFactor = factor;
 	}
 
-	void GOCCharacterController::UpdatePosition(Ogre::Vector3 position)
+	void GOCCharacterController::UpdatePosition(const Ogre::Vector3 &position)
 	{
 		mActor.setGlobalPosition(position);//Ogre::Vector3(position.x, position.y + mDimensions.y * 0.5, position.z));
 	}
-	void GOCCharacterController::UpdateOrientation(Ogre::Quaternion orientation)
+	void GOCCharacterController::UpdateOrientation(const Ogre::Quaternion &orientation)
 	{
 		mActor.setGlobalOrientation(orientation);
 	}
-	void GOCCharacterController::UpdateScale(Ogre::Vector3 scale)
+	void GOCCharacterController::UpdateScale(const Ogre::Vector3 &scale)
 	{
 	}
 

@@ -137,14 +137,14 @@ public:
 
 	GOComponent::TypeID& GetComponentID() const { static std::string name = "Hydrax"; return name; }
 
-	void UpdatePosition(Ogre::Vector3 position)
+	void UpdatePosition(const Ogre::Vector3 &position)
 	{
 		if (mHydrax) mHydrax->setPosition(position);
 	}
-	void UpdateOrientation(Ogre::Quaternion orientation)
+	void UpdateOrientation(const Ogre::Quaternion &orientation)
 	{
 	}
-	void UpdateScale(Ogre::Vector3 scale)
+	void UpdateScale(const Ogre::Vector3 &scale)
 	{
 	}
 

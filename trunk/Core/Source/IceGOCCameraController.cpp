@@ -197,7 +197,7 @@ namespace Ice
 		mPitchNode->pitch(Ogre::Radian(sfAbsCamPitch));
 	}
 
-	void GOCCameraController::UpdateOrientation(Ogre::Quaternion orientation)
+	void GOCCameraController::UpdateOrientation(const Ogre::Quaternion &orientation)
 	{
 	}
 

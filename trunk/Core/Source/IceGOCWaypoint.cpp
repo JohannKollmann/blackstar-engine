@@ -17,7 +17,7 @@ namespace Ice
 		AIManager::Instance().UnregisterWaypoint(this);
 	}
 
-	void GOCWaypoint::UpdatePosition(Ogre::Vector3 position)
+	void GOCWaypoint::UpdatePosition(const Ogre::Vector3 &position)
 	{
 	}
 

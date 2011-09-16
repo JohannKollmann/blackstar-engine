@@ -18,7 +18,7 @@ namespace Ice
 		GOComponent::FamilyID& GetFamilyID() const { static std::string name = "Waypoint"; return name; }
 		GOComponent::TypeID& GetComponentID() const { static std::string name = "Waypoint"; return name; }
 
-		void UpdatePosition(Ogre::Vector3 position);
+		void UpdatePosition(const Ogre::Vector3 &position);
 
 		Ogre::String GetEditorVisualMeshName() { return "Editor_Waypoint.mesh"; }
 

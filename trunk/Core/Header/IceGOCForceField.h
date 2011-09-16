@@ -32,9 +32,9 @@ namespace Ice
 
 		GOComponent::TypeID& GetComponentID() const { static std::string name = "ForceField"; return name; }
 
-		void UpdatePosition(Ogre::Vector3 position);
-		void UpdateOrientation(Ogre::Quaternion orientation);
-		void UpdateScale(Ogre::Vector3 scale);
+		void UpdatePosition(const Ogre::Vector3 &position);
+		void UpdateOrientation(const Ogre::Quaternion &orientation);
+		void UpdateScale(const Ogre::Vector3 &scale);
 
 		void ShowEditorVisual(bool show);
 

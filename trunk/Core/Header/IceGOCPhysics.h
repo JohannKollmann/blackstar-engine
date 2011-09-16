@@ -31,11 +31,11 @@ namespace Ice
 			return &mActor;
 		}
 
-		virtual void UpdatePosition(Ogre::Vector3 position)
+		virtual void UpdatePosition(const Ogre::Vector3 &position)
 		{
 			mActor.setGlobalPosition(position);
 		}
-		virtual void UpdateOrientation(Ogre::Quaternion orientation)
+		virtual void UpdateOrientation(const Ogre::Quaternion &orientation)
 		{
 			mActor.setGlobalOrientation(orientation);
 		}
@@ -83,8 +83,8 @@ namespace Ice
 
 		GOComponent::TypeID& GetComponentID() const { static std::string name = "RigidBody"; return name; }
 
-		void UpdatePosition(Ogre::Vector3 position);
-		void UpdateScale(Ogre::Vector3 scale);
+		void UpdatePosition(const Ogre::Vector3 &position);
+		void UpdateScale(const Ogre::Vector3 &scale);
 
 		void setTransform(Ogre::Vector3 &position, Ogre::Quaternion &rotation);
 
@@ -128,7 +128,7 @@ namespace Ice
 
 		GOComponent::TypeID& GetComponentID() const { static std::string name = "StaticBody"; return name; }
 
-		void UpdateScale(Ogre::Vector3 scale);
+		void UpdateScale(const Ogre::Vector3 &scale);
 
 		void SetOwner(std::weak_ptr<GameObject> go);
 
@@ -170,7 +170,7 @@ namespace Ice
 
 		GOComponent::TypeID& GetComponentID() const { static std::string name = "Trigger"; return name; }
 
-		void UpdateScale(Ogre::Vector3 scale);
+		void UpdateScale(const Ogre::Vector3 &scale);
 
 		void onEnter(GameObject *object);
 		void onLeave(GameObject *object);

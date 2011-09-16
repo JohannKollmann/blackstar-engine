@@ -61,7 +61,7 @@ namespace Ice
 
 		void ReceiveMessage(Msg &msg);
 
-		void UpdateOrientation(Ogre::Quaternion orientation);
+		void UpdateOrientation(const Ogre::Quaternion &orientation);
 
 		GOComponent::TypeID& GetComponentID() const { static std::string name = "CameraController"; return name; }
 

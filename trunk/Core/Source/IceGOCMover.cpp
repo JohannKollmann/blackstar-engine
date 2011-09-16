@@ -17,7 +17,7 @@ namespace Ice
 	{
 		mgr.LoadAtom("float",  &mTimeToNextKey);
 	}
-	void GOCAnimKey::UpdatePosition(Ogre::Vector3 position)
+	void GOCAnimKey::UpdatePosition(const Ogre::Vector3 &position)
 	{	
 		GameObjectPtr mover = GetMover();
 		if (!mover.get()) return;
@@ -126,7 +126,7 @@ namespace Ice
 		mgr.LoadAtom("bool", &mEnabled);
 	}
 
-	void GOCMover::UpdatePosition(Ogre::Vector3 position)
+	void GOCMover::UpdatePosition(const Ogre::Vector3 &position)
 	{
 		_updateLookAtLine();
 		_updateNormalLookAtLine();

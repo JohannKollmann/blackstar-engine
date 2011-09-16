@@ -87,7 +87,7 @@ namespace Ice
 		}
 	}
 
-	void GOCRigidBody::UpdatePosition(Ogre::Vector3 position)
+	void GOCRigidBody::UpdatePosition(const Ogre::Vector3 &position)
 	{
 		if (mActor.getPxActor()->getRigidDynamicFlags() & PxRigidDynamicFlag::eKINEMATIC)
 			mActor.getPxActor()->moveKinematic(PxTransform(OgrePhysX::toPx(position), mActor.getPxActor()->getGlobalPose().q));
@@ -95,7 +95,7 @@ namespace Ice
 		//mActor.getPxActor()->wakeUp();
 	}
 
-	void GOCRigidBody::UpdateScale(Ogre::Vector3 scale)
+	void GOCRigidBody::UpdateScale(const Ogre::Vector3 &scale)
 	{
 		bool freezed = mActor.getPxActor()->getRigidDynamicFlags() & PxRigidDynamicFlag::eKINEMATIC;
 		_clear();
@@ -230,7 +230,7 @@ namespace Ice
 		Main::Instance().GetOgreSceneMgr()->destroyEntity(entity);
 	}
 
-	void GOCStaticBody::UpdateScale(Ogre::Vector3 scale)
+	void GOCStaticBody::UpdateScale(const Ogre::Vector3 &scale)
 	{
 		Create(mCollisionMeshName, scale);
 		mActor.setGlobalOrientation(mOwnerGO.lock()->GetGlobalOrientation());
@@ -350,7 +350,7 @@ namespace Ice
 		}
 	}
 
-	void GOCTrigger::UpdateScale(Ogre::Vector3 scale)
+	void GOCTrigger::UpdateScale(const Ogre::Vector3 &scale)
 	{
 		Create(scale);
 		mActor.setGlobalOrientation(mOwnerGO.lock()->GetGlobalOrientation());

@@ -30,8 +30,8 @@ namespace Ice
 
 		float GetTimeToNextKey() { return mTimeToNextKey > 0 ? mTimeToNextKey : 0.01f; }
 
-		void UpdatePosition(Ogre::Vector3 position);
-		void UpdateOrientation(Ogre::Quaternion orientation) {}
+		void UpdatePosition(const Ogre::Vector3 &position);
+		void UpdateOrientation(const Ogre::Quaternion &orientation) {}
 
 		GameObjectPtr GetMover();
 
@@ -108,8 +108,8 @@ namespace Ice
 
 		GOComponent::TypeID& GetComponentID() const { static std::string name = "Mover"; return name; }
 
-		void UpdatePosition(Ogre::Vector3 position);
-		void UpdateOrientation(Ogre::Quaternion orientation) {}
+		void UpdatePosition(const Ogre::Vector3 &position);
+		void UpdateOrientation(const Ogre::Quaternion &orientation) {}
 
 		void SetLookAtObject(GameObjectPtr target);
 		void SetNormalLookAtObject(GameObjectPtr target);

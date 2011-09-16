@@ -15,15 +15,15 @@ namespace Ice
 		 Main::Instance().GetOgreSceneMgr()->destroySceneNode(mNode);
 	}
 
-	void GOCOgreNode::UpdatePosition(Ogre::Vector3 position)
+	void GOCOgreNode::UpdatePosition(const Ogre::Vector3 &position)
 	{
 		mNode->setPosition(position);
 	}
-	void GOCOgreNode::UpdateOrientation(Ogre::Quaternion orientation)
+	void GOCOgreNode::UpdateOrientation(const Ogre::Quaternion &orientation)
 	{
 		mNode->setOrientation(orientation);
 	}
-	void GOCOgreNode::UpdateScale(Ogre::Vector3 scale)
+	void GOCOgreNode::UpdateScale(const Ogre::Vector3 &scale)
 	{
 		mNode->setScale(scale);
 	}

@@ -15,9 +15,9 @@ namespace Ice
 		GOCOgreNode(void);
 		~GOCOgreNode(void);
 
-		void UpdatePosition(Ogre::Vector3 position);
-		void UpdateOrientation(Ogre::Quaternion orientation);
-		void UpdateScale(Ogre::Vector3 position);
+		void UpdatePosition(const Ogre::Vector3 &position);
+		void UpdateOrientation(const Ogre::Quaternion &orientation);
+		void UpdateScale(const Ogre::Vector3 &scale);
 
 		virtual GOComponent::FamilyID& GetComponentID() const { static std::string name = "OgreNode"; return name; }
 

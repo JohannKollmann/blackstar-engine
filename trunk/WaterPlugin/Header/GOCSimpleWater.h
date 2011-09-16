@@ -95,19 +95,19 @@ public:
 
 	GOComponent::TypeID& GetComponentID() const { static std::string name = "SimpleWater"; return name; }
 
-	void UpdatePosition(Ogre::Vector3 position)
+	void UpdatePosition(const Ogre::Vector3 &position)
 	{
 		Ice::GameObjectPtr owner = mOwnerGO.lock();
 		if (!owner.get()) return;
 		mWaterPlane.setPlane(Ogre::Plane(owner->GetGlobalOrientation() * mUpVector, owner->GetGlobalPosition()));
 	}
-	void UpdateOrientation(Ogre::Quaternion orientation)
+	void UpdateOrientation(const Ogre::Quaternion &orientation)
 	{
 		Ice::GameObjectPtr owner = mOwnerGO.lock();
 		if (!owner.get()) return;
 		mWaterPlane.setPlane(Ogre::Plane(owner->GetGlobalOrientation() * mUpVector, owner->GetGlobalPosition()));
 	}
-	void UpdateScale(Ogre::Vector3 scale)
+	void UpdateScale(const Ogre::Vector3 &scale)
 	{
 	}
 
