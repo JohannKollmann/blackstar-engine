@@ -96,7 +96,7 @@ namespace Ice
 		}
 	}
 
-	void GOCFixedJoint::UpdatePosition(Ogre::Vector3 position)
+	void GOCFixedJoint::UpdatePosition(const Ogre::Vector3 &position)
 	{
 		/*GameObjectPtr owner = mOwnerGO.lock();
 		if (owner.get())

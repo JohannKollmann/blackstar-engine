@@ -69,13 +69,13 @@ namespace Ice
 		virtual void OnRemoveChild(GameObject *child) {}
 
 		///Called when the position of the owner object changes.
-		virtual void UpdatePosition(Ogre::Vector3 position) {}
+		virtual void UpdatePosition(const Ogre::Vector3 &position) {}
 
 		///Called when the orientation of the owner object changes.
-		virtual void UpdateOrientation(Ogre::Quaternion orientation) {}
+		virtual void UpdateOrientation(const Ogre::Quaternion &orientation) {}
 
 		///Called when the scale of the owner object changes.
-		virtual void UpdateScale(Ogre::Vector3 scale) {}
+		virtual void UpdateScale(const Ogre::Vector3 &scale) {}
 
 		///Retrieves whether the component is static (movable) or not.
 		virtual bool IsStatic() { return true; }

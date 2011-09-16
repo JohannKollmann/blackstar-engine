@@ -89,19 +89,19 @@ namespace Ice
 		_create();
 	}
 
-	void GOCForceField::UpdatePosition(Ogre::Vector3 position)
+	void GOCForceField::UpdatePosition(const Ogre::Vector3 &position)
 	{
 		bool show = (mEditorVisual != nullptr);
 		_create();
 		//mForceField->setPose(OgrePhysX::Convert::toNx(position, mOwnerGO.lock()->GetGlobalOrientation()));
 	}
-	void GOCForceField::UpdateOrientation(Ogre::Quaternion orientation)
+	void GOCForceField::UpdateOrientation(const Ogre::Quaternion &orientation)
 	{
 		bool show = (mEditorVisual != nullptr);
 		_create();
 		//mForceField->setPose(OgrePhysX::Convert::toNx(mOwnerGO.lock()->GetGlobalPosition(), orientation));
 	}
-	void GOCForceField::UpdateScale(Ogre::Vector3 scale)
+	void GOCForceField::UpdateScale(const Ogre::Vector3 &scale)
 	{
 		bool show = (mEditorVisual != nullptr);
 		_create();

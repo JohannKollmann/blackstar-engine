@@ -58,7 +58,7 @@ namespace Ice
 
 		void NotifyPostInit();
 
-		void UpdatePosition(Ogre::Vector3 position);
+		void UpdatePosition(const Ogre::Vector3 &position);
 
 		static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "Fixed Joint"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };
 		static LoadSave::Saveable* NewInstance() { return new GOCFixedJoint; }
