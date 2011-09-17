@@ -37,7 +37,7 @@ namespace OgrePhysX
 			PxU32  materialCount; 
 
 			AddedMaterials() : materials(nullptr) {}
-			~AddedMaterials() { if (materials) delete materials; }
+			~AddedMaterials() { if (materials) delete[] materials; }
 		};
 
 		struct MeshInfo

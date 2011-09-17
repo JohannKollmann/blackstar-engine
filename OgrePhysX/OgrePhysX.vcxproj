@@ -100,7 +100,6 @@
     <ClCompile Include="source\OgrePhysXScene.cpp" />
     <ClCompile Include="source\OgrePhysXStreams.cpp" />
     <ClCompile Include="source\OgrePhysXWorld.cpp" />
-    <ClCompile Include="source\UserStream.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\OgrePhysX.h" />
@@ -118,7 +117,6 @@
     <ClInclude Include="include\OgrePhysXScene.h" />
     <ClInclude Include="include\OgrePhysXStreams.h" />
     <ClInclude Include="include\OgrePhysXWorld.h" />
-    <ClInclude Include="include\UserStream.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

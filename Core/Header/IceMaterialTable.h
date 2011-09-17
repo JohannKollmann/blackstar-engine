@@ -31,8 +31,6 @@ namespace Ice
 
 		Ogre::String GetMaterialNameByOgreMaterial(const Ogre::String &ogreMat);
 
-		void Clear();
-
 		void ReceiveMessage(Msg &msg);
 
 		std::vector<Ogre::String> GetMaterialProfiles();

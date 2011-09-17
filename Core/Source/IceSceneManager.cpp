@@ -907,7 +907,6 @@ namespace Ice
 		std::vector<ScriptParam> ret;
 		std::vector<Ice::ScriptParam> vRef;
 		vRef.push_back(ScriptParam(std::string()));	//Name
-		vRef.push_back(ScriptParam(0.0f));	//index (TODO should not be specified by script)
 		std::string strErrString=Ice::Utils::TestParameters(vParams, vRef, true);
 		if (strErrString != "")
 		{
@@ -915,6 +914,11 @@ namespace Ice
 			ret.push_back(ScriptParam(0));
 			return ret;
 		}
+
+		float staticFriction = 0.5f;
+		float dynamicFriction = 0.5f;
+		float restitution = 0.5f;
+
 		if(vParams.size()!=1)
 		{
 			vRef.push_back(ScriptParam(1.0));	//staticFriction
@@ -925,10 +929,13 @@ namespace Ice
 			{
 				SCRIPT_RETURNERROR(strErrString)
 			}
-
-			MaterialTable::Instance().AddMaterialProfile(vParams[0].getString().c_str(),
-				OgrePhysX::getPxPhysics()->createMaterial(vParams[1].getFloat(), vParams[2].getFloat(), vParams[3].getFloat()));
+			staticFriction = vParams[1].getFloat(); 
+			staticFriction = vParams[2].getFloat(); 
+			staticFriction = vParams[3].getFloat(); 
 		}
+
+		MaterialTable::Instance().AddMaterialProfile(vParams[0].getString().c_str(),
+			OgrePhysX::getPxPhysics()->createMaterial(staticFriction, dynamicFriction, restitution));
 		
 		SCRIPT_RETURN()
 	}
