@@ -14,7 +14,8 @@ namespace Ice
 
 	void MaterialTable::InitBindingsFromCfg(Ogre::String cfgFile)
 	{
-		Clear();
+		mOgreMaterialsToProfiles.clear();
+		OgrePhysX::World::getSingleton().getOgreMaterialNames().clear();
 
 		Ogre::ConfigFile cf;
 		cf.loadFromResourceSystem(cfgFile, "General");
@@ -86,14 +87,6 @@ namespace Ice
 		return mats;
 	}
 
-	void MaterialTable::Clear()
-	{
-		mMaterialProfilesToPx.clear();
-		mPxToMaterialProfiles.clear();
-		mOgreMaterialsToProfiles.clear();
-		OgrePhysX::World::getSingleton().getOgreMaterialNames().clear();
-	}
-
 	PxMaterial* MaterialTable::GetMaterialByName(const Ogre::String &mat)
 	{
 		auto pxMat = mMaterialProfilesToPx.find(mat);
@@ -123,7 +116,8 @@ namespace Ice
 	{
 		if (msg.typeID == GlobalMessageIDs::REPARSE_SCRIPTS_PRE)
 		{
-			Clear();
+			mMaterialProfilesToPx.clear();
+			mPxToMaterialProfiles.clear();
 		}
 		else if (msg.typeID == GlobalMessageIDs::REPARSE_SCRIPTS_POST)
 		{

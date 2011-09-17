@@ -33,9 +33,6 @@
     <ClCompile Include="source\OgrePhysXWorld.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\UserStream.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="source\OgrePhysXRenderedActorBinding.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -75,9 +72,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\OgrePhysXWorld.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\UserStream.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\OgrePhysXActor.h">

@@ -6,7 +6,7 @@
 #include "IceGameObject.h"
 #include "IceGOCView.h"
 #include "IceGOCPhysics.h"
-#include "UserStream.h"
+#include "OgrePhysXStreams.h"
 
 namespace Ice
 {
@@ -311,14 +311,14 @@ namespace Ice
 			iIndices[i] = mIndexBuffer[i];
 		desc.triangles.data = iIndices;
 
-		PxToolkit::MemoryWriteBuffer stream;
+		OgrePhysX::MemoryWriteStream stream;
 		OgrePhysX::World::getSingleton().getCookingInterface()->cookTriangleMesh(desc, stream);
 
-		delete fVertices;
-		delete iIndices;
+		delete[] fVertices;
+		delete[]  iIndices;
 
 		mPhysXActor = OgrePhysX::getPxPhysics()->createRigidStatic(PxTransform());
-		mPhysXActor->createShape(PxTriangleMeshGeometry(OgrePhysX::getPxPhysics()->createTriangleMesh(PxToolkit::MemoryReadBuffer(stream.data))), OgrePhysX::World::getSingleton().getDefaultMaterial());
+		mPhysXActor->createShape(PxTriangleMeshGeometry(OgrePhysX::getPxPhysics()->createTriangleMesh(OgrePhysX::MemoryReadStream(stream.data))), OgrePhysX::World::getSingleton().getDefaultMaterial());
 	}
 
 	bool NavigationMesh::raycastClosest(const Ogre::Vector3 &origin, const Ogre::Vector3 &direction, float maxDist, PxRaycastHit &hit)

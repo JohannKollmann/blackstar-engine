@@ -71,9 +71,12 @@ namespace OgrePhysX
 		cookerParams.materials(World::getSingleton().getOgreMaterialNames());
 		PxRigidStatic *pxActor = getPxPhysics()->createRigidStatic(PxTransform(toPx(position), toPx(orientation)));
 		PxTriangleMeshGeometry geometry = PxTriangleMeshGeometry(Cooker::getSingleton().createPxTriangleMesh(mesh, cookerParams, &addedMaterials));
-		pxActor->createShape(
-			geometry,
-			addedMaterials.materials, addedMaterials.materialCount);
+		
+		if (addedMaterials.materialCount > 0)
+			pxActor->createShape(geometry, addedMaterials.materials, addedMaterials.materialCount);
+		else
+			pxActor->createShape(geometry, World::getSingleton().getDefaultMaterial());
+
 		pxActor->setActorFlag(PxActorFlag::eVISUALIZATION, true);
 		mPxScene->addActor(*pxActor);
 		Actor<PxRigidStatic> actor(pxActor);
