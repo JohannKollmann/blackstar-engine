@@ -169,7 +169,7 @@ namespace Ice
 		if (PxRigidDynamic *obstacle = ObstacleCheck(direction * 4.0f))
 		{
 			GameObject *go = (GameObject*)obstacle->userData;
-			float dist = go->GetGlobalPosition().distance(currPos);
+			dist = go->GetGlobalPosition().distance(currPos);
 
 			mAIObject->GetOwner()->GetComponent<GOCCharacterController>()->SetSpeedFactor(dist < 3 ? dist / 3 : 1);
 				/*

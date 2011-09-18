@@ -95,9 +95,9 @@ namespace OgrePhysX
 		mScenes.insert(std::make_pair<Ogre::String, Scene*>(name, scene));
 		return scene;
 	}
-	Scene* World::addScene(Ogre::String name, PxSceneDesc *desc)
+	Scene* World::addScene(Ogre::String name, PxSceneDesc &desc)
 	{
-		Scene *scene = new Scene(*desc);
+		Scene *scene = new Scene(desc);
 		mScenes.insert(std::make_pair<Ogre::String, Scene*>(name, scene));
 		return scene;
 	}
@@ -146,14 +146,6 @@ namespace OgrePhysX
 			i->second->simulate(time);
 		}
 		mSimulating = false;
-	}
-
-	void World::renderDebugVisuals()
-	{
-		for (auto i = mScenes.begin(); i != mScenes.end(); i++)
-		{
-			i->second->renderDebugGeometry();
-		}
 	}
 
 	void World::syncRenderables()

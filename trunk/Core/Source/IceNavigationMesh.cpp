@@ -699,7 +699,7 @@ namespace Ice
 			else		//decrement indices above the deletes vertex
 			{
 				for (unsigned int x = 0; x < newTriCount*3; x++)
-					if (newIndices[x] >= i) finalIndices[x]--;
+					if (newIndices[x] >= (int)i) finalIndices[x]--;
 			}
 		}
 		meshInfo.vertices = newVertices;

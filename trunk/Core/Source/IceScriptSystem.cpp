@@ -268,12 +268,12 @@ namespace Ice
 		{
 			SCRIPT_RETURNERROR("Too few parameters!")
 		}
-		if (!params[0].hasInt() || params[1].getType() != ScriptParam::PARM_TYPE_FUNCTION)
+		if (!params[0].getType() == ScriptParam::PARM_TYPE_STRING || params[1].getType() != ScriptParam::PARM_TYPE_FUNCTION)
 		{
 			SCRIPT_RETURNERROR("Wrong parameters!")
 		}
 		ScriptMessageListener *listener = ICE_NEW ScriptMessageListener(params[1]);
-		listener->JoinNewsgroup(params[0].getInt());
+		listener->JoinNewsgroup(getGlobalMessageIDs().lookup(params[0].getString()));
 		ScriptSystem::GetInstance().mScriptMessageListeners.push_back(listener);
 		return ret;
 	}

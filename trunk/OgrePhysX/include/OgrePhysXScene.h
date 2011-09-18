@@ -25,14 +25,6 @@ namespace OgrePhysX
 	private:
 		PxScene *mPxScene;
 
-		Ogre::SceneManager *mOgreSceneMgr;
-		bool mVisualDebuggerEnabled;
-		Ogre::uint32 mVisualDebuggerVisibilityFlags;
-		Ogre::SceneNode *mDebugNode;
-		Ogre::MeshPtr mDebugMesh;
-		Ogre::Entity *mDebugMeshEntity;
-		Ogre::ManualObject *mDebugLines;
-
 		float mTimeAccu;
 		float mFrameTime;
 
@@ -126,11 +118,6 @@ namespace OgrePhysX
 		*/
 		bool raycastClosest(const Ogre::Vector3 &origin, const Ogre::Vector3 &unitDir, float maxDistance, RaycastHit &outHit);
 		bool raycastAny(const Ogre::Vector3 &origin, const Ogre::Vector3 &unitDir, float maxDistance);
-
-		void initVisualDebugger(Ogre::SceneManager *sceneMgr, Ogre::uint32 debugGeometryVisibilityFlags, bool enabled = true);
-		void setVisualDebuggerEnabled(bool enabled);
-
-		void renderDebugGeometry();
 	};
 
 }

@@ -50,17 +50,6 @@ namespace Ice
 		const int SHAPE_CAPSULE = 4;
 	};
 
-	enum CollisionGroups
-	{
-		DEFAULT,
-		LEVELMESH,
-		BONE,
-		CHARACTER,
-		AI,
-		TRIGGER,
-		TMP
-	};
-
 	class DllExport GOCRigidBody : public GOCEditorInterface, public GOCPhysXActor<PxRigidDynamic>, public OgrePhysX::PointRenderable
 	{
 	private:

@@ -134,7 +134,6 @@ namespace Ice
 
 	void SynchronisedThread::onDoLoop(float timeRel, float timeAbs)
 	{
-		//OgrePhysX::World::getSingleton().renderDebugVisuals();
 	}
 
 };

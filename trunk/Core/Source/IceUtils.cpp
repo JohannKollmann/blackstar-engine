@@ -172,7 +172,7 @@ namespace Ice
 		//iterate given parms
 		for(unsigned int iParam=0; iParam<testparams.size(); iParam++)
 		{
-			int reftype;
+			int reftype = 0;
 			if(iParam>=nParams)
 			{
 				if(bVariadic)
