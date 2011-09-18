@@ -151,9 +151,9 @@ namespace Ice
 			{
 				if (oldZoom == 0.0f)
 				{
-					Msg msg;
-					msg.typeID = ObjectMessageIDs::LEAVE_FPS_MODE;
-					BroadcastObjectMessage(msg);
+					Msg leaveMsg;
+					leaveMsg.typeID = ObjectMessageIDs::LEAVE_FPS_MODE;
+					BroadcastObjectMessage(leaveMsg);
 					mMaxPitch = 0.4f;
 				}
 				mCameraNode->setPosition(Ogre::Vector3(0.0f,0.0f,-6.0f)*static_cast<float>(sfActualZoom));
@@ -162,9 +162,9 @@ namespace Ice
 			{
 				if (oldZoom != 0.0f)
 				{
-					Msg msg;
-					msg.typeID = ObjectMessageIDs::ENTER_FPS_MODE;
-					BroadcastObjectMessage(msg);
+					Msg enterMsg;
+					enterMsg.typeID = ObjectMessageIDs::ENTER_FPS_MODE;
+					BroadcastObjectMessage(enterMsg);
 					mMaxPitch = 0.6f;
 				}
 				sfActualZoom=0.0f;

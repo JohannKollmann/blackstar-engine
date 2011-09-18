@@ -116,8 +116,8 @@ namespace Ice
 	{
 		if (msg.typeID == GlobalMessageIDs::REPARSE_SCRIPTS_PRE)
 		{
-			mMaterialProfilesToPx.clear();
-			mPxToMaterialProfiles.clear();
+			//mMaterialProfilesToPx.clear();
+			//mPxToMaterialProfiles.clear();
 		}
 		else if (msg.typeID == GlobalMessageIDs::REPARSE_SCRIPTS_POST)
 		{

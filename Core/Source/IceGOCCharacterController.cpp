@@ -216,9 +216,9 @@ namespace Ice
 				mJumping = true;
 				mJumpStartTime = timeGetTime();
 				mActor.getPxActor()->addForce(PxVec3(0, 400, 0), PxForceMode::eIMPULSE);
-				Msg msg;
-				msg.typeID = ObjectMessageIDs::START_JUMP;
-				BroadcastObjectMessage(msg);
+				Msg startJumpMsg;
+				startJumpMsg.typeID = ObjectMessageIDs::START_JUMP;
+				BroadcastObjectMessage(startJumpMsg);
 			}
 		}
 		if (msg.typeID == ObjectMessageIDs::CHARACTER_KILL)

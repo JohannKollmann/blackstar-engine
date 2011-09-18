@@ -5,6 +5,7 @@
 #include "IceGOCPhysics.h"
 #include "IceMainLoop.h"
 #include "wxEdit.h"
+#include "IceCollisionCallback.h"
 
 
 AmbientOcclusionGenerator::AmbientOcclusionGenerator(void)
@@ -42,7 +43,7 @@ void AmbientOcclusionGenerator::bakeAmbientOcclusion(Ogre::MeshPtr mesh, Ogre::S
 	if (mesh->sharedVertexData)
 	{
 		aoMesh->sharedVertexData = new Ogre::VertexData();
-		processVertexData(aoMesh->sharedVertexData, mesh->sharedVertexData, 1<<Ice::CollisionGroups::TMP);
+		processVertexData(aoMesh->sharedVertexData, mesh->sharedVertexData, Ice::CollisionGroups::INTERN);
 	}
 	for (unsigned i = 0; i < mesh->getNumSubMeshes(); i++)
 	{
@@ -55,7 +56,7 @@ void AmbientOcclusionGenerator::bakeAmbientOcclusion(Ogre::MeshPtr mesh, Ogre::S
 		if (subMesh->vertexData)
 		{
 			aoSubMesh->vertexData = new Ogre::VertexData();
-			processVertexData(aoSubMesh->vertexData, subMesh->vertexData, 1<<Ice::CollisionGroups::TMP);
+			processVertexData(aoSubMesh->vertexData, subMesh->vertexData, Ice::CollisionGroups::INTERN);
 		}
 		wxEdit::Instance().GetProgressBar()->SetProgress(0.4f + 0.6f * ((float)i/(float)mesh->getNumSubMeshes()));
 	}
@@ -85,7 +86,7 @@ void AmbientOcclusionGenerator::bakeAmbientOcclusion(Ogre::Entity *ent, Ogre::St
 	if (mesh->sharedVertexData)
 	{
 		aoMesh->sharedVertexData = new Ogre::VertexData();
-		processVertexData(aoMesh->sharedVertexData, mesh->sharedVertexData, 1<<Ice::CollisionGroups::DEFAULT|1<<Ice::CollisionGroups::LEVELMESH, ent->getParentNode());
+		processVertexData(aoMesh->sharedVertexData, mesh->sharedVertexData, Ice::CollisionGroups::DYNAMICBODY|Ice::CollisionGroups::STATICBODY, ent->getParentNode());
 	}
 	for (unsigned i = 0; i < mesh->getNumSubMeshes(); i++)
 	{
@@ -98,7 +99,7 @@ void AmbientOcclusionGenerator::bakeAmbientOcclusion(Ogre::Entity *ent, Ogre::St
 		if (subMesh->vertexData)
 		{
 			aoSubMesh->vertexData = new Ogre::VertexData();
-			processVertexData(aoSubMesh->vertexData, subMesh->vertexData, 1<<Ice::CollisionGroups::DEFAULT|1<<Ice::CollisionGroups::LEVELMESH, ent->getParentNode());
+			processVertexData(aoSubMesh->vertexData, subMesh->vertexData, Ice::CollisionGroups::DYNAMICBODY|Ice::CollisionGroups::STATICBODY, ent->getParentNode());
 		}
 		wxEdit::Instance().GetProgressBar()->SetProgress(0.4f + 0.6f * ((float)i/(float)mesh->getNumSubMeshes()));
 	}

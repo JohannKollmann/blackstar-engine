@@ -13,8 +13,6 @@ namespace OgrePhysX
 
 	Scene::Scene(void)
 	{
-		mVisualDebuggerEnabled = false;
-		mDebugNode = nullptr;
 		PxSceneDesc desc(World::getSingleton().getSDK()->getTolerancesScale());
 		desc.gravity = PxVec3(0, -9.81f, 0);
 		desc.filterShader = &PxDefaultSimulationFilterShader;
@@ -22,8 +20,6 @@ namespace OgrePhysX
 	}
 	Scene::Scene(PxSceneDesc &desc)
 	{
-		mVisualDebuggerEnabled = false;
-		mDebugNode = nullptr;
 		create(desc);
 	}
 
@@ -59,7 +55,6 @@ namespace OgrePhysX
 	Actor<PxRigidDynamic> Scene::createRigidDynamic(PxGeometry &geometry, float density, PxMaterial &material, const Ogre::Vector3 &position, const Ogre::Quaternion &orientation)
 	{
 		PxRigidDynamic *pxActor = PxCreateDynamic(*getPxPhysics(), PxTransform(toPx(position), toPx(orientation)), geometry, material, density);
-		pxActor->setActorFlag(PxActorFlag::eVISUALIZATION, true);
 		mPxScene->addActor(*pxActor);
 		Actor<PxRigidDynamic> actor(pxActor);
 		return actor;
@@ -77,7 +72,6 @@ namespace OgrePhysX
 		else
 			pxActor->createShape(geometry, World::getSingleton().getDefaultMaterial());
 
-		pxActor->setActorFlag(PxActorFlag::eVISUALIZATION, true);
 		mPxScene->addActor(*pxActor);
 		Actor<PxRigidStatic> actor(pxActor);
 		return actor;
@@ -91,7 +85,6 @@ namespace OgrePhysX
 	{
 		PxRigidStatic *pxActor = getPxPhysics()->createRigidStatic(PxTransform(toPx(position), toPx(orientation)));
 		pxActor->createShape(geometry, material);
-		pxActor->setActorFlag(PxActorFlag::eVISUALIZATION, true);
 		mPxScene->addActor(*pxActor);
 		Actor<PxRigidStatic> actor(pxActor);
 		return actor;
@@ -175,149 +168,6 @@ namespace OgrePhysX
 	{
 		PxRaycastHit hit;
 		return mPxScene->raycastAny(toPx(origin), toPx(unitDir), maxDistance, hit);
-	}
-
-	void Scene::initVisualDebugger(Ogre::SceneManager *sceneMgr, Ogre::uint32 debugGeometryVisibilityFlags, bool enabled)
-	{
-		mOgreSceneMgr = sceneMgr;
-		mVisualDebuggerVisibilityFlags = debugGeometryVisibilityFlags;
-
-		if (!mDebugNode)
-		{
-			mDebugNode = sceneMgr->getRootSceneNode()->createChildSceneNode();
-
-			//create debug line geometry
-			mDebugLines = sceneMgr->createManualObject();
-			mDebugLines->setCastShadows(false);
-			mDebugLines->setVisibilityFlags(mVisualDebuggerVisibilityFlags);
-			mDebugNode->attachObject(mDebugLines);
-
-			//create wire material if necessary
-			if (!Ogre::MaterialManager::getSingleton().resourceExists("OgrePhysXVisualDebugger_MeshMat"))
-			{
-				Ogre::MaterialPtr wireMat = Ogre::MaterialManager::getSingleton().create("OgrePhysXVisualDebugger_MeshMat", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
-				wireMat->setAmbient(Ogre::ColourValue(0,0,1));
-				wireMat->setDiffuse(Ogre::ColourValue(0,0,1));
-				//wireMat->getTechnique(0)->getPass(0)->setPolygonMode(Ogre::PM_WIREFRAME);
-			}
-
-			//create mesh
-			mDebugMesh = Ogre::MeshManager::getSingleton().createManual("OgrePhysXVisualDebugger_Mesh", "General");
-			mDebugMesh->createSubMesh("main");
-
-			Ogre::VertexData* data = new Ogre::VertexData();
-			mDebugMesh->sharedVertexData = data;
-			data->vertexCount = 0;
-			Ogre::VertexDeclaration* decl = data->vertexDeclaration;
-			decl->addElement(0, 0, Ogre::VET_FLOAT3, Ogre::VES_POSITION);
-
-			mDebugMesh->getSubMesh(0)->indexData->indexStart = 0;
-			mDebugMesh->getSubMesh(0)->indexData->indexCount = 0;		
-			mDebugMesh->getSubMesh(0)->setMaterialName("OgrePhysXVisualDebugger_MeshMat");
-
-			Ogre::AxisAlignedBox bounds(Ogre::Vector3(-10000,-10000,-10000), Ogre::Vector3(10000,10000,10000));
-			mDebugMesh->_setBounds(bounds);
-
-			//create entity
-			mDebugMeshEntity = sceneMgr->createEntity("OgrePhysXDebugMeshEntity", "OgrePhysXVisualDebugger_Mesh");
-			mDebugMeshEntity->setCastShadows(false);
-			mDebugMeshEntity->setVisibilityFlags(mVisualDebuggerVisibilityFlags);
-
-			mDebugNode->attachObject(mDebugMeshEntity);
-		}
-
-		setVisualDebuggerEnabled(enabled);
-	}
-	void Scene::setVisualDebuggerEnabled(bool enabled)
-	{
-		mVisualDebuggerEnabled = enabled;
-
-		float factor = 0;
-		if (enabled) factor = 1.05f;
-		mPxScene->setVisualizationParameter(PxVisualizationParameter::eSCALE, factor);
-		mPxScene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_SHAPES, factor);
-	}
-
-	void Scene::renderDebugGeometry()
-	{
-		if (!mVisualDebuggerEnabled) return;
-
-		mPxScene->getRenderBuffer();
-
-		//update mesh
-		Ogre::VertexData* data = mDebugMesh->sharedVertexData;
-		Ogre::VertexDeclaration* decl = data->vertexDeclaration;
-
-		unsigned int numtriangles = mPxScene->getRenderBuffer().getNbTriangles();
-		unsigned int numIndices = mPxScene->getRenderBuffer().getNbTriangles()*3;
-		unsigned int numVertices = numIndices;
-
-		unsigned int numPoints = mPxScene->getRenderBuffer().getNbPoints();
-
-		unsigned int numLines = mPxScene->getRenderBuffer().getNbLines();
-
-		if (numLines > 0)
-		{
-			unsigned int numLineVertices = 0;
-			if (mDebugLines->getNumSections() == 1) numLineVertices = mDebugLines->getSection(0)->getRenderOperation()->vertexData->vertexCount;
-			if (numLines != numLineVertices / 2)
-			{
-				mDebugLines->clear();
-				mDebugLines->begin("OgrePhysXVisualDebugger_MeshMat", Ogre::RenderOperation::OT_LINE_LIST);
-				for (unsigned int i = 0; i < numLines; ++i)
-				{
-					mDebugLines->position(toOgre(mPxScene->getRenderBuffer().getLines()[i].pos0));
-					mDebugLines->position(toOgre(mPxScene->getRenderBuffer().getLines()[i].pos1));
-				}
-				mDebugLines->end();
-			}
-		}
-
-		if (numVertices > 0)
-		{
-			Ogre::HardwareVertexBufferSharedPtr vBuf;
-			if (data->vertexCount != numVertices)
-			{
-				Ogre::HardwareVertexBufferSharedPtr vBuf = Ogre::HardwareBufferManager::getSingleton().createVertexBuffer(
-				decl->getVertexSize(0), numVertices, Ogre::HardwareBuffer::HBU_STATIC_WRITE_ONLY);
-				Ogre::VertexBufferBinding* bind = data->vertexBufferBinding;
-				bind->setBinding(0, vBuf);
-			}
-			else vBuf = data->vertexBufferBinding->getBuffer(0);
-
-			data->vertexCount = mPxScene->getRenderBuffer().getNbPoints();
-
-			float* afVertexData=(float*)vBuf->lock(Ogre::HardwareBuffer::HBL_DISCARD);
-			unsigned int index = 0;
-			for (unsigned int i = 0; i < numtriangles; ++i)
-			{
-				PxVec3 pos0 = mPxScene->getRenderBuffer().getTriangles()[i].pos0;
-				PxVec3 pos1 = mPxScene->getRenderBuffer().getTriangles()[i].pos1;
-				PxVec3 pos2 = mPxScene->getRenderBuffer().getTriangles()[i].pos2;
-				afVertexData[index++] = pos0.x; afVertexData[index++] = pos0.y; afVertexData[index++] = pos0.z;
-				afVertexData[index++] = pos1.x; afVertexData[index++] = pos1.y; afVertexData[index++] = pos1.z;
-				afVertexData[index++] = pos2.x; afVertexData[index++] = pos2.y; afVertexData[index++] = pos2.z;
-			}
-			vBuf->unlock();
-
-			Ogre::HardwareIndexBufferSharedPtr iBuf;
-			if (mDebugMesh->getSubMesh(0)->indexData->indexCount != numIndices)
-			{
-				iBuf = Ogre::HardwareBufferManager::getSingleton().createIndexBuffer(
-					Ogre::HardwareIndexBuffer::IT_32BIT, numIndices, Ogre::HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
-				mDebugMesh->getSubMesh(0)->indexData->indexBuffer = iBuf;
-			}
-			else iBuf = mDebugMesh->getSubMesh(0)->indexData->indexBuffer;
-			mDebugMesh->getSubMesh(0)->indexData->indexCount = numIndices;
-
-			unsigned int* aiIndexBuf=(unsigned int*)iBuf->lock(Ogre::HardwareBuffer::HBL_DISCARD);
-			index = 0;
-			for (unsigned int i = 0; i < numIndices; ++i)
-			{
-				aiIndexBuf[i] = index++;
-			}
-			iBuf->unlock();
-		}
 	}
 
 }

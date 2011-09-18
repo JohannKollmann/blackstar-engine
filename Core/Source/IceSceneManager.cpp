@@ -924,7 +924,7 @@ namespace Ice
 			vRef.push_back(ScriptParam(1.0));	//staticFriction
 			vRef.push_back(ScriptParam(1.0));	//dynamicFriction
 			vRef.push_back(ScriptParam(1.0));	//restitution
-			std::string strErrString=Ice::Utils::TestParameters(vParams, vRef);
+			strErrString=Ice::Utils::TestParameters(vParams, vRef);
 			if (strErrString != "")
 			{
 				SCRIPT_RETURNERROR(strErrString)

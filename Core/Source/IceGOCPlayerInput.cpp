@@ -80,9 +80,9 @@ void GOCPlayerInput::ReceiveMessage(Msg &msg)
 	{
 		if (msg.params.GetInt("KEY_ID_OIS") == OIS::KC_SPACE)
 		{
-			Msg msg;
-			msg.typeID = ObjectMessageIDs::INPUT_START_JUMP;
-			BroadcastObjectMessage(msg);
+			Msg startJumpMsg;
+			startJumpMsg.typeID = ObjectMessageIDs::INPUT_START_JUMP;
+			BroadcastObjectMessage(startJumpMsg);
 		}
 	}
 

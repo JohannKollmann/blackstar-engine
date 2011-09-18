@@ -5,6 +5,7 @@
 #include "IceGameObject.h"
 #include "IceObjectMessageIDs.h"
 #include "IceMaterialTable.h"
+#include "IceCollisionCallback.h"
 
 namespace Ice
 {
@@ -69,6 +70,8 @@ namespace Ice
 		mActor.getPxActor()->setRigidDynamicFlag(PxRigidDynamicFlag::eKINEMATIC, mIsKinematic);
 
 		mActor.getPxActor()->setSolverIterationCounts(8);
+
+		mActor.getFirstShape()->setSimulationFilterData(PhysXFilterData::Instance().DynamicBody);
 
 		mRenderBinding = Main::Instance().GetPhysXScene()->createRenderedActorBinding(mActor, this);
 
@@ -226,6 +229,8 @@ namespace Ice
 		mActor = Main::Instance().GetPhysXScene()->createRigidStatic(entity->getMesh(), OgrePhysX::Cooker::Params().scale(scale));
 
 		mActor.getPxActor()->userData = mOwnerGO.lock().get();
+
+		mActor.getFirstShape()->setSimulationFilterData(PhysXFilterData::Instance().DynamicBody);
 
 		Main::Instance().GetOgreSceneMgr()->destroyEntity(entity);
 	}

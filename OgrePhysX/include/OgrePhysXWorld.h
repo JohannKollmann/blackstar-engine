@@ -19,7 +19,6 @@ namespace OgrePhysX
 			{
 				mWorld->simulate(evt.timeSinceLastFrame);
 				mWorld->syncRenderables();
-				mWorld->renderDebugVisuals();
 				return true;
 			}
 		};
@@ -54,16 +53,13 @@ namespace OgrePhysX
 		PxCooking* getCookingInterface();
 
 		Scene* addScene(Ogre::String name);
-		Scene* addScene(Ogre::String name, PxSceneDesc *desc);
+		Scene* addScene(Ogre::String name, PxSceneDesc &desc);
 		Scene* getScene(Ogre::String name);
 		void destroyScene(Ogre::String name);
 		void clearScenes();
 
 		///Advances the simulation.
 		void simulate(float time);
-
-		///Updates the debug visuals - needs access to both Ogre and PhysX.
-		void renderDebugVisuals();
 
 		//Synchronises renderables.
 		void syncRenderables(); 

@@ -124,7 +124,6 @@ namespace Ice
 	class ObjectLevelRayCaster;
 	class CameraController;
 	class WeatherController;
-	class ScriptedCollisionCallback;
 	class GameObject;
 	class ManagedGameObject;
 	class GOComponent;
@@ -140,6 +139,7 @@ namespace Ice
 	class FreeFlightCameraController;
 	class ObjectReference;
 	class MainLoopThread;
+	class PhysXSimulationEventCallback;
 
 	typedef DllExport std::shared_ptr<ObjectReference> ObjectReferencePtr;
 	typedef DllExport std::shared_ptr<GameObject> GameObjectPtr;

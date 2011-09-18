@@ -56,7 +56,7 @@ namespace Ice
 
 	TextID& getGlobalMessageIDs()
 	{
-		static TextID theOneAndOnly(aObjectMessageIDs, GLOBAL_MESSAGE_ID_FIRST, GLOBAL_MESSAGE_ID_LAST, TEXTID_DEFS_SIZE(aGlobalMessageIDs));
+		static TextID theOneAndOnly(aGlobalMessageIDs, GLOBAL_MESSAGE_ID_FIRST, GLOBAL_MESSAGE_ID_LAST, TEXTID_DEFS_SIZE(aGlobalMessageIDs));
 		return theOneAndOnly;
 	}
 }

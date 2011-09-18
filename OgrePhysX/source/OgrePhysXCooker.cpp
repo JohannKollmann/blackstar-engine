@@ -47,11 +47,11 @@ namespace OgrePhysX
 		unsigned int numIndices = 0;
 
 		if (mesh->sharedVertexData) numVertices += mesh->sharedVertexData->vertexCount;
-		Ogre::Mesh::SubMeshIterator i = mesh->getSubMeshIterator();
+		Ogre::Mesh::SubMeshIterator subMeshIterator = mesh->getSubMeshIterator();
 		bool indices32 = true;
-		while (i.hasMoreElements())
+		while (subMeshIterator.hasMoreElements())
 		{
-			Ogre::SubMesh *subMesh = i.getNext();
+			Ogre::SubMesh *subMesh = subMeshIterator.getNext();
 			if (subMesh->vertexData) numVertices += subMesh->vertexData->vertexCount;
 			if (params.mAddBackfaces)
 				numIndices += subMesh->indexData->indexCount*2;
@@ -106,10 +106,10 @@ namespace OgrePhysX
 		/*
 		Read submeshes
 		*/
-		i = mesh->getSubMeshIterator();
-		while (i.hasMoreElements())
+		subMeshIterator = mesh->getSubMeshIterator();
+		while (subMeshIterator.hasMoreElements())
 		{
-			Ogre::SubMesh *subMesh = i.getNext();
+			Ogre::SubMesh *subMesh = subMeshIterator.getNext();
 
 			//Read vertex data
 			Ogre::VertexData *vertex_data = subMesh->vertexData;
@@ -403,7 +403,7 @@ namespace OgrePhysX
 		}
 		std::sort(vTris.begin(), vTris.end());
 		int iLastIndex=-1;
-		int nVertices;
+		int nVertices = 0;
 		Ogre::Vector3 vAccNomals;
 		Ogre::Vector3 vPos;
 		std::vector<Ogre::Vector3> vNewVertices;
@@ -507,7 +507,9 @@ namespace OgrePhysX
 		desc.triangles.data = iIndices;
 
 		std::unordered_map<PxMaterial*, PxMaterialTableIndex> materialIndicesMap;
+		std::vector<PxMaterial*> orderedMaterials;
 		materialIndicesMap.insert(std::make_pair<PxMaterial*, PxMaterialTableIndex>(&World::getSingleton().getDefaultMaterial(), 0));	//add default material at index 0
+		orderedMaterials.push_back(&World::getSingleton().getDefaultMaterial());
 
 		PxMaterialTableIndex *materialIndices = nullptr;
 		if (!params.mMaterialBindings.empty())
@@ -529,6 +531,7 @@ namespace OgrePhysX
 					{	//create material index if not existing
 						index = materialIndicesMap.size();
 						materialIndicesMap.insert(std::make_pair<PxMaterial*, PxMaterialTableIndex>(mat->second, index));
+						orderedMaterials.push_back(mat->second);
 					}
 					else index = matIndex->second;
 					materialIndices[i] = index;
@@ -541,9 +544,8 @@ namespace OgrePhysX
 		{
 			out_addedMaterials->materialCount = materialIndicesMap.size();
 			out_addedMaterials->materials = new PxMaterial*[out_addedMaterials->materialCount];
-			int i = 0;
-			for (auto iter = materialIndicesMap.begin(); iter != materialIndicesMap.end(); ++iter)
-				out_addedMaterials->materials[i++] = iter->first;
+			for (unsigned int i = 0; i < orderedMaterials.size(); ++i)
+				out_addedMaterials->materials[i] = orderedMaterials[i];
 		}
 
 		//dump the fucking buffers!

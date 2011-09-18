@@ -44,7 +44,7 @@ namespace Ice
 		Ogre::SceneManager* mSceneMgr;
 		Ogre::SceneManager* mPreviewSceneMgr;
 		bool mMainSceneMgr;
-		ScriptedCollisionCallback *mCollisionCallback;
+		PhysXSimulationEventCallback *mPhysXSimulationCallback;
 
 		Ogre::ShadowCameraSetupPtr mDirectionalShadowCameraSetup;
 		Ogre::ShadowCameraSetupPtr mSpotShadowCameraSetup;

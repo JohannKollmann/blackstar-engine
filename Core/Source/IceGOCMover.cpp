@@ -160,7 +160,7 @@ namespace Ice
 		BroadcastObjectMessage(msg);
 		if(GetNumKeys() < 1)
 		{
-			Ice::Msg msg; msg.typeID = ObjectMessageIDs::MOVER_END;
+			msg.typeID = ObjectMessageIDs::MOVER_END;
 			BroadcastObjectMessage(msg);
 			mMoving = false;
 		}
@@ -306,12 +306,12 @@ namespace Ice
 						if (keyIndex != mLastKeyIndex)
 						{
 							//Send a message that a key passed.
-							Ice::Msg msg; msg.typeID = ObjectMessageIDs::MOVER_PASSING_KEY;
+							Ice::Msg keyMsg; keyMsg.typeID = ObjectMessageIDs::MOVER_PASSING_KEY;
 							GameObjectPtr keyObj = GetKey(keyIndex+1);
 							if (keyObj.get())
 							{
-								msg.params.AddOgreString("Keyname", keyObj->GetName());
-								BroadcastObjectMessage(msg);
+								keyMsg.params.AddOgreString("Keyname", keyObj->GetName());
+								BroadcastObjectMessage(keyMsg);
 							}
 							mLastKeyIndex = keyIndex;
 						}
@@ -333,8 +333,8 @@ namespace Ice
 				{
 					mMoving = false;
 					mfLastPos = 0;
-					Ice::Msg msg; msg.typeID = ObjectMessageIDs::MOVER_END;
-					BroadcastObjectMessage(msg);
+					Ice::Msg endMsg; endMsg.typeID = ObjectMessageIDs::MOVER_END;
+					BroadcastObjectMessage(endMsg);
 					mLastKeyIndex = -1;
 				}
 			}
