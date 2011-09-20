@@ -13,7 +13,7 @@ namespace OgrePhysX
 
 	Scene::Scene(void)
 	{
-		PxSceneDesc desc(World::getSingleton().getSDK()->getTolerancesScale());
+		PxSceneDesc desc(World::getSingleton().getPxPhysics()->getTolerancesScale());
 		desc.gravity = PxVec3(0, -9.81f, 0);
 		desc.filterShader = &PxDefaultSimulationFilterShader;
 		create(desc);
@@ -37,12 +37,12 @@ namespace OgrePhysX
 			return;
 		}
 
-		if (!World::getSingleton().getSDK())
+		if (!World::getSingleton().getPxPhysics())
 		{
 			Ogre::LogManager::getSingleton().logMessage("[OgrePhysX] Error: Cannot create scene because World is not initialised properly.");
 			return;
 		}
-		mPxScene = World::getSingleton().getSDK()->createScene(desc);
+		mPxScene = World::getSingleton().getPxPhysics()->createScene(desc);
 		mTimeAccu = 0.0f;
 		mFrameTime = 1/80.0f;
 		mSimulationListener = nullptr;
@@ -107,7 +107,7 @@ namespace OgrePhysX
 	}
 	void Scene::destroyRenderableBinding(RenderableBinding* binding)
 	{
-		for (std::list<RenderableBinding*>::iterator i = mOgrePhysXBindings.begin(); i != mOgrePhysXBindings.end(); i++)
+		for (auto i = mOgrePhysXBindings.begin(); i != mOgrePhysXBindings.end(); i++)
 		{
 			if ((*i) == binding)
 			{
@@ -127,7 +127,7 @@ namespace OgrePhysX
 
 	void Scene::syncRenderables()
 	{
-		for (std::list<RenderableBinding*>::iterator i = mOgrePhysXBindings.begin(); i != mOgrePhysXBindings.end(); i++)
+		for (auto i = mOgrePhysXBindings.begin(); i != mOgrePhysXBindings.end(); i++)
 		{
 			(*i)->sync();
 		}
@@ -153,10 +153,15 @@ namespace OgrePhysX
 		}
 	}
 
-	bool Scene::raycastClosest(const Ogre::Vector3 &origin, const Ogre::Vector3 &unitDir, float maxDistance, Scene::RaycastHit &outHit)
+	bool Scene::raycastClosest(const Ogre::Vector3 &origin, const Ogre::Vector3 &unitDir, float maxDistance, PxSceneQueryFilterData &queryFilterData)
 	{
 		PxRaycastHit hit;
-		if (!mPxScene->raycastSingle(toPx(origin), toPx(unitDir), maxDistance, PxSceneQueryFlag::eIMPACT|PxSceneQueryFlag::eNORMAL|PxSceneQueryFlag::eDISTANCE, hit))
+		return mPxScene->raycastSingle(toPx(origin), toPx(unitDir), maxDistance, PxSceneQueryFlag::eIMPACT|PxSceneQueryFlag::eNORMAL|PxSceneQueryFlag::eDISTANCE, hit, queryFilterData);
+	}
+	bool Scene::raycastClosest(const Ogre::Vector3 &origin, const Ogre::Vector3 &unitDir, float maxDistance, RaycastHit &outHit, PxSceneQueryFilterData &queryFilterData)
+	{
+		PxRaycastHit hit;
+		if (!mPxScene->raycastSingle(toPx(origin), toPx(unitDir), maxDistance, PxSceneQueryFlag::eIMPACT|PxSceneQueryFlag::eNORMAL|PxSceneQueryFlag::eDISTANCE, hit, queryFilterData))
 			return false;
 		outHit.distance = hit.distance;
 		outHit.normal = toOgre(hit.normal);
@@ -164,10 +169,23 @@ namespace OgrePhysX
 		outHit.hitActorUserData = hit.actor->userData;
 		return true;
 	}
-	bool Scene::raycastAny(const Ogre::Vector3 &origin, const Ogre::Vector3 &unitDir, float maxDistance)
+
+	bool Scene::raycastAny(const Ogre::Vector3 &origin, const Ogre::Vector3 &unitDir, float maxDistance, PxSceneQueryFilterData &queryFilterData)
 	{
 		PxRaycastHit hit;
-		return mPxScene->raycastAny(toPx(origin), toPx(unitDir), maxDistance, hit);
+		return mPxScene->raycastAny(toPx(origin), toPx(unitDir), maxDistance, hit, queryFilterData);
 	}
+	bool Scene::raycastAny(const Ogre::Vector3 &origin, const Ogre::Vector3 &unitDir, float maxDistance, RaycastHit &outHit, PxSceneQueryFilterData &queryFilterData)
+	{
+		PxRaycastHit hit;
+		if (!mPxScene->raycastAny(toPx(origin), toPx(unitDir), maxDistance, hit, queryFilterData))
+			return false;
+		outHit.distance = hit.distance;
+		outHit.normal = toOgre(hit.normal);
+		outHit.position = toOgre(hit.impact);
+		outHit.hitActorUserData = hit.actor->userData;
+		return true;
+	}
+
 
 }

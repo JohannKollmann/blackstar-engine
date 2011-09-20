@@ -5,6 +5,7 @@
 #include "OgrePhysXRenderedActorBinding.h"
 #include "OgrePhysXActor.h"
 #include "OgrePhysXCooker.h"
+#include "PxPhysicsAPI.h"
 
 namespace OgrePhysX
 {
@@ -28,7 +29,7 @@ namespace OgrePhysX
 		float mTimeAccu;
 		float mFrameTime;
 
-		std::list<RenderableBinding*> mOgrePhysXBindings;
+		std::vector<RenderableBinding*> mOgrePhysXBindings;
 
 		SimulationListener *mSimulationListener;
 
@@ -113,11 +114,14 @@ namespace OgrePhysX
 			void *hitActorUserData;
 		};
 		/**
-		These methods only provide minimalistic functionality, for full power use PhysX directly.
+		These methods only provide limited functionality, for full power use PhysX directly.
 		@return true of the ray hit something, otherweise false.
 		*/
-		bool raycastClosest(const Ogre::Vector3 &origin, const Ogre::Vector3 &unitDir, float maxDistance, RaycastHit &outHit);
-		bool raycastAny(const Ogre::Vector3 &origin, const Ogre::Vector3 &unitDir, float maxDistance);
+		bool raycastClosest(const Ogre::Vector3 &origin, const Ogre::Vector3 &unitDir, float maxDistance, PxSceneQueryFilterData &queryFilterData = PxSceneQueryFilterData());
+		bool raycastAny(const Ogre::Vector3 &origin, const Ogre::Vector3 &unitDir, float maxDistance, PxSceneQueryFilterData &queryFilterData = PxSceneQueryFilterData());
+
+		bool raycastClosest(const Ogre::Vector3 &origin, const Ogre::Vector3 &unitDir, float maxDistance, RaycastHit &outHit, PxSceneQueryFilterData &queryFilterData = PxSceneQueryFilterData());
+		bool raycastAny(const Ogre::Vector3 &origin, const Ogre::Vector3 &unitDir, float maxDistance, RaycastHit &outHit, PxSceneQueryFilterData &queryFilterData = PxSceneQueryFilterData());
 	};
 
 }

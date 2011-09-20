@@ -35,43 +35,22 @@ namespace OgrePhysX
 		Ogre::DataStreamPtr getOgreDataStream();
 	};
 
-	class OgrePhysXClass MemoryWriteStream : public PxStream
+	class OgrePhysXClass MemoryStream : public PxStream
 	{
 	private:
-		PxU32			mCurrentSize;
-		PxU32			mMaxSize;
+		unsigned int			mMaxSize;
+		mutable unsigned int	mCurrentPos;
+		unsigned char*			mData;
 
-	public:
-		PxU8*			data;
-
+	public:		
 		static const int BUFFER_RESIZE_STEP = 4096;
 	
-		MemoryWriteStream();
-		virtual ~MemoryWriteStream();
+		MemoryStream();
+		virtual ~MemoryStream();
 
-		virtual		PxU8			readByte()								const;
-		virtual		PxU16			readWord()								const;
-		virtual		PxU32			readDword()								const;
-		virtual		float			readFloat()								const;
-		virtual		double			readDouble()							const;
-		virtual		void			readBuffer(void* buffer, PxU32 size)	const;
+		void seek(unsigned int pos);
 
-		virtual		PxStream&		storeByte(PxU8 b);
-		virtual		PxStream&		storeWord(PxU16 w);
-		virtual		PxStream&		storeDword(PxU32 d);
-		virtual		PxStream&		storeFloat(PxReal f);
-		virtual		PxStream&		storeDouble(PxF64 f);
-		virtual		PxStream&		storeBuffer(const void* buffer, PxU32 size);
-	};
-
-	class OgrePhysXClass MemoryReadStream : public PxStream
-	{
-	public:
-
-		mutable	const PxU8*	buffer;
-
-		MemoryReadStream(const PxU8* data);
-		virtual						~MemoryReadStream();
+		unsigned char* getData();
 
 		virtual		PxU8			readByte()								const;
 		virtual		PxU16			readWord()								const;

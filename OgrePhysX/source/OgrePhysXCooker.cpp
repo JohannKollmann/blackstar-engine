@@ -37,7 +37,7 @@ namespace OgrePhysX
 			return 0;
 		}
 		Ogre::DataStreamPtr ds = Ogre::ResourceGroupManager::getSingleton().openResource(pxsFile);
-		return World::getSingleton().getSDK()->createTriangleMesh(OgrePxStream(ds));
+		return World::getSingleton().getPxPhysics()->createTriangleMesh(OgrePxStream(ds));
 	}
 
 	void Cooker::getMeshInfo(Ogre::MeshPtr mesh, Params &params, MeshInfo &outInfo)
@@ -603,17 +603,20 @@ namespace OgrePhysX
 
 	PxTriangleMesh* Cooker::createPxTriangleMesh(Ogre::MeshPtr mesh, Params &params, AddedMaterials *out_addedMaterial)	
 	{
-		MemoryWriteStream stream;
+		MemoryStream stream;
 		cookPxTriangleMesh(mesh, stream, params, out_addedMaterial);
-		if (stream.data == nullptr) return nullptr;
-		return World::getSingleton().getSDK()->createTriangleMesh(MemoryReadStream(stream.data));
+		if (stream.getData() == nullptr) return nullptr;
+		stream.seek(0);
+		return World::getSingleton().getPxPhysics()->createTriangleMesh(stream);
 	}
 
 	PxConvexMesh* Cooker::createPxConvexMesh(Ogre::MeshPtr mesh, Params &params)	
 	{
-		MemoryWriteStream stream;
+		MemoryStream stream;
 		cookPxConvexMesh(mesh, stream, params);
-		return World::getSingleton().getSDK()->createConvexMesh(MemoryReadStream(stream.data));
+		if (stream.getData() == nullptr) return nullptr;
+		stream.seek(0);
+		return World::getSingleton().getPxPhysics()->createConvexMesh(stream);
 	}
 
 	Cooker& Cooker::getSingleton()
