@@ -311,14 +311,15 @@ namespace Ice
 			iIndices[i] = mIndexBuffer[i];
 		desc.triangles.data = iIndices;
 
-		OgrePhysX::MemoryWriteStream stream;
+		OgrePhysX::MemoryStream stream;
 		OgrePhysX::World::getSingleton().getCookingInterface()->cookTriangleMesh(desc, stream);
+		stream.seek(0);
 
 		delete[] fVertices;
 		delete[]  iIndices;
 
 		mPhysXActor = OgrePhysX::getPxPhysics()->createRigidStatic(PxTransform());
-		mPhysXActor->createShape(PxTriangleMeshGeometry(OgrePhysX::getPxPhysics()->createTriangleMesh(OgrePhysX::MemoryReadStream(stream.data))), OgrePhysX::World::getSingleton().getDefaultMaterial());
+		mPhysXActor->createShape(PxTriangleMeshGeometry(OgrePhysX::getPxPhysics()->createTriangleMesh(stream)), OgrePhysX::World::getSingleton().getDefaultMaterial());
 	}
 
 	bool NavigationMesh::raycastClosest(const Ogre::Vector3 &origin, const Ogre::Vector3 &direction, float maxDist, PxRaycastHit &hit)

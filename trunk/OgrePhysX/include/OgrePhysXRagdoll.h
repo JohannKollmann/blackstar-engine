@@ -6,6 +6,10 @@
 #include "OgrePhysXRenderableBinding.h"
 #include "PxPhysicsAPI.h"
 
+/**
+This class only manages Ogre bone <-> PhysX actor synchronisation, it does not create bone actors or joints.
+*/
+
 namespace OgrePhysX
 {
 

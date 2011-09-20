@@ -30,7 +30,7 @@ namespace OgrePhysX
 
 		LogOutputStream *mErrorOutputStream;
 
-		PxPhysics *mSDK;
+		PxPhysics *mPxPhysics;
 		PxCooking *mCookingInterface;
 
 		std::unordered_map<Ogre::String, Scene*> mScenes;
@@ -49,7 +49,7 @@ namespace OgrePhysX
 
 		OgreFrameListener* createFramelistener();
 
-		PxPhysics* getSDK();
+		PxPhysics* getPxPhysics();
 		PxCooking* getCookingInterface();
 
 		Scene* addScene(Ogre::String name);

@@ -83,142 +83,121 @@ namespace OgrePhysX
 	}
 
 
-	MemoryWriteStream::MemoryWriteStream() : mCurrentSize(0), mMaxSize(0), data(nullptr)
+	MemoryStream::MemoryStream() : mMaxSize(0), mCurrentPos(0), mData(nullptr)
 	{
 	}
 
-	MemoryWriteStream::~MemoryWriteStream()
+	MemoryStream::~MemoryStream()
 	{
-		delete[] data;
+		delete[] mData;
 	}
 
-	void MemoryWriteStream::readBuffer(void*, PxU32) const
+	unsigned char* MemoryStream::getData()
 	{
-		PX_ASSERT(0); 
+		return mData;
 	}
 
-	PxStream& MemoryWriteStream::storeByte(PxU8 b)
+	PxStream& MemoryStream::storeByte(PxU8 b)
 	{
 		storeBuffer(&b, sizeof(PxU8));
 		return *this;
 	}
 
-	PxStream& MemoryWriteStream::storeWord(PxU16 w)
+	PxStream& MemoryStream::storeWord(PxU16 w)
 	{
 		storeBuffer(&w, sizeof(PxU16));
 		return *this;
 	}
 
-	PxStream& MemoryWriteStream::storeDword(PxU32 d)
+	PxStream& MemoryStream::storeDword(PxU32 d)
 	{
 		storeBuffer(&d, sizeof(PxU32));
 		return *this;
 	}
 
-	PxStream& MemoryWriteStream::storeFloat(PxReal f)
+	PxStream& MemoryStream::storeFloat(PxReal f)
 	{
 		storeBuffer(&f, sizeof(PxReal));
 		return *this;
 	}
 
-	PxStream& MemoryWriteStream::storeDouble(PxF64 f)
+	PxStream& MemoryStream::storeDouble(PxF64 f)
 	{
 		storeBuffer(&f, sizeof(PxF64));
 		return *this;
 	}
 
-	PxStream& MemoryWriteStream::storeBuffer(const void* buffer, PxU32 size)
+	PxStream& MemoryStream::storeBuffer(const void* buffer, PxU32 size)
 	{
-		unsigned int newSize = mCurrentSize + size;
-		if(newSize > mMaxSize)
+		unsigned int newPos = mCurrentPos + size;
+		if(newPos > mMaxSize)
 		{	//resize
-			mMaxSize = newSize + BUFFER_RESIZE_STEP;
+			mMaxSize = newPos + BUFFER_RESIZE_STEP;
 
-			PxU8* newData = new PxU8[mMaxSize];
+			unsigned char* newData = new unsigned char[mMaxSize];
 			PX_ASSERT(newData != nullptr);
 
-			if(data)
+			if(mData)
 			{
-				memcpy(newData, data, mCurrentSize);
-				delete[] data;
+				memcpy(newData, mData, mCurrentPos);
+				delete[] mData;
 			}
-			data = newData;
+			mData = newData;
 		}
 
-		memcpy(data + mCurrentSize, buffer, size);
-		mCurrentSize += size;
+		memcpy(mData + mCurrentPos, buffer, size);
+		mCurrentPos += size;
 		return *this;
 	}
 
-
-	MemoryReadStream::MemoryReadStream(const PxU8* data) : buffer(data)
-	{
-	}
-
-	MemoryReadStream::~MemoryReadStream() {}
-
-	PxU8 MemoryReadStream::readByte() const
+	PxU8 MemoryStream::readByte() const
 	{
 		PxU8 b;
-		memcpy(&b, buffer, sizeof(PxU8));
-		buffer += sizeof(PxU8);
+		memcpy(&b, mData + mCurrentPos, sizeof(PxU8));
+		mCurrentPos += sizeof(PxU8);
 		return b;
 	}
 
-	PxU16 MemoryReadStream::readWord() const
+	PxU16 MemoryStream::readWord() const
 	{
 		PxU16 w;
-		memcpy(&w, buffer, sizeof(PxU16));
-		buffer += sizeof(PxU16);
+		memcpy(&w, mData + mCurrentPos, sizeof(PxU16));
+		mCurrentPos += sizeof(PxU16);
 		return w;
 	}
 
-	PxU32 MemoryReadStream::readDword() const
+	PxU32 MemoryStream::readDword() const
 	{
 		PxU32 d;
-		memcpy(&d, buffer, sizeof(PxU32));
-		buffer += sizeof(PxU32);
+		memcpy(&d, mData + mCurrentPos, sizeof(PxU32));
+		mCurrentPos += sizeof(PxU32);
 		return d;
 	}
 
-	float MemoryReadStream::readFloat() const
+	float MemoryStream::readFloat() const
 	{
 		float f;
-		memcpy(&f, buffer, sizeof(float));
-		buffer += sizeof(float);
+		memcpy(&f, mData + mCurrentPos, sizeof(float));
+		mCurrentPos += sizeof(float);
 		return f;
 	}
 
-	double MemoryReadStream::readDouble() const
+	double MemoryStream::readDouble() const
 	{
 		double f;
-		memcpy(&f, buffer, sizeof(double));
-		buffer += sizeof(double);
+		memcpy(&f, mData + mCurrentPos, sizeof(double));
+		mCurrentPos += sizeof(double);
 		return f;
 	}
 
-	void MemoryReadStream::readBuffer(void* dest, PxU32 size) const
+	void MemoryStream::readBuffer(void* dest, PxU32 size) const
 	{
-		memcpy(dest, buffer, size);
-		buffer += size;
+		memcpy(dest, mData + mCurrentPos, size);
+		mCurrentPos += size;
 	}
 
-	PxStream& MemoryReadStream::storeBuffer(const void*, PxU32)
+	void MemoryStream::seek(PxU32 pos)
 	{
-		PX_ASSERT(0); 
-		return *this;
+		mCurrentPos = 0;
 	}
-
-
-	PxU8 MemoryWriteStream::readByte() const		{ PX_ASSERT(0);	return 0;		}
-	PxU16 MemoryWriteStream::readWord() const		{ PX_ASSERT(0);	return 0;		}
-	PxU32 MemoryWriteStream::readDword() const		{ PX_ASSERT(0);	return 0;		}
-	float MemoryWriteStream::readFloat() const		{ PX_ASSERT(0);	return 0.0f;	}
-	double MemoryWriteStream::readDouble() const	{ PX_ASSERT(0);	return 0.0;		}
-
-	PxStream& MemoryReadStream::storeByte(PxU8)		{ PX_ASSERT(0);	return *this;	}
-	PxStream& MemoryReadStream::storeWord(PxU16)	{ PX_ASSERT(0);	return *this;	}
-	PxStream& MemoryReadStream::storeDword(PxU32)	{ PX_ASSERT(0);	return *this;	}
-	PxStream& MemoryReadStream::storeFloat(PxReal)	{ PX_ASSERT(0);	return *this;	}
-	PxStream& MemoryReadStream::storeDouble(PxF64)	{ PX_ASSERT(0);	return *this;	}
 }

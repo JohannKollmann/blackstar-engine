@@ -13,7 +13,7 @@ namespace OgrePhysX
 
 	World::World()
 	{
-		mSDK = 0;
+		mPxPhysics = nullptr;
 		mSimulating = false;
 	}
 
@@ -21,9 +21,9 @@ namespace OgrePhysX
 	{
 	}
 
-	PxPhysics* World::getSDK()
+	PxPhysics* World::getPxPhysics()
 	{
-		return mSDK;
+		return mPxPhysics;
 	}
 	PxCooking* World::getCookingInterface()
 	{
@@ -37,12 +37,12 @@ namespace OgrePhysX
 
 	void World::shutdown()
 	{
-		if (mSDK)
+		if (mPxPhysics)
 		{
 			getCookingInterface()->release();
 			clearScenes();
-			mSDK->release();
-			mSDK = nullptr;
+			mPxPhysics->release();
+			mPxPhysics = nullptr;
 			delete mAllocator;
 			mAllocator = nullptr;
 			delete mErrorOutputStream;
@@ -52,38 +52,38 @@ namespace OgrePhysX
 
 	void World::init()
 	{
-		if (!mSDK)
+		if (!mPxPhysics)
 		{
 			mAllocator = new PxDefaultAllocator();
 			mErrorOutputStream = new LogOutputStream();
 
-			mSDK = PxCreatePhysics(PX_PHYSICS_VERSION, *mAllocator, *mErrorOutputStream, PxTolerancesScale());
+			mPxPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *mAllocator, *mErrorOutputStream, PxTolerancesScale());
 
-			if (!mSDK)
+			if (!mPxPhysics)
 			{
 				Ogre::LogManager::getSingleton().logMessage("[OgrePhysX] Error: SDK initialisation failed.");
 				return;
 			}
 
 			PxCookingParams params;
-			mCookingInterface = PxCreateCooking(PX_PHYSICS_VERSION, &mSDK->getFoundation(), params);
+			mCookingInterface = PxCreateCooking(PX_PHYSICS_VERSION, &mPxPhysics->getFoundation(), params);
 			if (!mCookingInterface)
 			{
 				Ogre::LogManager::getSingleton().logMessage("[OgrePhysX] Error: Cooking initialisation failed.");
 				return;
 			}
 
-			if (!PxInitExtensions(*mSDK))
+			if (!PxInitExtensions(*mPxPhysics))
 			{
 				Ogre::LogManager::getSingleton().logMessage("[OgrePhysX] Error: Extension initialisation failed.");
 				return;
 			}
 
-			if (mSDK->getPvdConnectionManager())
-				PxExtensionVisualDebugger::connect(mSDK->getPvdConnectionManager(), "localhost", 5425, 500, true);
+			if (mPxPhysics->getPvdConnectionManager())
+				PxExtensionVisualDebugger::connect(mPxPhysics->getPvdConnectionManager(), "localhost", 5425, 500, true);
 
 			//create default material
-			mDefaultMaterial = mSDK->createMaterial(0.5f, 0.5f, 0.5f);
+			mDefaultMaterial = mPxPhysics->createMaterial(1.0f, 1.0f, 0.1f);
 
 			Ogre::LogManager::getSingleton().logMessage("[OgrePhysX] SDK created.");
 		}
@@ -181,7 +181,6 @@ namespace OgrePhysX
 		if (i != mMaterialBindings.end()) return i->second;
 		return mDefaultMaterial;
 	}
-
 
 
 }

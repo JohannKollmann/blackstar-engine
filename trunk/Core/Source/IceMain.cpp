@@ -241,35 +241,12 @@ namespace Ice
 		OgrePhysX::World::getSingleton().init();
 
 		//Create Scene
-		PxSceneDesc sceneDesc(OgrePhysX::World::getSingleton().getSDK()->getTolerancesScale());
+		PxSceneDesc sceneDesc(OgrePhysX::getPxPhysics()->getTolerancesScale());
 		sceneDesc.gravity = PxVec3(0, -9.81f, 0);
 		sceneDesc.filterShader = &PhysXSimulationFilterShader;
 		mPhysXSimulationCallback = ICE_NEW PhysXSimulationEventCallback();
 		sceneDesc.simulationEventCallback = mPhysXSimulationCallback;
 		mPhysXScene = OgrePhysX::World::getSingleton().addScene("Main", sceneDesc);
-		//OgrePhysX::World::getSingleton().getSDK()->setParameter(NxParameter::NX_BOUNCE_THRESHOLD, -1);
-		//OgrePhysX::World::getSingleton().getSDK()->setParameter(NxParameter::NX_ADAPTIVE_FORCE, 0.1f);
-		//OgrePhysX::World::getSingleton().getSDK()->setParameter(NxParameter::NX_CONTINUOUS_CD, 1);
-
-		//Ground
-		//mPhysXScene->getPxScene()->addActor(OgrePhysX::getPxPhysics()->createRigidStatic(PxPlaneShape(OgrePhysX::PlaneShape(Ogre::Vector3(0, 1, 0), -500));
-
-		//Collision Callback
-		/*mPhysXScene->setTriggerReport(ICE_NEW TriggerCallback());
-
-		mPhysXScene->getNxScene()->setGroupCollisionFlag(CollisionGroups::CHARACTER, CollisionGroups::BONE, false);
-		mPhysXScene->getNxScene()->setGroupCollisionFlag(CollisionGroups::BONE, CollisionGroups::CHARACTER, false);
-
-		mPhysXScene->getNxScene()->setGroupCollisionFlag(CollisionGroups::AI, CollisionGroups::BONE, false);
-		mPhysXScene->getNxScene()->setGroupCollisionFlag(CollisionGroups::AI, CollisionGroups::CHARACTER, false);
-		mPhysXScene->getNxScene()->setGroupCollisionFlag(CollisionGroups::AI, CollisionGroups::DEFAULT, false);
-		//mPhysXScene->getNxScene()->setGroupCollisionFlag(CollisionGroups::AI, CollisionGroups::LEVELMESH, false);
-
-		mPhysXScene->getNxScene()->setGroupCollisionFlag(CollisionGroups::TRIGGER, CollisionGroups::BONE, false);
-		mPhysXScene->getNxScene()->setGroupCollisionFlag(CollisionGroups::TRIGGER, CollisionGroups::AI, false);
-
-		mPhysXScene->getNxScene()->setActorGroupPairFlags(CollisionGroups::DEFAULT, CollisionGroups::DEFAULT, NX_NOTIFY_ON_START_TOUCH|NX_NOTIFY_FORCES);
-		mPhysXScene->getNxScene()->setActorGroupPairFlags(CollisionGroups::DEFAULT, CollisionGroups::LEVELMESH, NX_NOTIFY_ON_START_TOUCH|NX_NOTIFY_FORCES);*/
 
 		mSceneMgr = mRoot->createSceneManager(Ogre::ST_GENERIC, "Esgaroth");
 		mCamera = mSceneMgr->createCamera("MainCamera");
