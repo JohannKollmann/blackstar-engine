@@ -39,7 +39,7 @@ public:
 		Ice::MainLoopThread *renderThread = new Ice::RenderThread();
 		Ice::Main::Instance().AddMainLoopThread("View", renderThread, false);
 
-		Ice::MainLoopThread *indyThread = new Ice::MainLoopThread(Ice::AccessPermissions::ACCESS_NONE);
+		Ice::MainLoopThread *indyThread = new Ice::IndependantThread();//MainLoopThread(Ice::AccessPermissions::ACCESS_NONE);
 		indyThread->SetFixedTimeStep(30);
 		Ice::Main::Instance().AddMainLoopThread("Independant", indyThread);
 

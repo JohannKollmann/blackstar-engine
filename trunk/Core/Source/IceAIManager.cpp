@@ -8,8 +8,8 @@ namespace Ice
 	AIManager::AIManager(void)
 	{
 		JoinNewsgroup(GlobalMessageIDs::REPARSE_SCRIPTS_POST);
+		JoinNewsgroup(GlobalMessageIDs::UPDATE_INDEPENDANT);
 		mNavigationMesh = ICE_NEW NavigationMesh();
-		mLoadWayMeshAsObjects = false;
 	}
 
 	AIManager::~AIManager(void)
@@ -98,6 +98,8 @@ namespace Ice
 
 	void AIManager::ReceiveMessage(Msg &msg)
 	{
+		if (msg.typeID == GlobalMessageIDs::UPDATE_INDEPENDANT)
+			Update(msg.params.GetValue<float>(0));
 	}
 
 	AIManager& AIManager::Instance()

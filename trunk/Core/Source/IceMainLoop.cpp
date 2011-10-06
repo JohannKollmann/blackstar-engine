@@ -112,7 +112,6 @@ namespace Ice
 		msg.typeID = GlobalMessageIDs::PHYSICS_BEGIN;
 		MessageSystem::Instance().MulticastMessage(msg);
 		OgrePhysX::World::getSingleton().simulate(timeRel);
-		//OgrePhysX::World::getSingleton().syncRenderables();
 		Msg endPhysicsMsg = msg;
 		msg.typeID = GlobalMessageIDs::PHYSICS_END;
 		MessageSystem::Instance().MulticastMessage(msg);
@@ -134,6 +133,15 @@ namespace Ice
 
 	void SynchronisedThread::onDoLoop(float timeRel, float timeAbs)
 	{
+	}
+
+	void IndependantThread::onDoLoop(float timeRel, float timeAbs)
+	{
+		Msg updateMsg;
+		updateMsg.typeID = GlobalMessageIDs::UPDATE_INDEPENDANT;
+		updateMsg.params.AddFloat("TIME", timeRel);
+		updateMsg.params.AddFloat("TIME_TOTAL", timeAbs);
+		MessageSystem::Instance().MulticastMessage(updateMsg);
 	}
 
 };

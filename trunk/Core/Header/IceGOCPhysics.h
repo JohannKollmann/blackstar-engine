@@ -7,6 +7,7 @@
 #include "OgrePhysX.h"
 #include "IceGOCScriptMakros.h"
 #include "PxPhysicsAPI.h"
+#include "IceSeeSense.h"
 
 namespace Ice
 {
@@ -50,7 +51,7 @@ namespace Ice
 		const int SHAPE_CAPSULE = 4;
 	};
 
-	class DllExport GOCRigidBody : public GOCEditorInterface, public GOCPhysXActor<PxRigidDynamic>, public OgrePhysX::PointRenderable
+	class DllExport GOCRigidBody : public GOCEditorInterface, public GOCPhysXActor<PxRigidDynamic>, public OgrePhysX::PointRenderable, public SeeSense::VisualObject
 	{
 	private:
 		OgrePhysX::RenderedActorBinding *mRenderBinding;
@@ -95,6 +96,9 @@ namespace Ice
 		static LoadSave::Saveable* NewInstance() { return new GOCRigidBody; };
 		GOCEditorInterface* New() { return new GOCRigidBody(); }
 
+		Ogre::String GetVisualObjectDescription();
+		void GetTrackPoints(std::vector<Ogre::Vector3> &outPoints);
+
 		std::vector<ScriptParam> Body_GetSpeed(Script& caller, std::vector<ScriptParam> &vParams);
 		std::vector<ScriptParam> Body_AddImpulse(Script& caller, std::vector<ScriptParam> &vParams);
 		DEFINE_GOCLUAMETHOD(GOCRigidBody, Body_GetSpeed)
@@ -102,7 +106,7 @@ namespace Ice
 	};
 
 
-	class DllExport GOCStaticBody : public GOCEditorInterface, public GOCPhysXActor<PxRigidStatic>
+	class DllExport GOCStaticBody : public GOCEditorInterface, public GOCPhysXActor<PxRigidStatic>, public SeeSense::VisualObject
 	{
 	private:
 		void Create(Ogre::String collision_mesh, Ogre::Vector3 scale = Ogre::Vector3(1,1,1));
@@ -126,6 +130,9 @@ namespace Ice
 		void GetDefaultParameters(DataMap *parameters);
 		Ogre::String GetLabel() { return "Static Body"; }
 		GOComponent* GetGOComponent() { return this; }
+
+		Ogre::String GetVisualObjectDescription();
+		void GetTrackPoints(std::vector<Ogre::Vector3> &outPoints);
 
 		void Save(LoadSave::SaveSystem& mgr);
 		void Load(LoadSave::LoadSystem& mgr);

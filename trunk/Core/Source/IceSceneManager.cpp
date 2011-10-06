@@ -271,29 +271,10 @@ namespace Ice
 		ScriptSystem::GetInstance().ShareCFunction("Object_ReceiveMessage", &GameObject::Lua_ReceiveObjectMessage);
 		ScriptSystem::GetInstance().ShareCFunction("Object_SendMessage", &GameObject::Lua_SendObjectMessage);
 
-
-		//Not implemented
-		ScriptSystem::GetInstance().ShareCFunction("Npc_AddState", &GOCAI::Lua_Npc_AddState);
-
-		/**
-		Terminates the active state.
-		*/
-		ScriptSystem::GetInstance().ShareCFunction("Npc_KillActiveState", &GOCAI::Lua_Npc_KillActiveState);
-
-		/**
-		Terminates all states in the queue.
-		*/
-		ScriptSystem::GetInstance().ShareCFunction("Npc_ClearQueue", &GOCAI::Lua_Npc_ClearQueue);
-
 		//Script component
 		ScriptSystem::GetInstance().ShareCFunction("Script_SetProperty", &GOCScript::Lua_Script_SetProperty);
 		ScriptSystem::GetInstance().ShareCFunction("Script_GetProperty", &GOCScript::Lua_Script_GetProperty);
 		ScriptSystem::GetInstance().ShareCFunction("Script_HasProperty", &GOCScript::Lua_Script_HasProperty);
-
-		/**
-		Adds a scripted state to the daily routine queue.
-		*/
-		ScriptSystem::GetInstance().ShareCFunction("Npc_AddTA", &GOCAI::Lua_Npc_AddTA);
 
 		//Tells the npc to go to a certain waypoint.
 		ScriptSystem::GetInstance().ShareCFunction("Npc_GotoWP", &GOCAI::Lua_Npc_GotoWP);
@@ -747,7 +728,6 @@ namespace Ice
 			{
 				mDayTime += (time*mTimeScale);
 				if (mDayTime >= mMaxDayTime) mDayTime = 0.0f;
-				AIManager::Instance().Update(time);
 				if (mWeatherController) mWeatherController->Update(time);
 				ITERATE(i, mTimeListeners)
 					(*i)->UpdateScene(time);

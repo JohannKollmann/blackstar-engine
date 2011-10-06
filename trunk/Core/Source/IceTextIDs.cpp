@@ -1,4 +1,4 @@
-#include "assert.h"
+#include "IceIncludes.h"
 #include "IceTextIDs.h"
 
 namespace Ice
@@ -6,7 +6,7 @@ namespace Ice
 	TextID::TextID(std::pair<int, std::string> *aIDs, int iEnumFirst, int iEnumLast, int iArraySize)
 	{
 		int iEnumSize=iEnumLast-iEnumFirst;
-		assert(iEnumSize==iArraySize);
+		IceAssert(iEnumSize==iArraySize);
 		for (int i = 0; i < iEnumSize; ++i)
 		{
 			m_mS2I[aIDs[i].second]=aIDs[i].first;

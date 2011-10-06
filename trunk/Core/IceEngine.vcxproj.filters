@@ -303,6 +303,12 @@
     <ClCompile Include="Source\IceMaterialTable.cpp">
       <Filter>Physics</Filter>
     </ClCompile>
+    <ClCompile Include="Source\IceSeeSense.cpp">
+      <Filter>AI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\IceSpatialCoverage.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header\IceMessageListener.h">
@@ -551,9 +557,6 @@
     <ClInclude Include="Header\IceGOCMover.h">
       <Filter>Components</Filter>
     </ClInclude>
-    <ClInclude Include="Header\Ice3D.h">
-      <Filter>System</Filter>
-    </ClInclude>
     <ClInclude Include="Header\IceGOCWaypoint.h">
       <Filter>Components</Filter>
     </ClInclude>
@@ -664,6 +667,15 @@
     </ClInclude>
     <ClInclude Include="Header\IceMaterialTable.h">
       <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceSeeSense.h">
+      <Filter>AI</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceSpatialCoverage.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\Ice3D.h">
+      <Filter>Utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

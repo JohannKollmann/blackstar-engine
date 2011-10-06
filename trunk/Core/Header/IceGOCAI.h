@@ -11,6 +11,7 @@
 #include "IceScriptUser.h"
 #include "IceProcessOwner.h"
 #include "IceProcessNodeQueue.h"
+#include "IceSeeSense.h"
 
 namespace Ice
 {
@@ -18,45 +19,25 @@ namespace Ice
 	class DayCycleProcess;
 	class AIProcess;
 
-	class DllExport GOCAI : public GOCEditorInterface, public CharacterControllerInput, public ProcessOwner
+	class DllExport GOCAI : public GOCEditorInterface, public CharacterControllerInput, public ProcessOwner, public SeeSense::Callback, public SeeSense::Origin
 	{
-
 	private:
-		/*
-		Die Idle-Queue des AI Objekts (Tagesablauf), wird immer gelooped.
-		*/
-		std::shared_ptr<ProcessNodeQueue> mIdleQueue;
-
-		/*
-		Event-Queue, überlagert immer Idle-Queue.
-		*/
-		std::shared_ptr<ProcessNodeQueue> mActionQueue;
+		std::shared_ptr<SeeSense> mSeeSense;
 
 	public:
 		GOCAI(void);
 		~GOCAI(void);
 
-		AccessPermissionID GetAccessPermissionID() { return AccessPermissions::ACCESS_PHYSICS; }
+		AccessPermissionID GetAccessPermissionID() { return AccessPermissions::ACCESS_NONE; }
+
+		Ogre::Vector3 GetEyePosition();
+		Ogre::Quaternion GetEyeOrientation();
 
 		//Scripting
-		std::vector<ScriptParam> Npc_AddState(Script& caller, std::vector<ScriptParam> &vParams);
-		std::vector<ScriptParam> Npc_KillActiveState(Script& caller, std::vector<ScriptParam> &vParams);
-		std::vector<ScriptParam> Npc_ClearQueue(Script& caller, std::vector<ScriptParam> &vParams);
-		std::vector<ScriptParam> Npc_AddTA(Script& caller, std::vector<ScriptParam> &vParams);
 		std::vector<ScriptParam> Npc_GotoWP(Script& caller, std::vector<ScriptParam> &vParams);
 		std::vector<ScriptParam> Npc_OpenDialog(Script& caller, std::vector<ScriptParam> &vParams);
-		DEFINE_TYPEDGOCLUAMETHOD(GOCAI, Npc_AddState, "string")
-		DEFINE_GOCLUAMETHOD(GOCAI, Npc_KillActiveState)
-		DEFINE_GOCLUAMETHOD(GOCAI, Npc_ClearQueue)
-		DEFINE_TYPEDGOCLUAMETHOD(GOCAI, Npc_AddTA, "string float float")
 		DEFINE_TYPEDGOCLUAMETHOD(GOCAI, Npc_GotoWP, "string")
 		DEFINE_GOCLUAMETHOD(GOCAI, Npc_OpenDialog)
-
-		void AddDayCycleProcess(DayCycleProcess *state);
-		void ClearActionQueue();
-		void ClearIdleQueue();
-		void SelectState();
-		void LeaveActiveActionState();
 
 		void SetOwner(std::weak_ptr<GameObject> go);
 
@@ -65,6 +46,8 @@ namespace Ice
 		void Update(float time);
 
 		void ReceiveMessage(Msg &msg);
+
+		void OnSeeSomething(const Ogre::Vector3 &eyeSpacePosition, float distance, SeeSense::VisualObject *object); 
 
 		GOComponent::TypeID& GetComponentID() const { static std::string name = "AI"; return name; }
 

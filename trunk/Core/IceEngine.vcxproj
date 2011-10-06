@@ -52,7 +52,6 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>script\;..\..\Dependencies\OpenAL\include;..\..\Dependencies\OgreOggSound\include;..\..\Dependencies\Alut\include;..\Common\;..\..\Dependencies\Ogre3D\include\;..\..\Dependencies\Ogre3D\CEGUIRenderer\include\;..\..\Dependencies\Ogre3D\Dependencies\include;..\..\Dependencies\Caelum\include\;Header\;..\LoadSave_dll\LoadSave\ExternalHeaders;../OgrePhysX/include/;..\..\Dependencies\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -63,6 +62,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <AdditionalDependencies>OgreMain_d.lib;OgrePhysX_d.lib;ws2_32.lib;OgreOggSound_d.lib;caelum_d.lib;WinMM.lib;LoadSave_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -83,7 +83,6 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
       <Optimization>MaxSpeed</Optimization>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <AdditionalIncludeDirectories>script\;..\..\Dependencies\OpenAL\include;..\..\Dependencies\Alut\include;..\Common\;..\..\Dependencies\Ogre3D\include\;..\..\Dependencies\Ogre3D\CEGUIRenderer\include\;..\..\Dependencies\Ogre3D\Dependencies\include;..\..\Dependencies\Caelum\include\;..\..\Dependencies\;..\OgrePhysX\include;Header\;..\LoadSave_dll\LoadSave\ExternalHeaders;..\..\Dependencies\Hydrax\include;..\..\Dependencies\OgreOggSound\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -93,6 +92,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <RegisterOutput>false</RegisterOutput>
@@ -152,6 +152,8 @@
     <ClCompile Include="Source\IceScriptUser.cpp" />
     <ClCompile Include="Source\IceScriptMessageListener.cpp" />
     <ClCompile Include="Source\IceMaterialTable.cpp" />
+    <ClCompile Include="Source\IceSeeSense.cpp" />
+    <ClCompile Include="Source\IceSpatialCoverage.cpp" />
     <ClCompile Include="Source\IceSpline.cpp" />
     <ClCompile Include="Source\IceTextIDs.cpp" />
     <ClCompile Include="Source\IceUtils.cpp" />
@@ -251,6 +253,8 @@
     <ClInclude Include="Header\IceGOCScriptMakros.h" />
     <ClInclude Include="Header\IceScriptMessageListener.h" />
     <ClInclude Include="Header\IceMaterialTable.h" />
+    <ClInclude Include="Header\IceSeeSense.h" />
+    <ClInclude Include="Header\IceSpatialCoverage.h" />
     <ClInclude Include="Header\IceSpline.h" />
     <ClInclude Include="Header\IceTextIDs.h" />
     <ClInclude Include="Header\IceTimerProcess.h" />

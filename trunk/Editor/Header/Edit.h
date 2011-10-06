@@ -208,6 +208,8 @@ private:
 	bool mInsertAsChild;
 	bool mStrgPressed;
 
+	bool mPhysicsEnabled;
+
 	bool mOneTimeInit;
 
 	void SelectChildren(Ice::GameObjectPtr object);
