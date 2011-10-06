@@ -134,7 +134,7 @@ namespace Ice
 		MainLoopThread *renderThread = new RenderThread();
 		AddMainLoopThread("View", renderThread);
 
-		MainLoopThread *indyThread = new MainLoopThread(Ice::AccessPermissions::ACCESS_NONE);
+		MainLoopThread *indyThread = new IndependantThread();//MainLoopThread(Ice::AccessPermissions::ACCESS_NONE);
 		indyThread->SetFixedTimeStep(40);
 		AddMainLoopThread("Independant", indyThread);
 
@@ -211,6 +211,8 @@ namespace Ice
 		Ice::MessageSystem::Instance().CreateNewsgroup(GlobalMessageIDs::PHYSICS_BEGIN);
 		Ice::MessageSystem::Instance().CreateNewsgroup(GlobalMessageIDs::PHYSICS_SUBSTEP);
 		Ice::MessageSystem::Instance().CreateNewsgroup(GlobalMessageIDs::PHYSICS_END);
+
+		Ice::MessageSystem::Instance().CreateNewsgroup(GlobalMessageIDs::UPDATE_INDEPENDANT);
 
 		Ice::MessageSystem::Instance().CreateNewsgroup(GlobalMessageIDs::KEY_DOWN);
 		Ice::MessageSystem::Instance().CreateNewsgroup(GlobalMessageIDs::KEY_UP);

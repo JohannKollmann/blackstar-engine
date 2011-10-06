@@ -1,3 +1,24 @@
+/*
+This source file is part of OgrePhysX.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+*/
 
 #include "OgrePhysXScene.h"
 #include "OgrePhysXWorld.h"
@@ -11,7 +32,7 @@
 namespace OgrePhysX
 {
 
-	Scene::Scene(void)
+	Scene::Scene()
 	{
 		PxSceneDesc desc(World::getSingleton().getPxPhysics()->getTolerancesScale());
 		desc.gravity = PxVec3(0, -9.81f, 0);
@@ -23,7 +44,7 @@ namespace OgrePhysX
 		create(desc);
 	}
 
-	Scene::~Scene(void)
+	Scene::~Scene()
 	{
 		mPxScene->release();
 	}
@@ -48,23 +69,23 @@ namespace OgrePhysX
 		mSimulationListener = nullptr;
 	}
 
-	Actor<PxRigidDynamic> Scene::createRigidDynamic(PxGeometry &geometry, float density, const Ogre::Vector3 &position, const Ogre::Quaternion &orientation)
+	Actor<PxRigidDynamic> Scene::createRigidDynamic(PxGeometry &geometry, float density, const PxTransform &shapeOffset, const PxTransform &actorPose)
 	{
-		return createRigidDynamic(geometry, density, World::getSingleton().getDefaultMaterial(), position, orientation);
+		return createRigidDynamic(geometry, density, World::getSingleton().getDefaultMaterial(), shapeOffset, actorPose);
 	}
-	Actor<PxRigidDynamic> Scene::createRigidDynamic(PxGeometry &geometry, float density, PxMaterial &material, const Ogre::Vector3 &position, const Ogre::Quaternion &orientation)
+	Actor<PxRigidDynamic> Scene::createRigidDynamic(PxGeometry &geometry, float density, PxMaterial &material, const PxTransform &shapeOffset, const PxTransform &actorPose)
 	{
-		PxRigidDynamic *pxActor = PxCreateDynamic(*getPxPhysics(), PxTransform(toPx(position), toPx(orientation)), geometry, material, density);
+		PxRigidDynamic *pxActor = PxCreateDynamic(*getPxPhysics(), actorPose, geometry, material, density, shapeOffset);
 		mPxScene->addActor(*pxActor);
 		Actor<PxRigidDynamic> actor(pxActor);
 		return actor;
 	}
 
-	Actor<PxRigidStatic> Scene::createRigidStatic(Ogre::MeshPtr mesh, Cooker::Params &cookerParams, const Ogre::Vector3 &position, const Ogre::Quaternion &orientation)
+	Actor<PxRigidStatic> Scene::createRigidStatic(Ogre::MeshPtr mesh, Cooker::Params &cookerParams, const PxTransform &actorPose)
 	{
 		Cooker::AddedMaterials addedMaterials;
 		cookerParams.materials(World::getSingleton().getOgreMaterialNames());
-		PxRigidStatic *pxActor = getPxPhysics()->createRigidStatic(PxTransform(toPx(position), toPx(orientation)));
+		PxRigidStatic *pxActor = getPxPhysics()->createRigidStatic(actorPose);
 		PxTriangleMeshGeometry geometry = PxTriangleMeshGeometry(Cooker::getSingleton().createPxTriangleMesh(mesh, cookerParams, &addedMaterials));
 		
 		if (addedMaterials.materialCount > 0)
@@ -77,13 +98,13 @@ namespace OgrePhysX
 		return actor;
 	}
 
-	Actor<PxRigidStatic> Scene::createRigidStatic(PxGeometry &geometry, const Ogre::Vector3 &position, const Ogre::Quaternion &orientation)
+	Actor<PxRigidStatic> Scene::createRigidStatic(PxGeometry &geometry, const PxTransform &actorPose)
 	{
-		return createRigidStatic(geometry, World::getSingleton().getDefaultMaterial(), position, orientation);
+		return createRigidStatic(geometry, World::getSingleton().getDefaultMaterial(), actorPose);
 	}
-	Actor<PxRigidStatic> Scene::createRigidStatic(PxGeometry &geometry, PxMaterial &material, const Ogre::Vector3 &position, const Ogre::Quaternion &orientation)
+	Actor<PxRigidStatic> Scene::createRigidStatic(PxGeometry &geometry, PxMaterial &material, const PxTransform &actorPose)
 	{
-		PxRigidStatic *pxActor = getPxPhysics()->createRigidStatic(PxTransform(toPx(position), toPx(orientation)));
+		PxRigidStatic *pxActor = getPxPhysics()->createRigidStatic(actorPose);
 		pxActor->createShape(geometry, material);
 		mPxScene->addActor(*pxActor);
 		Actor<PxRigidStatic> actor(pxActor);

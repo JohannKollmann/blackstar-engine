@@ -113,4 +113,11 @@ namespace Ice
 		SynchronisedThread() : MainLoopThreadSender(AccessPermissions::ACCESS_ALL) {}
 		void onDoLoop(float timeRel, float timeAbs);
 	};
+
+	class DllExport IndependantThread : public MainLoopThreadSender
+	{
+	public:
+		IndependantThread() : MainLoopThreadSender(AccessPermissions::ACCESS_NONE) {}
+		void onDoLoop(float timeRel, float timeAbs);
+	};
 };

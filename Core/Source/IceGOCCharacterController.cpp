@@ -10,6 +10,7 @@
 #include "mmsystem.h"
 
 #include "IceSceneManager.h"
+#include "IceCollisionCallback.h"
 
 namespace Ice
 {
@@ -73,9 +74,6 @@ namespace Ice
 			MulticastMessage(msg);
 			Main::Instance().GetPhysXScene()->getPxScene()->removeActor(*mActor.getPxActor());
 			mActor.setPxActor(nullptr);
-
-			//TODO: destroy sweep cache
-			mSweepCache = nullptr;
 		}
 	}
 
@@ -93,25 +91,20 @@ namespace Ice
 		mSpeedFactor = 1;
 		mDirection = Ogre::Vector3(0,0,0);
 		mDimensions = dimensions;
-		//PxMaterialIndex nxID = SceneManager::Instance().GetSoundMaterialTable().GetMaterialID(mMaterialName);
-
-		mRadius = mDimensions.x > mDimensions.z ? mDimensions.x : mDimensions.z;
-		float offset = 0.0f;
-		if (mDimensions.y - mRadius > 0.0f) offset = (mDimensions.y / mRadius) * 0.1f;
-		mHeight = mDimensions.y * 0.5f + offset;
-		mRadius *= 0.5f;
 
 		PxMaterial *mat = &OgrePhysX::World::getSingleton().getDefaultMaterial();
 
-		mActor.setPxActor(OgrePhysX::getPxPhysics()->createRigidDynamic(PxTransform()));
-		
-		mActor.getPxActor()->createShape(PxCapsuleGeometry(mRadius, mHeight), *mat, PxTransform(PxVec3(0, mDimensions.y * 0.5f, 0)));
+		mActor = Main::Instance().GetPhysXScene()->createRigidDynamic(
+			 PxBoxGeometry(mDimensions.x, mDimensions.y, mDimensions.z),
+			mDensity,
+			*mat,
+			PxTransform(PxVec3(0, mDimensions.y, 0))); 
+
+		mActor.getFirstShape()->setSimulationFilterData(PhysXFilterData::Instance().Character);
+		mActor.getFirstShape()->setQueryFilterData(PhysXFilterData::Instance().Character);
 
 		mActor.getPxActor()->setMassSpaceInertiaTensor(PxVec3(0,1,0));
 		mActor.getPxActor()->setSolverIterationCounts(8);
-
-		mSweepCache = Main::Instance().GetPhysXScene()->getPxScene()->createSweepCache();
-
 	}
 
 	void GOCCharacterController::SetSpeedFactor(float factor)
@@ -136,43 +129,54 @@ namespace Ice
 		GOComponent::ReceiveMessage(msg);
 		if (msg.typeID == GlobalMessageIDs::PHYSICS_SUBSTEP && !mFreezed)
 		{
+			GameObjectPtr owner = mOwnerGO.lock();
+
 			float time = msg.params.GetFloat("TIME");
 			//if (mJump.mJumping) jumpDelta = mJump.GetHeight(time);
 			Ogre::Vector3 finalDir = Ogre::Vector3(0,0,0);
-			Ogre::Vector3 userDir = mOwnerGO.lock()->GetGlobalOrientation() * (mDirection);
+			Ogre::Vector3 userDir = mOwnerGO.lock()->GetGlobalOrientation() * mDirection;
 
-			float maxStepHeight = 0.8f;
-			PxVec3 currPos = OgrePhysX::Convert::toPx(mOwnerGO.lock()->GetGlobalPosition());
+			if (mActor.getPxActor()->isSleeping())
+				mActor.getPxActor()->wakeUp();		//Gravity fix
+
+			PxTransform transform(OgrePhysX::toPx(owner->GetGlobalPosition()), OgrePhysX::toPx(owner->GetGlobalOrientation()));
+			transform.p.y += mDimensions.y+0.1f;
+
+			PxSceneQueryFilterData filterData;
+			filterData.data.word0 = CollisionGroups::DYNAMICBODY|CollisionGroups::STATICBODY;
+			filterData.flags = PxSceneQueryFilterFlag::eDYNAMIC|PxSceneQueryFilterFlag::eSTATIC;
+
+			//touches ground check
+			PxBoxGeometry playerGeometry(mDimensions.x, mDimensions.y+0.2f, mDimensions.z);
+			PxShape *outShape;
+			mTouchesGround = Main::Instance().GetPhysXScene()->getPxScene()->overlapAny(playerGeometry, transform, outShape, filterData);
+			transform.p.y -= 0.1f;
+
+			//stair handling
+			float maxStepHeight = 0.6f;
+			PxVec3 currPos = OgrePhysX::Convert::toPx(owner->GetGlobalPosition());
 
 			//feet capsule
-			PxCapsuleGeometry feetVolume(mRadius, maxStepHeight);
+			PxBoxGeometry feetVolume(mDimensions.x, maxStepHeight, mDimensions.z);
 
 			//body capsule
 			float bodyHeight = mDimensions.y-maxStepHeight;
-			PxCapsuleGeometry bodyVolume(mRadius, bodyHeight);
+			PxBoxGeometry bodyVolume(mDimensions.x, bodyHeight, mDimensions.z);
 
-			/*Main::Instance().GetPhysXScene()->getPxScene()->sweepSingle(bodyVolume, OgrePhysX::Convert::toNx(Ogre::Vector3(userDir*time*2)), NX_SF_STATICS|NX_SF_DYNAMICS, 0, 1, sqh_result, nullptr, 1<<CollisionGroups::DEFAULT | 1<<CollisionGroups::LEVELMESH);
-			bool bodyHit = (numHits > 0);
-			//Log::Instance().LogMessage("Body hit: " + Ogre::StringConverter::toString(bodyHit));
-			numHits = Main::Instance().GetPhysXScene()->getNxScene()->linearCapsuleSweep(feetVolume, OgrePhysX::Convert::toNx(Ogre::Vector3(userDir*time*2)), NX_SF_STATICS|NX_SF_DYNAMICS, 0, 1, sqh_result, nullptr, 1<<CollisionGroups::DEFAULT | 1<<CollisionGroups::LEVELMESH);//, mSweepCache);
-			bool feetHit = (numHits > 0);
-			//Log::Instance().LogMessage("Feet hit: " + Ogre::StringConverter::toString(feetHit));
+			PxVec3 sweepDirection = OgrePhysX::toPx(userDir);
+			float userDirLength = sweepDirection.normalize();
 
-			NxCapsule playerCapsule;
-			playerCapsule.radius = mRadius;
-			playerCapsule.p0 = currPos;
-			playerCapsule.p1 = currPos + NxVec3(0, mHeight, 0);
-			mTouchesGround = Main::Instance().GetPhysXScene()->getNxScene()->checkOverlapCapsule(playerCapsule, NX_ALL_SHAPES, 1<<CollisionGroups::DEFAULT | 1<<CollisionGroups::LEVELMESH);
-			
+			PxSweepHit sweepHit;
+			bool bodyHit = Main::Instance().GetPhysXScene()->getPxScene()->sweepSingle(bodyVolume, transform, sweepDirection, time*userDirLength, PxSceneQueryFlags(), sweepHit, filterData); 				
+			transform.p.y -= bodyHeight;		
+			bool feetHit = Main::Instance().GetPhysXScene()->getPxScene()->sweepSingle(feetVolume, transform, sweepDirection, time*userDirLength, PxSceneQueryFlags(), sweepHit, filterData); 
 
 			if (!bodyHit)
 			{
 				finalDir += userDir;	//add player movement
+				if (feetHit) 
+					finalDir += Ogre::Vector3(0,3,0); //climb stairs
 			}
-			if (!bodyHit && feetHit)
-			{
-				finalDir += Ogre::Vector3(0,3,0); //climb stairs
-			}*/
 
 			if (finalDir != Ogre::Vector3(0,0,0))
 				mActor.getPxActor()->setGlobalPose(PxTransform(currPos + OgrePhysX::Convert::toPx(finalDir*time)));
@@ -215,7 +219,7 @@ namespace Ice
 			{
 				mJumping = true;
 				mJumpStartTime = timeGetTime();
-				mActor.getPxActor()->addForce(PxVec3(0, 400, 0), PxForceMode::eIMPULSE);
+				mActor.getPxActor()->addForce(PxVec3(0, 300, 0), PxForceMode::eIMPULSE);
 				Msg startJumpMsg;
 				startJumpMsg.typeID = ObjectMessageIDs::START_JUMP;
 				BroadcastObjectMessage(startJumpMsg);

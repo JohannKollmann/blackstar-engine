@@ -1,3 +1,24 @@
+/*
+This source file is part of OgrePhysX.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+*/
 
 #include "OgrePhysXCooker.h"
 #include "OgrePhysXStreams.h"
@@ -548,13 +569,6 @@ namespace OgrePhysX
 				out_addedMaterials->materials[i] = orderedMaterials[i];
 		}
 
-		//dump the fucking buffers!
-		/*for (unsigned int i = 0; i < outInfo.numTriangles*3; i+=3)
-			Ogre::LogManager::getSingleton().logMessage(Ogre::StringConverter::toString(meshInfo.indices[i]) + " " + Ogre::StringConverter::toString(all_indices[i+1]) + " " + Ogre::StringConverter::toString(all_indices[i+2]));
-
-		for (unsigned int i = 0; i < outInfo.numVertices; i++)
-			Ogre::LogManager::getSingleton().logMessage(Ogre::StringConverter::toString(Convert::toOgre(meshInfo.vertices[i])));*/
-		
 		World::getSingleton().getCookingInterface()->cookTriangleMesh(desc, outputStream);
 
 		delete[] fVertices;
@@ -567,10 +581,13 @@ namespace OgrePhysX
 	{
 		MeshInfo meshInfo;
 		getMeshInfo(mesh, params, meshInfo);
+		mergeVertices(meshInfo, 0.2f);
 
 		PxConvexMeshDesc desc;
 		desc.points.count = meshInfo.vertices.size();
 		desc.points.stride = 12;
+		desc.flags |= PxConvexFlag::eCOMPUTE_CONVEX;
+
 		float *fVertices = new float[meshInfo.vertices.size()*3];
 		for (unsigned int i = 0; i < meshInfo.vertices.size(); ++i)
 		{

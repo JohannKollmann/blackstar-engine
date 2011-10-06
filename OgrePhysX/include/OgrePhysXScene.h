@@ -1,3 +1,25 @@
+/*
+This source file is part of OgrePhysX.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+*/
+
 #pragma once
 
 #include "OgrePhysXClasses.h"
@@ -18,8 +40,20 @@ namespace OgrePhysX
 		class SimulationListener
 		{
 		public:
+			/**
+			Called right before PxScene::simulate.
+			*/
 			virtual void onBeginSimulate(float time) {}
+
+			/**
+			Called right after PxScene::simulate.
+			That means that it is executed while the simulation is in progress.
+			*/
 			virtual void onSimulate(float time) {}
+
+			/**
+			Called right after PxScene::fetchResults.
+			*/
 			virtual void onEndSimulate(float time) {}
 		};
 
@@ -34,52 +68,53 @@ namespace OgrePhysX
 		SimulationListener *mSimulationListener;
 
 		void create(PxSceneDesc &desc);
-		Scene(void);
+
+		Scene();
 		Scene(PxSceneDesc &desc);
-		~Scene(void);
+		~Scene();
 
 	public:
-		
+
 		PxScene* getPxScene();
 
 		/**
 		Creates a new rigid dynamic actor with a specified collision shape and a default material and adds it to the scene.
 		@return An Actor object wrapping the created PxActor.
 		*/
-		Actor<PxRigidDynamic> createRigidDynamic(PxGeometry &geometry, float density, const Ogre::Vector3 &position = Ogre::Vector3(0,0,0), const Ogre::Quaternion &orientation = Ogre::Quaternion());
-	
+		Actor<PxRigidDynamic> createRigidDynamic(PxGeometry &geometry, float density, const PxTransform &shapeOffset = PxTransform::createIdentity(), const PxTransform &actorPose = PxTransform::createIdentity());
+
 		/**
 		Creates a new rigid dynamic actor with a specified collision shape and material and adds it to the scene.
 		@return An Actor object wrapping the created PxActor.
 		*/
-		Actor<PxRigidDynamic> createRigidDynamic(PxGeometry &geometry, float density, PxMaterial &material, const Ogre::Vector3 &position = Ogre::Vector3(0,0,0), const Ogre::Quaternion &orientation = Ogre::Quaternion());
+		Actor<PxRigidDynamic> createRigidDynamic(PxGeometry &geometry, float density, PxMaterial &material, const PxTransform &shapeOffset = PxTransform::createIdentity(), const PxTransform &actorPose = PxTransform::createIdentity());
 
 		/**
 		Creates a new rigid static actor with a triangle mesh collision shape and adds it to the scene.
 		The material bindings specified via World::registerMaterialName are used for Ogre -> PhysX material mapping.
 		@return An Actor object wrapping the created PxActor.
 		*/
-		Actor<PxRigidStatic> createRigidStatic(Ogre::MeshPtr mesh, Cooker::Params &cookerParams = Cooker::Params(), const Ogre::Vector3 &position = Ogre::Vector3(0,0,0), const Ogre::Quaternion &orientation = Ogre::Quaternion());
+		Actor<PxRigidStatic> createRigidStatic(Ogre::MeshPtr mesh, Cooker::Params &cookerParams = Cooker::Params(), const PxTransform &actorPose = PxTransform::createIdentity());
 
 		/**
 		Creates a new rigid static actor with a specified collision shape and a default material and adds it to the scene.		
 		@return An Actor object wrapping the created PxActor.
 		*/
-		Actor<PxRigidStatic> createRigidStatic(PxGeometry &geometry, const Ogre::Vector3 &position = Ogre::Vector3(0,0,0), const Ogre::Quaternion &orientation = Ogre::Quaternion());
+		Actor<PxRigidStatic> createRigidStatic(PxGeometry &geometry, const PxTransform &actorPose = PxTransform::createIdentity());
 
 		/**
 		Creates a new rigid static actor with a specified collision shape and material and adds it to the scene.
 		@return An Actor object wrapping the created PxActor.
 		*/
-		Actor<PxRigidStatic> createRigidStatic(PxGeometry &geometry, PxMaterial &material, const Ogre::Vector3 &position = Ogre::Vector3(0,0,0), const Ogre::Quaternion &orientation = Ogre::Quaternion());
+		Actor<PxRigidStatic> createRigidStatic(PxGeometry &geometry, PxMaterial &material, const PxTransform &actorPose = PxTransform::createIdentity());
 
 		///Removes an actor from the scene.
 		template<class T>
-			void removeActor(Actor<T> &actor)
-			{
-				removeActor(actor.getPxActor());
-				actor.setPxActor(nullptr);
-			}
+		void removeActor(Actor<T> &actor)
+		{
+			removeActor(actor.getPxActor());
+			actor.setPxActor(nullptr);
+		}
 
 		///Removes an from the scene.
 		void removeActor(PxActor *actor);

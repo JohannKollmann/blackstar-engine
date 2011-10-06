@@ -25,7 +25,6 @@ private:
 	std::vector<GOCAI*> mAIObjects;
 
 	NavigationMesh *mNavigationMesh;
-	bool mLoadWayMeshAsObjects;
 
 public:
 	AIManager(void);

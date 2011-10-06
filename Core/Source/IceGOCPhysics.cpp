@@ -73,6 +73,8 @@ namespace Ice
 
 		mActor.getFirstShape()->setSimulationFilterData(PhysXFilterData::Instance().DynamicBody);
 
+		mActor.getFirstShape()->setQueryFilterData(PhysXFilterData::Instance().DynamicBody);
+
 		mRenderBinding = Main::Instance().GetPhysXScene()->createRenderedActorBinding(mActor, this);
 
 		Main::Instance().GetOgreSceneMgr()->destroyEntity(entity);
@@ -86,7 +88,10 @@ namespace Ice
 		mActor.getPxActor()->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, freeze);
 		if (!freeze)
 		{
-			mActor.getPxActor()->wakeUp();
+			mActor.setGlobalPosition(GetOwner()->GetGlobalPosition());
+			mActor.getPxActor()->clearForce(PxForceMode::eFORCE);
+			mActor.getPxActor()->clearForce(PxForceMode::eIMPULSE);
+			mActor.getPxActor()->clearForce(PxForceMode::eVELOCITY_CHANGE);
 		}
 	}
 
@@ -121,6 +126,15 @@ namespace Ice
 			mActor.setGlobalPosition(owner->GetGlobalPosition());
 		}
 		else if (mCollisionMeshName != "") Create(mCollisionMeshName, mDensity, mShapeType, owner->GetGlobalScale());
+	}
+
+	Ogre::String GOCRigidBody::GetVisualObjectDescription()
+	{
+		return GetOwner()->GetName();
+	}
+	void GOCRigidBody::GetTrackPoints(std::vector<Ogre::Vector3> &outPoints)
+	{
+		outPoints.push_back(GetOwner()->GetGlobalPosition());
 	}
 
 	std::vector<ScriptParam> GOCRigidBody::Body_GetSpeed(Script& caller, std::vector<ScriptParam> &vParams)
@@ -230,7 +244,9 @@ namespace Ice
 
 		mActor.getPxActor()->userData = mOwnerGO.lock().get();
 
-		mActor.getFirstShape()->setSimulationFilterData(PhysXFilterData::Instance().DynamicBody);
+		mActor.getFirstShape()->setSimulationFilterData(PhysXFilterData::Instance().StaticBody);
+
+		mActor.getFirstShape()->setQueryFilterData(PhysXFilterData::Instance().StaticBody);
 
 		Main::Instance().GetOgreSceneMgr()->destroyEntity(entity);
 	}
@@ -250,6 +266,15 @@ namespace Ice
 		if (mCollisionMeshName == "") return;
 
 		Create(mCollisionMeshName, owner->GetGlobalScale());
+	}
+
+	Ogre::String GOCStaticBody::GetVisualObjectDescription()
+	{
+		return GetOwner()->GetName();
+	}
+	void GOCStaticBody::GetTrackPoints(std::vector<Ogre::Vector3> &outPoints)
+	{
+		outPoints.push_back(GetOwner()->GetGlobalPosition());
 	}
 
 	void GOCStaticBody::SetParameters(DataMap *parameters)

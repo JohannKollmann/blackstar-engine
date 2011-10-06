@@ -5,6 +5,7 @@
 #include "IceGameObject.h"
 #include "IceFollowPathway.h"
 #include "IceDialog.h"
+#include "IceObjectMessageIDs.h"
 
 namespace Ice
 {
@@ -15,12 +16,11 @@ namespace Ice
 		AIManager::Instance().RegisterAIObject(this);
 		JoinNewsgroup(GlobalMessageIDs::ENABLE_GAME_CLOCK);
 		JoinNewsgroup(GlobalMessageIDs::REPARSE_SCRIPTS_PRE);
+		mSeeSense = std::make_shared<SeeSense>(this, this);
 	}
 
 	GOCAI::~GOCAI(void)
 	{
-		ClearActionQueue();
-		ClearIdleQueue();
 		AIManager::Instance().UnregisterAIObject(this);
 	}
 
@@ -40,60 +40,36 @@ namespace Ice
 		UpdateOrientation(owner->GetGlobalOrientation());
 	}
 
-	void GOCAI::AddDayCycleProcess(DayCycleProcess *state)
+	void GOCAI::OnSeeSomething(const Ogre::Vector3 &eyeSpacePosition, float distance, SeeSense::VisualObject *object)
 	{
-	}
-
-	void GOCAI::ClearActionQueue()
-	{
-	}
-
-	void GOCAI::LeaveActiveActionState()
-	{
-	}
-
-	void GOCAI::ClearIdleQueue()
-	{
+		GameObjectPtr owner = mOwnerGO.lock();
+		if (owner.get())
+		{
+			Msg msg;
+			msg.typeID = ObjectMessageIDs::AI_SEE;
+			msg.params.AddOgreVec3("eyeSpacePosition", eyeSpacePosition);
+			msg.params.AddFloat("distance", distance);
+			msg.params.AddOgreString("description", object->GetVisualObjectDescription());
+			owner->BroadcastObjectMessage(msg);
+		}
 	}
 
 	void GOCAI::Update(float time)
 	{
+		if (GetOwner().get())
+			mSeeSense->UpdateSense(time);
 	}
 
-	std::vector<ScriptParam> GOCAI::Npc_AddState(Script& caller, std::vector<ScriptParam> &vParams)
+	Ogre::Vector3 GOCAI::GetEyePosition()
 	{
-		std::vector<ScriptParam> out;
-		return out;
+		Ogre::Vector3 forwardOffset = GetEyeOrientation() * Ogre::Vector3(0, 0, 0.4f);
+		return GetOwner()->GetGlobalPosition() + Ogre::Vector3(0, 1.5f, 0) + forwardOffset;
 	}
-	std::vector<ScriptParam> GOCAI::Npc_KillActiveState(Script& caller, std::vector<ScriptParam> &vParams)
+	Ogre::Quaternion GOCAI::GetEyeOrientation()
 	{
-		std::vector<ScriptParam> out;
-		LeaveActiveActionState();
-		return out;
+		return GetOwner()->GetGlobalOrientation();
 	}
-	std::vector<ScriptParam> GOCAI::Npc_ClearQueue(Script& caller, std::vector<ScriptParam> &vParams)
-	{
-		std::vector<ScriptParam> out;
-		return out;
-		ClearActionQueue();
-	}
-	std::vector<ScriptParam> GOCAI::Npc_AddTA(Script& caller, std::vector<ScriptParam> &vParams)
-	{
-		std::vector<ScriptParam> out;
-		std::string ta_script = vParams[0].getString();
-		int end_timeH = vParams[1].getInt();
-		int end_timeM = vParams[2].getInt();
-		bool time_abs = true;
-		std::vector<ScriptParam> miscparams;
-		std::vector<ScriptParam>::iterator i = vParams.begin();
-		i++;i++;i++;
-		for (; i != vParams.end(); i++)
-		{
-			miscparams.push_back((*i));
-		}
-		
-		return out;
-	}
+
 	std::vector<ScriptParam> GOCAI::Npc_GotoWP(Script& caller, std::vector<ScriptParam> &vParams)
 	{
 		std::vector<ScriptParam> out;
@@ -118,15 +94,11 @@ namespace Ice
 		}
 		else if (msg.typeID == GlobalMessageIDs::REPARSE_SCRIPTS_PRE)
 		{
-			ClearActionQueue();
-			ClearIdleQueue();
 		}
 	}
 
 	void GOCAI::SetParameters(DataMap *parameters)
 	{
-		ClearActionQueue();
-		ClearIdleQueue();
 	}
 	void GOCAI::GetParameters(DataMap *parameters)
 	{

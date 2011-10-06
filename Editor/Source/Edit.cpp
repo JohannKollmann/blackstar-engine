@@ -101,6 +101,8 @@ Edit::Edit(wxWindow* parent) : wxOgre(parent, -1)
 
 	mPerformedLDClick = false;
 
+	mPhysicsEnabled = true;
+
 	mObjectMovSpeed = 1.0f;
 	mObjectRotSpeed = 0.3f;
 
@@ -190,6 +192,7 @@ void Edit::OnToolbarEvent(int toolID, Ogre::String toolname)
 
 	if (toolname == "Physics")
 	{
+		edit->mPhysicsEnabled = checked;
 		Ice::Main::Instance().GetMainLoopThread("Physics")->SetPaused(!checked);
 	}
 	if (toolname == "TimeCycle")
@@ -1188,13 +1191,9 @@ void Edit::OnBrush()
 
 void Edit::SelectObject(Ice::GameObjectPtr object)
 {
-	STOP_MAINLOOP
+	if (!object.get()) return;
 
-	if (!object.get())
-	{
-		RESUME_MAINLOOP
-		return;
-	}
+	STOP_MAINLOOP
 
 	//Ice::Log::Instance().LogMessage("Select Object " + object->GetName());
 	if (!mMultiSelect) DeselectAllObjects();
@@ -1227,7 +1226,9 @@ void Edit::SelectObject(Ice::GameObjectPtr object)
 	SelectChildren(object);
 
 	RESUME_MAINLOOP
-	//Ice::Log::Instance().LogMessage("SelectObject " + object->GetName());
+
+	if (object->GetComponent<Ice::GOCPhysics>())
+		Ice::Main::Instance().GetMainLoopThread("Physics")->SetPaused(true);
 }
 
 void Edit::SelectChildren(Ice::GameObjectPtr object)
@@ -1311,7 +1312,8 @@ void Edit::DeselectObject(Ice::GameObjectPtr object)
 
 void Edit::DeselectAllObjects()
 {
-	STOP_MAINLOOP		
+	Ice::Main::Instance().GetMainLoopThread("Physics")->SetPaused(!mPhysicsEnabled);
+	STOP_MAINLOOP	
 	wxEdit::Instance().GetMainToolbar()->SetGroupStatus("Game", false);
 	//Ice::Log::Instance().LogMessage("Deselect all Objects");
 	for (std::list<EditorSelection>::iterator i = mSelectedObjects.begin(); i != mSelectedObjects.end(); i++)
