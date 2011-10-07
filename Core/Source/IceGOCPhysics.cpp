@@ -179,7 +179,7 @@ namespace Ice
 	{
 		parameters->AddOgreString("CollisionMeshFile", "");
 		parameters->AddOgreString("mMaterialName", "Wood");
-		parameters->AddFloat("Density", 10.0f);
+		parameters->AddFloat("Density", 100.0f);
 		std::vector<Ogre::String> shape_types;
 		shape_types.push_back("Box"); shape_types.push_back("Sphere"); shape_types.push_back("Convex"); shape_types.push_back("NXS"); shape_types.push_back("Capsule");
 		parameters->AddEnum("ShapeType", shape_types, 0);

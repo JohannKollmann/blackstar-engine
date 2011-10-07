@@ -95,13 +95,15 @@ namespace Ice
 		PxMaterial *mat = &OgrePhysX::World::getSingleton().getDefaultMaterial();
 
 		mActor = Main::Instance().GetPhysXScene()->createRigidDynamic(
-			 PxBoxGeometry(mDimensions.x, mDimensions.y, mDimensions.z),
+			 PxBoxGeometry(mDimensions.x*0.5f, mDimensions.y*0.5f, mDimensions.z*0.5f),
 			mDensity,
 			*mat,
-			PxTransform(PxVec3(0, mDimensions.y, 0))); 
+			PxTransform(PxVec3(0, mDimensions.y*0.5f, 0))); 
 
 		mActor.getFirstShape()->setSimulationFilterData(PhysXFilterData::Instance().Character);
 		mActor.getFirstShape()->setQueryFilterData(PhysXFilterData::Instance().Character);
+
+		mActor.getPxActor()->userData = mOwnerGO.lock().get();
 
 		mActor.getPxActor()->setMassSpaceInertiaTensor(PxVec3(0,1,0));
 		mActor.getPxActor()->setSolverIterationCounts(8);
@@ -139,36 +141,38 @@ namespace Ice
 			if (mActor.getPxActor()->isSleeping())
 				mActor.getPxActor()->wakeUp();		//Gravity fix
 
+			Ogre::Vector3 playerHalfSize = mDimensions * 0.5f;
+
 			PxTransform transform(OgrePhysX::toPx(owner->GetGlobalPosition()), OgrePhysX::toPx(owner->GetGlobalOrientation()));
-			transform.p.y += mDimensions.y+0.1f;
+			transform.p.y += playerHalfSize.y;
 
 			PxSceneQueryFilterData filterData;
 			filterData.data.word0 = CollisionGroups::DYNAMICBODY|CollisionGroups::STATICBODY;
 			filterData.flags = PxSceneQueryFilterFlag::eDYNAMIC|PxSceneQueryFilterFlag::eSTATIC;
 
 			//touches ground check
-			PxBoxGeometry playerGeometry(mDimensions.x, mDimensions.y+0.2f, mDimensions.z);
+			PxBoxGeometry playerGeometry(playerHalfSize.x, playerHalfSize.y+0.1f, playerHalfSize.z);
 			PxShape *outShape;
 			mTouchesGround = Main::Instance().GetPhysXScene()->getPxScene()->overlapAny(playerGeometry, transform, outShape, filterData);
-			transform.p.y -= 0.1f;
 
 			//stair handling
 			float maxStepHeight = 0.6f;
 			PxVec3 currPos = OgrePhysX::Convert::toPx(owner->GetGlobalPosition());
 
 			//feet capsule
-			PxBoxGeometry feetVolume(mDimensions.x, maxStepHeight, mDimensions.z);
+			PxBoxGeometry feetVolume(playerHalfSize.x, maxStepHeight*0.5f, playerHalfSize.z);
 
 			//body capsule
 			float bodyHeight = mDimensions.y-maxStepHeight;
-			PxBoxGeometry bodyVolume(mDimensions.x, bodyHeight, mDimensions.z);
+			PxBoxGeometry bodyVolume(playerHalfSize.x, bodyHeight*0.5f, playerHalfSize.z);
 
 			PxVec3 sweepDirection = OgrePhysX::toPx(userDir);
 			float userDirLength = sweepDirection.normalize();
 
 			PxSweepHit sweepHit;
+			transform.p.y = owner->GetGlobalPosition().y + maxStepHeight + bodyHeight*0.5f;
 			bool bodyHit = Main::Instance().GetPhysXScene()->getPxScene()->sweepSingle(bodyVolume, transform, sweepDirection, time*userDirLength, PxSceneQueryFlags(), sweepHit, filterData); 				
-			transform.p.y -= bodyHeight;		
+			transform.p.y = owner->GetGlobalPosition().y + maxStepHeight*0.5f;	
 			bool feetHit = Main::Instance().GetPhysXScene()->getPxScene()->sweepSingle(feetVolume, transform, sweepDirection, time*userDirLength, PxSceneQueryFlags(), sweepHit, filterData); 
 
 			if (!bodyHit)
@@ -219,7 +223,7 @@ namespace Ice
 			{
 				mJumping = true;
 				mJumpStartTime = timeGetTime();
-				mActor.getPxActor()->addForce(PxVec3(0, 300, 0), PxForceMode::eIMPULSE);
+				mActor.getPxActor()->addForce(PxVec3(0, mActor.getPxActor()->getMass()*8, 0), PxForceMode::eIMPULSE);
 				Msg startJumpMsg;
 				startJumpMsg.typeID = ObjectMessageIDs::START_JUMP;
 				BroadcastObjectMessage(startJumpMsg);
@@ -231,6 +235,14 @@ namespace Ice
 		}
 	}
 
+	Ogre::String GOCCharacterController::GetVisualObjectDescription()
+	{
+		return GetOwner()->GetName();
+	}
+	void GOCCharacterController::GetTrackPoints(std::vector<Ogre::Vector3> &outPoints)
+	{
+		outPoints.push_back(GetOwner()->GetGlobalPosition());
+	}
 
 	void GOCCharacterController::SetOwner(std::weak_ptr<GameObject> go)
 	{
@@ -257,7 +269,7 @@ namespace Ice
 		mDimensions = parameters->GetValue("Dimensions", Ogre::Vector3(1,1,1));
 		mMovementSpeed = parameters->GetFloat("MaxSpeed");
 		mMaterialName = parameters->GetValue<Ogre::String>("MaterialName", "Wood");
-		mDensity = parameters->GetValue<float>("Density", 10);
+		mDensity = parameters->GetValue<float>("Density", 100);
 		Create(mDimensions);
 		GameObjectPtr owner = mOwnerGO.lock();
 		if (owner.get()) mActor.getPxActor()->userData = owner.get();
@@ -274,7 +286,7 @@ namespace Ice
 		parameters->AddOgreVec3("Dimensions", Ogre::Vector3(0.5, 1.8, 0.5));
 		parameters->AddFloat("MaxSpeed", 2.0f);
 		parameters->AddOgreString("MaterialName", "Wood");
-		parameters->AddFloat("Density", 10);
+		parameters->AddFloat("Density", 100);
 	}
 
 	void GOCCharacterController::Save(LoadSave::SaveSystem& mgr)
