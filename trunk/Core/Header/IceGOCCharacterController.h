@@ -65,7 +65,7 @@ namespace Ice
 		int GetMovementState() { return mCharacterMovementState; }
 	};
 
-	class DllExport GOCCharacterController : public GOCPhysics, public GOCEditorInterface
+	class DllExport GOCCharacterController : public GOCPhysics, public GOCEditorInterface, public SeeSense::VisualObject
 	{
 	private:
 		OgrePhysX::Actor<PxRigidDynamic> mActor;
@@ -111,6 +111,9 @@ namespace Ice
 		void SetOwner(std::weak_ptr<GameObject> go);
 
 		OgrePhysX::Actor<PxRigidDynamic>* GetActor() { return &mActor; }
+
+		Ogre::String GetVisualObjectDescription();
+		void GetTrackPoints(std::vector<Ogre::Vector3> &outPoints);
 
 		void SetParameters(DataMap *parameters);
 		void GetParameters(DataMap *parameters);

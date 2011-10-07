@@ -62,7 +62,7 @@ namespace Ice
 
 	Ogre::Vector3 GOCAI::GetEyePosition()
 	{
-		Ogre::Vector3 forwardOffset = GetEyeOrientation() * Ogre::Vector3(0, 0, 0.4f);
+		Ogre::Vector3 forwardOffset = GetEyeOrientation() * Ogre::Vector3(0, 0, 0.5f);
 		return GetOwner()->GetGlobalPosition() + Ogre::Vector3(0, 1.5f, 0) + forwardOffset;
 	}
 	Ogre::Quaternion GOCAI::GetEyeOrientation()
