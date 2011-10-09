@@ -40,7 +40,7 @@ namespace Ice
 		UpdateOrientation(owner->GetGlobalOrientation());
 	}
 
-	void GOCAI::OnSeeSomething(const Ogre::Vector3 &eyeSpacePosition, float distance, SeeSense::VisualObject *object)
+	void GOCAI::OnSeeSomething(const Ogre::Vector3 &eyeSpacePosition, float distance, float viewFactor, int goID)
 	{
 		GameObjectPtr owner = mOwnerGO.lock();
 		if (owner.get())
@@ -49,7 +49,8 @@ namespace Ice
 			msg.typeID = ObjectMessageIDs::AI_SEE;
 			msg.params.AddOgreVec3("eyeSpacePosition", eyeSpacePosition);
 			msg.params.AddFloat("distance", distance);
-			msg.params.AddOgreString("description", object->GetVisualObjectDescription());
+			msg.params.AddFloat("viewFactor", viewFactor);
+			msg.params.AddInt("object", goID);
 			owner->BroadcastObjectMessage(msg);
 		}
 	}
@@ -68,6 +69,16 @@ namespace Ice
 	Ogre::Quaternion GOCAI::GetEyeOrientation()
 	{
 		return GetOwner()->GetGlobalOrientation();
+	}
+
+	std::vector<ScriptParam> GOCAI::Npc_GetObjectVisibility(Script& caller, std::vector<ScriptParam> &vParams)
+	{
+		int id = vParams[0].getInt();
+		GameObjectPtr go = SceneManager::Instance().GetObjectByInternID(id);
+		if (!go.get()) SCRIPT_RETURNERROR("Object (" + Ogre::StringConverter::toString(id) + ") not found!")
+		SeeSense::VisualObject *visual = go->GetComponent<SeeSense::VisualObject>();
+		if (!visual) SCRIPT_RETURNERROR("Object (" + Ogre::StringConverter::toString(id) + ") must have a visual component!")
+		SCRIPT_RETURNVALUE(mSeeSense->CalcVisibility(visual))
 	}
 
 	std::vector<ScriptParam> GOCAI::Npc_GotoWP(Script& caller, std::vector<ScriptParam> &vParams)

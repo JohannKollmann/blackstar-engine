@@ -35,7 +35,7 @@ namespace Ice
 									This contains the number of ray hits, the distance, the object brightness and the view angle.
 			@param description The description of the object.
 			*/
-			virtual void OnSeeSomething(const Ogre::Vector3 &eyeSpacePosition, float distance, VisualObject *object) = 0; 
+			virtual void OnSeeSomething(const Ogre::Vector3 &eyeSpacePosition, float distance, float viewFactor, int goID) = 0; 
 		};
 
 		SeeSense(Origin *origin, Callback *callback);
@@ -54,7 +54,7 @@ namespace Ice
 			VisualObject *object;
 		};
 
-		std::unordered_set<VisualObject*> mActiveImpulses;
+		std::unordered_map<VisualObject*, float> mActiveImpulses;
 
 		Origin *mEyeOrigin;
 
@@ -63,6 +63,10 @@ namespace Ice
 		static const float RAY_MAXDIST;
 		static const float WIDTH_COVERAGE_PERCENT;
 		static const float HEIGHT_COVERAGE_PERCENT;
+		static const float UPDATE_VISIBILITY_INTERVAL;
+		static const float NOSIGHT_THRESHOLD;
+
+		float mUpdateVisibilityCounter;
 
 		SpatialCoverage mSpatialCoverage;
 

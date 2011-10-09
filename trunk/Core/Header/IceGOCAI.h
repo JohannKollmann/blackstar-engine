@@ -34,8 +34,10 @@ namespace Ice
 		Ogre::Quaternion GetEyeOrientation();
 
 		//Scripting
+		std::vector<ScriptParam> Npc_GetObjectVisibility(Script& caller, std::vector<ScriptParam> &vParams);	//eye sense
 		std::vector<ScriptParam> Npc_GotoWP(Script& caller, std::vector<ScriptParam> &vParams);
 		std::vector<ScriptParam> Npc_OpenDialog(Script& caller, std::vector<ScriptParam> &vParams);
+		DEFINE_TYPEDGOCLUAMETHOD(GOCAI, Npc_GetObjectVisibility, "int")
 		DEFINE_TYPEDGOCLUAMETHOD(GOCAI, Npc_GotoWP, "string")
 		DEFINE_GOCLUAMETHOD(GOCAI, Npc_OpenDialog)
 
@@ -47,7 +49,7 @@ namespace Ice
 
 		void ReceiveMessage(Msg &msg);
 
-		void OnSeeSomething(const Ogre::Vector3 &eyeSpacePosition, float distance, SeeSense::VisualObject *object); 
+		void OnSeeSomething(const Ogre::Vector3 &eyeSpacePosition, float distance, float viewFactor, int goI); 
 
 		GOComponent::TypeID& GetComponentID() const { static std::string name = "AI"; return name; }
 
