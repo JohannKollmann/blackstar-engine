@@ -277,6 +277,7 @@ namespace Ice
 		ScriptSystem::GetInstance().ShareCFunction("Script_HasProperty", &GOCScript::Lua_Script_HasProperty);
 
 		//Tells the npc to go to a certain waypoint.
+		ScriptSystem::GetInstance().ShareCFunction("Npc_GetObjectVisibility", &GOCAI::Lua_Npc_GetObjectVisibility);
 		ScriptSystem::GetInstance().ShareCFunction("Npc_GotoWP", &GOCAI::Lua_Npc_GotoWP);
 		ScriptSystem::GetInstance().ShareCFunction("Npc_OpenDialog", &GOCAI::Lua_Npc_OpenDialog);
 

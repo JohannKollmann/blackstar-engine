@@ -10,11 +10,14 @@ namespace Ice
 	const float SeeSense::RAY_MAXDIST = 50.0f;
 	const float SeeSense::WIDTH_COVERAGE_PERCENT = 0.8f;
 	const float SeeSense::HEIGHT_COVERAGE_PERCENT = 0.6f;
+	const float SeeSense::UPDATE_VISIBILITY_INTERVAL = 1.0f;
+	const float SeeSense::NOSIGHT_THRESHOLD = 0.01f;
 
 	SeeSense::SeeSense(Origin *origin, Callback *callback)
 	{
 		mEyeOrigin = origin;
 		mCallback = callback;
+		mUpdateVisibilityCounter = 0.0f;
 	}
 
 	SeeSense::~SeeSense()
@@ -30,44 +33,43 @@ namespace Ice
 	{
 		std::vector<Ogre::Vector3> trackPoints;
 		target->GetTrackPoints(trackPoints);
-		if (trackPoints.empty()) return 0.0f;
-
-		int numHits = 0;
-		float maxLighting = 0.0f;
-		float rightAngle = Ogre::Math::PI*0.5f;
-		float minViewAngle = rightAngle;
-		Ogre::Vector3 eyeDir = mEyeOrigin->GetEyeOrientation() * Ogre::Vector3::UNIT_Z;
-		ITERATE(point, trackPoints)
+		float viewFactor = 0.0f;
+		if (!trackPoints.empty())
 		{
-			Ogre::Vector3 rayDir = *point - mEyeOrigin->GetEyePosition();			
-			float viewAngle = eyeDir.angleBetween(rayDir).valueRadians();
-			if (viewAngle < rightAngle)
+			int numHits = 0;
+			float maxLighting = 0.0f;
+			float rightAngle = Ogre::Math::PI*0.5f;
+			float minViewAngle = rightAngle;
+			Ogre::Vector3 eyeDir = mEyeOrigin->GetEyeOrientation() * Ogre::Vector3::UNIT_Z;
+			ITERATE(point, trackPoints)
 			{
-				OgrePhysX::Scene::RaycastHit hit;
-				if (raycast(rayDir, hit))
-				{			
-					if (hit.hitActorUserData != nullptr)
-					{
-						GameObject *go = (GameObject*)hit.hitActorUserData;
-						if (go->GetComponent<VisualObject>())
+				Ogre::Vector3 rayDir = *point - mEyeOrigin->GetEyePosition();
+				rayDir.normalise();
+				float viewAngle = eyeDir.angleBetween(rayDir).valueRadians();
+				if (viewAngle < rightAngle)
+				{
+					OgrePhysX::Scene::RaycastHit hit;
+					if (raycast(rayDir, hit))
+					{			
+						if (hit.hitActorUserData != nullptr)
 						{
-							numHits++;
-							maxLighting = std::max(maxLighting, computeLighting(hit.position, hit.normal));
-							minViewAngle = std::min(minViewAngle, viewAngle);
+							GameObject *go = (GameObject*)hit.hitActorUserData;
+							if (go->GetComponent<VisualObject>())
+							{
+								numHits++;
+								maxLighting = std::max(maxLighting, computeLighting(hit.position, hit.normal));
+								minViewAngle = std::min(minViewAngle, viewAngle);
+							}
 						}
 					}
 				}
 			}
+			float numHitsFactor = (float)numHits / trackPoints.size();
+			numHitsFactor = std::min(1.0f, numHitsFactor*2.0f);
+			float lightingFactor = maxLighting;
+			float viewAngleFactor = 1 - (minViewAngle / rightAngle);
+			viewFactor = numHitsFactor * lightingFactor * viewAngleFactor;
 		}
-		float numHitsFactor = (float)numHits / trackPoints.size();
-		numHitsFactor = std::min(1.0f, numHitsFactor*2.0f);
-		float lightingFactor = maxLighting;
-		float viewAngleFactor = 1 - (minViewAngle / rightAngle);
-		float viewFactor = numHitsFactor * lightingFactor * viewAngleFactor;
-
-		auto impulseIter = mActiveImpulses.find(target);
-		if (impulseIter != mActiveImpulses.end())
-			mActiveImpulses.erase(impulseIter);
 
 		return viewFactor;
 	}
@@ -82,6 +84,21 @@ namespace Ice
 
 	void SeeSense::UpdateSense(float time)
 	{
+		mUpdateVisibilityCounter += time;
+		if (mUpdateVisibilityCounter >= UPDATE_VISIBILITY_INTERVAL)
+		{
+			ITERATE(i, mActiveImpulses)
+			{
+				i->second = CalcVisibility(i->first);
+				if (i->second <= NOSIGHT_THRESHOLD)
+				{
+					i = mActiveImpulses.erase(i);
+					if (i == mActiveImpulses.end()) break;
+				}
+			}
+			mUpdateVisibilityCounter = 0.0f; 
+		}
+
 		int numSteps = time * RAYS_PER_SECOND;
 
 		for (int i = 0; i < numSteps; i++)
@@ -105,8 +122,12 @@ namespace Ice
 						auto impulseIter = mActiveImpulses.find(obj);
 						if (impulseIter == mActiveImpulses.end())
 						{
-							mActiveImpulses.insert(obj);
-							mCallback->OnSeeSomething(eyeDir * hit.distance, hit.distance, obj);
+							float viewFactor = CalcVisibility(obj);
+							if (viewFactor > NOSIGHT_THRESHOLD)
+							{
+								mActiveImpulses.insert(std::make_pair(obj, viewFactor));
+								mCallback->OnSeeSomething(eyeDir * hit.distance, hit.distance, viewFactor, go->GetID());
+							}
 						}
 					}
 				}
