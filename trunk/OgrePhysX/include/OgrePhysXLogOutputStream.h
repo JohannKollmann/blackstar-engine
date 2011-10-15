@@ -23,16 +23,16 @@ THE SOFTWARE.
 #pragma once
 
 #include "OgrePhysXClasses.h"
-#include "foundation/PxErrorCallback.h"
+#include "PxErrorCallback.h"
 #include "PxPhysicsAPI.h"
 #include "Ogre.h"
 
 namespace OgrePhysX
 {
 
-	class OgrePhysXClass LogOutputStream : public PxErrorCallback
+	class OgrePhysXClass LogOutputStream : public physx::pubfnd3::PxErrorCallback
 	{
-		void reportError (PxErrorCode::Enum e, const char* message, const char* file, int line)
+		void reportError (physx::pubfnd3::PxErrorCode::Enum e, const char* message, const char* file, int line)
 		{
 			Ogre::String msg = "[OgrePhysX] Error in " + Ogre::String(file) + "line " + Ogre::StringConverter::toString(line) + ": " + Ogre::String(message);
 #if	OGREPHYSX_CANMOVESTATICACTORS

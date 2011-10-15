@@ -10,6 +10,7 @@
 
 namespace Ice
 {
+	using namespace physx;
 
 	enum CollisionGroups
 	{

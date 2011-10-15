@@ -868,9 +868,9 @@ namespace Ice
 		PxU32 numHits = Main::Instance().GetPhysXScene()->getPxScene()->raycastMultiple(OgrePhysX::toPx(origin), OgrePhysX::toPx(dir), maxDist, PxSceneQueryFlag::eNORMAL, buffer, 10, blockingHit);
 		for (unsigned int i = 0; i < numHits; ++i)
 		{
-			if (buffer[i].actor->userData)
+			if (buffer[i].shape->getActor().userData)
 			{
-				GameObject *object = (GameObject*)buffer[i].actor->userData;
+				GameObject *object = (GameObject*)buffer[i].shape->getActor().userData;
 				if (object == SceneManager::Instance().GetPlayer().get()) continue;
 				id = object->GetID();
 				break;

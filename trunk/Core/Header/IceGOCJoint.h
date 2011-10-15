@@ -9,6 +9,7 @@
 
 namespace Ice
 {
+	using namespace physx;
 
 	class DllExport GOCJoint : public GOCEditorVisualised
 	{

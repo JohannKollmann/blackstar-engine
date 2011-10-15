@@ -11,6 +11,8 @@
 
 namespace Ice
 {
+	using namespace physx;
+
 	class DllExport GOCPhysics : public GOComponent
 	{
 	public:

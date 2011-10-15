@@ -27,12 +27,14 @@ THE SOFTWARE.
 #include "PxMat44.h"
 #include "PxMat33.h"
 #include "PxVec3.h"
-#include "foundation/PxBounds3.h"
+#include "PxBounds3.h"
 #include "Ogre.h"
 #include "OgrePhysXClasses.h"
 
 namespace OgrePhysX
 {
+	using namespace physx;
+
 	namespace Convert
 	{
 		static Ogre::Vector3 toOgre(const PxVec3 &vec3)

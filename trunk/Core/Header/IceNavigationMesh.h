@@ -10,6 +10,7 @@
 
 namespace Ice
 {
+	using namespace physx;
 
 	class DllExport NavigationMesh : public LoadSave::Saveable, public PhysicsMessageListener
 	{

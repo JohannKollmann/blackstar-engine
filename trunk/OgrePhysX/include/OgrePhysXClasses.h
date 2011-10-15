@@ -33,14 +33,17 @@ THE SOFTWARE.
 #define PX_SUPPORT_VISUAL_DEBUGGER 1	//remote debugger on
 
 //forward declarations
-class PxDefaultAllocator;	
-class PxPhysics;
-class PxScene;
-class PxSceneDesc;
-class PxCooking;
-class PxMaterial;
-class PxActor;
-class PxGeometry;
+namespace physx
+{
+	class PxDefaultAllocator;	
+	class PxPhysics;
+	class PxScene;
+	class PxSceneDesc;
+	class PxCooking;
+	class PxMaterial;
+	class PxActor;
+	class PxGeometry;
+}
 
 namespace OgrePhysX
 {

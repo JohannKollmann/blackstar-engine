@@ -7,6 +7,7 @@
 #include "wxEdit.h"
 #include "IceCollisionCallback.h"
 
+using namespace physx;
 
 AmbientOcclusionGenerator::AmbientOcclusionGenerator(void)
 {

@@ -187,7 +187,7 @@ namespace OgrePhysX
 		outHit.distance = hit.distance;
 		outHit.normal = toOgre(hit.normal);
 		outHit.position = toOgre(hit.impact);
-		outHit.hitActorUserData = hit.actor->userData;
+		outHit.hitActorUserData = hit.shape->getActor().userData;
 		return true;
 	}
 
@@ -204,7 +204,7 @@ namespace OgrePhysX
 		outHit.distance = hit.distance;
 		outHit.normal = toOgre(hit.normal);
 		outHit.position = toOgre(hit.impact);
-		outHit.hitActorUserData = hit.actor->userData;
+		outHit.hitActorUserData = hit.shape->getActor().userData;
 		return true;
 	}
 
