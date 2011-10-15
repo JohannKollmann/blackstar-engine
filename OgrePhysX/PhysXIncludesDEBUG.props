@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup />
+  <ItemDefinitionGroup>
+    <Link>
+      <AdditionalDependencies>FoundationDEBUG.lib;PhysX3CommonDEBUG.lib;PhysX3CharacterKinematic.lib;PhysX3Cooking_x86.lib;PhysX3_x86.lib;LowLevel.lib;GeomUtilsDEBUG.lib;SceneQuery.lib;SimulationController.lib;PxTask.lib;PhysX3ExtensionsDEBUG.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\Dependencies\PhysX\lib\win32</AdditionalLibraryDirectories>
+    </Link>
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\..\Dependencies\PhysX\PhysXAPI\;..\..\Dependencies\PhysX\GeomUtils\headers;..\..\Dependencies\PhysX\RepX\include;..\..\Dependencies\PhysX\PxFoundation;..\..\Dependencies\PhysX\PhysXAPI\geometry\;..\..\Dependencies\PhysX\PxTask\include;..\..\Dependencies\PhysX;..\..\Dependencies\PhysX\PhysXAPI\extensions;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup />
+</Project>
