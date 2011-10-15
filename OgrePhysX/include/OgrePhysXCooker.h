@@ -30,6 +30,8 @@ THE SOFTWARE.
 
 namespace OgrePhysX
 {
+	using namespace physx;
+
 	class OgrePhysXClass Cooker
 	{
 	private:
@@ -41,21 +43,21 @@ namespace OgrePhysX
 		{
 		public:
 			Ogre::Vector3 mScale;
-			std::map<Ogre::String, PxMaterial*> mMaterialBindings;
+			std::map<Ogre::String, physx::PxMaterial*> mMaterialBindings;
 			bool mAddBackfaces;
 
 			Params() : mScale(Ogre::Vector3(1,1,1)), mAddBackfaces(false) {}
 			~Params() {}
 
 			Params& scale(Ogre::Vector3 &scale) { mScale = scale; return *this; }
-			Params& materials(std::map<Ogre::String, PxMaterial*> &bindings) { mMaterialBindings = bindings; return *this; }
+			Params& materials(std::map<Ogre::String, physx::PxMaterial*> &bindings) { mMaterialBindings = bindings; return *this; }
 			Params& backfaces(bool addBackfaces) { mAddBackfaces = addBackfaces; return *this; }
 		};
 
 		class AddedMaterials
 		{
 		public:
-			PxMaterial **materials;
+			physx::PxMaterial **materials;
 			PxU32  materialCount; 
 
 			AddedMaterials() : materials(nullptr) {}

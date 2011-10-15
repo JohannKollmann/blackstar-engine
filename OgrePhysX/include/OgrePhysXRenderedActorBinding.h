@@ -29,6 +29,9 @@ THE SOFTWARE.
 
 namespace OgrePhysX
 {
+
+	using namespace physx;
+
 	/*
 	class RenderedActor
 	implements the RenderableBinding interface.

@@ -13,6 +13,8 @@ Provides a naming service for PhysX materials and the possibility to map Ogre ma
 
 namespace Ice
 {
+	using namespace physx;
+
 	class DllExport MaterialTable : public ViewMessageListener
 	{
 	private:

@@ -25,12 +25,15 @@ THE SOFTWARE.
 #include "OgrePhysXClasses.h"
 #include <OgreDataStream.h>
 #include "PxPhysics.h"
+#include "PxPhysicsAPI.h"
 #include "common/PxStream.h" 
 #include <streambuf>
 #include "OgreString.h"
 
 namespace OgrePhysX
 {
+	using namespace physx;
+
 	class OgrePhysXClass OgrePxStream : public PxStream
 	{
 	private:

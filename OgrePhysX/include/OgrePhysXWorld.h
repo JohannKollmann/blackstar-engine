@@ -28,6 +28,8 @@ THE SOFTWARE.
 
 namespace OgrePhysX
 {
+	using namespace physx;
+
 	class OgrePhysXClass World
 	{
 		class OgrePhysXClass OgreFrameListener : public Ogre::FrameListener
