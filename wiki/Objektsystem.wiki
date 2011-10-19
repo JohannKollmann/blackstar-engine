@@ -8,13 +8,13 @@ Die entsprechende Klasse heißt GameObject.
 
 = Das Komponentensystem =
 
-Die Klasse GameObject speichert an Objekteigenschaften lediglich die globale Transformation eines Objekts. Es ist außerdem nicht vorgesehen, dass andere Klassen von GameObject erben. Wie sind dann die verschiedenen Objekttypen implementiert? Dazu muss der Begriff 'Objekttyp' überdacht werden. In der Blackstar Engine besteht ein Objekt aus einer Kollektion von Komponenten. Komponentenklassen erben grundsätzlich von GOComponent (GO = Game Object). Eine Komponente implementiert eine bestimmte Funktionalität, die dem Objekt hinzugefügt werden kann.
-Ein gutes Beispiel ist Feuer: Hier würde man ein Objekt erstellen mit den Komponenten 'Partikeleffekt', 'Sound' und 'Licht'. Auch Physik-Objekte werden auf diese Weise implementiert: Eine Kiste besteht zum einen aus der grafischen Repräsentation, einem Kisten-Mesh, zum anderen aus einem Kollisionsmodell, welches von der Phsysikengine berechnet wird.
+Die Klasse GameObject speichert an Objekteigenschaften lediglich die globale Transformation eines Objekts. Es ist außerdem nicht vorgesehen, dass andere Klassen von GameObject erben. Ein Objekt besteht stattdessen aus einer Kollektion von Komponenten. Komponentenklassen erben grundsätzlich von GOComponent (GO = Game Object). Eine Komponente implementiert eine bestimmte Funktionalität, die dem Objekt hinzugefügt werden kann.
+Ein gutes Beispiel ist Feuer: Hier würde man ein Objekt erstellen mit den Komponenten 'Partikeleffekt', 'Sound' und 'Licht'. Auch Physik-Objekte werden auf diese Weise implementiert: Eine Kiste besteht zum einen aus der grafischen Repräsentation, einem Kisten-Mesh, zum anderen aus einem Kollisionsmodell, welches von der Physikengine berechnet wird.
 
 
 === Einschränkungen ===
 
-Einem Objekt können theoretisch beliebig viele Komponenten hinzugefügt werden, allerdings darf ein Objekt jeweils nur ein Element einer Komponentenfamilie speichern. Diese Einschränkung ist wichtig, um nach außen eine transparente Schnittstelle anzubieten, mit der auf Komponentenfamilien zugegriffen werden können.
+Einem Objekt können theoretisch beliebig viele Komponenten hinzugefügt werden, allerdings darf ein Objekt jeweils nur ein Element einer Komponentenfamilie besitzen. Diese Einschränkung ist wichtig, um nach außen eine einheitliche Schnittstelle anzubieten, mit der auf Komponentenfamilien zugegriffen werden kann.
 
 === Das lokale Nachichtensystem ===
 
