@@ -955,6 +955,7 @@ namespace Ice
 			sound->play();
 			sound->setListener(&(Instance().mOggListener));
 			node->attachObject(sound);
+			AIManager::Instance().NotifySound(soundFile, position, range, loudness);
 		}
 		return std::vector<ScriptParam>();
 	}
