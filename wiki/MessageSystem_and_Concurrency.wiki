@@ -10,7 +10,7 @@ The message system provides:
 = Writing a message listener =
 
 First, you have to choose the right message listener type depending on what parts of the engine the listener will access in its ReceiveMessage method.
-  * Derive from SynchronizedMessageListener if the listener needs access to all parts of the engine.
+  * Derive from SynchronizedMessageListener if the listener needs access to all parts of the engine. Obviously this is bad for performance because all other threads are stopped during message processing.
   * Derive from ViewMessageListener if the listener only needs access to Ogre and parts of the engine that operate inside the rendering thread.
   * Derive from PhysicsMessageListener if the listener only needs access to PhysX and parts of the engine that operate in the physics / movement thread.
   * Derive from IndependantMessageListener if the listener doesn't need any access to other parts of the engine (except for the message system of course).
