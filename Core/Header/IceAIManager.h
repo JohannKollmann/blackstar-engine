@@ -41,6 +41,8 @@ public:
 	NavigationMesh* GetNavigationMesh();
 	void SetNavigationMesh(NavigationMesh *mesh);
 
+	void NotifySound(Ogre::String soundName, const Ogre::Vector3 &position, float range, float loudness);
+
 	void Clear();
 	void Shutdown();
 

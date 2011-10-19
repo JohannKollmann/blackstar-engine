@@ -1,6 +1,7 @@
 
 #include "IceAIManager.h"
 #include "IceGameObject.h"
+#include "IceObjectMessageIDs.h"
 
 namespace Ice
 {
@@ -49,6 +50,24 @@ namespace Ice
 			return;
 		}
 		mNavigationMesh->ShortestPath(origin, target->GetOwner()->GetGlobalPosition(), oPath);
+	}
+
+	void AIManager::NotifySound(Ogre::String soundName, const Ogre::Vector3 &position, float range, float loudness)
+	{
+		float squaredRange = range*range;
+		ITERATE(i, mAIObjects)
+		{
+			GameObjectPtr object = (*i)->GetOwner();
+			float squaredDist = object->GetGlobalPosition().squaredDistance(position);
+			if (squaredDist < squaredRange)
+			{
+				Msg msg;
+				msg.typeID = ObjectMessageIDs::AI_HEAR;
+				msg.params.AddOgreString("soundName", soundName);
+				msg.params.AddFloat("loudness", (Ogre::Math::Sqrt(squaredDist) / squaredRange) * loudness);
+				object->BroadcastObjectMessage(msg);
+			}
+		}
 	}
 
 	void AIManager::RegisterAIObject(GOCAI* object)
