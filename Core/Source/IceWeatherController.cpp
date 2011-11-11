@@ -133,9 +133,18 @@ namespace Ice
 
 	void WeatherController::Update(float time)
 	{
+		bool moonActive = GetCaelumSystem()->getSun()->getForceDisable();
+
 		Ogre::Vector3 offset(0, -500, 0);
 		mCaelumSystem->getCaelumCameraNode()->setPosition(Main::Instance().GetCamera()->getDerivedPosition() + offset);
 		mCaelumSystem->updateSubcomponents(time);
+
+		if (GetCaelumSystem()->getSun()->getForceDisable() != moonActive)
+		{
+			Ice::Msg msg(GlobalMessageIDs::DAYNIGHT_CHANGE);
+			msg.params.AddBool("DayToNight", moonActive);
+			Ice::MessageSystem::Instance().MulticastMessage(msg);
+		}
 
 		Ogre::GpuSharedParametersPtr weatherParams = Ogre::GpuProgramManager::getSingleton().getSharedParameters("FogParams");
 		Caelum::LongReal julDay = mCaelumSystem->getUniversalClock()->getJulianDay ();

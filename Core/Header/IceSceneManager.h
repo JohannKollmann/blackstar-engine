@@ -26,15 +26,6 @@ namespace Ice
 	{
 	public:
 
-		class TimeListener
-		{
-		public:
-			TimeListener() { SceneManager::Instance().mTimeListeners.push_back(this); }
-			virtual ~TimeListener() { SceneManager::Instance().mTimeListeners.remove(this); }
-
-			virtual void UpdateScene(float time) = 0;
-		};
-
 	private:
 		unsigned int mNextID;
 		float mDayTime;
@@ -53,8 +44,6 @@ namespace Ice
 		bool mIndoorRendering;
 
 		std::map<int, GameObjectPtr> mGameObjects;
-
-		std::list<TimeListener*> mTimeListeners;
 
 		std::map<Ogre::String, GOCEditorInterfacePtr> mGOCPrototypes;
 

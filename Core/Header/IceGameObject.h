@@ -299,7 +299,7 @@ namespace Ice
 		///Tells all components that the object is assembled completely.
 		void FirePostInit();
 
-		///Tells all components to change to an inactive state, where say don't use any resources.
+		///Tells all components to change to an inactive state, so tha they don't use any resources.
 		void FreeResources(bool free);
 
 		void ReceiveMessage(Msg &msg);

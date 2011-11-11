@@ -24,6 +24,8 @@ private:
 	//maps object ID <=> ai object
 	std::vector<GOCAI*> mAIObjects;
 
+	std::vector<Ogre::Light*> mLights;
+
 	NavigationMesh *mNavigationMesh;
 
 public:
@@ -41,6 +43,11 @@ public:
 	NavigationMesh* GetNavigationMesh();
 	void SetNavigationMesh(NavigationMesh *mesh);
 
+	//Used for Npcs see sense.
+	void GetLights(std::vector<Ogre::Light*> &lights);
+	void RegisterLight(Ogre::Light *light);
+	void UnregisterLight(Ogre::Light *light);
+
 	void NotifySound(Ogre::String soundName, const Ogre::Vector3 &position, float range, float loudness);
 
 	void Clear();
@@ -48,6 +55,9 @@ public:
 
 	void ReceiveMessage(Msg &msg);
 	void Update(float time);
+
+	///Retrieves the current ambient light as a single brightness float value, used in SeeSense.
+	float GetAmbientLightBrightness();
 
 	//Singleton
 	static AIManager& Instance();

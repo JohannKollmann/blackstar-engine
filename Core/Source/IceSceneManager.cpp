@@ -400,6 +400,10 @@ namespace Ice
 		SetTimeScale(mTimeScale);
 		SetTime(11, 0);
 		mIndoorRendering = false;
+
+		if (!mWeatherController->GetCaelumSystem()->getSun()->getForceDisable())
+			AIManager::Instance().RegisterLight(mWeatherController->GetCaelumSystem()->getSun()->getMainLight());
+		else AIManager::Instance().RegisterLight(mWeatherController->GetCaelumSystem()->getMoon()->getMainLight());
 	}
 
 	GameObjectPtr SceneManager::AddLevelMesh(Ogre::String meshname)
@@ -730,8 +734,6 @@ namespace Ice
 				mDayTime += (time*mTimeScale);
 				if (mDayTime >= mMaxDayTime) mDayTime = 0.0f;
 				if (mWeatherController) mWeatherController->Update(time);
-				ITERATE(i, mTimeListeners)
-					(*i)->UpdateScene(time);
 			}
 		}
 	}

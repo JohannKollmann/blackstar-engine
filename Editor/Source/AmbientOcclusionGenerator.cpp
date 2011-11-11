@@ -194,7 +194,7 @@ void AmbientOcclusionGenerator::processVertexData(Ogre::VertexData *targetData, 
 			pos = baseNode->_getDerivedPosition() + baseNode->_getDerivedOrientation()*(pos*baseNode->_getDerivedScale());
 			normal = baseNode->_getDerivedOrientation()*normal;
 		}
-		char aoFactor = (char)(computeAO(pos, normal, rayCollisionGroups) * 255);
+		char aoFactor = (char)(Ice::Utils::computeAO(pos, normal, rayCollisionGroups) * 255);
 		aoBuffer[i*4+3] = aoFactor;
 		//rs->convertColourValue(Ogre::ColourValue(aoFactor, aoFactor, aoFactor, 1), &aoBuffer[i]);
 	}
@@ -205,43 +205,4 @@ void AmbientOcclusionGenerator::processVertexData(Ogre::VertexData *targetData, 
 	vAOBuf->writeData(0, vAOBuf->getSizeInBytes(), aoBuffer, true);
 	targetData->vertexBufferBinding->setBinding(aoBufferSource, vAOBuf);
 	delete aoBuffer;
-}
-
-float AmbientOcclusionGenerator::computeAO(Ogre::Vector3 position, Ogre::Vector3 normal, int rayCollisionGroups)
-{
-	const float c = 4;
-	float fNumSamples = 0;
-	float sum = 0;
-
-	for(float h=Ogre::Math::PI/4/c; h<Ogre::Math::PI/2; h+=Ogre::Math::PI/2/c)
-	{
-		for(float v=0; v<2*Ogre::Math::PI; v+=Ogre::Math::PI/2/(c*Ogre::Math::Cos(h)))
-		{
-			Ogre::Vector3 castVector = Ogre::Vector3(Ogre::Math::Cos(h)*Ogre::Math::Sin(v),Ogre::Math::Sin(h),Ogre::Math::Cos(h)*Ogre::Math::Cos(v));
-			//Ice::Log::Instance().LogMessage(Ogre::StringConverter::toString(castVector));
-			castVector.normalise();
-			Ogre::Quaternion q = Ogre::Vector3::UNIT_Y.getRotationTo(normal);
-			castVector = q * castVector;
-			Ogre::Ray ray(position + (castVector * 0.001f), castVector);
-			float test = Ogre::Vector3::UNIT_Y.dotProduct(castVector);		//normal.dotProduct(castVector);
-			float weight = Ogre::Math::Abs(normal.dotProduct(castVector));
-			if (test < 0)	
-			{
-				fNumSamples += 0.5f*weight;	//light is coming from below	
-				continue;
-			}
-			//weight = 0.5f + 0.5f*weight;
-			if (test >= 0 && !Ice::Main::Instance().GetPhysXScene()->raycastAny(position + (castVector * 0.001f), castVector, 20))//, 10))
-				sum += 1*weight;
-			fNumSamples += 1*weight;
-		}
-	}
-	if (fNumSamples < 1) fNumSamples = 1;
-	float avg = sum/fNumSamples;
-	//avg *= 2;
-	if (avg > 1) avg = 1;
-
-	float aoOffset = 1-avg;
-	return aoOffset;
-	//if (aoOffset < 0.1f) aoOffset = 0.1f;
 }

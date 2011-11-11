@@ -12,10 +12,9 @@ namespace Ice
 	{
 	public:
 
-		Msg()		
-		{
-			rawData = nullptr;
-		}
+		Msg() : rawData(nullptr) {}
+		Msg(MsgTypeID type) : rawData(nullptr), typeID(type) {}
+
 		virtual ~Msg() { }
 
 		DataMap params;

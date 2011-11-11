@@ -58,6 +58,7 @@ namespace Ice
 		ITERATE(i, mAIObjects)
 		{
 			GameObjectPtr object = (*i)->GetOwner();
+			if (!object.get()) return;
 			float squaredDist = object->GetGlobalPosition().squaredDistance(position);
 			if (squaredDist < squaredRange)
 			{
@@ -87,6 +88,27 @@ namespace Ice
 		IceWarning("AI Object does not exist");
 	}
 
+	void AIManager::GetLights(std::vector<Ogre::Light*> &lights)
+	{
+		lights.assign(mLights.begin(), mLights.end());
+	}
+	void AIManager::RegisterLight(Ogre::Light *light)
+	{
+		UnregisterLight(light);
+		mLights.push_back(light);
+	}
+	void AIManager::UnregisterLight(Ogre::Light *light)
+	{
+		ITERATE(i, mLights)
+		{
+			if (*i == light)
+			{
+				mLights.erase(i);
+				return;
+			}
+		}
+	}
+
 	NavigationMesh* AIManager::GetNavigationMesh()
 	{
 		return mNavigationMesh;
@@ -95,6 +117,12 @@ namespace Ice
 	{
 		if (mNavigationMesh) ICE_DELETE mNavigationMesh;
 		mNavigationMesh = mesh;
+	}
+
+	float AIManager::GetAmbientLightBrightness()
+	{
+		//TODO
+		return 0.5f;
 	}
 
 	void AIManager::Clear()
