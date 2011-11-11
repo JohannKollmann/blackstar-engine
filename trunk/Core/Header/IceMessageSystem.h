@@ -184,7 +184,6 @@ namespace Ice
 		/**
 		* Locks all message processing, processes all messages and unlocks message processing.
 		* @remarks	Intended for special cases like reloading scripts/resources.
-					This method must be called from "outside" (mainloop or similar). NEVER call this as a message listener inside ReceiveMessage.
 		*/
 		void ProcessAllMessagesNow();
 

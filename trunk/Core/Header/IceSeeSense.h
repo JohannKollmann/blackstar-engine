@@ -47,13 +47,6 @@ namespace Ice
 
 	private:
 
-		struct Impulse
-		{
-			Ogre::Vector3 eyeSpacePosition;
-			float distance;
-			VisualObject *object;
-		};
-
 		std::unordered_map<VisualObject*, float> mActiveImpulses;
 
 		Origin *mEyeOrigin;
@@ -70,7 +63,11 @@ namespace Ice
 
 		SpatialCoverage mSpatialCoverage;
 
+		bool raycast(const Ogre::Vector3 &origin, const Ogre::Vector3 &rayDir, float maxDist, OgrePhysX::Scene::RaycastHit &hit);
 		bool raycast(const Ogre::Vector3 &rayDir, OgrePhysX::Scene::RaycastHit &hit);
+
+		float computeShadowFactor(const Ogre::Vector3 &position, Ogre::Vector3 &rayDir, float maxDist);
+		float computeShadowFactor(const Ogre::Vector3 &position, const Ogre::Vector3 &lightPosition);
 
 		float computeLighting(const Ogre::Vector3 &position, const Ogre::Vector3 &normal);
 

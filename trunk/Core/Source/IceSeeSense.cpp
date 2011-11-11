@@ -4,6 +4,7 @@
 #include "OgrePhysX.h"
 #include "IceCollisionCallback.h"
 #include "IceGameObject.h"
+#include "IceAIManager.h"
 
 namespace Ice
 {
@@ -24,9 +25,36 @@ namespace Ice
 	{
 	}
 
+	float SeeSense::computeShadowFactor(const Ogre::Vector3 &position, Ogre::Vector3 &rayDir, float maxDist)
+	{
+		OgrePhysX::Scene::RaycastHit hit;
+		return raycast(position, rayDir, maxDist, hit) ? 0 : 1;
+	}
+
+	float SeeSense::computeShadowFactor(const Ogre::Vector3 &position, const Ogre::Vector3 &lightPosition)
+	{
+		Ogre::Vector3 rayDir = lightPosition - position;
+		float dist = rayDir.normalise();
+		return computeShadowFactor(position, rayDir, dist);
+	}
+
 	float SeeSense::computeLighting(const Ogre::Vector3 &position, const Ogre::Vector3 &normal)
 	{
-		return 1.0f;
+		float totalLight = AIManager::Instance().GetAmbientLightBrightness();
+
+		std::vector<Ogre::Light*> lights;
+		AIManager::Instance().GetLights(lights);
+		ITERATE(i, lights)
+		{
+			if ((*i)->getType() == Ogre::Light::LightTypes::LT_DIRECTIONAL)
+			{
+				Ogre::Vector3 lightDirInverted = -(*i)->getDirection();
+				float light = std::max(0.0f, normal.dotProduct(lightDirInverted));
+				//light *= computeShadowFactor(position + (normal * 0.2f) + (lightDirInverted * 0.2f), lightDirInverted);
+				totalLight += light;
+			}
+		}
+		return std::min(1.0f, totalLight);
 	}
 
 	float SeeSense::CalcVisibility(VisualObject *target)
@@ -54,7 +82,7 @@ namespace Ice
 						if (hit.hitActorUserData != nullptr)
 						{
 							GameObject *go = (GameObject*)hit.hitActorUserData;
-							if (go->GetComponent<VisualObject>())
+							if (go->GetComponent<VisualObject>() == target)
 							{
 								numHits++;
 								maxLighting = std::max(maxLighting, computeLighting(hit.position, hit.normal));
@@ -76,10 +104,15 @@ namespace Ice
 
 	bool SeeSense::raycast(const Ogre::Vector3 &rayDir, OgrePhysX::Scene::RaycastHit &hit)
 	{
+		return raycast(mEyeOrigin->GetEyePosition(), rayDir, RAY_MAXDIST, hit);
+	}
+
+	bool SeeSense::raycast(const Ogre::Vector3 &origin, const Ogre::Vector3 &rayDir, float maxDist, OgrePhysX::Scene::RaycastHit &hit)
+	{
 		PxSceneQueryFilterData filterData;
 		filterData.data.word0 = CollisionGroups::CHARACTER|CollisionGroups::DYNAMICBODY|CollisionGroups::STATICBODY;
 		filterData.flags = PxSceneQueryFilterFlag::eDYNAMIC|PxSceneQueryFilterFlag::eSTATIC;
-		return Main::Instance().GetPhysXScene()->raycastClosest(mEyeOrigin->GetEyePosition(), rayDir, RAY_MAXDIST, hit, filterData);
+		return Main::Instance().GetPhysXScene()->raycastClosest(origin, rayDir, maxDist, hit, filterData);
 	}
 
 	void SeeSense::UpdateSense(float time)

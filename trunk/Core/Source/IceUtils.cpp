@@ -4,6 +4,8 @@
 #include "boost/filesystem/path.hpp"
 #include "IceScript.h"
 #include "IceDataMap.h"
+#include "IceMain.h"
+#include "OgrePhysX.h"
 
 namespace Ice
 {
@@ -313,5 +315,41 @@ namespace Ice
 		Ogre::Vector3 yAxis = zAxis.crossProduct(xAxis);
 		return Ogre::Quaternion (xAxis, yAxis, zAxis);
 	}
+
+	float Utils::computeAO(Ogre::Vector3 &position, Ogre::Vector3 &normal, int rayCollisionGroups)
+	{
+		const float c = 4;
+		float fNumSamples = 0;
+		float sum = 0;
+
+		for(float h=Ogre::Math::PI/4/c; h<Ogre::Math::PI/2; h+=Ogre::Math::PI/2/c)
+		{
+			for(float v=0; v<2*Ogre::Math::PI; v+=Ogre::Math::PI/2/(c*Ogre::Math::Cos(h)))
+			{
+				Ogre::Vector3 castVector = Ogre::Vector3(Ogre::Math::Cos(h)*Ogre::Math::Sin(v),Ogre::Math::Sin(h),Ogre::Math::Cos(h)*Ogre::Math::Cos(v));
+				castVector.normalise();
+				Ogre::Quaternion q = Ogre::Vector3::UNIT_Y.getRotationTo(normal);
+				castVector = q * castVector;
+				Ogre::Ray ray(position + (castVector * 0.001f), castVector);
+				float test = Ogre::Vector3::UNIT_Y.dotProduct(castVector);	
+				float weight = Ogre::Math::Abs(normal.dotProduct(castVector));
+				if (test < 0)	
+				{
+					fNumSamples += 0.5f*weight;	//light is coming from below	
+					continue;
+				}
+				if (test >= 0 && !Ice::Main::Instance().GetPhysXScene()->raycastAny(position + (castVector * 0.001f), castVector, 20))
+					sum += 1*weight;
+				fNumSamples += 1*weight;
+			}
+		}
+		if (fNumSamples < 1) fNumSamples = 1;
+		float avg = sum/fNumSamples;
+		if (avg > 1) avg = 1;
+
+		float aoOffset = 1-avg;
+		return aoOffset;
+	}
+
 
 };
