@@ -209,11 +209,6 @@ namespace Ice
 	}
 	void GOCAnimatedCharacter::Load(LoadSave::LoadSystem& mgr)
 	{
-		Ogre::String meshname;
-		Ogre::Vector3 scale = Ogre::Vector3(1,1,1);
-		Ogre::String animstate;
-		bool shadowcaster = true;
-		bool ragdoll = false;
 		mgr.LoadAtom("Ogre::String", &mMeshName);
 		mgr.LoadAtom("bool", &mSetControlToActorsTemp);
 		mgr.LoadAtom("bool", &mShadowCaster);

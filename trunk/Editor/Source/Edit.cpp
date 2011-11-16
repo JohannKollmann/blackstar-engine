@@ -799,6 +799,8 @@ void Edit::CreatePreviewObject()
 void Edit::OnLoadWorld(Ogre::String fileName)
 {
 	STOP_MAINLOOP
+	bool physicsEnabledBackup = mPhysicsEnabled;
+	mPhysicsEnabled = false;
 	DeselectAllObjects();
 	wxEdit::Instance().GetpropertyWindow()->SetPage("None");
 	mMoverReset.Mover.reset();
@@ -806,6 +808,7 @@ void Edit::OnLoadWorld(Ogre::String fileName)
 	wxEdit::Instance().GetWorldExplorer()->GetSceneTree()->Update();
 	wxEdit::Instance().GetWorldExplorer()->GetMaterialTree()->Update();
 	wxEdit::Instance().GetOgrePane()->SetFocus();
+	mPhysicsEnabled = physicsEnabledBackup;
 	RESUME_MAINLOOP
 };
 

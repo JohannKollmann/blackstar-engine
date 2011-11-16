@@ -40,7 +40,7 @@ namespace Ice
 
 	float SeeSense::computeLighting(const Ogre::Vector3 &position, const Ogre::Vector3 &normal)
 	{
-		float totalLight = AIManager::Instance().GetAmbientLightBrightness();
+		float totalLight = AIManager::Instance().GetAmbientLightBrightness(position, normal);
 
 		std::vector<Ogre::Light*> lights;
 		AIManager::Instance().GetLights(lights);

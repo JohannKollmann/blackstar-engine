@@ -66,7 +66,7 @@ namespace Ice
 
 		DllExport Ogre::Quaternion ZDirToQuat(const Ogre::Vector3 &zDirNormalised, const Ogre::Vector3 &upVector = Ogre::Vector3::UNIT_Y);
 
-		DllExport float computeAO(Ogre::Vector3 &position, Ogre::Vector3 &normal, int rayCollisionGroups);
+		DllExport float ComputeAO(const Ogre::Vector3 &position, const Ogre::Vector3 &normal, int rayCollisionGroups);
 	};
 
 };

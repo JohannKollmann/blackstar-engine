@@ -57,7 +57,7 @@ public:
 	void Update(float time);
 
 	///Retrieves the current ambient light as a single brightness float value, used in SeeSense.
-	float GetAmbientLightBrightness();
+	float GetAmbientLightBrightness(const Ogre::Vector3 &position, const Ogre::Vector3 &normal);
 
 	//Singleton
 	static AIManager& Instance();

@@ -103,7 +103,7 @@ namespace Ice
 
 		bool mNeedsUpdate;
 		bool mDestroyingNavMesh;
-		PxRigidStatic *mPhysXActor;
+		OgrePhysX::Actor<PxRigidStatic> mPhysXActor;
 		PxTriangleMesh *mPhysXMesh;
 		PathNodeTree *mPathNodeTree;
 		Ogre::Entity *mDebugVisual;

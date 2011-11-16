@@ -370,7 +370,7 @@ void wxEdit::OnLoadMesh(wxCommandEvent& WXUNUSED(event))
 		wxEdit::Instance().GetProgressBar()->SetProgress(0.3f);
 		wxEdit::Instance().GetWorldExplorer()->GetMaterialTree()->Update();
 		wxEdit::Instance().GetProgressBar()->SetStatusMessage("Generating navigation mesh...");
-		//Ice::AIManager::Instance().GetNavigationMesh()->Update();
+		Ice::AIManager::Instance().GetNavigationMesh()->Update();
     }
 	wxEdit::Instance().GetProgressBar()->Reset();
 	RESUME_MAINLOOP
