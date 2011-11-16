@@ -2,6 +2,9 @@
 #include "IceAIManager.h"
 #include "IceGameObject.h"
 #include "IceObjectMessageIDs.h"
+#include "IceMain.h"
+#include "IceUtils.h"
+#include "IceCollisionCallback.h"
 
 namespace Ice
 {
@@ -119,10 +122,12 @@ namespace Ice
 		mNavigationMesh = mesh;
 	}
 
-	float AIManager::GetAmbientLightBrightness()
+	float AIManager::GetAmbientLightBrightness(const Ogre::Vector3 &position, const Ogre::Vector3 &normal)
 	{
-		//TODO
-		return 0.5f;
+		Ogre::ColourValue ambientCol = Main::Instance().GetOgreSceneMgr()->getAmbientLight();
+		float brightness = (ambientCol.r + ambientCol.g + ambientCol.r) / 3.0f;
+		float ao = Utils::ComputeAO(position, normal, CollisionGroups::DYNAMICBODY|CollisionGroups::STATICBODY);
+		return brightness * ao;
 	}
 
 	void AIManager::Clear()

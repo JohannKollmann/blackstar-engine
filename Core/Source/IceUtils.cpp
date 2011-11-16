@@ -316,7 +316,7 @@ namespace Ice
 		return Ogre::Quaternion (xAxis, yAxis, zAxis);
 	}
 
-	float Utils::computeAO(Ogre::Vector3 &position, Ogre::Vector3 &normal, int rayCollisionGroups)
+	float Utils::ComputeAO(const Ogre::Vector3 &position, const Ogre::Vector3 &normal, int rayCollisionGroups)
 	{
 		const float c = 4;
 		float fNumSamples = 0;

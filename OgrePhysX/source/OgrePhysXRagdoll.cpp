@@ -39,6 +39,7 @@ namespace OgrePhysX
 		mNode = node;
 		Ogre::Vector3 scale = mNode->getScale();
 		mEntity = ent;
+		mControlledByActors = false;
 		if (!mEntity->getSkeleton()) OGRE_EXCEPT(Ogre::Exception::ERR_INTERNAL_ERROR, "Entity " + mEntity->getName() + " has no skeleton!", "OgrePhysX::Ragdoll::Ragdoll");
 	}
 

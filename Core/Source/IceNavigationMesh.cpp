@@ -7,6 +7,7 @@
 #include "IceGOCView.h"
 #include "IceGOCPhysics.h"
 #include "OgrePhysXStreams.h"
+#include "IceCollisionCallback.h"
 
 namespace Ice
 {
@@ -205,10 +206,9 @@ namespace Ice
 
 	void NavigationMesh::Clear()
 	{
-		if (mPhysXActor)
+		if (mPhysXActor.getPxActor())
 		{
-			Main::Instance().GetPhysXScene()->getPxScene()->removeActor(*mPhysXActor);
-			mPhysXActor = nullptr;
+			Main::Instance().GetPhysXScene()->removeActor(mPhysXActor);
 		}
 		if (mPathNodeTree)
 		{
@@ -318,8 +318,11 @@ namespace Ice
 		delete[] fVertices;
 		delete[]  iIndices;
 
-		mPhysXActor = OgrePhysX::getPxPhysics()->createRigidStatic(PxTransform());
-		mPhysXActor->createShape(PxTriangleMeshGeometry(OgrePhysX::getPxPhysics()->createTriangleMesh(stream)), OgrePhysX::World::getSingleton().getDefaultMaterial());
+		
+
+		mPhysXActor = Main::Instance().GetPhysXScene()->createRigidStatic(PxTriangleMeshGeometry(OgrePhysX::getPxPhysics()->createTriangleMesh(stream)));
+		mPhysXActor.getFirstShape()->setSimulationFilterData(PhysXFilterData::Instance().Intern);
+		mPhysXActor.getFirstShape()->setQueryFilterData(PhysXFilterData::Instance().Intern);
 	}
 
 	bool NavigationMesh::raycastClosest(const Ogre::Vector3 &origin, const Ogre::Vector3 &direction, float maxDist, PxRaycastHit &hit)
@@ -538,7 +541,7 @@ namespace Ice
 			mPathNodeTree = nullptr;
 		}
 
-		PxBounds3 aabb = mPhysXActor->getWorldBounds();
+		PxBounds3 aabb = mPhysXActor.getPxActor()->getWorldBounds();
 		float maxX = (aabb.maximum.x > aabb.minimum.x) ? aabb.maximum.x : aabb.minimum.x;
 		float maxY = (aabb.maximum.y > aabb.minimum.y) ? aabb.maximum.y : aabb.minimum.y;
 		float maxZ = (aabb.maximum.z > aabb.minimum.z) ? aabb.maximum.z : aabb.minimum.z;
