@@ -54,11 +54,8 @@ namespace Ice
 		
 		///Writes the saved data to a target buffer.
 		PropertyTypes Get(void *target) const;
-
-		///Converts the saved data to a ScriptParam.
-		//void GetAsScriptParam(std::vector<ScriptParam> &params) const;
 		
-		ScriptParam GetAsScriptParam();
+		void GetAsScriptParam(ScriptParam &scriptParam);
 
 		//Load Save methods
 		void Save(LoadSave::SaveSystem& myManager);
@@ -90,7 +87,7 @@ namespace Ice
 		};
 
 	private:
-		std::vector< std::shared_ptr<Item> > mItems;
+		std::vector< std::shared_ptr<Item> > mItems;		//this is a vector and not a map because order and random access via index matters
 		std::vector< std::shared_ptr<Item> >::iterator mIterator;
 
 	public:
@@ -109,6 +106,7 @@ namespace Ice
 		}
 
 		//Iterator methods
+		void First();
 		bool HasNext();
 		Item GetNext();
 		

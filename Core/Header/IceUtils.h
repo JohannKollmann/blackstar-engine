@@ -62,7 +62,7 @@ namespace Ice
 		/**
 		 * converts a datamap to a scriptparam with PARM_TYPE_TABLE
 		 */
-		DllExport ScriptParam DataMapToTable(const Script& caller, DataMap &datamap);
+		DllExport void DataMapToTable(const Script& caller, DataMap &datamap, std::map<ScriptParam, ScriptParam> &table);
 
 		DllExport Ogre::Quaternion ZDirToQuat(const Ogre::Vector3 &zDirNormalised, const Ogre::Vector3 &upVector = Ogre::Vector3::UNIT_Y);
 

@@ -27,6 +27,15 @@ namespace Ice
 	void
 	ScriptParam::set(ScriptParam &param){*this=param;}
 
+	void ScriptParam::set(){m_Type=PARM_TYPE_NONE; m_pScript=0;}
+	void ScriptParam::set(ETypes type) { m_Type = type; }
+	void ScriptParam::set(int i){m_Type=PARM_TYPE_INT;m_iData=i;}
+	void ScriptParam::set(bool b){m_Type=PARM_TYPE_BOOL;m_bData=b;}
+	void ScriptParam::set(double f){m_Type=PARM_TYPE_FLOAT;m_fData=f;}
+	void ScriptParam::set(std::string s){m_Type=PARM_TYPE_STRING;m_strData=s;}
+	void ScriptParam::set(std::string strFnName, Script& script){m_Type=PARM_TYPE_FUNCTION;m_strData=strFnName;m_pScript=&ScriptSystem::GetInstance().m_mScripts.find(script.GetScriptName())->second;m_iScriptID=script.GetID();}
+	void ScriptParam::set(const std::map<ScriptParam, ScriptParam>& t){m_Type=PARM_TYPE_TABLE; m_mData=t;}
+
 	bool
 	ScriptParam::operator!=(const ScriptParam& rvalue) const
 	{

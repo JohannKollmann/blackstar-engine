@@ -52,7 +52,8 @@ namespace Ice
 		{
 			auto item = parameters->GetNext();
 			if (item.Key == "Script Filenames") continue;
-			ScriptParam parm=item.Data->GetAsScriptParam();
+			ScriptParam parm;
+			item.Data->GetAsScriptParam(parm);
 			mScriptProperties[item.Key] = parm;
 		}
 	}
@@ -101,7 +102,9 @@ namespace Ice
 		auto i = mObjectMsgCallbacks.find(msg.typeID);
 		if (i == mObjectMsgCallbacks.end()) return;
 
-		ScriptParam parm=Utils::DataMapToTable(Script(), msg.params);
+		std::map<ScriptParam, ScriptParam> table;
+		Utils::DataMapToTable(Script(), msg.params, table);
+		ScriptParam parm(table);
 		for (unsigned int c = 0; c < i->second.size(); c++)
 		{
 			ScriptSystem::RunCallbackFunction(i->second[c], std::vector<ScriptParam>(1, parm));

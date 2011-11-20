@@ -54,8 +54,8 @@ namespace Ice
 		mCaelumSystem->setObserverLongitude(Ogre::Degree(0));
 
 		mCaelumSystem->getSun ()->setDiffuseMultiplier (Ogre::ColourValue (3.0f, 3.0f, 2.9f));
-		mCaelumSystem->getSun ()->setSpecularMultiplier (Ogre::ColourValue (1.8f, 1.8f, 1.8f));
-		mCaelumSystem->getSun ()->setAmbientMultiplier(Ogre::ColourValue(0.7f, 0.7f, 0.7f));
+		mCaelumSystem->getSun ()->setSpecularMultiplier (Ogre::ColourValue (2.0f, 2.0f, 2.0f));
+		mCaelumSystem->getSun ()->setAmbientMultiplier(Ogre::ColourValue(1.0f, 1.0f, 1.0f));
 
 		mCaelumSystem->setEnsureSingleShadowSource(true);
 		mCaelumSystem->setEnsureSingleLightSource(true);
@@ -65,7 +65,7 @@ namespace Ice
 		mCaelumSystem->getMoon()->setPhase(1.0f);
 		mCaelumSystem->getMoon()->setDiffuseMultiplier(Ogre::ColourValue (0.6f, 0.6f, 0.8f));
 		mCaelumSystem->getMoon()->setSpecularMultiplier(Ogre::ColourValue (0.5, 0.5, 0.5));
-		mCaelumSystem->getMoon ()->setAmbientMultiplier(Ogre::ColourValue(0.25f, 0.25f, 0.25f));
+		mCaelumSystem->getMoon ()->setAmbientMultiplier(Ogre::ColourValue(0.3f, 0.3f, 0.3f));
 
 		if (mCaelumSystem->getCloudSystem())
 		{

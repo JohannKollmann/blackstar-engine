@@ -51,8 +51,7 @@ namespace Ice
 
 		Origin *mEyeOrigin;
 
-		static const int RAYS_PER_SECOND = 200;
-		static const int NUM_RAYHITS_OPTIMALSIGHT = 2;
+		static const int RAYS_PER_SECOND;
 		static const float RAY_MAXDIST;
 		static const float WIDTH_COVERAGE_PERCENT;
 		static const float HEIGHT_COVERAGE_PERCENT;

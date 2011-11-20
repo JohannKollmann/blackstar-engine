@@ -125,8 +125,9 @@ namespace Ice
 	float AIManager::GetAmbientLightBrightness(const Ogre::Vector3 &position, const Ogre::Vector3 &normal)
 	{
 		Ogre::ColourValue ambientCol = Main::Instance().GetOgreSceneMgr()->getAmbientLight();
-		float brightness = (ambientCol.r + ambientCol.g + ambientCol.r) / 3.0f;
+		float brightness = std::max(std::max(ambientCol.r, ambientCol.g), ambientCol.b);
 		float ao = Utils::ComputeAO(position, normal, CollisionGroups::DYNAMICBODY|CollisionGroups::STATICBODY);
+		//IceNote("Ambient light brightness: " + Ogre::StringConverter::toString(brightness) + " AO: " + Ogre::StringConverter::toString(ao));
 		return brightness * ao;
 	}
 
