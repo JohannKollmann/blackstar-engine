@@ -194,7 +194,7 @@ void AmbientOcclusionGenerator::processVertexData(Ogre::VertexData *targetData, 
 			pos = baseNode->_getDerivedPosition() + baseNode->_getDerivedOrientation()*(pos*baseNode->_getDerivedScale());
 			normal = baseNode->_getDerivedOrientation()*normal;
 		}
-		char aoFactor = (char)(Ice::Utils::ComputeAO(pos, normal, rayCollisionGroups) * 255);
+		char aoFactor = (char)((1.0f - Ice::Utils::ComputeAO(pos, normal, rayCollisionGroups)) * 255);
 		aoBuffer[i*4+3] = aoFactor;
 		//rs->convertColourValue(Ogre::ColourValue(aoFactor, aoFactor, aoFactor, 1), &aoBuffer[i]);
 	}

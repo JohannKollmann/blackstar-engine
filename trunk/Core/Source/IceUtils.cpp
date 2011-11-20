@@ -6,6 +6,7 @@
 #include "IceDataMap.h"
 #include "IceMain.h"
 #include "OgrePhysX.h"
+#include "IceCollisionCallback.h"
 
 namespace Ice
 {
@@ -291,16 +292,14 @@ namespace Ice
 		return datamap;
 	}
 	
-	ScriptParam
-	Utils::DataMapToTable(const Script& caller, DataMap &datamap)
+	void Utils::DataMapToTable(const Script& caller, DataMap &datamap, std::map<ScriptParam, ScriptParam> &table)
 	{
-		std::map<ScriptParam, ScriptParam> mTable;
+		datamap.First();
 		while(datamap.HasNext())
 		{
 			DataMap::Item item=datamap.GetNext();
-			mTable[ScriptParam(item.Key)]=item.Data->GetAsScriptParam();
+			item.Data->GetAsScriptParam(table[ScriptParam(item.Key)]);
 		}
-		return ScriptParam(mTable);
 	}
 
 	Ogre::Quaternion Utils::ZDirToQuat(const Ogre::Vector3 &zDirNormalised, const Ogre::Vector3 &upVector)
@@ -322,6 +321,10 @@ namespace Ice
 		float fNumSamples = 0;
 		float sum = 0;
 
+		PxSceneQueryFilterData filterData;
+		filterData.data.word0 = rayCollisionGroups;
+		filterData.flags = PxSceneQueryFilterFlag::eDYNAMIC|PxSceneQueryFilterFlag::eSTATIC;
+
 		for(float h=Ogre::Math::PI/4/c; h<Ogre::Math::PI/2; h+=Ogre::Math::PI/2/c)
 		{
 			for(float v=0; v<2*Ogre::Math::PI; v+=Ogre::Math::PI/2/(c*Ogre::Math::Cos(h)))
@@ -338,7 +341,7 @@ namespace Ice
 					fNumSamples += 0.5f*weight;	//light is coming from below	
 					continue;
 				}
-				if (test >= 0 && !Ice::Main::Instance().GetPhysXScene()->raycastAny(position + (castVector * 0.001f), castVector, 20))
+				if (test >= 0 && !Ice::Main::Instance().GetPhysXScene()->raycastAny(position + (castVector * 0.001f), castVector, 20, filterData))
 					sum += 1*weight;
 				fNumSamples += 1*weight;
 			}
@@ -347,8 +350,7 @@ namespace Ice
 		float avg = sum/fNumSamples;
 		if (avg > 1) avg = 1;
 
-		float aoOffset = 1-avg;
-		return aoOffset;
+		return avg;
 	}
 
 

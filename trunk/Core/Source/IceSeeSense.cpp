@@ -8,6 +8,7 @@
 
 namespace Ice
 {
+	const int SeeSense::RAYS_PER_SECOND = 150;
 	const float SeeSense::RAY_MAXDIST = 50.0f;
 	const float SeeSense::WIDTH_COVERAGE_PERCENT = 0.8f;
 	const float SeeSense::HEIGHT_COVERAGE_PERCENT = 0.6f;
@@ -40,7 +41,8 @@ namespace Ice
 
 	float SeeSense::computeLighting(const Ogre::Vector3 &position, const Ogre::Vector3 &normal)
 	{
-		float totalLight = AIManager::Instance().GetAmbientLightBrightness(position, normal);
+		//double ambient light, produces more realistic behaviour with typical values
+		float totalLight = AIManager::Instance().GetAmbientLightBrightness(position, Ogre::Vector3::UNIT_Y)*2;
 
 		std::vector<Ogre::Light*> lights;
 		AIManager::Instance().GetLights(lights);

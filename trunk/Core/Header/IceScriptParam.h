@@ -57,6 +57,16 @@ public:
 		
 		void set(ScriptParam& param);
 
+		//setter methods, behave like constructors
+		void set();
+		void set(ETypes type);
+		void set(int i);
+		void set(bool b);
+		void set(double f);
+		void set(std::string s);
+		void set(std::string strFnName, Script& script);
+		void set(const std::map<ScriptParam, ScriptParam>& t);
+
 		bool operator<(const ScriptParam& rvalue) const;
 		bool operator==(const ScriptParam& rvalue) const;
 		bool operator!=(const ScriptParam& rvalue) const;

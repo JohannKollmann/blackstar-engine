@@ -20,12 +20,9 @@ namespace Ice
 
 	void ScriptMessageListener::ReceiveMessage(Msg &msg)
 	{
-		/*std::vector<ScriptParam> params;
-		while (msg.params.HasNext())
-		{
-			msg.params.GetNext().Data->GetAsScriptParam(params);
-		}*/
-		ScriptParam parm=Utils::DataMapToTable(Script(), msg.params);
+		std::map<ScriptParam, ScriptParam> table;
+		Utils::DataMapToTable(Script(), msg.params, table);
+		ScriptParam parm(table);
 		ScriptSystem::RunCallbackFunction(mScriptCallback, std::vector<ScriptParam>(1, parm));
 	}
 

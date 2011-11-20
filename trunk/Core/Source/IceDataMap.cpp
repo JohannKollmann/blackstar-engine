@@ -195,35 +195,46 @@ namespace Ice
 	}
 
 
-	ScriptParam GenericProperty::GetAsScriptParam()
+	void GenericProperty::GetAsScriptParam(ScriptParam &scriptParam)
 	{
 		int type = getType();
-		std::map<ScriptParam, ScriptParam> mTable;
+		std::map<ScriptParam, ScriptParam> table;
+		Ogre::Vector3 vec;
+		Ogre::Quaternion q;
 		switch (type)
 		{
 		case PropertyTypes::INT:
-			return ScriptParam(Get<int>());
+			scriptParam.set(Get<int>());
+			return;
 		case PropertyTypes::BOOL:
-			return ScriptParam(Get<bool>());
+			scriptParam.set(Get<bool>());
+			return;
 		case PropertyTypes::FLOAT:
-			return ScriptParam(Get<float>());
+			scriptParam.set(Get<float>());
+			return;
 		case PropertyTypes::STRING:
-			return ScriptParam(std::string(Get<Ogre::String>().c_str()));
+			scriptParam.set(std::string(Get<Ogre::String>().c_str()));
+			return;
 		case PropertyTypes::VECTOR3:
-			mTable[ScriptParam(std::string("x"))]=ScriptParam(Get<Ogre::Vector3>().x);
-			mTable[ScriptParam(std::string("y"))]=ScriptParam(Get<Ogre::Vector3>().y);
-			mTable[ScriptParam(std::string("z"))]=ScriptParam(Get<Ogre::Vector3>().z);
-			return ScriptParam(mTable);
+			vec = Get<Ogre::Vector3>();
+			table[ScriptParam(std::string("x"))]=ScriptParam(vec.x);
+			table[ScriptParam(std::string("y"))]=ScriptParam(vec.y);
+			table[ScriptParam(std::string("z"))]=ScriptParam(vec.z);
+			scriptParam.set(table);
+			return;
 		case PropertyTypes::QUATERNION:
-			mTable[ScriptParam(std::string("w"))]=ScriptParam(Get<Ogre::Quaternion>().w);
-			mTable[ScriptParam(std::string("x"))]=ScriptParam(Get<Ogre::Quaternion>().x);
-			mTable[ScriptParam(std::string("y"))]=ScriptParam(Get<Ogre::Quaternion>().y);
-			mTable[ScriptParam(std::string("z"))]=ScriptParam(Get<Ogre::Quaternion>().z);
-			return ScriptParam(mTable);
+			q = Get<Ogre::Quaternion>();
+			table[ScriptParam(std::string("w"))]=ScriptParam(q.w);
+			table[ScriptParam(std::string("x"))]=ScriptParam(q.x);
+			table[ScriptParam(std::string("y"))]=ScriptParam(q.y);
+			table[ScriptParam(std::string("z"))]=ScriptParam(q.z);
+			scriptParam.set(table);
+			return;
 		case PropertyTypes::ENUM:
-			return ScriptParam(static_cast<int>(Get<DataMap::Enum>().selection));
-			break;
+			scriptParam.set(static_cast<int>(Get<DataMap::Enum>().selection));
+			return;
 		}
+		IceWarning("Unknown data type!")
 	}
 
 	DataMap::DataMap()
@@ -413,6 +424,11 @@ namespace Ice
 		GenericProperty gp;
 		gp.Set(param);
 		AddItem(keyname, gp);
+	}
+
+	void DataMap::First()
+	{
+		mIterator = mItems.begin();
 	}
 
 	bool DataMap::HasNext()
