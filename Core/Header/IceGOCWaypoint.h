@@ -8,7 +8,7 @@
 namespace Ice
 {
 
-	class DllExport GOCWaypoint : public GOCEditorVisualised
+	class DllExport GOCWaypoint : public GOCEditorVisualised, public GOCStaticEditorInterface
 	{
 
 	public:
@@ -19,6 +19,9 @@ namespace Ice
 		GOComponent::TypeID& GetComponentID() const { static std::string name = "Waypoint"; return name; }
 
 		void UpdatePosition(const Ogre::Vector3 &position);
+
+		BEGIN_GOCEDITORINTERFACE(GOCWaypoint, "Waypoint")
+		END_GOCEDITORINTERFACE
 
 		Ogre::String GetEditorVisualMeshName() { return "Editor_Waypoint.mesh"; }
 

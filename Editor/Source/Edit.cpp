@@ -7,7 +7,6 @@
 #include "IceWeatherController.h"
 #include "IceMainLoop.h"
 #include "IceGOCEditorInterface.h"
-#include "IceGOCWaypoint.h"
 #include "IceGOCAnimatedCharacter.h"
 #include "OgrePhysX.h"
 #include "IceAIManager.h"
@@ -16,6 +15,8 @@
 #include "AmbientOcclusionGenerator.h"
 #include "IceGOCJoint.h"
 #include "VertexMultitextureWeightBrusher.h"
+
+#include "IceComponentFactory.h"
 
 #include "ResourceGroupReloader.h"
 
@@ -817,23 +818,6 @@ void Edit::OnSaveWorld(Ogre::String fileName)
 	Ice::SceneManager::Instance().SaveLevel(fileName);
 };
 
-Ice::GameObjectPtr Edit::InsertWaypoint(bool align, bool create_only)
-{
-	Ice::GameObjectPtr waypoint = Ice::SceneManager::Instance().CreateGameObject();
-	waypoint->AddComponent(Ice::GOComponentPtr(new Ice::GOCWaypoint()));
-	waypoint->ShowEditorVisuals(true);
-	waypoint->SetGlobalOrientation(Ogre::Quaternion(Ice::Main::Instance().GetCamera()->getDerivedOrientation().getYaw(), Ogre::Vector3(0,1,0)));
-	if (align) AlignObjectWithMesh(waypoint);
-	else waypoint->SetGlobalPosition(Ice::Main::Instance().GetCamera()->getDerivedPosition() + (Ice::Main::Instance().GetCamera()->getDerivedOrientation() * Ogre::Vector3(0,0,-5)));
-	if (!create_only)
-	{
-		SelectObject(waypoint);
-		wxEdit::Instance().GetWorldExplorer()->GetSceneTree()->NotifyObject(waypoint);
-	}
-	wxEdit::Instance().GetOgrePane()->SetFocus();
-	return waypoint;
-}
-
 Ice::GameObjectPtr Edit::CreateGameObject(std::vector<ComponentSectionPtr> componentParameters)
 {
 	Ice::GameObjectPtr object = Ice::SceneManager::Instance().CreateGameObject();
@@ -854,7 +838,7 @@ Ice::GameObjectPtr Edit::CreateGameObject(std::vector<ComponentSectionPtr> compo
 		} 
 		(*i)->mSectionData.AddOgreVec3("Scale", scale);
 
-		Ice::GOCEditorInterface *component = Ice::SceneManager::Instance().NewGOC((*i)->mSectionName);
+		Ice::GOCEditorInterface *component = Ice::ComponentFactory::Instance().CreateGOC((*i)->mSectionName);
 		component->SetParameters(&(*i)->mSectionData);
 		object->AddComponent(Ice::GOComponentPtr(component->GetGOComponent()));
 	}
@@ -879,11 +863,7 @@ Ice::GameObjectPtr Edit::InsertObject(Ice::GameObjectPtr parent, bool align, boo
 	else
 	{
 		Ogre::String sResource = wxEdit::Instance().GetWorldExplorer()->GetResourceTree()->GetSelectedResource().c_str();
-		if (sResource.find("Waypoint.static") != Ogre::String::npos)
-		{
-			return InsertWaypoint(align, create_only);
-		}
-		else if (sResource.find(".") != Ogre::String::npos)
+		if (sResource.find(".") != Ogre::String::npos)
 		{
 			LoadSave::LoadSystem *ls=LoadSave::LoadSave::Instance().LoadFile(sResource);
 			if (sResource.find(".ot") != Ogre::String::npos)

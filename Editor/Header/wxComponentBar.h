@@ -19,10 +19,11 @@ protected:
 
 	struct ComponentParameters
 	{
-		Ogre::String mFamily;
-		Ogre::String mName;
-		Ice::DataMap *mParameters;
-		wxCheckBox *mCheckBox;
+		Ogre::String row;
+		Ogre::String exclusiveFamily;
+		Ogre::String gocType;
+		Ice::DataMap *parameters;
+		wxCheckBox *checkBox;
 	};
 
 	std::map<int, ComponentParameters> mCallbackMap;

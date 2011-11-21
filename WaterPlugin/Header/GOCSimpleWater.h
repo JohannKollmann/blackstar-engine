@@ -6,6 +6,7 @@
 #include "IceGameObject.h"
 #include "IceMain.h"
 #include "IceSceneManager.h"
+#include "IceComponentFactory.h"
 #include "Rtt.h"
 #include "IceGOCOgreNode.h"
 #include "Caelum.h"
@@ -77,7 +78,7 @@ public:
 	static void InstallPlugin()
 	{
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCSimpleWater::Register);
-		Ice::SceneManager::Instance().RegisterGOCPrototype("E", std::make_shared<GOCSimpleWater>());
+		Ice::ComponentFactory::Instance().RegisterGOCPrototype(std::make_shared<GOCSimpleWater>(), "E");
 		//Ogre::Root::getSingleton().createRenderQueueInvocationSequence("RefractionSurfacesOnly")->add(Ogre::RENDER_QUEUE_7, "");
 	}
 

@@ -112,7 +112,6 @@ public:
 	void OnSaveWorld(Ogre::String fileName);
 
 	Ice::GameObjectPtr InsertObject(Ice::GameObjectPtr parent = Ice::GameObjectPtr(), bool align = false, bool create_only = false);
-	Ice::GameObjectPtr InsertWaypoint(bool align = false, bool create_only = false);
 
 	void OnSelectObject(float MouseX, float MouseY);
 	void OnBrush();

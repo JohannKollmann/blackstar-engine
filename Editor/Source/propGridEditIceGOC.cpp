@@ -6,6 +6,7 @@
 #include "Edit.h"
 #include "wx/msw/winundef.h"
 #include "IceObjectMessageIDs.h"
+#include "IceComponentFactory.h"
 
  
 /*void  
@@ -225,7 +226,7 @@ void wxEditIceGameObject::OnApply()
 		//Component data
 		(*i)->mSectionData.AddOgreVec3("Scale", object->GetGlobalScale());	//HACK - Some components require scale value for initialisation (f.o. rigid bodies)
 
-		Ice::GOCEditorInterface *proto = Ice::SceneManager::Instance().GetGOCPrototype((*i)->mSectionName);
+		Ice::GOCEditorInterface *proto = Ice::ComponentFactory::Instance().GetGOCPrototype((*i)->mSectionName);
 		bool found = false;
 		for (auto ie = existingGOCs.begin(); ie != existingGOCs.end(); ie++)
 		{
@@ -239,7 +240,7 @@ void wxEditIceGameObject::OnApply()
 		}
 		if (!found)
 		{
-			Ice::GOCEditorInterface *editor_interface = Ice::SceneManager::Instance().NewGOC((*i)->mSectionName);
+			Ice::GOCEditorInterface *editor_interface = Ice::ComponentFactory::Instance().CreateGOC((*i)->mSectionName);
 			editor_interface->SetParameters(&(*i)->mSectionData);
 			object->RemoveComponent(editor_interface->GetGOComponent()->GetFamilyID());
 			object->AddComponent(Ice::GOComponentPtr(editor_interface->GetGOComponent()));

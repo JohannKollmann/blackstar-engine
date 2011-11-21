@@ -25,6 +25,8 @@ BEGIN_EVENT_TABLE(wxFileTree, wxVirtualDirTreeCtrl)
 
 	EVT_MENU(wxID_ANY, wxFileTree::OnMenuEvent)
 
+	EVT_KEY_DOWN(wxFileTree::OnKeyDown)
+
 END_EVENT_TABLE()
 
 
@@ -74,6 +76,12 @@ void wxFileTree::OnBeginDrag(wxTreeEvent& event)
 	wxDragResult result = dropSource.DoDragDrop( TRUE );
 	mDraggingFile = false;
 	ClearHighlightedItem();
+}
+
+void wxFileTree::OnKeyDown(wxKeyEvent& key)
+{
+	if (key.GetKeyCode() == WXK_F5)
+		SetRootPath(mRootPath);
 }
 
 void wxFileTree::OnSetRootPath(const wxString &root)
@@ -256,7 +264,7 @@ void wxFileTree::OnItemMenu(wxTreeEvent &event)
 		wxPoint screenpt = ClientToScreen(clientpt);
 
 		ShowMenu(t, clientpt);
-    event.Skip();
+	event.Skip();
 	}
 };
 
@@ -332,8 +340,8 @@ wxDragResult wxFileTree::FileDropTarget::OnDragOver(wxCoord x, wxCoord y, wxDrag
 	//if (mDraggingFile) return def;
 	wxPoint pt = wxPoint(x, y);
 	TV_HITTESTINFO tvhti;
-    tvhti.pt.x = pt.x;
-    tvhti.pt.y = pt.y;
+	tvhti.pt.x = pt.x;
+	tvhti.pt.y = pt.y;
 	wxTreeItemId item;
 	if (TreeView_HitTest((HWND)mFileTree->GetHWND(), &tvhti) )
 	{
