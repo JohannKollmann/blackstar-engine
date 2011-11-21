@@ -13,6 +13,7 @@
 #include "IceWeatherController.h"
 #include "IceCollisionCallback.h"
 #include "IceMessageSystem.h"
+#include "IceNavigationMesh.h"
 
 #include "OgrePlugin.h"
 #include "OgreDynLibManager.h"
@@ -27,7 +28,12 @@
 #include "IceDepthSchemeHandler.h"
 #include "IceMain.h"
 
+#include "IceCoreLuaFunctions.h"
+
 #include "IceMaterialTable.h"
+
+#include "standard_atoms.h"
+#include "IceSaveableVectorHandler.h"
 
 #include "PxVisualDebuggerExt.h"
 #include "extensions/PxExtensionsAPI.h"
@@ -357,6 +363,28 @@ namespace Ice
 
 		SceneManager::Instance().Init();
 
+		//Load save initialisation
+		RegisterStandardAtoms();
+		LoadSave::LoadSave::Instance().SetLogFunction(LogMessage);
+
+		LoadSave::LoadSave::Instance().RegisterObject(&DataMap::Register);
+		LoadSave::LoadSave::Instance().RegisterObject(&DataMap::Item::Register);
+		LoadSave::LoadSave::Instance().RegisterObject(&GenericProperty::Register);
+		LoadSave::LoadSave::Instance().RegisterObject(&GameObject::Register);
+		LoadSave::LoadSave::Instance().RegisterObject(&ObjectReference::Register);
+		LoadSave::LoadSave::Instance().RegisterObject(&LoadSave::SaveableDummy::Register);
+
+		LoadSave::LoadSave::Instance().RegisterObject(&NavigationMesh::Register);
+
+		LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new SaveableVectorHandler<GameObject>("vector<GameObjectPtr>"));
+		LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new SaveableVectorHandler<ObjectReference>("vector<ObjectReferencePtr>"));
+		LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new SaveableVectorHandler<GOComponent>("vector<GOComponentPtr>"));
+		LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new SaveableVectorHandler<NavigationMesh::PathNodeTree>("vector<PathNodeTreePtr>"));
+		LoadSave::LoadSave::Instance().RegisterAtom((LoadSave::AtomHandler*)new SaveableVectorHandler<DataMap::Item>("vector<DataMapItemPtr>"));
+
+		//Init script functions
+		InitCoreLuaFunctions();
+
 		//Load Plugins
 		LoadPlugins();
 		//initialize scripts
@@ -390,6 +418,11 @@ namespace Ice
 
 
 	};
+
+	void Main::LogMessage(std::string strError)
+	{
+		Log::Instance().LogMessage(strError);
+	}
 
 	void Main::InitCompositor()
 	{

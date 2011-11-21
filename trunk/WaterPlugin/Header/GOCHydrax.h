@@ -12,6 +12,7 @@
 #include "IceGameObject.h"
 #include "IceMain.h"
 #include "IceSceneManager.h"
+#include "IceComponentFactory.h"
 #include "IceDataMap.h"
 #include "IceMessageListener.h"
 #include "IceWeatherController.h"
@@ -115,7 +116,7 @@ public:
 	{
 		Ogre::ResourceGroupManager::getSingleton().addResourceLocation("Data/Hydrax/", "FileSystem", HYDRAX_RESOURCE_GROUP);
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCHydrax::Register);
-		Ice::SceneManager::Instance().RegisterGOCPrototype("E", std::make_shared<GOCHydrax>());
+		Ice::ComponentFactory::Instance().RegisterGOCPrototype(std::make_shared<GOCHydrax>(), "E");
 	}
 
 	Ice::AccessPermissionID GetAccessPermissionID() { return Ice::AccessPermissions::ACCESS_VIEW; }

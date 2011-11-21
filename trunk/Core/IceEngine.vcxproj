@@ -114,6 +114,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\IceComponentFactory.cpp" />
     <ClCompile Include="Source\IceProcessOwner.cpp" />
     <ClCompile Include="Source\IceGOCJoint.cpp" />
     <ClCompile Include="Source\IceLog.cpp" />
@@ -207,6 +208,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header\IceAIProcess.h" />
+    <ClInclude Include="Header\IceComponentFactory.h" />
+    <ClInclude Include="Header\IceCoreLuaFunctions.h" />
     <ClInclude Include="Header\IceProcessOwner.h" />
     <ClInclude Include="Header\IceDepthSchemeHandler.h" />
     <ClInclude Include="Header\IceGOCJoint.h" />

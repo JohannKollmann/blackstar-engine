@@ -14,15 +14,14 @@ enum
 };
 
 wxObjectFolderTree::wxObjectFolderTree(wxWindow* parent, wxWindowID id, const wxPoint& pos,
-                  const wxSize& size, long style,
-                  const wxValidator& validator,
-                  const wxString& name)
+				  const wxSize& size, long style,
+				  const wxValidator& validator,
+				  const wxString& name)
 		: wxFileTree(parent, id, pos, size, style, validator, name)
 {
 	wxArrayString extensions;
 	extensions.Add("*.ot");
 	extensions.Add("*.ocs");
-	extensions.Add("*.static");
 	SetExtensions(extensions);
 	SetRootPath("Data\\Editor\\Objects");
 	//wxEdit::Instance().GetExplorerToolbar()->RegisterTool("NewFolder", "ResourceMgr", "Data/Editor/Intern/1988.ico", wxObjectFolderTree::OnToolbarEvent);

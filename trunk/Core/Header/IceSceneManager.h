@@ -43,9 +43,7 @@ namespace Ice
 
 		bool mIndoorRendering;
 
-		std::map<int, GameObjectPtr> mGameObjects;
-
-		std::map<Ogre::String, GOCEditorInterfacePtr> mGOCPrototypes;
+		std::unordered_map<int, GameObjectPtr> mGameObjects;
 
 		std::stack<CameraController*> mCameraStack;
 
@@ -88,8 +86,6 @@ namespace Ice
 		///Tells the system that the current camera controller has done its job.
 		void TerminateCurrentCameraController();
 
-		std::map<Ogre::String, std::map<Ogre::String, DataMap> > mGOCDefaultParameters; //For Editors
-
 		/*
 		Liefert eine neue, individuelle ID zurück.
 		*/
@@ -99,7 +95,7 @@ namespace Ice
 		GameObjectPtr GetObjectByInternID(int id);
 		void ClearGameObjects();
 
-		std::map<int, GameObjectPtr>& GetGameObjects();
+		std::unordered_map<int, GameObjectPtr>& GetGameObjects();
 
 		void RegisterGameObject(GameObjectPtr object);
 
@@ -131,16 +127,8 @@ namespace Ice
 		void SetWeatherParameters(DataMap *parameters);
 		void GetWeatherParameters(DataMap *parameters);
 
-		void RegisterComponentDefaultParams(Ogre::String editFamily, Ogre::String type, DataMap &params);
-
-		void RegisterGOCPrototype(GOCEditorInterfacePtr prototype);
-		void RegisterGOCPrototype(Ogre::String editFamily, GOCEditorInterfacePtr prototype);
-
 		void ShowEditorMeshes(bool show);
 		bool GetShowEditorVisuals() { return mShowEditorVisuals; }
-
-		GOCEditorInterface* GetGOCPrototype(Ogre::String type);
-		GOCEditorInterface* NewGOC(Ogre::String type);
 
 		//Game clock
 		void EnableClock(bool enable);
@@ -159,9 +147,7 @@ namespace Ice
 		//Singleton
 		static SceneManager& Instance();
 
-
 		//Script
-		static void LogMessage(std::string strError);
 		static std::vector<ScriptParam> Lua_LogMessage(Script& caller, std::vector<ScriptParam> vParams);
 		static std::vector<ScriptParam> Lua_LoadLevel(Script& caller, std::vector<ScriptParam> vParams);
 		static std::vector<ScriptParam> Lua_SaveLevel(Script& caller, std::vector<ScriptParam> vParams);

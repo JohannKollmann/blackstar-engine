@@ -37,7 +37,7 @@ private:
 	void ClearHighlightedItem();
 
 protected:
-    DECLARE_EVENT_TABLE()
+	DECLARE_EVENT_TABLE()
 
 	virtual void OnItemMenu(wxTreeEvent &event);
 	virtual void OnSelChanged(wxTreeEvent &event);
@@ -68,6 +68,8 @@ protected:
 
 	void OnLeftDown(wxMouseEvent& ev);
 
+	void OnKeyDown(wxKeyEvent& key);
+
 	void OnSetRootPath(const wxString &root);
 
 	VdtcTreeItemBase *mCurrentItem;
@@ -80,9 +82,9 @@ protected:
 
 public:
 	wxFileTree(wxWindow* parent, wxWindowID id, const wxPoint& pos = wxDefaultPosition,
-                    const wxSize& size = wxDefaultSize, long style = wxTR_HAS_BUTTONS | wxTR_FULL_ROW_HIGHLIGHT | wxTR_EDIT_LABELS,
-                    const wxValidator& validator = wxDefaultValidator,
-                    const wxString& name = "wxVirtualDirTreeCtrl")
+					const wxSize& size = wxDefaultSize, long style = wxTR_HAS_BUTTONS | wxTR_FULL_ROW_HIGHLIGHT | wxTR_EDIT_LABELS,
+					const wxValidator& validator = wxDefaultValidator,
+					const wxString& name = "wxVirtualDirTreeCtrl")
 		: wxVirtualDirTreeCtrl(parent, id, pos, size, style, validator, name)
 	{
 		mCurrentItem = nullptr;

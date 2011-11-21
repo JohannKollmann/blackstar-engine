@@ -140,6 +140,8 @@ namespace Ice
 		void UnloadPlugin(const Ogre::String& pluginName);
 		void ClearPlugins();
 
+		static void LogMessage(std::string strError);
+
 		//Singleton
 		static Main& Instance();
 	};

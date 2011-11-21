@@ -7,6 +7,7 @@
 #include "IceProcessNodeManager.h"
 #include "IceMessageSystem.h"
 #include "IceObjectMessageIDs.h"
+#include "IceComponentFactory.h"
 
 namespace Ice
 {
@@ -521,7 +522,7 @@ namespace Ice
 
 	std::vector<ScriptParam> GameObject::AddComponent(Script& caller, std::vector<ScriptParam> &vParams)
 	{
-		GOCEditorInterface *goc = SceneManager::Instance().NewGOC(vParams[0].getString());
+		GOCEditorInterface *goc = ComponentFactory::Instance().CreateGOC(vParams[0].getString());
 		DataMap data;
 		data.ParseString(vParams[1].getString());
 		goc->SetParameters(&data);
