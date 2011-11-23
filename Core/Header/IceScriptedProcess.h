@@ -4,15 +4,15 @@
 #include "IceIncludes.h"
 #include "IceGOCAI.h"
 #include "IceScriptSystem.h"
+#include "IceMessageSystem.h"
 
 namespace Ice
 {
 
-	class ScriptedProcess : public ProcessNode, public IndependantMessageListener
+	class ScriptedProcess : public PersistentProcessNode, public SynchronizedMessageListener
 	{
 	protected:
 		float mLastUpdateCall;
-		std::weak_ptr<GameObject> mGameObject;
 
 		std::vector<ScriptParam> mScriptParams;
 		ScriptParam mEnterCallback;
@@ -26,7 +26,7 @@ namespace Ice
 		virtual void OnReceiveMessage(Msg &msg);
 
 	public:
-		ScriptedProcess(std::weak_ptr<GameObject> &gameObject, std::vector<ScriptParam> params);
+		ScriptedProcess(std::vector<ScriptParam> params);
 		virtual ~ScriptedProcess();
 
 		void OnSetActive(bool active);
@@ -36,6 +36,8 @@ namespace Ice
 		static std::vector<ScriptParam> Lua_SetEnterCallback(Script& caller, std::vector<ScriptParam> vParams);
 		static std::vector<ScriptParam> Lua_SetUpdateCallback(Script& caller, std::vector<ScriptParam> vParams);
 		static std::vector<ScriptParam> Lua_SetLeaveCallback(Script& caller, std::vector<ScriptParam> vParams);
+
+		static std::vector<ScriptParam> Lua_ScriptedProcess_Create(Script& caller, std::vector<ScriptParam> vParams);
 	};
 
 	class DayCycleProcess : public ScriptedProcess
@@ -49,10 +51,12 @@ namespace Ice
 
 
 	public:
-		DayCycleProcess(std::weak_ptr<GameObject> &object, std::vector<ScriptParam> params, int endtimeH, int endtimeM, bool time_abs);
+		DayCycleProcess(std::vector<ScriptParam> params, int startTimeH, int startTimeM, int endtimeH, int endtimeM);
 		~DayCycleProcess();
 
 		void OnUpdate(float time);
+
+		static std::vector<ScriptParam> Lua_DayCycleProcess_Create(Script& caller, std::vector<ScriptParam> vParams);
 	};
 
 }

@@ -21,6 +21,29 @@ namespace Ice
 		return i->second;
 	}
 
+	std::shared_ptr<DayCycleProcess> ProcessNodeManager::CreateDayCycleProcess(std::vector<ScriptParam> params, int startTimeH, int startTimeM, int endtimeH, int endtimeM)
+	{
+		std::shared_ptr<DayCycleProcess> pProcess = std::make_shared<DayCycleProcess>(params, startTimeH, startTimeM, endtimeH, endtimeM);
+		pProcess->Init(mIDCounter);
+		mProcessNodes.insert(std::make_pair<int, std::shared_ptr<ProcessNode>>(mIDCounter++, std::static_pointer_cast<ProcessNode, DayCycleProcess>(pProcess)));
+		return pProcess;
+	}
+	std::shared_ptr<ScriptedProcess> ProcessNodeManager::CreateScriptedProcess(std::vector<ScriptParam> params)
+	{
+		std::shared_ptr<ScriptedProcess> pProcess = std::make_shared<ScriptedProcess>(params);
+		pProcess->Init(mIDCounter);
+		mProcessNodes.insert(std::make_pair<int, std::shared_ptr<ProcessNode>>(mIDCounter++, std::static_pointer_cast<ProcessNode, ScriptedProcess>(pProcess)));
+		return pProcess;
+	}
+
+	std::shared_ptr<LoopedProcessNodeQueue> ProcessNodeManager::CreateLoopedProcessNodeQueue()
+	{
+		std::shared_ptr<LoopedProcessNodeQueue> pNode = std::make_shared<LoopedProcessNodeQueue>();
+		pNode->Init(mIDCounter);
+		mProcessNodes.insert(std::make_pair<int, std::shared_ptr<ProcessNode>>(mIDCounter++, std::static_pointer_cast<ProcessNode, LoopedProcessNodeQueue>(pNode)));
+		return pNode;
+	}
+
 	std::shared_ptr<ProcessNodeQueue> ProcessNodeManager::CreateProcessNodeQueue()
 	{
 		std::shared_ptr<ProcessNodeQueue> pNode = std::make_shared<ProcessNodeQueue>();
