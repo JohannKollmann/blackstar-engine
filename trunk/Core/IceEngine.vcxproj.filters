@@ -297,9 +297,6 @@
     <ClCompile Include="Source\IceProcessOwner.cpp">
       <Filter>ProcessNodeSystem</Filter>
     </ClCompile>
-    <ClCompile Include="Source\IceScriptedProcess.cpp">
-      <Filter>AI</Filter>
-    </ClCompile>
     <ClCompile Include="Source\IceMaterialTable.cpp">
       <Filter>Physics</Filter>
     </ClCompile>
@@ -311,6 +308,9 @@
     </ClCompile>
     <ClCompile Include="Source\IceComponentFactory.cpp">
       <Filter>System</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\IceScriptedProcess.cpp">
+      <Filter>ProcessNodeSystem</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -662,9 +662,6 @@
     <ClInclude Include="Header\IceProcessOwner.h">
       <Filter>ProcessNodeSystem</Filter>
     </ClInclude>
-    <ClInclude Include="Header\IceScriptedProcess.h">
-      <Filter>AI</Filter>
-    </ClInclude>
     <ClInclude Include="Header\IceAIProcess.h">
       <Filter>AI</Filter>
     </ClInclude>
@@ -685,6 +682,9 @@
     </ClInclude>
     <ClInclude Include="Header\IceCoreLuaFunctions.h">
       <Filter>ScriptSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceScriptedProcess.h">
+      <Filter>ProcessNodeSystem</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

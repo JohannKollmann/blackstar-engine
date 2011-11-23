@@ -104,10 +104,13 @@ namespace Ice
 		ScriptSystem::GetInstance().ShareCFunction("ProcessQueue_Create", &ProcessNodeQueue::Lua_ProcessQueue_Create);
 		ScriptSystem::GetInstance().ShareCFunction("ProcessQueue_EnqueueItem", &ProcessNodeQueue::Lua_ProcessQueue_Enqueue);
 		ScriptSystem::GetInstance().ShareCFunction("ProcessQueue_PushItem", &ProcessNodeQueue::Lua_ProcessQueue_PushFront);
+		ScriptSystem::GetInstance().ShareCFunction("LoopedProcessQueue_Create", &LoopedProcessNodeQueue::Lua_LoopedProcessQueue_Create);
 
 		ScriptSystem::GetInstance().ShareCFunction("Process_SetEnterCallback", &ScriptedProcess::Lua_SetEnterCallback);
 		ScriptSystem::GetInstance().ShareCFunction("Process_SetUpdateCallback", &ScriptedProcess::Lua_SetUpdateCallback);
 		ScriptSystem::GetInstance().ShareCFunction("Process_SetLeaveCallback", &ScriptedProcess::Lua_SetLeaveCallback);
+		ScriptSystem::GetInstance().ShareCFunction("ScriptedProcess_Create", &ScriptedProcess::Lua_ScriptedProcess_Create);
+		ScriptSystem::GetInstance().ShareCFunction("DayCycleProcess_Create", &DayCycleProcess::Lua_DayCycleProcess_Create);
 
 		ScriptSystem::GetInstance().ShareCFunction("TimerProcess_Create", &ProcessNodeManager::Lua_ProcessTimer_Create);
 

@@ -8,7 +8,6 @@
 
 namespace Ice
 {
-
 	class DllExport ProcessNode
 	{
 		friend class ProcessNodeManager;
@@ -26,6 +25,8 @@ namespace Ice
 	public:
 		ProcessNode() : mProcessID(0), mIsActive(true), mIsPaused(false) {}
 		virtual ~ProcessNode();
+
+		virtual bool IsPersistent() { return false; }
 
 		/**
 		Notifies the process that another process terminated.
@@ -104,6 +105,16 @@ namespace Ice
 	 protected:
 
 		 virtual void OnSetActive(bool active)  {}
+	};
+
+	class DllExport PersistentProcessNode : public ProcessNode
+	{
+	public:
+		PersistentProcessNode();
+		virtual ~PersistentProcessNode();
+		virtual void TerminateProcess();
+
+		virtual bool IsPersistent() { return true; }
 	};
 
 }

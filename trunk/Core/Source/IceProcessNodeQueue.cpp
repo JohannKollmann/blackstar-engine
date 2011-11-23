@@ -76,7 +76,7 @@ namespace Ice
 				if (curr.get()) ProcessNodeManager::Instance().GetProcessNode(*i)->_notifyFinish(GetProcessID());
 			}
 		}
-		else if (!mQueue.empty())
+		else if (!mQueue.empty())		//all processes have to wait for this queue
 		{
 			ITERATE(i, mQueue)
 			{
@@ -86,10 +86,36 @@ namespace Ice
 		}
 	}
 
+	void LoopedProcessNodeQueue::_notifyFinish(int pID)
+	{
+		ProcessNodeQueue::_notifyFinish(pID);
+		auto node = ProcessNodeManager::Instance().GetProcessNode(pID);
+		if (node.get()) Enqueue(node);
+	}
+	void LoopedProcessNodeQueue::PushFront(std::shared_ptr<ProcessNode> processNode)
+	{
+		if (processNode->IsPersistent())
+			ProcessNodeQueue::PushFront(processNode);
+		else IceWarning("Tried to add non-persistent process to a looped process node queue!")
+	}
+	void LoopedProcessNodeQueue::Enqueue(std::shared_ptr<ProcessNode> processNode)
+	{
+		if (processNode->IsPersistent())
+			ProcessNodeQueue::Enqueue(processNode);
+		else IceWarning("Tried to add non-persistent process to a looped process node queue!")
+	}
+
 	std::vector<ScriptParam> ProcessNodeQueue::Lua_ProcessQueue_Create(Script& caller, std::vector<ScriptParam> vParams)
 	{
 		std::vector<ScriptParam> out;
 		std::shared_ptr<ProcessNodeQueue> queue = ProcessNodeManager::Instance().CreateProcessNodeQueue();
+		out.push_back(queue->GetProcessID());
+		return out;
+	}
+	std::vector<ScriptParam> LoopedProcessNodeQueue::Lua_LoopedProcessQueue_Create(Script& caller, std::vector<ScriptParam> vParams)
+	{
+		std::vector<ScriptParam> out;
+		std::shared_ptr<LoopedProcessNodeQueue> queue = ProcessNodeManager::Instance().CreateLoopedProcessNodeQueue();
 		out.push_back(queue->GetProcessID());
 		return out;
 	}

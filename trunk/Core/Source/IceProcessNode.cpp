@@ -136,4 +136,16 @@ namespace Ice
 		return out;
 	}
 
+
+	PersistentProcessNode::PersistentProcessNode()
+	{
+	}
+	PersistentProcessNode::~PersistentProcessNode()
+	{
+	}
+	void PersistentProcessNode::TerminateProcess()
+	{
+		Suspend();
+	}
+
 }

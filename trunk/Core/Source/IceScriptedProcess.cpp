@@ -7,12 +7,10 @@
 namespace Ice
 {
 
-	ScriptedProcess::ScriptedProcess(std::weak_ptr<GameObject> &gameObject, std::vector<ScriptParam> params)
+	ScriptedProcess::ScriptedProcess(std::vector<ScriptParam> params)
 	{
 		mLastUpdateCall = 0.0f;
-		mGameObject = gameObject;
 
-		mScriptParams.push_back(ScriptParam((int)mGameObject.lock()->GetID()));
 		for (std::vector<ScriptParam>::iterator i = params.begin(); i != params.end(); i++)
 			mScriptParams.push_back((*i));
 	}
@@ -98,25 +96,14 @@ namespace Ice
 	}
 
 
-	DayCycleProcess::DayCycleProcess(std::weak_ptr<GameObject> &object, std::vector<ScriptParam> params, int endtimeH, int endtimeM, bool time_abs)
-	: ScriptedProcess(object, params)
+	DayCycleProcess::DayCycleProcess(std::vector<ScriptParam> params, int startTimeH, int startTimeM, int endtimeH, int endtimeM)
+	: ScriptedProcess(params)
 	{
 		mLastUpdateCall = 0.0f;
 		mEndTimeH = endtimeH;
 		mEndTimeM = endtimeM;
-		mStartTimeH = SceneManager::Instance().GetHour();
-		mStartTimeM = SceneManager::Instance().GetMinutes();
-		if (!time_abs)
-		{
-			mEndTimeM += mStartTimeH;
-			if (mEndTimeM > 60)
-			{
-				mEndTimeM -= 60;
-				mStartTimeH++;
-				if (mEndTimeH > 24) mEndTimeH -= 24;
-			}
-			mEndTimeH += mStartTimeH; if (mEndTimeH > 24) mEndTimeH -= 24;
-		}
+		mStartTimeH = startTimeH;
+		mStartTimeM = startTimeM;
 	}
 
 	DayCycleProcess::~DayCycleProcess()
@@ -134,7 +121,32 @@ namespace Ice
 		}
 
 		ScriptedProcess::OnUpdate(time);
+	}
 
+	std::vector<ScriptParam> ScriptedProcess::Lua_ScriptedProcess_Create(Script& caller, std::vector<ScriptParam> vParams)
+	{
+		std::shared_ptr<ScriptedProcess> process = ProcessNodeManager::Instance().CreateScriptedProcess(vParams);
+		SCRIPT_RETURNVALUE(process->GetProcessID())
+	}
+
+	std::vector<ScriptParam> DayCycleProcess::Lua_DayCycleProcess_Create(Script& caller, std::vector<ScriptParam> vParams)
+	{
+		std::string err = Utils::TestParameters(vParams, "int int int int", true);
+		if (err == "")
+		{
+			int startTimeH = vParams[0].getInt();
+			int startTimeM = vParams[0].getInt();
+			int endTimeH = vParams[0].getInt();
+			int endTimeM = vParams[0].getInt();
+			std::vector<ScriptParam> userParams;
+			for (int i = 4; i < vParams.size(); i++)
+				userParams.push_back(vParams[i]);
+			std::shared_ptr<DayCycleProcess> process = ProcessNodeManager::Instance().CreateDayCycleProcess(userParams, startTimeH, startTimeM, endTimeH, endTimeM);
+			SCRIPT_RETURNVALUE(process->GetProcessID())
+		}
+		else SCRIPT_RETURNERROR(err)
+		std::vector<ScriptParam> out;
+		return out;
 	}
 
 }

@@ -9,7 +9,7 @@
 namespace Ice
 {
 
-	class DllExport PlayAnimationProcess : public ProcessNode, public ViewMessageListener
+	class DllExport PlayAnimationProcess : public PersistentProcessNode, public ViewMessageListener
 	{
 
 	private:
