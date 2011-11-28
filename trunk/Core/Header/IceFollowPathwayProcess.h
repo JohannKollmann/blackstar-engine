@@ -9,7 +9,7 @@
 namespace Ice
 {
 
-	class FollowPathway : public AIProcess
+	class FollowPathwayProcess : public AIProcess
 	{
 	private:
 		std::vector<AStarNode3D*> mPath;
@@ -23,7 +23,7 @@ namespace Ice
 		bool mAvoidingObstacle;
 		Ogre::Vector3 mAvoidObstacleVector;
 
-		Ogre::String mTargetWP;
+		Ogre::Vector3 mTargetPosition;
 		float mRadius;
 
 		PxRigidDynamic* ObstacleCheck(Ogre::Vector3 motion);
@@ -33,12 +33,12 @@ namespace Ice
 		void optimizePath();
 
 	public:
-		FollowPathway(GOCAI *ai, Ogre::String target, float radius = 0.5f);
-		~FollowPathway();
+		FollowPathwayProcess(std::shared_ptr<GOCAI> ai, const Ogre::Vector3 &target, float radius = 0.5f);
+		~FollowPathwayProcess();
 
 	protected:
 		void OnSetActive(bool active);
-		void OnReceiveMessage(Msg &msg);
+		void ReceiveMessage(Msg &msg);
 		void Update(float time);
 	};
 

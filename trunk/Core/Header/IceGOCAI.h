@@ -35,10 +35,10 @@ namespace Ice
 
 		//Scripting
 		std::vector<ScriptParam> Npc_GetObjectVisibility(Script& caller, std::vector<ScriptParam> &vParams);	//eye sense
-		std::vector<ScriptParam> Npc_GotoWP(Script& caller, std::vector<ScriptParam> &vParams);
+		std::vector<ScriptParam> Npc_CreateFollowPathwayProcess(Script& caller, std::vector<ScriptParam> &vParams);
 		std::vector<ScriptParam> Npc_OpenDialog(Script& caller, std::vector<ScriptParam> &vParams);
 		DEFINE_TYPEDGOCLUAMETHOD(GOCAI, Npc_GetObjectVisibility, "int")
-		DEFINE_TYPEDGOCLUAMETHOD(GOCAI, Npc_GotoWP, "string")
+		DEFINE_TYPEDGOCLUAMETHOD(GOCAI, Npc_CreateFollowPathwayProcess, "int")
 		DEFINE_GOCLUAMETHOD(GOCAI, Npc_OpenDialog)
 
 		void SetOwner(std::weak_ptr<GameObject> go);

@@ -30,6 +30,7 @@ namespace Ice
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCPlayerInput::Register);
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCCameraController::Register);
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCSimpleCameraController::Register);
+		LoadSave::LoadSave::Instance().RegisterObject(&GOCScriptedProperties::Register);
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCScript::Register);
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCScriptMessageCallback::Register);
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCAI::Register);

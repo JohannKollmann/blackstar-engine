@@ -28,6 +28,7 @@ namespace Ice
 
 		std::shared_ptr<DayCycleProcess> CreateDayCycleProcess(std::vector<ScriptParam> params, int startTimeH, int startTimeM, int endtimeH, int endtimeM);
 		std::shared_ptr<ScriptedProcess> CreateScriptedProcess(std::vector<ScriptParam> params);
+		std::shared_ptr<FollowPathwayProcess> CreateFollowPathwayProcess(std::shared_ptr<GOCAI> ai, const Ogre::Vector3 &targetPosition, float radius = 0.5f);
 		std::shared_ptr<PlayAnimationProcess> CreatePlayAnimationProcess(Ogre::AnimationState *state);
 		std::shared_ptr<TimerProcess> CreateTimerProcess(float time);
 		std::shared_ptr<OrientationBlendProcess> CreateOrientationBlendProcess(Transformable3D *object, Ogre::Quaternion targetOrientation, float duration);

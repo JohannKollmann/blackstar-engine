@@ -13,10 +13,10 @@ namespace Ice
 
 	protected:
 		void OnSetActive(bool active);
-		void OnReceiveMessage(Msg &msg);
+		void ReceiveMessage(Msg &msg);
 
 	public:
-		Dialog(GOCAI *ai);
+		Dialog(std::shared_ptr<GOCAI> ai);
 		~Dialog(void);	
 	};
 }

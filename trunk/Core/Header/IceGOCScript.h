@@ -10,6 +10,41 @@
 
 namespace Ice
 {
+	/**
+	Provides a map of scriptable object properties.
+	*/
+	class DllExport GOCScriptedProperties : public GOComponent, public GOCEditorInterface
+	{
+	protected:
+		std::unordered_map<Ogre::String, ScriptParam> mScriptProperties;
+
+		DataMap mTempMap;	//HACK while save system can't turn off record references for child objects
+
+	public:
+		GOCScriptedProperties() {}
+		~GOCScriptedProperties() {}
+
+		GOComponent::TypeID& GetComponentID() const { static std::string name = "ScriptedProperties"; return name; }
+
+		void SetProperty(const Ogre::String &propertyName, const ScriptParam &prop);
+		void GetProperty(const Ogre::String &propertyName, ScriptParam &prop);
+		bool HasProperty(const Ogre::String &propertyName);
+
+		//Editor interface
+		void SetParameters(DataMap *parameters);
+		void GetParameters(DataMap *parameters);
+		void GetDefaultParameters(DataMap *parameters);
+		Ogre::String GetLabel() { return "Scripted Properties"; }
+		GOComponent* GetGOComponent() { return this; }
+		GOCEditorInterface* New() { return new GOCScriptedProperties(); }
+
+		//Loadsave
+		std::string& TellName() { static std::string name = "ScriptedProperties"; return name; };
+		static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "ScriptedProperties"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };
+		static LoadSave::Saveable* NewInstance() { return new GOCScriptedProperties(); };
+		void Save(LoadSave::SaveSystem& mgr);
+		void Load(LoadSave::LoadSystem& mgr);
+	};
 
 	class DllExport GOCScript : public GOComponent, public GOCEditorInterface
 	{
@@ -27,39 +62,30 @@ namespace Ice
 
 		std::vector<std::shared_ptr<ScriptItem>> mScripts;
 
-		std::map<Ogre::String, ScriptParam> mScriptProperties;
-		DataMap mTempMap;//HACK while save system can't turn off record references for child objects
-
 	public:
 		GOCScript() {}
 		~GOCScript() {}
 
+		GOComponent::TypeID& GetComponentID() const { static std::string name = "Script"; return name; }
+
 		void Create();
 
 		int GetThisID() { GameObjectPtr owner = mOwnerGO.lock(); IceAssert(owner.get()); return owner->GetID(); }
-		GOComponent::TypeID& GetComponentID() const { static std::string name = "Script"; return name; }
 
+		void NotifyPostInit() { Create(); }
+
+		//Editor interface
 		void SetParameters(DataMap *parameters);
 		void GetParameters(DataMap *parameters);
 		void GetDefaultParameters(DataMap *parameters);
 		Ogre::String GetLabel() { return "Script"; }
 		GOComponent* GetGOComponent() { return this; }
-		GOCScript* New() { return new GOCScript(); }
+		GOCEditorInterface* New() { return new GOCScript(); }
 
-		void SetOwner(std::weak_ptr<GameObject> go);
-
-		void NotifyPostInit() { Create(); }
-
-		std::vector<ScriptParam> Script_SetProperty(Script& caller, std::vector<ScriptParam> &vParams);
-		std::vector<ScriptParam> Script_GetProperty(Script& caller, std::vector<ScriptParam> &vParams);
-		std::vector<ScriptParam> Script_HasProperty(Script& caller, std::vector<ScriptParam> &vParams);
-		DEFINE_TYPEDGOCLUAMETHOD(GOCScript, Script_SetProperty, "string")
-		DEFINE_TYPEDGOCLUAMETHOD(GOCScript, Script_GetProperty, "string")
-		DEFINE_TYPEDGOCLUAMETHOD(GOCScript, Script_HasProperty, "string")
-
+		//Loadsave
 		std::string& TellName() { static std::string name = "Script"; return name; };
 		static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "Script"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };
-		static LoadSave::Saveable* NewInstance() { return new GOCScript; };
+		static LoadSave::Saveable* NewInstance() { return new GOCScript(); };
 		void Save(LoadSave::SaveSystem& mgr);
 		void Load(LoadSave::LoadSystem& mgr);
 	};

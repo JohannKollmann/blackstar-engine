@@ -8,20 +8,18 @@
 namespace Ice
 {
 
-	class AIProcess : public ProcessNode, public MessageListener
+	class DllExport AIProcess : public ProcessNode, public IndependantMessageListener
 	{
 	public:
 
 	protected:
-		GOCAI *mAIObject;
-		AIProcess() : mAIObject(nullptr) { };
-
-		virtual void OnReceiveMessage(Msg &msg) {}
+		std::weak_ptr<GOCAI> mAIObject;
+		AIProcess() : mAIObject(std::weak_ptr<GOCAI>()) { };
 
 	public:
 		virtual ~AIProcess() {};
 
-		void SetAI(GOCAI *ai) { mAIObject = ai; };
+		void SetAI(std::shared_ptr<GOCAI> ai) { mAIObject = std::weak_ptr<GOCAI>(ai); };
 	};
 
 };

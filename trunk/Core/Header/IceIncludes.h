@@ -132,6 +132,7 @@ namespace Ice
 	class GOCViewListener;
 	class GOCRigidBody;
 	class GOCAI;
+	class FollowPathwayProcess;
 	class AIManager;
 	class AStarEdge;
 	class AStarNode;

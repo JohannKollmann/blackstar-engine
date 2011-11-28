@@ -59,7 +59,7 @@ namespace Ice
 		return std::min(1.0f, totalLight);
 	}
 
-	float SeeSense::CalcVisibility(VisualObject *target)
+	float SeeSense::computeVisibility(VisualObject *target)
 	{
 		std::vector<Ogre::Vector3> trackPoints;
 		target->GetTrackPoints(trackPoints);
@@ -124,7 +124,7 @@ namespace Ice
 		{
 			ITERATE(i, mActiveImpulses)
 			{
-				i->second = CalcVisibility(i->first);
+				i->second = computeVisibility(i->first);
 				if (i->second <= NOSIGHT_THRESHOLD)
 				{
 					i = mActiveImpulses.erase(i);
@@ -157,7 +157,7 @@ namespace Ice
 						auto impulseIter = mActiveImpulses.find(obj);
 						if (impulseIter == mActiveImpulses.end())
 						{
-							float viewFactor = CalcVisibility(obj);
+							float viewFactor = computeVisibility(obj);
 							if (viewFactor > NOSIGHT_THRESHOLD)
 							{
 								mActiveImpulses.insert(std::make_pair(obj, viewFactor));
@@ -168,5 +168,12 @@ namespace Ice
 				}
 			}
 		}
+	}
+
+	float SeeSense::GetObjectVisibility(VisualObject *target)
+	{
+		auto i = mActiveImpulses.find(target);
+		if (i != mActiveImpulses.end()) return i->second;
+		else return computeVisibility(target);
 	}
 }

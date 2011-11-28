@@ -1,5 +1,5 @@
 
-#include "IceFollowPathway.h"
+#include "IceFollowPathwayProcess.h"
 #include "IceNavigationMesh.h"
 #include "IceGOCAI.h"
 #include "IceGOCCharacterController.h"
@@ -11,11 +11,11 @@
 namespace Ice
 {
 
-	FollowPathway::FollowPathway(GOCAI *ai, Ogre::String targetWP, float radius)
+	FollowPathwayProcess::FollowPathwayProcess(std::shared_ptr<GOCAI> ai, const Ogre::Vector3 &target, float radius)
 	{
-		mAIObject = ai;
+		SetAI(ai);
 		mRadius = radius;
-		mTargetWP = targetWP;
+		mTargetPosition = target;
 		mAvoidingObstacle = false;
 
 		//Sweep cache for dynamic obstacle avoiding
@@ -24,46 +24,52 @@ namespace Ice
 		JoinNewsgroup(GlobalMessageIDs::PHYSICS_BEGIN);
 	};
 
-	FollowPathway::~FollowPathway()
+	FollowPathwayProcess::~FollowPathwayProcess()
 	{
 		mPath.clear();
 		//Main::Instance().GetPhysXScene()->getNxScene()->releaseSweepCache(mSweepCache);
 	};
 
-	PxRigidDynamic* FollowPathway::ObstacleCheck(Ogre::Vector3 motion)
+	PxRigidDynamic* FollowPathwayProcess::ObstacleCheck(Ogre::Vector3 motion)
 	{
 		//TODO: implement
 
 		return nullptr;
 	}
 	
-	void FollowPathway::OnSetActive(bool active)
+	void FollowPathwayProcess::OnSetActive(bool active)
 	{
+		std::shared_ptr<GOCAI> ai = mAIObject.lock();
+		if (!ai.get()) return;
+
 		if (active)
 		{
-			GOCCharacterController *character = (GOCCharacterController*)mAIObject->GetOwner()->GetComponent("Physics", "CharacterController");
+			GOCCharacterController *character = (GOCCharacterController*)ai->GetOwner()->GetComponent("Physics", "CharacterController");
 
 			computePath();
 		}
 		else
 		{
-			mAIObject->BroadcastMovementState(0);
+			ai->BroadcastMovementState(0);
 		}
 	}
 
-	void FollowPathway::computePath()
+	void FollowPathwayProcess::computePath()
 	{
-		Ogre::Vector3 pos = mAIObject->GetOwner()->GetGlobalPosition();
+		std::shared_ptr<GOCAI> ai = mAIObject.lock();
+		if (!ai.get()) return;
+
+		Ogre::Vector3 pos = ai->GetOwner()->GetGlobalPosition();
 		mPath.clear();
-		AIManager::Instance().FindPath(pos, mTargetWP, mPath);
+		AIManager::Instance().FindPath(pos, mTargetPosition, mPath);
 
 		if (!mPath.empty())
 		{
-			mDirectionBlender.StartBlend(mAIObject->GetOwner()->GetGlobalOrientation() * Ogre::Vector3::UNIT_Z, mPath[0]->GetGlobalPosition()-pos);
+			mDirectionBlender.StartBlend(ai->GetOwner()->GetGlobalOrientation() * Ogre::Vector3::UNIT_Z, mPath[0]->GetGlobalPosition()-pos);
 		}
 	}
 
-	void FollowPathway::verifyPath()
+	void FollowPathwayProcess::verifyPath()
 	{
 		unsigned int max = mPath.size() < 5 ? mPath.size() : 5;
 		for (unsigned int i = 0; i < max; i++)
@@ -76,9 +82,12 @@ namespace Ice
 		}
 	}
 
-	void FollowPathway::optimizePath()
+	void FollowPathwayProcess::optimizePath()
 	{
-		Ogre::Vector3 currPos = mAIObject->GetOwner()->GetGlobalPosition();
+		std::shared_ptr<GOCAI> ai = mAIObject.lock();
+		if (!ai.get()) return;
+
+		Ogre::Vector3 currPos = ai->GetOwner()->GetGlobalPosition();
 
 		unsigned int max = mPath.size() < 5 ? mPath.size() : 5;
 		auto endErase = mPath.begin();
@@ -96,25 +105,28 @@ namespace Ice
 		if (erase) mPath.erase(mPath.begin(), endErase);
 	}
 
-	void FollowPathway::OnReceiveMessage(Msg &msg)
+	void FollowPathwayProcess::ReceiveMessage(Msg &msg)
 	{
 		if (msg.typeID == GlobalMessageIDs::PHYSICS_BEGIN)
 			Update(msg.params.GetValue<float>(0));
 	}
 
-	void FollowPathway::Update(float time)
+	void FollowPathwayProcess::Update(float time)
 	{
+		std::shared_ptr<GOCAI> ai = mAIObject.lock();
+		if (!ai.get()) return;
+
 		verifyPath();
 		if (mPath.empty())
 		{
-			mAIObject->BroadcastMovementState(0);
+			ai->BroadcastMovementState(0);
 			TerminateProcess();
 			return;
 		}
 
-		Ogre::Vector3 currPos = mAIObject->GetOwner()->GetGlobalPosition();
+		Ogre::Vector3 currPos = ai->GetOwner()->GetGlobalPosition();
 
-		Ogre::Vector3 myDirection = mAIObject->GetOwner()->GetGlobalOrientation() * Ogre::Vector3::UNIT_Z;
+		Ogre::Vector3 myDirection = ai->GetOwner()->GetGlobalOrientation() * Ogre::Vector3::UNIT_Z;
 
 		Ogre::Vector3 currPosXZ = currPos;
 		currPosXZ.y = 0;
@@ -128,7 +140,7 @@ namespace Ice
 			mPath.erase(mPath.begin());
 			if (mPath.empty())
 			{
-				mAIObject->BroadcastMovementState(0);
+				ai->BroadcastMovementState(0);
 				TerminateProcess();
 				return;
 			}
@@ -164,14 +176,14 @@ namespace Ice
 		}*/
 
 		int movementstate = CharacterMovement::FORWARD;
-		mAIObject->GetOwner()->GetComponent<GOCCharacterController>()->SetSpeedFactor(1);
+		ai->GetOwner()->GetComponent<GOCCharacterController>()->SetSpeedFactor(1);
 
 		if (PxRigidDynamic *obstacle = ObstacleCheck(direction * 4.0f))
 		{
 			GameObject *go = (GameObject*)obstacle->userData;
 			dist = go->GetGlobalPosition().distance(currPos);
 
-			mAIObject->GetOwner()->GetComponent<GOCCharacterController>()->SetSpeedFactor(dist < 3 ? dist / 3 : 1);
+			ai->GetOwner()->GetComponent<GOCCharacterController>()->SetSpeedFactor(dist < 3 ? dist / 3 : 1);
 				/*
 				Bei < 4 Metern Entfernung:
 					- Versuchen nach rechts auszuweichen, AStar von dort neu anwenden
@@ -209,8 +221,8 @@ namespace Ice
 		}	
 
 		Ogre::Quaternion quat = Ogre::Vector3::UNIT_Z.getRotationTo(direction);
-		mAIObject->GetOwner()->SetGlobalOrientation(quat);
-		mAIObject->BroadcastMovementState(movementstate);
+		ai->GetOwner()->SetGlobalOrientation(quat);
+		ai->BroadcastMovementState(movementstate);
 	}
 
 }

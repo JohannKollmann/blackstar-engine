@@ -70,17 +70,18 @@ namespace Ice
 		ScriptSystem::GetInstance().ShareCFunction("Object_Play3DSound", &GameObject::Lua_Object_Play3DSound);
 		ScriptSystem::GetInstance().ShareCFunction("Object_GetDistToObject", &GameObject::Lua_Object_GetDistToObject);
 
+		//Object message sending / receiving
 		ScriptSystem::GetInstance().ShareCFunction("Object_ReceiveMessage", &GameObject::Lua_ReceiveObjectMessage);
 		ScriptSystem::GetInstance().ShareCFunction("Object_SendMessage", &GameObject::Lua_SendObjectMessage);
 
-		//Script component
-		ScriptSystem::GetInstance().ShareCFunction("Script_SetProperty", &GOCScript::Lua_Script_SetProperty);
-		ScriptSystem::GetInstance().ShareCFunction("Script_GetProperty", &GOCScript::Lua_Script_GetProperty);
-		ScriptSystem::GetInstance().ShareCFunction("Script_HasProperty", &GOCScript::Lua_Script_HasProperty);
+		//Scripted properties
+		ScriptSystem::GetInstance().ShareCFunction("Object_SetProperty", &GameObject::Lua_Object_SetProperty);
+		ScriptSystem::GetInstance().ShareCFunction("Object_GetProperty", &GameObject::Lua_Object_GetProperty);
+		ScriptSystem::GetInstance().ShareCFunction("Object_HasProperty", &GameObject::Lua_Object_HasProperty);
 
 		//Tells the npc to go to a certain waypoint.
 		ScriptSystem::GetInstance().ShareCFunction("Npc_GetObjectVisibility", &GOCAI::Lua_Npc_GetObjectVisibility);
-		ScriptSystem::GetInstance().ShareCFunction("Npc_GotoWP", &GOCAI::Lua_Npc_GotoWP);
+		ScriptSystem::GetInstance().ShareCFunction("Npc_CreateFollowPathwayProcess", &GOCAI::Lua_Npc_CreateFollowPathwayProcess);
 		ScriptSystem::GetInstance().ShareCFunction("Npc_OpenDialog", &GOCAI::Lua_Npc_OpenDialog);
 
 		ScriptSystem::GetInstance().ShareCFunction("GetPlayer", &SceneManager::Lua_GetPlayer);

@@ -19,8 +19,6 @@ class DllExport AIManager : public IndependantMessageListener
 
 private:
 
-	std::vector<GOCWaypoint*> mWaypoints;
-
 	//maps object ID <=> ai object
 	std::vector<GOCAI*> mAIObjects;
 
@@ -32,10 +30,7 @@ public:
 	AIManager(void);
 	~AIManager(void);
 
-	void RegisterWaypoint(GOCWaypoint *waypoint);
-	void UnregisterWaypoint(GOCWaypoint *waypoint);
-	GOCWaypoint* GetWPByName(Ogre::String name);
-	void FindPath(Ogre::Vector3 origin, Ogre::String targetWP, std::vector<AStarNode3D*> &oPath);
+	void FindPath(const Ogre::Vector3 &origin, const Ogre::Vector3 &target, std::vector<AStarNode3D*> &oPath);
 
 	void RegisterAIObject(GOCAI* object);
 	void UnregisterAIObject(GOCAI* object);

@@ -6,6 +6,7 @@
 #include "IceTimerProcess.h"
 #include "IceUtils.h"
 #include "IceScriptSystem.h"
+#include "IceFollowPathwayProcess.h"
 
 namespace Ice
 {
@@ -73,6 +74,14 @@ namespace Ice
 		std::shared_ptr<OrientationBlendProcess> pNode = std::make_shared<OrientationBlendProcess>(object, targetOrientation, duration);
 		pNode->Init(mIDCounter);
 		mProcessNodes.insert(std::make_pair<int, std::shared_ptr<ProcessNode>>(mIDCounter++, std::static_pointer_cast<ProcessNode, OrientationBlendProcess>(pNode)));
+		return pNode;
+	}
+
+	std::shared_ptr<FollowPathwayProcess> ProcessNodeManager::CreateFollowPathwayProcess(std::shared_ptr<GOCAI> ai, const Ogre::Vector3 &targetPosition, float radius)
+	{
+		std::shared_ptr<FollowPathwayProcess> pNode = std::make_shared<FollowPathwayProcess>(ai, targetPosition, radius);
+		pNode->Init(mIDCounter);
+		mProcessNodes.insert(std::make_pair<int, std::shared_ptr<ProcessNode>>(mIDCounter++, std::static_pointer_cast<ProcessNode, FollowPathwayProcess>(pNode)));
 		return pNode;
 	}
 

@@ -87,9 +87,6 @@
     <ClCompile Include="Source\IceDialog.cpp">
       <Filter>AI</Filter>
     </ClCompile>
-    <ClCompile Include="Source\IceFollowPathway.cpp">
-      <Filter>AI</Filter>
-    </ClCompile>
     <ClCompile Include="Source\IceNavigationMesh.cpp">
       <Filter>AI</Filter>
     </ClCompile>
@@ -213,9 +210,6 @@
     <ClCompile Include="Source\IceGOCMover.cpp">
       <Filter>Components</Filter>
     </ClCompile>
-    <ClCompile Include="Source\IceGOCWaypoint.cpp">
-      <Filter>Components</Filter>
-    </ClCompile>
     <ClCompile Include="Source\IceScriptMessageListener.cpp">
       <Filter>ScriptSystem</Filter>
     </ClCompile>
@@ -312,6 +306,9 @@
     <ClCompile Include="Source\IceScriptedProcess.cpp">
       <Filter>ProcessNodeSystem</Filter>
     </ClCompile>
+    <ClCompile Include="Source\IceFollowPathwayProcess.cpp">
+      <Filter>AI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header\IceMessageListener.h">
@@ -366,9 +363,6 @@
       <Filter>AI</Filter>
     </ClInclude>
     <ClInclude Include="Header\IceDialog.h">
-      <Filter>AI</Filter>
-    </ClInclude>
-    <ClInclude Include="Header\IceFollowPathway.h">
       <Filter>AI</Filter>
     </ClInclude>
     <ClInclude Include="Header\IceNavigationMesh.h">
@@ -685,6 +679,9 @@
     </ClInclude>
     <ClInclude Include="Header\IceScriptedProcess.h">
       <Filter>ProcessNodeSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\IceFollowPathwayProcess.h">
+      <Filter>AI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
