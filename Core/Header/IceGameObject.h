@@ -155,6 +155,17 @@ namespace Ice
 			return nullptr;
 		}
 
+		template<class T>
+		std::shared_ptr<T> GetComponentPtr()
+		{
+			for (auto i = mComponents.begin(); i != mComponents.end(); i++)
+			{
+				std::shared_ptr<T> rtti = std::dynamic_pointer_cast<T, GOComponent>(*i);
+				if (rtti.get()) return rtti;
+			}
+			return std::shared_ptr<T>();
+		}
+
 		/**
 		* Returns the component of type T if it exists, otherwise it creates the component, attaches it to the object and retrieves it.
 		* T must have a default constructor.
@@ -170,6 +181,18 @@ namespace Ice
 			std::shared_ptr<T> goc = std::make_shared<T>();
 			AddComponent(goc);
 			return goc.get();
+		}
+		template<class T>
+		T* CreateOrRetrieveComponentPtr()
+		{
+			for (auto i = mComponents.begin(); i != mComponents.end(); i++)
+			{
+				std::shared_ptr<T> rtti = std::dynamic_pointer_cast<T, GOComponent>(*i);
+				if (rtti.get()) return rtti;
+			}
+			std::shared_ptr<T> goc = std::make_shared<T>();
+			AddComponent(goc);
+			return goc;
 		}
 
 		///Returns the component of family familyID if it exists, otherwise nullptr.
@@ -340,9 +363,6 @@ namespace Ice
 		DEFINE_GOLUAMETHOD_H(FreeResources)
 		DEFINE_GOLUAMETHOD_H(Object_Play3DSound)
 		DEFINE_GOLUAMETHOD_H(Object_GetDistToObject)
-
-		//properties
-		std::map<Ogre::String, ScriptParam> mScriptProperties;
 
 		//Editor stuff
 

@@ -7,7 +7,6 @@
 #include "shellapi.h"
 #include "IceScriptSystem.h"
 #include "IceAIManager.h"
-#include "IceFollowPathway.h"
 #include "IceProcessNode.h"
 #include "IceProcessNodeQueue.h"
 #include "IceProcessNodeManager.h"

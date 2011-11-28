@@ -9,9 +9,9 @@
 namespace Ice
 {
 
-	Dialog::Dialog(GOCAI *ai)
+	Dialog::Dialog(std::shared_ptr<GOCAI> ai)
 	{
-		mAIObject = ai;
+		SetAI(ai);
 		JoinNewsgroup(GlobalMessageIDs::PHYSICS_BEGIN);
 	}
 
@@ -21,6 +21,9 @@ namespace Ice
 
 	void Dialog::OnSetActive(bool active)
 	{
+		std::shared_ptr<GOCAI> ai = mAIObject.lock();
+		if (!ai.get()) return;
+
 		if (active)
 		{
 			Msg startDialog;
@@ -28,8 +31,8 @@ namespace Ice
 			mAIObject->GetOwner()->SendMessage(startDialog);*/
 			if (SceneManager::Instance().GetPlayer())
 			{
-				Ogre::Vector3 oldDir = mAIObject->GetOwner()->GetGlobalOrientation() * Ogre::Vector3::UNIT_Z;
-				Ogre::Vector3 targetDir = SceneManager::Instance().GetPlayer()->GetGlobalPosition() - mAIObject->GetOwner()->GetGlobalPosition();
+				Ogre::Vector3 oldDir = ai->GetOwner()->GetGlobalOrientation() * Ogre::Vector3::UNIT_Z;
+				Ogre::Vector3 targetDir = SceneManager::Instance().GetPlayer()->GetGlobalPosition() - ai->GetOwner()->GetGlobalPosition();
 				mDirectionBlender.StartBlend(oldDir, targetDir);
 			}
 			if (SceneManager::Instance().GetPlayer())
@@ -54,15 +57,18 @@ namespace Ice
 		}
 	}
 
-	void Dialog::OnReceiveMessage(Msg &msg)
+	void Dialog::ReceiveMessage(Msg &msg)
 	{
+		std::shared_ptr<GOCAI> ai = mAIObject.lock();
+		if (!ai.get()) return;
+
 		if (msg.typeID == GlobalMessageIDs::PHYSICS_BEGIN)
 		{
 			if (mDirectionBlender.HasNext())
 			{
 				Ogre::Vector3 direction = mDirectionBlender.Next(msg.params.GetValue<float>(0));
 				Ogre::Quaternion quat = Ogre::Vector3::UNIT_Z.getRotationTo(direction);
-				mAIObject->GetOwner()->SetGlobalOrientation(quat);
+				ai->GetOwner()->SetGlobalOrientation(quat);
 			}
 		}
 	}

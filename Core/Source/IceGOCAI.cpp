@@ -3,9 +3,10 @@
 #include "IceAIManager.h"
 #include "IceScriptSystem.h"
 #include "IceGameObject.h"
-#include "IceFollowPathway.h"
+#include "IceFollowPathwayProcess.h"
 #include "IceDialog.h"
 #include "IceObjectMessageIDs.h"
+#include "IceProcessNodeManager.h"
 
 namespace Ice
 {
@@ -78,13 +79,18 @@ namespace Ice
 		if (!go.get()) SCRIPT_RETURNERROR("Object (" + Ogre::StringConverter::toString(id) + ") not found!")
 		SeeSense::VisualObject *visual = go->GetComponent<SeeSense::VisualObject>();
 		if (!visual) SCRIPT_RETURNERROR("Object (" + Ogre::StringConverter::toString(id) + ") must have a visual component!")
-		SCRIPT_RETURNVALUE(mSeeSense->CalcVisibility(visual))
+		SCRIPT_RETURNVALUE(mSeeSense->GetObjectVisibility(visual))
 	}
 
-	std::vector<ScriptParam> GOCAI::Npc_GotoWP(Script& caller, std::vector<ScriptParam> &vParams)
+	std::vector<ScriptParam> GOCAI::Npc_CreateFollowPathwayProcess(Script& caller, std::vector<ScriptParam> &vParams)
 	{
-		std::vector<ScriptParam> out;
-		return out;
+		GameObjectPtr owner = mOwnerGO.lock();
+		if (owner.get()) SCRIPT_RETURNERROR("AI must be attached to an object!")
+		int targetID = vParams[0].getInt();
+		GameObjectPtr targetGO = SceneManager::Instance().GetObjectByInternID(targetID);
+		if (!targetGO.get()) SCRIPT_RETURNERROR("Object (" + Ogre::StringConverter::toString(targetID) + ") not found!")
+
+		SCRIPT_RETURNVALUE(ProcessNodeManager::Instance().CreateFollowPathwayProcess(owner->GetComponentPtr<GOCAI>(), targetGO->GetGlobalPosition()))
 	}
 	std::vector<ScriptParam> GOCAI::Npc_OpenDialog(Script& caller, std::vector<ScriptParam> &vParams)
 	{

@@ -4,6 +4,50 @@
 
 namespace Ice
 {
+	void GOCScriptedProperties::SetProperty(const Ogre::String &propertyName, const ScriptParam &prop)
+	{
+		mScriptProperties[propertyName] = prop;
+	}
+	void GOCScriptedProperties::GetProperty(const Ogre::String &propertyName, ScriptParam &prop)
+	{
+		prop.set(mScriptProperties[propertyName]);
+	}
+	bool GOCScriptedProperties::HasProperty(const Ogre::String &propertyName)
+	{
+		return (mScriptProperties.find(propertyName) != mScriptProperties.end());
+	}
+
+	void GOCScriptedProperties::SetParameters(DataMap *parameters)
+	{
+		mScriptProperties.clear();
+
+		while (parameters->HasNext())
+		{
+			auto item = parameters->GetNext();
+			ScriptParam param;
+			item.Data->GetAsScriptParam(param);
+			mScriptProperties[item.Key] = param;
+		}
+	}
+	void GOCScriptedProperties::GetParameters(DataMap *parameters)
+	{
+		ITERATE(i, mScriptProperties)
+			parameters->AddScriptParam(i->first, i->second);
+	}
+	void GOCScriptedProperties::GetDefaultParameters(DataMap *parameters) {}
+
+	void GOCScriptedProperties::Save(LoadSave::SaveSystem& mgr)
+	{
+		//DataMap map;
+		GetParameters(&mTempMap);
+		mgr.SaveObject(&mTempMap, "Data", false, false);
+	}
+	void GOCScriptedProperties::Load(LoadSave::LoadSystem& mgr)
+	{
+		std::shared_ptr<DataMap> map = mgr.LoadTypedObject<DataMap>();
+		SetParameters(map.get());
+	}
+
 	void GOCScript::Create()
 	{
 		if (mOwnerGO.expired()) return;
@@ -13,55 +57,13 @@ namespace Ice
 			mScripts.push_back(std::make_shared<ScriptItem>(this, *i));
 	}
 
-	void GOCScript::SetOwner(std::weak_ptr<GameObject> go)
-	{
-		mOwnerGO = go;
-	}
-
-	std::vector<ScriptParam> GOCScript::Script_SetProperty(Script& caller, std::vector<ScriptParam> &vParams)
-	{
-		std::vector<ScriptParam> out;
-		Ogre::String key = vParams[0].getString().c_str();
-		mScriptProperties[key] = vParams[1];
-		return out;
-	}
-	std::vector<ScriptParam> GOCScript::Script_GetProperty(Script& caller, std::vector<ScriptParam> &vParams)
-	{
-		std::vector<ScriptParam> out;
-		Ogre::String key = vParams[0].getString().c_str();
-		auto i = mScriptProperties.find(key);
-		if (i == mScriptProperties.end()) return out;
-		out.push_back(i->second);
-		return out;
-	}
-	std::vector<ScriptParam> GOCScript::Script_HasProperty(Script& caller, std::vector<ScriptParam> &vParams)
-	{
-		std::vector<ScriptParam> out;
-		Ogre::String key = vParams[0].getString().c_str();
-		auto i = mScriptProperties.find(key);
-		out.push_back(i != mScriptProperties.end());
-		return out;
-	}
-
 	void GOCScript::SetParameters(DataMap *parameters)
 	{
-		mScriptProperties.clear();
 		mScriptFileNames = parameters->GetValue<Ogre::String>("Script Filenames", "");
-
-		while (parameters->HasNext())
-		{
-			auto item = parameters->GetNext();
-			if (item.Key == "Script Filenames") continue;
-			ScriptParam parm;
-			item.Data->GetAsScriptParam(parm);
-			mScriptProperties[item.Key] = parm;
-		}
 	}
 	void GOCScript::GetParameters(DataMap *parameters)
 	{
 		parameters->AddOgreString("Script Filenames", mScriptFileNames);
-		ITERATE(i, mScriptProperties)
-			parameters->AddScriptParam(i->first, i->second);
 	}
 	void GOCScript::GetDefaultParameters(DataMap *parameters)
 	{
@@ -70,14 +72,9 @@ namespace Ice
 
 	void GOCScript::Save(LoadSave::SaveSystem& mgr)
 	{
-		//DataMap map;
-		GetParameters(&mTempMap);
-		mgr.SaveObject(&mTempMap, "Data", false, false);
 	}
 	void GOCScript::Load(LoadSave::LoadSystem& mgr)
 	{
-		std::shared_ptr<DataMap> map = mgr.LoadTypedObject<DataMap>();
-		SetParameters(map.get());
 	}
 
 	GOCScriptMessageCallback::GOCScriptMessageCallback()

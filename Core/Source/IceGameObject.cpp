@@ -692,27 +692,23 @@ namespace Ice
 
 	std::vector<ScriptParam> GameObject::Object_SetProperty(Script& caller, std::vector<ScriptParam> &vParams)
 	{
-		std::vector<ScriptParam> out;
 		Ogre::String key = vParams[0].getString().c_str();
-		mScriptProperties[key] = vParams[1];
-		return out;
+		CreateOrRetrieveComponent<GOCScriptedProperties>()->SetProperty(key, vParams[1]);
+		SCRIPT_RETURN()
 	}
 	std::vector<ScriptParam> GameObject::Object_GetProperty(Script& caller, std::vector<ScriptParam> &vParams)
 	{
 		std::vector<ScriptParam> out;
+		ScriptParam result;
 		Ogre::String key = vParams[0].getString().c_str();
-		auto i = mScriptProperties.find(key);
-		if (i == mScriptProperties.end()) return out;
-		out.push_back(i->second);
+		CreateOrRetrieveComponent<GOCScriptedProperties>()->SetProperty(key, result);
+		out.push_back(result);
 		return out;
 	}
 	std::vector<ScriptParam> GameObject::Object_HasProperty(Script& caller, std::vector<ScriptParam> &vParams)
 	{
-		std::vector<ScriptParam> out;
 		Ogre::String key = vParams[0].getString().c_str();
-		auto i = mScriptProperties.find(key);
-		out.push_back(i != mScriptProperties.end());
-		return out;
+		SCRIPT_RETURNVALUE(CreateOrRetrieveComponent<GOCScriptedProperties>()->HasProperty(key))
 	}
 
 	DEFINE_TYPEDGOLUAMETHOD_CPP(AddComponent, "string string")

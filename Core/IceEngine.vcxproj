@@ -134,7 +134,6 @@
     <ClCompile Include="Source\IceGOCAnimatedCharacter.cpp" />
     <ClCompile Include="Source\IceGOCCameraController.cpp" />
     <ClCompile Include="Source\IceGOCCharacterController.cpp" />
-    <ClCompile Include="Source\IceGOCWaypoint.cpp" />
     <ClCompile Include="Source\IceGOComponent.cpp" />
     <ClCompile Include="Source\IceGOCPhysics.cpp" />
     <ClCompile Include="Source\IceGOCPlayerInput.cpp" />
@@ -161,7 +160,7 @@
     <ClCompile Include="Source\IceAIManager.cpp" />
     <ClCompile Include="Source\IceAStar.cpp" />
     <ClCompile Include="Source\IceDialog.cpp" />
-    <ClCompile Include="Source\IceFollowPathway.cpp" />
+    <ClCompile Include="Source\IceFollowPathwayProcess.cpp" />
     <ClCompile Include="Source\IceNavigationMesh.cpp" />
     <ClCompile Include="Source\IceScriptedProcess.cpp" />
     <ClCompile Include="Source\IceSceneListener.cpp" />
@@ -265,7 +264,7 @@
     <ClInclude Include="Header\IceAIManager.h" />
     <ClInclude Include="Header\IceAStar.h" />
     <ClInclude Include="Header\IceDialog.h" />
-    <ClInclude Include="Header\IceFollowPathway.h" />
+    <ClInclude Include="Header\IceFollowPathwayProcess.h" />
     <ClInclude Include="Header\IceNavigationMesh.h" />
     <ClInclude Include="Header\IceScriptedProcess.h" />
     <ClInclude Include="Header\HDRListener.h" />

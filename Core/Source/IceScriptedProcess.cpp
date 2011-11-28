@@ -139,7 +139,7 @@ namespace Ice
 			int endTimeH = vParams[0].getInt();
 			int endTimeM = vParams[0].getInt();
 			std::vector<ScriptParam> userParams;
-			for (int i = 4; i < vParams.size(); i++)
+			for (unsigned int i = 4; i < vParams.size(); i++)
 				userParams.push_back(vParams[i]);
 			std::shared_ptr<DayCycleProcess> process = ProcessNodeManager::Instance().CreateDayCycleProcess(userParams, startTimeH, startTimeM, endTimeH, endTimeM);
 			SCRIPT_RETURNVALUE(process->GetProcessID())

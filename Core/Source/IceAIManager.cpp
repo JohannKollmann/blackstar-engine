@@ -20,39 +20,9 @@ namespace Ice
 	{
 	}
 
-	void AIManager::RegisterWaypoint(GOCWaypoint *waypoint)
+	void AIManager::FindPath(const Ogre::Vector3 &origin, const Ogre::Vector3 &target, std::vector<AStarNode3D*> &oPath)
 	{
-		mWaypoints.push_back(waypoint);
-	}
-	void AIManager::UnregisterWaypoint(GOCWaypoint *waypoint)
-	{
-		for (std::vector<GOCWaypoint*>::iterator i = mWaypoints.begin(); i != mWaypoints.end(); i++)
-		{
-			if ((*i) == waypoint)
-			{
-				mWaypoints.erase(i);
-				return;
-			}
-		}
-	}
-	GOCWaypoint* AIManager::GetWPByName(Ogre::String name)
-	{
-		for (std::vector<GOCWaypoint*>::iterator i = mWaypoints.begin(); i != mWaypoints.end(); i++)
-		{
-			if ((*i)->GetOwner()->GetName() == name) return (*i);
-		}
-		Log::Instance().LogMessage("Error: Waypoint " + name + " doesn't exist!");
-		return 0;
-	}
-	void AIManager::FindPath(Ogre::Vector3 origin, Ogre::String targetWP, std::vector<AStarNode3D*> &oPath)
-	{
-		GOCWaypoint *target = GetWPByName(targetWP);
-		if (!target)
-		{
-			Log::Instance().LogMessage("Error in AIManager::FindPath: Target Point '" + targetWP + "' does not exist!");
-			return;
-		}
-		mNavigationMesh->ShortestPath(origin, target->GetOwner()->GetGlobalPosition(), oPath);
+		mNavigationMesh->ShortestPath(origin, target, oPath);
 	}
 
 	void AIManager::NotifySound(Ogre::String soundName, const Ogre::Vector3 &position, float range, float loudness)

@@ -43,7 +43,10 @@ namespace Ice
 
 		void UpdateSense(float time);
 
-		float CalcVisibility(VisualObject *target);
+		/**
+		Calculates or retrieves the visibility of an object from the viewers perspective.
+		*/
+		float GetObjectVisibility(VisualObject *target);
 
 	private:
 
@@ -64,6 +67,8 @@ namespace Ice
 
 		bool raycast(const Ogre::Vector3 &origin, const Ogre::Vector3 &rayDir, float maxDist, OgrePhysX::Scene::RaycastHit &hit);
 		bool raycast(const Ogre::Vector3 &rayDir, OgrePhysX::Scene::RaycastHit &hit);
+
+		float computeVisibility(VisualObject *target);
 
 		float computeShadowFactor(const Ogre::Vector3 &position, Ogre::Vector3 &rayDir, float maxDist);
 		float computeShadowFactor(const Ogre::Vector3 &position, const Ogre::Vector3 &lightPosition);
