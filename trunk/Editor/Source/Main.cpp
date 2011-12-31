@@ -12,20 +12,11 @@ public:
 	wxEdit* mFrame;
 	bool OnInit()
 	{
-#if		_DEBUG
-		Ogre::Root* ogre = new Ogre::Root("","","ogre.graphics.log");
-#else
-		Ogre::Root* ogre = new Ogre::Root("","","ogre.graphics.log");
-#endif
-		/*Ogre::RenderSystemList *renderSystems = NULL;
-		Ogre::RenderSystemList::iterator r_it;
-		renderSystems = ogre->getAvailableRenderers();
-		r_it = renderSystems->begin();
-		ogre->setRenderSystem(*r_it);*/
-
-		Ice::Log::Instance().LogMessage("new wxEdit");
 		Ice::Main::Instance().ExternInit();
 		mFrame = new wxEdit();
+
+		mFrame->GetOgrePane()->IncBlockEngineLoop();
+
 		SetTopWindow(mFrame);
 		mFrame->Show();
 		Ice::Main::Instance().Run(mFrame->GetOgrePane()->getRenderWindow(), (size_t)((HWND)mFrame->GetHandle()));
@@ -46,6 +37,8 @@ public:
 		Ice::MainLoopThread *synchronized = new Ice::SynchronisedThread();
 		synchronized->SetSynchronized(true);
 		Ice::Main::Instance().AddMainLoopThread("Synchronized", synchronized, false);
+
+		mFrame->GetOgrePane()->DecBlockEngineLoop();
 
 		return true;                    
 	}

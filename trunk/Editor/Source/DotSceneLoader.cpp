@@ -160,15 +160,8 @@ void DotSceneLoader::ImportScene(Ogre::String fileName)
 	Ogre::DataStreamPtr stream = Ogre::ResourceGroupManager::getSingleton().openResource(fileName, "General");
 	if (stream.isNull())
 	{
-		Ogre::StringUtil::StrStreamType errorMessage;
-		errorMessage << "Could not open scene file: " << fileName;
-
-		OGRE_EXCEPT
-			(
-			Ogre::Exception::ERR_FILE_NOT_FOUND,
-			errorMessage.str(), 
-			"OgreMaxUtilities::LoadXmlDocument"
-			);
+		IceWarning("There was an error with the scene file: " + fileName)
+		return;
 	}
 
 	//Get the file contents
@@ -176,18 +169,11 @@ void DotSceneLoader::ImportScene(Ogre::String fileName)
 	
 	//Parse the XML document
 	document.Parse(data.c_str());
-	stream.setNull();
+	stream->close();
 	if (document.Error())
 	{
-		Ogre::StringUtil::StrStreamType errorMessage;
-		errorMessage << "There was an error with the scene file: " << fileName;
-
-		OGRE_EXCEPT
-			(
-			Ogre::Exception::ERR_INVALID_STATE,
-			errorMessage.str(), 
-			"OgreMaxUtilities::LoadXmlDocument"
-			);
+		IceWarning("There was an error with the scene file: " + fileName)
+		return;
 	}
 
 	TiXmlElement* rootElement = document.FirstChildElement();

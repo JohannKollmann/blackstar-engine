@@ -49,7 +49,7 @@ namespace OgrePhysX
 			Params() : mScale(Ogre::Vector3(1,1,1)), mAddBackfaces(false) {}
 			~Params() {}
 
-			Params& scale(Ogre::Vector3 &scale) { mScale = scale; return *this; }
+			Params& scale(const Ogre::Vector3 &scale) { mScale = scale; return *this; }
 			Params& materials(std::map<Ogre::String, physx::PxMaterial*> &bindings) { mMaterialBindings = bindings; return *this; }
 			Params& backfaces(bool addBackfaces) { mAddBackfaces = addBackfaces; return *this; }
 		};

@@ -59,6 +59,7 @@ namespace OgrePhysX
 
 	private:
 		PxScene *mPxScene;
+		Ogre::SceneManager *mOgreSceneMgr;
 
 		float mTimeAccu;
 		float mFrameTime;
@@ -69,8 +70,8 @@ namespace OgrePhysX
 
 		void create(PxSceneDesc &desc);
 
-		Scene();
-		Scene(PxSceneDesc &desc);
+		Scene(Ogre::SceneManager *ogreSceneMgr);
+		Scene(Ogre::SceneManager *ogreSceneMgr, PxSceneDesc &desc);
 		~Scene();
 
 	public:
@@ -90,11 +91,23 @@ namespace OgrePhysX
 		Actor<PxRigidDynamic> createRigidDynamic(PxGeometry &geometry, float density, PxMaterial &material, const PxTransform &shapeOffset = PxTransform::createIdentity(), const PxTransform &actorPose = PxTransform::createIdentity());
 
 		/**
+		Creates a new rigid dynamic actor with a collision shape matching the given entity.
+		@return An Actor object wrapping the created PxActor.
+		*/
+		Actor<PxRigidDynamic> createRigidDynamic(Ogre::Entity *entity, float density, const Ogre::Vector3 &scale = Ogre::Vector3(1,1,1), const PxTransform &actorPose = PxTransform::createIdentity());
+
+		/**
+		Creates a new rigid dynamic actor with a collision shape matching the given entity.
+		@return An Actor object wrapping the created PxActor.
+		*/
+		Actor<PxRigidDynamic> createRigidDynamic(Ogre::Entity *entity, float density, PxMaterial &material, const Ogre::Vector3 &scale = Ogre::Vector3(1,1,1), const PxTransform &actorPose = PxTransform::createIdentity());
+
+		/**
 		Creates a new rigid static actor with a triangle mesh collision shape and adds it to the scene.
 		The material bindings specified via World::registerMaterialName are used for Ogre -> PhysX material mapping.
 		@return An Actor object wrapping the created PxActor.
 		*/
-		Actor<PxRigidStatic> createRigidStatic(Ogre::MeshPtr mesh, Cooker::Params &cookerParams = Cooker::Params(), const PxTransform &actorPose = PxTransform::createIdentity());
+		Actor<PxRigidStatic> createRigidStatic(Ogre::Entity *entity, Cooker::Params &cookerParams = Cooker::Params(), const PxTransform &actorPose = PxTransform::createIdentity());
 
 		/**
 		Creates a new rigid static actor with a specified collision shape and a default material and adds it to the scene.		
@@ -126,6 +139,11 @@ namespace OgrePhysX
 		RenderedActorBinding* createRenderedActorBinding(PxRigidDynamic *actor, PointRenderable *pointRenderable);
 
 		/**
+		Creates a destructible dynamic rendered actor.
+		*/
+		Destructible* createDestructible(const Ogre::String &meshSplitConfigFile, PxMaterial &material, float breakForce = 1000.0f, float breakTorque = 1000.0f, float density = 100.0f, const Ogre::Vector3 &scale = Ogre::Vector3(1,1,1));
+
+		/**
 		Binds an Ogre skeleton to a set of actors.
 		*/
 		Ragdoll* createRagdollBinding(Ogre::Entity *entity, Ogre::SceneNode *node);
@@ -140,6 +158,8 @@ namespace OgrePhysX
 		void syncRenderables();
 
 		void simulate(float time);
+
+		Ogre::SceneManager* getOgreSceneMgr() { return mOgreSceneMgr; }
 
 		struct RaycastHit
 		{

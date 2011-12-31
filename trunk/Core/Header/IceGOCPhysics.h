@@ -78,7 +78,7 @@ namespace Ice
 		void UpdatePosition(const Ogre::Vector3 &position);
 		void UpdateScale(const Ogre::Vector3 &scale);
 
-		void setTransform(Ogre::Vector3 &position, Ogre::Quaternion &rotation);
+		void setTransform(const Ogre::Vector3 &position, const Ogre::Quaternion &rotation);
 
 		void Freeze(bool freeze);
 
@@ -190,6 +190,55 @@ namespace Ice
 
 		std::vector<ScriptParam> Trigger_SetActive(Script& caller, std::vector<ScriptParam> &vParams);
 		DEFINE_TYPEDGOCLUAMETHOD(GOCTrigger, Trigger_SetActive, "bool")
+	};
+
+	class DllExport GOCDestructible : public GOCPhysics, public GOCStaticEditorInterface, public OgrePhysX::PointRenderable, public SeeSense::VisualObject
+	{
+	private:
+		OgrePhysX::Destructible *mDestructible;
+
+		Ogre::String mConfigFile;
+		Ogre::String mMaterialName;
+		float mDensity;
+		float mMaxForce;
+		float mMaxTorque;
+		bool mIsFreezed;
+
+		void _create();
+		void _clear();
+
+	public:
+		GOCDestructible() : mDestructible(nullptr), mIsFreezed(false) {}
+		~GOCDestructible();
+
+		GOComponent::TypeID& GetComponentID() const { static std::string name = "Destructible"; return name; }
+
+		void UpdatePosition(const Ogre::Vector3 &position);
+		void UpdateScale(const Ogre::Vector3 &scale);
+
+		void setTransform(const Ogre::Vector3 &position, const Ogre::Quaternion &rotation);
+
+		void Freeze(bool freeze);
+
+		void SetOwner(std::weak_ptr<GameObject> go);
+		bool IsStatic() { return false; }
+
+		BEGIN_GOCEDITORINTERFACE(GOCDestructible, "Destructible")
+			PROPERTY_STRING(mConfigFile, "Split file", ".xml");
+			PROPERTY_STRING(mMaterialName, "Material", "Wood");
+			PROPERTY_FLOAT(mDensity, "Density", 100.0f);
+			PROPERTY_FLOAT(mMaxForce, "Max Force", 1000.0f);
+			PROPERTY_FLOAT(mMaxTorque, "Max Torque", 1000.0f);
+		END_GOCEDITORINTERFACE
+
+		void Save(LoadSave::SaveSystem& mgr);
+		void Load(LoadSave::LoadSystem& mgr);
+		std::string& TellName() { static std::string name = "Destructible"; return name; };
+		static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "Destructible"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };
+		static LoadSave::Saveable* NewInstance() { return new GOCDestructible(); };
+
+		Ogre::String GetVisualObjectDescription();
+		void GetTrackPoints(std::vector<Ogre::Vector3> &outPoints);
 	};
 
 };

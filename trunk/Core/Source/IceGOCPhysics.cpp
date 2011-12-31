@@ -29,14 +29,14 @@ namespace Ice
 	{
 		if (mRenderBinding != nullptr)
 		{
-			Main::Instance().GetPhysXScene()->destroyRenderableBinding(mRenderBinding);
-			mRenderBinding = nullptr;
-			Main::Instance().GetPhysXScene()->removeActor(mActor);
-
 			Msg msg;
 			msg.typeID = GlobalMessageIDs::ACTOR_ONWAKE;
 			msg.rawData = mActor.getPxActor();
 			Ice::MessageSystem::Instance().MulticastMessage(msg, true);
+
+			Main::Instance().GetPhysXScene()->destroyRenderableBinding(mRenderBinding);
+			mRenderBinding = nullptr;
+			Main::Instance().GetPhysXScene()->removeActor(mActor);
 		}
 	}
 
@@ -53,9 +53,11 @@ namespace Ice
 		}
 		Ogre::Entity *entity = Main::Instance().GetOgreSceneMgr()->createEntity(internname, mCollisionMeshName);
 
+		PxTransform shapeOffset = PxTransform::createIdentity();
+
 		if (mShapeType == Shapes::SHAPE_SPHERE)
 		{
-			mActor = Main::Instance().GetPhysXScene()->createRigidDynamic(OgrePhysX::Geometry::sphereGeometry(entity), mDensity, *pxMat);
+			mActor = Main::Instance().GetPhysXScene()->createRigidDynamic(OgrePhysX::Geometry::sphereGeometry(entity, shapeOffset, (scale.x+scale.y+scale.z)/3), mDensity, *pxMat);
 		}
 		else if (mShapeType == Shapes::SHAPE_CONVEX)
 		{
@@ -63,7 +65,7 @@ namespace Ice
 		}
 		else		//Default: Box
 		{
-			mActor = Main::Instance().GetPhysXScene()->createRigidDynamic(OgrePhysX::Geometry::boxGeometry(entity), mDensity, *pxMat);
+			mActor = Main::Instance().GetPhysXScene()->createRigidDynamic(OgrePhysX::Geometry::boxGeometry(entity, shapeOffset, scale), mDensity, *pxMat);
 		}
 		mActor.getPxActor()->userData = mOwnerGO.lock().get();
 
@@ -83,16 +85,12 @@ namespace Ice
 	void GOCRigidBody::Freeze(bool freeze)
 	{
 		mIsFreezed = freeze;
-		if (!mActor.getPxActor()) return;		
-		mActor.getFirstShape()->setFlag(PxShapeFlag::eSIMULATION_SHAPE, !freeze);
-		mActor.getPxActor()->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, freeze);
+		if (!mActor.getPxActor()) return;
+
+		mActor.setFreezed(freeze);
+
 		if (!freeze)
-		{
 			mActor.setGlobalPosition(GetOwner()->GetGlobalPosition());
-			mActor.getPxActor()->clearForce(PxForceMode::eFORCE);
-			mActor.getPxActor()->clearForce(PxForceMode::eIMPULSE);
-			mActor.getPxActor()->clearForce(PxForceMode::eVELOCITY_CHANGE);
-		}
 	}
 
 	void GOCRigidBody::UpdatePosition(const Ogre::Vector3 &position)
@@ -147,7 +145,7 @@ namespace Ice
 		SCRIPT_RETURN()
 	}
 
-	void GOCRigidBody::setTransform(Ogre::Vector3 &position, Ogre::Quaternion &rotation)
+	void GOCRigidBody::setTransform(const Ogre::Vector3 &position, const Ogre::Quaternion &rotation)
 	{
 		if (!mIsFreezed)
 			SetOwnerTransform(position, rotation);
@@ -157,7 +155,7 @@ namespace Ice
 	{
 		_clear();
 		mCollisionMeshName = parameters->GetOgreString("CollisionMeshFile");
-		mMaterialName = parameters->GetOgreString("mMaterialName");
+		mMaterialName = parameters->GetOgreString("Material");
 		Ogre::Vector3 scale = Ogre::Vector3(1,1,1);
 		scale = parameters->GetOgreVec3("Scale");
 		mDensity = parameters->GetFloat("Density");
@@ -168,7 +166,7 @@ namespace Ice
 	void GOCRigidBody::GetParameters(DataMap *parameters)
 	{
 		parameters->AddOgreString("CollisionMeshFile", mCollisionMeshName);
-		parameters->AddOgreString("mMaterialName", mMaterialName);
+		parameters->AddOgreString("Material", mMaterialName);
 		parameters->AddFloat("Density", mDensity);
 		std::vector<Ogre::String> shape_types;
 		shape_types.push_back("Box"); shape_types.push_back("Sphere"); shape_types.push_back("Convex"); shape_types.push_back("NXS"); shape_types.push_back("Capsule");
@@ -207,8 +205,111 @@ namespace Ice
 		Create(mCollisionMeshName, mDensity, mShapeType, scale);
 	}
 
+	//========================================================================================
+	//==================================Destructible==========================================
+	//========================================================================================
 
-	//Static Body
+	GOCDestructible::~GOCDestructible()
+	{
+		_clear();
+	}
+
+	void GOCDestructible::_create()
+	{
+		_clear();
+
+		IceAssert(mOwnerGO.lock().get() != nullptr)
+
+		PxMaterial *pxMat = MaterialTable::Instance().GetMaterialByName(mMaterialName);
+
+		mDestructible = Main::Instance().GetPhysXScene()->createDestructible(mConfigFile, *pxMat, mMaxForce, mMaxTorque, mDensity, mOwnerGO.lock()->GetGlobalScale());
+
+		mDestructible->setSimulationFilterData(PhysXFilterData::Instance().DynamicBody);
+		mDestructible->setQueryFilterData(PhysXFilterData::Instance().DynamicBody);
+
+		mDestructible->setUserData(mOwnerGO.lock().get());
+
+		mDestructible->setPointRenderable(this);
+
+		UpdateOrientation(mOwnerGO.lock()->GetGlobalOrientation());
+		UpdatePosition(mOwnerGO.lock()->GetGlobalPosition());
+	}
+
+	void GOCDestructible::_clear()
+	{
+		if (mDestructible)
+		{
+			Main::Instance().GetPhysXScene()->destroyRenderableBinding(mDestructible);
+			mDestructible = nullptr;
+		}
+	}
+
+	void GOCDestructible::Freeze(bool freeze)
+	{
+		mIsFreezed = freeze;
+		mDestructible->setFreezed(freeze);
+	}
+
+	void GOCDestructible::UpdatePosition(const Ogre::Vector3 &position)
+	{
+		mDestructible->setPosition(position);
+	}
+
+	void GOCDestructible::UpdateScale(const Ogre::Vector3 &scale)
+	{
+		_clear();
+		_create();
+	}
+
+	void GOCDestructible::setTransform(const Ogre::Vector3 &position, const Ogre::Quaternion &rotation)
+	{
+		if (!mIsFreezed)
+			SetOwnerTransform(position, rotation);
+	}
+
+	void GOCDestructible::SetOwner(std::weak_ptr<GameObject> go)
+	{
+		mOwnerGO = go;
+		GameObjectPtr owner = mOwnerGO.lock();
+		if (!owner.get()) return;
+		if (mDestructible)
+		{
+			mDestructible->setUserData(owner.get());
+			UpdateOrientation(mOwnerGO.lock()->GetGlobalOrientation());
+			UpdatePosition(mOwnerGO.lock()->GetGlobalPosition());
+		}
+		else if (mConfigFile != "") _create();
+	}
+
+	Ogre::String GOCDestructible::GetVisualObjectDescription()
+	{
+		return GetOwner()->GetName();
+	}
+	void GOCDestructible::GetTrackPoints(std::vector<Ogre::Vector3> &outPoints)
+	{
+		outPoints.push_back(GetOwner()->GetGlobalPosition());
+	}
+
+	void GOCDestructible::Save(LoadSave::SaveSystem& mgr)
+	{
+		mgr.SaveAtom("string", &mConfigFile, "Config File");
+		mgr.SaveAtom("string", &mMaterialName, "MaterialName");
+		mgr.SaveAtom("float", &mDensity, "Density");
+		mgr.SaveAtom("float", &mMaxForce, "Max Force");
+		mgr.SaveAtom("float", &mMaxTorque, "Max Torque");
+	}
+	void GOCDestructible::Load(LoadSave::LoadSystem& mgr)
+	{
+		mgr.LoadAtom("string", &mConfigFile);
+		mgr.LoadAtom("string", &mMaterialName);
+		mgr.LoadAtom("float", &mDensity);
+		mgr.LoadAtom("float", &mMaxForce);
+		mgr.LoadAtom("float", &mMaxTorque);
+	}
+
+	//========================================================================================
+	//==================================Static body===========================================
+	//========================================================================================
 
 	GOCStaticBody::GOCStaticBody(Ogre::String collision_mesh)
 	{
@@ -240,7 +341,7 @@ namespace Ice
 		Ogre::Entity *entity = Main::Instance().GetOgreSceneMgr()->createEntity("tempCollisionModell", mCollisionMeshName);
 
 		GameObjectPtr owner = mOwnerGO.lock();
-		mActor = Main::Instance().GetPhysXScene()->createRigidStatic(entity->getMesh(), OgrePhysX::Cooker::Params().scale(scale));
+		mActor = Main::Instance().GetPhysXScene()->createRigidStatic(entity, OgrePhysX::Cooker::Params().scale(scale));
 
 		mActor.getPxActor()->userData = mOwnerGO.lock().get();
 

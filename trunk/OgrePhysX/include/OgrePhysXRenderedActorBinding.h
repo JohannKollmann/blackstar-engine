@@ -29,7 +29,6 @@ THE SOFTWARE.
 
 namespace OgrePhysX
 {
-
 	using namespace physx;
 
 	/*
@@ -38,17 +37,18 @@ namespace OgrePhysX
 	*/
 	class RenderedActorBinding : public RenderableBinding
 	{
-		friend class Scene;
-
 	private:
 		PointRenderable *mRenderable;
 		PxRigidDynamic *mPxActor;
 
+	public:
 		RenderedActorBinding(PxRigidDynamic *actor, PointRenderable *renderable);
 		~RenderedActorBinding();
 
-	public:
 		void sync();
+
+		PxRigidDynamic* getActor() { return mPxActor; }
+		PointRenderable* getPointRenderable() { return mRenderable; }
 	};
 
 }
