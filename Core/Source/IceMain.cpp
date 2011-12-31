@@ -85,9 +85,9 @@ namespace Ice
 		GetConfig();
 
 #if		_DEBUG
-		mRoot = ICE_NEW Ogre::Root("","","ogre.graphics.log");
+		mRoot = new Ogre::Root("","","ogre.graphics.log");
 #else
-		mRoot = ICE_NEW Ogre::Root("","","ogre.graphics.log");
+		mRoot = new Ogre::Root("","","ogre.graphics.log");
 #endif
 
 		setupRenderSystem();
@@ -109,7 +109,7 @@ namespace Ice
 
 	void Main::ExternInit()
 	{
-		mRoot = Ogre::Root::getSingletonPtr();
+		mRoot = new Ogre::Root("","","ogre.graphics.log");
 
 		ResetConfig();
 		GetConfig();
@@ -198,18 +198,7 @@ namespace Ice
 
 	void Main::initScene()
 	{
-		Ogre::LogManager::getSingleton().logMessage("Testing boost::mutex performance...");
-		DWORD start = timeGetTime();
-		for (int i = 0; i < 100000; i++)
-		{
-			//boost::thread::id id = boost::this_thread::get_id();
-			boost::mutex testMutex;
-			testMutex.lock();
-			testMutex.unlock();
-		}
-		Ogre::LogManager::getSingleton().logMessage("Time needed: " + Ogre::StringConverter::toString(timeGetTime()-start));
-
-		Log::Instance().LogMessage("Main initScene");
+		Ogre::LogManager::getSingleton().logMessage("Main initScene");
 
 		Ice::MessageSystem::Instance().CreateNewsgroup(GlobalMessageIDs::UPDATE_PER_FRAME);
 		Ice::MessageSystem::Instance().CreateNewsgroup(GlobalMessageIDs::RENDERING_BEGIN);
@@ -245,16 +234,10 @@ namespace Ice
 
 		MessageSystem::Instance().CreateNewsgroup(GlobalMessageIDs::ENABLE_GAME_CLOCK);
 
+		Ogre::LogManager::getSingleton().logMessage("Starting PhysX");
+
 		//Start up OgrePhysX
 		OgrePhysX::World::getSingleton().init();
-
-		//Create Scene
-		PxSceneDesc sceneDesc(OgrePhysX::getPxPhysics()->getTolerancesScale());
-		sceneDesc.gravity = PxVec3(0, -9.81f, 0);
-		sceneDesc.filterShader = &PhysXSimulationFilterShader;
-		mPhysXSimulationCallback = ICE_NEW PhysXSimulationEventCallback();
-		sceneDesc.simulationEventCallback = mPhysXSimulationCallback;
-		mPhysXScene = OgrePhysX::World::getSingleton().addScene("Main", sceneDesc);
 
 		mSceneMgr = mRoot->createSceneManager(Ogre::ST_GENERIC, "Esgaroth");
 		mCamera = mSceneMgr->createCamera("MainCamera");
@@ -265,6 +248,14 @@ namespace Ice
 		mViewport = mWindow->addViewport(mCamera);
 		mViewport->setBackgroundColour(Ogre::ColourValue::Black);
 		mCamera->setAspectRatio(Ogre::Real(mViewport->getActualWidth()) / Ogre::Real(mViewport->getActualHeight()));
+
+		//Create PhysX Scene
+		PxSceneDesc sceneDesc(OgrePhysX::getPxPhysics()->getTolerancesScale());
+		sceneDesc.gravity = PxVec3(0, -9.81f, 0);
+		sceneDesc.filterShader = &PhysXSimulationFilterShader;
+		mPhysXSimulationCallback = ICE_NEW PhysXSimulationEventCallback();
+		sceneDesc.simulationEventCallback = mPhysXSimulationCallback;
+		mPhysXScene = OgrePhysX::World::getSingleton().addScene("Main", mSceneMgr, sceneDesc);
 
 		mPreviewSceneMgr = mRoot->createSceneManager(Ogre::ST_GENERIC, "Esgaroth_Preview");
 
@@ -556,11 +547,11 @@ namespace Ice
 		while (seci.hasMoreElements())
 		{
 			secName = seci.peekNextKey();
-			Ogre::ConfigFile::SettingsMultiMap *Settings = seci.getNext();
+			Ogre::ConfigFile::SettingsMultiMap *settings = seci.getNext();
 			Ogre::ConfigFile::SettingsMultiMap::iterator i;
 			if (mSettings.find(secName) == mSettings.end()) mSettings[secName] = std::vector<KeyVal>();
 
-			for (i = Settings->begin(); i != Settings->end(); i++)
+			for (i = settings->begin(); i != settings->end(); i++)
 			{
 				bool added = false;
 				if (secName == "Graphics")

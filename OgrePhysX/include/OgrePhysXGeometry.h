@@ -43,15 +43,17 @@ namespace OgrePhysX
 	{
 	public:
 
-		static PxSphereGeometry sphereGeometry(Ogre::Entity *entity)
+		static PxSphereGeometry sphereGeometry(Ogre::Entity *entity, PxTransform &outShapeOffset, float scale = 1.0f)
 		{
-			float sphereShapeRadius = entity->getBoundingRadius();
+			outShapeOffset.p = Convert::toPx(entity->getBoundingBox().getCenter());
+			float sphereShapeRadius = entity->getBoundingRadius() * scale;
 			return PxSphereGeometry(sphereShapeRadius);
 		}
 
-		static PxBoxGeometry boxGeometry(Ogre::Entity *entity)
+		static PxBoxGeometry boxGeometry(Ogre::Entity *entity, PxTransform &outShapeOffset, const Ogre::Vector3 &scale = Ogre::Vector3(1,1,1))
 		{
-			return PxBoxGeometry(Convert::toPx(entity->getBoundingBox().getHalfSize()));
+			outShapeOffset.p = Convert::toPx(entity->getBoundingBox().getCenter());
+			return PxBoxGeometry(Convert::toPx(entity->getBoundingBox().getHalfSize() * scale));
 		}
 
 		static PxBoxGeometry boxGeometry(const Ogre::Vector3 &dimension)

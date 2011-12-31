@@ -53,6 +53,7 @@ namespace OgrePhysX
 			return mActor;
 		}
 
+		///Retrieves the first shape of the actor.
 		PxShape* getFirstShape()
 		{
 			PxShape *shapes[1];
@@ -83,6 +84,26 @@ namespace OgrePhysX
 		void setGlobalTransform(const Ogre::Vector3 &position, const Ogre::Quaternion &q)
 		{
 			mActor->setGlobalPose(PxTransform(Convert::toPx(position), Convert::toPx(q)));
+		}
+
+		///Freezed / unfreezes the actor.
+		void setFreezed(bool freezed)
+		{
+			unsigned int numShapes = mActor->getNbShapes();
+			PxShape **shapes = new PxShape*[numShapes];
+			mActor->getShapes(shapes, numShapes);
+			for (unsigned int i = 0; i < numShapes; i++)
+				shapes[i]->setFlag(PxShapeFlag::eSIMULATION_SHAPE, !freezed);
+
+			delete[] shapes;
+
+			mActor->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, freezed);
+
+			//clear all forces
+			mActor->clearForce(PxForceMode::eFORCE);
+			mActor->clearForce(PxForceMode::eIMPULSE);
+			mActor->clearForce(PxForceMode::eVELOCITY_CHANGE);
+			mActor->clearForce(PxForceMode::eACCELERATION);
 		}
 	};
 }

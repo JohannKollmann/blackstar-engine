@@ -12,6 +12,7 @@ namespace Ice
 		for (int i = 0; i < MAX_NUM_JOBQUEUES; i++)
 		{
 			mCurrentJobs[i].sendAllMessagesInstantly = false;
+			mCurrentJobs[i].receiveAllMessagesInstantly = false;
 			mCurrentJobs[i].processingMessages = false;
 		}
 	}
@@ -43,6 +44,11 @@ namespace Ice
 		RegisterThread(boost::this_thread::get_id(), accessPermissionID);
 	}
 
+	void MessageSystem::SetReceiveAllMessagesInstantly(AccessPermissionID accessPermissionID, bool instant)
+	{
+		mCurrentJobs[accessPermissionID].receiveAllMessagesInstantly = instant;
+	}
+
 	void MessageSystem::SetSendAllMessagesInstantly(AccessPermissionID accessPermissionID, bool instant)
 	{
 		mCurrentJobs[accessPermissionID].sendAllMessagesInstantly = instant;
@@ -50,6 +56,9 @@ namespace Ice
 
 	bool MessageSystem::testThreadAccessPermission(AccessPermissionID receiverID)
 	{
+		if (mCurrentJobs[receiverID].receiveAllMessagesInstantly)
+			return true;
+
 		auto i = mThreadBindings.find(boost::this_thread::get_id());
 		if (i == mThreadBindings.end() || i->second.accessPermissionID < 0) return false;
 

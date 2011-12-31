@@ -33,7 +33,7 @@ namespace OgrePhysX
 	{
 	}
 
-	void NodeRenderable::setTransform(Ogre::Vector3 &position, Ogre::Quaternion &rotation)
+	void NodeRenderable::setTransform(const Ogre::Vector3 &position, const Ogre::Quaternion &rotation)
 	{
 		mNode->setPosition(position);
 		mNode->setOrientation(rotation);

@@ -581,7 +581,7 @@ namespace OgrePhysX
 	{
 		MeshInfo meshInfo;
 		getMeshInfo(mesh, params, meshInfo);
-		mergeVertices(meshInfo, 0.2f);
+		mergeVertices(meshInfo, 0.1f);
 
 		PxConvexMeshDesc desc;
 		desc.points.count = meshInfo.vertices.size();

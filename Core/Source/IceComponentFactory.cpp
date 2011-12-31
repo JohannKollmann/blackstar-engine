@@ -22,9 +22,12 @@ namespace Ice
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCPfxRenderable::Register);
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCLocalLightRenderable::Register);
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCSound3D::Register);
+
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCRigidBody::Register);
+		LoadSave::LoadSave::Instance().RegisterObject(&GOCDestructible::Register);
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCStaticBody::Register);
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCTrigger::Register);
+
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCAnimatedCharacter::Register);
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCCharacterController::Register);
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCPlayerInput::Register);
@@ -50,6 +53,7 @@ namespace Ice
 		RegisterGOCPrototype(GOCEditorInterfacePtr(new GOCBillboard()), "A");
 
 		RegisterGOCPrototype(GOCEditorInterfacePtr(new GOCRigidBody()), "B", "B");
+		RegisterGOCPrototype(GOCEditorInterfacePtr(new GOCDestructible()), "F", "F");
 		RegisterGOCPrototype(GOCEditorInterfacePtr(new GOCStaticBody()), "B", "B");
 		RegisterGOCPrototype(GOCEditorInterfacePtr(new GOCCharacterController()), "B", "B");
 		RegisterGOCPrototype(GOCEditorInterfacePtr(new GOCTrigger()), "B", "B");

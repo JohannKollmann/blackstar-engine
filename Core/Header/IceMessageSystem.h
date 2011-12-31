@@ -83,6 +83,7 @@ namespace Ice
 	
 		struct JobQueue
 		{
+			bool receiveAllMessagesInstantly;
 			bool sendAllMessagesInstantly;
 			bool processingMessages;			
 			boost::mutex flushingMutex;
@@ -96,7 +97,6 @@ namespace Ice
 
 		std::map<boost::thread::id, ThreadBinding> mThreadBindings;
 		std::map<AccessPermissionID, std::set<boost::thread::id> > mThreadAccessPermissions;
-
 
 		int mNumProcessingMessages;
 		int mNumWaitingSynchronized;
@@ -147,6 +147,11 @@ namespace Ice
 		* Specifies that all messages sent from the thread that is associated with accessPermissionID are sent directly.
 		*/
 		void SetSendAllMessagesInstantly(AccessPermissionID accessPermissionID, bool instant);
+
+		/**
+		* Specifies that all messages received by a thread that is associated with accessPermissionID are sent directly.
+		*/
+		void SetReceiveAllMessagesInstantly(AccessPermissionID accessPermissionID, bool instant);
 
 		/**
 		* Registers an accessPermissionID to the caller thread.

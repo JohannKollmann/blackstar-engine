@@ -33,6 +33,7 @@ THE SOFTWARE.
 #include "OgrePhysXRagdoll.h"
 #include "OgrePhysXGeometry.h"
 #include "OgrePhysXActor.h"
+#include "OgrePhysXDestructible.h"
 
 namespace OgrePhysX
 {

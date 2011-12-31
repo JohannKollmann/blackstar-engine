@@ -37,7 +37,9 @@ namespace OgrePhysX
 		NodeRenderable(Ogre::SceneNode* node);
 		~NodeRenderable(void);
 
-		void setTransform(Ogre::Vector3 &position, Ogre::Quaternion &rotation) override;
+		Ogre::SceneNode* getOgreNode() { return mNode; }
+
+		void setTransform(const Ogre::Vector3 &position, const Ogre::Quaternion &rotation) override;
 	};
 
 }

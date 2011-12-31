@@ -54,17 +54,9 @@ namespace OgrePhysX
 	class CookerParams;
 	class PointRenderable;
 	class RenderedActorBinding;
-	class Shape;
-	class BaseMeshShape;
-	class CookedMeshShape;
-	class RTMeshShape;
-	class RTConvexMeshShape;
-	class PrimitiveShape;
-	class PlaneShape;
-	class BoxShape;
-	class SphereShape;
 	class CapsuleShape;
 	class ContactReportListener;
 	class TriggerReportListener;
 	class Ragdoll;
+	class Destructible;
 }

@@ -1139,6 +1139,7 @@ void Edit::DeselectMaterial()
 
 void Edit::OnSelectObject(float MouseX, float MouseY)
 {
+	STOP_MAINLOOP
 	//Ice::Log::Instance().LogMessage("OnSelectObject");
 	Ice::ObjectLevelRayCaster rc(Ice::Main::Instance().GetCamera()->getCameraToViewportRay(MouseX, MouseY));
 	Ice::GameObject *object = rc.GetFirstHit();
@@ -1165,6 +1166,8 @@ void Edit::OnSelectObject(float MouseX, float MouseY)
 		SelectObject(Ice::SceneManager::Instance().GetObjectByInternID(object->GetID()));
 		wxEdit::Instance().GetOgrePane()->SetFocus();
 	}
+
+	RESUME_MAINLOOP
 }
 
 void Edit::OnBrush()
@@ -1208,10 +1211,13 @@ void Edit::SelectObject(Ice::GameObjectPtr object)
 	mSelectedObjects.push_back(sel);
 	SelectChildren(object);
 
-	RESUME_MAINLOOP
-
 	if (object->GetComponent<Ice::GOCPhysics>())
+	{
+		wxEdit::Instance().GetMainToolbar()->CheckTool("Physics", false);
 		Ice::Main::Instance().GetMainLoopThread("Physics")->SetPaused(true);
+	}
+
+	RESUME_MAINLOOP
 }
 
 void Edit::SelectChildren(Ice::GameObjectPtr object)
@@ -1295,7 +1301,7 @@ void Edit::DeselectObject(Ice::GameObjectPtr object)
 
 void Edit::DeselectAllObjects()
 {
-	Ice::Main::Instance().GetMainLoopThread("Physics")->SetPaused(!mPhysicsEnabled);
+	wxEdit::Instance().GetMainToolbar()->CheckTool("Physics", mPhysicsEnabled);
 	STOP_MAINLOOP	
 	wxEdit::Instance().GetMainToolbar()->SetGroupStatus("Game", false);
 	//Ice::Log::Instance().LogMessage("Deselect all Objects");

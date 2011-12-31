@@ -76,8 +76,8 @@ namespace OgrePhysX
 		PxPhysics* getPxPhysics();
 		PxCooking* getCookingInterface();
 
-		Scene* addScene(Ogre::String name);
-		Scene* addScene(Ogre::String name, PxSceneDesc &desc);
+		Scene* addScene(Ogre::String name, Ogre::SceneManager *ogreSceneMgr);
+		Scene* addScene(Ogre::String name, Ogre::SceneManager *ogreSceneMgr, PxSceneDesc &desc);
 		Scene* getScene(Ogre::String name);
 		void destroyScene(Ogre::String name);
 		void clearScenes();

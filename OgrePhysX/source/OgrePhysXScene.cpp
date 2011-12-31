@@ -23,6 +23,7 @@ THE SOFTWARE.
 #include "OgrePhysXScene.h"
 #include "OgrePhysXWorld.h"
 #include "OgrePhysXRagdoll.h"
+#include "OgrePhysXDestructible.h"
 #include "extensions/PxDefaultCpuDispatcher.h"
 #include "PxScene.h"
 #include "PxMaterial.h"
@@ -32,14 +33,14 @@ THE SOFTWARE.
 namespace OgrePhysX
 {
 
-	Scene::Scene()
+	Scene::Scene(Ogre::SceneManager *ogreSceneMgr) : mOgreSceneMgr(ogreSceneMgr)
 	{
 		PxSceneDesc desc(World::getSingleton().getPxPhysics()->getTolerancesScale());
 		desc.gravity = PxVec3(0, -9.81f, 0);
 		desc.filterShader = &PxDefaultSimulationFilterShader;
 		create(desc);
 	}
-	Scene::Scene(PxSceneDesc &desc)
+	Scene::Scene(Ogre::SceneManager *ogreSceneMgr, PxSceneDesc &desc) : mOgreSceneMgr(ogreSceneMgr)
 	{
 		create(desc);
 	}
@@ -81,12 +82,33 @@ namespace OgrePhysX
 		return actor;
 	}
 
-	Actor<PxRigidStatic> Scene::createRigidStatic(Ogre::MeshPtr mesh, Cooker::Params &cookerParams, const PxTransform &actorPose)
+	Actor<PxRigidDynamic> Scene::createRigidDynamic(Ogre::Entity *entity, float density, const Ogre::Vector3 &scale, const PxTransform &actorPose)
+	{
+		return createRigidDynamic(entity, density, World::getSingleton().getDefaultMaterial(), scale, actorPose);
+	}
+
+	Actor<PxRigidDynamic> Scene::createRigidDynamic(Ogre::Entity *entity, float density, PxMaterial &material, const Ogre::Vector3 &scale, const PxTransform &actorPose)
+	{
+		PxTransform shapeOffset = PxTransform::createIdentity();
+
+		Cooker::Params params;
+		params.scale(scale);
+		if (entity->getBoundingBox().getSize().x * scale.x > 0.4f &&
+			entity->getBoundingBox().getSize().y * scale.y > 0.4f &&
+			entity->getBoundingBox().getSize().z * scale.z > 0.4f)
+			return createRigidDynamic(Geometry::convexMeshGeometry(entity->getMesh(), params), density, material, shapeOffset, actorPose); 
+
+		//mesh is too small for convex mesh
+		PxBoxGeometry boxGeometry = Geometry::boxGeometry(entity, shapeOffset, scale);
+		return createRigidDynamic(boxGeometry, density, material, shapeOffset, actorPose); 
+	}
+
+	Actor<PxRigidStatic> Scene::createRigidStatic(Ogre::Entity *entity, Cooker::Params &cookerParams, const PxTransform &actorPose)
 	{
 		Cooker::AddedMaterials addedMaterials;
 		cookerParams.materials(World::getSingleton().getOgreMaterialNames());
 		PxRigidStatic *pxActor = getPxPhysics()->createRigidStatic(actorPose);
-		PxTriangleMeshGeometry geometry = PxTriangleMeshGeometry(Cooker::getSingleton().createPxTriangleMesh(mesh, cookerParams, &addedMaterials));
+		PxTriangleMeshGeometry geometry = PxTriangleMeshGeometry(Cooker::getSingleton().createPxTriangleMesh(entity->getMesh(), cookerParams, &addedMaterials));
 		
 		if (addedMaterials.materialCount > 0)
 			pxActor->createShape(geometry, addedMaterials.materials, addedMaterials.materialCount);
@@ -137,6 +159,13 @@ namespace OgrePhysX
 			}
 		}
 		delete binding;
+	}
+
+	Destructible* Scene::createDestructible(const Ogre::String &meshSplitConfigFile, PxMaterial &material, float breakForce, float breakTorque, float density, const Ogre::Vector3 &scale)
+	{
+		Destructible *destructible = new Destructible(this, meshSplitConfigFile, breakForce, breakTorque, density, material, scale);
+		mOgrePhysXBindings.push_back(destructible);
+		return destructible;
 	}
 
 	Ragdoll* Scene::createRagdollBinding(Ogre::Entity *entity, Ogre::SceneNode *node)

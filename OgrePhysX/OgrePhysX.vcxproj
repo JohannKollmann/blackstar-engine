@@ -80,7 +80,7 @@
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>OgreMain_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OgreMain.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\Dependencies\Ogre3D\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <OptimizeReferences>false</OptimizeReferences>
@@ -94,12 +94,16 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="source\OgrePhysXCooker.cpp" />
+    <ClCompile Include="Source\OgrePhysXDestructible.cpp" />
     <ClCompile Include="source\OgrePhysXNodeRenderable.cpp" />
     <ClCompile Include="source\OgrePhysXRagdoll.cpp" />
     <ClCompile Include="source\OgrePhysXRenderedActorBinding.cpp" />
     <ClCompile Include="source\OgrePhysXScene.cpp" />
     <ClCompile Include="source\OgrePhysXStreams.cpp" />
     <ClCompile Include="source\OgrePhysXWorld.cpp" />
+    <ClCompile Include="TinyXML\tinyxml.cpp" />
+    <ClCompile Include="TinyXML\tinyxmlerror.cpp" />
+    <ClCompile Include="TinyXML\tinyxmlparser.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\OgrePhysX.h" />
@@ -107,6 +111,7 @@
     <ClInclude Include="include\OgrePhysXClasses.h" />
     <ClInclude Include="include\OgrePhysXConvert.h" />
     <ClInclude Include="include\OgrePhysXCooker.h" />
+    <ClInclude Include="include\OgrePhysXDestructible.h" />
     <ClInclude Include="include\OgrePhysXGeometry.h" />
     <ClInclude Include="include\OgrePhysXLogOutputStream.h" />
     <ClInclude Include="include\OgrePhysXNodeRenderable.h" />
@@ -117,6 +122,7 @@
     <ClInclude Include="include\OgrePhysXScene.h" />
     <ClInclude Include="include\OgrePhysXStreams.h" />
     <ClInclude Include="include\OgrePhysXWorld.h" />
+    <ClInclude Include="TinyXML\tinyxml.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

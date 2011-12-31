@@ -112,15 +112,15 @@ namespace OgrePhysX
 		}
 	}
 
-	Scene* World::addScene(Ogre::String name)
+	Scene* World::addScene(Ogre::String name, Ogre::SceneManager *ogreSceneMgr)
 	{
-		Scene *scene = new Scene();
+		Scene *scene = new Scene(ogreSceneMgr);
 		mScenes.insert(std::make_pair<Ogre::String, Scene*>(name, scene));
 		return scene;
 	}
-	Scene* World::addScene(Ogre::String name, PxSceneDesc &desc)
+	Scene* World::addScene(Ogre::String name, Ogre::SceneManager *ogreSceneMgr, PxSceneDesc &desc)
 	{
-		Scene *scene = new Scene(desc);
+		Scene *scene = new Scene(ogreSceneMgr, desc);
 		mScenes.insert(std::make_pair<Ogre::String, Scene*>(name, scene));
 		return scene;
 	}
