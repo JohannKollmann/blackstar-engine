@@ -31,15 +31,16 @@ DestructibleMeshSplitter::loadMesh(Ogre::String strFile)
 	stream.seekg (0, std::ios::end);
 	int iFileSize = stream.tellg();
 	stream.seekg (0, std::ios::beg);
-	char* pBuffer=new char[iFileSize];
-	stream.read(pBuffer, iFileSize);
-	stream.close();
 
 	if(iFileSize<=0)
 	{
 		printf("error loading file!\n");
 		return Ogre::MeshPtr(0);
 	}
+
+	char* pBuffer=new char[iFileSize];
+	stream.read(pBuffer, iFileSize);
+	stream.close();
 
 	Ogre::MemoryDataStream* pmemStream=new Ogre::MemoryDataStream(pBuffer, iFileSize);
 	Ogre::DataStreamPtr ptr(pmemStream);
@@ -103,7 +104,7 @@ DestructibleMeshSplitter::SplitMesh(Ogre::MeshPtr inMesh,
 				//check if fragments lost a sufficient amount of size (5% here)
 				for(int iMesh=0; iMesh<2; iMesh++)
 				{
-					if(outMeshes[iMesh]->getBounds().getSize().length()>meshes[iCurrIndex]->getBounds().getSize().length()*0.95f)
+					if(outMeshes[iMesh]->getBounds().getSize().length()>box.getSize().length()*0.95f)
 					{
 						printf("error: fragments too big\n");
 						Ogre::AxisAlignedBox outBox=outMeshes[iMesh]->getBounds();
@@ -280,7 +281,7 @@ DestructibleMeshSplitter::BooleanOp(Ogre::MeshPtr inMesh1, Ogre::MeshPtr inMesh2
 	{
 
 	GeometricTools::OctreeNode* pRoot[2];
-	for (int i = 0; i < 2; ++i)
+	for (int i=0; i < 2; i++)
 	{
 		OgreMeshExtractor::Extract(meshes[i], vvVertices[i], viSubmeshVertexOffsets[i],
 				viIndices[i], viSubmeshIndexOffsets[i]);
@@ -375,7 +376,7 @@ DestructibleMeshSplitter::BooleanOp(Ogre::MeshPtr inMesh1, Ogre::MeshPtr inMesh2
 	for(unsigned int iCut=0; iCut<vEdgeChains.size(); iCut++)
 	{
 		//iterate both ends of the segment
-		for (int iIndex = 0; iIndex < 2; iIndex++)
+		for (int iIndex=0; iIndex < 2; iIndex++)
 		{
 			//build a loop vertex;
 			SLoopVertex lv;

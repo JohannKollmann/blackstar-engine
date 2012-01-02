@@ -307,6 +307,8 @@ options:\n\
 	Ogre::String strSourceName=strFile.substr(iFolderEnd+1, strFile.size()-(iFolderEnd+1+5));
 
 	Ogre::MeshPtr pMesh=DestructibleMeshSplitter::loadMesh(strFile);
+	if(!pMesh.get())
+		return -1;
 	float fAbsFragmentSize=fSize;
 	if(bUseRelSize)
 		fAbsFragmentSize*=pMesh->getBounds().getSize().length();
@@ -326,6 +328,7 @@ options:\n\
 		//write fragment to disk
 		Ogre::String strFileName=strDestFolder+strSourceName+
 				Ogre::String("_")+Ogre::StringConverter::toString(iSplinter)+Ogre::String(".mesh");
+		printf("writing mesh fragment %s", strFileName.c_str());
 		pSerializer->exportMesh(vSplinters[iSplinter].get(), strFileName);
 		vstrFiles.push_back(strFileName);
 
@@ -368,7 +371,9 @@ options:\n\
 		}
 	}
 	//write XML output
-	std::ofstream ofs((strDestFolder+strSourceName+Ogre::String(".xml")).c_str());
+	std::string strXMLFile=strDestFolder+strSourceName+Ogre::String(".xml");
+	printf("writing XML file to %s", strXMLFile.c_str());
+	std::ofstream ofs(strXMLFile.c_str());
 	ofs<<"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\n";
 	ofs<<"<mesh_fragments>\n";
 	for(unsigned int iFragment=0; iFragment<vmConnections.size(); iFragment++)
