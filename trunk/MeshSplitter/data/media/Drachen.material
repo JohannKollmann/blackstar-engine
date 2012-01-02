@@ -1,0 +1,227 @@
+material rope
+{
+	technique
+	{
+		pass
+		{
+			ambient 0.5 0.5 0.5
+			diffuse 0.2 0.2 0.2
+		}
+	}
+}
+material plane
+{
+	technique
+	{
+		pass
+		{
+			ambient 0.5 0.5 0.5
+			diffuse 1.0 1.0 1.0
+		}
+	}
+}
+
+material grey
+{
+	technique
+	{
+		pass wire
+		{
+			
+			polygon_mode wireframe
+			scene_blend add
+			ambient 0 0 0
+			diffuse 0 0 0
+			//emissive .5 .5 .5
+			emissive 0 0 0
+			cull_hardware none
+			//depth_check off
+			
+			depth_write off
+			colour_write off
+		}
+		pass
+		{
+			scene_blend add
+			ambient 0 0 0
+			diffuse 0 0 0
+			//emissive 0.15 0.15 0.15
+			emissive 0 0 0
+			//cull_hardware none
+			//depth_check off
+
+			depth_write off
+			colour_write off
+		}
+	}
+}
+
+material reddish
+{
+	technique
+	{
+		pass
+		{
+			scene_blend add
+			ambient 0 0 0
+			diffuse 0 0 0
+			//emissive 0.25 0 0
+			//cull_hardware none
+			//depth_check off
+
+			colour_write off
+			depth_write off
+		}
+		pass wire
+		{
+			depth_write off
+
+			polygon_mode wireframe
+			scene_blend add
+			ambient 0 0 0
+			//diffuse 0 0 0
+			emissive 1 0 0
+			//cull_hardware none
+			//depth_check off
+
+			depth_write off
+			colour_write off
+		}
+	}
+}
+
+material blueish
+{
+	technique
+	{
+		pass
+		{
+			//scene_blend add
+			ambient 0 0 0
+			diffuse 0.7 0.7 0.7
+			//diffuse 0 0 0
+			//emissive 0 0 0.25
+			emissive 0 0 0.3
+			//cull_hardware none
+			//depth_check off
+		}
+		pass wire
+		{
+			polygon_mode wireframe
+			scene_blend add
+			ambient 0 0 0
+			diffuse 0 0 0
+			emissive 0 0 1
+			//cull_hardware none
+			//depth_check off
+		}
+	}
+}
+
+material greenish
+{
+	technique
+	{
+		pass
+		{
+			scene_blend add
+			ambient 0 0 0
+			diffuse 0 0 0
+			//emissive 0 0.25 0
+			//cull_hardware none
+			//depth_check off
+
+			colour_write off
+			depth_write off
+		}
+		pass wire
+		{
+			polygon_mode wireframe
+			scene_blend add
+			ambient 0 0 0
+			diffuse 0 0 0
+			//emissive 0 1 0
+			cull_hardware none
+			depth_check off
+
+			colour_write off
+			depth_write off
+		}
+	}
+}
+
+material wood_mat
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+ 			{
+				texture holz_01_COLOR.tga
+				tex_coord_set 0
+			}							
+		}
+	}
+}
+
+material "2 - Default"
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+ 			{
+				texture holz_01_COLOR.tga
+				tex_coord_set 0
+			}							
+		}
+	}
+}
+
+material vase_material
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+ 			{
+				texture holz_01_COLOR.tga
+				tex_coord_set 0
+			}							
+		}
+	}
+}
+
+material red
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+ 			{
+				texture Cliffs0140_2_S.jpg
+				tex_coord_set 0
+			}
+		}
+	}
+}
+
+material ice
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+ 			{
+				texture Cliffs0140_2_S.jpg
+				tex_coord_set 0
+			}
+		}
+	}
+}
+	
