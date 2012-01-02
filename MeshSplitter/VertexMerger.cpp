@@ -48,7 +48,8 @@ void DeleteOctree(OctreeNode* root)
 std::vector<unsigned int>
 VertexMerger::GetMatchingIndices(std::vector<Ogre::Vector3> vVertices, const float& fEps)
 {
-	//const
+	if(!vVertices.size())
+		return std::vector<unsigned int>();
 
 	OctreeNode* root=new OctreeNode;
 	root->vPos=vVertices[0];
