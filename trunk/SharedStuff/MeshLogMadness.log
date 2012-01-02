@@ -1,0 +1,218 @@
+triangulation with min angle failed, set to zero
+current poly size: 17, step 17
+searching for a convex vertex to clip
+starting with vertex 0, index in poly 0
+jumped to vertex 16
+checking vertex (16) for being clockwise... succeeded
+testing vertex (1) for being inside the current ear... succeeded
+testing vertex (2) for being inside the current ear... succeeded
+testing vertex (3) for being inside the current ear... succeeded
+testing vertex (4) for being inside the current ear... succeeded
+testing vertex (5) for being inside the current ear... succeeded
+testing vertex (6) for being inside the current ear... succeeded
+testing vertex (7) for being inside the current ear... succeeded
+testing vertex (8) for being inside the current ear... succeeded
+testing vertex (9) for being inside the current ear... succeeded
+testing vertex (10) for being inside the current ear... succeeded
+testing vertex (11) for being inside the current ear... succeeded
+testing vertex (12) for being inside the current ear... succeeded
+testing vertex (13) for being inside the current ear... succeeded
+testing vertex (14) for being inside the current ear... succeeded
+testing vertex (15) for being inside the current ear... succeeded
+current poly size: 16, step 16
+searching for a convex vertex to clip
+starting with vertex 0, index in poly 0
+jumped to vertex 1
+checking vertex (1) for being clockwise... failed
+checking vertex (2) for being clockwise... succeeded
+testing vertex (4) for being inside the current ear... succeeded
+testing vertex (5) for being inside the current ear... succeeded
+testing vertex (6) for being inside the current ear... succeeded
+testing vertex (7) for being inside the current ear... succeeded
+testing vertex (8) for being inside the current ear... succeeded
+testing vertex (9) for being inside the current ear... succeeded
+testing vertex (10) for being inside the current ear... succeeded
+testing vertex (11) for being inside the current ear... succeeded
+testing vertex (12) for being inside the current ear... succeeded
+testing vertex (13) for being inside the current ear... succeeded
+testing vertex (14) for being inside the current ear... succeeded
+testing vertex (15) for being inside the current ear... succeeded
+testing vertex (0) for being inside the current ear... succeeded
+testing vertex (1) for being inside the current ear... succeeded
+current poly size: 15, step 15
+searching for a convex vertex to clip
+starting with vertex 3, index in poly 2
+jumped to vertex 1
+checking vertex (1) for being clockwise... succeeded
+testing vertex (4) for being inside the current ear... succeeded
+testing vertex (5) for being inside the current ear... succeeded
+testing vertex (6) for being inside the current ear... succeeded
+testing vertex (7) for being inside the current ear... succeeded
+testing vertex (8) for being inside the current ear... succeeded
+testing vertex (9) for being inside the current ear... succeeded
+testing vertex (10) for being inside the current ear... succeeded
+testing vertex (11) for being inside the current ear... succeeded
+testing vertex (12) for being inside the current ear... succeeded
+testing vertex (13) for being inside the current ear... succeeded
+testing vertex (14) for being inside the current ear... succeeded
+testing vertex (15) for being inside the current ear... succeeded
+testing vertex (0) for being inside the current ear... succeeded
+current poly size: 14, step 14
+searching for a convex vertex to clip
+starting with vertex 3, index in poly 1
+jumped to vertex 4
+checking vertex (4) for being clockwise... succeeded
+testing vertex (6) for being inside the current ear... succeeded
+testing vertex (7) for being inside the current ear... succeeded
+testing vertex (8) for being inside the current ear... succeeded
+testing vertex (9) for being inside the current ear... succeeded
+testing vertex (10) for being inside the current ear... succeeded
+testing vertex (11) for being inside the current ear... succeeded
+testing vertex (12) for being inside the current ear... succeeded
+testing vertex (13) for being inside the current ear... succeeded
+testing vertex (14) for being inside the current ear... succeeded
+testing vertex (15) for being inside the current ear... succeeded
+testing vertex (0) for being inside the current ear... succeeded
+testing vertex (3) for being inside the current ear... succeeded
+current poly size: 13, step 13
+searching for a convex vertex to clip
+starting with vertex 5, index in poly 2
+jumped to vertex 3
+checking vertex (3) for being clockwise... succeeded
+testing vertex (6) for being inside the current ear... succeeded
+testing vertex (7) for being inside the current ear... succeeded
+testing vertex (8) for being inside the current ear... succeeded
+testing vertex (9) for being inside the current ear... succeeded
+testing vertex (10) for being inside the current ear... succeeded
+testing vertex (11) for being inside the current ear... succeeded
+testing vertex (12) for being inside the current ear... succeeded
+testing vertex (13) for being inside the current ear... succeeded
+testing vertex (14) for being inside the current ear... succeeded
+testing vertex (15) for being inside the current ear... succeeded
+testing vertex (0) for being inside the current ear... succeeded
+current poly size: 12, step 12
+searching for a convex vertex to clip
+starting with vertex 5, index in poly 1
+jumped to vertex 6
+checking vertex (6) for being clockwise... succeeded
+testing vertex (8) for being inside the current ear... succeeded
+testing vertex (9) for being inside the current ear... succeeded
+testing vertex (10) for being inside the current ear... succeeded
+testing vertex (11) for being inside the current ear... succeeded
+testing vertex (12) for being inside the current ear... succeeded
+testing vertex (13) for being inside the current ear... succeeded
+testing vertex (14) for being inside the current ear... succeeded
+testing vertex (15) for being inside the current ear... succeeded
+testing vertex (0) for being inside the current ear... succeeded
+testing vertex (5) for being inside the current ear... succeeded
+current poly size: 11, step 11
+searching for a convex vertex to clip
+starting with vertex 7, index in poly 2
+jumped to vertex 5
+checking vertex (5) for being clockwise... succeeded
+testing vertex (8) for being inside the current ear... succeeded
+testing vertex (9) for being inside the current ear... succeeded
+testing vertex (10) for being inside the current ear... succeeded
+testing vertex (11) for being inside the current ear... succeeded
+testing vertex (12) for being inside the current ear... succeeded
+testing vertex (13) for being inside the current ear... succeeded
+testing vertex (14) for being inside the current ear... succeeded
+testing vertex (15) for being inside the current ear... succeeded
+testing vertex (0) for being inside the current ear... succeeded
+current poly size: 10, step 10
+searching for a convex vertex to clip
+starting with vertex 7, index in poly 1
+jumped to vertex 8
+checking vertex (8) for being clockwise... succeeded
+testing vertex (10) for being inside the current ear... succeeded
+testing vertex (11) for being inside the current ear... succeeded
+testing vertex (12) for being inside the current ear... succeeded
+testing vertex (13) for being inside the current ear... succeeded
+testing vertex (14) for being inside the current ear... succeeded
+testing vertex (15) for being inside the current ear... succeeded
+testing vertex (0) for being inside the current ear... succeeded
+testing vertex (7) for being inside the current ear... succeeded
+current poly size: 9, step 9
+searching for a convex vertex to clip
+starting with vertex 9, index in poly 2
+jumped to vertex 7
+checking vertex (7) for being clockwise... succeeded
+testing vertex (10) for being inside the current ear... succeeded
+testing vertex (11) for being inside the current ear... succeeded
+testing vertex (12) for being inside the current ear... succeeded
+testing vertex (13) for being inside the current ear... succeeded
+testing vertex (14) for being inside the current ear... succeeded
+testing vertex (15) for being inside the current ear... succeeded
+testing vertex (0) for being inside the current ear... succeeded
+current poly size: 8, step 8
+searching for a convex vertex to clip
+starting with vertex 9, index in poly 1
+jumped to vertex 10
+checking vertex (10) for being clockwise... succeeded
+testing vertex (12) for being inside the current ear... succeeded
+testing vertex (13) for being inside the current ear... succeeded
+testing vertex (14) for being inside the current ear... succeeded
+testing vertex (15) for being inside the current ear... succeeded
+testing vertex (0) for being inside the current ear... succeeded
+testing vertex (9) for being inside the current ear... succeeded
+current poly size: 7, step 7
+searching for a convex vertex to clip
+starting with vertex 11, index in poly 2
+jumped to vertex 9
+checking vertex (9) for being clockwise... succeeded
+testing vertex (12) for being inside the current ear... succeeded
+testing vertex (13) for being inside the current ear... succeeded
+testing vertex (14) for being inside the current ear... succeeded
+testing vertex (15) for being inside the current ear... succeeded
+testing vertex (0) for being inside the current ear... succeeded
+current poly size: 6, step 6
+searching for a convex vertex to clip
+starting with vertex 11, index in poly 1
+jumped to vertex 12
+checking vertex (12) for being clockwise... succeeded
+testing vertex (14) for being inside the current ear... succeeded
+testing vertex (15) for being inside the current ear... succeeded
+testing vertex (0) for being inside the current ear... succeeded
+testing vertex (11) for being inside the current ear... succeeded
+current poly size: 5, step 5
+searching for a convex vertex to clip
+starting with vertex 13, index in poly 2
+jumped to vertex 11
+checking vertex (11) for being clockwise... succeeded
+testing vertex (14) for being inside the current ear... succeeded
+testing vertex (15) for being inside the current ear... succeeded
+testing vertex (0) for being inside the current ear... succeeded
+current poly size: 4, step 4
+searching for a convex vertex to clip
+starting with vertex 13, index in poly 1
+jumped to vertex 14
+checking vertex (14) for being clockwise... succeeded
+testing vertex (0) for being inside the current ear... succeeded
+testing vertex (13) for being inside the current ear... succeeded
+current poly size: 3, step 3
+searching for a convex vertex to clip
+starting with vertex 0, index in poly 0
+jumped to vertex 15
+checking vertex (15) for being clockwise... succeeded
+testing vertex (13) for being inside the current ear... succeeded
+current poly size: 2, step 2
+searching for a convex vertex to clip
+sub-triangulation returns 3 indices
+sub-triangulation returns 6 indices
+sub-triangulation returns 9 indices
+sub-triangulation returns 12 indices
+sub-triangulation returns 15 indices
+sub-triangulation returns 18 indices
+sub-triangulation returns 21 indices
+sub-triangulation returns 24 indices
+sub-triangulation returns 27 indices
+sub-triangulation returns 30 indices
+sub-triangulation returns 33 indices
+sub-triangulation returns 36 indices
+sub-triangulation returns 39 indices
+sub-triangulation returns 42 indices
+sub-triangulation returns 45 indices
+returning 45 indices
+error: fragments too big
+fragment 1: (x=-0.71 X=1.03 y=-1.03 Y=1.03 z=-1.03 Z=1.03)
+danger of inflationary growth of segments is imminent, aborting!
