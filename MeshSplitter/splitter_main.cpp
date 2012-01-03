@@ -40,10 +40,10 @@ protected:
 	void createScene(void)
 	{
 		// Set default ambient light
-		mSceneMgr->setAmbientLight(ColourValue(0.1, 0.1, 0.1));
+		mSceneMgr->setAmbientLight(ColourValue(0.1f, 0.1f, 0.1f));
 
         // Set some camera params
-		mCamera->setNearClipDistance(0.1);
+		mCamera->setNearClipDistance(0.1f);
         mCamera->setFarClipDistance(1000);
 		mCamera->setPosition(0,0,-10);
 		mCamera->setOrientation(Ogre::Quaternion(0, -1, 0, 0));
@@ -51,7 +51,7 @@ protected:
 	    // Light
 		Ogre::Light *mLight = mSceneMgr->createLight("Light0");
 		mLight->setPosition(0,0,0);
-		mLight->setDiffuseColour(0.7, 0.5, 0.2);
+		mLight->setDiffuseColour(0.7f, 0.5f, 0.2f);
 		mLight->setSpecularColour(1,1,1);
 
 
@@ -123,8 +123,8 @@ protected:
 		mTextArea->setCharHeight(16);
 		mTextArea->setCaption("ICE Mesh Splitter Tester 0.0a");
 		mTextArea->setFontName("BlueHighway");
-		mTextArea->setColourBottom(ColourValue(0.3, 0.5, 0.3));
-		mTextArea->setColourTop(ColourValue(0.5, 0.7, 0.5));
+		mTextArea->setColourBottom(ColourValue(0.3f, 0.5f, 0.3f));
+		mTextArea->setColourTop(ColourValue(0.5f, 0.7f, 0.5f));
 
 		// Create an overlay, and add the panel
 		Ogre::Overlay* overlay = Ogre::OverlayManager::getSingleton().create("OverlayName");
@@ -165,9 +165,9 @@ int main(int argc, char **argv)
 			bDisplayHelp=false,
 			bUseRelSize=true;
 
-	float fSize=0.2,
-			fRoughness=1.0,
-			fRelUV=1.0;
+	float fSize=0.2f,
+			fRoughness=1.0f,
+			fRelUV=1.0f;
 	int iRandomSeed=0,
 		nRecoveryAttempts=3;
 
@@ -181,7 +181,7 @@ int main(int argc, char **argv)
 		else if(!strcmp(argv[iCurrArg], "-visual"))
 			bDisplayVisual=true;
 		else if(!strcmp(argv[iCurrArg], "-random"))
-			iRandomSeed=std::time(NULL);
+			iRandomSeed=(int)std::time(NULL);
 		else if(!strcmp(argv[iCurrArg], "-relsize"))
 		{
 			iCurrArg++;
@@ -328,7 +328,7 @@ options:\n\
 		//write fragment to disk
 		Ogre::String strFileName=strDestFolder+strSourceName+
 				Ogre::String("_")+Ogre::StringConverter::toString(iSplinter)+Ogre::String(".mesh");
-		printf("writing mesh fragment %s", strFileName.c_str());
+		printf("writing mesh fragment %s\n", strFileName.c_str());
 		pSerializer->exportMesh(vSplinters[iSplinter].get(), strFileName);
 		vstrFiles.push_back(strFileName);
 
@@ -372,7 +372,7 @@ options:\n\
 	}
 	//write XML output
 	std::string strXMLFile=strDestFolder+strSourceName+Ogre::String(".xml");
-	printf("writing XML file to %s", strXMLFile.c_str());
+	printf("writing XML file to %s\n", strXMLFile.c_str());
 	std::ofstream ofs(strXMLFile.c_str());
 	ofs<<"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\n";
 	ofs<<"<mesh_fragments>\n";
