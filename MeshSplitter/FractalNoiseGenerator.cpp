@@ -22,14 +22,16 @@ FractalNoiseGenerator::Generate(int iResolution, float fRoughness)
 	ppfFNA[IMGSIZE][IMGSIZE]=0;
 
 	int iStep=IMGSIZE;
+	float fCurrRoughness=1;
 	while(iStep>1)
 	{
+		fCurrRoughness*=fRoughness;
 		for(int x=0; x<IMGSIZE; x+=iStep)
 		{
 			for(int y=0; y<IMGSIZE; y+=iStep)
 			{
 				//square step
-				float fOffset=(((rand()&0xffff)-0x8000)/(float)(1<<15))*0.5f*(float)iStep/(float)IMGSIZE;
+				float fOffset=(((rand()&0xffff)-0x8000)/(float)(1<<15))*0.5f*fCurrRoughness*(float)iStep/(float)IMGSIZE;
 				//calc average of surrounding square
 				float fSum=0;
 				fSum+=ppfFNA[x][y];

@@ -27,7 +27,7 @@ class SampleApp : public ExampleApplication
 public:
 	// Basic constructor
 	SampleApp(){}
-
+	virtual ~SampleApp(){}
 	void setMeshes(std::vector<Ogre::String> vSplinters, Ogre::String strPath){m_vSplinters=vSplinters; m_strPath=strPath;}
 protected:
 	void chooseSceneManager()
