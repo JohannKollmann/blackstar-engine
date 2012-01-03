@@ -6,6 +6,7 @@
  */
 
 #include "FractalNoiseGenerator.h"
+#include "OgreMath.h"
 #include <stdlib.h>
 
 float**
@@ -31,7 +32,7 @@ FractalNoiseGenerator::Generate(int iResolution, float fRoughness)
 			for(int y=0; y<IMGSIZE; y+=iStep)
 			{
 				//square step
-				float fOffset=(((rand()&0xffff)-0x8000)/(float)(1<<15))*0.5f*fCurrRoughness*(float)iStep/(float)IMGSIZE;
+				float fOffset=Ogre::Math::RangeRandom(-1.0f, 1.0f)*0.5f*fCurrRoughness*(float)iStep/(float)IMGSIZE;
 				//calc average of surrounding square
 				float fSum=0;
 				fSum+=ppfFNA[x][y];
@@ -48,13 +49,13 @@ FractalNoiseGenerator::Generate(int iResolution, float fRoughness)
 
 				//diamond step
 				ppfFNA[x+(iStep>>1)][y]=(ppfFNA[x][y]+ppfFNA[x+iStep][y])/2.0+
-					(((rand()&0xffff)-0x8000)/(float)(1<<15))*0.5f*(float)iStep/(float)IMGSIZE;
+					Ogre::Math::RangeRandom(-1.0f, 1.0f)*0.5f*fCurrRoughness*(float)iStep/(float)IMGSIZE;
 				ppfFNA[x][y+(iStep>>1)]=(ppfFNA[x][y]+ppfFNA[x][y+iStep])/2.0+
-					(((rand()&0xffff)-0x8000)/(float)(1<<15))*0.5f*(float)iStep/(float)IMGSIZE;
+					Ogre::Math::RangeRandom(-1.0f, 1.0f)*0.5f*fCurrRoughness*(float)iStep/(float)IMGSIZE;
 				ppfFNA[x+(iStep>>1)][y+iStep]=(ppfFNA[x][y+iStep]+ppfFNA[x+iStep][y+iStep])/2.0+
-					(((rand()&0xffff)-0x8000)/(float)(1<<15))*0.5f*(float)iStep/(float)IMGSIZE;
+					Ogre::Math::RangeRandom(-1.0f, 1.0f)*0.5f*fCurrRoughness*(float)iStep/(float)IMGSIZE;
 				ppfFNA[x+iStep][y+(iStep>>1)]=(ppfFNA[x+iStep][y]+ppfFNA[x+iStep][y+iStep])/2.0+
-					(((rand()&0xffff)-0x8000)/(float)(1<<15))*0.5f*(float)iStep/(float)IMGSIZE;
+					Ogre::Math::RangeRandom(-1.0f, 1.0f)*0.5f*fCurrRoughness*(float)iStep/(float)IMGSIZE;
 			}
 		}
 		iStep>>=1;

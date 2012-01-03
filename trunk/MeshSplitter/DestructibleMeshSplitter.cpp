@@ -86,9 +86,7 @@ DestructibleMeshSplitter::SplitMesh(Ogre::MeshPtr inMesh,
 		{
 			//this fragment is too big, split it
 			//create new meshes
-
 			Ogre::MeshPtr outMeshes[2];
-
 			bool bError=false;
 			bool bDiscardCurrent=false;
 			for(unsigned int iAttempt=0; iAttempt<nRecoveryAttempts; iAttempt++)
@@ -104,7 +102,8 @@ DestructibleMeshSplitter::SplitMesh(Ogre::MeshPtr inMesh,
 				//check if fragments lost a sufficient amount of size (5% here)
 				for(int iMesh=0; iMesh<2; iMesh++)
 				{
-					if(outMeshes[iMesh]->getBounds().getSize().length()>box.getSize().length()*0.95f)
+					Ogre::AxisAlignedBox outBox=outMeshes[iMesh]->getBounds();
+					if(outBox.getSize().length()>box.getSize().length()*0.95f)
 					{
 						printf("error: fragments too big\n");
 						Ogre::AxisAlignedBox outBox=outMeshes[iMesh]->getBounds();
@@ -215,7 +214,9 @@ void DestructibleMeshSplitter::Split(Ogre::MeshPtr inMesh, Ogre::MeshPtr& outMes
 		bDestroyCutPlane=true;
 	}
 	CutMeshGenerator::CreateRandomCutMesh(inMesh, debugCutPlane, fRoughness, fResolution, strCutMaterial);
-	//Ogre::MeshPtr output=BooleanOp(inMesh, outMesh1, OUTSIDE, INSIDE, outMesh2, outMesh3);
+
+	//Ogre::AxisAlignedBox outBox=debugCutPlane->getBounds();
+
 	outMesh1=BooleanOp(inMesh, debugCutPlane, OUTSIDE, INSIDE, bError);
 	outMesh2=BooleanOp(inMesh, debugCutPlane, INSIDE, INSIDE, bError);
 	if(bDestroyCutPlane)
@@ -279,7 +280,6 @@ DestructibleMeshSplitter::BooleanOp(Ogre::MeshPtr inMesh1, Ogre::MeshPtr inMesh2
 	std::map<unsigned int, std::set<unsigned int> > amCutTris[2];
 
 	{
-
 	GeometricTools::OctreeNode* pRoot[2];
 	for (int i=0; i < 2; i++)
 	{
@@ -318,7 +318,6 @@ DestructibleMeshSplitter::BooleanOp(Ogre::MeshPtr inMesh1, Ogre::MeshPtr inMesh2
 			bError=true;
 			continue;
 		}
-
 		assert(vCuts.size()==2);//a valid cut must produce exactly two cut edges, i.e. one cutting line
 
 		for (unsigned int i = 0; i < vCuts.size(); ++i)
@@ -326,7 +325,6 @@ DestructibleMeshSplitter::BooleanOp(Ogre::MeshPtr inMesh1, Ogre::MeshPtr inMesh2
 			int iMesh=vCuts[i].iEdgeID/3;
 			lCuts.push_back(std::make_pair((iMesh ? 1<<31 : 0)|(aiTriIndices[iMesh]+(vCuts[i].iEdgeID%3)), vCuts[i].vPos));
 		}
-
 		SCut cut;
 		cut.aiTris[0]=it->first, cut.aiTris[1]=it->second;
 		//iterate cuts
