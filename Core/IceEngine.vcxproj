@@ -31,12 +31,16 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
-    <Import Project="..\OgrePhysX\PhysXIncludes.props" />
+    <Import Project="..\VCPropertySheets\OgreIncludes.props" />
+    <Import Project="..\VCPropertySheets\BuildEvents.props" />
+    <Import Project="..\VCPropertySheets\PhysXIncludes.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
-    <Import Project="..\OgrePhysX\PhysXIncludesDEBUG.props" />
+    <Import Project="..\VCPropertySheets\OgreIncludesDEBUG.props" />
+    <Import Project="..\VCPropertySheets\BuildEvents.props" />
+    <Import Project="..\VCPropertySheets\PhysXIncludesDEBUG.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
@@ -65,7 +69,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>OgreMain_d.lib;OgrePhysX_d.lib;ws2_32.lib;OgreOggSound_d.lib;caelum_d.lib;WinMM.lib;LoadSave_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OgrePhysX_d.lib;ws2_32.lib;OgreOggSound_d.lib;caelum_d.lib;WinMM.lib;LoadSave_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(TargetName).dll</OutputFile>
       <AdditionalLibraryDirectories>..\..\Dependencies\boost\lib\;..\..\Dependencies\OgreOggSound\lib\;..\..\Dependencies\Ogre3D\lib;..\..\Dependencies\Ogre3D\Dependencies\lib\Debug;..\..\Dependencies\wxWidgets\lib\vc_lib\;..\..\Dependencies\wxWidgets\wxthings\lib\;..\..\Dependencies\Caelum\lib\debug;..\..\Ogre3D\Dependencies\lib\Release\;..\..\lib\;..\..\Dependencies\Hydrax\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -96,7 +100,7 @@
     </ClCompile>
     <Link>
       <RegisterOutput>false</RegisterOutput>
-      <AdditionalDependencies>OgreMain.lib;OgrePhysX.lib;ws2_32.lib;OgreOggSound.lib;caelum.lib;WinMM.lib;LoadSave.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OgrePhysX.lib;ws2_32.lib;OgreOggSound.lib;caelum.lib;WinMM.lib;LoadSave.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(TargetName).dll</OutputFile>
       <AdditionalLibraryDirectories>..\..\Dependencies\OgreOggSound\lib\;..\..\Dependencies\Ogre3D\lib;..\..\Dependencies\Ogre3D\Dependencies\lib\Release;..\..\Dependencies\Caelum\lib\release;..\..\Ogre3D\Dependencies\lib\Release\;..\..\lib\;..\..\Dependencies\Hydrax\lib;..\..\Dependencies\boost\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>

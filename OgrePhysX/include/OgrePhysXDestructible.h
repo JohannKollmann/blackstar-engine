@@ -32,7 +32,16 @@ namespace OgrePhysX
 			SplitPart(Destructible *destructible, const Ogre::String &meshName);
 			~SplitPart();
 
-			std::vector<SplitPart*> mEdges;
+			struct Neighbor
+			{
+				SplitPart *splitPart;
+				PxFixedJoint *joint;
+				Neighbor(SplitPart *sp, PxFixedJoint *j) : splitPart(sp), joint(j) {}
+			};
+
+			std::vector<Neighbor> mEdges;
+
+			bool mWasRendered;
 
 			RenderedActorBinding* getRenderedActor() { return mRenderedActor; }
 			Actor<PxRigidDynamic>& getActor() { return mActor; }
@@ -67,7 +76,7 @@ namespace OgrePhysX
 		Sets the position of the destructible.
 		This will reset the broken parts to their original position, so do not use it at runtime.
 		*/
-		void setPosition(const Ogre::Vector3 &position);
+		void setGlobalPosition(const Ogre::Vector3 &position);
 
 		/**
 		Retrieves the position of the destructible.
@@ -111,6 +120,8 @@ namespace OgrePhysX
 		void setSimulationFilterData(PxFilterData &data);
 
 		void setQueryFilterData(PxFilterData &data);
+
+		void renderPart(SplitPart *part, const Ogre::Vector3 &position, const Ogre::Quaternion &orientation);
 
 		void sync();
 	};

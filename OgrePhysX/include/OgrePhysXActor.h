@@ -48,7 +48,7 @@ namespace OgrePhysX
 			mActor = actor;
 		}
 
-		T* getPxActor() const
+		inline T* getPxActor() const
 		{
 			return mActor;
 		}
@@ -61,27 +61,27 @@ namespace OgrePhysX
 			return shapes[0];
 		}
 
-		void setGlobalPosition(const Ogre::Vector3 &position)
+		inline void setGlobalPosition(const Ogre::Vector3 &position)
 		{
 			mActor->setGlobalPose(PxTransform(Convert::toPx(position), mActor->getGlobalPose().q));
 		}
 
-		Ogre::Vector3 getGlobalPosition()
+		inline Ogre::Vector3 getGlobalPosition()
 		{
 			return Convert::toOgre(mActor->getGlobalPose().p);
 		}
 
-		void setGlobalOrientation(const Ogre::Quaternion &q)
+		inline void setGlobalOrientation(const Ogre::Quaternion &q)
 		{
 			mActor->setGlobalPose(PxTransform(mActor->getGlobalPose().p, Convert::toPx(q)));
 		}
 
-		Ogre::Quaternion getGlobalOrientation()
+		inline Ogre::Quaternion getGlobalOrientation()
 		{
 			return Convert::toOgre(mActor->getGlobalPose().q);
 		}
 
-		void setGlobalTransform(const Ogre::Vector3 &position, const Ogre::Quaternion &q)
+		inline void setGlobalTransform(const Ogre::Vector3 &position, const Ogre::Quaternion &q)
 		{
 			mActor->setGlobalPose(PxTransform(Convert::toPx(position), Convert::toPx(q)));
 		}

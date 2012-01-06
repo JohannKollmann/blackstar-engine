@@ -13,6 +13,10 @@ namespace OgrePhysX
 
 		mMaterial = &material;
 
+		float breakForceScale = scale.x*scale.y*scale.z*mDensity;
+		mBreakForce *= breakForceScale;
+		mBreakTorque *= breakForceScale;
+
 		TiXmlDocument document;
 		Ogre::DataStreamPtr stream = Ogre::ResourceGroupManager::getSingleton().openResource(meshSplitConfigFile);
 		if (stream.isNull())
@@ -24,7 +28,7 @@ namespace OgrePhysX
 		//Get the file contents
 		Ogre::String data = stream->getAsString();
 
-		//Parse the XML document
+		//Parse the XML c
 		document.Parse(data.c_str());
 		stream->close();
 		if (document.Error())
@@ -77,6 +81,8 @@ namespace OgrePhysX
 	{
 		mDestructible = destructible;
 
+		mWasRendered = false;
+
 		Ogre::SceneNode *node = mDestructible->mScene->getOgreSceneMgr()->getRootSceneNode()->createChildSceneNode();
 		Ogre::Entity* ent = mDestructible->mScene->getOgreSceneMgr()->createEntity(meshName);
 		node->attachObject(ent);
@@ -84,25 +90,30 @@ namespace OgrePhysX
 
 		PxTransform shapeOffset = PxTransform::createIdentity();
 
-		float shapeSizeFactor = 0.8f;
+		float shapeSizeFactor = 0.75f;
 
-		Ogre::Vector3 offset = ent->getBoundingBox().getCenter() * mDestructible->mScale;
-		Ogre::Vector3 scaledOffset = offset * shapeSizeFactor;
-		shapeOffset.p = Convert::toPx(offset - scaledOffset);
+		Ogre::Vector3 center = ent->getBoundingBox().getCenter() * mDestructible->mScale;
 
 		Ogre::Vector3 scale = mDestructible->mScale * shapeSizeFactor;
 
+		Ogre::Vector3 boundingBoxHalfSize = ent->getBoundingBox().getHalfSize() * scale;
+
 		Cooker::Params params;
 		params.scale(scale);
-		if (ent->getBoundingBox().getSize().x * scale.x > 0.2f &&
-			ent->getBoundingBox().getSize().y * scale.y > 0.2f &&
-			ent->getBoundingBox().getSize().z * scale.z > 0.2f)
-			mActor = mDestructible->mScene->createRigidDynamic(Geometry::convexMeshGeometry(ent->getMesh(), params), mDestructible->mDensity, *mDestructible->mMaterial, shapeOffset); 
+		if (boundingBoxHalfSize.x > 0.1f &&
+			boundingBoxHalfSize.y > 0.1f &&
+			boundingBoxHalfSize.z > 0.1f)
+		{
+			Ogre::Vector3 scaledOffset = center * shapeSizeFactor;
+			shapeOffset.p = Convert::toPx(center - scaledOffset);
 
+			mActor = mDestructible->mScene->createRigidDynamic(Geometry::convexMeshGeometry(ent->getMesh(), params), mDestructible->mDensity, *mDestructible->mMaterial, shapeOffset); 
+		}
 		else 
 		{
 			//mesh is too small for convex mesh
-			PxBoxGeometry boxGeometry = Geometry::boxGeometry(ent, shapeOffset, scale);
+			PxBoxGeometry boxGeometry = PxBoxGeometry(Convert::toPx(boundingBoxHalfSize));
+			shapeOffset.p = Convert::toPx(center);
 			mActor = mDestructible->mScene->createRigidDynamic(boxGeometry, mDestructible->mDensity, *mDestructible->mMaterial, shapeOffset); 
 		}
 
@@ -151,8 +162,8 @@ namespace OgrePhysX
 			part1->getRenderedActor()->getActor(), PxTransform::createIdentity(),
 			part2->getRenderedActor()->getActor(), PxTransform::createIdentity());
 
-		part1->mEdges.push_back(part2);
-		part2->mEdges.push_back(part1);
+		part1->mEdges.push_back(SplitPart::Neighbor(part2, joint));
+		part2->mEdges.push_back(SplitPart::Neighbor(part1, joint));
 
 		joint->setBreakForce(breakForce, breakTorque);
 
@@ -179,7 +190,7 @@ namespace OgrePhysX
 			i->second->getActor().getFirstShape()->setQueryFilterData(data);
 	}
 
-	void Destructible::setPosition(const Ogre::Vector3 &position)
+	void Destructible::setGlobalPosition(const Ogre::Vector3 &position)
 	{
 		for (auto i = mParts.begin(); i != mParts.end(); i++)
 		{
@@ -195,6 +206,18 @@ namespace OgrePhysX
 		}
 	}
 
+	void Destructible::renderPart(SplitPart *part, const Ogre::Vector3 &position, const Ogre::Quaternion &orientation)
+	{
+		if (part->mWasRendered) return;
+
+		part->getRenderedActor()->getPointRenderable()->setTransform(position, orientation);
+		part->mWasRendered = true;
+
+		for (auto i = part->mEdges.begin(); i != part->mEdges.end(); i++)
+			if (!(i->joint->getConstraintFlags() & PxConstraintFlag::eBROKEN))
+				renderPart(i->splitPart, position, orientation);
+	}
+
 	void Destructible::sync()
 	{
 		if (mParts.size() > 0)
@@ -204,7 +227,13 @@ namespace OgrePhysX
 		}
 
 		for (auto i = mParts.begin(); i != mParts.end(); i++)
-			i->second->getRenderedActor()->sync();
+			i->second->mWasRendered = false;
+
+		for (auto i = mParts.begin(); i != mParts.end(); i++)
+		{
+			if (!i->second->mWasRendered)
+				renderPart(i->second, i->second->getActor().getGlobalPosition(), i->second->getActor().getGlobalOrientation());
+		}
 
 		if (mPointRenderable) 
 			mPointRenderable->setTransform(mPosition, mOrientation);

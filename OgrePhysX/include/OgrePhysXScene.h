@@ -82,13 +82,13 @@ namespace OgrePhysX
 		Creates a new rigid dynamic actor with a specified collision shape and a default material and adds it to the scene.
 		@return An Actor object wrapping the created PxActor.
 		*/
-		Actor<PxRigidDynamic> createRigidDynamic(PxGeometry &geometry, float density, const PxTransform &shapeOffset = PxTransform::createIdentity(), const PxTransform &actorPose = PxTransform::createIdentity());
+		Actor<PxRigidDynamic> createRigidDynamic(PxGeometry &geometry, float density, const PxTransform &shapePose = PxTransform::createIdentity(), const PxTransform &actorPose = PxTransform::createIdentity());
 
 		/**
 		Creates a new rigid dynamic actor with a specified collision shape and material and adds it to the scene.
 		@return An Actor object wrapping the created PxActor.
 		*/
-		Actor<PxRigidDynamic> createRigidDynamic(PxGeometry &geometry, float density, PxMaterial &material, const PxTransform &shapeOffset = PxTransform::createIdentity(), const PxTransform &actorPose = PxTransform::createIdentity());
+		Actor<PxRigidDynamic> createRigidDynamic(PxGeometry &geometry, float density, PxMaterial &material, const PxTransform &shapePose = PxTransform::createIdentity(), const PxTransform &actorPose = PxTransform::createIdentity());
 
 		/**
 		Creates a new rigid dynamic actor with a collision shape matching the given entity.
@@ -113,13 +113,13 @@ namespace OgrePhysX
 		Creates a new rigid static actor with a specified collision shape and a default material and adds it to the scene.		
 		@return An Actor object wrapping the created PxActor.
 		*/
-		Actor<PxRigidStatic> createRigidStatic(PxGeometry &geometry, const PxTransform &actorPose = PxTransform::createIdentity());
+		Actor<PxRigidStatic> createRigidStatic(PxGeometry &geometry, const PxTransform &shapePose = PxTransform::createIdentity(), const PxTransform &actorPose = PxTransform::createIdentity());
 
 		/**
 		Creates a new rigid static actor with a specified collision shape and material and adds it to the scene.
 		@return An Actor object wrapping the created PxActor.
 		*/
-		Actor<PxRigidStatic> createRigidStatic(PxGeometry &geometry, PxMaterial &material, const PxTransform &actorPose = PxTransform::createIdentity());
+		Actor<PxRigidStatic> createRigidStatic(PxGeometry &geometry, PxMaterial &material, const PxTransform &shapePose = PxTransform::createIdentity(), const PxTransform &actorPose = PxTransform::createIdentity());
 
 		///Removes an actor from the scene.
 		template<class T>
@@ -141,10 +141,12 @@ namespace OgrePhysX
 		/**
 		Creates a destructible dynamic rendered actor.
 		*/
+		Destructible* createDestructible(const Ogre::String &meshSplitConfigFile, float breakForce = 1000.0f, float breakTorque = 1000.0f, float density = 100.0f, const Ogre::Vector3 &scale = Ogre::Vector3(1,1,1));
 		Destructible* createDestructible(const Ogre::String &meshSplitConfigFile, PxMaterial &material, float breakForce = 1000.0f, float breakTorque = 1000.0f, float density = 100.0f, const Ogre::Vector3 &scale = Ogre::Vector3(1,1,1));
 
 		/**
 		Binds an Ogre skeleton to a set of actors.
+		-- not working properpy at the moment :-(
 		*/
 		Ragdoll* createRagdollBinding(Ogre::Entity *entity, Ogre::SceneNode *node);
 

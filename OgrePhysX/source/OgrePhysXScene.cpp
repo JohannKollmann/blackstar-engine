@@ -120,14 +120,14 @@ namespace OgrePhysX
 		return actor;
 	}
 
-	Actor<PxRigidStatic> Scene::createRigidStatic(PxGeometry &geometry, const PxTransform &actorPose)
+	Actor<PxRigidStatic> Scene::createRigidStatic(PxGeometry &geometry, const PxTransform &shapePose, const PxTransform &actorPose)
 	{
-		return createRigidStatic(geometry, World::getSingleton().getDefaultMaterial(), actorPose);
+		return createRigidStatic(geometry, World::getSingleton().getDefaultMaterial(), shapePose, actorPose);
 	}
-	Actor<PxRigidStatic> Scene::createRigidStatic(PxGeometry &geometry, PxMaterial &material, const PxTransform &actorPose)
+	Actor<PxRigidStatic> Scene::createRigidStatic(PxGeometry &geometry, PxMaterial &material, const PxTransform &shapePose, const PxTransform &actorPose)
 	{
 		PxRigidStatic *pxActor = getPxPhysics()->createRigidStatic(actorPose);
-		pxActor->createShape(geometry, material);
+		pxActor->createShape(geometry, material, shapePose);
 		mPxScene->addActor(*pxActor);
 		Actor<PxRigidStatic> actor(pxActor);
 		return actor;
@@ -159,6 +159,11 @@ namespace OgrePhysX
 			}
 		}
 		delete binding;
+	}
+
+	Destructible* Scene::createDestructible(const Ogre::String &meshSplitConfigFile, float breakForce, float breakTorque, float density, const Ogre::Vector3 &scale)
+	{
+		return createDestructible(meshSplitConfigFile, World::getSingleton().getDefaultMaterial(), breakForce, breakTorque, density, scale);
 	}
 
 	Destructible* Scene::createDestructible(const Ogre::String &meshSplitConfigFile, PxMaterial &material, float breakForce, float breakTorque, float density, const Ogre::Vector3 &scale)

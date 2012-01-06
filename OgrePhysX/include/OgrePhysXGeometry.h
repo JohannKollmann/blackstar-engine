@@ -24,6 +24,7 @@ THE SOFTWARE.
 
 #include "Ogre.h"
 #include "PxPhysics.h"
+#include "PxPlaneGeometry.h"
 #include "PxSphereGeometry.h"
 #include "PxBoxGeometry.h"
 #include "PxCapsuleGeometry.h"
@@ -59,6 +60,12 @@ namespace OgrePhysX
 		static PxBoxGeometry boxGeometry(const Ogre::Vector3 &dimension)
 		{
 			return PxBoxGeometry(Convert::toPx(dimension));
+		}
+
+		///A plane geometry has no properties in PhysX 3, the normal is always (1, 0, 0).
+		static PxPlaneGeometry planeGeometry()
+		{
+			return PxPlaneGeometry();
 		}
 
 		static PxConvexMeshGeometry convexMeshGeometry(Ogre::MeshPtr mesh, Cooker::Params params = Cooker::Params())
