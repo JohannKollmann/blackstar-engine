@@ -49,7 +49,7 @@ void CutMeshGenerator::Generate(Ogre::MeshPtr meshptr, float** aafHeightmap, int
 	Ogre::HardwareIndexBufferSharedPtr ibuf = Ogre::HardwareBufferManager::getSingleton().createIndexBuffer(
 	Ogre::HardwareIndexBuffer::IT_32BIT, nTris*3, Ogre::HardwareBuffer::HBU_STATIC);
 
-	uint32_t* aiIndexBuf=(uint32_t*)ibuf->lock(Ogre::HardwareBuffer::HBL_DISCARD);
+	unsigned int* aiIndexBuf=(unsigned int*)ibuf->lock(Ogre::HardwareBuffer::HBL_DISCARD);
 
 	std::vector<Ogre::Vector3> vvNormals(nTris);
 	std::vector<std::vector<unsigned int> > vvVertexNormals(nVerts);

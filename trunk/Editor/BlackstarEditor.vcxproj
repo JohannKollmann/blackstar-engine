@@ -30,21 +30,21 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
-    <Import Project="..\OgrePhysX\PhysXIncludes.props" />
+    <Import Project="..\VCPropertySheets\OgreIncludes.props" />
+    <Import Project="..\VCPropertySheets\BuildEvents.props" />
+    <Import Project="..\VCPropertySheets\PhysXIncludes.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
-    <Import Project="..\OgrePhysX\PhysXIncludesDEBUG.props" />
+    <Import Project="..\VCPropertySheets\OgreIncludesDEBUG.props" />
+    <Import Project="..\VCPropertySheets\BuildEvents.props" />
+    <Import Project="..\VCPropertySheets\PhysXIncludesDEBUG.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <_ProjectFileVersion>10.0.30128.1</_ProjectFileVersion>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Configuration)\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Debug\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Release\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</LinkIncremental>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectName)_d</TargetName>
   </PropertyGroup>
@@ -64,7 +64,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>OgreMain_d.lib;OgrePhysX_d.lib;ws2_32.lib;OgreOggSound_d.lib;caelum_d.lib;IceEngine_d.lib;LoadSave_d.lib;meshmagick_d.lib;wxmsw29ud_core.lib;wxbase29ud.lib;wxjpegd.lib;wxpngd.lib;wxzlibd.lib;wxexpatd.lib;winmm.lib;comctl32.lib;rpcrt4.lib;wsock32.lib;oleacc.lib;wxtiffd.lib;wxscintillad.lib;wxmsw29ud_adv.lib;wxmsw29ud_aui.lib;wxmsw29ud_stc.lib;wxmsw29ud_propgrid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OgrePhysX_d.lib;ws2_32.lib;OgreOggSound_d.lib;caelum_d.lib;IceEngine_d.lib;LoadSave_d.lib;meshmagick_d.lib;wxmsw29ud_core.lib;wxbase29ud.lib;wxjpegd.lib;wxpngd.lib;wxzlibd.lib;wxexpatd.lib;winmm.lib;comctl32.lib;rpcrt4.lib;wsock32.lib;oleacc.lib;wxtiffd.lib;wxscintillad.lib;wxmsw29ud_adv.lib;wxmsw29ud_aui.lib;wxmsw29ud_stc.lib;wxmsw29ud_propgrid.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(TargetName).exe</OutputFile>
       <AdditionalLibraryDirectories>..\..\Dependencies\boost\lib\;..\..\Dependencies\MeshMagick\lib;..\..\Dependencies\OgreOggSound\lib\;..\..\Dependencies\Ogre3D\lib;..\..\Dependencies\Ogre3D\Dependencies\lib\Debug;..\..\Dependencies\wxWidgets\lib\vc_lib\;..\..\Dependencies\Caelum\lib\debug;..\..\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -95,7 +95,7 @@
     </ClCompile>
     <Link>
       <RegisterOutput>false</RegisterOutput>
-      <AdditionalDependencies>meshmagick.lib;OgreMain.lib;OgrePhysX.lib;ws2_32.lib;OgreOggSound.lib;caelum.lib;IceEngine.lib;LoadSave.lib;wxmsw29u_core.lib;wxbase29u.lib;wxjpeg.lib;wxpng.lib;wxzlib.lib;wxexpatd.lib;winmm.lib;comctl32.lib;rpcrt4.lib;wsock32.lib;oleacc.lib;wxtiff.lib;wxscintilla.lib;wxmsw29u_adv.lib;wxmsw29u_aui.lib;wxmsw29u_stc.lib;wxmsw29u_propgrid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>meshmagick.lib;OgrePhysX.lib;ws2_32.lib;OgreOggSound.lib;caelum.lib;IceEngine.lib;LoadSave.lib;wxmsw29u_core.lib;wxbase29u.lib;wxjpeg.lib;wxpng.lib;wxzlib.lib;wxexpatd.lib;winmm.lib;comctl32.lib;rpcrt4.lib;wsock32.lib;oleacc.lib;wxtiff.lib;wxscintilla.lib;wxmsw29u_adv.lib;wxmsw29u_aui.lib;wxmsw29u_stc.lib;wxmsw29u_propgrid.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(TargetName).exe</OutputFile>
       <AdditionalLibraryDirectories>..\..\Dependencies\MeshMagick\lib;..\..\Dependencies\boost\lib\;..\..\Dependencies\OgreOggSound\lib\;..\..\Dependencies\Ogre3D\lib;..\..\Dependencies\Ogre3D\Dependencies\lib\Release;..\..\Dependencies\wxWidgets\lib\vc_lib\;..\..\Dependencies\Caelum\lib\release;..\..\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -110,9 +110,7 @@
       <TargetMachine>MachineX86</TargetMachine>
       <PerUserRedirection>false</PerUserRedirection>
     </Link>
-    <PostBuildEvent>
-      <Command>copy $(OutDir)$(TargetFileName) ..\..\bin\</Command>
-    </PostBuildEvent>
+    <PostBuildEvent />
     <ResourceCompile>
       <AdditionalIncludeDirectories>..\..\Dependencies\wxWidgets\include\</AdditionalIncludeDirectories>
     </ResourceCompile>

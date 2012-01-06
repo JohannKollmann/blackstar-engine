@@ -24,6 +24,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OgrePhysX", "OgrePhysX\Ogre
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WaterPlugin", "WaterPlugin\WaterPlugin.vcxproj", "{1AE955A3-BF68-4893-AA7F-03A36067C11D}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OgrePhysXDemo", "OgrePhysXDemo\OgrePhysXDemo.vcxproj", "{5BB15C5C-A8F0-47C5-8573-43936797BD65}"
+EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MeshSplitter", "MeshSplitter\MeshSplitter.vcxproj", "{80D2720A-C582-4E89-AE93-2FB5B307C1CE}"
 EndProject
 Global
@@ -60,6 +62,10 @@ Global
 		{1AE955A3-BF68-4893-AA7F-03A36067C11D}.Debug|Win32.Build.0 = Debug|Win32
 		{1AE955A3-BF68-4893-AA7F-03A36067C11D}.Release|Win32.ActiveCfg = Release|Win32
 		{1AE955A3-BF68-4893-AA7F-03A36067C11D}.Release|Win32.Build.0 = Release|Win32
+		{5BB15C5C-A8F0-47C5-8573-43936797BD65}.Debug|Win32.ActiveCfg = Debug|Win32
+		{5BB15C5C-A8F0-47C5-8573-43936797BD65}.Debug|Win32.Build.0 = Debug|Win32
+		{5BB15C5C-A8F0-47C5-8573-43936797BD65}.Release|Win32.ActiveCfg = Release|Win32
+		{5BB15C5C-A8F0-47C5-8573-43936797BD65}.Release|Win32.Build.0 = Release|Win32
 		{80D2720A-C582-4E89-AE93-2FB5B307C1CE}.Debug|Win32.ActiveCfg = Debug|Win32
 		{80D2720A-C582-4E89-AE93-2FB5B307C1CE}.Debug|Win32.Build.0 = Debug|Win32
 		{80D2720A-C582-4E89-AE93-2FB5B307C1CE}.Release|Win32.ActiveCfg = Release|Win32

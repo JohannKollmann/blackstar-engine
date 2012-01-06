@@ -339,10 +339,9 @@ options:\n\
 	for(unsigned int iSplinter=0; iSplinter<vSplinters.size(); iSplinter++)
 	{
 		//write fragment to disk
-		Ogre::String strFileName=strDestFolder+strSourceName+
-				Ogre::String("_")+Ogre::StringConverter::toString(iSplinter)+Ogre::String(".mesh");
+		Ogre::String strFileName=strSourceName+Ogre::String("_")+Ogre::StringConverter::toString(iSplinter)+Ogre::String(".mesh");
 		printf("writing mesh fragment %s\n", strFileName.c_str());
-		pSerializer->exportMesh(vSplinters[iSplinter].get(), strFileName);
+		pSerializer->exportMesh(vSplinters[iSplinter].get(), strDestFolder+strFileName);
 		vstrFiles.push_back(strFileName);
 
 		std::vector<Ogre::Vector3> vVertices;

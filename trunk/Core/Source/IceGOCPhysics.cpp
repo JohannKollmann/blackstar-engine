@@ -218,7 +218,9 @@ namespace Ice
 	{
 		_clear();
 
-		IceAssert(mOwnerGO.lock().get() != nullptr)
+		GameObjectPtr owner = mOwnerGO.lock();
+
+		IceAssert(owner.get())
 
 		PxMaterial *pxMat = MaterialTable::Instance().GetMaterialByName(mMaterialName);
 
@@ -252,7 +254,7 @@ namespace Ice
 
 	void GOCDestructible::UpdatePosition(const Ogre::Vector3 &position)
 	{
-		mDestructible->setPosition(position);
+		mDestructible->setGlobalPosition(position);
 	}
 
 	void GOCDestructible::UpdateScale(const Ogre::Vector3 &scale)
