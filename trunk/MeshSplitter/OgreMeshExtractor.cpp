@@ -17,7 +17,7 @@ Ogre::String OgreMeshExtractor::getRandomMeshName()
 	Ogre::String strMeshName;
 	do
 	{
-		strMeshName=Ogre::String("CutMesh") + Ogre::StringConverter::toString(rand());
+		strMeshName=Ogre::String("CutMesh") + Ogre::StringConverter::toString(rand()&0xffffff);
 	}while(Ogre::MeshManager::getSingleton().resourceExists(strMeshName));
 	return strMeshName;
 }

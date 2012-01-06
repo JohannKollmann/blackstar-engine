@@ -9,6 +9,9 @@
 #include "OgreMeshExtractor.h"
 #include "VertexMerger.h"
 
+//TESTING
+#include "CutMeshGenerator.h"
+
 #include <ExampleApplication.h>
 #include <OgreTextAreaOverlayElement.h>
 #include <OgreDefaultHardwareBufferManager.h>
@@ -46,7 +49,7 @@ protected:
 		mCamera->setNearClipDistance(0.1f);
         mCamera->setFarClipDistance(1000);
 		mCamera->setPosition(0,0,-10);
-		mCamera->setOrientation(Ogre::Quaternion(0, -1, 0, 0));
+		mCamera->setOrientation(Ogre::Quaternion(1, 0, 1, 0));
 
 	    // Light
 		Ogre::Light *mLight = mSceneMgr->createLight("Light0");
@@ -163,7 +166,8 @@ int main(int argc, char **argv)
 {
 	bool bDisplayVisual=false,
 			bDisplayHelp=false,
-			bUseRelSize=true;
+			bUseRelSize=true,
+			bSmooth=false;
 
 	float fSize=0.2f,
 			fRoughness=1.0f,
@@ -182,6 +186,8 @@ int main(int argc, char **argv)
 			bDisplayVisual=true;
 		else if(!strcmp(argv[iCurrArg], "-random"))
 			iRandomSeed=(int)std::time(NULL);
+		else if(!strcmp(argv[iCurrArg], "-smooth"))
+			bSmooth=true;
 		else if(!strcmp(argv[iCurrArg], "-relsize"))
 		{
 			iCurrArg++;
@@ -278,6 +284,8 @@ options:\n\
               DEFAULT: off\n\
 -roughness    roughness parameter for cut mesh generation\n\
               DEFAULT: 1.0\n\
+-smooth       create smooth cut surface (merge vertex normals)\n\
+              DEFAULT: off\n\
 -rel_uv       uv scale relative to mesh size\n\
               DEFAULT: 1.0\n\
 -random       initialize ramdom number generator to current time\n\
@@ -312,9 +320,14 @@ options:\n\
 	float fAbsFragmentSize=fSize;
 	if(bUseRelSize)
 		fAbsFragmentSize*=pMesh->getBounds().getSize().length();
+
+	/*Ogre::MeshPtr pDeb=Ogre::MeshManager::getSingleton().createManual(OgreMeshExtractor::getRandomMeshName(), "General");
+	CutMeshGenerator::CreateRandomCutMesh(pMesh, pDeb, fRoughness, fRelUV, strCutMaterial, bSmooth);*/
+
 	std::vector<Ogre::MeshPtr> vSplinters=DestructibleMeshSplitter::SplitMesh(pMesh,
-			fAbsFragmentSize, fRoughness, fRelUV, nRecoveryAttempts,
+			fAbsFragmentSize, fRoughness, fRelUV, bSmooth, nRecoveryAttempts,
 			strCutMaterial.size()!=0, strCutMaterial);
+			//std::vector<Ogre::MeshPtr>(1,pDeb);
 
 	//find out which fragments are connected
 	std::vector<Ogre::Vector3> vOverallVertices;

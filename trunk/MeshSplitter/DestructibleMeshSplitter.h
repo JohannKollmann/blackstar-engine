@@ -19,7 +19,7 @@ public:
 	 * @return vector of mesh fragments
 	 */
 	static std::vector<Ogre::MeshPtr> SplitMesh(Ogre::MeshPtr inMesh,
-			float fMaxSize, float fRoughness, float fResolution,
+			float fMaxSize, float fRoughness, float fResolution, bool bSmooth,
 			unsigned int nRecoveryAttempts,
 			bool bCutSurface, const Ogre::String& strCutMaterial);
 
@@ -34,7 +34,7 @@ public:
 	 */
 	static void Split(Ogre::MeshPtr inMesh, Ogre::MeshPtr& outMesh1, Ogre::MeshPtr& outMesh2,
 			float fRoughness, float fResolution,
-			bool bCutSurface, Ogre::String strCutMaterial, bool& bError,
+			bool bCutSurface, Ogre::String strCutMaterial, bool bSmooth, bool& bError,
 			Ogre::MeshPtr debugCutPlane=Ogre::MeshPtr(0));
 
 	/*
@@ -47,7 +47,7 @@ public:
 	 * @return result of boolean operation
 	 */
 	static Ogre::MeshPtr BooleanOp(Ogre::MeshPtr inMesh1, Ogre::MeshPtr inMesh2,
-			EBoolean_Op op1, EBoolean_Op op2, bool& bError,
+			EBoolean_Op op1, EBoolean_Op op2, bool& bError, bool bIgnoreSecond=false,
 			Ogre::MeshPtr debugReTri=Ogre::MeshPtr(0), Ogre::MeshPtr debugCutLine=Ogre::MeshPtr(0));
 
 
