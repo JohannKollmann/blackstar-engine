@@ -61,7 +61,7 @@ void DestructibleMeshSplitter::unloadMesh(Ogre::MeshPtr mesh)
 
 std::vector<Ogre::MeshPtr>
 DestructibleMeshSplitter::SplitMesh(Ogre::MeshPtr inMesh,
-		float fMaxSize, float fRoughness, float fResolution,
+		float fMaxSize, float fRoughness, float fResolution, bool bSmooth,
 		unsigned int nRecoveryAttempts,
 		bool bCutSurface, const Ogre::String& strCutMaterial)
 {
@@ -98,7 +98,7 @@ DestructibleMeshSplitter::SplitMesh(Ogre::MeshPtr inMesh,
 				}
 				bError=false;
 				printf("\nattempt %d of %d... ", iAttempt, nRecoveryAttempts);
-				Split(meshes[iCurrIndex], outMeshes[0], outMeshes[1], fRoughness, fResolution, bCutSurface, strCutMaterial, bError);
+				Split(meshes[iCurrIndex], outMeshes[0], outMeshes[1], fRoughness, fResolution, bCutSurface, strCutMaterial, bSmooth, bError);
 				//check if fragments lost a sufficient amount of size (5% here)
 				for(int iMesh=0; iMesh<2; iMesh++)
 				{
@@ -204,7 +204,7 @@ DestructibleMeshSplitter::SplitMesh(Ogre::MeshPtr inMesh,
 
 void DestructibleMeshSplitter::Split(Ogre::MeshPtr inMesh, Ogre::MeshPtr& outMesh1, Ogre::MeshPtr& outMesh2,
 		float fRoughness, float fResolution,
-		bool bCutSurface, Ogre::String strCutMaterial, bool& bError,
+		bool bCutSurface, Ogre::String strCutMaterial, bool bSmooth, bool& bError,
 		Ogre::MeshPtr debugCutPlane)
 {
 	bool bDestroyCutPlane=false;
@@ -213,12 +213,12 @@ void DestructibleMeshSplitter::Split(Ogre::MeshPtr inMesh, Ogre::MeshPtr& outMes
 		debugCutPlane=Ogre::MeshManager::getSingleton().createManual(OgreMeshExtractor::getRandomMeshName(), "General");
 		bDestroyCutPlane=true;
 	}
-	CutMeshGenerator::CreateRandomCutMesh(inMesh, debugCutPlane, fRoughness, fResolution, strCutMaterial);
+	CutMeshGenerator::CreateRandomCutMesh(inMesh, debugCutPlane, fRoughness, fResolution, strCutMaterial, bSmooth);
 
 	//Ogre::AxisAlignedBox outBox=debugCutPlane->getBounds();
 
-	outMesh1=BooleanOp(inMesh, debugCutPlane, OUTSIDE, INSIDE, bError);
-	outMesh2=BooleanOp(inMesh, debugCutPlane, INSIDE, INSIDE, bError);
+	outMesh1=BooleanOp(inMesh, debugCutPlane, OUTSIDE, INSIDE, bError, !bCutSurface);
+	outMesh2=BooleanOp(inMesh, debugCutPlane, INSIDE, INSIDE, bError, !bCutSurface);
 	if(bDestroyCutPlane)
 		unloadMesh(debugCutPlane);
 }
@@ -261,7 +261,7 @@ bool operator<(const SLoopVertex& x, const SLoopVertex& y)
 
 Ogre::MeshPtr
 DestructibleMeshSplitter::BooleanOp(Ogre::MeshPtr inMesh1, Ogre::MeshPtr inMesh2,
-		EBoolean_Op op1, EBoolean_Op op2, bool& bError,
+		EBoolean_Op op1, EBoolean_Op op2, bool& bError, bool bIgnoreSecond,
 		Ogre::MeshPtr debugReTri, Ogre::MeshPtr debugCutLine)
 {
 	std::vector<Ogre::Vector3> vvVertices[2];
