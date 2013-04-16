@@ -220,7 +220,7 @@ namespace Ice
 
 		void Freeze(bool freeze);
 
-		void SetOwner(std::weak_ptr<GameObject> go);
+		void NotifyOwnerGO();
 		bool IsStatic() { return false; }
 
 		BEGIN_GOCEDITORINTERFACE(GOCDestructible, "Destructible")
@@ -239,6 +239,44 @@ namespace Ice
 
 		Ogre::String GetVisualObjectDescription();
 		void GetTrackPoints(std::vector<Ogre::Vector3> &outPoints);
+	};
+
+	class DllExport GOCParticleChain : public GOCPhysics, public GOCStaticEditorInterface
+	{
+	private:
+		OgrePhysX::FTLParticleChain *mParticleChain;
+		OgrePhysX::FTLParticleChainDebugVisual *mDebugVisual;
+		int mNumParticles;
+		float mChainLength;
+		float mParticleMass;
+		float mPBDDamping1;
+		float mPBDDamping2;
+		float mPointDamping;
+		void _create();
+		void _clear();
+
+	public:
+		GOCParticleChain() : mParticleChain(nullptr), mDebugVisual(nullptr) {}
+		virtual ~GOCParticleChain() { _clear(); }
+
+		void NotifyPostInit();
+
+		void UpdatePosition(const Ogre::Vector3 &position);
+
+		BEGIN_GOCEDITORINTERFACE(GOCParticleChain, "ParticleChain")
+			PROPERTY_INT(mNumParticles, "Num particles", 50);
+			PROPERTY_FLOAT(mChainLength, "Chain length", 1.0f);
+			PROPERTY_FLOAT(mParticleMass, "Particle mass", 0.01f);
+			PROPERTY_FLOAT(mPBDDamping1, "PBD damping 1", 0.0f);
+			PROPERTY_FLOAT(mPBDDamping2, "PBD damping 2", 0.95f);
+			PROPERTY_FLOAT(mPointDamping, "Point damping", 0.0f);
+		END_GOCEDITORINTERFACE
+		Ogre::String& GetComponentID() const { static Ogre::String name = "ParticleChain"; return name; };
+
+		virtual void Save(LoadSave::SaveSystem& mgr) {}
+		virtual void Load(LoadSave::LoadSystem& mgr) {}
+		static void Register(std::string* pstrName, LoadSave::SaveableInstanceFn* pFn) { *pstrName = "ParticleChain"; *pFn = (LoadSave::SaveableInstanceFn)&NewInstance; };
+		static LoadSave::Saveable* NewInstance() { return new GOCParticleChain(); };
 	};
 
 };

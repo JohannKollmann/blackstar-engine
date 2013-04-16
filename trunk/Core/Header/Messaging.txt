@@ -15,5 +15,5 @@ zu senden.
 2. Die Nachichtenklasse Msg
 In dieser Struktur wird alles gespeichert - der Newsgroupname (Default: "COMMON"), der optionale
 Empfänger-Zeiger (Default: NULL) und die eigentlichen Daten. Diese werden mithilfe einer Instanz der Klasse
-DataMap gespeichert, die intern eine Map aus Ogre::String und void Zeigern verwaltet. Es stehen komfortable
+DataMap gespeichert, die intern eine Map aus Ogre::String und void Zeigern verwaltet. Es stehen
 selbsterklärende Methoden bereit, um die Map zu beschreiben oder auszulesen.

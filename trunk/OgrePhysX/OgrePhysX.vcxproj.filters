@@ -16,6 +16,9 @@
     <Filter Include="TinyXML">
       <UniqueIdentifier>{8d32b25e-9acf-445f-a367-b10537a0602b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="FTLHair">
+      <UniqueIdentifier>{6849f671-b075-4ce9-bc6c-cfdada928c46}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\OgrePhysXCooker.cpp">
@@ -50,6 +53,9 @@
     </ClCompile>
     <ClCompile Include="TinyXML\tinyxmlparser.cpp">
       <Filter>TinyXML</Filter>
+    </ClCompile>
+    <ClCompile Include="FTLHair\FTLParticleChain.cpp">
+      <Filter>FTLHair</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -103,6 +109,9 @@
     </ClInclude>
     <ClInclude Include="TinyXML\tinyxml.h">
       <Filter>TinyXML</Filter>
+    </ClInclude>
+    <ClInclude Include="FTLHair\FTLParticleChain.h">
+      <Filter>FTLHair</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

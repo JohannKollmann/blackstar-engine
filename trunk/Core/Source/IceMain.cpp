@@ -14,6 +14,7 @@
 #include "IceCollisionCallback.h"
 #include "IceMessageSystem.h"
 #include "IceNavigationMesh.h"
+#include "IceComponentFactory.h"
 
 #include "OgrePlugin.h"
 #include "OgreDynLibManager.h"
@@ -595,6 +596,7 @@ namespace Ice
 				delete i->second.mainLoopThread;
 				if (i->second.thread) delete i->second.thread;
 			}
+			ComponentFactory::Instance().Shutdown();
 			SceneManager::Instance().Reset();
 			mDirectionalShadowCameraSetup.setNull();
 			mSpotShadowCameraSetup.setNull();

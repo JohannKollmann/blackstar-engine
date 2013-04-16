@@ -269,9 +269,8 @@ namespace Ice
 			SetOwnerTransform(position, rotation);
 	}
 
-	void GOCDestructible::SetOwner(std::weak_ptr<GameObject> go)
+	void GOCDestructible::NotifyOwnerGO()
 	{
-		mOwnerGO = go;
 		GameObjectPtr owner = mOwnerGO.lock();
 		if (!owner.get()) return;
 		if (mDestructible)
@@ -550,4 +549,36 @@ namespace Ice
 		SCRIPT_RETURN()
 	}
 
+	void GOCParticleChain::UpdatePosition(const Ogre::Vector3 &position)
+	{
+		if (mParticleChain)
+			mParticleChain->setPosition(position);
+	}
+
+	void GOCParticleChain::_create()
+	{
+		_clear();
+		mParticleChain = Main::Instance().GetPhysXScene()->createFTLParticleChain(mOwnerGO.lock()->GetGlobalPosition(), mOwnerGO.lock()->GetGlobalPosition() + Ogre::Vector3(0, -1, 0) * mChainLength, mNumParticles);
+		mParticleChain->setParticleMass(mParticleMass);
+		mParticleChain->setPBDDamping(mPBDDamping1, mPBDDamping2);
+		mParticleChain->setPointDamping(mPointDamping);
+		mDebugVisual = Main::Instance().GetPhysXScene()->createFTLParticleChainDebugVisual(mParticleChain);
+		auto ents = mDebugVisual->getNodesAndEntities();
+		for (auto i = ents.begin(); i != ents.end(); ++i)
+			i->second->setVisibilityFlags(Ice::VisibilityFlags::V_DEFAULT);
+	}
+
+	void GOCParticleChain::_clear()
+	{
+		if (!mParticleChain) return;
+		Main::Instance().GetPhysXScene()->destroyRenderableBinding(mDebugVisual);
+		Main::Instance().GetPhysXScene()->destroyFTLParticleChain(mParticleChain);
+		mParticleChain = nullptr;
+	}
+
+	void GOCParticleChain::NotifyPostInit()
+	{
+		if (mOwnerGO.lock())
+			_create();
+	}
 };

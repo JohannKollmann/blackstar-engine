@@ -28,6 +28,7 @@ THE SOFTWARE.
 #include "OgrePhysXActor.h"
 #include "OgrePhysXCooker.h"
 #include "PxPhysicsAPI.h"
+#include "../FTLHair/FTLParticleChain.h"
 
 namespace OgrePhysX
 {
@@ -65,6 +66,8 @@ namespace OgrePhysX
 		float mFrameTime;
 
 		std::vector<RenderableBinding*> mOgrePhysXBindings;
+
+		std::vector<FTLParticleChain*> mParticleChains;
 
 		SimulationListener *mSimulationListener;
 
@@ -146,9 +149,36 @@ namespace OgrePhysX
 
 		/**
 		Binds an Ogre skeleton to a set of actors.
-		-- not working properpy at the moment :-(
+		-- not working properly at the moment :-(
 		*/
 		Ragdoll* createRagdollBinding(Ogre::Entity *entity, Ogre::SceneNode *node);
+
+		FTLParticleChain* createFTLParticleChain(const Ogre::Vector3 &from, const Ogre::Vector3 &to, int numParticles)
+		{
+			FTLParticleChain *chain = new FTLParticleChain(from, to, numParticles, this);
+			mParticleChains.push_back(chain);
+			return chain;
+		}
+
+		FTLParticleChainDebugVisual* createFTLParticleChainDebugVisual(FTLParticleChain *particleChain)
+		{
+			FTLParticleChainDebugVisual *visual = new FTLParticleChainDebugVisual(particleChain, mOgreSceneMgr);
+			mOgrePhysXBindings.push_back(visual);
+			return visual;
+		}
+
+		void destroyFTLParticleChain(FTLParticleChain *chain)
+		{
+			for (auto i = mParticleChains.begin(); i != mParticleChains.end(); ++i)
+			{
+				if ((*i) == chain)
+				{
+					mParticleChains.erase(i);
+					break;
+				}
+			}
+			delete chain;
+		}
 
 		/**
 		Destroys ONLY the renderable binding, not the physx actor.

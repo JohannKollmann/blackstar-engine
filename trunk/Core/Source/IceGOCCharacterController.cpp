@@ -86,8 +86,6 @@ namespace Ice
 		if (dimensions.x == 0 || dimensions.y == 0 || dimensions.z == 0) dimensions = Ogre::Vector3(1,1,1);
 
 		mFreezed = false;
-		mJump.mJumping = false;
-
 		mSpeedFactor = 1;
 		mDirection = Ogre::Vector3(0,0,0);
 		mDimensions = dimensions;
@@ -134,9 +132,8 @@ namespace Ice
 			GameObjectPtr owner = mOwnerGO.lock();
 
 			float time = msg.params.GetFloat("TIME");
-			//if (mJump.mJumping) jumpDelta = mJump.GetHeight(time);
 			Ogre::Vector3 finalDir = Ogre::Vector3(0,0,0);
-			Ogre::Vector3 userDir = mOwnerGO.lock()->GetGlobalOrientation() * mDirection;
+			Ogre::Vector3 userDir = owner->GetGlobalOrientation() * mDirection;
 
 			if (mActor.getPxActor()->isSleeping())
 				mActor.getPxActor()->wakeUp();		//Gravity fix
@@ -146,6 +143,7 @@ namespace Ice
 			PxTransform transform(OgrePhysX::toPx(owner->GetGlobalPosition()), OgrePhysX::toPx(owner->GetGlobalOrientation()));
 			transform.p.y += playerHalfSize.y;
 
+			//sweep filter data - only check against shapes with filter data DYNAMICBODY or STATICBODY 
 			PxSceneQueryFilterData filterData;
 			filterData.data.word0 = CollisionGroups::DYNAMICBODY|CollisionGroups::STATICBODY;
 			filterData.flags = PxSceneQueryFilterFlag::eDYNAMIC|PxSceneQueryFilterFlag::eSTATIC;
@@ -155,7 +153,7 @@ namespace Ice
 			PxShape *outShape;
 			mTouchesGround = Main::Instance().GetPhysXScene()->getPxScene()->overlapAny(playerGeometry, transform, outShape, filterData);
 
-			//stair handling
+			//stair maxStepHeight
 			float maxStepHeight = 0.6f;
 			PxVec3 currPos = OgrePhysX::Convert::toPx(owner->GetGlobalPosition());
 
@@ -169,6 +167,16 @@ namespace Ice
 			PxVec3 sweepDirection = OgrePhysX::toPx(userDir);
 			float userDirLength = sweepDirection.normalize();
 
+			/*
+			We perform two sweeps:
+			 O    ==> bodyHit?
+			 |    ==> bodyHit?
+			/ \   ==> feetHit?
+
+			If there are no hits character can walk in the desired direction.
+			If there is a feetHit but no bodyHit player can climb stairs (we add an y-Offset).
+			If there is a bodyHit the player can not move.
+			*/
 			PxSweepHit sweepHit;
 			transform.p.y = owner->GetGlobalPosition().y + maxStepHeight + bodyHeight*0.5f;
 			bool bodyHit = Main::Instance().GetPhysXScene()->getPxScene()->sweepSingle(bodyVolume, transform, sweepDirection, time*userDirLength, PxSceneQueryFlags(), sweepHit, filterData); 				
@@ -185,7 +193,6 @@ namespace Ice
 			if (finalDir != Ogre::Vector3(0,0,0))
 				mActor.getPxActor()->setGlobalPose(PxTransform(currPos + OgrePhysX::Convert::toPx(finalDir*time)));
 
-			//Log::Instance().LogMessage(Ogre::StringConverter::toString(mTouchesGround));
 			if (mJumping && mTouchesGround && (timeGetTime() - mJumpStartTime > 400))
 			{
 				mJumping = false;
@@ -193,10 +200,6 @@ namespace Ice
 				jump_response.typeID = ObjectMessageIDs::END_JUMP;
 				BroadcastObjectMessage(jump_response);
 			}
-			/*Msg collision_response;
-			collision_response.type = "CharacterCollisionReport";
-			collision_response.params.AddInt("collisionFlags", collisionFlags);
-			mOwnerGO.lock()->SendMessage(collision_response);*/
 		}
 		if (msg.typeID == GlobalMessageIDs::PHYSICS_END && !mFreezed)
 		{

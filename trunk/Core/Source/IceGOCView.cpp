@@ -65,8 +65,11 @@ namespace Ice
 		mEntity = Main::Instance().GetOgreSceneMgr()->createEntity(Ogre::StringConverter::toString(SceneManager::Instance().RequestID()), meshname);
 		mEntity->setCastShadows(shadowcaster);
 		unsigned short src, dest;
-		if (!mEntity->getMesh()->suggestTangentVectorBuildParams(Ogre::VES_TANGENT, src, dest))
-			mEntity->getMesh()->buildTangentVectors(Ogre::VES_TANGENT, src, dest, true, true, true);
+		try
+		{
+			if (!mEntity->getMesh()->suggestTangentVectorBuildParams(Ogre::VES_TANGENT, src, dest))
+				mEntity->getMesh()->buildTangentVectors(Ogre::VES_TANGENT, src, dest, true, true, true);
+		} catch (Ogre::Exception &e) { IceWarning(e.getDescription()) }
 
 		NotifyOwnerGO();
 	}

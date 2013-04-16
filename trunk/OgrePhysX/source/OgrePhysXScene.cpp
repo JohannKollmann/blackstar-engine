@@ -66,7 +66,7 @@ namespace OgrePhysX
 		}
 		mPxScene = World::getSingleton().getPxPhysics()->createScene(desc);
 		mTimeAccu = 0.0f;
-		mFrameTime = 1/80.0f;
+		mFrameTime = 1/60.0f;
 		mSimulationListener = nullptr;
 	}
 
@@ -201,6 +201,8 @@ namespace OgrePhysX
 		{
 			if (mSimulationListener) mSimulationListener->onBeginSimulate(mFrameTime);
 			mPxScene->simulate(mFrameTime);
+			for (auto i = mParticleChains.begin(); i != mParticleChains.end(); ++i)
+				(*i)->simulate(mFrameTime);
 			if (mSimulationListener) mSimulationListener->onSimulate(mFrameTime);
 			mPxScene->fetchResults(true);
 			mTimeAccu -= mFrameTime;
