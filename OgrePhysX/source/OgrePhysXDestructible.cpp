@@ -118,6 +118,7 @@ namespace OgrePhysX
 		}
 
 		mRenderedActor = new RenderedActorBinding(mActor.getPxActor(), new NodeRenderable(node));
+		((NodeRenderable*)mRenderedActor->getPointRenderable())->getOgreNode();
 	}
 
 	Destructible::SplitPart::~SplitPart()

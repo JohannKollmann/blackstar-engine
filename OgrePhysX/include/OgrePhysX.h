@@ -34,6 +34,7 @@ THE SOFTWARE.
 #include "OgrePhysXGeometry.h"
 #include "OgrePhysXActor.h"
 #include "OgrePhysXDestructible.h"
+#include "../FTLHair/FTLParticleChain.h"
 
 namespace OgrePhysX
 {

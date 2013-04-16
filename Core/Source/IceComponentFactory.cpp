@@ -44,6 +44,7 @@ namespace Ice
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCAnimKey::Register);
 
 		LoadSave::LoadSave::Instance().RegisterObject(&GOCFixedJoint::Register);
+		LoadSave::LoadSave::Instance().RegisterObject(&GOCParticleChain::Register);
 
 		RegisterGOCPrototype(GOCEditorInterfacePtr(new GOCMeshRenderable()), "A");
 		RegisterGOCPrototype(GOCEditorInterfacePtr(new GOCPfxRenderable()), "A");
@@ -71,6 +72,12 @@ namespace Ice
 		RegisterGOCPrototype(GOCEditorInterfacePtr(new GOCAnimKey()));
 
 		RegisterGOCPrototype(GOCEditorInterfacePtr(new GOCFixedJoint()), "F", "F");
+		RegisterGOCPrototype(GOCEditorInterfacePtr(new GOCParticleChain()), "F", "F");
+	}
+
+	ComponentFactory::~ComponentFactory()
+	{
+		Shutdown();
 	}
 
 	GOCEditorInterface* ComponentFactory::GetGOCPrototype(const Ogre::String &type)

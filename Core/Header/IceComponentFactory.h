@@ -20,6 +20,7 @@ namespace Ice
 		std::map<Ogre::String, std::map<Ogre::String, GOCDefaultParams > > mGOCDefaultParameters;
 
 		ComponentFactory();
+		~ComponentFactory();
 
 	public:
 
@@ -36,6 +37,12 @@ namespace Ice
 
 		///Creates a new goc object by cloning the matching prototype object.
 		GOCEditorInterface* CreateGOC(const Ogre::String &type);
+
+		void Shutdown()
+		{
+			mGOCPrototypes.clear();
+			mGOCDefaultParameters.clear();
+		}
 
 		//Singleton
 		static ComponentFactory& Instance();

@@ -36,6 +36,7 @@ namespace Ice
 		static PhysXFilterData& Instance();
 	};
 
+	//PhysX simulation filter shader function
 	DllExport PxFilterFlags PhysXSimulationFilterShader (	
 		PxFilterObjectAttributes attributes0,
 		PxFilterData filterData0, 

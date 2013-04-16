@@ -88,12 +88,12 @@ Ogre::ManualObject* AxisComponent::createAxis(const Ogre::String &name, Ogre::Ve
 
 	mAxisObject	= Ice::Main::Instance().GetOgreSceneMgr()->createManualObject(name); 
 
-	Ogre::Real Xlen=scale.x/2 + 0.4f;
-	Ogre::Real Ylen=scale.y/2 + 0.4f;
-	Ogre::Real Zlen=scale.z/2 + 0.4f;
-	Ogre::Real Xscl=0.095f;
-	Ogre::Real Yscl=0.095f;
-	Ogre::Real Zscl=0.095f;
+	Ogre::Real Xlen=scale.x * 0.7f;
+	Ogre::Real Ylen=scale.y * 0.7f;
+	Ogre::Real Zlen=scale.z * 0.7f;
+	Ogre::Real Xscl = Xlen * 0.2f;
+	Ogre::Real Yscl = Ylen * 0.2f;
+	Ogre::Real Zscl = Zlen * 0.2f;
 	Ogre::Real Xloc=Xlen/2+Xscl/2;
 	Ogre::Real Yloc=Ylen/2+Yscl/2;
 	Ogre::Real Zloc=Zlen/2+Zscl/2;

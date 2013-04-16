@@ -21,35 +21,6 @@ namespace Ice
 		CROUCH = 64,
 	};
 
-	class DllExport CharacterJump
-	{
-	private:
-		float mV0;
-		float mJumpTime;
-	public:
-		CharacterJump() : mV0(0), mJumping(false), mJumpTime(0) {}
-		~CharacterJump() {}
-
-		bool mJumping;
-
-		void StopJump () { mJumping = false; }
-		void StartJump(float v0)
-		{
-			if (mJumping) return;
-			mJumpTime = 0.0f;
-			mV0 = v0;
-			mJumping = true;
-		}
-		float GetHeight(float elapsedTime)
-		{
-			if(!mJumping)	return 0.0f;
-			mJumpTime += elapsedTime;
-			float h = (-15*mJumpTime*mJumpTime) + mV0*mJumpTime + 15;
-			if (h <= 0) return 0.0f;
-			return h;
-		}
-	};
-
 	class DllExport CharacterControllerInput : public GOComponent
 	{
 	protected:
@@ -71,7 +42,6 @@ namespace Ice
 	private:
 		OgrePhysX::Actor<PxRigidDynamic> mActor;
 		void Create(Ogre::Vector3 dimensions);
-		CharacterJump mJump;
 		Ogre::Vector3 mDirection;
 		Ogre::Vector3 mDimensions;
 		float mStepOffset;
