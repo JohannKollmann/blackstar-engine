@@ -7,9 +7,9 @@
 
 namespace OgrePhysX
 {
-	class OgrePhysXClass FTLParticleChain
+	class OgrePhysXClass ParticleChain
 	{
-	private:
+	protected:
 		struct Particle
 		{
 			Ogre::Vector3 force;
@@ -23,18 +23,14 @@ namespace OgrePhysX
 
 		float mParticleMass;
 		float mParticleMassInv;
-		float mPBDDamping1;
-		float mPBDDamping2;
-		float mPointDamping;
 
+		float mTimestep;
 		float mTimestepAccu;
 
-		unsigned int mTimestep;
+		unsigned int mStepCounter;
 		Ogre::Vector3 mWindForce;
 
 		Scene *mPhysXScene;
-
-		void simulateStep();
 
 	public:
 		/**
@@ -42,22 +38,17 @@ namespace OgrePhysX
 		@param to Position of the last particle.
 		@param numParticles Number of particles, must be at least 2.
 		*/
-		FTLParticleChain(const Ogre::Vector3 &from, const Ogre::Vector3 &to, int numParticles, Scene *scene);
+		ParticleChain(const Ogre::Vector3 &from, const Ogre::Vector3 &to, int numParticles, Scene *scene);
+		virtual ~ParticleChain() {}
 
 		/**
 		Solved the position constraints for one particle.
 		@pre particleIter must have a precedessor.
 		@return The correction vector.
 		*/
-		Ogre::Vector3 computeCorrectionVector(const std::vector<Particle>::iterator &particleIter);
-		Ogre::Vector3 computePredCorrectionVector(const std::vector<Particle>::iterator &particleIter, const Ogre::Vector3 &predPosition);
-		Ogre::Vector3 computeCollisionCorrection(const std::vector<Particle>::iterator &particleIter);
-
-		Ogre::Vector3 computeLinePenaltyForce(const std::vector<Particle>::iterator &particleIter);
+		Ogre::Vector3 computeCollisionCorrection(const Ogre::Vector3 &position);
 
 		void setParticleMass(float mass) { mParticleMass = mass; mParticleMassInv = 1.0f / mParticleMass; }
-		void setPBDDamping(float pbdDamping1, float pbdDamping2 = 0.95f) { mPBDDamping1 = pbdDamping1; mPBDDamping2 = pbdDamping2; }
-		void setPointDamping(float pointDamping) { mPointDamping = pointDamping; }
 
 		void computeForces();
 
@@ -68,18 +59,53 @@ namespace OgrePhysX
 		void setPosition(const Ogre::Vector3 &position);
 
 		const std::vector<Particle>& getParticles() const { return mParticles; }
+
+	protected:
+		virtual void simulateStep() = 0;
 	};
 
-	class OgrePhysXClass FTLParticleChainDebugVisual : public RenderableBinding
+	class OgrePhysXClass FTLParticleChain : public ParticleChain
+	{
+	private:
+		float mPBDDamping1;
+		float mPBDDamping2;
+	protected:
+		void simulateStep();
+
+	public:
+		FTLParticleChain(const Ogre::Vector3 &from, const Ogre::Vector3 &to, int numParticles, Scene *scene) : ParticleChain(from, to, numParticles, scene) { setPBDDamping(0.0f, 0.9f); }
+		~FTLParticleChain() {}
+		void setPBDDamping(float pbdDamping1, float pbdDamping2 = 0.95f) { mPBDDamping1 = pbdDamping1; mPBDDamping2 = pbdDamping2; }
+
+		Ogre::Vector3 computeCorrectionVector(const std::vector<Particle>::iterator &particleIter);
+	};
+
+	class OgrePhysXClass SpringParticleChain : public ParticleChain
+	{
+	private:
+		float mSpringDamping;
+		float mSpringStiffness;
+	protected:
+		void simulateStep();
+
+	public:
+		SpringParticleChain(const Ogre::Vector3 &from, const Ogre::Vector3 &to, int numParticles, Scene *scene) : ParticleChain(from, to, numParticles, scene), mSpringDamping(1.0f), mSpringStiffness(100.0f) {}
+		~SpringParticleChain() {}
+
+		void setSpringDamping(float damping) { mSpringDamping = damping; }
+		void setSpringStiffness(float stiffness) { mSpringStiffness = stiffness; }
+	};
+
+	class OgrePhysXClass ParticleChainDebugVisual : public RenderableBinding
 	{
 	private:
 		std::vector<std::pair<Ogre::SceneNode*, Ogre::Entity*> > mSpheres;
-		FTLParticleChain *mParticleChain;
+		ParticleChain *mParticleChain;
 		Ogre::SceneManager *mOgreSceneMgr;
 
 	public:
-		FTLParticleChainDebugVisual(FTLParticleChain *chain, Ogre::SceneManager *ogreSceneMgr);
-		~FTLParticleChainDebugVisual();
+		ParticleChainDebugVisual(ParticleChain *chain, Ogre::SceneManager *ogreSceneMgr);
+		~ParticleChainDebugVisual();
 
 		const std::vector<std::pair<Ogre::SceneNode*, Ogre::Entity*> >& getNodesAndEntities() { return mSpheres; }
 
