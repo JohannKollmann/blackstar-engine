@@ -558,11 +558,20 @@ namespace Ice
 	void GOCParticleChain::_create()
 	{
 		_clear();
-		mParticleChain = Main::Instance().GetPhysXScene()->createFTLParticleChain(mOwnerGO.lock()->GetGlobalPosition(), mOwnerGO.lock()->GetGlobalPosition() + Ogre::Vector3(0, -1, 0) * mChainLength, mNumParticles);
+		if (mSimulationMethod.selection == 1)
+		{
+			mParticleChain = Main::Instance().GetPhysXScene()->createSpringParticleChain(mOwnerGO.lock()->GetGlobalPosition(), mOwnerGO.lock()->GetGlobalPosition() + Ogre::Vector3(0, -1, 0) * mChainLength, mNumParticles);
+			((OgrePhysX::SpringParticleChain*)mParticleChain)->setSpringStiffness(mPBDDamping1);
+			((OgrePhysX::SpringParticleChain*)mParticleChain)->setSpringDamping(mPBDDamping2);
+		}
+		else
+		{
+			mParticleChain = Main::Instance().GetPhysXScene()->createFTLParticleChain(mOwnerGO.lock()->GetGlobalPosition(), mOwnerGO.lock()->GetGlobalPosition() + Ogre::Vector3(0, -1, 0) * mChainLength, mNumParticles);
+			((OgrePhysX::FTLParticleChain*)mParticleChain)->setPBDDamping(mPBDDamping1, mPBDDamping2);
+		}
 		mParticleChain->setParticleMass(mParticleMass);
-		mParticleChain->setPBDDamping(mPBDDamping1, mPBDDamping2);
-		mParticleChain->setPointDamping(mPointDamping);
-		mDebugVisual = Main::Instance().GetPhysXScene()->createFTLParticleChainDebugVisual(mParticleChain);
+
+		mDebugVisual = Main::Instance().GetPhysXScene()->createParticleChainDebugVisual(mParticleChain);
 		auto ents = mDebugVisual->getNodesAndEntities();
 		for (auto i = ents.begin(); i != ents.end(); ++i)
 			i->second->setVisibilityFlags(Ice::VisibilityFlags::V_DEFAULT);
@@ -572,7 +581,7 @@ namespace Ice
 	{
 		if (!mParticleChain) return;
 		Main::Instance().GetPhysXScene()->destroyRenderableBinding(mDebugVisual);
-		Main::Instance().GetPhysXScene()->destroyFTLParticleChain(mParticleChain);
+		Main::Instance().GetPhysXScene()->destroyParticleChain(mParticleChain);
 		mParticleChain = nullptr;
 	}
 

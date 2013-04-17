@@ -244,16 +244,16 @@ namespace Ice
 	class DllExport GOCParticleChain : public GOCPhysics, public GOCStaticEditorInterface
 	{
 	private:
-		OgrePhysX::FTLParticleChain *mParticleChain;
-		OgrePhysX::FTLParticleChainDebugVisual *mDebugVisual;
+		OgrePhysX::ParticleChain *mParticleChain;
+		OgrePhysX::ParticleChainDebugVisual *mDebugVisual;
 		int mNumParticles;
 		float mChainLength;
 		float mParticleMass;
 		float mPBDDamping1;
 		float mPBDDamping2;
-		float mPointDamping;
 		void _create();
 		void _clear();
+		DataMap::Enum mSimulationMethod;
 
 	public:
 		GOCParticleChain() : mParticleChain(nullptr), mDebugVisual(nullptr) {}
@@ -269,7 +269,7 @@ namespace Ice
 			PROPERTY_FLOAT(mParticleMass, "Particle mass", 0.01f);
 			PROPERTY_FLOAT(mPBDDamping1, "PBD damping 1", 0.0f);
 			PROPERTY_FLOAT(mPBDDamping2, "PBD damping 2", 0.95f);
-			PROPERTY_FLOAT(mPointDamping, "Point damping", 0.0f);
+			PROPERTY_ENUM(mSimulationMethod, "Simulation method", DataMap::Enum("0 FTL Springs PDB "));
 		END_GOCEDITORINTERFACE
 		Ogre::String& GetComponentID() const { static Ogre::String name = "ParticleChain"; return name; };
 

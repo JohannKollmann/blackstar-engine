@@ -160,6 +160,9 @@ namespace Ice
 			std::vector<Ogre::String> choices;
 			unsigned int selection;
 
+			Enum() {}
+			Enum(const Ogre::String& str) { fromString(str); }
+
 			friend DllExport std::ostream& operator<<(std::ostream& o, const Enum &e)
 			{
 				o << e.toString();

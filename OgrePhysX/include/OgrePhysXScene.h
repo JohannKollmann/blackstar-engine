@@ -67,7 +67,7 @@ namespace OgrePhysX
 
 		std::vector<RenderableBinding*> mOgrePhysXBindings;
 
-		std::vector<FTLParticleChain*> mParticleChains;
+		std::vector<ParticleChain*> mParticleChains;
 
 		SimulationListener *mSimulationListener;
 
@@ -153,21 +153,28 @@ namespace OgrePhysX
 		*/
 		Ragdoll* createRagdollBinding(Ogre::Entity *entity, Ogre::SceneNode *node);
 
-		FTLParticleChain* createFTLParticleChain(const Ogre::Vector3 &from, const Ogre::Vector3 &to, int numParticles)
+		ParticleChain* createFTLParticleChain(const Ogre::Vector3 &from, const Ogre::Vector3 &to, int numParticles)
 		{
-			FTLParticleChain *chain = new FTLParticleChain(from, to, numParticles, this);
+			ParticleChain *chain = new FTLParticleChain(from, to, numParticles, this);
 			mParticleChains.push_back(chain);
 			return chain;
 		}
 
-		FTLParticleChainDebugVisual* createFTLParticleChainDebugVisual(FTLParticleChain *particleChain)
+		ParticleChain* createSpringParticleChain(const Ogre::Vector3 &from, const Ogre::Vector3 &to, int numParticles)
 		{
-			FTLParticleChainDebugVisual *visual = new FTLParticleChainDebugVisual(particleChain, mOgreSceneMgr);
+			ParticleChain *chain = new SpringParticleChain(from, to, numParticles, this);
+			mParticleChains.push_back(chain);
+			return chain;
+		}
+
+		ParticleChainDebugVisual* createParticleChainDebugVisual(ParticleChain *particleChain)
+		{
+			ParticleChainDebugVisual *visual = new ParticleChainDebugVisual(particleChain, mOgreSceneMgr);
 			mOgrePhysXBindings.push_back(visual);
 			return visual;
 		}
 
-		void destroyFTLParticleChain(FTLParticleChain *chain)
+		void destroyParticleChain(ParticleChain *chain)
 		{
 			for (auto i = mParticleChains.begin(); i != mParticleChains.end(); ++i)
 			{
