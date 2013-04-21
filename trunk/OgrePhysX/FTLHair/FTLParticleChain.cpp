@@ -40,10 +40,13 @@ namespace OgrePhysX
 		mStepCounter = 0;
 		mTimestep = 0.01f;
 		mTimestepAccu = 0.0f;
+		mChainStiffness = 0.0f;
+		mPointDamping = 0.0f;
+		mPBDPointDamping = 0.0f;
 		mWindForce = Ogre::Vector3(Ogre::Math::RangeRandom(-8.0f, 8.0f), Ogre::Math::RangeRandom(-4.0f, 4.0f), Ogre::Math::RangeRandom(-8.0f, 8.0f));
 	}
 
-	void ParticleChain::computeForces()
+	void ParticleChain::addExternalForces()
 	{
 		mStepCounter++;
 		if (mStepCounter % 50 == 0)
@@ -57,6 +60,17 @@ namespace OgrePhysX
 		for (auto i = mParticles.begin() + (mParticles.size() / 2); i != mParticles.end(); ++i)
 		{
 			//i->force += mWindForce * mParticleMass;
+		}
+	}
+
+	void ParticleChain::addChainStiffnessForces(const std::vector<Particle> &predictions, std::vector<Particle> &outParticles)
+	{
+		auto ip = predictions.begin() + 1;
+		for (auto i = outParticles.begin() + 1; i != outParticles.end() - 1; ++i)
+		{
+			Ogre::Vector3 target = projectPointOnLine(ip->position, (ip-1)->position, (ip+1)->position);
+			i->force += (target - ip->position) * mChainStiffness;
+			++ip;
 		}
 	}
 
@@ -106,7 +120,7 @@ namespace OgrePhysX
 		while (mTimestepAccu >= timeStep)
 		{
 			mTimestepAccu -= mTimestep;
-			computeForces();
+			addExternalForces();
 			simulateStep();
 		}
 	}
@@ -142,7 +156,7 @@ namespace OgrePhysX
 			succ->position += computeCollisionCorrection(succ->position + computeFTLCorrectionVector(succ));
 			Ogre::Vector3 nextCorrectionVec = computeFTLCorrectionVector(succ);
 
-			i->velocity = (i->position - oldPos - nextCorrectionVec * mPBDDamping2 - correctionVec * mPBDDamping1) / mTimestep;
+			i->velocity = (i->position - oldPos - nextCorrectionVec *  mFTLDamping - correctionVec * mPBDPointDamping) / mTimestep;
 
 			correctionVec = nextCorrectionVec;
 			oldPos = nextOldPos;
@@ -150,7 +164,7 @@ namespace OgrePhysX
 
 		// perform update for last particle
 		i->position += correctionVec;
-		i->velocity = (i->position - oldPos - correctionVec * (mPBDDamping1 + mPBDDamping2)) / mTimestep;
+		i->velocity = (i->position - oldPos - correctionVec * (mPBDPointDamping + mFTLDamping)) / mTimestep;
 	}
 
 	/*****************************************************************************************************************************
@@ -163,7 +177,8 @@ namespace OgrePhysX
 		std::vector<Particle> futureParticles = mParticles;
 		for (auto i = futureParticles.begin() + 1; i != futureParticles.end(); ++i)
 		{
-			i->velocity += (i->force / mParticleMass) * mTimestep;
+			i->velocity += i->force * mParticleMassInv * mTimestep;
+			i->velocity -= i->velocity * mPointDamping * mParticleMassInv * mTimestep;	// point damping
 			i->position += i->velocity * mTimestep;
 		}
 
@@ -176,10 +191,27 @@ namespace OgrePhysX
 				collisionConstraints.push_back(std::make_pair(&(*i), cc));
 		}
 
-		for (int iteration = 0; iteration < mIterationCount; iteration++)
+		// hack: use force component of Particle class to store correction vector for damping later
+		for (auto i = futureParticles.begin(); i != futureParticles.end(); ++i)
+			i->force = Ogre::Vector3(0, 0, 0);
+
+		int numIterations = mIterationCount;	//std::min<int>(mIterationCount + collisionConstraints.size(), 10);
+		for (int iteration = 0; iteration < numIterations; iteration++)
 		{
+			// collision constraints
+			for (auto ic = collisionConstraints.begin(); ic != collisionConstraints.end(); ++ic)
+			{
+				float penalty = (ic->second.closestSurfacePoint - ic->first->position).dotProduct(ic->second.normal);
+				if (penalty > 0)
+				{
+					ic->first->position += penalty * ic->second.normal;
+					ic->first->force += penalty * ic->second.normal;
+				}
+			}
+
 			auto i = futureParticles.begin() + 1;
 			Ogre::Vector3 correction = computeFTLCorrectionVector(i) * mOverRelaxation;
+			i->force += correction;
 			i->position += correction;
 
 			for (i = futureParticles.begin() + 2; i != futureParticles.end(); ++i)
@@ -187,20 +219,38 @@ namespace OgrePhysX
 				correction = computeFTLCorrectionVector(i) * 0.5f * mOverRelaxation;
 				(i-1)->position -= correction;
 				i->position += correction;
+				(i-1)->force -= correction;
+				i->force += correction;
 			}
 
-			// collision constraints
-			for (auto i = collisionConstraints.begin(); i != collisionConstraints.end(); ++i)
+			// chain stiffness
+			for (i = futureParticles.begin() + 1; i != futureParticles.end() - 1; ++i)
 			{
-				correction = (i->second.closestSurfacePoint - i->first->position).dotProduct(i->second.normal) * i->second.normal;
-				i->first->position += correction;
+				Ogre::Vector3 target = projectPointOnLine(i->position, (i-1)->position, (i+1)->position);
+				Ogre::Vector3 correction = (target - i->position) * mChainStiffness;
+				i->position += correction;
+				i->force += correction;
 			}
 		}
 
 		auto ifu = futureParticles.begin() + 1;
 		for (auto i = mParticles.begin() + 1; i != mParticles.end(); ++i)
 		{
-			i->velocity = (ifu->position - i->position) / mTimestep;
+			i->velocity = (ifu->position - i->position - ifu->force * mPBDPointDamping) / mTimestep;
+			i->position = ifu->position;
+			++ifu;
+		}
+
+		// finally solve collision constraints one more but without updating velocity
+		for (auto ic = collisionConstraints.begin(); ic != collisionConstraints.end(); ++ic)
+		{
+			float penalty = (ic->second.closestSurfacePoint - ic->first->position).dotProduct(ic->second.normal);
+			if (penalty > 0)
+				ic->first->position += penalty * ic->second.normal;
+		}
+		ifu = futureParticles.begin() + 1;
+		for (auto i = mParticles.begin() + 1; i != mParticles.end(); ++i)
+		{
 			i->position = ifu->position;
 			++ifu;
 		}
@@ -252,19 +302,13 @@ namespace OgrePhysX
 			++ip;
 		}
 
-		ip = predictedParticles.begin() + 1;
-		for (auto i = mParticles.begin() + 1; i != mParticles.end() - 1; ++i)
-		{
-			Ogre::Vector3 target = projectPointOnLine(ip->position, (ip-1)->position, (ip+1)->position);
-			i->force += (target - ip->position) * mSpringStiffness2;
-			++ip;
-		}
+		addChainStiffnessForces(predictedParticles, mParticles);
 
 		// point damping
 		ip = predictedParticles.begin() + 1;
 		for (auto i = mParticles.begin() + 1; i != mParticles.end(); ++i)
 		{
-			i->force -= ip->velocity * 0.02f;
+			i->force -= ip->velocity * mPointDamping;
 			++ip;
 		}
 

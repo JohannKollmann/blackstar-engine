@@ -249,11 +249,12 @@ namespace Ice
 		int mNumParticles;
 		float mChainLength;
 		float mParticleMass;
-		float mPBDDamping1;
-		float mPBDDamping2;
+		float mPointDamping;
+		float mPBDPointDamping;
+		float mFTLDamping;
 		float mSpringDamping;
 		float mSpringStiffness;
-		float mSpringStiffness2;
+		float mChainStiffness;
 		int mIterationCount;
 		float mOverRelaxation;
 		void _create();
@@ -269,14 +270,15 @@ namespace Ice
 		void UpdatePosition(const Ogre::Vector3 &position);
 
 		BEGIN_GOCEDITORINTERFACE(GOCParticleChain, "ParticleChain")
-			PROPERTY_INT(mNumParticles, "Num particles", 50);
-			PROPERTY_FLOAT(mChainLength, "Chain length", 1.0f);
+			PROPERTY_INT(mNumParticles, "Num particles", 30);
+			PROPERTY_FLOAT(mChainLength, "Chain length", 2.0f);
 			PROPERTY_FLOAT(mParticleMass, "Particle mass", 0.01f);
-			PROPERTY_FLOAT(mPBDDamping1, "PBD damping 1", 0.0f);
-			PROPERTY_FLOAT(mPBDDamping2, "PBD damping 2", 0.95f);
-			PROPERTY_FLOAT(mSpringDamping, "Spring damping", 0.5f);
-			PROPERTY_FLOAT(mSpringStiffness, "Spring stiffness 1", 100.0f);
-			PROPERTY_FLOAT(mSpringStiffness2, "Spring stiffness 2", 10.0f);
+			PROPERTY_FLOAT(mPointDamping, "Point damping", 0.02f);
+			PROPERTY_FLOAT(mPBDPointDamping, "PBD point damping", 0.0f);
+			PROPERTY_FLOAT(mFTLDamping, "FTL damping", 0.9f);
+			PROPERTY_FLOAT(mSpringDamping, "Spring damping", 0.4f);
+			PROPERTY_FLOAT(mSpringStiffness, "Spring stiffness 1", 300.0f);
+			PROPERTY_FLOAT(mChainStiffness, "Chain stiffness", 0.0f);
 			PROPERTY_INT(mIterationCount, "Iteration Count", 4);
 			PROPERTY_FLOAT(mOverRelaxation, "Over relaxation", 1.6f);
 			PROPERTY_ENUM(mSimulationMethod, "Simulation method", DataMap::Enum("0 FTL Springs PBD "));

@@ -562,7 +562,6 @@ namespace Ice
 		{
 			mParticleChain = Main::Instance().GetPhysXScene()->createSpringParticleChain(mOwnerGO.lock()->GetGlobalPosition(), mOwnerGO.lock()->GetGlobalPosition() + Ogre::Vector3(0, -1, 0) * mChainLength, mNumParticles);
 			((OgrePhysX::SpringParticleChain*)mParticleChain)->setSpringStiffness(mSpringStiffness);
-			((OgrePhysX::SpringParticleChain*)mParticleChain)->setSpringStiffness2(mSpringStiffness2);
 			((OgrePhysX::SpringParticleChain*)mParticleChain)->setSpringDamping(mSpringDamping);
 		}
 		else if (mSimulationMethod.selection == 2)
@@ -574,9 +573,12 @@ namespace Ice
 		else
 		{
 			mParticleChain = Main::Instance().GetPhysXScene()->createFTLParticleChain(mOwnerGO.lock()->GetGlobalPosition(), mOwnerGO.lock()->GetGlobalPosition() + Ogre::Vector3(0, -1, 0) * mChainLength, mNumParticles);
-			((OgrePhysX::FTLParticleChain*)mParticleChain)->setPBDDamping(mPBDDamping1, mPBDDamping2);
+			((OgrePhysX::FTLParticleChain*)mParticleChain)->setFTLDamping(mFTLDamping);
 		}
 		mParticleChain->setParticleMass(mParticleMass);
+		mParticleChain->setChainStiffness(mChainStiffness);
+		mParticleChain->setPointDamping(mPointDamping);
+		mParticleChain->setPBDPointDamping(mPBDPointDamping);
 
 		mDebugVisual = Main::Instance().GetPhysXScene()->createParticleChainDebugVisual(mParticleChain);
 		auto ents = mDebugVisual->getNodesAndEntities();

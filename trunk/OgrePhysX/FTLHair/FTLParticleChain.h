@@ -24,6 +24,11 @@ namespace OgrePhysX
 		float mParticleMass;
 		float mParticleMassInv;
 
+		float mChainStiffness;
+
+		float mPBDPointDamping;
+		float mPointDamping;
+
 		float mTimestep;
 		float mTimestepAccu;
 
@@ -45,6 +50,9 @@ namespace OgrePhysX
 
 		Ogre::Vector3 computeCollisionCorrection(const Ogre::Vector3 &position);
 
+		void addExternalForces();
+		void addChainStiffnessForces(const std::vector<Particle> &predictions, std::vector<Particle> &outParticles);
+
 	public:
 		/**
 		@param from Position of the first (leader) particle.
@@ -56,7 +64,11 @@ namespace OgrePhysX
 
 		void setParticleMass(float mass) { mParticleMass = mass; mParticleMassInv = 1.0f / mParticleMass; }
 
-		void computeForces();
+		void setChainStiffness(float chainStiffness) { mChainStiffness = chainStiffness; }
+
+		void setPointDamping(float pointDamping) { mPointDamping = pointDamping; }
+
+		void setPBDPointDamping(float pbdPointDamping) { mPBDPointDamping = pbdPointDamping; }
 
 		/// Performs a simulation step.
 		void simulate(float timeStep);
@@ -73,15 +85,15 @@ namespace OgrePhysX
 	class OgrePhysXClass FTLParticleChain : public ParticleChain
 	{
 	private:
-		float mPBDDamping1;
-		float mPBDDamping2;
+		float mFTLDamping;
+
 	protected:
 		void simulateStep();
 
 	public:
-		FTLParticleChain(const Ogre::Vector3 &from, const Ogre::Vector3 &to, int numParticles, Scene *scene) : ParticleChain(from, to, numParticles, scene) { setPBDDamping(0.0f, 0.9f); }
+		FTLParticleChain(const Ogre::Vector3 &from, const Ogre::Vector3 &to, int numParticles, Scene *scene) : ParticleChain(from, to, numParticles, scene), mFTLDamping(0.9f) {}
 		~FTLParticleChain() {}
-		void setPBDDamping(float pbdDamping1, float pbdDamping2 = 0.95f) { mPBDDamping1 = pbdDamping1; mPBDDamping2 = pbdDamping2; }
+		void setFTLDamping(float ftlDamping) {  mFTLDamping = ftlDamping; }
 	};
 
 	class OgrePhysXClass PBDParticleChain : public ParticleChain
@@ -112,19 +124,17 @@ namespace OgrePhysX
 	private:
 		float mSpringDamping;
 		float mSpringStiffness;
-		float mSpringStiffness2;
 
 	protected:
 		float getParticleMass(const std::vector<Particle>::iterator &particleIter);
 		void simulateStep();
 
 	public:
-		SpringParticleChain(const Ogre::Vector3 &from, const Ogre::Vector3 &to, int numParticles, Scene *scene) : ParticleChain(from, to, numParticles, scene), mSpringDamping(0.5f), mSpringStiffness(100.0f), mSpringStiffness2(10.0f) {}
+		SpringParticleChain(const Ogre::Vector3 &from, const Ogre::Vector3 &to, int numParticles, Scene *scene) : ParticleChain(from, to, numParticles, scene), mSpringDamping(0.5f), mSpringStiffness(100.0f) {}
 		~SpringParticleChain() {}
 
 		void setSpringDamping(float damping) { mSpringDamping = damping; }
 		void setSpringStiffness(float stiffness) { mSpringStiffness = stiffness; }
-		void setSpringStiffness2(float stiffness) { mSpringStiffness2 = stiffness; }
 
 		void performDistanceProjection(Particle &particle1, Particle &particle2);
 	};
