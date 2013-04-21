@@ -561,8 +561,15 @@ namespace Ice
 		if (mSimulationMethod.selection == 1)
 		{
 			mParticleChain = Main::Instance().GetPhysXScene()->createSpringParticleChain(mOwnerGO.lock()->GetGlobalPosition(), mOwnerGO.lock()->GetGlobalPosition() + Ogre::Vector3(0, -1, 0) * mChainLength, mNumParticles);
-			((OgrePhysX::SpringParticleChain*)mParticleChain)->setSpringStiffness(mPBDDamping1);
-			((OgrePhysX::SpringParticleChain*)mParticleChain)->setSpringDamping(mPBDDamping2);
+			((OgrePhysX::SpringParticleChain*)mParticleChain)->setSpringStiffness(mSpringStiffness);
+			((OgrePhysX::SpringParticleChain*)mParticleChain)->setSpringStiffness2(mSpringStiffness2);
+			((OgrePhysX::SpringParticleChain*)mParticleChain)->setSpringDamping(mSpringDamping);
+		}
+		else if (mSimulationMethod.selection == 2)
+		{
+			mParticleChain = Main::Instance().GetPhysXScene()->createPBDParticleChain(mOwnerGO.lock()->GetGlobalPosition(), mOwnerGO.lock()->GetGlobalPosition() + Ogre::Vector3(0, -1, 0) * mChainLength, mNumParticles);
+			((OgrePhysX::PBDParticleChain*)mParticleChain)->setIterationCount(mIterationCount);
+			((OgrePhysX::PBDParticleChain*)mParticleChain)->setOverRelaxation(mOverRelaxation);
 		}
 		else
 		{

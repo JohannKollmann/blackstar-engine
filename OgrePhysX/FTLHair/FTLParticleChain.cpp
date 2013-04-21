@@ -51,17 +51,16 @@ namespace OgrePhysX
 
 		for (auto i = mParticles.begin() + 1; i != mParticles.end(); ++i)
 		{
-			i->force = Ogre::Vector3(0, -9.81f * mParticleMass, 0);
+			i->force = Ogre::Vector3(0, -9.81f * getParticleMass(i), 0);
 		}
 
 		for (auto i = mParticles.begin() + (mParticles.size() / 2); i != mParticles.end(); ++i)
 		{
 			//i->force += mWindForce * mParticleMass;
 		}
-
 	}
 
-	Ogre::Vector3 ParticleChain::computeCollisionCorrection(const Ogre::Vector3 &position)
+	bool ParticleChain::checkPenetration(const Ogre::Vector3 &position, Ogre::Vector3 &closestSurfacePos, Ogre::Vector3 &collisionNormal)
 	{
 		PxShape *hit = nullptr;
 		PxVec3 pxPos = Convert::toPx(position);
@@ -71,22 +70,33 @@ namespace OgrePhysX
 			PxVec3 rayDir = actorCenter - pxPos;
 			rayDir.normalize();
 			PxVec3 rayOrigin = pxPos - rayDir.multiply(PxVec3(0.2f, 0.2f, 0.2f));
-			if (mPhysXScene->getPxScene()->overlapAny(PxSphereGeometry(0.05f), PxTransform(rayOrigin), hit)) return Ogre::Vector3(0, 0, 0);
+			if (mPhysXScene->getPxScene()->overlapAny(PxSphereGeometry(0.05f), PxTransform(rayOrigin), hit)) return false;
 			PxRaycastHit rayHit;
 			if (mPhysXScene->getPxScene()->raycastSingle(rayOrigin, rayDir,  0.2f, PxSceneQueryFlag::eIMPACT|PxSceneQueryFlag::eNORMAL|PxSceneQueryFlag::eDISTANCE, rayHit))
 			{
-				float penetrationDepth = (pxPos - rayHit.impact).normalize() * 5.0f;
-				//if (penetrationDepth <= 0.01f) return Ogre::Vector3(0, 0, 0);
-				//Ogre::Vector3 collisionCorrection = Convert::toOgre(rayHit.normal) * penetrationDepth;
-				Ogre::Vector3 collisionCorrection = Convert::toOgre(-rayDir) * penetrationDepth;
-				return collisionCorrection;
+				closestSurfacePos = Convert::toOgre(rayHit.impact);
+				collisionNormal = Convert::toOgre(rayHit.normal);
+				return true;
 			}
+		}
+		return false;
+	}
+
+	Ogre::Vector3 ParticleChain::computeCollisionCorrection(const Ogre::Vector3 &position)
+	{
+		Ogre::Vector3 closestSurfacePos, collisionNormal;
+		if (checkPenetration(position, closestSurfacePos, collisionNormal))
+		{
+			float penetrationDepth = (position - closestSurfacePos).normalise();
+			Ogre::Vector3 collisionCorrection = collisionNormal * penetrationDepth;
+			return collisionCorrection;
 		}
 		return Ogre::Vector3(0, 0, 0);
 	}
 
 	void ParticleChain::setPosition(const Ogre::Vector3 &position)
 	{
+		mParticles.front().velocity = (position - mParticles.front().position) / (0.1f);
 		mParticles.front().position = position;
 	}
 
@@ -101,12 +111,7 @@ namespace OgrePhysX
 		}
 	}
 
-
-	/*****************************************************************************************************************************
-	************************************************************ FTL *************************************************************
-	******************************************************************************************************************************/
-
-	Ogre::Vector3 FTLParticleChain::computeCorrectionVector(const std::vector<Particle>::iterator &particleIter)
+	Ogre::Vector3 ParticleChain::computeFTLCorrectionVector(const std::vector<Particle>::iterator &particleIter)
 	{
 		Particle &leader = *(particleIter-1);
 		Ogre::Vector3 distVec = particleIter->position - leader.position;
@@ -114,16 +119,18 @@ namespace OgrePhysX
 		return distVec * (mParticleDist - dist);
 	}
 
+	/*****************************************************************************************************************************
+	************************************************************ FTL *************************************************************
+	******************************************************************************************************************************/
+
 	void FTLParticleChain::simulateStep()
 	{
-		mParticles.front().position += mParticles.front().velocity * mTimestep;
-
 		auto i = mParticles.begin()+1;
 		Ogre::Vector3 oldPos(i->position);
 		i->velocity += i->force * mTimestep * mParticleMassInv;
 		i->position += i->velocity * mTimestep;
-		i->position += computeCollisionCorrection(i->position + computeCorrectionVector(i));
-		Ogre::Vector3 correctionVec = computeCorrectionVector(i);
+		i->position += computeCollisionCorrection(i->position + computeFTLCorrectionVector(i));
+		Ogre::Vector3 correctionVec = computeFTLCorrectionVector(i);
 		for (; i != mParticles.end()-1; ++i)
 		{
 			i->position += correctionVec;
@@ -132,8 +139,8 @@ namespace OgrePhysX
 			Ogre::Vector3 nextOldPos(succ->position);
 			succ->velocity += succ->force * mTimestep * mParticleMassInv;
 			succ->position += succ->velocity * mTimestep;
-			succ->position += computeCollisionCorrection(succ->position + computeCorrectionVector(succ));
-			Ogre::Vector3 nextCorrectionVec = computeCorrectionVector(succ);
+			succ->position += computeCollisionCorrection(succ->position + computeFTLCorrectionVector(succ));
+			Ogre::Vector3 nextCorrectionVec = computeFTLCorrectionVector(succ);
 
 			i->velocity = (i->position - oldPos - nextCorrectionVec * mPBDDamping2 - correctionVec * mPBDDamping1) / mTimestep;
 
@@ -147,28 +154,86 @@ namespace OgrePhysX
 	}
 
 	/*****************************************************************************************************************************
+	************************************************************ PBD *************************************************************
+	******************************************************************************************************************************/
+
+	// this implementation follows closely the method proposed here: http://www.matthiasmueller.info/publications/posBasedDyn.pdf
+	void PBDParticleChain::simulateStep()
+	{
+		std::vector<Particle> futureParticles = mParticles;
+		for (auto i = futureParticles.begin() + 1; i != futureParticles.end(); ++i)
+		{
+			i->velocity += (i->force / mParticleMass) * mTimestep;
+			i->position += i->velocity * mTimestep;
+		}
+
+		// generate collision constraints
+		std::vector<std::pair<Particle*, CollisionConstraint> > collisionConstraints;
+		for (auto i = futureParticles.begin() + 1; i != futureParticles.end(); ++i)
+		{
+			CollisionConstraint cc;
+			if (checkPenetration(i->position, cc.closestSurfacePoint, cc.normal))
+				collisionConstraints.push_back(std::make_pair(&(*i), cc));
+		}
+
+		for (int iteration = 0; iteration < mIterationCount; iteration++)
+		{
+			auto i = futureParticles.begin() + 1;
+			Ogre::Vector3 correction = computeFTLCorrectionVector(i) * mOverRelaxation;
+			i->position += correction;
+
+			for (i = futureParticles.begin() + 2; i != futureParticles.end(); ++i)
+			{
+				correction = computeFTLCorrectionVector(i) * 0.5f * mOverRelaxation;
+				(i-1)->position -= correction;
+				i->position += correction;
+			}
+
+			// collision constraints
+			for (auto i = collisionConstraints.begin(); i != collisionConstraints.end(); ++i)
+			{
+				correction = (i->second.closestSurfacePoint - i->first->position).dotProduct(i->second.normal) * i->second.normal;
+				i->first->position += correction;
+			}
+		}
+
+		auto ifu = futureParticles.begin() + 1;
+		for (auto i = mParticles.begin() + 1; i != mParticles.end(); ++i)
+		{
+			i->velocity = (ifu->position - i->position) / mTimestep;
+			i->position = ifu->position;
+			++ifu;
+		}
+	}
+
+	/*****************************************************************************************************************************
 	********************************************************** Springs ***********************************************************
 	******************************************************************************************************************************/
+	float SpringParticleChain::getParticleMass(const std::vector<Particle>::iterator &particleIter)
+	{
+		return mParticleMass + std::distance(particleIter, mParticles.end()) * mParticleMass * 0.2f;
+	}
 
 	void SpringParticleChain::simulateStep()
 	{
 		std::vector<Particle> predictedParticles = mParticles;
+		std::vector<Ogre::Vector3> postDampings;
+		postDampings.resize(mParticles.size());
 
 		// first pass: predict positions and velocities without damping
 		for (auto ip = predictedParticles.begin() + 1; ip != predictedParticles.end(); ++ip)
 		{
-			auto pred = ip - 1;
-			Ogre::Vector3 distVec = ip->position - pred->position;
+			Ogre::Vector3 distVec = ip->position - (ip-1)->position;
 			float dist = distVec.normalise();
 			Ogre::Vector3 springForce = distVec * (mParticleDist - dist) * mSpringStiffness;
 			ip->force += springForce;
-			pred->force -= springForce;
+			(ip-1)->force -= springForce;
 		}
 		auto i = mParticles.begin() + 1;
 		for (auto ip = predictedParticles.begin() + 1; ip != predictedParticles.end(); ++ip)
 		{
 			i->force = ip->force;
-			ip->velocity += (ip->force / mParticleMass) * mTimestep;
+			ip->velocity += (ip->force / getParticleMass(i)) * mTimestep;
 			ip->position += ip->velocity * mTimestep;
 			++i;
 		}
@@ -177,19 +242,35 @@ namespace OgrePhysX
 		auto ip = predictedParticles.begin() + 1;
 		for (auto i = mParticles.begin() + 1; i != mParticles.end(); ++i)
 		{
-			auto pred = ip - 1;
-			Ogre::Vector3 distVec = ip->position - pred->position;
+			Ogre::Vector3 distVec = ip->position - (ip-1)->position;
 			float dist = distVec.normalise();
-
-			float projectedDamping = ip->velocity.dotProduct(distVec) - pred->velocity.dotProduct(distVec);
-			i->force -= projectedDamping * mSpringDamping * distVec;
-			pred->force += projectedDamping * mSpringDamping * distVec;
+			float projectedDamping = ip->velocity.dotProduct(distVec) - (ip-1)->velocity.dotProduct(distVec);
+			Ogre::Vector3 dampingForce = projectedDamping * mSpringDamping * distVec;
+			i->force -= dampingForce;
+			(i-1)->force += dampingForce;
 
 			++ip;
 		}
+
+		ip = predictedParticles.begin() + 1;
+		for (auto i = mParticles.begin() + 1; i != mParticles.end() - 1; ++i)
+		{
+			Ogre::Vector3 target = projectPointOnLine(ip->position, (ip-1)->position, (ip+1)->position);
+			i->force += (target - ip->position) * mSpringStiffness2;
+			++ip;
+		}
+
+		// point damping
+		ip = predictedParticles.begin() + 1;
 		for (auto i = mParticles.begin() + 1; i != mParticles.end(); ++i)
 		{
-			i->velocity += (i->force / mParticleMass) * mTimestep;
+			i->force -= ip->velocity * 0.02f;
+			++ip;
+		}
+
+		for (auto i = mParticles.begin() + 1; i != mParticles.end(); ++i)
+		{
+			i->velocity += (i->force / getParticleMass(i)) * mTimestep;
 			i->position += i->velocity * mTimestep;
 		}
 
