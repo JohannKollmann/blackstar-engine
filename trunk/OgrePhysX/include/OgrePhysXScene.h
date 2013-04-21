@@ -160,6 +160,13 @@ namespace OgrePhysX
 			return chain;
 		}
 
+		ParticleChain* createPBDParticleChain(const Ogre::Vector3 &from, const Ogre::Vector3 &to, int numParticles)
+		{
+			ParticleChain *chain = new PBDParticleChain(from, to, numParticles, this);
+			mParticleChains.push_back(chain);
+			return chain;
+		}
+
 		ParticleChain* createSpringParticleChain(const Ogre::Vector3 &from, const Ogre::Vector3 &to, int numParticles)
 		{
 			ParticleChain *chain = new SpringParticleChain(from, to, numParticles, this);
