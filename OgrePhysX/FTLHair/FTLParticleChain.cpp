@@ -102,8 +102,8 @@ namespace OgrePhysX
 		if (checkPenetration(position, closestSurfacePos, collisionNormal))
 		{
 			float penetrationDepth = (position - closestSurfacePos).normalise();
-			Ogre::Vector3 collisionCorrection = collisionNormal * penetrationDepth;
-			return collisionCorrection;
+			if (penetrationDepth > 0)
+				return collisionNormal * penetrationDepth;
 		}
 		return Ogre::Vector3(0, 0, 0);
 	}
@@ -143,28 +143,39 @@ namespace OgrePhysX
 		Ogre::Vector3 oldPos(i->position);
 		i->velocity += i->force * mTimestep * mParticleMassInv;
 		i->position += i->velocity * mTimestep;
-		i->position += computeCollisionCorrection(i->position + computeFTLCorrectionVector(i));
 		Ogre::Vector3 correctionVec = computeFTLCorrectionVector(i);
+		Ogre::Vector3 collisionCorrection = computeCollisionCorrection(i->position + correctionVec);
+		i->position += collisionCorrection;
+		float fullPDBDamping = mPBDPointDamping + mFTLDamping;
 		for (; i != mParticles.end()-1; ++i)
 		{
-			i->position += correctionVec;
+			// recompute FTL correction, considering the previously added collision response
+			i->position += computeFTLCorrectionVector(i);	//correctionVec;
 
 			auto succ = i + 1;
 			Ogre::Vector3 nextOldPos(succ->position);
 			succ->velocity += succ->force * mTimestep * mParticleMassInv;
 			succ->position += succ->velocity * mTimestep;
-			succ->position += computeCollisionCorrection(succ->position + computeFTLCorrectionVector(succ));
-			Ogre::Vector3 nextCorrectionVec = computeFTLCorrectionVector(succ);
 
-			i->velocity = (i->position - oldPos - nextCorrectionVec *  mFTLDamping - correctionVec * mPBDPointDamping) / mTimestep;
+			// this seems give the most stable results:
+			// 1. compute FTL correction vector without considering collision, use this for damping
+			// 2. add collision response
+			// 3. recompute FTL correction and add it (see above)
+			Ogre::Vector3 nextCorrectionVec = computeFTLCorrectionVector(succ);
+			Ogre::Vector3 nextCollisionCorrection = computeCollisionCorrection(succ->position + nextCorrectionVec);
+			succ->position += nextCollisionCorrection;
+
+			i->velocity = (i->position - oldPos - nextCorrectionVec * mFTLDamping - correctionVec * mPBDPointDamping - collisionCorrection * mPBDPointDamping) / mTimestep;
+			//i->position += computeCollisionCorrection(i->position);
 
 			correctionVec = nextCorrectionVec;
 			oldPos = nextOldPos;
+			collisionCorrection = nextCollisionCorrection;
 		}
 
 		// perform update for last particle
 		i->position += correctionVec;
-		i->velocity = (i->position - oldPos - correctionVec * (mPBDPointDamping + mFTLDamping)) / mTimestep;
+		i->velocity = (i->position - oldPos - correctionVec * fullPDBDamping - collisionCorrection * mPBDPointDamping) / mTimestep;
 	}
 
 	/*****************************************************************************************************************************
@@ -195,20 +206,21 @@ namespace OgrePhysX
 		for (auto i = futureParticles.begin(); i != futureParticles.end(); ++i)
 			i->force = Ogre::Vector3(0, 0, 0);
 
+		// collision constraints
+		// maybe it is necessary to put this inside the iterative solver, but so far it seems to work this way
+		for (auto ic = collisionConstraints.begin(); ic != collisionConstraints.end(); ++ic)
+		{
+			float penalty = (ic->second.closestSurfacePoint - ic->first->position).dotProduct(ic->second.normal);
+			if (penalty > 0)
+			{
+				ic->first->position += penalty * ic->second.normal;
+					ic->first->force += penalty * ic->second.normal;
+			}
+		}
+
 		int numIterations = mIterationCount;	//std::min<int>(mIterationCount + collisionConstraints.size(), 10);
 		for (int iteration = 0; iteration < numIterations; iteration++)
 		{
-			// collision constraints
-			for (auto ic = collisionConstraints.begin(); ic != collisionConstraints.end(); ++ic)
-			{
-				float penalty = (ic->second.closestSurfacePoint - ic->first->position).dotProduct(ic->second.normal);
-				if (penalty > 0)
-				{
-					ic->first->position += penalty * ic->second.normal;
-					ic->first->force += penalty * ic->second.normal;
-				}
-			}
-
 			auto i = futureParticles.begin() + 1;
 			Ogre::Vector3 correction = computeFTLCorrectionVector(i) * mOverRelaxation;
 			i->force += correction;
