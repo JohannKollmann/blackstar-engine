@@ -17,6 +17,12 @@ namespace OgrePhysX
 			Ogre::Vector3 position;
 		};
 
+		struct CollisionConstraint
+		{
+			Ogre::Vector3 closestSurfacePoint;
+			Ogre::Vector3 normal;
+		};
+
 		std::vector<Particle> mParticles;
 
 		float mParticleDist;	// distance between two particles in the chain
@@ -28,6 +34,8 @@ namespace OgrePhysX
 
 		float mPBDPointDamping;
 		float mPointDamping;
+
+		float mFriction;
 
 		float mTimestep;
 		float mTimestepAccu;
@@ -48,10 +56,12 @@ namespace OgrePhysX
 
 		bool checkPenetration(const Ogre::Vector3 &position, Ogre::Vector3 &closestSurfacePos, Ogre::Vector3 &collisionNormal);
 
-		Ogre::Vector3 computeCollisionCorrection(const Ogre::Vector3 &position);
+		Ogre::Vector3 computeCollisionCorrection(const Ogre::Vector3 &position, const CollisionConstraint &cc);
 
 		void addExternalForces();
 		void addChainStiffnessForces(const std::vector<Particle> &predictions, std::vector<Particle> &outParticles);
+
+		Ogre::Vector3 computeFrictionDamping(const Ogre::Vector3 &normal, const Ogre::Vector3 &velocity);
 
 	public:
 		/**
@@ -69,6 +79,8 @@ namespace OgrePhysX
 		void setPointDamping(float pointDamping) { mPointDamping = pointDamping; }
 
 		void setPBDPointDamping(float pbdPointDamping) { mPBDPointDamping = pbdPointDamping; }
+
+		void setFriction(float friction) { mFriction = friction; }
 
 		/// Performs a simulation step.
 		void simulate(float timeStep);
@@ -101,12 +113,6 @@ namespace OgrePhysX
 	private:
 		int mIterationCount;
 		float mOverRelaxation;
-
-		struct CollisionConstraint
-		{
-			Ogre::Vector3 closestSurfacePoint;
-			Ogre::Vector3 normal;
-		};
 
 	protected:
 		void simulateStep();

@@ -257,6 +257,7 @@ namespace Ice
 		float mChainStiffness;
 		int mIterationCount;
 		float mOverRelaxation;
+		float mFriction;
 		void _create();
 		void _clear();
 		DataMap::Enum mSimulationMethod;
@@ -281,6 +282,7 @@ namespace Ice
 			PROPERTY_FLOAT(mChainStiffness, "Chain stiffness", 0.0f);
 			PROPERTY_INT(mIterationCount, "Iteration Count", 4);
 			PROPERTY_FLOAT(mOverRelaxation, "Over relaxation", 1.6f);
+			PROPERTY_FLOAT(mFriction, "Friction", 0.2f);
 			PROPERTY_ENUM(mSimulationMethod, "Simulation method", DataMap::Enum("0 FTL Springs PBD "));
 		END_GOCEDITORINTERFACE
 		Ogre::String& GetComponentID() const { static Ogre::String name = "ParticleChain"; return name; };

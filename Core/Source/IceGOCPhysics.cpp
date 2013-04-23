@@ -579,6 +579,7 @@ namespace Ice
 		mParticleChain->setChainStiffness(mChainStiffness);
 		mParticleChain->setPointDamping(mPointDamping);
 		mParticleChain->setPBDPointDamping(mPBDPointDamping);
+		mParticleChain->setFriction(mFriction);
 
 		mDebugVisual = Main::Instance().GetPhysXScene()->createParticleChainDebugVisual(mParticleChain);
 		auto ents = mDebugVisual->getNodesAndEntities();
