@@ -43,6 +43,7 @@ namespace OgrePhysX
 		mChainStiffness = 0.0f;
 		mPointDamping = 0.0f;
 		mPBDPointDamping = 0.0f;
+		mFriction = 0.2f;
 		mWindForce = Ogre::Vector3(Ogre::Math::RangeRandom(-8.0f, 8.0f), Ogre::Math::RangeRandom(-4.0f, 4.0f), Ogre::Math::RangeRandom(-8.0f, 8.0f));
 	}
 
@@ -96,15 +97,11 @@ namespace OgrePhysX
 		return false;
 	}
 
-	Ogre::Vector3 ParticleChain::computeCollisionCorrection(const Ogre::Vector3 &position)
+	Ogre::Vector3 ParticleChain::computeCollisionCorrection(const Ogre::Vector3 &position, const CollisionConstraint &cc)
 	{
-		Ogre::Vector3 closestSurfacePos, collisionNormal;
-		if (checkPenetration(position, closestSurfacePos, collisionNormal))
-		{
-			float penetrationDepth = (position - closestSurfacePos).normalise();
-			if (penetrationDepth > 0)
-				return collisionNormal * penetrationDepth;
-		}
+		float penalty = (cc.closestSurfacePoint - position).dotProduct(cc.normal);
+		if (penalty > 0)
+			return penalty * cc.normal;
 		return Ogre::Vector3(0, 0, 0);
 	}
 
@@ -133,20 +130,36 @@ namespace OgrePhysX
 		return distVec * (mParticleDist - dist);
 	}
 
+	Ogre::Vector3 ParticleChain::computeFrictionDamping(const Ogre::Vector3 &normal, const Ogre::Vector3 &velocity)
+	{
+		int minAxis = 0;
+		if (normal.y*normal.y < normal.x*normal.x) minAxis = 1;
+		Ogre::Vector3 axis(0, 0, 0);
+		axis[minAxis] = 1;
+		Ogre::Vector3 u = normal.crossProduct(axis);
+		Ogre::Vector3 v = u.crossProduct(normal);
+		return mFriction * (velocity.dotProduct(u) * u + velocity.dotProduct(v) * v);
+	}
+
 	/*****************************************************************************************************************************
 	************************************************************ FTL *************************************************************
 	******************************************************************************************************************************/
 
 	void FTLParticleChain::simulateStep()
 	{
+		std::vector<std::pair<Particle*, CollisionConstraint> > collisionConstraints;
+
 		auto i = mParticles.begin()+1;
 		Ogre::Vector3 oldPos(i->position);
 		i->velocity += i->force * mTimestep * mParticleMassInv;
 		i->position += i->velocity * mTimestep;
 		Ogre::Vector3 correctionVec = computeFTLCorrectionVector(i);
-		Ogre::Vector3 collisionCorrection = computeCollisionCorrection(i->position + correctionVec);
-		i->position += collisionCorrection;
-		float fullPDBDamping = mPBDPointDamping + mFTLDamping;
+		CollisionConstraint cc;
+		if (checkPenetration(i->position, cc.closestSurfacePoint, cc.normal))
+		{
+			collisionConstraints.push_back(std::make_pair(&(*i), cc));
+			i->position += computeCollisionCorrection(i->position, cc);
+		}
 		for (; i != mParticles.end()-1; ++i)
 		{
 			// recompute FTL correction, considering the previously added collision response
@@ -160,22 +173,32 @@ namespace OgrePhysX
 			// this seems give the most stable results:
 			// 1. compute FTL correction vector without considering collision, use this for damping
 			// 2. add collision response
-			// 3. recompute FTL correction and add it (see above)
+			// 3. recompute FTL correction and add it (see first line after for loop statement)
 			Ogre::Vector3 nextCorrectionVec = computeFTLCorrectionVector(succ);
-			Ogre::Vector3 nextCollisionCorrection = computeCollisionCorrection(succ->position + nextCorrectionVec);
-			succ->position += nextCollisionCorrection;
 
-			i->velocity = (i->position - oldPos - nextCorrectionVec * mFTLDamping - correctionVec * mPBDPointDamping - collisionCorrection * mPBDPointDamping) / mTimestep;
-			//i->position += computeCollisionCorrection(i->position);
+			if (checkPenetration(succ->position, cc.closestSurfacePoint, cc.normal))
+			{
+				collisionConstraints.push_back(std::make_pair(&(*succ), cc));
+				succ->position += computeCollisionCorrection(succ->position, cc);
+			}
+
+			i->velocity = (i->position - oldPos - nextCorrectionVec * mFTLDamping - correctionVec * mPBDPointDamping) / mTimestep;
 
 			correctionVec = nextCorrectionVec;
 			oldPos = nextOldPos;
-			collisionCorrection = nextCollisionCorrection;
 		}
 
 		// perform update for last particle
 		i->position += correctionVec;
-		i->velocity = (i->position - oldPos - correctionVec * fullPDBDamping - collisionCorrection * mPBDPointDamping) / mTimestep;
+		i->velocity = (i->position - oldPos - correctionVec * (mPBDPointDamping + mFTLDamping)) / mTimestep;
+
+		// finally project collision constraints once more and simulate friction by damping the velocity
+		for (auto ic = collisionConstraints.begin(); ic != collisionConstraints.end(); ++ic)
+		{
+			Particle &particle = *ic->first;
+			particle.position += computeCollisionCorrection(particle.position, ic->second);
+			particle.velocity -= mTimestep * mParticleMassInv * computeFrictionDamping(ic->second.normal, particle.velocity);
+		}
 	}
 
 	/*****************************************************************************************************************************
@@ -194,12 +217,14 @@ namespace OgrePhysX
 		}
 
 		// generate collision constraints
-		std::vector<std::pair<Particle*, CollisionConstraint> > collisionConstraints;
+		std::vector<std::pair<int, CollisionConstraint> > collisionConstraints;
+		int particleIndex = 1;
 		for (auto i = futureParticles.begin() + 1; i != futureParticles.end(); ++i)
 		{
 			CollisionConstraint cc;
 			if (checkPenetration(i->position, cc.closestSurfacePoint, cc.normal))
-				collisionConstraints.push_back(std::make_pair(&(*i), cc));
+				collisionConstraints.push_back(std::make_pair(particleIndex, cc));
+			particleIndex++;
 		}
 
 		// hack: use force component of Particle class to store correction vector for damping later
@@ -210,12 +235,10 @@ namespace OgrePhysX
 		// maybe it is necessary to put this inside the iterative solver, but so far it seems to work this way
 		for (auto ic = collisionConstraints.begin(); ic != collisionConstraints.end(); ++ic)
 		{
-			float penalty = (ic->second.closestSurfacePoint - ic->first->position).dotProduct(ic->second.normal);
-			if (penalty > 0)
-			{
-				ic->first->position += penalty * ic->second.normal;
-					ic->first->force += penalty * ic->second.normal;
-			}
+			Particle &particle = futureParticles[ic->first];
+			Ogre::Vector3 collisionCorrection = computeCollisionCorrection(particle.position, ic->second);
+			particle.position += collisionCorrection;
+			particle.force += collisionCorrection;
 		}
 
 		int numIterations = mIterationCount;	//std::min<int>(mIterationCount + collisionConstraints.size(), 10);
@@ -253,18 +276,12 @@ namespace OgrePhysX
 			++ifu;
 		}
 
-		// finally solve collision constraints one more but without updating velocity
+		// finally project collision constraints once more and simulate friction by damping the velocity
 		for (auto ic = collisionConstraints.begin(); ic != collisionConstraints.end(); ++ic)
 		{
-			float penalty = (ic->second.closestSurfacePoint - ic->first->position).dotProduct(ic->second.normal);
-			if (penalty > 0)
-				ic->first->position += penalty * ic->second.normal;
-		}
-		ifu = futureParticles.begin() + 1;
-		for (auto i = mParticles.begin() + 1; i != mParticles.end(); ++i)
-		{
-			i->position = ifu->position;
-			++ifu;
+			Particle &particle = mParticles[ic->first];
+			particle.position += computeCollisionCorrection(particle.position, ic->second);
+			particle.velocity -= mTimestep * mParticleMassInv * computeFrictionDamping(ic->second.normal, particle.velocity);
 		}
 	}
 
