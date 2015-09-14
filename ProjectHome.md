@@ -1,0 +1,1 @@
+based on Ogre3D, PhysX, OpenAL, OgreOggSound, Lua, Caelum
